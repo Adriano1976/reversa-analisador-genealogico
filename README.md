@@ -106,10 +106,10 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 4. Adicione testes básicos para novas funcionalidades algorítmicas (como `find_ancestral_path` ou `find_indirect_path`) para melhorar a robustez do sistema.
 
 ## Autoria e Créditos
-Autor do Código Legado: [Sandro Azevedo](https://github.com/sssazevedo/analisador-genealogico)
-Autor do projeto Reversa: [Adriano Santos](https://github.com/Adriano1976)
-Autor do Framework Reversa: [Sandeco](https://github.com/sandeco/reversa)
-Fonte do Código Legado: [analisador-genealogico](https://github.com/sssazevedo/analisador-genealogico/tree/main)
+- Autor do Código Legado: [Sandro Azevedo](https://github.com/sssazevedo/analisador-genealogico)
+- Autor do projeto Reversa: [Adriano Santos](https://github.com/Adriano1976)
+- Autor do Framework Reversa: [Sandeco](https://github.com/sandeco/reversa)
+- Fonte do Código Legado: [analisador-genealogico](https://github.com/sssazevedo/analisador-genealogico/tree/main)
 
 ## Licença
 
