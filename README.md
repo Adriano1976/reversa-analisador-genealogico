@@ -1,110 +1,110 @@
-# analisador-genealogico (Genetic Genealogy Path Analyzer)
+# analisador-genealogico (Analisador de Caminhos em Genealogia Genética)
 
 ![Version](https://img.shields.io/badge/version-1.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.x-blue.svg)
 ![Flask](https://img.shields.io/badge/flask-app-green.svg)
 
-## Project Name and Description
+## Nome e Descrição do Projeto
 
-**analisador-genealogico** is a web application designed for genetic genealogists. Its primary purpose is to identify, calculate, and visualize genealogical connections between a root person and their DNA matches by crossing GEDCOM (`.ged`) trees with lists of DNA segments (`.csv`).
+**analisador-genealogico** é uma aplicação web desenvolvida para genealogistas genéticos. Seu objetivo principal é identificar, calcular e visualizar conexões genealógicas entre uma pessoa raiz e suas correspondências de DNA, cruzando árvores GEDCOM (`.ged`) com listas de segmentos de DNA (`.csv`).
 
-## Technology Stack
+## Stack Tecnológica
 
-The project relies on a modern Python web stack without the need for a persistent database:
+O projeto conta com uma stack web moderna em Python, sem a necessidade de um banco de dados persistente:
 
-- **Core Language:** Python 3
-- **Web Framework:** Flask
-- **Data Processing:** Pandas (CSV handling)
-- **Graph & Algorithms:** NetworkX (path finding, BFS)
-- **GEDCOM Parsing:** Ged4py
-- **Fuzzy Matching:** TheFuzz
+- **Linguagem Principal:** Python 3
+- **Framework Web:** Flask
+- **Processamento de Dados:** Pandas (manipulação de CSV)
+- **Grafos & Algoritmos:** NetworkX (busca de caminhos, BFS)
+- **Leitura de GEDCOM:** Ged4py
+- **Busca Aproximada (Fuzzy Matching):** TheFuzz
 - **Frontend & UI:** HTML5, Jinja2, Bootstrap 5, Mermaid.js, Pyvis
 
-## Project Architecture
+## Arquitetura do Projeto
 
-The system operates as a **Monolithic Web Server** with server-side rendering (SSR). It functions purely as an on-demand analysis tool:
+O sistema opera como um **Servidor Web Monolítico** com renderização do lado do servidor (SSR). Ele funciona puramente como uma ferramenta de análise sob demanda:
 
-- **State Management:** Entirely in-memory (dictionaries and `networkx` graphs). There is no persistent database. State is calculated per session/request.
-- **File Storage:** Uploaded files (`.ged` and `.csv`) are temporarily stored in an `uploads/` directory during processing.
-- **Processing Flow:** Upon receiving a `POST` request, the GEDCOM file is parsed into a graph, the DNA matches are aggregated from the CSV, and a fuzzy name matching algorithm is used to find paths to the root person.
+- **Gerenciamento de Estado:** Totalmente em memória (dicionários e grafos `networkx`). Não há banco de dados persistente. O estado é calculado por sessão/requisição.
+- **Armazenamento de Arquivos:** Os arquivos enviados (`.ged` e `.csv`) são armazenados temporariamente em um diretório `uploads/` durante o processamento.
+- **Fluxo de Processamento:** Ao receber uma requisição `POST`, o arquivo GEDCOM é processado e convertido em um grafo, as correspondências de DNA são agregadas a partir do CSV, e um algoritmo de busca de nomes por aproximação (*fuzzy matching*) é usado para encontrar caminhos até a pessoa raiz.
 
 ```mermaid
 flowchart LR
-    U["Genetic Genealogist"]
+    U["Genealogista Genético"]
     S(["analisador-genealogico"])
     C1[".ged (GEDCOM)"]:::ext
-    C2[".csv (DNA Matches)"]:::ext
+    C2[".csv (Matches de DNA)"]:::ext
 
     U -->|"upload GEDCOM + CSV"| S
-    S -->|"parsing"| C1
-    S -->|"aggregating cM"| C2
+    S -->|"parsing (análise)"| C1
+    S -->|"agregando cM"| C2
 ```
 
-## Getting Started
+## Começando (Getting Started)
 
-### Prerequisites
+### Pré-requisitos
 - Python 3.x
-- pip (Python package installer)
+- pip (gerenciador de pacotes do Python)
 
-### Installation & Setup
+### Instalação e Configuração
 
-1. Clone or navigate to the repository directory.
-2. Install the required dependencies:
+1. Clone ou navegue até o diretório do repositório.
+2. Instale as dependências necessárias:
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the Flask application:
+3. Execute a aplicação Flask:
    ```bash
    python app.py
    ```
-4. Access the web interface at `http://127.0.0.1:5000/`.
+4. Acesse a interface web em `http://127.0.0.1:5000/`.
 
-## Project Structure
+## Estrutura do Projeto
 
 ```text
 analisador-genealogico/
-├── app.py                      # Main Flask application, parsing, routing, graph logic
-├── requirements.txt            # Python dependencies
+├── app.py                      # Aplicação Flask principal, parsing, rotas, lógica de grafos
+├── requirements.txt            # Dependências do Python
 ├── static/
-│   └── graph_path_search.html  # Generated static HTML for interactive graphs (Pyvis)
+│   └── graph_path_search.html  # HTML estático gerado para grafos interativos (Pyvis)
 ├── templates/
-│   └── index.html              # Main UI template (Bootstrap 5, Mermaid.js)
-└── uploads/                    # Temporary storage for uploaded GEDCOM and CSV files
+│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
+└── uploads/                    # Armazenamento temporário para os arquivos GEDCOM e CSV recebidos
 ```
 
-## Key Features
+## Principais Funcionalidades
 
-- **GEDCOM & CSV Integration:** Merges tree topology (GEDCOM) with genetic data (CSV).
-- **Fuzzy Name Matching:** Advanced algorithm to counter "mojibake" (encoding corruption) and match names despite spelling variations or abbreviations.
-- **cM-based Predictions:** Maps shared DNA (centiMorgans) to likely biological relationships.
-- **Direct Ancestor Search:** Finds the Most Recent Common Ancestor (MRCA) and the direct path up to 20 generations deep.
-- **Indirect Path Finding (Affinity):** Uses a fallback Breadth-First Search (BFS) to find connections by marriage and other affinity bridges (up to 40 hops).
-- **Visual Networking:** Renders family tree paths dynamically using Mermaid.js and Pyvis.
+- **Integração de GEDCOM & CSV:** Mescla a topologia da árvore (GEDCOM) com os dados genéticos (CSV).
+- **Busca Aproximada de Nomes:** Algoritmo avançado para contornar "mojibake" (corrupção de codificação) e combinar nomes apesar de variações de grafia ou abreviações.
+- **Previsões baseadas em cM:** Mapeia DNA compartilhado (centiMorgans) para prováveis graus de parentesco biológico.
+- **Busca de Ancestrais Diretos:** Encontra o Ancestral Comum Mais Recente (MRCA - *Most Recent Common Ancestor*) e o caminho direto até 20 gerações de profundidade.
+- **Busca de Caminhos Indiretos (Afinidade):** Utiliza uma Busca em Largura (BFS - *Breadth-First Search*) como alternativa para encontrar conexões por casamento e outras pontes de afinidade (até 40 saltos).
+- **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js e Pyvis.
 
-## Development Workflow
+## Fluxo de Desenvolvimento
 
-The project currently operates as a standalone monolithic codebase (`app.py` is ~888 lines). 
-- **CI/CD:** No automated deployment pipelines or Dockerfiles are configured.
-- **Deployments:** The `requirements.txt` includes Gunicorn, indicating typical WSGI production deployment (e.g., Heroku, AWS).
+Atualmente, o projeto opera como uma base de código monolítica isolada (`app.py` possui cerca de 888 linhas).
+- **CI/CD:** Não há pipelines de implantação automatizada ou arquivos Docker (Dockerfiles) configurados.
+- **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
 
-## Coding Standards
+## Padrões de Código
 
-- The logic is tightly integrated within `app.py`.
-- Dictionaries (`people`, `families`) and NetworkX graphs are the primary data structures for memory management.
-- Complex parsing logic (such as cleaning mojibake via `demojibake`) is encapsulated in specific helper functions before processing graph paths.
+- Toda a lógica está fortemente integrada dentro do `app.py`.
+- Dicionários (`people`, `families`) e grafos do NetworkX são as principais estruturas de dados para o gerenciamento de memória.
+- Lógicas complexas de leitura e extração de dados (como limpar caracteres corrompidos via `demojibake`) são isoladas em funções auxiliares específicas antes do processamento dos caminhos nos grafos.
 
-## Testing
+## Testes
 
-- **Testing Approach:** Currently, there is an absence of automated unit or integration tests (no test files or frameworks detected). Any changes must be manually verified through the web UI by uploading test `.ged` and `.csv` files.
+- **Abordagem de Testes:** Atualmente, há uma ausência de testes unitários ou de integração automatizados (não foram detectados frameworks ou arquivos de testes). Quaisquer mudanças devem ser verificadas manualmente através da interface web fazendo o upload de arquivos `.ged` e `.csv` de teste.
 
-## Contributing
+## Contribuindo
 
-When contributing to this project, please consider the following guidelines:
-1. Ensure that fuzzy matching logic adjustments do not increase false positives.
-2. If modifying graph paths (`networkx`), be aware of the memory overhead since state is recalculated on every `POST`.
-3. Avoid adding persistent database requirements without structural refactoring.
-4. Add basic tests for new algorithmic features (like `find_ancestral_path` or `find_indirect_path`) to improve the robustness of the system.
+Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
+1. Garanta que ajustes na lógica de *fuzzy matching* não aumentem os falsos positivos.
+2. Se modificar os caminhos dos grafos (`networkx`), esteja ciente da sobrecarga de memória, uma vez que o estado é recalculado a cada requisição `POST`.
+3. Evite adicionar requisitos de banco de dados persistente sem uma refatoração estrutural.
+4. Adicione testes básicos para novas funcionalidades algorítmicas (como `find_ancestral_path` ou `find_indirect_path`) para melhorar a robustez do sistema.
 
-## License
+## Licença
 
-*(No license information explicitly provided in the documentation.)*
+*(Nenhuma informação de licença foi fornecida explicitamente na documentação.)*
