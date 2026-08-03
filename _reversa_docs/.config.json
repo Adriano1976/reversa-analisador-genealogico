@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-03T13:58:16Z",
+  "reversa": {
+    "version": "1.2.57"
+  },
+  "projectName": "analisador-genealogico",
+  "interview": {
+    "readerProfile": "stakeholder",
+    "depth": "full",
+    "visualStyle": "sober"
+  },
+  "seed": {
+    "hash": "sha256:b1467bf8d027d44023a568d1b42a5d0b8acef45e4665ca171949fe2f90f2e964",
+    "source": "project_name"
+  },
+  "knowledgeSources": {
+    "soul": false,
+    "chronicle": false,
+    "topology": true,
+    "sddSpecs": [
+      "analise-dna",
+      "busca-caminho",
+      "upload-gedcom"
+    ],
+    "sourceCode": true
+  }
+}

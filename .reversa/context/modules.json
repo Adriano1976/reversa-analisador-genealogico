@@ -1,0 +1,131 @@
+{
+  "generated_at": "2026-08-03T12:22:00Z",
+  "modules": [
+    {
+      "name": "analisador-genealogico",
+      "path": "analisador-genealogico",
+      "purpose": "Parsing de GEDCOM, processamento de correspondências de DNA CSV, matching difuso de nomes, cálculo de menor caminho em grafos de parentesco e renderização de conexões genealógicas.",
+      "primary_files": [
+        "analisador-genealogico/app.py",
+        "analisador-genealogico/templates/index.html"
+      ],
+      "functions": [
+        {
+          "name": "load_gedcom_and_build_graph",
+          "file": "analisador-genealogico/app.py",
+          "params": ["file_path: str"],
+          "returns": "list[str]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "build_graph_from_parser",
+          "file": "analisador-genealogico/app.py",
+          "params": ["people_dict: dict", "parser: GedcomReader"],
+          "returns": "tuple[nx.Graph, dict]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "find_ancestral_path",
+          "file": "analisador-genealogico/app.py",
+          "params": ["start_id: str", "end_id: str", "max_depth: int = 20"],
+          "returns": "tuple[list[str], str]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "find_indirect_path",
+          "file": "analisador-genealogico/app.py",
+          "params": ["start_id: str", "end_id: str", "max_hops: int = 40"],
+          "returns": "list[str] | None",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "get_relationships_by_cm",
+          "file": "analisador-genealogico/app.py",
+          "params": ["cm_value: float"],
+          "returns": "list[str]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "soft_prefix_jaccard",
+          "file": "analisador-genealogico/app.py",
+          "params": ["a: set[str]", "b: set[str]", "min_pref: int = 4", "min_len: int = 2"],
+          "returns": "float",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "strip_bad_utf",
+          "file": "analisador-genealogico/app.py",
+          "params": ["s: str"],
+          "returns": "str",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Person",
+          "fields": [
+            { "name": "xref_id", "type": "str", "required": true },
+            { "name": "name", "type": "str", "required": true },
+            { "name": "sub_records", "type": "list", "required": true }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "Family",
+          "fields": [
+            { "name": "xref_id", "type": "str", "required": true },
+            { "name": "HUSB", "type": "str", "required": false },
+            { "name": "WIFE", "type": "str", "required": false },
+            { "name": "CHIL", "type": "list[str]", "required": false }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "DnaMatchRecord",
+          "fields": [
+            { "name": "_group_key", "type": "str", "required": true },
+            { "name": "cM", "type": "float", "required": true },
+            { "name": "matched_name", "type": "str", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Limpeza e correção de Mojibake decorrente de encoding Latin-1 lido erroneamente como UTF-8",
+          "location": "analisador-genealogico/app.py:62",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Agregação da soma de cM por pessoa em arquivos de segmentos de DNA",
+          "location": "analisador-genealogico/app.py:627",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Algoritmo de pontuação ponderada para matching difuso de nomes GEDCOM vs CSV com penalidade para sobrenomes comuns",
+          "location": "analisador-genealogico/app.py:718",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Filtro anti-falso-positivo bloqueando correspondências sem interseção de sobrenomes",
+          "location": "analisador-genealogico/app.py:736",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Classificação de parentesco estimado a partir de tabela de faixas de centiMorgans acumulados",
+          "location": "analisador-genealogico/app.py:169",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [
+        "fuzzy_name_scoring",
+        "soft_prefix_jaccard",
+        "ancestral_mrca_bfs",
+        "mojibake_decoding",
+        "cm_relationship_mapping"
+      ],
+      "complexity": "medium"
+    }
+  ]
+}

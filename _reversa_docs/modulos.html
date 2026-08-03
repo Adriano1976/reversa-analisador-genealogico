@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-mapper">
+<meta name="reversa-template" content="modulos">
+<meta name="reversa-generated-at" content="2026-08-03T14:11:00Z">
+<!-- TITLE -->
+<title>Módulos — analisador-genealogico</title>
+<!-- PAGE_ID -->
+<meta name="reversa-page-id" content="modulos">
+<!-- VISUAL_STYLE -->
+<meta name="reversa-visual-style" content="sober">
+<!-- HEAD_EXTRAS -->
+<script src="assets/vendor/d3.v7.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{
+    --bg:#1e2024; --panel:#26282e; --line:#3a3d45; --txt:#d7dae0;
+    --muted:#8b909a; --accent:#4f8cff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; height:100vh; overflow:hidden;}
+  header.site{position:fixed; top:0; left:0; right:0; height:52px; background:rgba(30,32,36,.92); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 20px; z-index:20; gap:14px;}
+  header.site .brand{font-weight:600; letter-spacing:.3px; white-space:nowrap;}
+  header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex; gap:4px; flex:1; justify-content:flex-end; align-items:center; min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt); background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff; background:rgba(79,140,255,.16); outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px; height:26px; flex:0 0 auto;}
+  #main{position:absolute; inset:52px 0 0 0;}
+  #graph{width:100%; height:100%;}
+  #sidebar{position:fixed; right:0; top:52px; bottom:0; width:250px; background:rgba(38,38,46,.94); border-left:1px solid var(--line); padding:16px; z-index:10; overflow-y:auto;}
+  #sidebar h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:12px;}
+  #sidebar .ctl{margin-bottom:14px;}
+  #sidebar label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px;}
+  #sidebar input[type=range]{width:100%; accent-color:var(--accent);}
+  #sidebar select{width:100%; background:var(--bg); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font-size:12px;}
+  #sidebar .stats{margin-top:16px; border-top:1px solid var(--line); padding-top:12px; font-size:12px; color:var(--muted); line-height:1.8;}
+  #sidebar .stats b{color:var(--txt);}
+  #tooltip{position:fixed; display:none; background:rgba(20,21,24,.96); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; max-width:300px; z-index:30; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,.5);}
+  #tooltip b{color:#fff;}
+  #tooltip .muted{color:var(--muted);}
+  .legend{position:fixed; bottom:14px; left:20px; z-index:15; display:flex; gap:16px; background:rgba(30,32,36,.75); padding:8px 14px; border-radius:8px; font-size:12px; color:var(--muted);}
+  .legend .item{display:flex; align-items:center; gap:6px;}
+  .legend .sw{width:12px; height:12px; border-radius:50%;}
+  .cycle-tag{position:fixed; bottom:14px; right:270px; z-index:15; display:none; background:#e57373; color:#1a1c20; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600;}
+</style>
+</head>
+<body>
+<header class="site">
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#23262c"/>
+  <g stroke="#3a3d45" stroke-width="1" fill="none">
+    <circle cx="32" cy="32" r="27"/>
+    <circle cx="32" cy="32" r="20"/>
+    <circle cx="32" cy="32" r="13"/>
+  </g>
+  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
+    <line x1="32" y1="4" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="60" y2="32"/>
+    <line x1="12" y1="12" x2="52" y2="52"/>
+    <line x1="12" y1="52" x2="52" y2="12"/>
+  </g>
+  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
+  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
+  <g fill="#6b7d99">
+    <circle cx="32" cy="5.5" r="1.6"/>
+    <circle cx="58.5" cy="32" r="1.6"/>
+    <circle cx="32" cy="58.5" r="1.6"/>
+    <circle cx="5.5" cy="32" r="1.6"/>
+  </g>
+</svg>
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Mapa de módulos</span>
+  <!-- NAV_LINKS -->
+  <nav class="reversa-doc-nav"></nav>
+</header>
+
+<div id="main"><svg id="graph"></svg></div>
+
+<aside id="sidebar">
+  <h3>Filtros</h3>
+  <div class="ctl">
+    <label for="fLang">Linguagem</label>
+    <select id="fLang">
+      <option value="all">Todas</option>
+    </select>
+  </div>
+  <div class="ctl">
+    <label for="fType">Tipo de módulo</label>
+    <select id="fType">
+      <option value="all">Todos</option>
+    </select>
+  </div>
+  <div class="ctl">
+    <label for="charge">Força de repulsão <span id="chargeVal">-420</span></label>
+    <input type="range" id="charge" min="-900" max="-80" step="10" value="-420">
+  </div>
+  <div class="ctl">
+    <label for="linkDist">Distância mínima das arestas <span id="linkDistVal">90</span></label>
+    <input type="range" id="linkDist" min="30" max="260" step="5" value="90">
+  </div>
+  <div class="stats" id="stats"></div>
+</aside>
+
+<div id="tooltip"></div>
+<div class="legend">
+  <div class="item"><span class="sw" style="background:#4f8cff"></span> Módulo</div>
+  <div class="item"><span class="sw" style="background:#e57373; border:2px solid #b71c1c"></span> Em ciclo</div>
+</div>
+<div class="cycle-tag" id="cycleTag"></div>
+
+<!-- PAYLOAD -->
+<script>
+(function(){
+  "use strict";
+  var DATA = (window.RV_DATA && window.RV_DATA.modules) || {};
+  var modules = (DATA && DATA.modules) || [];
+  var deps = (window.RV_DATA && window.RV_DATA.deps) || {};
+  var edges = (deps.edges) || [];
+  var cycles = (deps.cycles) || [];
+  if(!modules.length){
+    document.getElementById("graph").innerHTML = '<text style="fill:#8b909a" x="40" y="80">Nenhum dado de módulos disponível.</text>';
+    return;
+  }
+
+  var W = window.innerWidth - 250, H = window.innerHeight - 52;
+  var svg = d3.select("#graph").attr("viewBox", [0,0,W,H]);
+  svg.selectAll("*").remove();
+
+  var langs = Array.from(new Set(modules.map(function(m){return m.language;}).filter(Boolean)));
+  var types = Array.from(new Set(modules.map(function(m){return m.type;}).filter(Boolean)));
+  var selLang = d3.select("#fLang").selectAll("option").data(langs).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
+  var selType = d3.select("#fType").selectAll("option").data(types).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
+
+  var byId = {};
+  modules.forEach(function(m){ byId[m.id] = m; });
+  var cycleIds = {};
+  cycles.forEach(function(cyc){
+    cyc.forEach(function(id){ cycleIds[id] = true; });
+  });
+
+  var visibleEdges = edges;
+  var link = svg.append("g").selectAll("line").data(visibleEdges).join("line")
+    .attr("stroke", function(d){ return cycleIds[d.source]||cycleIds[d.target] ? "#e57373" : "#3a3d45"; })
+    .attr("stroke-opacity", 0.55)
+    .attr("stroke-width", 1.4);
+
+  var node = svg.append("g").selectAll("circle").data(modules).join("circle")
+    .attr("r", function(d){ return 9 + Math.sqrt(Number(d.loc)||0)/4; })
+    .attr("fill", function(d){ return cycleIds[d.id] ? "#e57373" : "#4f8cff"; })
+    .attr("stroke", function(d){ return cycleIds[d.id] ? "#b71c1c" : "#1e2024"; })
+    .attr("stroke-width", 2)
+    .style("cursor","pointer");
+
+  var label = svg.append("g").selectAll("text").data(modules).join("text")
+    .attr("text-anchor","middle").attr("dy", "-10")
+    .attr("font-size", "11").attr("fill", "#d7dae0")
+    .text(function(d){ return d.name; });
+
+  var sim = d3.forceSimulation(modules)
+    .force("link", d3.forceLink(visibleEdges).id(function(d){return d.id;}).distance(function(){ return parseFloat(document.getElementById("linkDist").value); }))
+    .force("charge", d3.forceManyBody().strength(function(){ return parseFloat(document.getElementById("charge").value); }))
+    .force("center", d3.forceCenter(W/2, H/2))
+    .force("collide", d3.forceCollide().radius(34));
+
+  function ticked(){
+    link.attr("x1", function(d){return d.source.x;}).attr("y1", function(d){return d.source.y;})
+        .attr("x2", function(d){return d.target.x;}).attr("y2", function(d){return d.target.y;});
+    node.attr("cx", function(d){return d.x;}).attr("cy", function(d){return d.y;});
+    label.attr("x", function(d){return d.x;}).attr("y", function(d){return d.y;});
+  }
+  sim.on("tick", ticked);
+
+  var tooltip = document.getElementById("tooltip");
+  function filter(){
+    var l = document.getElementById("fLang").value;
+    var t = document.getElementById("fType").value;
+    var show = modules.filter(function(m){ return (l==="all"||m.language===l) && (t==="all"||m.type===t); });
+    var ids = new Set(show.map(function(m){return m.id;}));
+    node.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
+    label.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
+    link.attr("display", function(d){ return ids.has(d.source.id) && ids.has(d.target.id) ? null : "none"; });
+  }
+  document.getElementById("fLang").addEventListener("change", filter);
+  document.getElementById("fType").addEventListener("change", filter);
+
+  document.getElementById("charge").addEventListener("input", function(){
+    document.getElementById("chargeVal").textContent = document.getElementById("charge").value;
+    sim.force("charge").strength(parseFloat(document.getElementById("charge").value));
+    sim.alpha(0.4).restart();
+  });
+  document.getElementById("linkDist").addEventListener("input", function(){
+    document.getElementById("linkDistVal").textContent = document.getElementById("linkDist").value;
+    sim.force("link").distance(parseFloat(document.getElementById("linkDist").value));
+    sim.alpha(0.4).restart();
+  });
+
+  node.on("mouseover", function(ev, d){
+    tooltip.style.display = "block";
+    tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.type+'</span> · '+d.language+
+      '<br>'+(Number(d.loc)||0)+' linhas · complexidade '+(Number(d.complexity)||0)+
+      (cycleIds[d.id] ? '<br><b style="color:#e57373">Participa de ciclo</b>' : '')+
+      '<br><span class="muted">'+d.path+'</span>';
+  }).on("mousemove", function(ev){
+    tooltip.style.left = (ev.clientX+16)+"px";
+    tooltip.style.top = (ev.clientY+16)+"px";
+  }).on("mouseout", function(){ tooltip.style.display = "none"; });
+
+  var stats = document.getElementById("stats");
+  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+edges.length+'</b> arestas<br><b>'+cycles.length+'</b> ciclos detectados';
+  if(cycles.length){
+    var tag = document.getElementById("cycleTag");
+    tag.style.display = "block";
+    tag.textContent = cycles.length + " ciclo(s) destacado(s) em vermelho";
+  }
+
+  window.addEventListener("resize", function(){
+    W = window.innerWidth - 250; H = window.innerHeight - 52;
+    svg.attr("viewBox", [0,0,W,H]);
+    sim.force("center").x(W/2).y(H/2);
+  });
+})();
+</script>
+</body>
+</html>

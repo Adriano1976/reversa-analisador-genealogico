@@ -1,0 +1,24 @@
+{
+  "schema-version": 1,
+  "reversa-version": "1.2.55",
+  "installed-at": "2026-07-23T00:18:33.833Z",
+  "project-name": "teste_reversa",
+  "prefix-format": "sequencial",
+  "language": "pt-BR",
+  "watch": {
+    "archive-after": 3,
+    "block-on-red": false
+  },
+  "paths": {
+    "sdd-dir": "_reversa_sdd",
+    "forward-dir": "_reversa_forward",
+    "config-dir": ".reversa"
+  },
+  "principles": {
+    "enabled": true,
+    "auto-load-into-plan": true
+  },
+  "telemetry": {
+    "enabled": false
+  }
+}

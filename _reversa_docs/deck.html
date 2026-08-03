@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-storyteller">
+<meta name="reversa-template" content="deck">
+<meta name="reversa-page-id" content="deck">
+<meta name="reversa-visual-style" content="sober">
+<meta name="reversa-generated-at" content="2026-08-03T14:23:00Z">
+<title>Deck — analisador-genealogico</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{--bg:#181a1e;--txt:#eef0f4;--muted:#8b909a;--accent:#4f8cff;--line:#2c2f36;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;height:100vh;overflow:hidden;}
+  header.site{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(24,26,30,.92);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;z-index:30;gap:14px;}
+  header.site .brand{font-weight:600;white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex;gap:4px;flex:1;justify-content:flex-end;align-items:center;min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:6px;white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt);background:#26282e;}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff;background:rgba(79,140,255,.16);outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px;height:26px;flex:0 0 auto;}
+  #deck{position:fixed;inset:52px 0 0 0;overflow:hidden;}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px;text-align:center;animation:fade .4s ease;}
+  .slide.active{display:flex;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  .slide h1{font-size:44px;margin-bottom:14px;}
+  .slide h2{font-size:30px;margin-bottom:16px;}
+  .slide p{font-size:17px;color:var(--muted);max-width:760px;line-height:1.6;}
+  .slide .tag{color:var(--accent);font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+  .kpis{display:flex;gap:40px;margin-top:24px;}
+  .kpi .num{font-size:44px;font-weight:700;color:#fff;}
+  .kpi .lbl{font-size:13px;color:var(--muted);}
+  .links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;justify-content:center;}
+  .links a{color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:10px 18px;border-radius:8px;font-size:14px;}
+  .links a:hover{background:#26282e;}
+  .progress{position:fixed;bottom:0;left:0;height:4px;background:linear-gradient(90deg,var(--accent),#4fc3f7);z-index:30;transition:width .3s;}
+  .controls{position:fixed;bottom:20px;right:24px;display:flex;gap:8px;z-index:30;}
+  .controls button{background:#26282e;border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:8px;font-size:18px;cursor:pointer;}
+  .controls button:hover{background:#32353d;}
+  .counter{position:fixed;bottom:24px;left:24px;color:var(--muted);font-size:13px;z-index:30;}
+</style>
+</head>
+<body>
+<header class="site">
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#23262c"/>
+  <g stroke="#3a3d45" stroke-width="1" fill="none">
+    <circle cx="32" cy="32" r="27"/>
+    <circle cx="32" cy="32" r="20"/>
+    <circle cx="32" cy="32" r="13"/>
+  </g>
+  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
+    <line x1="32" y1="4" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="60" y2="32"/>
+    <line x1="12" y1="12" x2="52" y2="52"/>
+    <line x1="12" y1="52" x2="52" y2="12"/>
+  </g>
+  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
+  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
+  <g fill="#6b7d99">
+    <circle cx="32" cy="5.5" r="1.6"/>
+    <circle cx="58.5" cy="32" r="1.6"/>
+    <circle cx="32" cy="58.5" r="1.6"/>
+    <circle cx="5.5" cy="32" r="1.6"/>
+  </g>
+</svg>
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Apresentação</span>
+  <!-- NAV_LINKS -->
+  <nav class="reversa-doc-nav"></nav>
+</header>
+
+<div id="deck">
+  <section class="slide active">
+    <div class="tag">Reversa Docs</div>
+    <h1>analisador-genealogico</h1>
+    <p>Genetic Genealogy Path Analyzer — encontra, mapeia e visualiza a conexão genealógica entre uma pessoa-raiz e seus DNA matches.</p>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Arquitetura</div>
+    <h1>Aplicação Web Flask Monolítica</h1>
+    <p>Servidor Python/Flask com renderização server-side (Jinja2 + Bootstrap 5). Análise sob demanda: a cada requisição o GEDCOM é re-parseado e o grafo reconstruído. Sem banco persistente — estado em memória.</p>
+    <div class="links"><a href="arquitetura.html">Ver arquitetura 3D</a></div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Módulos</div>
+    <h1>10 unidades funcionais</h1>
+    <p>Parsing GEDCOM, agregação de DNA, matching difuso de nomes, busca de caminho e renderização Mermaid, coordenados por um único app.py.</p>
+    <div class="kpis" id="modStats"></div>
+    <div class="links"><a href="modulos.html">Ver mapa de módulos</a></div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Métricas</div>
+    <h1>Números do projeto</h1>
+    <div class="kpis">
+      <div class="kpi"><div class="num" id="kLoc">–</div><div class="lbl">Linhas de código</div></div>
+      <div class="kpi"><div class="num" id="kMod">–</div><div class="lbl">Módulos</div></div>
+      <div class="kpi"><div class="num" id="kDeps">–</div><div class="lbl">Dependências internas</div></div>
+    </div>
+    <div class="links"><a href="metricas.html">Ver dashboard</a></div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Destaque</div>
+    <h1>Análise de DNA</h1>
+    <p>Agrega segmentos de cM, faz matching difuso de nomes com regras anti-falso-positivo e prevê o parentesco — o núcleo do produto.</p>
+    <div class="links"><a href="features/analise-dna.html">Ver feature</a><a href="features/upload-gedcom.html">Upload GEDCOM</a><a href="features/busca-caminho.html">Busca de caminho</a></div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Próximos passos</div>
+    <h1>Explorar a documentação</h1>
+    <p>Mini-site autocontido gerado pelo Time Reversa Docs.</p>
+    <div class="links"><a href="index.html">Visão geral</a><a href="arquitetura.html">Arquitetura</a><a href="modulos.html">Módulos</a><a href="metricas.html">Métricas</a></div>
+  </section>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">1 / 6</div>
+<div class="controls"><button id="prev" title="Anterior">‹</button><button id="next" title="Próximo">›</button></div>
+
+<script>
+(function(){
+  "use strict";
+  var M = (window.RV_DATA && window.RV_DATA.metrics) || {};
+  var modules = ((window.RV_DATA && window.RV_DATA.modules) || {}).modules || [];
+  var deps = (window.RV_DATA && window.RV_DATA.deps) || {};
+  document.getElementById("kLoc").textContent = modules.reduce(function(s,m){return s+(Number(m.loc)||0);},0).toLocaleString("pt-BR");
+  document.getElementById("kMod").textContent = modules.length;
+  document.getElementById("kDeps").textContent = (deps.edges||[]).length;
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var idx = 0;
+  function go(i){
+    idx = Math.max(0, Math.min(slides.length-1, i));
+    slides.forEach(function(s,j){ s.classList.toggle("active", j===idx); });
+    document.getElementById("progress").style.width = ((idx+1)/slides.length*100)+"%";
+    document.getElementById("counter").textContent = (idx+1)+" / "+slides.length;
+  }
+  document.getElementById("next").addEventListener("click", function(){ go(idx+1); });
+  document.getElementById("prev").addEventListener("click", function(){ go(idx-1); });
+  document.addEventListener("keydown", function(e){
+    if(e.key==="ArrowRight"||e.key===" ") go(idx+1);
+    else if(e.key==="ArrowLeft") go(idx-1);
+    else if(e.key==="f"||e.key==="F"){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+  });
+  go(0);
+})();
+</script>
+</body>
+</html>
