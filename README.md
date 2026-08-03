@@ -105,6 +105,12 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 3. Evite adicionar requisitos de banco de dados persistente sem uma refatoração estrutural.
 4. Adicione testes básicos para novas funcionalidades algorítmicas (como `find_ancestral_path` ou `find_indirect_path`) para melhorar a robustez do sistema.
 
+## Autoria e Créditos
+
+- **Autor do Projeto Legado:** *(Não especificado na base de código original)*
+- **Fonte do Projeto Legado:** Base de código em Python (Flask) analisada localmente.
+- **Autor do Projeto de Engenharia Reversa:** Adriano1976
+
 ## Licença
 
 *(Nenhuma informação de licença foi fornecida explicitamente na documentação.)*
