@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-08-03T11:48:40Z",
+  "project_root": "C:/teste_reversa/analisador-genealogico",
+  "languages": [
+    {
+      "name": "Python",
+      "extensions": [
+        ".py"
+      ],
+      "file_count": 1
+    },
+    {
+      "name": "HTML",
+      "extensions": [
+        ".html"
+      ],
+      "file_count": 2
+    },
+    {
+      "name": "Markdown",
+      "extensions": [
+        ".md"
+      ],
+      "file_count": 1
+    }
+  ],
+  "primary_language": "Python",
+  "frameworks": [
+    {
+      "name": "Flask",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "NetworkX",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "Pandas",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "ged4py",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "thefuzz",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "pyvis",
+      "version": "unpinned",
+      "source": "requirements.txt"
+    }
+  ],
+  "package_manager": "pip",
+  "entry_points": [
+    {
+      "path": "analisador-genealogico/app.py",
+      "type": "server_entry"
+    },
+    {
+      "path": "analisador-genealogico/templates/index.html",
+      "type": "template_entry"
+    }
+  ],
+  "config_files": [
+    "analisador-genealogico/requirements.txt",
+    "analisador-genealogico/.gitignore.txt"
+  ],
+  "ci_cd": [],
+  "docker": {},
+  "database_hints": [],
+  "test_framework": "None",
+  "test_file_count": 0,
+  "modules": [
+    "analisador-genealogico"
+  ],
+  "total_files": 7,
+  "organization_suggestion": {
+    "granularity": "endpoint",
+    "rationale": "Roteamento centralizado via Flask @app.route em app.py para rotas de upload de GEDCOM/DNA e busca de caminhos.",
+    "signals": [
+      {
+        "type": "centralized_routing",
+        "evidence": [
+          "analisador-genealogico/app.py"
+        ]
+      }
+    ],
+    "features": [
+      "gedcom_parser",
+      "dna_matches_processor",
+      "fuzzy_name_matching",
+      "ancestral_path_finder",
+      "relationship_predictor",
+      "graph_visualization",
+      "web_interface"
+    ]
+  }
+}

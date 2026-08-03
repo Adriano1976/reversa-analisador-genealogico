@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-03T14:05:00Z",
+  "project": "analisador-genealogico",
+  "language": "Python/Flask",
+  "nodes": [
+    "app", "config-setup", "gedcom-parsing", "dna-aggregation",
+    "name-matching", "path-finder", "mermaid-render", "routes",
+    "templates-index", "static-graph"
+  ],
+  "edges": [
+    {"source": "app", "target": "config-setup"},
+    {"source": "app", "target": "routes"},
+    {"source": "routes", "target": "gedcom-parsing"},
+    {"source": "routes", "target": "dna-aggregation"},
+    {"source": "routes", "target": "name-matching"},
+    {"source": "routes", "target": "path-finder"},
+    {"source": "name-matching", "target": "gedcom-parsing"},
+    {"source": "path-finder", "target": "gedcom-parsing"},
+    {"source": "routes", "target": "mermaid-render"},
+    {"source": "routes", "target": "templates-index"},
+    {"source": "routes", "target": "static-graph"},
+    {"source": "mermaid-render", "target": "path-finder"},
+    {"source": "mermaid-render", "target": "name-matching"}
+  ],
+  "cycles": []
+}

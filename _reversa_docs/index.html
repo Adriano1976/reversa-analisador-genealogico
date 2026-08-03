@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="index">
+<meta name="reversa-producer-agent" content="reversa-docs-publisher">
+<meta name="reversa-template" content="index">
+<meta name="reversa-page-id" content="index">
+<meta name="reversa-visual-style" content="sober">
+<meta name="reversa-generated-at" content="2026-08-03T14:30:00Z">
+<title>analisador-genealogico — Documentação</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{--bg:#181a1e;--panel:#23262c;--line:#34373f;--txt:#eef0f4;--muted:#8b909a;--accent:#4f8cff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh;}
+  header.site{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(24,26,30,.92);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;z-index:20;gap:14px;}
+  header.site .brand{font-weight:600;white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex;gap:4px;flex:1;justify-content:flex-end;align-items:center;min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:6px;white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt);background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff;background:rgba(79,140,255,.16);outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px;height:26px;flex:0 0 auto;}
+  .hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:120px 24px 60px;background:radial-gradient(ellipse at 50% 0%, #232a36 0%, var(--bg) 65%);}
+  .hero .seal{width:180px;height:180px;margin-bottom:28px;filter:drop-shadow(0 10px 30px rgba(79,140,255,.25));}
+  .hero .tag{color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;}
+  .hero h1{font-size:40px;font-weight:700;margin-bottom:14px;}
+  .hero p{color:var(--muted);font-size:16px;max-width:640px;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;padding:40px 24px 60px;max-width:1200px;margin:0 auto;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;text-decoration:none;color:var(--txt);transition:transform .15s,border-color .15s;}
+  .card:hover{transform:translateY(-3px);border-color:var(--accent);}
+  .card .ico{font-size:26px;margin-bottom:12px;}
+  .card h3{font-size:16px;margin-bottom:6px;}
+  .card p{font-size:13px;color:var(--muted);line-height:1.5;}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:0 24px 60px;max-width:1200px;margin:0 auto;}
+  .feat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;text-decoration:none;color:var(--txt);transition:border-color .15s;}
+  .feat:hover{border-color:var(--accent);}
+  .feat h4{font-size:14px;margin-bottom:6px;}
+  .feat p{font-size:12px;color:var(--muted);line-height:1.5;}
+  .section-title{max-width:1200px;margin:0 auto;padding:0 24px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:2px;}
+  footer{padding:20px;text-align:center;color:var(--muted);font-size:12px;border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+<header class="site">
+  <!-- MINI_SEAL_SVG -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#23262c"/>
+  <g stroke="#3a3d45" stroke-width="1" fill="none">
+    <circle cx="32" cy="32" r="27"/>
+    <circle cx="32" cy="32" r="20"/>
+    <circle cx="32" cy="32" r="13"/>
+  </g>
+  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
+    <line x1="32" y1="4" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="60" y2="32"/>
+    <line x1="12" y1="12" x2="52" y2="52"/>
+    <line x1="12" y1="52" x2="52" y2="12"/>
+  </g>
+  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
+  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
+  <g fill="#6b7d99">
+    <circle cx="32" cy="5.5" r="1.6"/>
+    <circle cx="58.5" cy="32" r="1.6"/>
+    <circle cx="32" cy="58.5" r="1.6"/>
+    <circle cx="5.5" cy="32" r="1.6"/>
+  </g>
+</svg>
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Documentação</span>
+  <!-- NAV_LINKS -->
+  <nav class="reversa-doc-nav"></nav>
+</header>
+
+<section class="hero">
+  <!-- SEAL_HERO -->
+  <img class="seal" src="assets/img/seal.svg" alt="Selo do projeto">
+  <div class="tag">Genetic Genealogy Path Analyzer</div>
+  <h1>analisador-genealogico</h1>
+  <p>Encontra, mapeia e visualiza a conexão genealógica entre uma pessoa-raiz e seus DNA matches, cruzando uma árvore GEDCOM com um relatório de segmentos de DNA.</p>
+</section>
+
+<div class="section-title">Arquitetura e estrutura</div>
+<div class="grid">
+  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City interativo do monolito Flask — 10 módulos funcionais.</p></a>
+  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com dependências internas entre as unidades.</p></a>
+  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: LOC, complexidade, histograma, sankey e linguagens.</p></a>
+  <a class="card" href="deck.html"><div class="ico">🎞️</div><h3>Deck</h3><p>Apresentação navegável com a história e os números do sistema.</p></a>
+</div>
+
+<div class="section-title">Features documentadas</div>
+<div class="features-grid" id="featuresGrid"></div>
+
+<footer>Mini-site gerado pelo Time Reversa Docs · seed b1467bf8 · offline-first</footer>
+
+<!-- PAYLOAD -->
+<script>
+(function(){
+  "use strict";
+  var fi = (window.RV_DATA && window.RV_DATA.featuresIndex) || {};
+  var specs = (fi && fi.specs) || [];
+  var grid = document.getElementById("featuresGrid");
+  var links = {
+    "upload-gedcom": ["📤", "Upload e Parsing de GEDCOM", "Recebe o .ged, faz o parsing e constrói o grafo de famílias."],
+    "busca-caminho": ["🔎", "Busca de Caminho", "Conexão direta (MRCA) ou indireta por afinidade entre duas pessoas."],
+    "analise-dna": ["🧬", "Análise de DNA", "Cruza GEDCOM com CSV de matches, agrega cM e prevê parentesco."]
+  };
+  specs.forEach(function(s){
+    var meta = links[s.slug] || [s.slug, s.title, s.summary];
+    var a = document.createElement("a");
+    a.className = "feat";
+    a.href = "features/" + s.slug + ".html";
+    a.innerHTML = '<h4>' + meta[0] + ' ' + (meta[1] || s.title) + '</h4><p>' + (meta[2] || s.summary) + '</p>';
+    grid.appendChild(a);
+  });
+})();
+</script>
+</body>
+</html>

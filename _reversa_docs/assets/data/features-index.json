@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-03T14:20:00Z",
+  "project": "analisador-genealogico",
+  "specs": [
+    {
+      "id": "upload-gedcom",
+      "slug": "upload-gedcom",
+      "title": "Upload e Parsing de GEDCOM",
+      "summary": "Recebe um arquivo GEDCOM (.ged), faz o parsing da árvore genealógica via ged4py e constrói o grafo NetworkX de pessoas e famílias.",
+      "hasRequirements": true
+    },
+    {
+      "id": "busca-caminho",
+      "slug": "busca-caminho",
+      "title": "Busca de Caminho (Path Search)",
+      "summary": "Busca a conexão genealógica entre duas pessoas: direta por ancestral comum (BFS bidirecional) ou indireta por afinidade via BFS no grafo.",
+      "hasRequirements": true
+    },
+    {
+      "id": "analise-dna",
+      "slug": "analise-dna",
+      "title": "Análise de DNA (DNA Analysis)",
+      "summary": "Cruza a árvore GEDCOM com um CSV de matches de DNA: agrega cM, faz matching difuso de nomes, prevê parentesco e ordena por cM.",
+      "hasRequirements": true
+    }
+  ]
+}

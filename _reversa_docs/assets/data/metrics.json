@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-03T14:15:00Z",
+  "project": "analisador-genealogico",
+  "treemap_loc_by_folder": [
+    {"folder": "analisador-genealogico (app.py)", "loc": 887, "modules": 8},
+    {"folder": "analisador-genealogico/templates", "loc": 334, "modules": 1},
+    {"folder": "analisador-genealogico/static", "loc": 480, "modules": 1}
+  ],
+  "top_complexity": [
+    {"id": "app.py (monolito)", "complexity": 9, "loc": 887},
+    {"id": "name-matching", "complexity": 8, "loc": 132},
+    {"id": "mermaid-render", "complexity": 8, "loc": 176},
+    {"id": "path-finder", "complexity": 7, "loc": 27},
+    {"id": "routes", "complexity": 6, "loc": 90},
+    {"id": "dna-aggregation", "complexity": 6, "loc": 35},
+    {"id": "templates-index", "complexity": 5, "loc": 334},
+    {"id": "static-graph", "complexity": 5, "loc": 480},
+    {"id": "gedcom-parsing", "complexity": 4, "loc": 33},
+    {"id": "config-setup", "complexity": 1, "loc": 37}
+  ],
+  "loc_histogram": {
+    "bins": [0, 50, 100, 200, 500, 1000],
+    "counts": [5, 1, 2, 1, 1, 0]
+  },
+  "dependency_sankey": {
+    "nodes": [
+      {"id": "app.py (monolito)"},
+      {"id": "routes"},
+      {"id": "gedcom-parsing"},
+      {"id": "dna-aggregation"},
+      {"id": "name-matching"},
+      {"id": "path-finder"},
+      {"id": "mermaid-render"},
+      {"id": "templates/static"}
+    ],
+    "links": [
+      {"source": "app.py (monolito)", "target": "routes", "value": 1},
+      {"source": "routes", "target": "gedcom-parsing", "value": 2},
+      {"source": "routes", "target": "dna-aggregation", "value": 2},
+      {"source": "routes", "target": "name-matching", "value": 3},
+      {"source": "routes", "target": "path-finder", "value": 3},
+      {"source": "routes", "target": "mermaid-render", "value": 3},
+      {"source": "routes", "target": "templates/static", "value": 4}
+    ]
+  },
+  "language_distribution": [
+    {"language": "Python", "modules": 8, "loc": 887},
+    {"language": "HTML", "modules": 2, "loc": 814}
+  ]
+}

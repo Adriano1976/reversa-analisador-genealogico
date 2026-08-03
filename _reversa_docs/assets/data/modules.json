@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-03T14:05:00Z",
+  "project": "analisador-genealogico",
+  "language": "Python/Flask",
+  "modules": [
+    {
+      "id": "app",
+      "name": "app.py (monolito)",
+      "path": "analisador-genealogico/app.py",
+      "type": "entrypoint",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 887,
+      "complexity": 9,
+      "description": "Aplicação Web Flask monolítica com rotas, parsing e renderização acopladas."
+    },
+    {
+      "id": "config-setup",
+      "name": "Configuração e setup",
+      "path": "analisador-genealogico/app.py",
+      "type": "config",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 37,
+      "complexity": 1,
+      "description": "Criação da app Flask, secret_key, pastas uploads/static e tabela de faixas cM (SHARED_CM_DATA)."
+    },
+    {
+      "id": "gedcom-parsing",
+      "name": "Parsing GEDCOM",
+      "path": "analisador-genealogico/app.py",
+      "type": "parser",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 33,
+      "complexity": 4,
+      "description": "load_gedcom_and_build_graph e build_graph_from_parser: leitura de INDI/FAM e construção do grafo networkx."
+    },
+    {
+      "id": "dna-aggregation",
+      "name": "Agregação de DNA",
+      "path": "analisador-genealogico/app.py",
+      "type": "processor",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 35,
+      "complexity": 6,
+      "description": "Leitura tolerante do CSV de matches, detecção de colunas, groupby por _group_key e soma de cM."
+    },
+    {
+      "id": "name-matching",
+      "name": "Matching difuso de nomes",
+      "path": "analisador-genealogico/app.py",
+      "type": "algorithm",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 132,
+      "complexity": 8,
+      "description": "Normalização, mojibake, indexação e scoring thefuzz com regras anti-falso-positivo (HARD_MIN/GIVEN_MIN)."
+    },
+    {
+      "id": "path-finder",
+      "name": "Busca de caminho genealógico",
+      "path": "analisador-genealogico/app.py",
+      "type": "algorithm",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 27,
+      "complexity": 7,
+      "description": "find_ancestral_path (BFS bidirecional) e find_indirect_path (shortest_path networkx via afinidade)."
+    },
+    {
+      "id": "mermaid-render",
+      "name": "Renderização Mermaid",
+      "path": "analisador-genealogico/app.py",
+      "type": "presenter",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 176,
+      "complexity": 8,
+      "description": "generate_mermaid_graph e bridge indireto: geração de diagramas flowch de ancestralidade."
+    },
+    {
+      "id": "routes",
+      "name": "Rotas HTTP",
+      "path": "analisador-genealogico/app.py",
+      "type": "web",
+      "language": "python",
+      "folder": "analisador-genealogico",
+      "loc": 90,
+      "complexity": 6,
+      "description": "Rota / (GET/POST) orquestrando upload_gedcom, dna_analysis e path_search."
+    },
+    {
+      "id": "templates-index",
+      "name": "Template index.html",
+      "path": "analisador-genealogico/templates/index.html",
+      "type": "frontend",
+      "language": "html",
+      "folder": "analisador-genealogico",
+      "loc": 334,
+      "complexity": 5,
+      "description": "View Jinja2 + Bootstrap 5 com formulários e renderização de resultados."
+    },
+    {
+      "id": "static-graph",
+      "name": "graph_path_search.html",
+      "path": "analisador-genealogico/static/graph_path_search.html",
+      "type": "frontend",
+      "language": "html",
+      "folder": "analisador-genealogico",
+      "loc": 480,
+      "complexity": 5,
+      "description": "Visualização interativa do grafo de busca de caminho."
+    }
+  ]
+}

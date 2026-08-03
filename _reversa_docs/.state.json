@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-08-03T14:05:00Z",
+  "lastCheckpoint": "2026-08-03T14:32:00Z",
+  "pipelineDurationMs": 1620000,
+  "completedAgents": ["mapper", "analyst", "storyteller", "publisher"],
+  "pendingAgents": [],
+  "pages": {
+    "index.html": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:index"},
+    "arquitetura.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:arquitetura"},
+    "modulos.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:modulos"},
+    "metricas.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:metricas"},
+    "deck.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:deck"},
+    "features/upload-gedcom.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:fe-upload"},
+    "features/busca-caminho.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:fe-busca"},
+    "features/analise-dna.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:fe-dna"}
+  },
+  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html"],
+  "pagesOmitted": [
+    {"page": "topologia.html", "reason": "architecture.md nao declara seção Topologia / variantes de topologia"},
+    {"page": "timeline.html", "reason": "chronicle.md nao encontrado"},
+    {"page": "glossario.html", "reason": "soul.md nao encontrado"}
+  ],
+  "auxiliaryHtmls": [],
+  "auxiliaryHtmlsDiscovered": 0,
+  "auxiliaryDiscoveryAborted": false,
+  "cdnFallbackUsed": true,
+  "cdnFallbackDetails": [
+    {"lib": "highcharts-accessibility", "primary": "code.highcharts.com", "used": "cdn.jsdelivr.net"},
+    {"lib": "highcharts-exporting", "primary": "code.highcharts.com", "used": "cdn.jsdelivr.net"},
+    {"lib": "highcharts-treemap", "primary": "code.highcharts.com", "used": "cdn.jsdelivr.net"},
+    {"lib": "highcharts-sankey", "primary": "code.highcharts.com", "used": "cdn.jsdelivr.net"},
+    {"lib": "highcharts-timeline", "primary": "code.highcharts.com", "used": "cdn.jsdelivr.net"}
+  ],
+  "vendorMissing": [],
+  "smokeTestFailed": false,
+  "smokeTestErrors": [],
+  "brokenLinks": []
+}
