@@ -107,8 +107,8 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 
 ## Autoria e Créditos
 
-- **Autor do Projeto Legado:** *(Não especificado na base de código original)*
-- **Fonte do Projeto Legado:** Base de código em Python (Flask) analisada localmente.
+- **Autor do código legado:** sssazevedo
+- **Fonte do código legado:** [https://github.com/sssazevedo/analisador-genealogico/tree/main](https://github.com/sssazevedo/analisador-genealogico/tree/main)
 - **Autor do Projeto de Engenharia Reversa:** Adriano1976
 
 ## Licença
