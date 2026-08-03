@@ -30,10 +30,10 @@ The system operates as a **Monolithic Web Server** with server-side rendering (S
 
 ```mermaid
 flowchart LR
-    U[Genetic Genealogist]
-    S([analisador-genealogico])
-    C1[.ged (GEDCOM)]:::ext
-    C2[.csv (DNA Matches)]:::ext
+    U["Genetic Genealogist"]
+    S(["analisador-genealogico"])
+    C1[".ged (GEDCOM)"]:::ext
+    C2[".csv (DNA Matches)"]:::ext
 
     U -->|"upload GEDCOM + CSV"| S
     S -->|"parsing"| C1
