@@ -114,3 +114,14 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 ## Licença
 
 *(Nenhuma informação de licença foi fornecida explicitamente na documentação.)*
+
+##
+ 
+<br><br>
+
+<div align="center">
+  <p><b><h3> Contagem de visitantes </h3></b></p>  
+  <img src="https://vbr.nathanchung.dev/badge?page_id=Adriano1976/reversa-analisador-genealogico" style="height: 30px;" />
+   <br>
+  <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=87CEFA&height=120&section=footer"/>
+</div>
