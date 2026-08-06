@@ -1,6 +1,7 @@
 ---
 name: reversa-docs-mapper
-description: "Mapeador do Time Reversa Docs. Produz as páginas de estrutura espacial do mini-site: arquitetura 3D (Code City via Three.js), module map 2D (force-directed via D3), e topologia side-by-side (legado vs moderno vs híbrido). Ative com /reversa-docs-mapper, reversa-docs-mapper, regenerar arquitetura, refazer mapa de módulos, code city do projeto."
+description: 'Mapeador do Time Reversa Docs. Produz as páginas de estrutura espacial do mini-site: arquitetura 3D (Code City via Three.js), module map 2D (force-directed via D3), e topologia side-by-side (legado vs moderno vs híbrido).'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

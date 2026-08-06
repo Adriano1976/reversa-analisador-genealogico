@@ -1,6 +1,7 @@
 ---
 name: reversa-audit
-description: Auditoria leitora estrita. Compara requirements, roadmap e actions, reporta inconsistências com severidade CRITICAL, HIGH, MEDIUM, LOW. JAMAIS altera os artefatos analisados. Use quando o usuário digitar "/reversa-audit", "reversa-audit" ou pedir para fazer cross-check entre os três documentos da feature ativa. Etapa opcional do ciclo forward.
+description: Auditoria leitora estrita. Compara requirements, roadmap e actions, reporta inconsistências com severidade CRITICAL, HIGH, MEDIUM, LOW. JAMAIS altera os artefatos analisados. Etapa opcional do ciclo forward.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

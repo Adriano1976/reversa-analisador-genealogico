@@ -1,6 +1,7 @@
 ---
 name: reversa-designer
-description: 'Quarto agente do Time de Migração, em duas fases. Fase 1: detecta a topologia do legado, propõe uma moderna alternativa e produz topology_decision.md (com aprovação humana). Fase 2: desenha as specs do sistema novo (arquitetura, domínio, dados, plano de migração) com rastreabilidade ao legado. Use com "/reversa-designer" (normalmente via /reversa-migrate).'
+description: 'Quarto agente do Time de Migração, em duas fases. Fase 1: detecta a topologia do legado, propõe uma moderna alternativa e produz topology_decision.md (com aprovação humana). Fase 2: desenha as specs do sistema novo (arquitetura, domínio, dados, plano de migração) com rastreabilidade ao legado.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

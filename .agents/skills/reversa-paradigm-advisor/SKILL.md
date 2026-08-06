@@ -1,6 +1,7 @@
 ---
 name: reversa-paradigm-advisor
 description: "Primeiro agente do Time de Migração. Detecta o paradigma do sistema legado a partir das specs, infere o paradigma natural da stack alvo, alerta sobre gaps e força uma decisão consciente do usuário. Produz paradigm_decision.md, leitura obrigatória de todos os agentes posteriores. Ativação: /reversa-paradigm-advisor (geralmente invocado por /reversa-migrate)."
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

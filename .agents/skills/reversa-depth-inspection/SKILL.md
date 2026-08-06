@@ -1,6 +1,7 @@
 ---
 name: reversa-depth-inspection
-description: 'Pente-fino do time Bugs: mapeia spec→código→testes→dados de uma feature e varre com lentes especializadas (conformidade, fluxo de dados, contratos, erros, testes, concorrência) em paralelo. Só diagnostica; achados confirmados viram bugs. Use com "/reversa-depth-inspection", "pente-fino na feature", "inspeção profunda".'
+description: 'Pente-fino do time Bugs: mapeia spec→código→testes→dados de uma feature e varre com lentes especializadas (conformidade, fluxo de dados, contratos, erros, testes, concorrência) em paralelo. Só diagnostica; achados confirmados viram bugs.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

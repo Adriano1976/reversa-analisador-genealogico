@@ -1,6 +1,7 @@
 ---
 name: reversa-debugger-debate
-description: 'Debate multiagente do time Bugs: N solvers em R rodadas com juiz isolado, para decidir diagnóstico, correção ou veredito de spec de um bug registrado. Sempre opt-in, com custo estimado; pode incluir outros harness (Codex, Gemini CLI). Use com "/reversa-debugger-debate", "abrir debate sobre o bug", "debater a correção".'
+description: 'Debate multiagente do time Bugs: N solvers em R rodadas com juiz isolado, para decidir diagnóstico, correção ou veredito de spec de um bug registrado. Sempre opt-in, com custo estimado; pode incluir outros harness (Codex, Gemini CLI).'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

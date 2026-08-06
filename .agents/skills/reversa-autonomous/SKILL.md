@@ -95,7 +95,7 @@ Após o INICIAR, salve tudo em `state.json`, atualize `phase` para `"reconhecime
 
 ## Execução autônoma
 
-Execute o plano sequencialmente, um agente por vez, exatamente como o `reversa` faz (informar o agente, ativar o skill, salvar checkpoint, marcar ✅ no `plan.md`, resumo breve). Com estes overrides:
+Execute o plano sequencialmente, um agente por vez, exatamente como o `reversa` faz (informar o agente, ler o `SKILL.md` dele e executar no contexto atual, salvar checkpoint, marcar ✅ no `plan.md`, resumo breve). Com estes overrides:
 
 1. **Nenhuma confirmação intermediária.** Não pergunte "podemos começar com o Scout?", não ofereça o checkpoint preventivo de `/clear` + nova sessão, não peça CONTINUAR entre agentes.
 2. **Handoff automático.** Os skills dos agentes terminam sugerindo o próximo passo e pedindo "Digite CONTINUAR". Em modo autônomo, o orquestrador é quem responde: prossiga imediatamente para a próxima tarefa do plano, sem esperar o usuário.

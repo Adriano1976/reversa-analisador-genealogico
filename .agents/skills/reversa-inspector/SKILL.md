@@ -1,6 +1,7 @@
 ---
 name: reversa-inspector
 description: "Quinto agente do Time de Migração. Define como provar que o sistema novo é comportamentalmente equivalente ao legado, com critérios adaptados ao paradigma escolhido. Produz parity_specs.md e parity_tests/*.feature em Gherkin. Ativação: /reversa-inspector (geralmente invocado por /reversa-migrate)."
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

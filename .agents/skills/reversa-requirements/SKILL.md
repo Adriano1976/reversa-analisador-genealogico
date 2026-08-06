@@ -1,6 +1,7 @@
 ---
 name: reversa-requirements
-description: Transforma uma ideia em linguagem natural num documento de requisitos completo, ancorado nos artefatos da pipeline reversa. Use quando o usuário digitar "/reversa-requirements", "reversa-requirements", "quero levantar requisitos" ou pedir para iniciar uma nova feature a partir de uma frase. Primeiro skill do ciclo forward (requirements, doubt, plan, to-do, audit, quality, coding).
+description: Transforma uma ideia em linguagem natural num documento de requisitos completo, ancorado nos artefatos da pipeline reversa. Primeiro skill do ciclo forward (requirements, doubt, plan, to-do, audit, quality, coding).
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

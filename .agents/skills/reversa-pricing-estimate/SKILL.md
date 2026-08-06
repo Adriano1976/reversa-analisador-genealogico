@@ -1,6 +1,7 @@
 ---
 name: reversa-pricing-estimate
-description: 'Combina profile de cobranca e size da feature ativa para produzir tres cenarios de preco lado a lado: Esforco, Valor e Faixa de Mercado. Use quando o usuario digitar "/reversa-pricing-estimate", "reversa-pricing-estimate", "calcular preco", "quanto cobrar" ou "orcar feature". Roda depois de `/reversa-pricing-profile` e `/reversa-pricing-size`.'
+description: 'Combina profile de cobranca e size da feature ativa para produzir tres cenarios de preco lado a lado: Esforco, Valor e Faixa de Mercado. Roda depois de `/reversa-pricing-profile` e `/reversa-pricing-size`.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compativeis com Agent Skills.
 metadata:

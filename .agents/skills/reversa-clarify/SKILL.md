@@ -1,6 +1,7 @@
 ---
 name: reversa-clarify
-description: Gera até cinco perguntas dirigidas para resolver pontos ambíguos do requirements e integra as respostas no documento. Use quando o usuário digitar "/reversa-clarify", "reversa-clarify", "esclarecer dúvidas" ou pedir para tirar pontos abertos do requirements antes de planejar. Etapa opcional do ciclo forward, entre `/reversa-requirements` e `/reversa-plan`.
+description: Gera até cinco perguntas dirigidas para resolver pontos ambíguos do requirements e integra as respostas no documento. Etapa opcional do ciclo forward, entre `/reversa-requirements` e `/reversa-plan`.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

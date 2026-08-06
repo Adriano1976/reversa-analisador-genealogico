@@ -1,6 +1,7 @@
 ---
 name: reversa-selo-generativo
-description: Cria selos visuais generativos seeded com p5.js, gerando HTML standalone com arte algorítmica reprodutível derivada de um hash ou string. Use com "selo", "selo generativo", "identidade visual do projeto", "hero capa", "artwork seeded", "capa reprodutível", "selo de documentação".
+description: Cria selos visuais generativos seeded com p5.js, gerando HTML standalone com arte algorítmica reprodutível derivada de um hash ou string.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

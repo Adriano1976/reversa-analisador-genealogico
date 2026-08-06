@@ -1,6 +1,7 @@
 ---
 name: reversa-pricing-size
-description: Mede o tamanho estrutural da feature ativa lendo requirements, duvidas, plan e tasks do ciclo forward, e gera size.json mais size.md com T-shirt sizing deterministico baseado em tasks e ajuste de risco. Use quando o usuario digitar "/reversa-pricing-size", "reversa-pricing-size", "dimensionar feature" ou "calcular tamanho da feature". Roda depois de `/reversa-to-do` e antes de `/reversa-pricing-estimate`.
+description: Mede o tamanho estrutural da feature ativa lendo requirements, duvidas, plan e tasks do ciclo forward, e gera size.json mais size.md com T-shirt sizing deterministico baseado em tasks e ajuste de risco. Roda depois de `/reversa-to-do` e antes de `/reversa-pricing-estimate`.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compativeis com Agent Skills.
 metadata:

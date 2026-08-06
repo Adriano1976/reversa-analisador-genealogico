@@ -1,6 +1,7 @@
 ---
 name: reversa-image-prompt-json
-description: Cria prompts JSON estruturados para geração de imagens com estética luxuosa e cinematográfica (foto de produto, comida, cosmético, joia, moda). Use com "prompt para imagem", "gerar imagem de produto", "foto de produto com IA", "prompt para Midjourney/DALL-E/Flux", "montar prompt JSON de imagem".
+description: Cria prompts JSON estruturados para geração de imagens com estética luxuosa e cinematográfica (foto de produto, comida, cosmético, joia, moda).
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
