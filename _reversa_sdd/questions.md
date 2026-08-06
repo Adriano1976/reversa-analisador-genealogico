@@ -13,7 +13,7 @@
 **Pergunta:** As regras A/B/C/D de aceitação do matching difuso (combinações de dado genérico/não-genérico, interseção de sobrenomes, thresholds de Jaccard e score) são o comportamento definitivo esperado, ou algumas são heurísticas ad hoc que podem ser simplificadas numa reimplementação?
 **Impacto:** Se forem definitivas, devem ser preservadas com fidelidade. Se forem heurísticas, podem ser simplificadas mantendo o espírito.
 
-**Resposta:** <!-- preencha aqui -->
+**Resposta:** São comportamentos definitivos — devem ser preservados com fidelidade numa reimplementação.
 
 ---
 
@@ -24,7 +24,7 @@
 **Pergunta:** Em caso de homônimos (duas pessoas com o mesmo nome no GEDCOM), o sistema usa o primeiro ID encontrado. Essa é uma política aceitável ou é preciso desambiguação explícita (ex.: pedir confirmação ao usuário)?
 **Impacto:** Se aceitável, mantém-se como está. Se não, a spec precisa de requisito de desambiguação.
 
-**Resposta:** <!-- preencha aqui -->
+**Resposta:** Pode manter como está — o comportamento do primeiro ID já foi validado várias vezes.
 
 ---
 
@@ -35,7 +35,7 @@
 **Pergunta:** Não há validação de extensão/tamanho dos arquivos enviados e arquivos com o mesmo nome são sobrescritos. Essa é uma limitação conhecida aceita para uso local, ou deve haver política de segurança (extensões permitidas, tamanho máximo, nomes únicos)?
 **Impacto:** Se aceita, documenta-se como limitação. Se não, a spec deve incluir os requisitos de segurança.
 
-**Resposta:** <!-- preencha aqui -->
+**Resposta:** Limitação aceita para uso local — manter sem política de segurança (documenta-se como limitação).
 
 ---
 
@@ -46,4 +46,4 @@
 **Pergunta:** O relaxamento do threshold de Jaccard para matches de cM alto (0.5 → 0.33) é intencional para capturar parentes próximos com nomes divergentes, ou pode gerar falsos positivos que deveriam ser evitados?
 **Impacto:** Se intencional, mantém-se. Se não, o threshold deve ser mais rígido.
 
-**Resposta:** <!-- preencha aqui -->
+**Resposta:** Intencional — mantém-se o relaxamento do threshold de Jaccard (0.5 → 0.33) para cM ≥ 150 e dado não-genérico.
