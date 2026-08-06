@@ -1,6 +1,7 @@
 ---
 name: reversa-resume
-description: Retoma uma feature pausada (listada em paused-features de active-requirements.json) e a torna ativa. Use quando o usuário digitar "/reversa-resume", "reversa-resume", "retomar feature pausada" ou pedir para voltar a uma feature anterior. NÃO cria features novas, apenas troca a ativa pela escolhida e (quando faz sentido) move a ativa atual para paused-features.
+description: Retoma uma feature pausada (listada em paused-features de active-requirements.json) e a torna ativa. NÃO cria features novas, apenas troca a ativa pela escolhida e (quando faz sentido) move a ativa atual para paused-features.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

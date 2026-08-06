@@ -1,6 +1,7 @@
 ---
 name: reversa-screen-translator
-description: 'Quinto agente do Time de Migração, em duas fases. Fase 1: detecta plataforma origem/alvo, apresenta os modos (literal, modernizado, híbrido) e exige decisão humana. Fase 2: gera as specs das telas (target_screens.md, deviation log e golden files quando há oráculo legado). Use com "/reversa-screen-translator" (normalmente via /reversa-migrate).'
+description: 'Quinto agente do Time de Migração, em duas fases. Fase 1: detecta plataforma origem/alvo, apresenta os modos (literal, modernizado, híbrido) e exige decisão humana. Fase 2: gera as specs das telas (target_screens.md, deviation log e golden files quando há oráculo legado).'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

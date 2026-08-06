@@ -1,6 +1,7 @@
 ---
 name: reversa-debugger-graph
-description: 'Gerador de views do time Bugs: varre os bug.md, valida invariantes e regenera índice, catálogo, matriz de relações BUG↔BUG, grafo mermaid e matriz de rastreabilidade BUG↔SPEC. Use com "/reversa-debugger-graph", "panorama dos bugs", "grafo de bugs", "regenerar índice de bugs".'
+description: 'Gerador de views do time Bugs: varre os bug.md, valida invariantes e regenera índice, catálogo, matriz de relações BUG↔BUG, grafo mermaid e matriz de rastreabilidade BUG↔SPEC.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

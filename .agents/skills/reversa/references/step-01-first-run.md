@@ -60,4 +60,4 @@ Consulte `references/checkpoint-guide.md` para as regras de escrita no state.jso
 
 Pergunte: "[Nome], podemos começar com o **Scout** — mapeamento do projeto?"
 
-Após confirmação, ative o skill `reversa-scout`.
+Após confirmação, leia `reversa-scout/SKILL.md` (pasta irmã, no mesmo diretório de skills) na íntegra e execute as instruções no contexto atual.

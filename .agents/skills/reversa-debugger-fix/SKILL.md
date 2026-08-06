@@ -1,6 +1,7 @@
 ---
 name: reversa-debugger-fix
-description: 'Corretor de bugs do Reversa: reproduz, investiga causa raiz, oferece debate opt-in, cria testes de reprodução e regressão, aplica o change set em dois gates aprovados, dá o veredito de spec e fecha pela closure policy. Exige bug registrado via /reversa-debugger. Use com "/reversa-debugger-fix", "corrigir o bug", "consertar o BUG-XXX".'
+description: 'Corretor de bugs do Reversa: reproduz, investiga causa raiz, oferece debate opt-in, cria testes de reprodução e regressão, aplica o change set em dois gates aprovados, dá o veredito de spec e fecha pela closure policy. Exige bug registrado via /reversa-debugger.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

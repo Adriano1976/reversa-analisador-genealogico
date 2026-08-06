@@ -1,6 +1,7 @@
 ---
 name: reversa-docs-publisher
-description: "Editor-chefe do Time Reversa Docs. Gera index.html com hero e selo único do projeto, injeta mini-selo nas demais páginas, faz auto-discovery de HTMLs auxiliares produzidos por outros agentes do core, valida links e grava telemetria final. Ative com /reversa-docs-publisher, reversa-docs-publisher, regenerar index, refazer selo, atualizar índice."
+description: Editor-chefe do Time Reversa Docs. Gera index.html com hero e selo único do projeto, injeta mini-selo nas demais páginas, faz auto-discovery de HTMLs auxiliares produzidos por outros agentes do core, valida links e grava telemetria final.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

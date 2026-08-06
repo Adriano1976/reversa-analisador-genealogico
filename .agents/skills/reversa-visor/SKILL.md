@@ -1,6 +1,7 @@
 ---
 name: reversa-visor
 description: Documenta a interface do sistema legado a partir de screenshots — extrai componentes, layouts, fluxos de navegação e estados de tela. Use quando screenshots do sistema estiverem disponíveis, sem necessidade de o sistema estar em execução.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills (requer suporte a imagens no modelo).
 metadata:

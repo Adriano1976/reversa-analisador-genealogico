@@ -1,6 +1,7 @@
 ---
 name: reversa-researcher
-description: Agente Researcher do time Code New Project Agents. A partir de `ideation.md`, aprofunda o público-alvo em 1 a 3 personas estruturadas com jornadas. Use quando o usuário digitar "/reversa-researcher", "reversa-researcher" ou quando invocado pelo orquestrador `/reversa-new`. Produz `_reversa_sdd/personas.md`.
+description: Agente Researcher do time Code New Project Agents. A partir de `ideation.md`, aprofunda o público-alvo em 1 a 3 personas estruturadas com jornadas. Produz `_reversa_sdd/personas.md`.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

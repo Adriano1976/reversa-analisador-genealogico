@@ -1,6 +1,7 @@
 ---
 name: reversa-plan
-description: Esboça a abordagem técnica como delta sobre o legado, gerando roadmap, investigation, data-delta, onboarding e interfaces da feature ativa. Use quando o usuário digitar "/reversa-plan", "reversa-plan", "esboçar plano técnico" ou pedir para virar requirements em desenho de solução. Terceiro skill do ciclo forward, depois de `/reversa-requirements` e (opcionalmente) `/reversa-clarify`.
+description: Esboça a abordagem técnica como delta sobre o legado, gerando roadmap, investigation, data-delta, onboarding e interfaces da feature ativa. Terceiro skill do ciclo forward, depois de `/reversa-requirements` e (opcionalmente) `/reversa-clarify`.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

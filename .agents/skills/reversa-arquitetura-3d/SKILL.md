@@ -1,6 +1,7 @@
 ---
 name: reversa-arquitetura-3d
-description: Cria visualizações 3D interativas de arquitetura de software com Three.js, gerando HTML standalone navegável por câmera livre a partir de JSON de módulos e dependências. Use com "arquitetura 3D", "code city", "cidade de código", "dependency graph 3D", "call graph 3D", "tour pela arquitetura".
+description: Cria visualizações 3D interativas de arquitetura de software com Three.js, gerando HTML standalone navegável por câmera livre a partir de JSON de módulos e dependências.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

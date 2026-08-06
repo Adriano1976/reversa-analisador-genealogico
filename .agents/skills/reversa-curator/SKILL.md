@@ -1,6 +1,7 @@
 ---
 name: reversa-curator
 description: "Segundo agente do Time de Migração. Decide o que migra, o que descarta e o que precisa de decisão humana, com base nas specs do legado, no critério do brief e no paradigma escolhido. Produz target_business_rules.md e discard_log.md. Ativação: /reversa-curator (geralmente invocado por /reversa-migrate)."
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

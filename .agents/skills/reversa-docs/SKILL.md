@@ -131,7 +131,7 @@ Depois do vendor bundle, execute em sequência **Mapper → Analyst → Storytel
 Para cada agente na sequência:
 
 1. Informe: "Iniciando o **[Agente]**, [o que ele vai fazer]."
-2. Ative o skill `reversa-docs-<nome>` correspondente. Se a engine não suportar ativação direta, leia o `SKILL.md` do agente e execute no contexto atual passando o `.config.json` como entrada.
+2. Leia o `SKILL.md` do agente `reversa-docs-<nome>` correspondente (pasta irmã, no mesmo diretório de skills) na íntegra e execute no contexto atual, passando o `.config.json` como entrada.
 3. Após conclusão, atualize `_reversa_docs/.state.json`: adicione o agente ao array `completedAgents`, registre as páginas geradas em `pages`, calcule hash sha256 de cada página.
 4. Apresente resumo:
 

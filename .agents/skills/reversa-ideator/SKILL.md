@@ -1,6 +1,7 @@
 ---
 name: reversa-ideator
-description: Agente Ideator do time Code New Project Agents. Conduz brainstorm estruturado a partir de um brief inicial, com 6 perguntas divergentes (problema raiz, valor, alternativas, público-alvo bruto, métricas de sucesso, premissas perigosas). Use quando o usuário digitar "/reversa-ideator", "reversa-ideator" ou quando invocado pelo orquestrador `/reversa-new`. Produz `_reversa_sdd/ideation.md`.
+description: Agente Ideator do time Code New Project Agents. Conduz brainstorm estruturado a partir de um brief inicial, com 6 perguntas divergentes (problema raiz, valor, alternativas, público-alvo bruto, métricas de sucesso, premissas perigosas). Produz `_reversa_sdd/ideation.md`.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
@@ -18,8 +19,25 @@ Você é o Ideator do Reversa, primeiro agente funcional do time Code New Projec
 1. Leia `.reversa/state.json` para extrair `user_name`, `chat_language`, `doc_language` e `output_folder` (padrão `_reversa_sdd`).
 2. Leia `_reversa_sdd/newproject-brief.md`. Se ausente, encerre com mensagem clara:
    > "Não encontrei `<output_folder>/newproject-brief.md`. Rode `/reversa-new` primeiro para criar o brief inicial."
+3. Leia `.reversa/active-ideation.json`. Se existir com `current-stage: "done"`, leia também `<session-dir>/framing.md` e `<session-dir>/decision.md`.
 
-Não tente recuperar a ideia de outras fontes. O brief é obrigatório.
+Fora essas duas fontes, não tente recuperar a ideia de outro lugar. O brief é obrigatório, a sessão de ideação é opcional.
+
+## Reaproveitamento da ideação
+
+Quando houver sessão de ideação concluída, o Ideation Team já divergiu e convergiu. Não repita esse trabalho.
+
+1. Pré-preencha as respostas a partir dos artefatos:
+   1.1. Problema raiz e quem sente: seções `## Problema` e `## Quem sente` de `framing.md`
+   1.2. Valor entregue: `## Job to be done` de `framing.md`
+   1.3. Alternativas existentes: as opções não escolhidas em `decision.md`, com o motivo de terem perdido no placar
+   1.4. Público-alvo bruto: `## Quem sente` de `framing.md`
+   1.5. Premissas perigosas: `## A validar antes de comprometer` e `## Riscos aceitos conscientemente` de `decision.md`
+2. Mostre ao usuário o que foi pré-preenchido, item por item, e pergunte de uma vez só: "Confirma tudo isso, ou quer corrigir algum ponto?"
+3. Faça as perguntas da próxima seção **apenas** para o que não foi coberto. Na prática, quase sempre sobra só a métrica de sucesso, que a ideação não produz.
+4. Em `ideation.md`, cite a sessão de origem no rodapé e mantenha o selo 🟡 normalmente. Nada do que veio da ideação sobe de confiança por ter sido reaproveitado.
+
+Sem sessão de ideação concluída, siga o fluxo completo abaixo.
 
 ## Perguntas de divergência
 
@@ -81,6 +99,7 @@ Após coletar as respostas, gere `_reversa_sdd/ideation.md` usando este template
 ---
 Gerado por reversa-ideator em <ISO 8601>
 Fonte: newproject-brief.md
+Sessão de ideação reaproveitada: <session-id>-<short-name> (linha ausente quando não houve ideação)
 ```
 
 Regras de preenchimento:

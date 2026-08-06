@@ -1,6 +1,7 @@
 ---
 name: reversa-quality
-description: Auditoria de clareza textual do requirements. Verifica se a prosa é boa o bastante para gerar plano sem ambiguidade. NÃO mistura com auditoria de testes de implementação. Use quando o usuário digitar "/reversa-quality", "reversa-quality" ou pedir para revisar a qualidade do requirements antes de planejar. Etapa opcional do ciclo forward.
+description: Auditoria de clareza textual do requirements. Verifica se a prosa é boa o bastante para gerar plano sem ambiguidade. NÃO mistura com auditoria de testes de implementação. Etapa opcional do ciclo forward.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

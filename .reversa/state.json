@@ -1,5 +1,5 @@
 {
-  "version": "1.2.57",
+  "version": "1.2.58",
   "project": "teste_reversa",
   "user_name": "Adriano",
   "chat_language": "pt-br",
@@ -96,7 +96,7 @@
         "_reversa_sdd/questions.md"
       ],
       "questions_generated": 4,
-      "questions_answered": 0,
+      "questions_answered": 4,
       "reclassifications": [
         {
           "from": "🟢",

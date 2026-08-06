@@ -1,6 +1,7 @@
 ---
 name: reversa-coding
-description: 'Executa o actions.md em código: marca checkboxes [X], escreve progress.jsonl e gera legacy-impact.md e regression-watch.md. Funciona ancorado no legado (`_reversa_sdd/`) ou greenfield (`/reversa-new`). Último passo do ciclo forward. Use com "/reversa-coding", "executar plano", "codar a feature ativa".'
+description: 'Executa o actions.md em código: marca checkboxes [X], escreve progress.jsonl e gera legacy-impact.md e regression-watch.md. Funciona ancorado no legado (`_reversa_sdd/`) ou greenfield (`/reversa-new`). Último passo do ciclo forward.'
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

@@ -1,6 +1,7 @@
 ---
 name: reversa-docs-storyteller
-description: "Narrador do Time Reversa Docs. Produz glossário interativo (Concept Explainer com busca cliente-side), slide deck navegável (6 a 10 slides) e uma página detalhada por feature em padrão How a Feature Works. Ative com /reversa-docs-storyteller, reversa-docs-storyteller, regenerar glossário, refazer deck, páginas por feature."
+description: Narrador do Time Reversa Docs. Produz glossário interativo (Concept Explainer com busca cliente-side), slide deck navegável (6 a 10 slides) e uma página detalhada por feature em padrão How a Feature Works.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:

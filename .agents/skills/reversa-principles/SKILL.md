@@ -1,6 +1,7 @@
 ---
 name: reversa-principles
-description: Cria ou atualiza os princípios duradouros do projeto e propaga sugestões de ajuste nos templates dependentes. Princípios são raros, mudam pouco e influenciam todos os artefatos. Use quando o usuário digitar "/reversa-principles", "reversa-principles", "definir princípios" ou pedir para criar/alterar/aposentar um princípio do projeto. Pode rodar antes mesmo da primeira feature.
+description: Cria ou atualiza os princípios duradouros do projeto e propaga sugestões de ajuste nos templates dependentes. Princípios são raros, mudam pouco e influenciam todos os artefatos. Pode rodar antes mesmo da primeira feature.
+disable-model-invocation: true
 license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compatíveis com Agent Skills.
 metadata:
