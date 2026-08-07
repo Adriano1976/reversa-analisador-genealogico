@@ -1,0 +1,1 @@
+"""Pacote reconstruído do analisador-genealogico (Reversa Reconstructor)."""
