@@ -14,11 +14,17 @@
 | 03 | Busca de Caminho | `reconstructed/path_search.py` | ✅ |
 | 04 | Análise de DNA | `reconstructed/dna_analysis.py` | ✅ |
 
-## Testes — 20 passed
+## Testes — 47 passed
 
-- `tests/test_path_search.py` (9) — TT-01..TT-05: conexão direta, indireta, pessoa inexistente, sem conexão, pessoas idênticas.
-- `tests/test_dna_analysis.py` (11) — TT-01..TT-07: happy path, agregação de segmentos, encoding Latin-1, anti-falso-positivo, raiz inexistente, colunas ausentes, match sem caminho; + relação por faixa de cM.
+Todos os 4 módulos da reconstrução possuem cobertura de testes:
+
+- `tests/test_domain.py` (14) — Tarefa 01: rotinas de mojibake (`strip_bad_utf`, `demojibake`), entidades `Family`, `GenealogyGraph` e `DNAGroup`.
+- `tests/test_upload.py` (13) — Tarefa 02: `ref_id`, `get_name`, `ensure_dirs`, `load_gedcom_and_build_graph` (globals + nomes ordenados + reparse), `build_graph_from_parser` (nós/arestas/índice filho→família).
+- `tests/test_path_search.py` (9) — Tarefa 03: TT-01..TT-05, conexão direta, indireta, pessoa inexistente, sem conexão, pessoas idênticas.
+- `tests/test_dna_analysis.py` (11) — Tarefa 04: TT-01..TT-07, happy path, agregação de segmentos, encoding Latin-1, anti-falso-positivo, raiz inexistente, colunas ausentes, match sem caminho; + relação por faixa de cM.
 - Fixtures GEDCOM sintéticos: `tests/fixtures/sample_gedcom.py`, `tests/fixtures/sample_dna.py`.
+
+**Suíte total: 47 passed.** Cobertura por especificação (requirements/design/tasks) de todas as unidades (<upload-gedcom, busca-caminho, analise-dna>).
 
 ## Decisões de fidelidade preservadas
 
@@ -37,6 +43,9 @@
 
 - `fa607b5` — feat: implementa modulos domain.py, path_search.py e upload.py com testes realizados
 - `5af2274` — feat: implementa modulo dna_analysis.py com testes da analise de DNA
+- `2bf3ac3` — docs: adiciona relatorio final da reconstrucao
+- `73a404a` — test: adiciona testes do modulo domain.py
+- `1d4e5d5` — test: adiciona testes do modulo upload.py
 
 ## Não aplicáveis (nível essencial / sem banco)
 
