@@ -3,7 +3,10 @@
 **Fonte:** original
 **Stack:** Python 3 / Flask (Jinja2, Bootstrap 5) · ged4py · networkx · pandas · thefuzz · python-Levenshtein · pyvis · matplotlib · gunicorn
 **Gerado em:** 2026-08-07 (Reconstructor)
-**Status:** 4 tarefas | 3 concluídas | 1 pendente
+**Status:** 4 tarefas | 4 concluídas | 0 pendentes
+
+> Nota (Reconstructor): Tarefa 03 concluída com testes em `tests/test_path_search.py` (9 passed).
+> Nota (Reconstructor): Tarefa 04 concluída em `reconstructed/dna_analysis.py`, com testes em `tests/test_dna_analysis.py` (11 passed). Suíte total: 20 passed.
 
 ---
 
@@ -51,7 +54,7 @@
 ---
 
 ### Tarefa 04 — Análise de DNA
-**Status:** pending
+**Status:** done
 **Lê:** `analise-dna/requirements.md`, `analise-dna/design.md`, `analise-dna/tasks.md`, `dependencies.md`
 **Constrói:** carregamento/agregação de segmentos de `.csv`, matching difuso viral (`0.55×token_sort + 0.25×partial + 0.20×given + InterBonus`), filtro anti-falso-positivo, intersecção adaptativa, regras A/B/C/D de aceitação, relaxamento de Jaccard (0.5→0.33 p/ cM≥150 e não-genérico), equivalente de grafia/abreviações, tabela de relação por faixa de cM, e cálculo de caminho até a raiz.
 **Pronto quando:** matches agregados por chave (nome + ID/email), soma de cM e matching viral com regras A/B/C/D preservadas com fidelidade; relação por faixa de cM; `skipped_matches` listados como descartados.
