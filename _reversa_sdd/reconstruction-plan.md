@@ -3,7 +3,7 @@
 **Fonte:** original
 **Stack:** Python 3 / Flask (Jinja2, Bootstrap 5) · ged4py · networkx · pandas · thefuzz · python-Levenshtein · pyvis · matplotlib · gunicorn
 **Gerado em:** 2026-08-07 (Reconstructor)
-**Status:** 4 tarefas | 0 concluídas | 4 pendentes
+**Status:** 4 tarefas | 3 concluídas | 1 pendente
 
 ---
 
@@ -25,7 +25,7 @@
 ## Tarefas
 
 ### Tarefa 01 — Entidades de Domínio
-**Status:** pending
+**Status:** done
 **Lê:** `_reversa_sdd/domain.md`
 **Constrói:** representação em memória das entidades `PERSON`, `FAMILIA` e `DNA_MATCH` (dicionários + `networkx.MultiGraph`), sem persistência.
 **Pronto quando:** Estruturas de dados capazes de representar pessoas (xref_id, nome, sub-registros FAMC/FAMS), famílias (husb, wife, chil) e matches de DNA (chave de grupo, cM, nome casado) implementadas com limpeza de mojibake (`strip_bad_utf`, `demojibake`).
@@ -33,7 +33,7 @@
 ---
 
 ### Tarefa 02 — Upload GEDCOM
-**Status:** pending
+**Status:** done
 **Lê:** `_reversa_sdd/upload-gedcom/requirements.md`, `_reversa_sdd/upload-gedcom/design.md`, `_reversa_sdd/upload-gedcom/tasks.md`, `_reversa_sdd/dependencies.md`
 **Constrói:** rota de upload + parsing de `.ged` (com `ged4py`), geração de nome formatado (`get_name`), limpeza de mojibake, e construção do grafo pessoa↔família (`build_graph`).
 **Pronto quando:** Arquivo `.ged` enviado (sem validação de extensão/tamanho — limitação aceita) é salvo em `UPLOAD_FOLDER` (colisão sobrescreve), parseado em `PERSON`/`FAMILIA` e o grafo família é construído em memória; estados GEDCOM carregado/sem GEDCOM corretos.
@@ -42,7 +42,7 @@
 ---
 
 ### Tarefa 03 — Busca de Caminho
-**Status:** pending
+**Status:** done
 **Lê:** `_reversa_sdd/busca-caminho/requirements.md`, `_reversa_sdd/busca-caminho/design.md`, `_reversa_sdd/busca-caminho/tasks.md`, `_reversa_sdd/dependencies.md`
 **Constrói:** resolução de pessoa por nome (`find_person_by_name`, usa 1º ID em homônimos), conexão direta por ancestral comum (sob `FAMC`/`get_parents`, prof. máx. 20) e fallback de conexão indirecta por afinidade (BFS, máx. 40 hops).
 **Pronto quando:** dada a pessoa-raiz e um match, o caminho ascendente+descendente é montado; fallback indireto corretamente; homônimos usam o 1º ID; limites de busca respeitados.
