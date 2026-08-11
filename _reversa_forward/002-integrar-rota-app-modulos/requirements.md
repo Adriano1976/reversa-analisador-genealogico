@@ -7,7 +7,7 @@
 
 ## 1. Resumo executivo
 
-Esta feature entrega a **camada de apresentação que faltou na reconstrução**: o `app.py` passa a delegar a lógica de upload GEDCOM, busca de caminho e análise de DNA aos módulos reconstruídos em `reconstructed/` (`upload.py`, `path_search.py`, `dna_analysis.py`), em vez de duplicá-la inline. Resolve a divergência onde o refactor modular está validado por 47 testes, mas a aplicação real ainda roda o código monolítico duplicado.
+Esta feature entrega a **camada de apresentação que faltou na reconstrução**: os módulos reconstruídos em `reconstructed/` são promovidos para dentro de `analisador-genealogico/` e o `app.py` passa a delegar a lógica de upload GEDCOM, busca de caminho e análise de DNA a eles, em vez de duplicá-la inline. Resolve a divergência onde o refactor modular está validado por 47 testes, mas a aplicação real ainda roda o código monolítico duplicado.
 
 ## 2. Contexto a partir do legado
 
@@ -28,7 +28,7 @@ Esta feature entrega a **camada de apresentação que faltou na reconstrução**
 
 ## 4. Regras de negócio novas ou alteradas
 
-1. **RN-01:** O `app.py` (rota `index()`) passa a delegar execução aos módulos `reconstructed/`, mantendo comportamento observável idêntico ao legado. 🟢
+1. **RN-01:** Os módulos reconstruídos são movidos para `analisador-genealogico/` e o `app.py` (rota `index()`) passa a delegar execução a eles, mantendo comportamento observável idêntico ao legado. 🟢
    - Origem no legado: `_reversa_sdd/domain.md#3` (regras de decisão/fluxo) e `_reversa_sdd/architecture.md#5` (dívida de acoplamento).
    - Tipo: alterada (refactor sem mudança de comportamento de negócio).
 2. **RN-02:** O contrato de renderização com `templates/index.html` permanece intacto — todas as variáveis Jinja2 expostas pelo `app.py` (`gedcom_filename`, `message`, `success`, `all_names`, `path_result`, `dna_results`, `skipped_matches`) continuam iguais. 🟢
@@ -39,12 +39,13 @@ Esta feature entrega a **camada de apresentação que faltou na reconstrução**
 
 | ID | Requisito | Prioridade | Critério de aceite | Confidência |
 |----|-----------|------------|--------------------|-------------|
-| RF-01 | Rota `upload_gedcom` usa `reconstructed.upload.load_gedcom_and_build_graph` | Must | Upload salva o `.ged` e popula `people`/`families`/`graph` via módulo reconstruído; lista de nomes retornada é idêntica. | 🟢 |
-| RF-02 | Rota `path_search` usa `reconstructed.path_search.path_search` | Must | Para as mesmas entradas, `path_result` (text_path, mermaid_data, person1/2_name) e mensagens são idênticas ao legado. | 🟢 |
-| RF-03 | Rota `dna_analysis` usa `reconstructed.dna_analysis.dna_analysis` | Must | Agregação, matching A/B/C/D, `skipped_matches` e ordenação por cM idênticos; erros (ex.: root não encontrado) viram `message` com `success=False`. | 🟢 |
-| RF-04 | Tratamento de exceções do fluxo DNA | Must | `ValueError` lançado pelos módulos reconstruídos é capturado e renderizado como mensagem de erro amigável, como hoje. | 🟡 |
-| RF-05 | Estado GEDCOM e re-parse | Must | Manter o comportamento de re-parse a cada `POST` e as globals compartilhadas (`people`, `families`, `graph`, `child_to_family`). | 🟢 |
-| RF-06 | Remoção da lógica duplicada inline no `app.py` | Should | Toda função/constante duplicada (matching, mermaid, cM, helpers) removida do `app.py`; restam apenas rotas e renderização. | 🟡 |
+| RF-01 | Mover módulos `reconstructed/*` para `analisador-genealogico/` | Must | Módulos `upload.py`, `path_search.py`, `dna_analysis.py`, `domain.py` residem em `analisador-genealogico/` e são importáveis pelo `app.py`. | 🟢 |
+| RF-02 | Rota `upload_gedcom` usa `upload.load_gedcom_and_build_graph` (movido) | Must | Upload salva o `.ged` e popula `people`/`families`/`graph` via módulo movido; lista de nomes retornada é idêntica. | 🟢 |
+| RF-03 | Rota `path_search` usa `path_search.path_search` (movido) | Must | Para as mesmas entradas, `path_result` (text_path, mermaid_data, person1/2_name) e mensagens são idênticas ao legado. | 🟢 |
+| RF-04 | Rota `dna_analysis` usa `dna_analysis.dna_analysis` (movido) | Must | Agregação, matching A/B/C/D, `skipped_matches` e ordenação por cM idênticos; erros (ex.: root não encontrado) viram `message` com `success=False`. | 🟢 |
+| RF-05 | Tratamento de exceções do fluxo DNA | Must | `ValueError` lançado pelos módulos é capturado e renderizado como mensagem de erro amigável, como hoje. | 🟡 |
+| RF-06 | Estado GEDCOM e re-parse | Must | Manter o comportamento de re-parse a cada `POST` e as globals compartilhadas (`people`, `families`, `graph`, `child_to_family`). | 🟢 |
+| RF-07 | Remoção da lógica duplicada inline no `app.py` | Must | Toda função/constante duplicada (matching, mermaid, cM, helpers) removida do `app.py`; restam apenas rotas e renderização. | 🟢 |
 
 ## 6. Requisitos Não Funcionais
 
@@ -61,17 +62,17 @@ Esta feature entrega a **camada de apresentação que faltou na reconstrução**
 Cenário: Upload de GEDCOM continua funcional
   Dado o usuário na página inicial
   Quando envia um arquivo .ged válido
-  Então o app usa reconstructed.upload e exibe a lista de nomes carregada
+  Então o app usa o módulo upload movido e exibe a lista de nomes carregada
 
 Cenário: Busca de caminho continua funcional
   Dado um GEDCOM carregado
   Quando o usuário busca duas pessoas existentes
-  Então o app usa reconstructed.path_search e renderiza text_path + Mermaid
+  Então o app usa o módulo path_search movido e renderiza text_path + Mermaid
 
 Cenário: Análise de DNA continua funcional
   Dado um GEDCOM carregado
   Quando o usuário envia CSV + root_name
-  Então o app usa reconstructed.dna_analysis e renderiza resultados e descartados
+  Então o app usa o módulo dna_analysis movido e renderiza resultados e descartados
 
 Cenário: Erro de DNA tratado
   Dado um GEDCOM carregado
@@ -83,18 +84,21 @@ Cenário: Erro de DNA tratado
 
 | Item | MoSCoW | Justificativa |
 |------|--------|---------------|
-| RF-01, RF-02, RF-03 | Must | São o objetivo central: rotas delegando aos módulos reconstruídos. |
-| RF-04, RF-05 | Must | Preservam contrato e robustez do legado. |
-| RF-06 | Should | Eliminar duplicação é desejável, mas pode ser feita em passos. |
+| RF-01 a RF-04 | Must | São o objetivo central: mover módulos e rotas delegando aos módulos reconstruídos. |
+| RF-05, RF-06 | Must | Preservam contrato e robustez do legado. |
+| RF-07 | Must | A remoção total da duplicação foi decisão do usuário no esclarecimento de 2026-08-11. |
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-08-11
+- **Q:** Escopo da remoção da lógica duplicada (RF-06): remover toda a lógica inline do `app.py` agora ou só delegar as rotas?
+  **R:** Remover TODA a lógica duplicada nesta feature (helpers, matching, mermaid, tabelas cM). O `app.py` fica apenas com as rotas e a renderização, delegando aos módulos reconstruídos.
+- **Q:** Como integrar o pacote `reconstructed/` na aplicação: importar direto mantendo a pasta atual ou mover os módulos para dentro do pacote `analisador-genealogico/`?
+  **R:** Mover/promover os módulos para dentro de `analisador-genealogico/` (ex.: `analisador-genealogico/reconstructed/` ou `analisador-genealogico/core/`), tornando-os parte do pacote principal da aplicação.
 
 ## 10. Lacunas
 
-- 🔴 [DÚVIDA] Escopo da remoção (RF-06): o `app.py` deve ter a lógica duplicada **totalmente removida** nesta feature, ou apenas as rotas delegando e os helpers inline ficando órfãos (a remover em feature futura)?
-- 🔴 [DÚVIDA] Integração `reconstructed` em produção: os módulos reconstruídos ficam em `reconstructed/` (fora do pacote principal). O `app.py` deve importá-los como `from reconstructed import ...` mantendo a pasta atual, ou os módulos devem ser movidos/promovidos para dentro do pacote `analisador-genealogico/`?
+- 🔴 Nenhuma lacuna pendente. [DÚVIDA] resolvida em 2026-08-11: módulos movidos para `analisador-genealogico/`.
 
 ## 11. Histórico de alterações
 
