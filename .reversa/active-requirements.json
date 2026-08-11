@@ -1,0 +1,10 @@
+{
+  "schema-version": 1,
+  "feature-dir": "_reversa_forward/001-reconstrua-o-conteudo-da-index",
+  "feature-id": "001",
+  "short-name": "reconstrua-o-conteudo-da-index",
+  "started-at": "2026-08-11T16:21:00Z",
+  "current-stage": "requirements",
+  "stages-completed": [],
+  "paused-features": []
+}
