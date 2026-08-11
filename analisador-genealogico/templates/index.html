@@ -179,7 +179,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+            mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
             setTimeout(() => {
                 const mermaidElements = document.querySelectorAll(".mermaid");
                 if (mermaidElements.length) {
