@@ -63,13 +63,31 @@ flowchart LR
 
 ```text
 analisador-genealogico/
-├── app.py                      # Aplicação Flask principal, parsing, rotas, lógica de grafos
+├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
 ├── requirements.txt            # Dependências do Python
+├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
+│   ├── domain.py               # Entidades de domínio (PERSON, FAMILIA, DNA_MATCH) e limpeza de mojibake
+│   ├── upload.py               # Upload e parsing de GEDCOM, construção do grafo networkx
+│   ├── path_search.py          # Busca de caminhos diretos (MRCA) e indiretos (afinidade), Mermaid
+│   └── dna_analysis.py         # Cruzamento GEDCOM × CSV de matches, fuzzy matching e previsão de parentesco
 ├── static/
 │   └── graph_path_search.html  # HTML estático gerado para grafos interativos (Pyvis)
 ├── templates/
 │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
-└── uploads/                    # Armazenamento temporário para os arquivos GEDCOM e CSV recebidos
+└── uploads/                    # Armazenamento dos arquivos GEDCOM e CSV enviados (inclui exemplos)
+```
+
+### Testes
+
+```text
+tests/
+├── fixtures/
+│   ├── sample_dna.py           # GEDCOM e CSVs sintéticos para análise de DNA
+│   └── sample_gedcom.py        # GEDCOM sintético para parsing e busca de caminhos
+├── test_domain.py              # Entidades de domínio e correção de mojibake
+├── test_upload.py              # Parsing de GEDCOM e construção do grafo
+├── test_path_search.py         # Busca de ancestrais diretos e caminhos por afinidade
+└── test_dna_analysis.py        # Agregação de segmentos, fuzzy matching e previsões por cM
 ```
 
 ## Principais Funcionalidades
@@ -83,19 +101,26 @@ analisador-genealogico/
 
 ## Fluxo de Desenvolvimento
 
-Atualmente, o projeto opera como uma base de código monolítica isolada (`app.py` possui cerca de 888 linhas).
+O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para o pacote `reconstructed/`, e o `app.py` passou a apenas orquestrar as rotas Flask (~86 linhas).
 - **CI/CD:** Não há pipelines de implantação automatizada ou arquivos Docker (Dockerfiles) configurados.
 - **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
 
 ## Padrões de Código
 
-- Toda a lógica está fortemente integrada dentro do `app.py`.
-- Dicionários (`people`, `families`) e grafos do NetworkX são as principais estruturas de dados para o gerenciamento de memória.
-- Lógicas complexas de leitura e extração de dados (como limpar caracteres corrompidos via `demojibake`) são isoladas em funções auxiliares específicas antes do processamento dos caminhos nos grafos.
+- A lógica de negócio está modularizada no pacote `reconstructed/`, separada da camada web (`app.py`).
+- O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
+- Entidades de domínio (`Family`, `GenealogyGraph`, `DNAGroup`) e rotinas de limpeza de caracteres corrompidos (`demojibake`) ficam em `domain.py`.
+- Busca de caminhos (direto por MRCA até 20 gerações e indireto por afinidade até 40 saltos) em `path_search.py`.
+- Cruzamento GEDCOM × CSV, fuzzy matching e previsão de parentesco por faixas de cM em `dna_analysis.py`.
 
 ## Testes
 
-- **Abordagem de Testes:** Atualmente, há uma ausência de testes unitários ou de integração automatizados (não foram detectados frameworks ou arquivos de testes). Quaisquer mudanças devem ser verificadas manualmente através da interface web fazendo o upload de arquivos `.ged` e `.csv` de teste.
+- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **47 testes** cobrindo parsing de GEDCOM, construção de grafo, entidades de domínio, busca de caminhos e análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM).
+- **Como rodar:**
+  ```bash
+  pip install -r requirements.txt pytest
+  pytest
+  ```
 
 ## Contribuindo
 
