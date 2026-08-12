@@ -8,10 +8,10 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-03T14:21:00Z">
+<meta name="reversa-generated-at" content="2026-08-12T14:26:00Z">
 <title>Upload e Parsing de GEDCOM — analisador-genealogico</title>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/nav.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/nav.js"></script>
 <style>
   :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -72,7 +72,7 @@
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
   <h1>Upload e Parsing de GEDCOM</h1>
   <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: upload-gedcom</span></div>
-  <p class="summary">Endpoint que recebe um arquivo GEDCOM (.ged), salva-o em <code>uploads/</code>, faz o parsing da árvore genealógica e expõe a lista de nomes para uso nas demais análises. O grafo de famílias fica em memória para a sessão.</p>
+  <p class="summary">Recebe um arquivo GEDCOM (.ged), salva-o em <code>uploads/</code>, faz o parsing da árvore genealógica e constrói o grafo de famílias em memória para a sessão.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
@@ -118,9 +118,9 @@ Então uma mensagem de erro com a exceção é exibida sem quebrar a aplicação
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
     <tr><td><b>app.py</b></td><td>index() (bloco upload_gedcom)</td><td>🟢</td></tr>
-    <tr><td><b>app.py</b></td><td>load_gedcom_and_build_graph()</td><td>🟢</td></tr>
-    <tr><td><b>app.py</b></td><td>build_graph_from_parser()</td><td>🟢</td></tr>
-    <tr><td><b>app.py</b></td><td>get_name()</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td>load_gedcom_and_build_graph()</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td>build_graph_from_parser()</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td>get_name()</td><td>🟢</td></tr>
   </tbody></table>
 </main>
 </body>

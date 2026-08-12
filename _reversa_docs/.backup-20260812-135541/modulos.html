@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-mapper">
 <meta name="reversa-template" content="modulos">
-<meta name="reversa-generated-at" content="2026-08-12T14:10:00Z">
+<meta name="reversa-generated-at" content="2026-08-03T14:11:00Z">
 <!-- TITLE -->
 <title>Módulos — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -98,12 +98,6 @@
     </select>
   </div>
   <div class="ctl">
-    <label for="fFolder">Pasta</label>
-    <select id="fFolder">
-      <option value="all">Todas</option>
-    </select>
-  </div>
-  <div class="ctl">
     <label for="charge">Força de repulsão <span id="chargeVal">-420</span></label>
     <input type="range" id="charge" min="-900" max="-80" step="10" value="-420">
   </div>
@@ -116,10 +110,8 @@
 
 <div id="tooltip"></div>
 <div class="legend">
-  <div class="item"><span class="sw" style="background:#4f8cff"></span> app.py</div>
-  <div class="item"><span class="sw" style="background:#6fbf73"></span> reconstructed/</div>
-  <div class="item"><span class="sw" style="background:#e0a458"></span> tests/</div>
-  <div class="item"><span class="sw" style="background:#b587e6"></span> templates / static</div>
+  <div class="item"><span class="sw" style="background:#4f8cff"></span> Módulo</div>
+  <div class="item"><span class="sw" style="background:#e57373; border:2px solid #b71c1c"></span> Em ciclo</div>
 </div>
 <div class="cycle-tag" id="cycleTag"></div>
 
@@ -143,20 +135,8 @@
 
   var langs = Array.from(new Set(modules.map(function(m){return m.language;}).filter(Boolean)));
   var types = Array.from(new Set(modules.map(function(m){return m.type;}).filter(Boolean)));
-  var folders = Array.from(new Set(modules.map(function(m){return m.folder;}).filter(Boolean)));
-  d3.select("#fLang").selectAll("option").data(langs).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
-  d3.select("#fType").selectAll("option").data(types).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
-  d3.select("#fFolder").selectAll("option").data(folders).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
-
-  var folderColor = {
-    "analisador-genealogico": "#4f8cff",
-    "reconstructed": "#6fbf73",
-    "tests": "#e0a458",
-    "tests/fixtures": "#e0a458",
-    "analisador-genealogico/templates": "#b587e6",
-    "analisador-genealogico/static": "#b587e6"
-  };
-  var colorOf = function(m){ return folderColor[m.folder] || "#8b909a"; };
+  var selLang = d3.select("#fLang").selectAll("option").data(langs).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
+  var selType = d3.select("#fType").selectAll("option").data(types).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
 
   var byId = {};
   modules.forEach(function(m){ byId[m.id] = m; });
@@ -173,7 +153,7 @@
 
   var node = svg.append("g").selectAll("circle").data(modules).join("circle")
     .attr("r", function(d){ return 9 + Math.sqrt(Number(d.loc)||0)/4; })
-    .attr("fill", function(d){ return cycleIds[d.id] ? "#e57373" : colorOf(d); })
+    .attr("fill", function(d){ return cycleIds[d.id] ? "#e57373" : "#4f8cff"; })
     .attr("stroke", function(d){ return cycleIds[d.id] ? "#b71c1c" : "#1e2024"; })
     .attr("stroke-width", 2)
     .style("cursor","pointer");
@@ -201,8 +181,7 @@
   function filter(){
     var l = document.getElementById("fLang").value;
     var t = document.getElementById("fType").value;
-    var fo = document.getElementById("fFolder").value;
-    var show = modules.filter(function(m){ return (l==="all"||m.language===l) && (t==="all"||m.type===t) && (fo==="all"||m.folder===fo); });
+    var show = modules.filter(function(m){ return (l==="all"||m.language===l) && (t==="all"||m.type===t); });
     var ids = new Set(show.map(function(m){return m.id;}));
     node.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
     label.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
@@ -210,7 +189,6 @@
   }
   document.getElementById("fLang").addEventListener("change", filter);
   document.getElementById("fType").addEventListener("change", filter);
-  document.getElementById("fFolder").addEventListener("change", filter);
 
   document.getElementById("charge").addEventListener("input", function(){
     document.getElementById("chargeVal").textContent = document.getElementById("charge").value;
@@ -225,7 +203,7 @@
 
   node.on("mouseover", function(ev, d){
     tooltip.style.display = "block";
-    tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.folder+'</span><br>'+d.type+' · '+d.language+
+    tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.type+'</span> · '+d.language+
       '<br>'+(Number(d.loc)||0)+' linhas · complexidade '+(Number(d.complexity)||0)+
       (cycleIds[d.id] ? '<br><b style="color:#e57373">Participa de ciclo</b>' : '')+
       '<br><span class="muted">'+d.path+'</span>';
@@ -235,8 +213,7 @@
   }).on("mouseout", function(){ tooltip.style.display = "none"; });
 
   var stats = document.getElementById("stats");
-  var totalLoc = modules.reduce(function(a,m){ return a + Number(m.loc); }, 0);
-  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+edges.length+'</b> arestas<br><b>'+totalLoc+'</b> linhas totais<br><b>'+cycles.length+'</b> ciclos detectados';
+  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+edges.length+'</b> arestas<br><b>'+cycles.length+'</b> ciclos detectados';
   if(cycles.length){
     var tag = document.getElementById("cycleTag");
     tag.style.display = "block";

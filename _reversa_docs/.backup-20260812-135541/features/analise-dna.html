@@ -8,10 +8,10 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-analise-dna">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-12T14:28:00Z">
-<title>Análise de DNA (DNA Analysis) — analisador-genealogico</title>
-<script src="../assets/js/data.js"></script>
-<script src="../assets/js/nav.js"></script>
+<meta name="reversa-generated-at" content="2026-08-03T14:22:00Z">
+<title>Análise de DNA — analisador-genealogico</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
 <style>
   :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -72,28 +72,33 @@
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
   <h1>Análise de DNA (DNA Analysis)</h1>
   <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: analise-dna</span></div>
-  <p class="summary">Cruza a árvore GEDCOM com um CSV de matches de DNA: agrega segmentos por pessoa (soma de cM), faz matching difuso de nomes com regras anti-falso-positivo, calcula o caminho até a raiz, prevê o parentesco por cM e ordena por cM decrescente.</p>
+  <p class="summary">Endpoint que cruza a árvore GEDCOM (já carregada) com um CSV de matches de DNA (ex.: GEDmatch Ancestor Project). Agrega segmentos duplicados por pessoa (somando cM), faz o matching difuso de nomes contra o GEDCOM, calcula o caminho genealógico até a pessoa-raiz, prevê o parentesco por cM e renderiza os resultados ordenados por cM decrescente.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
     <tr><td><b>Ler CSV</b></td><td>Fallback de encoding UTF-8 → Latin-1</td></tr>
-    <tr><td><b>Detectar colunas</b></td><td>Nome, cM e ID/Email tolerante</td></tr>
-    <tr><td><b>Agregar segmentos</b></td><td>Somar cM por _group_key</td></tr>
-    <tr><td><b>Matching difuso</b></td><td>thefuzz com anti-falso-positivo</td></tr>
-    <tr><td><b>Prever parentesco</b></td><td>Faixa de cM (Shared cM Project)</td></tr>
-    <tr><td><b>Auditoria</b></td><td>Lista skipped_matches para debug</td></tr>
+    <tr><td><b>Identificar colunas</b></td><td>Nome, cM e ID/Email de forma tolerante</td></tr>
+    <tr><td><b>Agregar segmentos</b></td><td>Somar cM pela chave _group_key</td></tr>
+    <tr><td><b>Matching difuso</b></td><td>Localizar match no GEDCOM com anti-falso-positivo</td></tr>
+    <tr><td><b>Calcular caminho</b></td><td>find_ancestral_path até a raiz</td></tr>
+    <tr><td><b>Prever relação</b></td><td>Por faixa de cM + renderizar Mermaid</td></tr>
+    <tr><td><b>Auditoria</b></td><td>Lista de descartados (skipped_matches)</td></tr>
   </tbody></table>
 
   <h2>Regras de Negócio</h2>
   <table><tbody>
     <tr><td>Pré-condição</td><td>GEDCOM carregado + CSV no campo matches_csv</td></tr>
-    <tr><td>Raiz</td><td>root_name deve existir no GEDCOM</td></tr>
-    <tr><td>Colunas aceitas</td><td>Name/MatchedName/Nome · cM/TotalCM/Total cM</td></tr>
-    <tr><td>ID de match</td><td>Regex [A-Z]{2}\d{7}</td></tr>
-    <tr><td>Duplicados</td><td>Segmentos somados em cM por pessoa</td></tr>
+    <tr><td>Root name</td><td>Deve existir no GEDCOM; usa primeiro ID</td></tr>
+    <tr><td>Colunas nome</td><td>Name / MatchedName / Nome</td></tr>
+    <tr><td>Colunas cM</td><td>cM / TotalCM / Total cM</td></tr>
+    <tr><td>ID de match</td><td>Regex [A-Z]{2}\d{7} (ex.: ZH7115669)</td></tr>
+    <tr><td>Agregação</td><td>Segmentos duplicados somam cM</td></tr>
     <tr><td>Score</td><td>0.55×token_sort + 0.25×partial + 0.20×given + inter_bonus</td></tr>
-    <tr><td>Anti-falso-positivo</td><td>Rejeição quando sobrenomes sem interseção</td></tr>
-    <tr><td>Sem caminho</td><td>Match descartado quando não há laço por pais</td></tr>
+    <tr><td>Rejeição</td><td>Ambos com sobrenomes e interseção = 0 (sem sufixo salvador)</td></tr>
+    <tr><td>Interseção mínima</td><td>Dado genérico + 2+ sobrenomes exige 2 em comum</td></tr>
+    <tr><td>Limiares</td><td>Regras A/B/C/D usam literais (92, 90, 86, 100…)</td></tr>
+    <tr><td>Código morto</td><td>HARD_MIN=92 e GIVEN_MIN=90 declarados, não usados 🟡</td></tr>
+    <tr><td>Ordenação</td><td>Resultados por cM decrescente</td></tr>
   </tbody></table>
 
   <h2>Requisitos Funcionais</h2>
@@ -133,11 +138,11 @@ Então o candidato é rejeitado pelo filtro anti-falso-positivo</pre>
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
     <tr><td><b>app.py</b></td><td>index() (bloco dna_analysis)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/dna_analysis.py</b></td><td>build_group_key, detect_columns, aggregate_matches</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/dna_analysis.py</b></td><td>demojibake, norm_name, split_name_pt, surnames_set</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/dna_analysis.py</b></td><td>get_relationships_by_cm</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/dna_analysis.py</b></td><td>generate_mermaid_graph</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>build_group_key</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>demojibake, norm_name, split_name_pt, surnames_set</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>get_relationships_by_cm</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>generate_mermaid_graph</td><td>🟢</td></tr>
   </tbody></table>
 </main>
 </body>

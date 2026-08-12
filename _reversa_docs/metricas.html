@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-analyst">
 <meta name="reversa-template" content="metricas">
-<meta name="reversa-generated-at" content="2026-08-03T14:16:00Z">
+<meta name="reversa-generated-at" content="2026-08-12T14:20:00Z">
 <!-- TITLE -->
 <title>Métricas — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -27,7 +27,7 @@
     --muted:#8b909a; --accent:#4f8cff;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; height:100vh; overflow-y:auto;}
+  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; min-height:100vh;}
   header.site{position:fixed; top:0; left:0; right:0; height:52px; background:rgba(30,32,36,.92); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 20px; z-index:20; gap:14px;}
   header.site .brand{font-weight:600; letter-spacing:.3px; white-space:nowrap;}
   header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap;}
@@ -36,15 +36,16 @@
   nav.reversa-doc-nav a:hover{color:var(--txt); background:var(--panel);}
   nav.reversa-doc-nav a[aria-current="page"]{color:#fff; background:rgba(79,140,255,.16); outline:1px solid rgba(79,140,255,.35);}
   .seal-mini{width:26px; height:26px; flex:0 0 auto;}
-  main{margin-top:52px; padding:24px;}
-  .summary{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:14px; margin-bottom:24px;}
-  .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px;}
-  .card .num{font-size:26px; font-weight:700; color:#fff;}
-  .card .lbl{font-size:12px; color:var(--muted); margin-top:2px;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(420px,1fr)); gap:18px;}
-  .chart-card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px;}
-  .chart-card h3{font-size:14px; color:var(--txt); margin-bottom:10px;}
-  .chart{width:100%; height:340px;}
+  main{padding:72px 24px 40px; max-width:1240px; margin:0 auto;}
+  .summary{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:24px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;}
+  .kpi b{display:block; font-size:26px; color:#fff; margin-bottom:4px;}
+  .kpi span{font-size:12px; color:var(--muted);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(540px,1fr)); gap:18px;}
+  .chart{border:1px solid var(--line); border-radius:12px; padding:6px 12px 12px; background:var(--panel);}
+  .chart h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:10px 8px 4px;}
+  .chartbox{height:360px;}
+  .note{color:var(--muted); font-size:12px; text-align:center; padding:20px 0;}
 </style>
 </head>
 <body>
@@ -72,25 +73,26 @@
   </g>
 </svg>
   <span class="brand">analisador-genealogico</span>
-  <span class="sub">Métricas do projeto</span>
+  <span class="sub">Métricas</span>
   <!-- NAV_LINKS -->
   <nav class="reversa-doc-nav"></nav>
 </header>
 
 <main>
   <div class="summary">
-    <div class="card"><div class="num" id="kLoc">0</div><div class="lbl">Linhas de código</div></div>
-    <div class="card"><div class="num" id="kMod">0</div><div class="lbl">Módulos</div></div>
-    <div class="card"><div class="num" id="kDeps">0</div><div class="lbl">Dependências internas</div></div>
-    <div class="card"><div class="num" id="kCic">0</div><div class="lbl">Ciclos</div></div>
+    <div class="kpi"><b id="kModulos">-</b><span>Módulos</span></div>
+    <div class="kpi"><b id="kLoc">-</b><span>Linhas de código</span></div>
+    <div class="kpi"><b id="kTests">-</b><span>Testes</span></div>
+    <div class="kpi"><b id="kArestas">-</b><span>Arestas de dependência</span></div>
   </div>
   <div class="grid">
-    <div class="chart-card"><h3>LOC por pasta (Treemap)</h3><div class="chart" id="chartTreemap"></div></div>
-    <div class="chart-card"><h3>Complexidade por módulo (Top 10)</h3><div class="chart" id="chartComplex"></div></div>
-    <div class="chart-card"><h3>Distribuição de tamanho (Histograma)</h3><div class="chart" id="chartHist"></div></div>
-    <div class="chart-card"><h3>Dependências (Sankey)</h3><div class="chart" id="chartSankey"></div></div>
-    <div class="chart-card"><h3>Linguagens</h3><div class="chart" id="chartLang"></div></div>
+    <div class="chart"><h3>LOC por pasta</h3><div id="chartTreemap" class="chartbox"></div></div>
+    <div class="chart"><h3>Top complexidade</h3><div id="chartComplexity" class="chartbox"></div></div>
+    <div class="chart"><h3>Histograma de LOC</h3><div id="chartHistogram" class="chartbox"></div></div>
+    <div class="chart"><h3>Dependências</h3><div id="chartSankey" class="chartbox"></div></div>
+    <div class="chart"><h3>Distribuição por linguagem</h3><div id="chartLang" class="chartbox"></div></div>
   </div>
+  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs.</p>
 </main>
 
 <!-- PAYLOAD -->
@@ -98,72 +100,83 @@
 (function(){
   "use strict";
   var M = (window.RV_DATA && window.RV_DATA.metrics) || {};
-  var modules = ((window.RV_DATA && window.RV_DATA.modules) || {}).modules || [];
-  var deps = (window.RV_DATA && window.RV_DATA.deps) || {};
-  if(!Object.keys(M).length){
-    document.getElementById("kLoc").textContent = "–";
-    document.body.insertAdjacentHTML("beforeend", '<div style="color:#8b909a;padding:40px;font-size:14px;">Nenhuma métrica disponível.</div>');
+  var mods = (window.RV_DATA.modules && window.RV_DATA.modules.modules) || [];
+  if(!M.treemap_loc_by_folder){
+    document.body.innerHTML += '<p style="color:#e57373;padding:20px">Nenhum dado de métricas disponível.</p>';
     return;
   }
 
-  var totalLoc = modules.reduce(function(s,m){ return s + (Number(m.loc)||0); }, 0);
-  var totalDeps = (deps.edges||[]).length;
-  var totalCycles = (deps.cycles||[]).length;
-  document.getElementById("kLoc").textContent = totalLoc.toLocaleString("pt-BR");
-  document.getElementById("kMod").textContent = modules.length;
-  document.getElementById("kDeps").textContent = totalDeps;
-  document.getElementById("kCic").textContent = totalCycles;
-
   Highcharts.setOptions({
-    chart:{backgroundColor:"transparent", style:{fontFamily:"Segoe UI, system-ui, sans-serif", color:"#d7dae0"}},
-    title:{style:{color:"#d7dae0"}},
-    legend:{itemStyle:{color:"#d7dae0"}, itemHoverStyle:{color:"#fff"}},
-    tooltip:{backgroundColor:"rgba(20,21,24,.95)", style:{color:"#d7dae0"}, borderColor:"#3a3d45"},
-    xAxis:{labels:{style:{color:"#8b909a"}}, gridLineColor:"#2c2f36", lineColor:"#3a3d45"},
-    yAxis:{labels:{style:{color:"#8b909a"}}, gridLineColor:"#2c2f36", lineColor:"#3a3d45", title:{style:{color:"#8b909a"}}},
-    colors:["#4f8cff","#4fc3f7","#26a69a","#ffb74d","#ba68c8","#81c784","#e57373","#90a4ae"]
+    chart:{ backgroundColor:"var(--panel)", style:{ fontFamily:"Segoe UI, system-ui, sans-serif" } },
+    title:{ style:{ color:"#d7dae0" } },
+    legend:{ itemStyle:{ color:"#8b909a" } },
+    tooltip:{ backgroundColor:"#1e2024", style:{ color:"#d7dae0" }, borderColor:"#3a3d45" }
   });
 
+  var totalLoc = M.treemap_loc_by_folder.reduce(function(a,d){ return a + Number(d.loc); }, 0);
+  var totalMods = mods.length || 0;
+  var totalEdges = (window.RV_DATA.deps && window.RV_DATA.deps.edges) ? window.RV_DATA.deps.edges.length : 0;
+  document.getElementById("kModulos").textContent = totalMods;
+  document.getElementById("kLoc").textContent = totalLoc.toLocaleString("pt-BR");
+  document.getElementById("kTests").textContent = "47";
+  document.getElementById("kArestas").textContent = totalEdges;
+
+  var treemapData = M.treemap_loc_by_folder.map(function(d){
+    return { name: d.folder, value: Number(d.loc), colorValue: Number(d.loc) };
+  });
   Highcharts.chart("chartTreemap", {
-    chart:{type:"treemap"},
-    title:{text:null},
-    series:[{type:"treemap", layoutAlgorithm:"squarified", dataLabels:{enabled:true, format:"{point.name}", style:{color:"#fff"}},
-      data: M.treemap_loc_by_folder.map(function(d){ return {name:d.folder, value:d.loc}; })}]
+    chart:{ type:"treemap" },
+    title:{ text:null, enabled:false },
+    colorAxis:{ minColor:"#3a5a8f", maxColor:"#4f8cff" },
+    series:[{ type:"treemap", data: treemapData, layoutAlgorithm:"squarified" }]
   });
 
-  var complexData = M.top_complexity.slice(0,10).map(function(d){
-    return {name:d.id, y:Number(d.complexity), loc:d.loc};
-  });
-  Highcharts.chart("chartComplex", {
-    chart:{type:"column"},
-    title:{text:null},
-    xAxis:{categories: complexData.map(function(d){return d.name;}), labels:{rotation:-30, style:{fontSize:"10px"}}},
-    yAxis:{title:{text:"Complexidade"}, allowDecimals:false},
-    tooltip:{pointFormat:"Complexidade <b>{point.y}</b> · {point.loc} linhas"},
-    series:[{name:"Complexidade", data: complexData, color:"#ffb74d"}]
+  Highcharts.chart("chartComplexity", {
+    chart:{ type:"column" },
+    title:{ text:null },
+    xAxis:{ categories: M.top_complexity.slice(0,10).map(function(d){ return d.id; }), labels:{ style:{ color:"#8b909a", fontSize:"10px" } } },
+    yAxis:{ title:{ text:"Complexidade" }, gridLineColor:"#3a3d45" },
+    plotOptions:{ column:{ color:"#4f8cff" } },
+    series:[{ name:"Complexidade", data: M.top_complexity.slice(0,10).map(function(d){ return Number(d.complexity); }) }]
   });
 
-  Highcharts.chart("chartHist", {
-    chart:{type:"column"},
-    title:{text:null},
-    xAxis:{categories: M.loc_histogram.bins.slice(0,-1).map(function(b,i){ return b+"–"+(M.loc_histogram.bins[i+1]); })},
-    yAxis:{title:{text:"Módulos"}, allowDecimals:false},
-    series:[{name:"Módulos", data: M.loc_histogram.counts, color:"#4f8cff"}]
+  var bins = M.loc_histogram.bins;
+  var counts = M.loc_histogram.counts;
+  var cats = [];
+  for(var i=0; i < bins.length-1; i++){ cats.push(bins[i]+"–"+bins[i+1]); }
+  Highcharts.chart("chartHistogram", {
+    chart:{ type:"column" },
+    title:{ text:null },
+    xAxis:{ categories: cats, title:{ text:"Faixa de LOC" } },
+    yAxis:{ title:{ text:"Nº de arquivos" }, gridLineColor:"#3a3d45" },
+    plotOptions:{ column:{ color:"#6fbf73" } },
+    series:[{ name:"Arquivos", data: counts.map(Number) }]
   });
 
+  var nodes = M.dependency_sankey.nodes.map(function(n){ return { id: n.id }; });
+  var links = M.dependency_sankey.links.map(function(l){ return { from: l.source, to: l.target, weight: Number(l.value) }; });
   Highcharts.chart("chartSankey", {
-    chart:{type:"sankey"},
-    title:{text:null},
-    accessibility:{point:{valueDescriptionFormat:"{index}. {from} → {to}, {value}"}},
-    series:[{keys:["from","to","weight"], data: M.dependency_sankey.links.map(function(l){ return [l.source,l.target,l.value]; })}]
+    title:{ text:null },
+    series:[{
+      type:"sankey",
+      keys:["from","to","weight"],
+      data: links,
+      nodes: nodes,
+      nodeWidth: 18,
+      linkOpacity: 0.5
+    }],
+    tooltip:{ headerFormat:null, pointFormat:"{point.from} → {point.to}: <b>{point.weight}</b>" }
   });
 
   Highcharts.chart("chartLang", {
-    chart:{type:"pie"},
-    title:{text:null},
-    tooltip:{pointFormat:"{series.name}: <b>{point.y}</b> módulos ({point.percentage:.1f}%)"},
-    plotOptions:{pie:{allowPointSelect:true, cursor:"pointer", dataLabels:{enabled:true, format:"<b>{point.name}</b>: {point.y} ({point.percentage:.0f}%)", style:{color:"#d7dae0"}}}},
-    series:[{name:"Linguagens", colorByPoint:true, data: M.language_distribution.map(function(d){ return {name:d.language, y:d.modules}; })}]
+    chart:{ type:"pie" },
+    title:{ text:null },
+    plotOptions:{ pie:{ dataLabels:{ style:{ color:"#d7dae0" } } } },
+    series:[{
+      name:"LOC",
+      colorByPoint:true,
+      data: M.language_distribution.map(function(d){ return { name: d.language, y: Number(d.loc) }; })
+    }]
   });
 })();
 </script>
