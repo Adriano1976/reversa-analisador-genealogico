@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-storyteller">
+<meta name="reversa-template" content="glossario">
+<meta name="reversa-page-id" content="glossario">
+<meta name="reversa-visual-style" content="sober">
+<meta name="reversa-generated-at" content="2026-08-12T14:54:00Z">
+<title>Glossário — analisador-genealogico</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;}
+  header.site{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(30,32,36,.92);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;z-index:20;gap:14px;}
+  header.site .brand{font-weight:600;white-space:nowrap;}
+  header.site .sub{color:var(--muted);font-size:12px;white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex;gap:4px;flex:1;justify-content:flex-end;align-items:center;min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:6px;white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt);background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff;background:rgba(79,140,255,.16);outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px;height:26px;flex:0 0 auto;}
+  main{margin-top:52px;padding:28px;max-width:960px;margin-left:auto;margin-right:auto;}
+  .crumb{color:var(--muted);font-size:13px;margin-bottom:10px;}
+  .crumb a{color:var(--accent);text-decoration:none;}
+  h1{font-size:26px;margin-bottom:6px;}
+  .summary{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:20px;}
+  #search{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;color:var(--txt);font-size:14px;margin-bottom:24px;outline:none;}
+  #search:focus{border-color:var(--accent);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card h2{font-size:15px;color:#fff;margin-bottom:6px;}
+  .card p{color:var(--muted);font-size:13px;line-height:1.55;}
+  .empty{color:var(--muted);text-align:center;padding:30px;font-size:14px;display:none;}
+</style>
+</head>
+<body>
+<header class="site">
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#23262c"/>
+  <g stroke="#3a3d45" stroke-width="1" fill="none">
+    <circle cx="32" cy="32" r="27"/>
+    <circle cx="32" cy="32" r="20"/>
+    <circle cx="32" cy="32" r="13"/>
+  </g>
+  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
+    <line x1="32" y1="4" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="60" y2="32"/>
+    <line x1="12" y1="12" x2="52" y2="52"/>
+    <line x1="12" y1="52" x2="52" y2="12"/>
+  </g>
+  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
+  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
+  <g fill="#6b7d99">
+    <circle cx="32" cy="5.5" r="1.6"/>
+    <circle cx="58.5" cy="32" r="1.6"/>
+    <circle cx="32" cy="58.5" r="1.6"/>
+    <circle cx="5.5" cy="32" r="1.6"/>
+  </g>
+</svg>
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Glossário</span>
+  <!-- NAV_LINKS -->
+  <nav class="reversa-doc-nav"></nav>
+</header>
+<main>
+  <div class="crumb"><a href="index.html">Início</a> / Glossário</div>
+  <h1>Glossário de conceitos</h1>
+  <p class="summary">Termos e entidades centrais que estruturam o domínio do analisador-genealogico, destilados em um mapa mental do sistema.</p>
+  <input id="search" type="search" placeholder="Buscar termo ou definição... (ex.: GEDCOM, cM, MRCA)">
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">Nenhum conceito encontrado para a busca.</div>
+</main>
+<script>
+(function(){
+  "use strict";
+  var g = (window.RV_DATA && window.RV_DATA.glossary) || {};
+  var concepts = g.concepts || [];
+  var grid = document.getElementById("grid");
+  function slug(t){ return (t||"").toLowerCase().replace(/\W+/g,"-").replace(/^-|-$/g,"") || "conceito"; }
+  concepts.forEach(function(c){
+    var card = document.createElement("article");
+    card.className = "card";
+    var id = slug(c.term);
+    card.id = "concept-" + id;
+    var h = document.createElement("h2");
+    h.textContent = c.term;
+    card.appendChild(h);
+    var p = document.createElement("p");
+    p.textContent = c.definition;
+    card.appendChild(p);
+    grid.appendChild(card);
+  });
+  var cards = Array.prototype.slice.call(grid.children);
+  var empty = document.getElementById("empty");
+  var search = document.getElementById("search");
+  function apply(){
+    var q = search.value.trim().toLowerCase();
+    var shown = 0;
+    cards.forEach(function(card){
+      var hit = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
+      card.style.display = hit ? "" : "none";
+      if(hit) shown++;
+    });
+    empty.style.display = shown ? "none" : "block";
+  }
+  search.addEventListener("input", apply);
+})();
+</script>
+</body>
+</html>
