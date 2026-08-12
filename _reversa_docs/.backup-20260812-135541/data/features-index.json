@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:25:00Z",
+  "generatedAt": "2026-08-03T14:20:00Z",
   "project": "analisador-genealogico",
   "specs": [
     {
@@ -14,7 +14,7 @@
       "id": "busca-caminho",
       "slug": "busca-caminho",
       "title": "Busca de Caminho (Path Search)",
-      "summary": "Busca a conexão genealógica entre duas pessoas: direta por ancestral comum (BFS bidirecional) ou indireta por afinidade via caminho no grafo.",
+      "summary": "Busca a conexão genealógica entre duas pessoas: direta por ancestral comum (BFS bidirecional) ou indireta por afinidade via BFS no grafo.",
       "hasRequirements": true
     },
     {

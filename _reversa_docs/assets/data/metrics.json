@@ -1,51 +1,62 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T14:15:00Z",
+  "generatedAt": "2026-08-12T14:15:00Z",
   "project": "analisador-genealogico",
   "treemap_loc_by_folder": [
-    {"folder": "analisador-genealogico (app.py)", "loc": 887, "modules": 8},
-    {"folder": "analisador-genealogico/templates", "loc": 334, "modules": 1},
-    {"folder": "analisador-genealogico/static", "loc": 480, "modules": 1}
+    {"folder": "reconstructed/", "loc": 1126, "modules": 5},
+    {"folder": "tests/", "loc": 583, "modules": 4},
+    {"folder": "static/", "loc": 321, "modules": 1},
+    {"folder": "templates/", "loc": 200, "modules": 1},
+    {"folder": "tests/fixtures/", "loc": 105, "modules": 2},
+    {"folder": "analisador-genealogico/", "loc": 86, "modules": 1}
   ],
   "top_complexity": [
-    {"id": "app.py (monolito)", "complexity": 9, "loc": 887},
-    {"id": "name-matching", "complexity": 8, "loc": 132},
-    {"id": "mermaid-render", "complexity": 8, "loc": 176},
-    {"id": "path-finder", "complexity": 7, "loc": 27},
-    {"id": "routes", "complexity": 6, "loc": 90},
-    {"id": "dna-aggregation", "complexity": 6, "loc": 35},
-    {"id": "templates-index", "complexity": 5, "loc": 334},
-    {"id": "static-graph", "complexity": 5, "loc": 480},
-    {"id": "gedcom-parsing", "complexity": 4, "loc": 33},
-    {"id": "config-setup", "complexity": 1, "loc": 37}
+    {"id": "path_search.py", "complexity": 8, "loc": 501},
+    {"id": "dna_analysis.py", "complexity": 8, "loc": 409},
+    {"id": "static/graph_path_search.html", "complexity": 5, "loc": 321},
+    {"id": "templates/index.html", "complexity": 5, "loc": 200},
+    {"id": "upload.py", "complexity": 5, "loc": 91},
+    {"id": "app.py", "complexity": 5, "loc": 86},
+    {"id": "test_upload.py", "complexity": 3, "loc": 185},
+    {"id": "test_dna_analysis.py", "complexity": 3, "loc": 168},
+    {"id": "domain.py", "complexity": 3, "loc": 124},
+    {"id": "test_domain.py", "complexity": 2, "loc": 123},
+    {"id": "test_path_search.py", "complexity": 2, "loc": 107},
+    {"id": "fixtures/sample_gedcom.py", "complexity": 1, "loc": 57},
+    {"id": "fixtures/sample_dna.py", "complexity": 1, "loc": 48},
+    {"id": "reconstructed/__init__.py", "complexity": 1, "loc": 1}
   ],
   "loc_histogram": {
     "bins": [0, 50, 100, 200, 500, 1000],
-    "counts": [5, 1, 2, 1, 1, 0]
+    "counts": [2, 3, 5, 2, 1, 0]
   },
   "dependency_sankey": {
     "nodes": [
-      {"id": "app.py (monolito)"},
-      {"id": "routes"},
-      {"id": "gedcom-parsing"},
-      {"id": "dna-aggregation"},
-      {"id": "name-matching"},
-      {"id": "path-finder"},
-      {"id": "mermaid-render"},
-      {"id": "templates/static"}
+      {"id": "app.py"},
+      {"id": "dna_analysis.py"},
+      {"id": "path_search.py"},
+      {"id": "upload.py"},
+      {"id": "domain.py"},
+      {"id": "tests/"},
+      {"id": "templates / static"}
     ],
     "links": [
-      {"source": "app.py (monolito)", "target": "routes", "value": 1},
-      {"source": "routes", "target": "gedcom-parsing", "value": 2},
-      {"source": "routes", "target": "dna-aggregation", "value": 2},
-      {"source": "routes", "target": "name-matching", "value": 3},
-      {"source": "routes", "target": "path-finder", "value": 3},
-      {"source": "routes", "target": "mermaid-render", "value": 3},
-      {"source": "routes", "target": "templates/static", "value": 4}
+      {"source": "app.py", "target": "dna_analysis.py", "value": 1},
+      {"source": "app.py", "target": "path_search.py", "value": 1},
+      {"source": "app.py", "target": "upload.py", "value": 1},
+      {"source": "app.py", "target": "templates / static", "value": 1},
+      {"source": "dna_analysis.py", "target": "path_search.py", "value": 1},
+      {"source": "dna_analysis.py", "target": "upload.py", "value": 1},
+      {"source": "path_search.py", "target": "upload.py", "value": 1},
+      {"source": "path_search.py", "target": "domain.py", "value": 1},
+      {"source": "tests/", "target": "dna_analysis.py", "value": 2},
+      {"source": "tests/", "target": "path_search.py", "value": 2},
+      {"source": "tests/", "target": "upload.py", "value": 3},
+      {"source": "tests/", "target": "domain.py", "value": 1}
     ]
   },
   "language_distribution": [
-    {"language": "Python", "modules": 8, "loc": 887},
-    {"language": "HTML", "modules": 2, "loc": 814}
+    {"language": "python", "modules": 12, "loc": 1900},
+    {"language": "html", "modules": 2, "loc": 521}
   ]
 }

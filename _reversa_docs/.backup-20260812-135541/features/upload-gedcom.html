@@ -6,12 +6,12 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-storyteller">
 <meta name="reversa-template" content="feature">
-<meta name="reversa-page-id" content="feature-busca-caminho">
+<meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-12T14:27:00Z">
-<title>Busca de Caminho (Path Search) — analisador-genealogico</title>
-<script src="../assets/js/data.js"></script>
-<script src="../assets/js/nav.js"></script>
+<meta name="reversa-generated-at" content="2026-08-03T14:21:00Z">
+<title>Upload e Parsing de GEDCOM — analisador-genealogico</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
 <style>
   :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -70,63 +70,57 @@
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
-  <h1>Busca de Caminho (Path Search)</h1>
-  <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: busca-caminho</span></div>
-  <p class="summary">Busca a conexão genealógica entre duas pessoas da árvore GEDCOM: conexão <b>direta</b> via ancestral comum (MRCA, BFS bidirecional) e, se não existir, fallback de <b>conexão indireta</b> por afinidade (casamentos). Renderiza caminho textual + Mermaid.</p>
+  <h1>Upload e Parsing de GEDCOM</h1>
+  <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: upload-gedcom</span></div>
+  <p class="summary">Endpoint que recebe um arquivo GEDCOM (.ged), salva-o em <code>uploads/</code>, faz o parsing da árvore genealógica e expõe a lista de nomes para uso nas demais análises. O grafo de famílias fica em memória para a sessão.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
-    <tr><td><b>Localizar pessoas</b></td><td>Resolução por nome no GEDCOM</td></tr>
-    <tr><td><b>Conexão direta</b></td><td>find_ancestral_path via MRCA</td></tr>
-    <tr><td><b>Conexão indireta</b></td><td>find_indirect_path por afinidade (casamentos)</td></tr>
-    <tr><td><b>Renderizar</b></td><td>Caminho textual + diagrama Mermaid</td></tr>
+    <tr><td><b>Salvar arquivo</b></td><td>Persistir o .ged enviado na pasta uploads/</td></tr>
+    <tr><td><b>Parsear registros</b></td><td>INDI (pessoas) e FAM (famílias) via ged4py</td></tr>
+    <tr><td><b>Construir grafo</b></td><td>NetworkX bidirecional de pessoas ↔ famílias</td></tr>
+    <tr><td><b>Listar nomes</b></td><td>Ordem alfabética para seleção posterior</td></tr>
   </tbody></table>
 
   <h2>Regras de Negócio</h2>
   <table><tbody>
-    <tr><td>Pré-condição</td><td>GEDCOM carregado (gedcom_filename)</td></tr>
-    <tr><td>Nomes obrigatórios</td><td>person1_name e person2_name não vazios</td></tr>
-    <tr><td>Pessoa inexistente</td><td>Mensagem de erro específica</td></tr>
-    <tr><td>Homônimos</td><td>Usa o primeiro ID encontrado</td></tr>
-    <tr><td>Direta</td><td>BFS bidirecional por pais, profundidade máx. 20</td></tr>
-    <tr><td>Indireta</td><td>shortest_path no grafo, máx. 40 hops</td></tr>
-    <tr><td>Sem conexão</td><td>"Nenhuma conexão encontrada entre 'X' e 'Y'."</td></tr>
+    <tr><td>Upload exige</td><td>Campo de arquivo <code>gedcom</code> obrigatório</td></tr>
+    <tr><td>Sem arquivo</td><td>Erro "Nenhum arquivo GEDCOM enviado."</td></tr>
+    <tr><td>Arquivo sem nome</td><td>Erro "Nenhum arquivo selecionado."</td></tr>
+    <tr><td>Exceção no parsing</td><td>Mensagem de erro com detalhe, sem crash</td></tr>
+    <tr><td>Pessoa s/ nome</td><td>Listada como "Sem Nome"</td></tr>
+    <tr><td>Ordenação</td><td>Nomes em ordem alfabética</td></tr>
   </tbody></table>
 
   <h2>Requisitos Funcionais</h2>
   <table><tbody>
     <tr><th>ID</th><th>Requisito</th><th>Priori.</th></tr>
-    <tr><td>RF-01</td><td>Localizar pessoas por nome</td><td>Must</td></tr>
-    <tr><td>RF-02</td><td>Buscar conexão direta por ancestral comum</td><td>Must</td></tr>
-    <tr><td>RF-03</td><td>Fallback para conexão indireta por afinidade</td><td>Must</td></tr>
-    <tr><td>RF-04</td><td>Renderizar caminho textual e Mermaid</td><td>Must</td></tr>
-    <tr><td>RF-05</td><td>Tratar erro amigável em exceções</td><td>Must</td></tr>
+    <tr><td>RF-01</td><td>Salvar GEDCOM em uploads/ com nome original</td><td>Must</td></tr>
+    <tr><td>RF-02</td><td>Parsear INDI/FAM e construir grafo bidirecional</td><td>Must</td></tr>
+    <tr><td>RF-03</td><td>Listar nomes ordenados</td><td>Must</td></tr>
+    <tr><td>RF-04</td><td>Validar presença e nome do arquivo</td><td>Must</td></tr>
+    <tr><td>RF-05</td><td>Responder erros de parsing de forma amigável</td><td>Must</td></tr>
   </tbody></table>
 
   <h2>Critérios de Aceitação</h2>
-  <pre>Dado um GEDCOM carregado e duas pessoas existentes com ancestral comum
-Quando o usuário submete path_search
-Então "Conexão direta encontrada (ancestral comum)." é exibido com caminho e Mermaid
+  <pre>Dado um GEDCOM válido (ex.: "familia.ged")
+Quando o usuário envia o arquivo no campo "gedcom"
+Então o arquivo é salvo em uploads/, o grafo é construído e a lista de nomes é exibida
 
-Dado duas pessoas existentes sem ancestral comum mas com vínculo por afinidade
-Quando o usuário submete path_search
-Então "Conexão indireta encontrada (via casamento/afinidade)." é exibido
+Dado que nenhum arquivo foi enviado
+Quando o usuário submete o formulário sem o campo "gedcom"
+Então a mensagem "Nenhum arquivo GEDCOM enviado." é exibida
 
-Dado um nome de pessoa inexistente
-Quando o usuário submete path_search
-Então a mensagem "Pessoa 1 'X' não encontrada." é exibida
-
-Dado duas pessoas sem nenhuma conexão no grafo
-Quando o usuário submete path_search
-Então "Nenhuma conexão encontrada entre 'X' e 'Y'." é exibido</pre>
+Dado um arquivo GEDCOM malformado
+Quando o sistema tenta fazer o parsing
+Então uma mensagem de erro com a exceção é exibida sem quebrar a aplicação</pre>
 
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
-    <tr><td><b>app.py</b></td><td>index() (bloco path_search)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_person_by_name</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_indirect_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>generate_mermaid_graph / indirect bridge</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>index() (bloco upload_gedcom)</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>load_gedcom_and_build_graph()</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>build_graph_from_parser()</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>get_name()</td><td>🟢</td></tr>
   </tbody></table>
 </main>
 </body>

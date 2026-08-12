@@ -8,10 +8,10 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-busca-caminho">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-12T14:27:00Z">
-<title>Busca de Caminho (Path Search) — analisador-genealogico</title>
-<script src="../assets/js/data.js"></script>
-<script src="../assets/js/nav.js"></script>
+<meta name="reversa-generated-at" content="2026-08-03T14:21:30Z">
+<title>Busca de Caminho — analisador-genealogico</title>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
 <style>
   :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -72,25 +72,26 @@
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
   <h1>Busca de Caminho (Path Search)</h1>
   <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: busca-caminho</span></div>
-  <p class="summary">Busca a conexão genealógica entre duas pessoas da árvore GEDCOM: conexão <b>direta</b> via ancestral comum (MRCA, BFS bidirecional) e, se não existir, fallback de <b>conexão indireta</b> por afinidade (casamentos). Renderiza caminho textual + Mermaid.</p>
+  <p class="summary">Endpoint que busca a conexão genealógica entre duas pessoas da árvore GEDCOM. Tenta primeiro a conexão <b>direta</b> via ancestral comum (MRCA) e, se não existir, o fallback por <b>conexão indireta</b> via afinidade (casamentos/cunhados) usando BFS no grafo pessoa↔família. Renderiza caminho textual + diagrama Mermaid.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
-    <tr><td><b>Localizar pessoas</b></td><td>Resolução por nome no GEDCOM</td></tr>
-    <tr><td><b>Conexão direta</b></td><td>find_ancestral_path via MRCA</td></tr>
-    <tr><td><b>Conexão indireta</b></td><td>find_indirect_path por afinidade (casamentos)</td></tr>
+    <tr><td><b>Localizar pessoas</b></td><td>Resolver IDs pelo nome no GEDCOM</td></tr>
+    <tr><td><b>Conexão direta</b></td><td>find_ancestral_path (BFS bidirecional por pais)</td></tr>
+    <tr><td><b>Conexão indireta</b></td><td>find_indirect_path (shortest_path no grafo geral)</td></tr>
     <tr><td><b>Renderizar</b></td><td>Caminho textual + diagrama Mermaid</td></tr>
   </tbody></table>
 
   <h2>Regras de Negócio</h2>
   <table><tbody>
-    <tr><td>Pré-condição</td><td>GEDCOM carregado (gedcom_filename)</td></tr>
-    <tr><td>Nomes obrigatórios</td><td>person1_name e person2_name não vazios</td></tr>
+    <tr><td>Pré-condição</td><td>GEDCOM já carregado via gedcom_filename</td></tr>
+    <tr><td>Entrada</td><td>person1_name e person2_name não vazios</td></tr>
     <tr><td>Pessoa inexistente</td><td>Mensagem de erro específica</td></tr>
-    <tr><td>Homônimos</td><td>Usa o primeiro ID encontrado</td></tr>
-    <tr><td>Direta</td><td>BFS bidirecional por pais, profundidade máx. 20</td></tr>
-    <tr><td>Indireta</td><td>shortest_path no grafo, máx. 40 hops</td></tr>
+    <tr><td>ID usado</td><td>Primeiro ID encontrado para cada nome</td></tr>
+    <tr><td>Direta</td><td>BFS bidirecional, profundidade máx. 20</td></tr>
+    <tr><td>Indireta</td><td>shortest_path, máx. 40 hops; comprime nós de família</td></tr>
     <tr><td>Sem conexão</td><td>"Nenhuma conexão encontrada entre 'X' e 'Y'."</td></tr>
+    <tr><td>Indireta</td><td>Divide no 1º par de cônjuges adjacentes</td></tr>
   </tbody></table>
 
   <h2>Requisitos Funcionais</h2>
@@ -114,7 +115,7 @@ Então "Conexão indireta encontrada (via casamento/afinidade)." é exibido
 
 Dado um nome de pessoa inexistente
 Quando o usuário submete path_search
-Então a mensagem "Pessoa 1 'X' não encontrada." é exibida
+Então a mensagem "Pessoa 1 'X' não encontrada." (ou Pessoa 2) é exibida
 
 Dado duas pessoas sem nenhuma conexão no grafo
 Quando o usuário submete path_search
@@ -123,10 +124,10 @@ Então "Nenhuma conexão encontrada entre 'X' e 'Y'." é exibido</pre>
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
     <tr><td><b>app.py</b></td><td>index() (bloco path_search)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_person_by_name</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_indirect_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>generate_mermaid_graph / indirect bridge</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>find_person_by_name</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>find_indirect_path</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td>generate_mermaid_graph / indirect_bridge</td><td>🟢</td></tr>
   </tbody></table>
 </main>
 </body>

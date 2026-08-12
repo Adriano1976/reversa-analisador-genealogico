@@ -6,15 +6,13 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-mapper">
 <meta name="reversa-template" content="arquitetura">
-<meta name="reversa-generated-at" content="2026-08-03T14:10:00Z">
+<meta name="reversa-generated-at" content="2026-08-12T14:05:00Z">
 <!-- TITLE -->
 <title>Arquitetura 3D — analisador-genealogico</title>
 <!-- PAGE_ID -->
 <meta name="reversa-page-id" content="arquitetura">
 <!-- VISUAL_STYLE -->
 <meta name="reversa-visual-style" content="sober">
-<!-- GENERATED_AT -->
-<meta name="reversa-generated-at" content="2026-08-03T14:10:00Z">
 <!-- HEAD_EXTRAS -->
 <script src="assets/vendor/three.min.js"></script>
 <script src="assets/vendor/OrbitControls.js"></script>
@@ -26,29 +24,31 @@
     --muted:#8b909a; --accent:#4f8cff;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; overflow:hidden; height:100vh;}
+  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; height:100vh; overflow:hidden;}
   header.site{position:fixed; top:0; left:0; right:0; height:52px; background:rgba(30,32,36,.92); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 20px; z-index:20; gap:14px;}
   header.site .brand{font-weight:600; letter-spacing:.3px; white-space:nowrap;}
-  header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap;}
   nav.reversa-doc-nav{display:flex; gap:4px; flex:1; justify-content:flex-end; align-items:center; min-width:0;}
   nav.reversa-doc-nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; white-space:nowrap;}
   nav.reversa-doc-nav a:hover{color:var(--txt); background:var(--panel);}
   nav.reversa-doc-nav a[aria-current="page"]{color:#fff; background:rgba(79,140,255,.16); outline:1px solid rgba(79,140,255,.35);}
   .seal-mini{width:26px; height:26px; flex:0 0 auto;}
-  #view3d{position:absolute; inset:52px 0 0 0; z-index:1;}
+  #scene{position:fixed; inset:52px 0 0 0;}
+  #loader{position:fixed; inset:52px 0 0 0; display:flex; align-items:center; justify-content:center; font-size:16px; background:var(--bg); color:var(--muted); z-index:5;}
   #sidebar{position:fixed; right:0; top:52px; bottom:0; width:250px; background:rgba(38,38,46,.94); border-left:1px solid var(--line); padding:16px; z-index:10; overflow-y:auto;}
   #sidebar h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:12px;}
   #sidebar .ctl{margin-bottom:14px;}
   #sidebar label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px;}
   #sidebar input[type=range]{width:100%; accent-color:var(--accent);}
-  #sidebar select{width:100%; background:var(--bg); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font-size:12px;}
-  #sidebar .legend{margin-top:16px; border-top:1px solid var(--line); padding-top:12px;}
-  #sidebar .legend .row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:6px;}
-  #sidebar .legend .sw{width:14px; height:14px; border-radius:3px; flex:0 0 auto;}
-  #tooltip{position:fixed; display:none; background:rgba(20,21,24,.96); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; max-width:280px; z-index:30; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,.5);}
+  #sidebar button{width:100%; background:var(--accent); color:#fff; border:none; border-radius:6px; padding:8px; font-size:13px; cursor:pointer; margin-bottom:8px;}
+  #sidebar .stats{margin-top:16px; border-top:1px solid var(--line); padding-top:12px; font-size:12px; color:var(--muted); line-height:1.8;}
+  #sidebar .stats b{color:var(--txt);}
+  #tooltip{position:fixed; display:none; background:rgba(20,21,24,.96); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; max-width:300px; z-index:30; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,.5);}
   #tooltip b{color:#fff;}
   #tooltip .muted{color:var(--muted);}
-  #hint{position:fixed; bottom:14px; left:20px; color:var(--muted); font-size:12px; z-index:15; background:rgba(30,32,36,.7); padding:6px 10px; border-radius:6px;}
+  .legend{position:fixed; bottom:14px; left:20px; z-index:15; display:flex; gap:16px; background:rgba(30,32,36,.75); padding:8px 14px; border-radius:8px; font-size:12px; color:var(--muted);}
+  .legend .item{display:flex; align-items:center; gap:6px;}
+  .legend .sw{width:12px; height:12px; border-radius:3px;}
 </style>
 </head>
 <body>
@@ -81,236 +81,227 @@
   <nav class="reversa-doc-nav"></nav>
 </header>
 
-<div id="view3d"></div>
-<div id="hint">Arraste para orbitar · Scroll para zoom · Botão direito para pan · Clique num prédio para detalhes</div>
+<div id="loader">Carregando cena 3D...</div>
+<div id="scene"></div>
 
 <aside id="sidebar">
-  <h3>Controles 3D</h3>
+  <h3>Controles</h3>
   <div class="ctl">
-    <label for="scaleV">Escala vertical <span id="scaleVVal">1.0</span></label>
-    <input type="range" id="scaleV" min="0.2" max="3" step="0.05" value="1">
-  </div>
-  <div class="ctl">
-    <label for="lightI">Intensidade da luz <span id="lightIVal">1.0</span></label>
-    <input type="range" id="lightI" min="0.1" max="2.5" step="0.05" value="1">
+    <label for="scaleY">Escala vertical (altura) <span id="scaleYVal">1.00</span></label>
+    <input type="range" id="scaleY" min="0.25" max="2.5" step="0.05" value="1">
   </div>
   <div class="ctl">
-    <label for="palette">Paleta</label>
-    <select id="palette">
-      <option value="complexity" selected>Por complexidade</option>
-      <option value="type">Por tipo de módulo</option>
-      <option value="flat">Uniforme</option>
-    </select>
+    <label for="lightI">Intensidade da luz <span id="lightIVal">1.00</span></label>
+    <input type="range" id="lightI" min="0.2" max="2.5" step="0.05" value="1">
   </div>
-  <div class="ctl">
-    <label for="labelMode">Rótulos</label>
-    <select id="labelMode">
-      <option value="hover" selected>Ao passar o mouse</option>
-      <option value="always">Sempre</option>
-      <option value="none">Nenhum</option>
-    </select>
-  </div>
-  <div class="legend">
-    <div class="row"><span class="sw" style="background:#4f8cff"></span> Baixa complexidade</div>
-    <div class="row"><span class="sw" style="background:#4fc3f7"></span> Média complexidade</div>
-    <div class="row"><span class="sw" style="background:#ffb74d"></span> Alta complexidade</div>
-    <div class="row"><span class="sw" style="background:#e57373"></span> Muito alta (core)</div>
-  </div>
+  <button id="reset">Reset</button>
+  <button id="export-png">Exportar PNG</button>
+  <div class="stats" id="stats"></div>
 </aside>
 
 <div id="tooltip"></div>
+<div class="legend">
+  <div class="item"><span class="sw" style="background:#4f8cff"></span> app.py</div>
+  <div class="item"><span class="sw" style="background:#6fbf73"></span> reconstructed/</div>
+  <div class="item"><span class="sw" style="background:#e0a458"></span> tests/</div>
+  <div class="item"><span class="sw" style="background:#b587e6"></span> templates / static</div>
+</div>
 
 <!-- PAYLOAD -->
 <script>
 (function(){
   "use strict";
   var DATA = (window.RV_DATA && window.RV_DATA.modules) || {};
-  var modules = (DATA && DATA.modules) || [];
-  var deps = (window.RV_DATA && window.RV_DATA.deps && window.RV_DATA.deps.edges) || [];
-  if(!modules.length){
-    document.getElementById("view3d").innerHTML = '<div style="color:#8b909a; padding:60px; font-size:14px;">Nenhum dado de módulos disponível.</div>';
+  var modules = (DATA.modules) || [];
+  var loader = document.getElementById("loader");
+  if(!modules.length || typeof THREE === "undefined"){
+    loader.style.display = "flex";
+    loader.textContent = typeof THREE === "undefined"
+      ? "Esta visualização requer carregar a biblioteca Three.js. Conecte-se à internet e recarregue."
+      : "Nenhum dado de módulos disponível.";
     return;
   }
 
-  var container = document.getElementById("view3d");
+  // Paleta por pasta
+  var folderColor = {
+    "analisador-genealogico": 0x4f8cff,
+    "reconstructed": 0x6fbf73,
+    "tests": 0xe0a458,
+    "tests/fixtures": 0xe0a458,
+    "analisador-genealogico/templates": 0xb587e6,
+    "analisador-genealogico/static": 0xb587e6
+  };
+
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1e2024);
-  var camera = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 2000);
-  camera.position.set(0, 60, 90);
-
-  var renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+  var renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth - 250, window.innerHeight - 52);
   renderer.shadowMap.enabled = true;
-  container.appendChild(renderer.domElement);
+  document.getElementById("scene").appendChild(renderer.domElement);
+  renderer.domElement.style.width = "100%";
+  renderer.domElement.style.height = "100%";
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.maxPolarAngle = Math.PI/2.05;
+  controls.maxPolarAngle = Math.PI / 2.1;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x26282e, 0.9));
-  var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(40, 90, 30);
-  scene.add(dirLight);
+  var hemi = new THREE.HemisphereLight(0xffffff, 0x1e2024, 0.85);
+  scene.add(hemi);
+  var dir = new THREE.DirectionalLight(0xffffff, 1.0);
+  dir.position.set(120, 200, 80);
+  dir.castShadow = true;
+  scene.add(dir);
 
-  var grid = new THREE.GridHelper(160, 40, 0x3a3d45, 0x2c2f36);
+  // Grid ground
+  var grid = new THREE.GridHelper(400, 30, 0x3a3d45, 0x2b2e35);
   scene.add(grid);
 
-  var typeColor = {
-    "entrypoint": 0x4f8cff, "web": 0x4f8cff, "config": 0x9e9e9e,
-    "parser": 0x4fc3f7, "processor": 0x26a69a, "algorithm": 0xffb74d,
-    "presenter": 0xba68c8, "frontend": 0x81c784, "default": 0x90a4ae
-  };
-  function colorFor(m){
-    var pal = document.getElementById("palette").value;
-    if(pal === "flat") return 0x90a4ae;
-    if(pal === "type") return typeColor[m.type] || typeColor["default"];
-    var c = Number(m.complexity)||0;
-    if(c >= 8) return 0xe57373;
-    if(c >= 6) return 0xffb74d;
-    if(c >= 3) return 0x4fc3f7;
-    return 0x4f8cff;
-  }
+  // Layout em grade: colunas por pasta, blocos empilhados por LOC
+  var maxLoc = 0;
+  modules.forEach(function(m){ if(Number(m.loc) > maxLoc) maxLoc = Number(m.loc); });
+  var folderGroups = {};
+  modules.forEach(function(m){
+    (folderGroups[m.folder] = folderGroups[m.folder] || []).push(m);
+  });
+  var folders = Object.keys(folderGroups).sort();
+  var cellX = 22, cellZ = 22;
+  var baseY = 0.5;
+  var labels = [];
+  var boxes = [];
 
-  var n = modules.length;
-  var cols = Math.ceil(Math.sqrt(n));
-  var spacing = 16;
-  var meshes = [];
-  var labelSprites = [];
-  var tooltip = document.getElementById("tooltip");
+  folders.forEach(function(f, ci){
+    var mods = folderGroups[f];
+    mods.sort(function(a,b){ return Number(b.loc) - Number(a.loc); });
+    mods.forEach(function(m, mi){
+      var x = (ci - (folders.length-1)/2) * cellX * 3;
+      var z = (mi - (mods.length-1)/2) * cellZ;
+      var w = Math.max(4, 8 + Number(m.loc)/maxLoc * 14);
+      var d = w * 0.8;
+      var h = Math.max(1.2, Number(m.loc)/maxLoc * 34);
+      var geo = new THREE.BoxGeometry(w, h, d);
+      var col = folderColor[m.folder] || 0x8b909a;
+      var mat = new THREE.MeshStandardMaterial({ color: col, roughness:0.55, metalness:0.12 });
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x, baseY + h/2, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData = m;
+      scene.add(mesh);
+      boxes.push(mesh);
 
-  function makeLabel(text, color){
-    var canvas = document.createElement("canvas");
-    canvas.width = 512; canvas.height = 96;
-    var ctx = canvas.getContext("2d");
-    ctx.font = "32px Segoe UI, sans-serif";
-    ctx.fillStyle = "rgba(30,32,36,0.85)";
-    ctx.fillRect(0,0,512,96);
-    ctx.fillStyle = "#fff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, 256, 48);
-    var tex = new THREE.CanvasTexture(canvas);
-    var mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
-    var sp = new THREE.Sprite(mat);
-    sp.scale.set(24,4.5,1);
-    return sp;
-  }
-
-  modules.forEach(function(m, i){
-    var col = i % cols;
-    var row = Math.floor(i / cols);
-    var w = 9, d = 9;
-    var h = Math.max(1.5, (Number(m.loc)||10)/4);
-    var geo = new THREE.BoxGeometry(w, h, d);
-    var mat = new THREE.MeshStandardMaterial({color:colorFor(m), roughness:0.55, metalness:0.12, emissive:0x000000});
-    var mesh = new THREE.Mesh(geo, mat);
-    var cx = (col - (cols-1)/2) * spacing;
-    var cz = (row - ((Math.ceil(n/cols)-1)/2)) * spacing;
-    mesh.position.set(cx, h/2, cz);
-    mesh.userData = {module:m, baseH:h};
-    scene.add(mesh);
-    meshes.push(mesh);
-
-    var top = makeLabel(m.name, colorFor(m));
-    top.position.set(cx, h + 3, cz);
-    top.visible = false;
-    scene.add(top);
-    labelSprites.push(top);
+      // Label sprite-like: canvas
+      var cv = document.createElement("canvas");
+      cv.width = 512; cv.height = 64;
+      var ctx = cv.getContext("2d");
+      ctx.fillStyle = "rgba(30,32,36,0.85)";
+      ctx.fillRect(0,0,512,64);
+      ctx.fillStyle = "#d7dae0";
+      ctx.font = "28px Segoe UI, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(m.name, 256, 40);
+      var tex = new THREE.CanvasTexture(cv);
+      var sprMat = new THREE.SpriteMaterial({ map: tex, transparent:true });
+      var spr = new THREE.Sprite(sprMat);
+      spr.scale.set(26, 3.2, 1);
+      spr.position.set(x, baseY + h + 2.4, z);
+      scene.add(spr);
+      labels.push(spr);
+    });
+    // Folder marker
+    var cm = document.createElement("canvas");
+    cm.width = 512; cm.height = 64;
+    var cmctx = cm.getContext("2d");
+    cmctx.fillStyle = "rgba(38,38,46,0.9)";
+    cmctx.fillRect(0,0,512,64);
+    cmctx.fillStyle = "#8b909a";
+    cmctx.font = "bold 30px Segoe UI, sans-serif";
+    cmctx.textAlign = "center";
+    cmctx.fillText(f, 256, 40);
+    var ctex = new THREE.CanvasTexture(cm);
+    var csm = new THREE.SpriteMaterial({ map: ctex, transparent:true });
+    var cspr = new THREE.Sprite(csm);
+    var cx = (ci - (folders.length-1)/2) * cellX * 3;
+    cspr.scale.set(40, 5, 1);
+    cspr.position.set(cx, baseY + 1, 0);
+    cspr.position.set(cx, 2.2, (mods.length/2+1)*cellZ + 4);
+    scene.add(cspr);
   });
 
-  var lineMat = new THREE.LineBasicMaterial({color:0x4f8cff, transparent:true, opacity:0.28});
-  deps.forEach(function(e){
-    var a = modules.findIndex(function(m){return m.id === e.source;});
-    var b = modules.findIndex(function(m){return m.id === e.target;});
-    if(a < 0 || b < 0) return;
-    var ma = meshes[a], mb = meshes[b];
-    var points = [
-      new THREE.Vector3(ma.position.x, ma.position.y, ma.position.z),
-      new THREE.Vector3((ma.position.x+mb.position.x)/2, (Math.max(ma.position.y,mb.position.y))+6, (ma.position.z+mb.position.z)/2),
-      new THREE.Vector3(mb.position.x, mb.position.y, mb.position.z)
-    ];
-    var curve = new THREE.CatmullRomCurve3(points);
-    var geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(24));
-    scene.add(new THREE.Line(geo, lineMat));
-  });
+  // Camera fit
+  var ext = (folders.length) * cellX * 2;
+  camera.position.set(0, 90, ext + 60);
+  camera.lookAt(0, 20, 0);
 
   var raycaster = new THREE.Raycaster();
   var mouse = new THREE.Vector2();
-  var hovered = null;
-
-  function onMove(e){
+  var tooltip = document.getElementById("tooltip");
+  renderer.domElement.addEventListener("mousemove", function(ev){
     var rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
-    var hits = raycaster.intersectObjects(meshes);
-    if(hovered){
-      hovered.material.emissive.setHex(0x000000);
-      hovered.material.opacity = 1;
-      hovered = null;
-    }
+    var hits = raycaster.intersectObjects(boxes);
     if(hits.length){
-      hovered = hits[0].object;
-      hovered.material.emissive.setHex(0x222222);
-      var m = hovered.userData.module;
-      var lc = document.getElementById("labelMode").value;
-      if(lc !== "none"){
-        labelSprites.forEach(function(s){ s.visible = (lc==="always"); });
-        labelSprites.forEach(function(s){
-          if(s.position.y === hovered.position.y + 3) s.visible = true;
-        });
-      }
+      var d = hits[0].object.userData;
       tooltip.style.display = "block";
-      tooltip.style.left = (e.clientX+16)+"px";
-      tooltip.style.top = (e.clientY+16)+"px";
-      tooltip.innerHTML = '<b>'+m.name+'</b><br><span class="muted">'+m.type+'</span> · '+
-        (Number(m.loc)||0)+' linhas · complexidade '+(Number(m.complexity)||0)+'<br><span class="muted">'+m.path+'</span>';
+      tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.type+'</span> · '+d.language+
+        '<br>'+(Number(d.loc)||0)+' linhas · complexidade '+(Number(d.complexity)||0)+
+        '<br><span class="muted">'+d.path+'</span>';
+      tooltip.style.left = (ev.clientX+16)+"px";
+      tooltip.style.top = (ev.clientY+16)+"px";
     } else {
       tooltip.style.display = "none";
     }
-  }
-  renderer.domElement.addEventListener("mousemove", onMove);
+  });
 
-  function onLabelChange(){
-    var lc = document.getElementById("labelMode").value;
-    labelSprites.forEach(function(s){ s.visible = (lc==="always"); });
-  }
-  document.getElementById("labelMode").addEventListener("change", onLabelChange);
-
-  function onScale(){
-    var s = parseFloat(document.getElementById("scaleV").value);
-    document.getElementById("scaleVVal").textContent = s.toFixed(2);
-    meshes.forEach(function(mesh){
-      var bh = mesh.userData.baseH;
-      mesh.scale.y = s;
-      mesh.position.y = (bh*s)/2;
-    });
-    labelSprites.forEach(function(sp){ sp.position.y = sp.position.y * s; });
-  }
-  document.getElementById("scaleV").addEventListener("input", onScale);
-
-  function onLight(){
-    var i = parseFloat(document.getElementById("lightI").value);
-    document.getElementById("lightIVal").textContent = i.toFixed(2);
-    dirLight.intensity = i;
-    scene.children.forEach(function(c){
-      if(c instanceof THREE.HemisphereLight) c.intensity = i*0.9;
+  function applyScale(){
+    var s = parseFloat(document.getElementById("scaleY").value);
+    boxes.forEach(function(b){
+      var m = b.userData;
+      var h = Math.max(1.2, Number(m.loc)/maxLoc * 34) * s;
+      b.scale.y = s;
+      b.position.y = baseY + h/2;
+      labels.forEach(function(l){ if(l.position.x === b.position.x && Math.abs(l.position.z - b.position.z) < 0.5){ l.position.y = baseY + h + 2.4; }});
     });
   }
-  document.getElementById("lightI").addEventListener("input", onLight);
-
-  document.getElementById("palette").addEventListener("change", function(){
-    meshes.forEach(function(mesh){
-      mesh.material.color.setHex(colorFor(mesh.userData.module));
+  document.getElementById("scaleY").addEventListener("input", function(){
+    document.getElementById("scaleYVal").textContent = parseFloat(document.getElementById("scaleY").value).toFixed(2);
+    applyScale();
+  });
+  document.getElementById("lightI").addEventListener("input", function(){
+    var v = parseFloat(document.getElementById("lightI").value);
+    document.getElementById("lightIVal").textContent = v.toFixed(2);
+    hemi.intensity = 0.85 * v;
+    dir.intensity = 1.0 * v;
+  });
+  document.getElementById("reset").addEventListener("click", function(){
+    controls.reset();
+    camera.position.set(0, 90, ext + 60);
+    camera.lookAt(0, 20, 0);
+  });
+  document.getElementById("export-png").addEventListener("click", function(){
+    renderer.render(scene, camera);
+    renderer.domElement.toBlob(function(blob){
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "arquitetura-3d.png";
+      a.click();
     });
   });
 
+  var stats = document.getElementById("stats");
+  var totalLoc = modules.reduce(function(a,m){ return a + Number(m.loc); }, 0);
+  var byFolder = {};
+  modules.forEach(function(m){ byFolder[m.folder] = (byFolder[m.folder]||0) + 1; });
+  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+totalLoc+'</b> linhas de código<br><b>'+folders.length+'</b> pastas';
+
   window.addEventListener("resize", function(){
-    camera.aspect = container.clientWidth/container.clientHeight;
+    camera.aspect = (window.innerWidth - 250) / (window.innerHeight - 52);
     camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(window.innerWidth - 250, window.innerHeight - 52);
   });
 
   function animate(){
@@ -318,6 +309,7 @@
     controls.update();
     renderer.render(scene, camera);
   }
+  loader.style.display = "none";
   animate();
 })();
 </script>
