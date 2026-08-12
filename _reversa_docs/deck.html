@@ -85,6 +85,22 @@
   </section>
 
   <section class="slide">
+    <div class="tag">Propósito</div>
+    <h1 id="sProposito">Cruzar GEDCOM e DNA</h1>
+    <p id="sPropositoTxt">Como eu me conecto geneticamente a essa outra pessoa? A plataforma cruza árvore GEDCOM com relatório de DNA (cM) e calcula o caminho de parentesco até o ancestral comum — ou pela afinidade quando não há laço sanguíneo direto.</p>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Entidades centrais</div>
+    <h1 id="sEntidades">A anatomia do domínio</h1>
+    <ul class="feat" id="sEntidadesList">
+      <li>🧬 <b>GEDCOM / INDI / FAM</b> — a árvore genealógica padronizada</li>
+      <li>🧪 <b>DNA Match + cM</b> — o correspondente e sua medida de parentesco</li>
+      <li>🕸️ <b>MRCA</b> — o ancestral comum mais recente, base da conexão direta</li>
+    </ul>
+  </section>
+
+  <section class="slide">
     <div class="tag">Arquitetura</div>
     <h1>Monolito reconstruído em módulos</h1>
     <p>O app.py de 887 linhas foi decomposto no pacote <b>reconstructed/</b> (upload, path_search, dna_analysis, domain) com camada web enxuta de 86 linhas. Estado em memória, sem banco de dados.</p>
@@ -130,6 +146,17 @@
   </section>
 
   <section class="slide">
+    <div class="tag">Decisões fundadoras</div>
+    <h1>Princípios que moldaram o sistema</h1>
+    <ul class="feat" id="sDecisoes">
+      <li>💾 Tudo em <b>memória, sem banco</b> — GEDCOM vira grafos NetworkX por sessão</li>
+      <li>🍮 <b>Monolito Flask</b> — um único app.py com três fluxos</li>
+      <li>🧬 Relação prevista por <b>faixas de cM</b> (Shared cM Project)</li>
+      <li>🛡️ <b>Matching defensivo</b> — anti-falso-positivo e mojibake saneado</li>
+    </ul>
+  </section>
+
+  <section class="slide">
     <div class="tag">Destaque</div>
     <h1>Análise de DNA</h1>
     <p>O núcleo do produto: agrega segmentos de cM, faz matching difuso de nomes com regras anti-falso-positivo e prevê o parentesco, tudo em dna_analysis.py.</p>
@@ -157,6 +184,37 @@
   document.getElementById("kLoc").textContent = modules.reduce(function(s,m){return s+(Number(m.loc)||0);},0).toLocaleString("pt-BR");
   document.getElementById("kMod").textContent = modules.length;
   document.getElementById("kDeps").textContent = (deps.edges||[]).length;
+
+  var soul = ((window.RV_DATA && window.RV_DATA.glossary) || {}).sections || {};
+  if(soul.Proposito){
+    var pt = document.getElementById("sPropositoTxt");
+    if(pt) pt.textContent = soul.Proposito;
+    var ph = document.getElementById("sProposito");
+    if(ph && soul.Proposito.length > 48) ph.textContent = "Cruzar GEDCOM e DNA";
+  }
+  var ents = soul["Entidades centrais"];
+  if(ents && document.getElementById("sEntidadesList")){
+    var el = document.getElementById("sEntidadesList");
+    el.innerHTML = "";
+    ents.forEach(function(e){
+      var li = document.createElement("li");
+      var b = document.createElement("b");
+      b.textContent = e.term;
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(" — " + e.definition));
+      el.appendChild(li);
+    });
+  }
+  var dec = soul["Decisoes fundadoras"];
+  if(dec && document.getElementById("sDecisoes")){
+    var dl = document.getElementById("sDecisoes");
+    dl.innerHTML = "";
+    dec.forEach(function(t){
+      var li = document.createElement("li");
+      li.textContent = t;
+      dl.appendChild(li);
+    });
+  }
 
   var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
   var idx = 0;

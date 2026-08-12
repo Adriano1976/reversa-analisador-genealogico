@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "startedAt": "2026-08-12T14:00:00Z",
-  "lastCheckpoint": "2026-08-12T14:35:00Z",
+  "lastCheckpoint": "2026-08-12T18:41:35Z",
   "pipelineDurationMs": 2100000,
   "completedAgents": ["mapper", "analyst", "storyteller", "publisher"],
   "pendingAgents": [],
@@ -10,7 +10,9 @@
     "arquitetura.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:c42bbe09c00c864a"},
     "modulos.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:bd85a97f341360e9"},
     "metricas.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:0feb9a10fdf6b7e6"},
-    "deck.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:4054f42753f6a90f"},
+    "deck.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:da67c5191e1cb942"},
+    "glossario.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:90c287684657a9ec"},
+    "assets/data/soul.json": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:ee645043955d4e9c"},
     "features/upload-gedcom.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:3ff0d806a5dcc250"},
     "features/busca-caminho.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:86e116248ba3c293"},
     "features/analise-dna.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:afa5e2d99429f431"},
@@ -22,11 +24,10 @@
     "assets/img/seal.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:e9498fe5b6bf0f85"},
     "assets/img/seal-mini.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:70442156f65a3b61"}
   },
-  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html"],
+  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "glossario.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html"],
   "pagesOmitted": [
     {"page": "topologia.html", "reason": "architecture.md nao declara secao Topologia / variantes de topologia"},
-    {"page": "timeline.html", "reason": "chronicle.md nao encontrado"},
-    {"page": "glossario.html", "reason": "soul.md nao encontrado"}
+    {"page": "timeline.html", "reason": "chronicle.md nao encontrado"}
   ],
   "auxiliaryHtmls": [],
   "auxiliaryHtmlsDiscovered": 0,

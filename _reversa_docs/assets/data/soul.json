@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T14:52:00Z",
+  "project": "analisador-genealogico",
+  "sections": {
+    "Proposito": "analisador-genealogico e uma aplicacao web monolitica em Python + Flask para genealogistas geneticos. Responde a pergunta: como eu me conecto geneticamente a essa outra pessoa? Cruza uma arvore genealogica GEDCOM (.ged) com um relatorio de DNA (CSV de cM) e calcula/visualiza o caminho de parentesco entre a pessoa raiz e cada DNA match, subindo ate o ancestral comum (MRCA) pelas ligacoes de pai/mae e descendo ate o match - ou recorrendo a conexao indireta por afinidade (casamentos/cunhados) quando nao ha ligacao sanguinea direta. Para nomes corrompidos ou grafias divergentes, aplica matching difuso que ignora entradas nao confiaveis em vez de forcar falsos positivos.",
+    "Entidades centrais": [
+      {
+        "term": "GEDCOM",
+        "definition": "Formato padronizado (.ged) de troca de arvores genealogicas; define registros INDI (pessoa) e FAM (familia). Fonte de verdade da genealogia."
+      },
+      {
+        "term": "INDI",
+        "definition": "Registro de individuo, identificado por xref_id (ex.: @I0001@). FAMC = familia onde e filho/a; FAMS = familias onde e conjuge."
+      },
+      {
+        "term": "FAM",
+        "definition": "Registro de familia (@F1@), com HUSB (marido), WIFE (esposa) e CHIL (filhos)."
+      },
+      {
+        "term": "DNA Match",
+        "definition": "Pessoa do CSV de correspondentes com valor de cM compartilhado. Entidade de entrada para a predicao de relacao."
+      },
+      {
+        "term": "cM (centiMorgan)",
+        "definition": "Unidade de medida de recombinacao genetica; quanto maior, mais proximo o parentesco. E a moeda que traduz genetica em grau de relacao."
+      },
+      {
+        "term": "Ancestral comum / MRCA",
+        "definition": "Ascendente mais recente compartilhado entre duas pessoas; base da conexao direta."
+      },
+      {
+        "term": "Grafo pessoa x familia",
+        "definition": "Estrutura em memoria (networkx.Graph/DiGraph) sobre a qual rodam BFS e menor caminho para achar conexoes diretas e indiretas."
+      }
+    ],
+    "Decisoes fundadoras": [
+      "Toda a analise roda em memoria, sem banco de dados: o GEDCOM vira dicionarios people/families e grafos NetworkX por sessao; a persistencia e so a pasta uploads/ com os arquivos enviados.",
+      "Monolito server-side com Flask + Jinja2, tudo centralizado em um unico app.py com tres fluxos (process_dna, path_search e renderizacao inicial).",
+      "Predicao de relacao baseada em faixas de cM (tabela SHARED_CM_DATA, padrao do Shared cM Project).",
+      "Matching de nomes e viral e defensivo: score difuso com bonus por intersecao de sobrenomes e rejeicao de candidatos suspeitos para nao fabricar parentescos falsos.",
+      "Conexao direta primeiro, afinidade como fallback: ancestral comum ate profundidade 20; se nao acha, conexao indireta por afinidade em ate 40 hops.",
+      "Tratamento de mojibake embutido (strip_bad_utf, demojibake): nomes portugueses com encoding corrompido sao saneados antes do matching."
+    ],
+    "Lacunas": [
+      "Sem autenticacao/RBAC - qualquer acesso web usa todas as funcionalidades.",
+      "Sem testes automatizados - nenhum framework detectado; regras criticas de matching sem cobertura.",
+      "Sem historico Git - decisoes reconstruidas por inferencia de codigo, nao por commits.",
+      "Tabela de cM sem fonte citada no codigo - faixas implicitas ao Shared cM Project do README."
+    ]
+  },
+  "concepts": [
+    {
+      "term": "GEDCOM",
+      "definition": "Formato padronizado (.ged) de troca de arvores genealogicas; define registros INDI (pessoa) e FAM (familia). Fonte de verdade da genealogia."
+    },
+    {
+      "term": "INDI",
+      "definition": "Registro de individuo de um GEDCOM, identificado por xref_id (ex.: @I0001@)."
+    },
+    {
+      "term": "FAM",
+      "definition": "Registro de familia de um GEDCOM, com HUSB (marido), WIFE (esposa) e CHIL (filhos)."
+    },
+    {
+      "term": "DNA Match",
+      "definition": "Pessoa do CSV de correspondentes de DNA com valor de cM compartilhado."
+    },
+    {
+      "term": "cM (centiMorgan)",
+      "definition": "Unidade de medida de recombinacao genetica; quanto maior, mais proximo o parentesco."
+    },
+    {
+      "term": "Ancestral comum (MRCA)",
+      "definition": "Ascendente mais recente compartilhado entre duas pessoas; base da conexao direta."
+    },
+    {
+      "term": "Mojibake",
+      "definition": "Caracteres corrompidos por encoding incorreto (ex.: Latin-1 lido como UTF-8), comum em nomes portugueses; saneado por demojibake antes do matching."
+    },
+    {
+      "term": "Matching difuso",
+      "definition": "Score de similaridade de nomes (0.55xtoken_sort + 0.25xpartial + 0.20xgiven + InterBonus) com filtro anti-falso-positivo por intersecao de sobrenomes."
+    }
+  ]
+}
