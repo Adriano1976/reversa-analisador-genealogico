@@ -139,7 +139,7 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 
 ## Licença
 
-*(Nenhuma informação de licença foi fornecida explicitamente na documentação.)*
+Este repositório inclui um arquivo LICENSE com os termos de licenciamento. Consulte `LICENSE` para detalhes.
 
 ##
  
