@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from reconstructed import upload
+# pyrefly: ignore [missing-import]
 from reconstructed.upload import build_graph_from_parser, get_name, ref_id
 
 

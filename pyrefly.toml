@@ -1,0 +1,5 @@
+# Configuração do Pyrefly (analisador estático de tipos)
+# Adiciona o diretório onde o pacote `reconstructed` realmente reside,
+# espelhando o sys.path.insert feito em tempo de execução nos testes.
+[pyrefly]
+search_path = ["analisador-genealogico"]
