@@ -135,7 +135,8 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 - Autor do projeto Reversa: [Adriano Santos](https://github.com/Adriano1976)
 - Autor do Framework Reversa: [Sandeco](https://github.com/sandeco/reversa)
 - Fonte do Código Legado: [analisador-genealogico](https://github.com/sssazevedo/analisador-genealogico/tree/main)
-- Documentação: [Documentação do Projeto](https://adriano1976.github.io/_reversa_docs/index.html)
+- Documentação Antes: [mini-site do projeto](https://adriano1976.github.io/_reversa_docs/)
+- Documentação Depois: [mini-site do projeto](https://adriano1976.github.io/_reversa_docs_v2/)
 
 ## Licença
 
