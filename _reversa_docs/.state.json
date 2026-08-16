@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "startedAt": "2026-08-12T14:00:00Z",
-  "lastCheckpoint": "2026-08-12T18:41:35Z",
+  "lastCheckpoint": "2026-08-16T19:42:11Z",
   "pipelineDurationMs": 2100000,
   "completedAgents": ["mapper", "analyst", "storyteller", "publisher"],
   "pendingAgents": [],
   "pages": {
-    "index.html": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:ba70480530717d43"},
+    "index.html": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:D170D38A9FB0D4EA"},
     "arquitetura.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:c42bbe09c00c864a"},
     "modulos.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:bd85a97f341360e9"},
     "metricas.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:0feb9a10fdf6b7e6"},
@@ -20,14 +20,15 @@
     "assets/data/deps.json": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:a3f0b0672f8fa249"},
     "assets/data/metrics.json": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:57282715d2959e45"},
     "assets/data/features-index.json": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:ab636f2f9fed1a6b"},
-    "assets/js/data.js": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:7261d70f4de34789"},
+    "assets/js/data.js": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:E87E7C44BCB658E4"},
     "assets/img/seal.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:e9498fe5b6bf0f85"},
-    "assets/img/seal-mini.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:70442156f65a3b61"}
+    "assets/img/seal-mini.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:70442156f65a3b61"},
+    "timeline.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:62A19FAAF665FFE8"},
+    "assets/data/timeline.json": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:210DAD3A6FD7AC84"}
   },
-  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "glossario.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html"],
+  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "glossario.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html", "timeline.html"],
   "pagesOmitted": [
-    {"page": "topologia.html", "reason": "architecture.md nao declara secao Topologia / variantes de topologia"},
-    {"page": "timeline.html", "reason": "chronicle.md nao encontrado"}
+    {"page": "topologia.html", "reason": "architecture.md nao declara secao Topologia / variantes de topologia"}
   ],
   "auxiliaryHtmls": [],
   "auxiliaryHtmlsDiscovered": 0,
