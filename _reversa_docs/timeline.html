@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-analyst">
+<meta name="reversa-template" content="timeline">
+<meta name="reversa-generated-at" content="2026-08-16T16:20:00Z">
+<!-- TITLE -->
+<title>Timeline — analisador-genealogico</title>
+<!-- PAGE_ID -->
+<meta name="reversa-page-id" content="timeline">
+<!-- VISUAL_STYLE -->
+<meta name="reversa-visual-style" content="sober">
+<!-- HEAD_EXTRAS -->
+<script src="assets/vendor/highcharts.js"></script>
+<script src="assets/vendor/highcharts-accessibility.js"></script>
+<script src="assets/vendor/highcharts-timeline.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{
+    --bg:#1e2024; --panel:#26282e; --line:#3a3d45; --txt:#d7dae0;
+    --muted:#8b909a; --accent:#4f8cff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; min-height:100vh;}
+  header.site{position:fixed; top:0; left:0; right:0; height:52px; background:rgba(30,32,36,.92); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 20px; z-index:20; gap:14px;}
+  header.site .brand{font-weight:600; letter-spacing:.3px; white-space:nowrap;}
+  header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex; gap:4px; flex:1; justify-content:flex-end; align-items:center; min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt); background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff; background:rgba(79,140,255,.16); outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px; height:26px; flex:0 0 auto;}
+  main{padding:72px 24px 40px; max-width:1240px; margin:0 auto; display:flex; gap:0;}
+  .timeline-wrap{flex:1; min-width:0;}
+  .chartbox{height:600px;}
+  .chart{border:1px solid var(--line); border-radius:12px; padding:6px 12px 12px; background:var(--panel);}
+  .chart h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:10px 8px 4px;}
+  .note{color:var(--muted); font-size:12px; text-align:center; padding:20px 0;}
+  .badge{display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; margin-left:6px; vertical-align:middle; background:rgba(79,140,255,.16); color:#8ab4ff;}
+  /* EVENT_DETAILS */
+  aside.detail{width:320px; margin-left:18px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; height:fit-content; position:sticky; top:72px; max-height:calc(100vh - 90px); overflow:auto;}
+  aside.detail .empty{color:var(--muted); font-size:13px; line-height:1.6;}
+  aside.detail h4{font-size:14px; color:#fff; margin-bottom:4px;}
+  aside.detail .meta{font-size:12px; color:var(--muted); margin-bottom:10px;}
+  aside.detail .meta b{color:#8ab4ff; font-weight:600;}
+  aside.detail p{font-size:13px; line-height:1.6; color:var(--txt);}
+  .filter{margin-bottom:14px;}
+  .filter label{font-size:12px; color:var(--muted); margin-right:8px;}
+  .filter select{background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:13px;}
+</style>
+</head>
+<body>
+<header class="site">
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#23262c"/>
+  <g stroke="#3a3d45" stroke-width="1" fill="none">
+    <circle cx="32" cy="32" r="27"/>
+    <circle cx="32" cy="32" r="20"/>
+    <circle cx="32" cy="32" r="13"/>
+  </g>
+  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
+    <line x1="32" y1="4" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="60" y2="32"/>
+    <line x1="12" y1="12" x2="52" y2="52"/>
+    <line x1="12" y1="52" x2="52" y2="12"/>
+  </g>
+  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
+  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
+  <g fill="#6b7d99">
+    <circle cx="32" cy="5.5" r="1.6"/>
+    <circle cx="58.5" cy="32" r="1.6"/>
+    <circle cx="32" cy="58.5" r="1.6"/>
+    <circle cx="5.5" cy="32" r="1.6"/>
+  </g>
+</svg>
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Timeline</span>
+  <!-- NAV_LINKS -->
+  <nav class="reversa-doc-nav"></nav>
+</header>
+
+<main>
+  <div class="timeline-wrap">
+    <div class="filter">
+      <label for="catFilter">Filtro por fase:</label>
+      <select id="catFilter">
+        <option value="">Todas</option>
+        <option value="inicializacao">Inicialização</option>
+        <option value="extracao">Extração</option>
+        <option value="framework">Framework</option>
+        <option value="reconstrucao">Reconstrução</option>
+        <option value="forward">Forward</option>
+        <option value="docs">Docs</option>
+        <option value="licenca">Licença / Polimento</option>
+      </select>
+    </div>
+    <div class="chart"><h3>Linha do tempo do projeto<span class="badge" id="eventCount"></span></h3><div id="chartTimeline" class="chartbox"></div></div>
+    <p class="note">Fonte: .reversa/chronicle.md — eventos dos agentes e artefatos desde o início do projeto.</p>
+  </div>
+  <!-- EVENT_DETAILS -->
+  <aside class="detail" id="detailPanel">
+    <div class="empty">Clique em um evento da linha do tempo para ver os detalhes.</div>
+  </aside>
+</main>
+
+<!-- PAYLOAD -->
+<script>
+(function(){
+  "use strict";
+  var T = (window.RV_DATA && window.RV_DATA.timeline) || {};
+  var events = (T.events || []).slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+  if(!events.length){
+    document.body.innerHTML += '<p style="color:#e57373;padding:20px">Nenhum evento de timeline disponível.</p>';
+    return;
+  }
+  document.getElementById("eventCount").textContent = events.length + " eventos";
+
+  var catLabels = {
+    inicializacao:"Inicialização", extracao:"Extração", framework:"Framework",
+    reconstrucao:"Reconstrução", forward:"Forward", docs:"Docs", licenca:"Licença"
+  };
+
+  Highcharts.setOptions({
+    chart:{ backgroundColor:"var(--panel)", style:{ fontFamily:"Segoe UI, system-ui, sans-serif" } },
+    tooltip:{ backgroundColor:"#1e2024", style:{ color:"#d7dae0" }, borderColor:"#3a3d45" }
+  });
+
+  var allData = events.map(function(ev){
+    return {
+      x: Date.parse(ev.date),
+      name: ev.title,
+      label: ev.agent,
+      description: "<b>" + (catLabels[ev.category] || ev.category) + "</b> — " + (ev.detail || ""),
+      custom: ev
+    };
+  });
+
+  function render(filter){
+    var data = filter ? allData.filter(function(p){ return p.custom.category === filter; }) : allData;
+    Highcharts.chart("chartTimeline", {
+      chart:{ type:"timeline", zoomType:"x" },
+      title:{ text:null, enabled:false },
+      xAxis:{ type:"datetime", visible:false },
+      yAxis:{ visible:false },
+      plotOptions:{ series:{ cursor:"pointer" } },
+      legend:{ enabled:false },
+      credits:{ enabled:false },
+      tooltip:{
+        headerFormat:"<span style='font-size:13px'>{series.name}</span><br/>",
+        pointFormat:"<b>{point.name}</b><br/>{point.label} · {point.description}"
+      },
+      series:[{
+        name:"Agente",
+        data:data,
+        dataLabels:{
+          connectorColor:"#4f8cff",
+          style:{ color:"#d7dae0", textOutline:"none" },
+          formatter:function(){ return this.point.name; }
+        },
+        point:{
+          events:{
+            click:function(){
+              var ev = this.custom || {};
+              var panel = document.getElementById("detailPanel");
+              var html = "<h4>" + (ev.title || "") + "</h4>"
+                + "<div class='meta'>📅 " + (ev.date ? ev.date.replace("T"," ").replace("Z"," UTC") : "") + ""
+                + (ev.agent ? " · agente <b>" + ev.agent + "</b>" : "")
+                + (catLabels[ev.category] ? " · fase <b>" + catLabels[ev.category] + "</b>" : "") + "</div>"
+                + "<p>" + (ev.detail || "") + "</p>";
+              panel.innerHTML = html;
+            }
+          }
+        }
+      }]
+    });
+  }
+
+  render("");
+  document.getElementById("catFilter").addEventListener("change", function(){
+    render(this.value);
+  });
+})();
+</script>
+</body>
+</html>
