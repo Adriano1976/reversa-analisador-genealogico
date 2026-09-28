@@ -79,10 +79,31 @@ spec = importlib.util.spec_from_file_location("oracle", local)
 m = importlib.util.module_from_spec(spec); sys.modules["oracle"] = m
 spec.loader.exec_module(m)
 
+def jsonable(v):
+    """Torna um retorno serializavel E deterministico, recursivamente.
+
+    Por que recursivo: `split_name_pt` devolve a TUPLA (given, surnames, {suffixes}).
+    Um `list()` simples no primeiro nivel deixa o `set` de sufixos intacto la dentro,
+    e `set` (a) nao e serializavel em JSON e (b) tem ordem de iteracao dependente do
+    PYTHONHASHSEED, que varia ENTRE PROCESSOS. Ordenar aqui e obrigatorio, senao a
+    mesma entrada produz ordem diferente no subprocesso do oraculo e no do candidato,
+    e o diff acusa divergencia de ordem onde nao ha divergencia de comportamento.
+
+    `set`/`frozenset` -> lista ordenada (sem ordem = sem contrato).
+    `list`/`tuple`    -> lista na ORDEM ORIGINAL (ordem = contrato, nao alterar).
+    """
+    if isinstance(v, dict):
+        return {k: jsonable(x) for k, x in v.items()}
+    if isinstance(v, (set, frozenset)):
+        return sorted(jsonable(x) for x in v)
+    if isinstance(v, (list, tuple)):
+        return [jsonable(x) for x in v]
+    return v
+
 obs = {}
 def safo(fn, *a, **k):
     try:
-        return {"ok": True, "v": fn(*a, **k)}
+        return {"ok": True, "v": jsonable(fn(*a, **k))}
     except Exception as e:
         return {"ok": False, "e": type(e).__name__}
 
@@ -101,7 +122,7 @@ obs["get_spouses"] = {i: sorted(m.get_spouses(i) or []) for i in ids}
 obs["norm_name"] = {n: safo(m.norm_name, n) for n in names}
 obs["strip_bad_utf"] = {n: safo(m.strip_bad_utf, n) for n in names}
 obs["demojibake"] = {n: safo(m.demojibake, n) for n in names}
-obs["split_name_pt"] = {n: safo(lambda x: [list(v) if isinstance(v, (set, tuple)) else v for v in m.split_name_pt(x)], n) for n in names}
+obs["split_name_pt"] = {n: safo(lambda x: list(m.split_name_pt(x)), n) for n in names}
 obs["surnames_set"] = {n: safo(lambda x: sorted(m.surnames_set(x)), n) for n in names}
 obs["top_given_tokens"] = {n: safo(lambda x: m.top_given_tokens(x), n) for n in names}
 obs["token_prefixes"] = {n: safo(lambda x: sorted(m.token_prefixes(x or [])), n) for n in names}
@@ -141,9 +162,23 @@ from reconstructed import dna_analysis as D
 from reconstructed import domain as DM
 
 obs = {}
+def jsonable(v):
+    """Idem ao coletor do oraculo — ver comentario extenso la.
+
+    Os DOIS lados precisam da MESMA normalizacao. Se so um lado ordenar, o diff
+    acusa divergencia de ordem que e artefato do coletor, nao do sistema.
+    """
+    if isinstance(v, dict):
+        return {k: jsonable(x) for k, x in v.items()}
+    if isinstance(v, (set, frozenset)):
+        return sorted(jsonable(x) for x in v)
+    if isinstance(v, (list, tuple)):
+        return [jsonable(x) for x in v]
+    return v
+
 def safo(fn, *a, **k):
     try:
-        return {"ok": True, "v": fn(*a, **k)}
+        return {"ok": True, "v": jsonable(fn(*a, **k))}
     except Exception as e:
         return {"ok": False, "e": type(e).__name__}
 
@@ -172,7 +207,7 @@ obs["norm_name"] = {n: safo(D.norm_name, n) for n in names}
 #   (que usa a funcao certa internamente) + `D.strip_bad_utf` abaixo.
 obs["strip_bad_utf"] = {n: safo(D.strip_bad_utf, n) for n in names}
 obs["demojibake"] = {n: safo(D.demojibake, n) for n in names}
-obs["split_name_pt"] = {n: safo(lambda x: [list(v) if isinstance(v, (set, tuple)) else v for v in D.split_name_pt(x)], n) for n in names}
+obs["split_name_pt"] = {n: safo(lambda x: list(D.split_name_pt(x)), n) for n in names}
 obs["surnames_set"] = {n: safo(lambda x: sorted(D.surnames_set(x)), n) for n in names}
 obs["top_given_tokens"] = {n: safo(lambda x: D.top_given_tokens(x), n) for n in names}
 obs["token_prefixes"] = {n: safo(lambda x: sorted(D.token_prefixes(x or [])), n) for n in names}

@@ -71,10 +71,10 @@ screens:
       determinismStrategy: "nenhuma dependencia de dados; estado inicial puro"
     file: "SCR-001-initial-upload.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "2e2a5c02a439f096cef298ddc3225f748746e57592f5b128a9274231dff79a0c"
     deviations: [DEV-005, DEV-009]
     notes: >
       Estado sem dependencia de dados — captura trivial. O GEDCOM nao precisa estar
@@ -91,10 +91,10 @@ screens:
       determinismStrategy: "fixture GEDCOM fixo (exemplo_familia.ged)"
     file: "SCR-002-loaded-hub.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "815e0a4314aaffb0bf3a83d769e4dfd30f48ee6534e32944c6521bace6e02ae9"
     deviations: [DEV-002, DEV-003]
     notes: >
       REQUER fixture: o estado {% else %} so aparece apos upload bem-sucedido.
@@ -111,10 +111,10 @@ screens:
       determinismStrategy: "fixture GEDCOM fixo"
     file: "SCR-003-path-search-tab.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "815e0a4314aaffb0bf3a83d769e4dfd30f48ee6534e32944c6521bace6e02ae9"
     deviations: [DEV-002, DEV-003, DEV-009]
     notes: >
       Nao ha captura independente: o painel esta no mesmo documento de SCR-002
@@ -129,10 +129,10 @@ screens:
       determinismStrategy: "fixture GEDCOM fixo"
     file: "SCR-004-dna-analysis-tab.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "815e0a4314aaffb0bf3a83d769e4dfd30f48ee6534e32944c6521bace6e02ae9"
     deviations: [DEV-002, DEV-003, DEV-009]
     notes: "Idem SCR-003: mesmo documento de SCR-002."
 
@@ -147,10 +147,10 @@ screens:
       determinismStrategy: "fixture GEDCOM + fixture CSV fixos; raiz fixa"
     file: "SCR-005-results-region.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "6c69283c7a56be6b74a6331c6c9bfbeaffb7925bbad9704de1e26e2139447a56"
     deviations: [DEV-003, DEV-004, DEV-009]
     notes: >
       CAPTURA MAIS VALIOSA E MAIS DIFICIL. Exige tres coisas fixas: GEDCOM, CSV de
@@ -171,10 +171,10 @@ screens:
       determinismStrategy: "fixture GEDCOM fixo"
     file: "SCR-G01-alert-success.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "b811fb4e8cf8e89e4d0482557f8e2e5646cb9127f1a023f76657b8831b9a7764"
     deviations: [DEV-005]
     notes: "Chrome global; capturado como parte de SCR-002 ou SCR-005."
 
@@ -186,10 +186,10 @@ screens:
       determinismStrategy: "nenhuma dependencia; ausencia de arquivo produz o erro de forma deterministica"
     file: "SCR-G02-alert-error.html.txt"
     format: "html-css-snapshot"
-    present: false
-    captureBy: null
-    capturedAt: null
-    sha256: null
+    present: true
+    captureBy: "orchestrator (_reversa_sdd/parity/_golden_capture.py)"
+    capturedAt: "2026-09-28T16:20:00Z"
+    sha256: "568035e9d940bb69e63c7d43223d9d07ae05e4acf1eca4ea7782783eb2706338"
     deviations: [DEV-005, DEV-009]
     notes: >
       CAPTURA FACIL E DE ALTO VALOR: submeter o formulario SEM arquivo produz
@@ -222,7 +222,10 @@ nonDeterministic: []
 # Observacoes sobre o conjunto
 notes:
   - >
-    NENHUM golden file foi capturado nesta execucao. Todos estao com `present: false`.
+    CAPTURA PARCIAL REALIZADA em 2026-09-28T16:20Z por _reversa_sdd/parity/_golden_capture.py (oraculo isolado em .golden-capture/app/,
+    legado real intocado). Capturados: SCR-001, SCR-G02, SCR-002, SCR-003, SCR-004.
+    PENDENTES: SCR-005 (exige CSV de matches + nome de raiz) e SCR-G03 (exige
+    navegador headless — DEV-010). Os pendentes seguem com `present: false`.
     Os comandos foram derivados da leitura do template e do app.py, mas nao foram
     executados: (a) exigem subir o oraculo Flask, o que e decisao operacional do usuario;
     (b) SCR-005 exige materializar os fixtures .ged/.csv, que e trabalho da Onda 0.
