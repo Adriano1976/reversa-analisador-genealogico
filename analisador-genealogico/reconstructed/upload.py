@@ -31,11 +31,20 @@ def ref_id(val):
 
 
 def get_name(person) -> str:
-    """Nome formatado do registro; 'Sem Nome' se ausente ou vazio."""
-    if not person or not person.name:
-        return "Sem Nome"
-    formatted = person.name.format()
-    return formatted if formatted and formatted.strip() else "Sem Nome"
+    """Nome formatado do registro; 'Sem Nome' APENAS se ausente.
+
+    Copia fiel do oraculo (app_legacy_e43ca22.py:42-43):
+
+        return person.name.format() if person and person.name else "Sem Nome"
+
+    ATENCAO — nao "melhore" isto para tratar formato vazio. O legado devolve '' quando
+    `person.name` existe mas `.format()` resulta vazio, e esse caso OCORRE em dado real
+    (296 pessoas em 35.460 em Arvore_Unificada_Oficial_V1_2.ged; 17 em 3.056 em
+    Adriano_Santos.ged). O literal 'Sem Nome' nunca foi observado nos dados. Uma versao
+    anterior desta funcao tratava o formato vazio como 'Sem Nome' e quebrava a paridade
+    com o oraculo (DIV-001, _reversa_sdd/migration/parity_harness.md).
+    """
+    return person.name.format() if person and person.name else "Sem Nome"
 
 
 def build_graph_from_parser(people_dict: dict, parser):

@@ -69,12 +69,52 @@ def test_get_name_real_person():
         os.remove(path)
 
 
-def test_get_name_missing_returns_sem_nome():
-    ged = SAMPLE_GED.replace("1 NAME Joao /Silva/", "1 SEX M")  # remove so nome
+def test_get_name_absent_attribute_returns_sem_nome():
+    """Falsy `person` ou `person.name` -> 'Sem Nome' (o unico caso do fallback).
+
+    Descoberto medindo, e o achado e mais forte do que parece: um registro sem o
+    atributo `name` NAO devolve None — o ged4py levanta AttributeError. A expressao do
+    legado, `person and person.name`, curto-circuita em `person` antes de tocar `.name`,
+    entao o AttributeError nunca ocorre com um registro real. Combinado com o fato de
+    que remover a tag NAME produz um objeto Name vazio ('' e nao 'Sem Nome'), a
+    conclusao e: **o literal 'Sem Nome' e inalcancavel a partir de registros INDI** —
+    e e exatamente por isso que ele nunca aparece nos 55.523 nomes da base real.
+
+    Logo o fallback so e exercitavel por um duplo de teste. Documentado aqui para que
+    ninguem "conserte" a funcao tentando cobrir um caso de dados que nao existe.
+    """
+    class SemNome:
+        name = None
+
+    assert get_name(None) == "Sem Nome"      # `person` falsy
+    assert get_name(SemNome()) == "Sem Nome"  # `person.name` falsy
+
+
+def test_get_name_empty_formatted_returns_empty_string():
+    """Tag NAME presente mas com formato vazio -> '' (nao 'Sem Nome').
+
+    DIV-001: a reconstrucao tratava este caso como 'Sem Nome', divergindo do
+    oraculo congelado (app_legacy_e43ca22.py:42-43), que devolve `person.name.format()`
+    sem fallback. E o caso que OCORRE em dado real (296 pessoas em 35.460). Este teste
+    existe porque a versao anterior assertava `in ("Sem Nome", "")` — uma assercao que
+    aceita os DOIS valores, logo nao pode falhar e nao protegia nada.
+    """
+    ged = SAMPLE_GED.replace("1 NAME Joao /Silva/", "1 NAME /")
     path = _write_g(ged)
     try:
         upload.load_gedcom_and_build_graph(path)
-        assert get_name(upload.people["@I1@"]) in ("Sem Nome", "")
+        assert get_name(upload.people["@I1@"]) == ""
+    finally:
+        os.remove(path)
+
+
+def test_get_name_indian_without_name_tag_returns_empty_string():
+    """Remover a tag NAME de um INDI -> '' (NAO 'Sem Nome'). Documenta o achado acima."""
+    ged = SAMPLE_GED.replace("1 NAME Joao /Silva/", "1 SEX M")
+    path = _write_g(ged)
+    try:
+        upload.load_gedcom_and_build_graph(path)
+        assert get_name(upload.people["@I1@"]) == ""
     finally:
         os.remove(path)
 
@@ -116,7 +156,24 @@ def test_load_returns_sorted_names():
     # Pessoas esperadas no GEDCOM sintético.
     assert any("Joao" in n for n in names)
     assert any("Carlos" in n for n in names)
-    assert "Sem Nome" in names or any(n.strip() for n in names)
+
+
+def test_load_returns_exactly_one_name_per_person_and_no_empty_entries():
+    """SAMPLE_GED tem 7 pessoas, TODAS com nome: nenhuma entrada vazia, nenhum 'Sem Nome'.
+
+    Substitui a assercao anterior:
+
+        assert "Sem Nome" in names or any(n.strip() for n in names)
+
+    Aquela disjuncao era satisfeita pelos outros nomes da arvore, entao passava mesmo
+    com uma entrada vazia presente — e portanto nao podia falhar quando `get_name`
+    divergia do oraculo (DIV-001). Esta versao falha em ambos os casos.
+    """
+    names = _load(SAMPLE_GED)
+    assert len(names) == 7
+    assert len(names) == len(upload.people)
+    assert "" not in names
+    assert "Sem Nome" not in names
 
 
 def test_reload_replaces_globals():

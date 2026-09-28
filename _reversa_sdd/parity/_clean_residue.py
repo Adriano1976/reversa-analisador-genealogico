@@ -41,14 +41,32 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 
-# Arquivos gerados dentro de parity/ (nunca os 3 fontes: harness, make_fixtures, _probe).
-FILES = ["_collect_oracle.py", "_collect_cand.py", "_obs_oracle.json", "_obs_cand.json"]
+# Arquivos gerados dentro de parity/ (nunca os fontes: harness, make_fixtures, _probe, _clean).
+FILES = [
+    # gravados por harness.py a cada execucao
+    "_collect_oracle.py", "_collect_cand.py", "_obs_oracle.json", "_obs_cand.json",
+    # gravados pelos probes de diagnostico
+    "_instrumented_oracle.py", "_obs_instrumented.json",
+    "_profile_collector.py", "_bench_norm.py",
+    "_harness_stub.py", "_types_oracle.py", "_types_cand.py",
+    # saida de log de execucao longa / captura completa
+    "_big_run.log", "_full.txt",
+]
 
 # Diretorios temporarios na raiz do projeto.
-DIRS = [".parity-tmp", ".parity-pytest-tmp", ".parity-run-oracle", ".parity-run-cand"]
+DIRS = [
+    ".parity-tmp", ".parity-pytest-tmp", ".parity-run-oracle", ".parity-run-cand",
+    ".parity-profile", ".parity-bench", ".parity-pairbench", ".parity-stub",
+]
+
+# Dentro de parity/: cache do Python (criado quando um probe importa harness.py).
+NESTED_DIRS = ["__pycache__"]
 
 # NUNCA remover: sao fontes registradas em .state.json.
-PROTEGIDOS = {"harness.py", "make_fixtures.py", "_probe_fix_impact.py", "_clean_residue.py", "fixtures"}
+PROTEGIDOS = {"harness.py", "make_fixtures.py", "_probe_fix_impact.py",
+              "_clean_residue.py", "_profile_big.py", "_profile_collector_costs.py",
+              "_verify_fix_gives_parity.py", "_verify_hashes.py",
+              "_check_split_types.py", "fixtures"}
 
 
 def main() -> int:
@@ -76,6 +94,21 @@ def main() -> int:
 
     for name in DIRS:
         p = os.path.join(ROOT, name)
+        if not os.path.isdir(p):
+            continue
+        if dry:
+            print("  removeria  %s/" % name)
+            continue
+        try:
+            shutil.rmtree(p)
+            removidos.append(name + "/")
+            print("  removido   %s/" % name)
+        except OSError as e:
+            falhas.append((name + "/", e))
+            print("  FALHOU     %s/ (%s)" % (name, type(e).__name__))
+
+    for name in NESTED_DIRS:
+        p = os.path.join(HERE, name)
         if not os.path.isdir(p):
             continue
         if dry:
