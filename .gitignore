@@ -6,4 +6,10 @@ venv/
 cls
 
 # Backups gerados pelo reversa-docs
-_reversa_docs/.backup-*/
+_reversa_docs/.backup-*/
+
+# Lixo de execucao do harness de paridade (_reversa_sdd/parity/)
+.parity-run-oracle/
+.parity-tmp/
+.pytest-tmp/
+_reversa_sdd/parity/_obs_*.json
