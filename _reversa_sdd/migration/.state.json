@@ -1,7 +1,25 @@
 {
   "schemaVersion": 2,
   "startedAt": "2026-09-28T02:45:48Z",
-  "lastCheckpoint": "2026-09-28T04:25:30Z",
+  "lastCheckpoint": "2026-09-28T04:40:00Z",
+  "pipelineCompletedAt": "2026-09-28T04:25:30Z",
+  "postHandoffVerification": {
+    "performedAt": "2026-09-28T04:40:00Z",
+    "note": "Trabalho FORA dos Passos 1-9, feito apos o handoff. Nao faz parte do /reversa-migrate e nao altera o fato de o pipeline ter concluido em 2026-09-28T04:25:30Z.",
+    "what": [
+      "Congelamento do oraculo a partir do commit e43ca22 (o app.py atual e um wrapper de 86 linhas que importa reconstructed/ - usa-lo produziria validacao circular, RISK-002)",
+      "Runner do oraculo com isolamento (run_oracle.py)",
+      "Confronto empirico das specs contra o oraculo, sobre fixtures E sobre dados reais"
+    ],
+    "found": [
+      "AMB-023: cM <= 0 retorna lista vazia, nao o literal 'Relacao distante ou indeterminada' (spec errada)",
+      "AMB-024: fallback 'Sem Nome' e mais estreito que a spec; 318 nomes vazios reais contra 0 do literal",
+      "Faixas de cM se sobrepoem ate 4x (contrato e lista, nunca escalar)",
+      "o import do oraculo cria uploads/ e static/ no cwd; saida contem U+2194 (cp1252 nao codifica)"
+    ],
+    "artifactsCorrected": 13,
+    "deviationFromPrescribedLayout": "_reversa_sdd/oracle/ (3 arquivos) NAO consta no layout prescrito pela skill. Criado por necessidade tecnica: sem oraculo congelado, a metrica primaria do brief e inverificavel."
+  },
   "completedAgents": [
     "paradigm_advisor",
     "curator",
@@ -173,6 +191,34 @@
       "path": "_reversa_sdd/oracle/app_legacy_e43ca22.py",
       "gitBlob": "e43ca22:analisador-genealogico/app.py",
       "note": "ORACULO CONGELADO. Monolito original: 888 linhas, 41.950 bytes, zero referencia a reconstructed/. SOMENTE LEITURA."
+    },
+    "parity_harness.md": {
+      "sha256": "96229d750307cf294de3f79cfc57156b5d34a2e31691777ebc3244cfe4a5e6e6",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T13:05:00Z",
+      "note": "Harness diferencial oraculo congelado x reconstrucao. Prova a metrica primaria do brief por execucao real. Registra DIV-001 (get_name divergente) e DIV-001a (por que 47 testes nao podiam detecta-lo). Trabalho FORA dos Passos 1-9, pos-handoff.",
+      "hashScope": "corpo abaixo do front-matter"
+    },
+    "parity/harness.py": {
+      "sha256": "10ef4ef72b2df6edf27d478b7a389a2538c21997cd8925dabd607f72eefcf23e",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T13:05:00Z",
+      "path": "_reversa_sdd/parity/harness.py",
+      "note": "Harness diferencial. Dois subprocessos obrigatorios (o oraculo tem estado global mutavel). Canonicaliza set para lista ordenada, mas preserva ordem de list/tuple."
+    },
+    "parity/make_fixtures.py": {
+      "sha256": "c971586cd05d349a01a7d989ba6f57de2927db659b24fd6e07fd5b06f2f06722",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T13:05:00Z",
+      "path": "_reversa_sdd/parity/make_fixtures.py",
+      "note": "Materializa as 13 fixtures em parity/fixtures/. Necessario porque tests/fixtures/*.py sao geradores Python, nao arquivos para GedcomReader(file_path)."
+    },
+    "parity/_probe_fix_impact.py": {
+      "sha256": "e1510f4b4130187b355f43d214c4f4a8c96f59b8622c4e1a7b64d4e62399c7ee",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T13:05:00Z",
+      "path": "_reversa_sdd/parity/_probe_fix_impact.py",
+      "note": "Mede o impacto de DIV-001 nos 47 testes: monkey-patcha get_name para o comportamento do oraculo e roda a suite real. Resultado medido: 46 passed / 1 error ambiental (test_ensure_dirs_creates_uploads, PermissionError de tmp_path no sandbox) -> a correcao NAO quebra nenhum teste. Tambem prova que tests/test_upload.py:77 e uma assercao NULA (aceita '' e 'Sem Nome')."
     }
   },
   "oracle": {
