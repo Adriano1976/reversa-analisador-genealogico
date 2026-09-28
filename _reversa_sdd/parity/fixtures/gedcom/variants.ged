@@ -1,0 +1,36 @@
+0 HEAD
+1 SOUR PARITY
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @J1@ INDI
+1 NAME José /Gouveia Netto/
+1 SEX M
+0 @J2@ INDI
+1 NAME Maria /Silva Santos/
+1 SEX F
+0 @J3@ INDI
+1 NAME José /Gouveia Neto/ Filho
+1 SEX M
+1 FAMC @G1@
+0 @J4@ INDI
+1 NAME Maria /Silva Santos/ Souza
+1 SEX F
+1 FAMC @G1@
+0 @J5@ INDI
+1 NAME João /Gouvêa Netto/
+1 SEX M
+0 @J6@ INDI
+1 NAME Ana /Pereira/
+1 SEX F
+1 FAMS @G2@
+0 @G1@ FAM
+1 HUSB @J1@
+1 WIFE @J2@
+1 CHIL @J3@
+1 CHIL @J4@
+0 @G2@ FAM
+1 HUSB @J3@
+1 WIFE @J6@
+1 CHIL @J4@
+0 TRLR
