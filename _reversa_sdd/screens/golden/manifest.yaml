@@ -1,0 +1,240 @@
+# golden/manifest.yaml
+#
+# Manifesto dos golden files do Screen Translator para o par
+# server-rendered-jinja2-bootstrap -> web-spa (adapter proxy: html_legacy__spa).
+#
+# O oraculo legado E EXECUTAVEL (aplicacao Flask local, `analisador-genealogico/app.py`),
+# o que e incomum para este agente: os casos tipicos do catalogo sao COBOL, Win32 ou
+# Android, onde o oraculo exige emulador. Aqui basta subir o Flask local.
+#
+# Em v1, captura automatizada e OQ-02 (nao implementada). Este manifesto descreve o
+# comando sugerido por tela; o usuario roda manualmente.
+#
+# REGRA ABSOLUTA: o legado e SOMENTE LEITURA. Nenhum comando aqui escreve no repositorio
+# legado. Os uploads temporarios do Flask vao para `analisador-genealogico/uploads/`, que
+# ja existe e e descartavel — se preferir isolamento total, copie o projeto para um
+# diretorio temporario antes de executar.
+
+schemaVersion: 1
+generatedAt: 2026-09-28T03:20:10Z
+reversa:
+  version: "1.2.58"
+producedBy: screen-translator
+sourcePlatform: server-rendered-jinja2-bootstrap
+targetPlatform: web-spa
+oracleAvailable: true
+oracleHash: "sha256:44370b2339a645c4d9ce732ac3962811b16b35f587ece3507dad4fc3d87646bb"
+# ATENCAO (corrigido em 2026-09-28T04:32Z): o oracleCommand anterior apontava para
+# `analisador-genealogico/app.py`, mas esse arquivo HOJE e um wrapper fino de 86 linhas
+# que importa `reconstructed/` — usa-lo produziria VALIDACAO CIRCULAR (RISK-002).
+# O oraculo correto e o monolito original de 888 linhas, congelado a partir do commit
+# e43ca22. Ver _reversa_sdd/oracle/ORACLE_MANIFEST.md.
+oracleSource: "_reversa_sdd/oracle/app_legacy_e43ca22.py"
+oracleGitBlob: "e43ca22:analisador-genealogico/app.py"
+oracleCommand: "PYTHONIOENCODING=utf-8 python _reversa_sdd/oracle/app_legacy_e43ca22.py   # ou importar via harness em subprocesso, com chdir para o diretorio do legado"
+oracleDependencies:
+  # Versoes EXATAS do ambiente verificado. Uma diferenca aqui produz divergencia
+  # que NAO e erro do port (RISK-009). Comparar versoes antes de culpar o codigo.
+  Flask: "3.1.3"
+  ged4py: "0.5.2"
+  networkx: "3.6.1"
+  pandas: "3.0.3"
+  thefuzz: "0.22.1"
+  RapidFuzz: "3.14.5"
+  python-Levenshtein: "0.27.3"
+  numpy: "2.5.0"
+  python: "3.14.6 (global; o .venv do projeto contem apenas pip)"
+
+normalizationRules:
+  # Regras aceitas na comparacao. Tudo fora daqui e divergencia real.
+  - lineEndings: "\n"           # converter CRLF -> LF antes de comparar
+  - trimTrailingSpaces: true    # o template legado tem indentacao por TABS em index.html:130-161
+                                # (regiao de descartados) misturada a espacos; a diferenca e
+                                # acidental, nao semantica. Ver DEV-010 / notas.
+  - stripAnsiColors: false      # nao aplicavel (alvo web, nao terminal)
+  - normalizeUtf8: true         # o legado tem risco de mojibake em nomes (BR-MIGRAR-006)
+  - injectClock: "2026-01-01T00:00:00Z"  # clock fake: o legado nao exibe data, mas fixar
+                                          # protege contra qualquer insercao futura
+  - seedRandom: 42              # o matching viral do legado NAO usa aleatoriedade, mas
+                                # fica registrado para o caso de `thefuzz`/pandas variarem
+  - ignoreStrings:
+      # Unica excecao autorizada a invariante de diff textual zero (DEV-005).
+      - legacy: "Close"
+        target: "Fechar"
+
+screens:
+  - name: SCR-001-initial-upload
+    legacyOrigin: "analisador-genealogico/templates/index.html:41-52"
+    capture:
+      command: "curl -s http://127.0.0.1:5001/ | python -c \"import sys,html,re; t=sys.stdin.read(); print(re.sub(r'\\s+',' ',t))\" > scr-001.html.txt"
+      expectedExitCode: 0
+      determinismStrategy: "nenhuma dependencia de dados; estado inicial puro"
+    file: "SCR-001-initial-upload.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-005, DEV-009]
+    notes: >
+      Estado sem dependencia de dados — captura trivial. O GEDCOM nao precisa estar
+      carregado: e exatamente o estado {% if not gedcom_filename %}. Comando de captura
+      sugerido usa curl; alternativa e abrir no navegador e salvar a pagina.
+
+  - name: SCR-002-loaded-hub
+    legacyOrigin: "analisador-genealogico/templates/index.html:53-61"
+    capture:
+      command: >
+        curl -s -X POST http://127.0.0.1:5001/ -F "action=upload_gedcom"
+        -F "gedcom=@_reversa_sdd/upload-gedcom/exemplo_familia.ged" > scr-002.html.txt
+      expectedExitCode: 0
+      determinismStrategy: "fixture GEDCOM fixo (exemplo_familia.ged)"
+    file: "SCR-002-loaded-hub.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-002, DEV-003]
+    notes: >
+      REQUER fixture: o estado {% else %} so aparece apos upload bem-sucedido.
+      Fixture disponivel no proprio _reversa_sdd: upload-gedcom/exemplo_familia.ged.
+      Alternativa para determinismo: tests/fixtures/sample_gedcom.py.
+      ATENCAO: o comando faz o Flask gravar em analisador-genealogico/uploads/.
+      Para isolamento total do legado, copie o projeto para diretorio temporario antes.
+
+  - name: SCR-003-path-search-tab
+    legacyOrigin: "analisador-genealogico/templates/index.html:64-81"
+    capture:
+      command: "(mesma captura de SCR-002; o painel de aba esta no mesmo HTML renderizado)"
+      expectedExitCode: 0
+      determinismStrategy: "fixture GEDCOM fixo"
+    file: "SCR-003-path-search-tab.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-002, DEV-003, DEV-009]
+    notes: >
+      Nao ha captura independente: o painel esta no mesmo documento de SCR-002
+      (index.html:63-101 e o tab-content). O golden de SCR-002 serve como origem;
+      a comparacao deve isolar a secao do painel.
+
+  - name: SCR-004-dna-analysis-tab
+    legacyOrigin: "analisador-genealogico/templates/index.html:83-100"
+    capture:
+      command: "(mesma captura de SCR-002)"
+      expectedExitCode: 0
+      determinismStrategy: "fixture GEDCOM fixo"
+    file: "SCR-004-dna-analysis-tab.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-002, DEV-003, DEV-009]
+    notes: "Idem SCR-003: mesmo documento de SCR-002."
+
+  - name: SCR-005-results-region
+    legacyOrigin: "analisador-genealogico/templates/index.html:116-174"
+    capture:
+      command: >
+        curl -s -X POST http://127.0.0.1:5001/ -F "action=dna_analysis"
+        -F "gedcom_filename=exemplo_familia.ged" -F "root_name=<PESSOA_RAIZ>"
+        -F "matches_csv=@tests/fixtures/<MATCHES>.csv" > scr-005.html.txt
+      expectedExitCode: 0
+      determinismStrategy: "fixture GEDCOM + fixture CSV fixos; raiz fixa"
+    file: "SCR-005-results-region.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-003, DEV-004, DEV-009]
+    notes: >
+      CAPTURA MAIS VALIOSA E MAIS DIFICIL. Exige tres coisas fixas: GEDCOM, CSV de
+      matches e o nome da pessoa-raiz. Os fixtures Python existem
+      (tests/fixtures/sample_gedcom.py, sample_dna.py) mas precisam ser MATERIALIZADOS
+      como arquivos .ged/.csv para o Flask consumir — isso e trabalho da Onda 0, nao
+      deste manifesto.
+      ATENCAO CRITICA (DEV-004 / RISK-011): o golden de SCR-005 captura a string Mermaid
+      gerada no servidor. O alvo NAO emite Mermaid. Comparar a string Mermaid seria
+      comparar a coisa errada: a assercao de paridade deve ser sobre a ESTRUTURA
+      decomposta (ramos, MRCA, par de afinidade), nao sobre o diagrama.
+
+  - name: SCR-G01-alert-success
+    legacyOrigin: "analisador-genealogico/templates/index.html:34-39"
+    capture:
+      command: "(capturado junto com o estado que produz a mensagem de sucesso)"
+      expectedExitCode: 0
+      determinismStrategy: "fixture GEDCOM fixo"
+    file: "SCR-G01-alert-success.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-005]
+    notes: "Chrome global; capturado como parte de SCR-002 ou SCR-005."
+
+  - name: SCR-G02-alert-error
+    legacyOrigin: "analisador-genealogico/templates/index.html:34-39"
+    capture:
+      command: "curl -s -X POST http://127.0.0.1:5001/ -F 'action=upload_gedcom' > scr-g02.html.txt"
+      expectedExitCode: 0
+      determinismStrategy: "nenhuma dependencia; ausencia de arquivo produz o erro de forma deterministica"
+    file: "SCR-G02-alert-error.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-005, DEV-009]
+    notes: >
+      CAPTURA FACIL E DE ALTO VALOR: submeter o formulario SEM arquivo produz
+      deterministicamente "Nenhum arquivo GEDCOM enviado." — uma das mensagens
+      congeladas de BR-MIGRAR-028. E o melhor golden para provar paridade textual
+      de mensagem de erro sem precisar de fixtures.
+
+  - name: SCR-G03-loading-indicator
+    legacyOrigin: "analisador-genealogico/templates/index.html:109-112 (markup), :191-196 (comportamento)"
+    capture:
+      command: "captura de DOM via navegador headless com interceptacao do submit (nao automatizado em v1)"
+      expectedExitCode: 0
+      determinismStrategy: "exige automacao de navegador — NAO capturavel de forma confiavel por curl"
+    file: "SCR-G03-loading-indicator.html.txt"
+    format: "html-css-snapshot"
+    present: false
+    captureBy: null
+    capturedAt: null
+    sha256: null
+    deviations: [DEV-010]
+    notes: >
+      O markup do spinner (index.html:109-112) e capturavel, mas o COMPORTAMENTO
+      (exibir #loading e ocultar #results-area, index.html:191-196) depende de
+      JavaScript e so ocorre no submit. curl nao executa JS. Captura confiavel exige
+      navegador headless — e e justamente o comportamento sob DEV-010 (pendente).
+
+# Telas para as quais a captura deterministica nao foi possivel.
+nonDeterministic: []
+
+# Observacoes sobre o conjunto
+notes:
+  - >
+    NENHUM golden file foi capturado nesta execucao. Todos estao com `present: false`.
+    Os comandos foram derivados da leitura do template e do app.py, mas nao foram
+    executados: (a) exigem subir o oraculo Flask, o que e decisao operacional do usuario;
+    (b) SCR-005 exige materializar os fixtures .ged/.csv, que e trabalho da Onda 0.
+  - >
+    ORDEM RECOMENDADA DE CAPTURA (do mais barato ao mais caro): SCR-G02 (sem fixture,
+    prova paridade de mensagem de erro) -> SCR-001 (sem fixture) -> SCR-002/003/004
+    (uma fixture GEDCOM) -> SCR-005 (GEDCOM + CSV + raiz) -> SCR-G03 (navegador headless).
+  - >
+    Estes goldens alimentam a ONDA 0 do cutover_plan.md, que e o pre-requisito do
+    PRE-REQUISITO mais importante do projeto: paridade de matching verificavel.
+    Sem eles, a metrica primaria do brief permanece inverificavel (RISK-002).
+  - >
+    O legado permanece SOMENTE LEITURA. Nenhum comando deste manifesto escreve no
+    repositorio legado; o Flask grava apenas em analisador-genealogico/uploads/, que
+    ja existe. Para isolamento total, copiar o projeto para diretorio temporario.

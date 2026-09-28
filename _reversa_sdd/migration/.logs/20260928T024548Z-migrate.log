@@ -1,0 +1,415 @@
+# /reversa-migrate — log de execução
+
+Sessão: session-51318829-76d8-462a-9594-3088011cff8d
+Engine: dsh
+Reversa: 1.2.58
+Modo: interativo (pausas humanas em cada gate) — `--auto` NÃO utilizado
+Usuário: Adriano
+
+Diretório de escrita: `_reversa_sdd/migration/` (regra absoluta do orquestrador)
+
+---
+
+## [2026-09-28T02:45:48Z] orchestrator — Passo 1: pré-condições
+
+Verificação de `_reversa_sdd/` contra `references/expected_legacy_artifacts.yaml`.
+
+| Artefato | required | Resultado |
+|---|---|---|
+| `code-analysis.md` | true | ✅ presente |
+| `domain.md` | true | ✅ presente |
+| `architecture.md` | true | ✅ presente |
+| `dependencies.md` | true | ✅ presente |
+| `inventory.md` | true | ✅ presente |
+| `confidence-report.md` | true | ✅ presente |
+| `gaps.md` | true | ❌ **AUSENTE** |
+| `questions.md` | false | ✅ presente |
+| `data-dictionary.md` | false | ausente |
+| `state-machines.md` | false | ausente (esperado: sem estado com múltiplos status) |
+| `permissions.md` | false | ausente (esperado: sem RBAC no legado) |
+| `traceability/code-spec-matrix.md` | false | ausente |
+| `sdd` | false | ✅ presente (feature-folder: `upload-gedcom`, `busca-caminho`, `analise-dna`) |
+
+**PIPELINE BLOQUEADO** por 1 artefato obrigatório faltante (`gaps.md`).
+
+Evidência de que o conteúdo existe em outra forma: `_reversa_sdd/confidence-report.md` § "Lacunas Pendentes (🔴)" contém as 17 lacunas agrupadas por unit, com referência cruzada a `questions.md`. O SKILL.md do Reviewer declara que `gaps.md` é *incorporado* no confidence-report.
+
+**Decisão do usuário (adriano)**: autorizado prosseguir usando `confidence-report.md` § "Lacunas Pendentes (🔴)" + `questions.md` como fonte substituta de lacunas, em vez de rodar `/reversa` novamente.
+
+Registrado em: `ambiguity_log.md` AMB-001, `.state.json` § preflight.userOverride, `migration_brief.md` § Notas livres.
+
+## [2026-09-28T02:45:48Z] orchestrator — Passo 2: estado e modo
+
+`_reversa_sdd/migration/.state.json` inexistente → **primeiro run**. Nenhum menu de resume oferecido.
+
+Modo confirmado com o usuário: **interativo com pausas humanas** (não `--auto`). Nenhum default de `references/auto-defaults.md` foi aplicado.
+
+## [2026-09-28T02:45:48Z] orchestrator — Passo 3: coleta do brief (entrevista)
+
+Contexto levantado antes de perguntar, para não perguntar o que já estava documentado:
+- Legado: Flask monolítico, `app.py` ~888 linhas, estado 100% em memória, UI server-side.
+- Reconstrução fiel já existente: `reconstructed/{domain,upload,path_search,dna_analysis}.py`, 47 testes passando (`reconstruction-report.md`).
+- 4 perguntas do `questions.md` respondidas informalmente em `reconstruction-plan.md` § Alertas de pré-voo.
+
+Entrevista em 3 rodadas (9 perguntas + 4 refinamentos). Respostas registradas:
+
+| Tópico | Resposta |
+|---|---|
+| Objetivo | Transformar em **produto multiusuário (SaaS)** |
+| Contexto de uso | **Produto para usuários externos (dados sensíveis)** |
+| Stack alvo | Python 3.12+ · FastAPI · PostgreSQL · React + TypeScript |
+| Métricas | Paridade de matching ≥ 100% nos casos de teste (primária) |
+| Restrições | LGPD/GDPR p/ dados genéticos; GEDCOM/CSV inegociável; matching congelado; sem prazo/orçamento |
+| Escopo | **Integral** — nada excluído, inclusive visualização de grafo |
+| Riscos | Fidelidade do matching de DNA (#1); stakeholder único |
+| Reaproveitamento | Reaproveitar a reconstrução Python como núcleo |
+| SaaS no escopo | Sim — auth/isolamento/persistência incluídos nesta migração |
+
+Artefato renderizado: `_reversa_sdd/migration/migration_brief.md` (template `references/templates/migration_brief.md`).
+Hash: `sha256:d49fc0cb9dc2e0837917ab253bf5f2a5cd517f751aacc60e582378da0df7b66d`
+
+Tensões registradas pelo orquestrador (não silenciadas): AMB-002 (SaaS vs stakeholder único), AMB-003 (escopo máximo vs sem prazo vs decisor único).
+
+## [2026-09-28T02:45:48Z] orchestrator — Passo 4: inicialização do estado
+
+Criados:
+- `_reversa_sdd/migration/.state.json` (template `references/state.json`, `schemaVersion: 2`)
+  - `currentAgent = { agent: "paradigm_advisor", phase: null, status: "running", topologyApproved: false, screenModeApproved: false }`
+  - `engine = "dsh"`, `reversaVersion = "1.2.58"`, `auto = false`
+- `_reversa_sdd/migration/ambiguity_log.md` (AMB-001..AMB-004)
+  - Hash inicial: `sha256:d72f079f8a2c725f9e92042b80335997d99c741ad1ff199f7fc023ed514dacad`
+- `_reversa_sdd/migration/.logs/` (diretório)
+
+Nota de configuração: `[engines] installed` em `.reversa/config.toml` lista `gemini-cli`, `antigravity`, `opencode` — nenhum é a engine em uso. Registrado `engine: "dsh"` (engine real da sessão).
+
+## [2026-09-28T02:50:16Z] paradigm_advisor — agente 1/6 concluído
+
+Inputs lidos: `migration_brief.md`, `domain.md`, `architecture.md`, `inventory.md`, `code-analysis.md`, `references/paradigm-catalog.md`. Nenhum código-fonte do legado foi lido (regra do agente).
+
+Detecção:
+- **Legado: procedural**, confiança 🟢 CONFIRMADO. Evidências: dívida #5 de `architecture.md` (monólito ~887 linhas com rotas + lógica acopladas); funções top-level em `code-analysis.md` §3; estado global mutável em `architecture.md` §1; entidades como dicionários (ERD §3); controller contendo o domínio (`process_dna_action`).
+- Variação OO menor (uso de `pandas.DataFrame`, `networkx.Graph`) avaliada e **descartada** como híbrido: são estruturas/utilidades de biblioteca, não modelo de modelagem adotado.
+- **Alvo inferido: OO com DI** (catálogo: "Python moderno (FastAPI, Django 5) → OO com DI ou procedural rico; escolha depende do framework"). FastAPI inclina a OO com DI via `Depends()`, `pydantic.BaseModel`, `APIRouter` + serviço.
+- **Gap: alto**. 5 implicações concretas apresentadas com exemplo do próprio legado.
+
+Pausa humana (gate do Paradigm Advisor) executada. Usuário escolheu **opção 3 — Híbrido** (`derived_appetite = balanced`).
+Justificativa do usuário não foi fornecida em texto livre; reconstruída pelo agente a partir das restrições do brief e rotulada como tal (AMB-005).
+
+Artefato: `_reversa_sdd/migration/paradigm_decision.md`
+Hash: `sha256:1500a7fdfd7835a58d57a09d52eae03d30acefbfec7e724adb68cec31e2c818f`
+
+Transição de estado: `paradigm_advisor` → `completedAgents`; `currentAgent.agent = "curator"`, `status = "running"`. `topologyApproved` e `screenModeApproved` preservados em `false`.
+
+`ambiguity_log.md` atualizado com AMB-005; hash recalculado.
+
+## [2026-09-28T02:54:06Z] curator — agente 2/6 concluído
+
+Inputs lidos: `migration_brief.md`, `paradigm_decision.md`, `domain.md`, `code-analysis.md`, `questions.md`, `confidence-report.md`, e `requirements.md` + `design.md` das 3 units (`upload-gedcom`, `busca-caminho`, `analise-dna`), além de `references/decision-rubric.md`.
+
+Inventário de regras de negócio: 49 (IDs internos BR-LEGACY, decididos um a um).
+
+Aplicação da política (com `derived_appetite = balanced` e a regra de fronteira núcleo/borda):
+
+| Decisão | Qtd | Notas |
+|---|---|---|
+| MIGRAR | 34 | Inclui todo o núcleo: mojibake, score 0.55/0.25/0.20 + InterBonus, regras A/B/C/D, Jaccard 0.5→0.33, tabela de cM, BFS max_depth=20, indirect max_hops=40, 1º ID p/ homônimos |
+| DESCARTAR | 6 | 5 vinculados a paradigma (todos plumbing), 1 encaminhado como decisão humana |
+| DECISÃO HUMANA | 9 | BR-HUMANA-001 a 009 |
+
+**Correção factual aplicada**: AMB-004 afirmava que as respostas de `questions.md` estavam "apenas em prosa no `reconstruction-plan.md`". Errado — as 4 respostas estão dentro do próprio `questions.md` (linhas 16, 27, 38, 49), sob `**Resposta:**`. Conclusão inalterada (são comportamento congelado → MIGRAR), rastreabilidade melhorada. Causa raiz registrada: inferência a partir do resumo antes de ler o arquivo.
+
+Nenhuma regra de negócio pura foi descartada — conforme proibição explícita do `decision-rubric.md`.
+
+Alerta registrado para o agente de codificação: BR-MIGRAR-011 (lista de primeiros nomes genéricos) e BR-MIGRAR-012 (tabela de equivalentes de grafia) só existem em `app.py` — devem ser **transcritas do legado**, nunca reconstruídas de memória.
+
+Artefatos:
+- `_reversa_sdd/migration/target_business_rules.md` — `sha256:9c707514942dd12cb0e4142099634dee94af96bd8a5bbe09f98ab83d001ecab8`
+- `_reversa_sdd/migration/discard_log.md` — `sha256:e6f794f116b5fd76c57871237a855d16d487aa0cf80c6888c16a81ba6ba64044`
+- `_reversa_sdd/migration/ambiguity_log.md` (AMB-006..AMB-014 + correção de AMB-004) — `sha256:08185065111266e7e0b1878039c6630b7ecbe0d1bbc76b662434d571e5d3a8b8`
+
+Transição de estado: `curator` → `completedAgents`; `currentAgent.agent = "strategist"`, `status = "running"`. `pendingDecisions` preenchido com os 9 itens. `topologyApproved` e `screenModeApproved` preservados em `false`.
+
+**Pausa humana pendente**: revisão dos 9 itens DECISÃO HUMANA (Passo 6). O Passo 7 exige 0 PENDENTES ao fim do pipeline.
+
+## [2026-09-28T02:56:00Z] orchestrator — gate do Curator aprovado
+
+Pausa humana (Passo 6) executada: 9 itens apresentados com as recomendações do Curator. **Usuário aceitou as 9 recomendações.**
+
+Decisões registradas (decisor: Adriano):
+- BR-HUMANA-001 → opção 3 (meio-termo): validar upload na fronteira, preservar o parse.
+- BR-HUMANA-002 → opção 1: descarte automático do `secret_key` hardcoded. **Reclassificada como descarte** → `discard_log.md` BR-DESCARTAR-007.
+- BR-HUMANA-003 → opção 2: manter 1º ID default + sinalizar ambiguidade no payload.
+- BR-HUMANA-004 → opção 1: árvore como aggregate persistido com `owner_id`.
+- BR-HUMANA-005 → opção 1: transcrever `strip_bad_utf` fiel, inclusive as lacunas.
+- BR-HUMANA-006 → opção 2: construir oráculo a partir do legado (golden files).
+- BR-HUMANA-007 → opção 2: criptografia+isolamento agora; consentimento/retenção em onda dedicada.
+- BR-HUMANA-008 → opção 1: preservar `split_path_by_marriage`/`are_spouses`; redesenhar apresentação.
+- BR-HUMANA-009 → opção 2: preservar default + ampliar cobertura de forma aditiva.
+
+Reconciliação de contagens: era 34 MIGRAR / 6 DESCARTAR / 9 DECISÃO HUMANA. Agora **34 MIGRAR / 7 DESCARTAR / 8 DECISÃO HUMANA (todas resolvidas)**. Total permanece 49.
+
+`ambiguity_log.md`: AMB-006..AMB-014 passaram a RESOLVIDO COM DECISÃO HUMANA. Contadores: total 14, **PENDENTES 0**, resolvidos 12, referidos à codificação 2. Requisito do Passo 7 satisfeito antecipadamente.
+
+**Incidente registrado**: ao fechar as decisões via script PowerShell, os caracteres acentuados da string "DECISÃO" foram corrompidos (`DECISÃƒO`). Detectado por varredura e corrigido com round-trip UTF-8 explícito (`[System.IO.File]::ReadAllText/WriteAllText` com `UTF8Encoding($false)`). Verificação posterior por assinaturas de mojibake: única ocorrência remanescente é **intencional** (o exemplo `Ã§` em BR-MIGRAR-006, que documenta o próprio mojibake). Lição: não passar literais acentuados pela linha de comando do pwsh neste ambiente.
+
+Artefatos re-gravados:
+- `target_business_rules.md` — `sha256:fd9f98f3b29f7371e32b218f8f38aa9d4b318807fbcbe09c8331a2e18fcb96b1`
+- `discard_log.md` — `sha256:0a5729fac66499ab4610ba1ace51c50c819b8ed95192ca92e779e5f00ebe5cf2`
+- `ambiguity_log.md` — `sha256:bc81f19a962d10336f44567502c591a312141c4a478bbb7edbca951e51846a7c`
+
+`pendingDecisions` esvaziado. `pipelineHealth.pendingAmbiguities = 0`.
+
+## [2026-09-28T02:58:44Z] strategist — agente 3/6 concluído
+
+Inputs: os três artefatos anteriores + `domain.md`, `architecture.md`, `dependencies.md`, `inventory.md`, `migration-strategies.md`.
+
+**Três fatos apurados que dominaram a decisão estratégica** (nenhum estava explícito no brief):
+1. **Não existe sistema em produção a estrangular** — sem CI/CD, sem Docker, sem workflow (`architecture.md` §5 dívida #3; `inventory.md` §6). Sem tráfego, sem deploy.
+2. **Não há dados a migrar** — estado 100% em memória, nenhum SGBD, nenhum schema, nenhum `data-dictionary.md`. A "migração de dados" é modelagem nova.
+3. **O alvo é Python, igual ao legado** — permite executar legado e candidato no mesmo harness, tornando a paridade verificável de forma barata.
+
+Estratégias avaliadas (4, todas do catálogo):
+- **A — Strangler Fig**: 0 de 3 premissas verificadas (sem produção, sem tráfego roteável, UIs incompatíveis p/ roteamento parcial). Custo real: construir infraestrutura de proxy para estrangular sistema sem usuários.
+- **B — Big Bang**: 3 de 4 premissas OK (pequeno, janela total, sem integrações vivas), mas a 4ª falha (apetite é `balanced`, não `transformational`) e o catálogo proíbe Big Bang para sistemas com integrações regulatórias — há LGPD/GDPR explícito.
+- **C — Parallel Run**: **RECOMENDADA**. Par do catálogo para `balanced`; única que ataca o risco #1 e a métrica #1 do brief; custo marginal quase nulo porque não há produção a operar em paralelo (validação em lote sobre fixtures, mesmo runtime).
+- **D — Branch by Abstraction**: adequada como **mecanismo interno da fronteira** (já autorizada pelo `paradigm_decision.md`), mas não é estratégia de migração completa — é padrão de substituição.
+
+Recomendação: **Parallel Run materializado como ondas incrementais com validação diferencial**, usando D na fronteira. 7 ondas definidas (0 oráculo → 1 núcleo portado → 2 fronteira → 3 multiusuário → 4 SPA → 5 conformidade → 6 cutover). Princípio de sequenciamento: a Onda 1 concentra todo o risco de paridade e não depende de nenhuma decisão de negócio em aberto.
+
+Riscos: 12 registrados — **3 críticos** (RISK-001 fidelidade do matching, RISK-002 oráculo circular, RISK-005 vazamento entre usuários), 5 altos, 4 médios. Subseção dedicada aos riscos de paradigma (obrigatória por gap alto), incluindo o risco operacional explícito de que o gap é simultaneamente a fonte de risco e o objetivo da migração.
+
+Cutover: plano escrito para a estratégia recomendada. Pré-requisitos incluem paridade 100% e teste negativo de isolamento; janela 2–4h; sem ETL; go/no-go com bloqueio absoluto em paridade e conformidade. Registrado que o plano precisa ser reescrito se o usuário escolher outra estratégia.
+
+Artefatos:
+- `_reversa_sdd/migration/migration_strategy.md` — `sha256:045b4bc2a2843921aeb220c66548b4c4981a6f931af1a65fc45a608806260fc8`
+- `_reversa_sdd/migration/risk_register.md` — `sha256:192bb2c47eeaa80bd7547b7abf2ca7ca0ae4cb0c9ee8d30f3b40cac075a3e44a`
+- `_reversa_sdd/migration/cutover_plan.md` — `sha256:95b0aa01691bb6999037e7599999e7bb0c29a0e8a741964d06feb8a1739fa5c6`
+
+Transição: `strategist` → `completedAgents`; `currentAgent.agent = "designer"`, `status = "running"`. `.state.json` validado como JSON.
+
+**Pausa humana pendente**: escolha da estratégia (Passo 6). `migration_strategy.md § Decisão humana` está com campos pendentes.
+
+## [2026-09-28T03:02:10Z] orchestrator — gate do Strategist aprovado
+
+Pausa humana (Passo 6) executada com as 4 estratégias e o comparativo. **Usuário escolheu a recomendada.**
+
+- Estratégia escolhida: **C — Parallel Run em ondas com validação diferencial**; **D — Branch by Abstraction** como padrão interno da fronteira.
+- Decisor: Adriano. Justificativa reconstruída a partir do diagnóstico (métrica primária do brief exige prova de paridade; par do catálogo para `balanced`; Big Bang duplamente excluído; Strangler sem premissa; custo marginal do Parallel Run quase nulo neste caso) e rotulada como reconstruída.
+- Sequenciamento das 7 ondas registrado como **vinculante**; regra rígida: nenhuma onda avança com paridade pendente.
+- `cutover_plan.md` atualizado de "não confirmada" para **CONFIRMADA**.
+- `.state.json`: adicionados `strategyDecision` (com as 7 ondas e a regra rígida) e `risks` (12 / 3 críticos).
+
+Artefatos re-gravados:
+- `migration_strategy.md` — `sha256:237433895c1e0f4f53b059ad3ec325ead2a54d3bca45a7b5bb610e84d42cf673`
+- `cutover_plan.md` — `sha256:3d054ecdce8c139cba65242abd3e470990d41f6565aa34e0d7f387ba770b90e5`
+
+## [2026-09-28T03:05:30Z] designer — Fase 1 (topologia) concluída, aguardando aprovação
+
+Detecção: **monolito sem fronteiras claras** 🟢 CONFIRMADO. `inventory.md` §2: **todo o código Python em um único `app.py`**; as 3 rotas no **mesmo** `POST /` despachadas por campo `action`; a árvore expressa tipo de artefato, não domínio.
+
+Diagnóstico: **problemática** — por **ausência**, não por confusão. Coesão do bloco é alta; nenhum módulo órfão além do código morto `HARD_MIN`/`GIVEN_MIN`. As 3 fronteiras (domínio↔aplicação, ↔apresentação, ↔persistência) estão todas violadas.
+
+Registrado explicitamente que a opção 1 (preservar) **não é simétrica**: contradiz o paradigma `OO com DI` já decidido e torna a estratégia `Parallel Run` inexequível (o SKILL do Designer exige "componentes críticos isoláveis" para Parallel Run).
+
+Proposta: **hexagonal (ports & adapters)**. Recomendação: **opção 3 — híbrido, com núcleo puro mas plano** — justificada por o diagnóstico registrar coesão alta; subdividir `core/` em bounded contexts criaria fronteiras sem evidência.
+
+Artefato: `_reversa_sdd/migration/topology_decision.md`
+
+## [2026-09-28T03:06:40Z] orchestrator — gate da topologia aprovado
+
+Usuário escolheu **opção 3 — híbrido: núcleo puro e plano + fronteira hexagonal completa**.
+`currentAgent.topologyApproved = true` (fonte única de verdade, conforme contrato do orquestrador). `currentAgent.phase` passou de `topology` para `architecture`.
+Hash do artefato: `sha256:b74af37922a0a255330108551a59c679c9414f42641e6124a32141e320acf8ba`
+
+## [2026-09-28T03:08:38Z] designer — Fase 2 concluída (agente 4/6)
+
+Artefatos produzidos (4):
+- `target_architecture.md` — 5 bounded contexts (BC-01 Identidade/Tenancy, BC-02 Árvore, BC-03 Análise de DNA, BC-04 Parentesco/Caminho, BC-05 Conformidade), 6 ADRs, diagrama Mermaid. Seções obrigatórias **"Honra ao paradigma escolhido"** (materializando as 5 implicações do `paradigm_decision.md` em tabela) e **"Honra à topologia escolhida"** (com o esboço final da árvore).
+- `target_domain_model.md` — 3 aggregates (GedcomTree, DnaAnalysis, AppUser), 5 entidades, 13 value objects, **34 regras MIGRAR mapeadas** (cobertura total, nenhuma órfã). **Zero eventos de domínio** (AD-05, decisão consciente: paradigma não é event-driven).
+- `target_data_model.md` — schema PostgreSQL completo (14 tabelas), DDL, FKs, CHECKs, índices. `owner_id` em `NOT NULL` (AD-02). `total_cm` persistido já calculado (AD-03).
+- `data_migration_plan.md` — **documenta a ausência de ETL**: legado sem banco, sem dado persistido, sem volume. Volume = 0 linhas em todas as entidades.
+
+Decisões de design relevantes registradas:
+- **AD-01** núcleo puro e plano, proibido importar framework em `core/` (+ teste automático de salvaguarda).
+- **AD-02** `owner_id` como invariante de aggregate, não filtro de query.
+- **AD-03** cM calculado no núcleo e persistido já calculado — banco não é autoridade aritmética (RISK-004).
+- **AD-04** decomposição do caminho no domínio; emissão de Mermaid descartada (BR-HUMANA-008, RISK-011).
+- **AD-05** nenhum evento de domínio nem mensageria (cerimônia sem consumidor).
+- **AD-06** oráculo diferencial apontando para o `app.py` legado, nunca para a reconstrução (RISK-002).
+
+**Divergência de esboço registrada por honestidade**: o `topology_decision.md` (Fase 1) mostrava `core/` com subpastas porque cobria duas opções; o esboço final da Fase 2 é **plano**, conforme a opção 3 aprovada. Nenhuma outra diferença.
+
+**Decisão de implementação em aberto, deliberadamente sinalizada** (ligada a T-01 de `data_migration_plan.md`): o legado **aceitava** GEDCOM com referência pendente; o alvo tende a **rejeitar** pela invariante I-2 de AGG-01. Rejeitar é melhor engenharia mas **quebra paridade**. Recomendação do Designer: aceitar como o legado e apenas sinalizar. Não decidido em silêncio — fica para validação na implementação.
+
+Hashes:
+- `target_architecture.md` — `sha256:081513520fd764ce9e07f9c8060fa8e9f3ec9457f0eb5d24e1322704ab96dc52`
+- `target_domain_model.md` — `sha256:3ca46f41599de21cfbceccc72ede771da7dd16f75040b4b56f7d855346e10502`
+- `target_data_model.md` — `sha256:7efaed3926e8369b4d4438cc58efed3edf9a59759dc93558fb18cf27cb97d03f`
+- `data_migration_plan.md` — `sha256:980f0edd333461f48c0698366efcabd86aa4f5324cb313b02e58528198b1dfbf`
+
+Transição: `designer` → `completedAgents`; `currentAgent.agent = "screen_translator"`. `topologyApproved` **preservado** em `true` (não pertence à transição de agente).
+
+**Pausa humana pendente**: aprovação da arquitetura (Passo 6). Se houver ajustes, o Designer roda novamente com `--regenerate-phase=architecture`.
+
+## [2026-09-28T03:16:40Z] screen_translator — Fase 1 (modo) concluída, aguardando aprovação
+
+Detecção de plataforma origem: **`server-rendered-jinja2-bootstrap`** 🟢 CONFIRMADO. Evidências: `inventory.md` §3/§4, `architecture.md` §1, `dependencies.md` §2, e leitura direta (read-only) de `templates/index.html` (200 linhas). Bootstrap 5.3.3 + Mermaid 10 via CDN. Verificado que **não há jQuery nem AJAX** (apenas 2 `addEventListener`), o que distingue do caso `html-legacy-jquery` do catálogo.
+
+Plataforma alvo: `web-spa` (React+TS), herdada do brief e da arquitetura.
+
+Inventário: **5 unidades** construídas do código-fonte (`_reversa_sdd/screens/inventory.json`), porque `_reversa_sdd/ui/inventory.md` está AUSENTE (EC-18). `_reversa_sdd/design-system/` também ausente (EC-17).
+
+⚠️ **Lacuna de adapter (EC-01 parcial)**: o par detectado não consta na tabela do `adapter-pairs.md` v1. Usado `html_legacy__spa` como **proxy** (formato `route-component`), sem improvisar formato. Registrado como DEV-001.
+
+Descoberta central que moldou a decisão: a arquitetura aprovada exige **telas que não existem no legado** (auth, listagem de árvores, consentimento, conta, histórico) — literal é impossível para elas. Registrado em AMB do log e na decisão.
+
+Recomendação do agente: **híbrido** (5 telas legadas em literal + 5 novas em modernizado), por separar duas populações de tela com naturezas diferentes. Registrados os defeitos concretos que o modo literal puro congelaria (gedcom_filename oculto, datalist completa, aria-label em inglês, spinner global que apaga resultados, indentação por tabs).
+
+Artefato: `_reversa_sdd/migration/screen_modernization_decision.md`
+
+## [2026-09-28T03:20:10Z] orchestrator — gate do modo de telas aprovado
+
+Usuário escolheu **híbrido** (opção recomendada) e **autorizou revisão linguística parcial** (correção do `aria-label="Close"` → `"Fechar"`, DEV-005).
+
+`currentAgent.screenModeApproved = true`; `currentAgent.phase` passou de `mode` para `generation`. `topologyApproved` preservado em `true`.
+
+## [2026-09-28T03:20:10Z] screen_translator — Fase 2 concluída (agente 5/6)
+
+Artefatos produzidos (4 + manifesto):
+- `_reversa_sdd/migration/target_screens.md` — **13 entradas**: 8 literais (SCR-001 a SCR-005 + 3 componentes globais de chrome) e 5 modernizadas (SCR-006 a SCR-010, telas novas). Formato `route-component` com YAML executável por tela.
+- `_reversa_sdd/migration/screen_deviation_log.md` — **10 deviations**: 9 aprovadas (derivam de decisões humanas anteriores), **1 pendente (DEV-010)** que bloqueia o handoff ao Inspector.
+- `_reversa_sdd/design-system/tokens-derived.md` — tokens extraídos do legado (6 cores, 5 espaçamentos, 5 tipografias) por ausência de `design-system/` (EC-17, DEV-006).
+- `_reversa_sdd/screens/inventory.json` — inventário interno (5 telas, 4 rotas, inventário textual de 29 strings + 9 mensagens de servidor).
+- `_reversa_sdd/screens/golden/manifest.yaml` — manifesto com comandos de captura sugeridos; **0 goldens capturados** (captura é manual em v1, OQ-02).
+
+Reconciliação de contagem registrada: a decisão lista 5 telas literais; a spec tem 8 entradas literais porque inclui 3 componentes globais não catalogados na Fase 1. Documentado para não ser lido como inconsistência.
+
+Inconsistência de ID corrigida em curso: o indicador de carregamento chegou a ser referenciado como `DEV-004b` em `target_screens.md`; unificado como **DEV-010** (o número canônico no log). Também corrigida a reclassificação de DEV-004 (passou a designar a substituição do Mermaid por `KinshipPath`, não o spinner).
+
+Hashes:
+- `screen_modernization_decision.md` — `sha256:5bb83bfa808853b5782f27f70bb3f5603d7bd47bd8d5bc002e658a506c5f355f`
+- `target_screens.md` — `sha256:3657fe712421600b2c0e5eb8289a5a72001f624dda3ba5c1eb8c06382819db5a`
+- `screen_deviation_log.md` — `sha256:e73c30b393a2747767527bf2ea7e0a3d0ad11257d570f745eae38a18ffbb7915`
+- `tokens-derived.md` — `sha256:77d5fe4986bceda2780085f92089afe8864808aade24f4e9d0bf49264f1c4a63`
+
+**Pausa humana pendente**: aprovação de DEV-010 (única deviation pendente). Handoff ao Inspector **bloqueado** até resolução.
+
+## [2026-09-28T03:24:30Z] orchestrator — gate do Screen Translator aprovado (DEV-010)
+
+Usuário **aprovou DEV-010**: loading local ao formulário submetido, preservando os resultados anteriores visíveis. A ocultação da região de resultados (`index.html:191-196`) deixa de ser comportamento preservado e passa a ser divergência aceita.
+
+`screen_deviation_log.md`: 10 deviations, **0 pendentes**. Handoff ao Inspector **desbloqueado**. Hashes de `screen_modernization_decision.md`, `target_screens.md` e `screen_deviation_log.md` recalculados.
+
+## [2026-09-28T03:28:04Z] inspector — agente 6/6 concluído
+
+Inputs: os 5 pré-requisitos + `code-analysis.md`, `target_business_rules.md`, `target_domain_model.md`, `target_screens.md`, `screens/golden/manifest.yaml`.
+
+Verificação de pré-requisitos: `screen_deviation_log.md` com **0 deviations pendentes** ✅ (condição de entrada satisfeita).
+
+Estratégia definida em `parity_specs.md`:
+- **Modos marcados**: differential execution (primário), characterization tests, contract tests, golden file comparison, contract test de tela.
+- **Modos não marcados com justificativa**: **Shadow mode** (não há tráfego — o legado nunca foi deployado nem tem usuários) e **Data parity** (não há banco nem dados — volume 0).
+- **Métrica primária**: **zero divergência** no núcleo congelado, com comparação **exata**.
+- **Janela**: substituída por **portões de onda** (não há produção observável, então "N dias" seria métrica vazia). Registrada a divergência consciente em relação à matriz de referência (que sugere <0,01% por 60 dias para sistemas regulatórios).
+
+**Cobertura adaptada ao paradigma** (`procedural → OO com DI`, gap alto): a matriz cobre `@paridade + @invariante`, o que foi considerado **insuficiente**. Adicionadas 3 dimensões novas não previstas na matriz, cada uma justificada por um risco concreto: **`@isolamento`** (RISK-005 — dado genético é irrevogável), **`@exatidao`** (RISK-004 — faixas de cM se sobrepõem e ponto flutuante não é associativo) e **`@ordem` reinterpretada** (três ordens determinam resultado e SQL não garante ordem). Reutilizadas `@composicao`/`@imutabilidade` com sentido invertido: provar que o estado global **não** foi transportado. `@idempotencia`, `@dlq`, `@saga` e `@supervisao` **deliberadamente excluídas** — pressupõem mensageria, e o paradigma é síncrono (AD-05).
+
+Paridade de telas incorporada em modo **híbrido**: `@paridade-visual` para as 8 entradas literais, contract test para as 5 modernizadas. As 10 deviations aprovadas propagadas para `parity_specs.md § Exceções`.
+
+**Lacuna declarada**: `_reversa_sdd/characterization_specs/`, `sequences/` e `flowcharts/` **não existem** (descoberta em nível essencial). Os fluxos foram **inferidos** de `code-analysis.md` §3, das 3 units e das BR-MIGRAR. A coluna `process_flows` da rastreabilidade aponta para funções e blocos, **não** para IDs de fluxo formais — registrado para não simular rastreabilidade que o material de origem não oferece.
+
+Artefatos produzidos:
+- `parity_specs.md` — `sha256:e2f4a548cb0442d58dd60a44669d18e31ee8243132ae4cc21c337de114304866`
+- `parity_tests/` — **12 arquivos `.feature`**, **99 cenários** Gherkin válidos (`# language: pt`); hash agregado `sha256:597711836eec8a69e8ec2cdb00d7725368dbfd1c19ca4405a8416116142f1050`
+
+Todos os 12 arquivos: `Funcionalidade=1`, cada `Cenario` com bloco de tags próprio, front-matter de rastreabilidade completo. Nenhum referencia framework (regra absoluta: são specs, não testes).
+
+## [2026-09-28T04:21:46Z] inspector — encerrado; 6/6 agentes concluídos
+
+Transição: `inspector` → `completedAgents`; `pendingAgents` vazio; `currentAgent.agent = null`, `status = "complete"`. `topologyApproved` e `screenModeApproved` **preservados** em `true`.
+
+## [2026-09-28T04:25:30Z] orchestrator — Passos 7, 8 e 9
+
+**Passo 7 — consolidação do `ambiguity_log.md`**: 8 itens acrescentados (AMB-015 a AMB-022) pelo Designer (5), Inspector (2) e consolidação (1). Resultado verificado por contagem no arquivo: **22 blocos, 0 PENDENTES, 12 RESOLVIDOS COM DECISÃO HUMANA, 10 REFERIDOS À CODIFICAÇÃO**. Requisito do Passo 7 (0 pendentes ao fim) **satisfeito**.
+
+**Passo 8 — `handoff.md`** renderizado. Checklist obrigatório verificado programaticamente: **10/10 OK** (paradigm_decision 1º; topology_decision 2º; screen_modernization_decision 3º; bloqueadores; seção dedicada de referidos à codificação; auto-decididos; próximos passos específicos). Hash: `sha256:9e6d4e2ab2d46fda591df55786086d4d72ba1896911b0e18d28603dfc8fe7b6c`.
+
+`handoff.md` inclui seção de **ressalvas e transparência** com 5 itens: (1) `gaps.md` ausente e substituído por decisão do usuário; (2) dois pré-requisitos do Screen Translator ausentes (EC-17/EC-18); (3) as duas correções aplicadas (AMB-004 e o incidente de encoding); (4) a lacuna de adapter contornada por proxy (DEV-001); (5) **a métrica primária está especificada mas NÃO executada** — nada foi rodado, não há harness nem goldens.
+
+**Passo 9 — resumo final e log**: este arquivo.
+
+**Verificação de encoding** em todos os artefatos ao final: nenhuma assinatura de mojibake. As duas únicas ocorrências detectadas são **intencionais** — a documentação do próprio incidente (`DECISÃƒO` em `ambiguity_log.md` e `handoff.md`) e o exemplo `Ã§` de BR-MIGRAR-006.
+
+**Verificação do legado**: nenhum arquivo em `analisador-genealogico/` foi criado, modificado, movido ou removido em momento algum do pipeline. `legacyUntouched = true`.
+
+**Contagens finais** (`finalCounts` em `.state.json`):
+- 6/6 agentes; 0 skipped; **7 gates humanos**; `auto = false` (nenhum item auto-decidido)
+- 19 artefatos em `migration/` + 2 em `screens/` + 1 em `design-system/`
+- 12 arquivos de paridade, **99 cenários**
+- 49 regras curadas (34 MIGRAR / 7 DESCARTAR / 8 humanas resolvidas)
+- 12 riscos (3 críticos); 7 ondas; 13 entradas de tela (8 literais + 5 modernizadas); 10 deviations (0 pendentes)
+- 22 ambiguidades (0 pendentes, 10 referidas à codificação)
+- 0 golden files capturados
+
+**Pipeline de migração CONCLUÍDO.**
+
+## [2026-09-28T04:32:00Z] orchestrator — PÓS-HANDOFF: Onda 0 iniciada e oráculo estabelecido
+
+> Registro fora do escopo original do pipeline: feito **depois** do handoff, quando o usuário perguntou qual era o próximo passo. A verificação empírica do oráculo revelou que a mitigação do RISK-002 **estava quebrada na prática** — e descobriu um erro nos nossos próprios artefatos.
+
+### Achado 1 (bloqueio crítico) — o oráculo estava contaminado
+
+O `analisador-genealogico/app.py` **não é mais o legado**: foi reduzido de **887 → 86 linhas** pelo commit `3ed0179` (*"feat: integrar módulos reconstruídos ao app Flask"*, 812 deleções) e hoje é um wrapper que importa `reconstructed.dna_analysis`, `reconstructed.path_search` e `reconstructed.upload`.
+
+**Consequência**: o harness da Onda 0, como o handoff prescrevia (apontar para `app.py`), compararia a **reconstrução com ela mesma** — exatamente a **validação circular** do RISK-002. A mitigação existia no papel e estava inválida na prática.
+
+**Correção aplicada**: extraído o monolito original do git blob `e43ca22:analisador-genealogico/app.py` → `_reversa_sdd/oracle/app_legacy_e43ca22.py` (**888 linhas, 41.950 bytes, sha256 `44370b23…`**), verificado **sem nenhuma referência a `reconstructed/`**. Criado `_reversa_sdd/oracle/ORACLE_MANIFEST.md` com proveniência, dependências travadas e armadilhas operacionais.
+
+Nota técnica: a primeira extração foi feita com `>` do PowerShell e produziu UTF-16 (null bytes, 85.202 bytes). Corrigida com extração **byte-exata** do blob via `Process` + `CopyTo(MemoryStream)`. Registrado porque é uma armadilha real para quem for reextrair.
+
+### Achado 2 (erro nos nossos artefatos) — cM ≤ 0 está documentado errado
+
+Execução direta do oráculo: `get_relationships_by_cm(0) == []` e `get_relationships_by_cm(-5) == []`.
+
+**A spec (`domain.md` §2.1) afirmava que retornava o literal `"Relação distante ou indeterminada"`. É falso.** São **dois casos distintos** que a spec havia fundido:
+- **Caso A** — cM ≤ 0 ou não numérico → **lista vazia**
+- **Caso B** — cM > 0 fora de todas as 9 faixas → `["Relação distante ou indeterminada"]`
+
+**7 artefatos corrigidos**: `target_business_rules.md` (BR-MIGRAR-021 + bloco de correção factual), `data_migration_plan.md` (T-02, T-06), `target_domain_model.md` (`RelationshipLabel` agora anulável), `target_data_model.md` (`relationship_label` deixa de ser `NOT NULL`), `target_screens.md`, `parity_tests/02` e `parity_tests/09`. Cenários passaram de **99 → 100** (o Caso B ganhou cenário próprio). Registrado como **AMB-023**.
+
+### Achado 3 — as faixas de cM se sobrepõem muito mais do que os artefatos diziam
+
+Execução real: **50 cM casa 4 faixas simultâneas**; 300 cM casa 3; 3400/800/15 casam 2. O contrato é uma **lista**, nunca um valor escalar. Reforça BR-MIGRAR-020 e **invalida** qualquer implementação que retorne relação única.
+
+### Achado 4 — o oráculo funciona sobre dados reais
+
+`SandroTree.ged` (949.169 bytes) → **3.961 pessoas, 1.523 famílias, grafo com 5.484 nós / 5.530 arestas**. Funções de normalização verificadas (`demojibake`, `norm_name`, `surnames_set` com equivalentes de grafia). Código morto confirmado (`HARD_MIN`/`GIVEN_MIN` sem referência).
+
+### Achado 5 — RISK-011 confirmado favoravelmente
+
+`are_spouses` (L251) e `split_path_by_marriage` (L254) **existem como funções separadas de verdade**; `generate_mermaid_graph_indirect_bridge` as consome (L406). Migrar a decomposição como função pura e descartar apenas a emissão de Mermaid é **implementável sem reescrever regra de negócio**.
+
+### Achado 6 — duas armadilhas operacionais
+
+1. O **import** do oráculo cria `uploads/` e `static/` no **diretório de trabalho** (`os.makedirs` relativo em L15-18). O harness deve isolar em diretório temporário ou fazer `chdir` antes de importar — e isso também protege os 12 arquivos de dados do usuário de sobrescrita por colisão de nome.
+2. A saída contém `↔` (U+2194), que o console Windows cp1252 **não codifica**. Usar `PYTHONIOENCODING=utf-8` e comparar **estruturas serializadas**, nunca stdout de texto.
+
+### Dados do usuário restaurados
+
+A pedido do usuário, restaurados do git os **12 arquivos** de `analisador-genealogico/uploads/` que estavam deletados do working tree: 5 árvores GEDCOM (de 949 KB a **5,6 MB**) e 6 CSVs de DNA. São **dados genéticos reais de terceiros** — corpus de paridade muito superior às fixtures sintéticas, mas não devem ser commitados em repositório público.
+
+### Lição registrada
+
+**A spec do legado não era oráculo; o código era.** O erro do cM ≤ 0 sobreviveu a **6 agentes e 7 gates humanos** porque todos operaram no nível das specs — exatamente como o desenho do pipeline determina — e o erro **estava na spec de origem** (`domain.md`, herdado da descoberta). Foi encontrado no **primeiro minuto** em que o oráculo foi executado. É o argumento mais forte possível a favor de executar a Onda 0 antes de escrever qualquer código de produto.
+
+### Estado da Onda 0
+
+- ✅ Oráculo congelado e verificado (hash registrado, execução provada sobre dados reais)
+- ✅ Dependências travadas e registradas (mitigação do RISK-009)
+- ✅ Erros de spec corrigidos em 7 artefatos
+- ⬜ **Harness diferencial** — ainda não escrito (é a construção; o oráculo é a fundação)
+- ⬜ **Fixtures materializadas** como `.ged`/`.csv` — os `tests/fixtures/*.py` são geradores Python, não arquivos consumíveis pelo oráculo direto
+
+**Contagens atualizadas**: 23 ambiguidades (0 pendentes, 11 referidas), 100 cenários, 24 artefatos com hash, 7 artefatos corrigidos pós-verificação, oráculo congelado.
+
+---

@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 2,
+  "startedAt": "2026-09-28T02:45:48Z",
+  "lastCheckpoint": "2026-09-28T04:25:30Z",
+  "completedAgents": [
+    "paradigm_advisor",
+    "curator",
+    "strategist",
+    "designer",
+    "screen_translator",
+    "inspector"
+  ],
+  "pendingAgents": [],
+  "currentAgent": {
+    "agent": null,
+    "phase": null,
+    "status": "complete",
+    "topologyApproved": true,
+    "screenModeApproved": true
+  },
+  "pendingDecisions": [],
+  "artifacts": {
+    "migration_brief.md": {
+      "sha256": "d49fc0cb9dc2e0837917ab253bf5f2a5cd517f751aacc60e582378da0df7b66d",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T02:45:48Z"
+    },
+    "paradigm_decision.md": {
+      "sha256": "1500a7fdfd7835a58d57a09d52eae03d30acefbfec7e724adb68cec31e2c818f",
+      "producedBy": "paradigm_advisor",
+      "recordedAt": "2026-09-28T02:50:16Z"
+    },
+    "target_business_rules.md": {
+      "sha256": "2a42d1b6a9e6bc49923151e77c897f027becd994028af2a6e629d05fccb9d601",
+      "producedBy": "curator",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "revisado apos as decisoes do usuario E apos a verificacao empirica do oraculo (BR-MIGRAR-021 corrigido)"
+    },
+    "discard_log.md": {
+      "sha256": "0a5729fac66499ab4610ba1ace51c50c819b8ed95192ca92e779e5f00ebe5cf2",
+      "producedBy": "curator",
+      "recordedAt": "2026-09-28T02:56:55Z",
+      "note": "revisado: BR-DESCARTAR-006 efetivado, BR-DESCARTAR-007 adicionado"
+    },
+    "ambiguity_log.md": {
+      "sha256": "97ee497482a263ffc74e7539f8583150671012313c1e8763a60623c22a22a1b8",
+      "producedBy": "orchestrator+curator",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "23 itens: 0 pendentes, 12 resolvidos, 11 referidos a codificacao (AMB-023 = correcao factual do cM<=0)"
+    },
+    "migration_strategy.md": {
+      "sha256": "237433895c1e0f4f53b059ad3ec325ead2a54d3bca45a7b5bb610e84d42cf673",
+      "producedBy": "strategist",
+      "recordedAt": "2026-09-28T03:01:45Z",
+      "note": "revisado apos a escolha da estrategia pelo usuario"
+    },
+    "risk_register.md": {
+      "sha256": "192bb2c47eeaa80bd7547b7abf2ca7ca0ae4cb0c9ee8d30f3b40cac075a3e44a",
+      "producedBy": "strategist",
+      "recordedAt": "2026-09-28T02:58:44Z"
+    },
+    "cutover_plan.md": {
+      "sha256": "3d054ecdce8c139cba65242abd3e470990d41f6565aa34e0d7f387ba770b90e5",
+      "producedBy": "strategist",
+      "recordedAt": "2026-09-28T03:01:45Z",
+      "note": "confirmacao da estrategia registrada"
+    },
+    "topology_decision.md": {
+      "sha256": "b74af37922a0a255330108551a59c679c9414f42641e6124a32141e320acf8ba",
+      "producedBy": "designer",
+      "recordedAt": "2026-09-28T03:05:50Z",
+      "note": "Fase 1 do Designer; aprovada pelo usuario em 2026-09-28T03:06:40Z (opcao 3 - hibrido, nucleo puro e plano)"
+    },
+    "target_architecture.md": {
+      "sha256": "081513520fd764ce9e07f9c8060fa8e9f3ec9457f0eb5d24e1322704ab96dc52",
+      "producedBy": "designer",
+      "recordedAt": "2026-09-28T03:08:38Z",
+      "note": "Fase 2; 5 bounded contexts, 6 ADRs, secoes 'Honra ao paradigma' e 'Honra a topologia'"
+    },
+    "target_domain_model.md": {
+      "sha256": "24a92255e20db7b1a04d2924dbbbf0ba6684723fe4257d347437bd58faed71f8",
+      "producedBy": "designer",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "3 aggregates, 34 regras MIGRAR mapeadas, zero eventos de dominio (AD-05); RelationshipLabel agora anulavel"
+    },
+    "target_data_model.md": {
+      "sha256": "73a186dba506dc291099b867f7a4d38f4c8ebd8653534199aa0e84e1f2c6134f",
+      "producedBy": "designer",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "schema PostgreSQL novo; owner_id em NOT NULL; cM persistido ja calculado; relationship_label deixou de ser NOT NULL"
+    },
+    "data_migration_plan.md": {
+      "sha256": "e21c76e18bb5d5451f0abb18d9f76070e2900274de22228cd9a351b96e8cb045",
+      "producedBy": "designer",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "documenta AUSENCIA de ETL: legado sem banco, sem dado persistido, sem volume. Corrigido em T-02/T-06 (cM<=0)"
+    },
+    "screen_modernization_decision.md": {
+      "sha256": "d2e5e382eb1d1f0f48726bcc4047a428e77315cb27168bf79ec7894d29389a5f",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T03:24:30Z",
+      "note": "modo hibrido aprovado; revisao linguistica parcial autorizada (DEV-005); DEV-010 aprovada"
+    },
+    "target_screens.md": {
+      "sha256": "4eca6b9e29689f86bc890c4eab124ca36271c36c3873b849fc3e9f85a4cdb213",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "13 entradas: 8 literais (5 telas + 3 componentes globais) + 5 modernizadas (novas); nota de relationships corrigida"
+    },
+    "screen_deviation_log.md": {
+      "sha256": "9dee212c9905df6b7fb1c81059700f62445945515a324864cf55bd2c103f24b6",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T03:24:30Z",
+      "note": "10 deviations, TODAS aprovadas; 0 pendentes - handoff ao Inspector desbloqueado"
+    },
+    "tokens-derived.md": {
+      "sha256": "77d5fe4986bceda2780085f92089afe8864808aade24f4e9d0bf49264f1c4a63",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T03:20:10Z",
+      "path": "_reversa_sdd/design-system/tokens-derived.md",
+      "note": "tokens derivados do legado por ausencia de design-system/ (EC-17, DEV-006)"
+    },
+    "parity_specs.md": {
+      "sha256": "b1687e94d095b45228780b738cd573198a96765f8adee57964987b5e4f78dd39",
+      "producedBy": "inspector",
+      "recordedAt": "2026-09-28T03:28:04Z",
+      "note": "modos: differential execution + contract tests + golden file + contract de tela; 10 excecoes propagadas"
+    },
+    "parity_tests/": {
+      "sha256": "cdda30ba6d8fa37c9fe241765de4b1b382eec3a49baaf1ce5b0ea13df706ed85",
+      "producedBy": "inspector",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "note": "12 arquivos .feature, 100 cenarios Gherkin (era 99; o Caso B do cM ganhou cenario proprio); hash agregado = sha256 sobre a lista canonica '<nome>:<sha256 do arquivo>' ordenada por nome"
+    },
+    "handoff.md": {
+      "sha256": "9e6d4e2ab2d46fda591df55786086d4d72ba1896911b0e18d28603dfc8fe7b6c",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T04:25:30Z",
+      "note": "artefato final; checklist do handoff 10/10 OK"
+    },
+    "screens/inventory.json": {
+      "sha256": "8d7c4f4adfeb0cfc69caf6e8011b8ef7f4830995933cf0397282dfc9af473b91",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T03:16:40Z",
+      "path": "_reversa_sdd/screens/inventory.json",
+      "note": "5 telas, 4 rotas, 29 strings de UI, 9 mensagens de servidor"
+    },
+    "screens/golden/manifest.yaml": {
+      "sha256": "77e5207ef4d68d93b2d90cb94636373e2cebfc3c188fd04b448c5b92ac3f1513",
+      "producedBy": "screen_translator",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "path": "_reversa_sdd/screens/golden/manifest.yaml",
+      "note": "manifesto emitido; 0 golden files CAPTURADOS (present: false em todas as entradas) - ver AMB-022. oracleCommand/oracleHash CORRIGIDOS para o oraculo congelado de e43ca22 (antes apontavam para o wrapper de 86 linhas)."
+    },
+    "oracle/ORACLE_MANIFEST.md": {
+      "sha256": "8b052746f0b14e51020b81852478164f646fa9401885c2a8d7295f079473babe",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "path": "_reversa_sdd/oracle/ORACLE_MANIFEST.md",
+      "note": "proveniencia do oraculo congelado; comportamento verificado por execucao; dependencias travadas"
+    },
+    "oracle/run_oracle.py": {
+      "sha256": "4688b1665a96ceebd885871dab5c665480806ab9d4f54f6504683cc1bdc3dd92",
+      "producedBy": "orchestrator",
+      "recordedAt": "2026-09-28T04:40:00Z",
+      "path": "_reversa_sdd/oracle/run_oracle.py",
+      "note": "Runner do oraculo: isola em .oracle-run/ e faz chdir antes do import (evita poluir o repo), forca UTF-8, nao toca nos dados reais. Modos: padrao, --gedcom, --cm, --quiet. Testado nos 4 modos."
+    },
+    "oracle/app_legacy_e43ca22.py": {
+      "sha256": "44370b2339a645c4d9ce732ac3962811b16b35f587ece3507dad4fc3d87646bb",
+      "producedBy": "git (read-only)",
+      "recordedAt": "2026-09-28T04:32:00Z",
+      "path": "_reversa_sdd/oracle/app_legacy_e43ca22.py",
+      "gitBlob": "e43ca22:analisador-genealogico/app.py",
+      "note": "ORACULO CONGELADO. Monolito original: 888 linhas, 41.950 bytes, zero referencia a reconstructed/. SOMENTE LEITURA."
+    }
+  },
+  "oracle": {
+    "establishedAt": "2026-09-28T04:32:00Z",
+    "path": "_reversa_sdd/oracle/app_legacy_e43ca22.py",
+    "gitBlob": "e43ca22:analisador-genealogico/app.py",
+    "sha256": "44370b2339a645c4d9ce732ac3962811b16b35f587ece3507dad4fc3d87646bb",
+    "lines": 888,
+    "bytes": 41950,
+    "cleanOfReconstructed": true,
+    "functionsVerified": 14,
+    "importVerified": true,
+    "runOnRealDataVerified": true,
+    "realDataResult": "SandroTree.ged (949169 bytes) -> 3961 pessoas, 1523 familias, grafo 5484 nos / 5530 arestas",
+    "whyItWasNeeded": "O analisador-genealogico/app.py atual tem 86 linhas e e um wrapper que importa reconstructed/ (commit 3ed0179 removeu 812 linhas do monolito original). Usa-lo como oraculo produziria VALIDACAO CIRCULAR (RISK-002).",
+    "dependencyVersions": {
+      "Flask": "3.1.3", "ged4py": "0.5.2", "networkx": "3.6.1", "pandas": "3.0.3",
+      "thefuzz": "0.22.1", "RapidFuzz": "3.14.5", "python-Levenshtein": "0.27.3",
+      "numpy": "2.5.0", "matplotlib": "3.11.1", "pyvis": "0.3.2", "gunicorn": "26.0.0",
+      "python": "3.14.6 (global; .venv do projeto contem apenas pip)"
+    },
+    "operationalTraps": [
+      "O import do oraculo cria 'uploads/' e 'static/' no DIRETORIO DE TRABALHO (os.makedirs relativo em L15-18). O harness deve isolar em diretorio temporario ou fazer chdir antes de importar.",
+      "A saida contem 'U+2194' (seta), que o console Windows cp1252 nao codifica. Usar PYTHONIOENCODING=utf-8 e comparar estruturas serializadas, nunca stdout de texto."
+    ],
+    "mustNotImportInSameProcessAsCandidate": "O oraculo mantem estado global mutavel (people/families/graph/child_to_family). Importar ambos no mesmo processo contaminaria o candidato. Isolar em subprocesso."
+  },
+  "empiricalFindings": {
+    "verifiedAt": "2026-09-28T04:32:00Z",
+    "AMB023_cmBoundary": "get_relationships_by_cm(<=0 ou nao numerico) retorna LISTA VAZIA, nao o literal 'Relacao distante ou indeterminada'. O literal so ocorre com valor positivo fora de todas as faixas. Corrigido em 7 artefatos.",
+    "cMBandOverlap": "As faixas se sobrepoem muito mais do que os artefatos sugeriam: 50 cM casa 4 faixas simultaneas; 300 cM casa 3; 3400/800/15 casam 2. O contrato e uma LISTA, nunca um valor escalar.",
+    "deadCodeConfirmed": "HARD_MIN=92 (L653) e GIVEN_MIN=90 (L654) nao sao referenciados em nenhum outro ponto do arquivo.",
+    "risk011Confirmation": "are_spouses (L251) e split_path_by_marriage (L254) existem como funcoes SEPARADAS; generate_mermaid_graph_indirect_bridge as consome (L406). Migrar a decomposicao como funcao pura e descartar so a emissao de Mermaid e implementavel sem reescrever regra.",
+    "lesson": "A spec do legado NAO era oraculo; o codigo era. Um erro herdado de domain.md §2.1 sobreviveu a 6 agentes e 7 gates humanos porque todos operaram no nivel das specs. Foi encontrado no primeiro minuto em que o oraculo foi executado."
+  },
+  "pipelineComplete": true,
+  "completedAt": "2026-09-28T04:25:30Z",
+  "finalCounts": {
+    "agentsRun": 6,
+    "agentsSkipped": 0,
+    "artifactsInMigration": 19,
+    "artifactsInScreens": 2,
+    "parityFeatureFiles": 12,
+    "parityScenarios": 102,
+    "rulesCurated": 49,
+    "rulesMigrar": 34,
+    "rulesDescartar": 7,
+    "rulesDecisaoHumanaResolvidas": 8,
+    "risksTotal": 12,
+    "risksCriticos": 3,
+    "wavesPlanned": 7,
+    "screenEntries": 13,
+    "screenEntriesLiteral": 8,
+    "screenEntriesModernized": 5,
+    "deviationsTotal": 10,
+    "deviationsPendentes": 0,
+    "ambiguitiesTotal": 24,
+    "ambiguitiesPendentes": 0,
+    "ambiguitiesReferidasCodificacao": 12,
+    "humanGates": 7,
+    "goldenFilesCaptured": 0,
+    "oracleFrozen": true,
+    "oracleRunnerAvailable": true,
+    "artifactsCorrectedAfterOracleVerification": 13
+  },
+  "strategyDecision": {
+    "chosen": "C - Parallel Run em ondas com validacao diferencial",
+    "internalPattern": "D - Branch by Abstraction (fronteira)",
+    "decidedBy": "Adriano",
+    "decidedAt": "2026-09-28T03:02:10Z",
+    "waves": [
+      "0 - oraculo congelado (golden files do app.py legado)",
+      "1 - nucleo portado como funcoes puras (paridade 100%)",
+      "2 - fronteira de aplicacao (FastAPI, Pydantic, erros tipados)",
+      "3 - multiusuario (auth, owner_id, PostgreSQL, repositorios escopados)",
+      "4 - SPA React + visualizacao de grafo",
+      "5 - conformidade LGPD/GDPR",
+      "6 - cutover"
+    ],
+    "hardRule": "nenhuma onda avanca com paridade pendente"
+  },
+  "risks": {
+    "total": 12,
+    "criticos": ["RISK-001", "RISK-002", "RISK-005"],
+    "altos": ["RISK-003", "RISK-004", "RISK-006", "RISK-008", "RISK-009"],
+    "medios": ["RISK-007", "RISK-010", "RISK-011", "RISK-012"]
+  },
+  "auto": false,
+  "engine": "dsh",
+  "reversaVersion": "1.2.58",
+  "briefPath": "_reversa_sdd/migration/migration_brief.md",
+  "expectedLegacyArtifacts": "references/expected_legacy_artifacts.yaml",
+  "preflight": {
+    "checkedAt": "2026-09-28T02:45:48Z",
+    "blocked": false,
+    "missingRequired": ["gaps.md"],
+    "userOverride": {
+      "authorized": true,
+      "authorizedAt": "2026-09-28T02:45:48Z",
+      "substitute": "confidence-report.md § 'Lacunas Pendentes (🔴)' + questions.md",
+      "reason": "gaps.md ausente embora listado como obrigatório; conteúdo de lacunas existe incorporado no confidence-report.md (decisão do usuário: prosseguir)"
+    }
+  },
+  "derivedAppetite": "balanced",
+  "curatorSummary": {
+    "totalRules": 49,
+    "migrar": 34,
+    "descartar": 7,
+    "decisaoHumana": 8,
+    "decisaoHumanaResolvidas": 8,
+    "discardedLinkedToParadigm": 5,
+    "decidedAt": "2026-09-28T02:56:00Z",
+    "decidedBy": "Adriano"
+  },
+  "corrections": [
+    {
+      "at": "2026-09-28T02:52:40Z",
+      "by": "curator",
+      "item": "AMB-004",
+      "what": "Descricao original afirmava que as respostas de questions.md estavam apenas em prosa no reconstruction-plan.md. Incorreto: estao no proprio questions.md (linhas 16, 27, 38, 49), sob '**Resposta:**'.",
+      "effect": "Conclusao inalterada (comportamento congelado -> MIGRAR); rastreabilidade melhorada."
+    },
+    {
+      "at": "2026-09-28T02:56:55Z",
+      "by": "orchestrator",
+      "item": "ambiguity_log.md / target_business_rules.md",
+      "what": "Corrupcao de encoding (mojibake DECIS\u00c3\u0192O) introduzida por script PowerShell ao fechar as decisoes; corrigida via round-trip UTF-8 explicito.",
+      "effect": "Conteudo preservado; verificado por varredura de assinaturas de mojibake. Unica ocorrencia remanescente e' intencional (exemplo 'A\u00c3\u00a7' em BR-MIGRAR-006, que documenta o proprio mojibake)."
+    }
+  ],
+  "pipelineHealth": {
+    "pendingAmbiguities": 0,
+    "referToCoding": 10,
+    "note": "Passo 7 satisfeito: 0 itens PENDENTES. Os 10 REFERIDOS A CODIFICACAO nao bloqueiam o inicio da implementacao; AMB-018 e AMB-022 bloqueiam o go-live.",
+    "handoffChecklist": "10/10 OK",
+    "legacyUntouched": true
+  }
+}

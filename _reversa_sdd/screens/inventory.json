@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-28T03:16:40Z",
+  "producedBy": "screen-translator",
+  "sourcePlatform": "server-rendered-jinja2-bootstrap",
+  "sourcePlatformConfidence": "CONFIRMADO",
+  "targetPlatform": "web-spa",
+  "adapter": "html_legacy__spa",
+  "adapterProxy": true,
+  "adapterProxyNote": "O par real detectado (server-rendered-jinja2-bootstrap -> web-spa) nao consta na tabela do adapter-pairs.md v1. Usado html_legacy__spa como proxy; a lacuna e registrada como deviation.",
+  "discoveryPrereqGaps": {
+    "designSystem": "_reversa_sdd/design-system/ ausente - tokens serao derivados de templates/index.html e reportados em tokens-derived.md",
+    "uiInventory": "_reversa_sdd/ui/inventory.md ausente - inventario construido a partir do codigo fonte legado (templates/index.html)"
+  },
+  "routes": [
+    {
+      "route": "GET /",
+      "legacyHandler": "analisador-genealogico/app.py (index)",
+      "screens": ["SCR-001", "SCR-002", "SCR-003", "SCR-004"]
+    },
+    {
+      "route": "POST / (action=upload_gedcom)",
+      "legacyHandler": "analisador-genealogico/app.py:562-574",
+      "screens": ["SCR-002"]
+    },
+    {
+      "route": "POST / (action=path_search)",
+      "legacyHandler": "analisador-genealogico/app.py:840-882",
+      "screens": ["SCR-005"]
+    },
+    {
+      "route": "POST / (action=dna_analysis)",
+      "legacyHandler": "analisador-genealogico/app.py:576-836",
+      "screens": ["SCR-005"]
+    }
+  ],
+  "screens": [
+    {
+      "id": "SCR-001",
+      "name": "Estado inicial - Upload GEDCOM",
+      "kind": "screen-state",
+      "legacySource": "analisador-genealogico/templates/index.html:41-52",
+      "condition": "{% if not gedcom_filename %}",
+      "route": "GET /",
+      "exclusiveWith": ["SCR-002", "SCR-003", "SCR-004"],
+      "elements": [
+        { "type": "heading", "level": 1, "text": "Analisador Genealógico e de DNA" },
+        { "type": "paragraph", "text": "Para começar, carregue a sua árvore genealógica em formato GEDCOM." },
+        { "type": "form", "id": "gedcom-upload-form", "method": "POST", "enctype": "multipart/form-data" },
+        { "type": "hidden", "name": "action", "value": "upload_gedcom" },
+        { "type": "file-input", "name": "gedcom", "label": "Arquivo GEDCOM", "required": true },
+        { "type": "submit", "text": "Carregar e Analisar", "style": "btn-primary btn-lg" }
+      ],
+      "states": ["idle"],
+      "transitions": [
+        { "event": "submit", "to": "SCR-002", "condition": "parse bem-sucedido" },
+        { "event": "submit", "to": "SCR-001", "condition": "erro de parse - alerta de perigo" }
+      ]
+    },
+    {
+      "id": "SCR-002",
+      "name": "Estado carregado - hub de abas",
+      "kind": "screen-state",
+      "legacySource": "analisador-genealogico/templates/index.html:53-61",
+      "condition": "{% else %} de gedcom_filename",
+      "route": "GET / e POST / (upload_gedcom)",
+      "exclusiveWith": ["SCR-001"],
+      "elements": [
+        { "type": "heading", "level": 1, "text": "Analisador Genealógico e de DNA" },
+        { "type": "tabs", "id": "analysisTabs", "tabs": ["Buscar Conexão no GEDCOM", "Analisador de DNA"], "defaultActive": "Buscar Conexão no GEDCOM" },
+        { "type": "datalist", "id": "gedcom_names", "source": "all_names (ordenados alfabeticamente)" }
+      ],
+      "states": ["idle"],
+      "transitions": [
+        { "event": "select tab", "to": "SCR-003" },
+        { "event": "select tab", "to": "SCR-004" }
+      ]
+    },
+    {
+      "id": "SCR-003",
+      "name": "Aba Buscar Conexao no GEDCOM",
+      "kind": "screen-tab-panel",
+      "legacySource": "analisador-genealogico/templates/index.html:64-81",
+      "condition": "tab-pane ativo por padrao",
+      "route": "GET /",
+      "parentScreen": "SCR-002",
+      "elements": [
+        { "type": "paragraph", "text": "Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas." },
+        { "type": "form", "id": "path-form", "method": "POST" },
+        { "type": "hidden", "name": "action", "value": "path_search" },
+        { "type": "hidden", "name": "gedcom_filename", "interpolated": true },
+        { "type": "text-input", "name": "person1_name", "label": "Pessoa 1", "required": true, "placeholder": "Comece a digitar um nome...", "list": "gedcom_names" },
+        { "type": "text-input", "name": "person2_name", "label": "Pessoa 2", "required": true, "placeholder": "Comece a digitar um nome...", "list": "gedcom_names" },
+        { "type": "submit", "text": "Encontrar Conexão", "style": "btn-info" }
+      ],
+      "states": ["idle"],
+      "transitions": [
+        { "event": "submit", "to": "SCR-005", "condition": "conexao direta encontrada" },
+        { "event": "submit", "to": "SCR-005", "condition": "conexao indireta encontrada" },
+        { "event": "submit", "to": "SCR-003", "condition": "pessoa nao encontrada / sem conexao - alerta" }
+      ]
+    },
+    {
+      "id": "SCR-004",
+      "name": "Aba Analisador de DNA",
+      "kind": "screen-tab-panel",
+      "legacySource": "analisador-genealogico/templates/index.html:83-100",
+      "condition": "tab-pane inativo por padrao",
+      "route": "GET /",
+      "parentScreen": "SCR-002",
+      "elements": [
+        { "type": "paragraph", "text": "Carregue sua lista de matches (CSV) e insira o seu nome para encontrar as conexões confirmadas por DNA." },
+        { "type": "form", "id": "dna-form", "method": "POST", "enctype": "multipart/form-data" },
+        { "type": "hidden", "name": "action", "value": "dna_analysis" },
+        { "type": "hidden", "name": "gedcom_filename", "interpolated": true },
+        { "type": "file-input", "name": "matches_csv", "label": "1. Lista de Matches (CSV)", "required": true },
+        { "type": "text-input", "name": "root_name", "label": "2. Seu Nome (como está no GEDCOM)", "required": true, "placeholder": "Ex: João da Silva", "list": "gedcom_names" },
+        { "type": "submit", "text": "Analisar Matches de DNA", "style": "btn-success" }
+      ],
+      "states": ["idle"],
+      "transitions": [
+        { "event": "submit", "to": "SCR-005", "condition": "analise concluida" },
+        { "event": "submit", "to": "SCR-004", "condition": "erro - alerta de perigo" }
+      ]
+    },
+    {
+      "id": "SCR-005",
+      "name": "Areas de resultado (DNA, descartados e caminho)",
+      "kind": "results-region",
+      "legacySource": "analisador-genealogico/templates/index.html:116-174",
+      "condition": "tres blocos independentes: {% if dna_results %}, {% if skipped_matches %}, {% if path_result %}",
+      "route": "POST / (dna_analysis ou path_search)",
+      "elements": [
+        { "type": "section", "name": "Resultados da Análise de DNA", "heading": "Resultados da Análise de DNA", "legacySource": "index.html:117-129", "perItem": ["match_name", "cm (badge)", "text_path", "relationships", "mermaid_data"] },
+        { "type": "section", "name": "Matches descartados", "heading": "Matches descartados ({{n}})", "legacySource": "index.html:131-161", "introText": "Estes nomes estavam no CSV, mas foram rejeitados pelas regras de validação. O motivo aparece abaixo.", "columns": ["Nome no CSV", "Motivo"], "perItem": ["csv_name", "motivo"] },
+        { "type": "section", "name": "Resultado da Busca de Conexão", "heading": "Resultado da Busca de Conexão", "legacySource": "index.html:164-173", "perItem": ["person1_name", "person2_name", "text_path", "mermaid_data"] }
+      ],
+      "states": ["idle", "loading (spinner global, index.html:109-112)", "success", "error"]
+    }
+  ],
+  "globalElements": [
+    { "type": "alert", "legacySource": "index.html:34-39", "variants": ["alert-success", "alert-danger"], "textSource": "message", "dismissible": true },
+    { "type": "loading-indicator", "legacySource": "index.html:109-112", "text": "Analisando... Isso pode levar alguns segundos.", "behavior": "exibido no submit, oculta #results-area (index.html:191-196)" }
+  ],
+  "textInventory": {
+    "note": "Todo o conteudo textual congelado. Em qualquer modo, o diff de strings deve ser zero (ignorando espacos trailing).",
+    "strings": [
+      "Analisador Genealógico e de DNA",
+      "Para começar, carregue a sua árvore genealógica em formato GEDCOM.",
+      "Arquivo GEDCOM",
+      "Carregar e Analisar",
+      "Buscar Conexão no GEDCOM",
+      "Analisador de DNA",
+      "Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas.",
+      "Pessoa 1",
+      "Pessoa 2",
+      "Comece a digitar um nome...",
+      "Encontrar Conexão",
+      "Carregue sua lista de matches (CSV) e insira o seu nome para encontrar as conexões confirmadas por DNA.",
+      "1. Lista de Matches (CSV)",
+      "2. Seu Nome (como está no GEDCOM)",
+      "Ex: João da Silva",
+      "Analisar Matches de DNA",
+      "Resultados da Análise de DNA",
+      "Conexão com:",
+      "Caminho:",
+      "Relacionamento Provável (DNA):",
+      "Matches descartados",
+      "Estes nomes estavam no CSV, mas foram rejeitados pelas regras de validação. O motivo aparece abaixo.",
+      "Nome no CSV",
+      "Motivo",
+      "Resultado da Busca de Conexão",
+      "Conexão entre:",
+      "Analisando...",
+      "Analisando... Isso pode levar alguns segundos.",
+      "Close"
+    ],
+    "serverMessages": {
+      "note": "Mensagens produzidas pelo backend (BR-MIGRAR-028). Preservar os literais.",
+      "list": [
+        "Nenhum arquivo GEDCOM enviado.",
+        "Nenhum arquivo selecionado.",
+        "Seu nome 'X' não foi encontrado no GEDCOM.",
+        "Por favor, carregue o arquivo CSV de matches.",
+        "Pessoa 1 'X' não encontrada.",
+        "Pessoa 2 'X' não encontrada.",
+        "Nenhuma conexão encontrada entre 'X' e 'Y'.",
+        "Conexão direta encontrada (ancestral comum).",
+        "Conexão indireta encontrada (via casamento/afinidade)."
+      ]
+    }
+  }
+}
