@@ -1,0 +1,318 @@
+﻿py :  INFO Checking project configured at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+No linha:1 caractere:983
++ ...  12; "`n=== ANTES: check ==="; py -3.14 -m pyrefly check 2>&1 | Out-F ...
++                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( INFO Checking ...o\pyrefly.toml`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ WARN D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml: Extra keys found in config: pyrefly
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> _reversa_bugs\busca-caminho\bugs\BUG-20260929-J6PQ-escape-incompleto-mermaid\evidence\probe_mermaid.py:11:1
+   |
+11 | from reconstructed import path_search as ps  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR `nomes` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:125:32
+    |
+125 |         "matches_medidos": len(nomes),
+    |                                ^^^^^
+ERROR `metricas` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:128:39
+    |
+128 |         "norm_name_por_pessoa": round(metricas["norm_nome_por_pessoa"], 2),
+    |                                       ^^^^^^^^
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:50:1
+   |
+50 | from reconstructed import upload  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed.path_search` [missing-import]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:51:1
+   |
+51 | from reconstructed.path_search import path_search  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:33:43
+   |
+33 |     mod = importlib.util.module_from_spec(spec)
+   |                                           ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:35:5
+   |
+35 |     spec.loader.exec_module(mod)
+   |     ^^^^^^^^^^^
+ERROR Cannot find module `reconstructed.dna_analysis` [missing-import]
+ --> analisador-genealogico\app.py:5:1
+  |
+5 | from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed.path_search` [missing-import]
+ --> analisador-genealogico\app.py:6:1
+  |
+6 | from reconstructed.path_search import path_search as path_search_flow
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed.upload` [missing-import]
+ --> analisador-genealogico\app.py:7:1
+  |
+7 | from reconstructed.upload import load_gedcom_and_build_graph
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+  --> analisador-genealogico\app.py:29:43
+   |
+29 |                 gedcom_path = os.path.join(UPLOAD_FOLDER, gedcom_file.filename)
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+  --> analisador-genealogico\app.py:49:44
+   |
+49 |                 matches_path = os.path.join(UPLOAD_FOLDER, matches_file.filename)
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR Cannot find module `domain` [missing-import]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:22:1
+   |
+22 | from .domain import demojibake, strip_bad_utf
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `path_search` [missing-import]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:23:1
+   |
+23 | from .path_search import find_ancestral_path, generate_mermaid_graph
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `upload` [missing-import]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:24:1
+   |
+24 | from .upload import get_name, people
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR `<=` is not supported between `str` and `float` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `float`
+   |                                                                has type `str`
+  Argument `float` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `str` and `int` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `int`
+   |                                                                has type `str`
+  Argument `int` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `float` and `str` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `float`
+  Argument `str` is not assignable to parameter `value` with type `float` in function `float.__le__`
+ERROR `<=` is not supported between `int` and `str` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `int`
+  Argument `str` is not assignable to parameter `value` with type `int` in function `int.__le__`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> analisador-genealogico\reconstructed\dna_analysis.py:385:47
+    |
+385 |                     "relationships": ", ".join(probable_relationships),
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR Cannot find module `upload` [missing-import]
+  --> analisador-genealogico\reconstructed\path_search.py:20:1
+   |
+20 | from .upload import child_to_family, families, get_name, people
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `upload` [missing-import]
+   --> analisador-genealogico\reconstructed\path_search.py:131:5
+    |
+131 |     from .upload import graph
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR `couple1_label` may be uninitialized [unbound-name]
+   --> analisador-genealogico\reconstructed\path_search.py:341:39
+    |
+341 |         lines.append(f'{couple1_id}["{couple1_label}"]')
+    |                                       ^^^^^^^^^^^^^
+ERROR `couple2_label` may be uninitialized [unbound-name]
+   --> analisador-genealogico\reconstructed\path_search.py:398:43
+    |
+398 |             lines.append(f'{couple2_id}["{couple2_label}"]')
+    |                                           ^^^^^^^^^^^^^
+ERROR Cannot find module `upload` [missing-import]
+   --> analisador-genealogico\reconstructed\path_search.py:494:1
+    |
+494 | from .upload import ref_id  # noqa: E402
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+  --> analisador-genealogico\reconstructed\upload.py:88:10
+   |
+88 |     with GedcomReader(file_path) as parser:
+   |          ^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:33:5
+   |
+33 |     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:34:5
+   |
+34 |     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\oracle\run_oracle.py:81:50
+   |
+81 |         module = importlib.util.module_from_spec(spec)
+   |                                                  ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:83:9
+   |
+83 |         spec.loader.exec_module(module)
+   |         ^^^^^^^^^^^
+ERROR Cannot find module `harness` [missing-import]
+  --> _reversa_sdd\parity\_profile_collector_costs.py:24:12
+   |
+24 |     import harness  # noqa
+   |            ^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Argument `bytes | None` is not assignable to parameter `buffer` with type `Buffer` in function `_io.BufferedWriter.write` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:91:18
+   |
+ INFO 43 errors (6 suppressed, 3 warnings not shown)
+91 |         fh.write(b)
+   |                  ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `bytes | None` is not assignable to parameter `data` with type `Buffer` in function `_hashlib.openssl_sha256` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:92:24
+   |
+92 |     h = hashlib.sha256(b).hexdigest()
+   |                        ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:45:41
+   |
+45 |     m = importlib.util.module_from_spec(spec)
+   |                                         ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:47:5
+   |
+47 |     spec.loader.exec_module(m)
+   |     ^^^^^^^^^^^
+ERROR `dict[Unknown, dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | list[dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to upper bound `SupportsDunderGT[Any] | SupportsDunderLT[Any]` of type variable `SupportsRichComparisonT` [bad-specialization]
+   --> _reversa_sdd\parity\harness.py:280:22
+    |
+280 |         return sorted(_canon(x) for x in v)
+    |                      ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> tests\test_characterization_matching.py:34:1
+   |
+34 | from reconstructed import upload
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> tests\test_characterization_mermaid.py:22:1
+   |
+22 | from reconstructed import upload
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> tests\test_dna_analysis.py:26:1
+   |
+26 | from reconstructed import upload
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> tests\test_path_search.py:18:1
+   |
+18 | from reconstructed import upload
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot find module `reconstructed` [missing-import]
+  --> tests\test_upload.py:19:1
+   |
+19 | from reconstructed import upload
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:194:10
+    |
+194 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:240:10
+    |
+240 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`

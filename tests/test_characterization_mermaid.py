@@ -20,7 +20,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from reconstructed import upload
-# pyrefly: ignore [missing-import]
 from reconstructed.path_search import path_search
 
 # Saida congelada, linha por linha, para os tres caminhos de render.

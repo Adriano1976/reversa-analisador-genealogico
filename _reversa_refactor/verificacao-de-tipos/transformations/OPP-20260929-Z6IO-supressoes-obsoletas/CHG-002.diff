@@ -1,0 +1,72 @@
+﻿diff --git a/tests/test_characterization_matching.py b/tests/test_characterization_matching.py
+index 642844c..a31d156 100644
+--- a/tests/test_characterization_matching.py
++++ b/tests/test_characterization_matching.py
+@@ -32,7 +32,6 @@ from tests.fixtures.sample_dna import (
+ )
+ 
+ from reconstructed import upload
+-# pyrefly: ignore [missing-import]
+ from reconstructed.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+ 
+ 
+diff --git a/tests/test_characterization_mermaid.py b/tests/test_characterization_mermaid.py
+index 0534f1d..8823204 100644
+--- a/tests/test_characterization_mermaid.py
++++ b/tests/test_characterization_mermaid.py
+@@ -20,7 +20,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed import upload
+-# pyrefly: ignore [missing-import]
+ from reconstructed.path_search import path_search
+ 
+ # Saida congelada, linha por linha, para os tres caminhos de render.
+diff --git a/tests/test_dna_analysis.py b/tests/test_dna_analysis.py
+index 9bb34d4..7cc7cb0 100644
+--- a/tests/test_dna_analysis.py
++++ b/tests/test_dna_analysis.py
+@@ -24,7 +24,6 @@ from tests.fixtures.sample_dna import (
+ )
+ 
+ from reconstructed import upload
+-# pyrefly: ignore [missing-import]
+ from reconstructed.dna_analysis import (
+     aggregate_matches,
+     detect_columns,
+diff --git a/tests/test_domain.py b/tests/test_domain.py
+index a4ac954..fb49365 100644
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -11,7 +11,6 @@ import pytest
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "analisador-genealogico"))
+ 
+-# pyrefly: ignore [missing-import]
+ from reconstructed.domain import (
+     DNAGroup,
+     Family,
+diff --git a/tests/test_path_search.py b/tests/test_path_search.py
+index 4e4070a..af2ab5a 100644
+--- a/tests/test_path_search.py
++++ b/tests/test_path_search.py
+@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed import upload
+-# pyrefly: ignore [missing-import]
+ from reconstructed.path_search import (
+     find_ancestral_path,
+     find_indirect_path,
+diff --git a/tests/test_upload.py b/tests/test_upload.py
+index 2f0541c..5644357 100644
+--- a/tests/test_upload.py
++++ b/tests/test_upload.py
+@@ -17,7 +17,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed import upload
+-# pyrefly: ignore [missing-import]
+ from reconstructed.upload import build_graph_from_parser, get_name, ref_id
+ 
+ 

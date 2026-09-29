@@ -24,7 +24,6 @@ from tests.fixtures.sample_dna import (
 )
 
 from reconstructed import upload
-# pyrefly: ignore [missing-import]
 from reconstructed.dna_analysis import (
     aggregate_matches,
     detect_columns,
