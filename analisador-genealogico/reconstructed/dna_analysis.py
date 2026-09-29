@@ -13,7 +13,6 @@ Comportamento idêntico ao legado, incluindo as decisões documentadas:
 """
 from __future__ import annotations
 
-import re
 import string
 import unicodedata
 
