@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T03:09:35-03:00 a partir de 4 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T13:59:44-03:00 a partir de 4 oportunidades -->
 
 # Índice de qualidade de código · analise-dna
 
-> Gerado em `2026-09-29T03:09:35-03:00`. Fonte de verdade: `../opportunities/*.md`.
+> Gerado em `2026-09-29T13:59:44-03:00`. Fonte de verdade: `../opportunities/*.md`.
 
 ## Oportunidades
 

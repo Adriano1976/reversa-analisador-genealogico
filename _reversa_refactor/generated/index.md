@@ -1,10 +1,10 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T03:09:35-03:00 a partir de 10 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T13:59:44-03:00 a partir de 10 oportunidades -->
 
 # Registro de qualidade de código · visão global
 
-> Gerado em `2026-09-29T03:09:35-03:00`. Ordenado por retorno estimado, não por estética.
+> Gerado em `2026-09-29T13:59:44-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, nenhuma transformação aplicada.
+Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, 4 aplicada(s) e 6 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -40,7 +40,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, n
 
 ## Roteamento aprovado
 
-Ordem de encadeamento definida pelo usuário em 2026-09-29. Cada especialista roda sozinho, com seu gate, e a execução para no gate por causa de `allowLegacyEdits: false`.
+Ordem de encadeamento definida pelo usuário em 2026-09-29. As 4 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
 
 | Ordem | ID | Comando |
 |-------|----|---------|
