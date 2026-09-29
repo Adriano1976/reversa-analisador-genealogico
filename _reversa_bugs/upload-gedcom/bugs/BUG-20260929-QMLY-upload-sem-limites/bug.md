@@ -98,16 +98,21 @@ local, contexto que o `_reversa_sdd/migration/migration_brief.md` alterou explic
 
 ## Actual Behavior
 
-1. `analisador-genealogico/app.py:10-16` cria o app e as pastas, e nunca define
+1. `analisador-genealogico/app.py:10-14` cria o app e as pastas, e nunca define
    `MAX_CONTENT_LENGTH`. Não há limite de tamanho de requisição em nenhum ponto do projeto.
-2. `app.py:31-32` grava o GEDCOM em `os.path.join(UPLOAD_FOLDER, gedcom_file.filename)`, com o nome
+2. `app.py:29-30` grava o GEDCOM em `os.path.join(UPLOAD_FOLDER, gedcom_file.filename)`, com o nome
    enviado pelo cliente, sem sanitização nem validação de extensão.
-3. `app.py:51-52` faz o mesmo com o CSV de DNA.
+3. `app.py:49-50` faz o mesmo com o CSV de DNA.
 4. Não há verificação de tipo de conteúdo: `load_gedcom_and_build_graph`
    (`reconstructed/upload.py:82-100`) apenas abre o arquivo com `GedcomReader`.
 5. Dois arquivos de mesmo nome se sobrescrevem sem aviso.
 6. O nome do arquivo funciona como identificador de sessão: é devolvido ao cliente como
-   `gedcom_filename` e volta no próximo `POST` (`app.py:34`, `:38-44`).
+   `gedcom_filename` e volta no próximo `POST` (`app.py:36`, `:39-42`).
+
+Re-verificado em 2026-09-29: nenhuma referência deste item mudou de sentido, apenas de linha, porque
+a `OPP-20260929-SEQO` removeu o `STATIC_FOLDER` de `app.py` e encurtou o arquivo. A varredura
+confirma que não existe `MAX_CONTENT_LENGTH` nem `secure_filename` em nenhum arquivo do projeto, e
+que `load_gedcom_and_build_graph` continua em `reconstructed/upload.py:82-100`.
 
 ## Steps to Reproduce
 

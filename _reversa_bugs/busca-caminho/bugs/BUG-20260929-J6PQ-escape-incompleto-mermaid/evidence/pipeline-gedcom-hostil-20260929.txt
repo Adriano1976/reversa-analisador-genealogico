@@ -1,0 +1,31 @@
+﻿nomes carregados do GEDCOM:
+   'Alvo Filho'
+   'Ana Raiz'
+   'Joao] --> N_evil["pwn Hostil'
+
+busca de caminho entre 'Ana Raiz' e 'Alvo Filho'
+   sucesso: True
+   mensagem: Conexão indireta encontrada (via casamento/afinidade).
+
+caminho textual:
+   Ana Raiz → Joao] --> N_evil["pwn Hostil → Alvo Filho
+
+diagrama Mermaid injetado no navegador:
+------------------------------------------------------------------
+flowchart BT
+N_I1["Ana Raiz"]
+N_I2["Joao] --&gt; N_evil['pwn Hostil"]
+N_I3["Alvo Filho"]
+N_I1 --> N_I2
+N_I2 --> N_I3
+style N_I1 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
+style N_I3 fill:#ffebee,stroke:#ef5350,stroke-width:2px
+------------------------------------------------------------------
+
+CONTAGEM PARA A CONFERENCIA:
+   linhas de no (contem '["'): 3
+   linhas de aresta (contem '-->'): 2
+
+   no: N_I1["Ana Raiz"]
+   no: N_I2["Joao] --&gt; N_evil['pwn Hostil"]
+   no: N_I3["Alvo Filho"]

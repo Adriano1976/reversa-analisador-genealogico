@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T01:46:29-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T15:55:18-03:00 a partir de 2 bugs -->
 
 # Grafo de bugs · busca-caminho
 

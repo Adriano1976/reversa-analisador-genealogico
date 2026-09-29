@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T01:46:29-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T15:55:18-03:00 a partir de 1 bugs -->
 
 # Índice de bugs · upload-gedcom
 
-> Gerado em `2026-09-29T01:46:29-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-09-29T15:55:18-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 

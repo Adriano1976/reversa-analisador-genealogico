@@ -1,10 +1,10 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T15:03:42-03:00 a partir de 15 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T15:43:34-03:00 a partir de 17 oportunidades -->
 
 # Registro de qualidade de código · visão global
 
-> Gerado em `2026-09-29T15:03:42-03:00`. Ordenado por retorno estimado, não por estética.
+> Gerado em `2026-09-29T15:43:34-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 9 aplicada(s) e 6 em aberto.
+Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 11 aplicada(s) e 6 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -18,6 +18,8 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 9
 | #12 | `OPP-20260929-NUMT` | optimize | green | custo que cresce linearmente com o CSV, e CSV de GEDmatch tem milhares de linhas | medium | proposed | ingestão proporcional ao tamanho real do arquivo, não ao número de chamadas Python |
 | #13 | `OPP-20260929-IM3Q` | prune | green | superfície de instalação e tempo de build de ambiente, sem nenhum ganho em troca | low | applied | uma dependência nativa a menos para compilar em cada ambiente novo |
 | #14 | `OPP-20260929-DW3U` | prune | green | superfície de leitura e uma pista falsa, na forma de uma propriedade quebrada | low | applied | menos código sem consumidor, ao custo de decisão sobre a linha de base de testes |
+| #16 | `OPP-20260929-U2NK` | prune | green | clareza do modulo e uma pista falsa sobre onde a regex de ID vive | low | applied | uma linha a menos e nenhuma ambiguidade sobre a origem da regex de ID |
+| #17 | `OPP-20260929-Z6IO` | prune | green | a config que governa a resolucao de imports na checagem de tipos estava silenciosamente inerte, e as supressoes escondiam isso | low | applied | a checagem de tipos passa a resolver o pacote reconstruido de fato, e seis anotacoes mortas saem dos testes |
 | #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | applied | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
 | #8 | `OPP-20260929-B5F2` | modularize | green | 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga | low | applied | menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes |
 | #15 | `OPP-20260929-5XGJ` | standardize | green | quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso | low | proposed | uma única regra de import no arquivo, com o motivo escrito |
@@ -30,9 +32,10 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 9
 
 | Contexto | Oportunidades | Caminho |
 |----------|---------------|---------|
-| `analise-dna` | 7 | `_reversa_refactor/analise-dna/` |
+| `analise-dna` | 8 | `_reversa_refactor/analise-dna/` |
 | `busca-caminho` | 4 | `_reversa_refactor/busca-caminho/` |
 | `upload-gedcom` | 4 | `_reversa_refactor/upload-gedcom/` |
+| `verificacao-de-tipos` | 1 | `_reversa_refactor/verificacao-de-tipos/` |
 
 ## Itens que NÃO devem ser roteados como refactor
 
@@ -45,7 +48,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 9
 
 ## Roteamento aprovado
 
-Ordem de encadeamento definida pelo usuário em 2026-09-29. As 9 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
+Ordem de encadeamento definida pelo usuário em 2026-09-29. As 11 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
 
 | Ordem | ID | Comando |
 |-------|----|---------|

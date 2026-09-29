@@ -34,7 +34,7 @@ relationships:
     type: related-to
     state: proposed
     evidence:
-      - ref: analisador-genealogico/app.py:13-16,31,51
+      - ref: analisador-genealogico/app.py:13-14,29-31,49-50
         observation: As duas falhas compartilham a mesma pasta fixa uploads/ e o mesmo nome de arquivo controlado pelo cliente atuando como chave de sessão.
 
 traceability:
@@ -109,6 +109,15 @@ registra a ausência de autenticação e autorização como lacuna, não como re
 5. `templates/index.html:102-106` embute `all_names`, a lista completa de nomes da árvore carregada,
    no HTML de resposta.
 6. Não há autenticação, sessão de usuário nem `owner_id` em nenhum ponto do projeto.
+
+Re-verificado em 2026-09-29, depois do refactor. `upload.py:15-19`, `:95-98`, `app.py:13`, `:38-44` e
+`index.html:102-106` conferem com a árvore atual. A única referência defasada era a da aresta
+`related-to` com o `QMLY`, que citava `app.py:13-16,31,51`: o `:51` designava a gravação do CSV, hoje
+em `:49-50`, e o arquivo encolheu porque a `OPP-20260929-SEQO` removeu o `STATIC_FOLDER`.
+
+O vetor de "artefato HTML de grafo em caminho fixo", levantado no intake como Problema 1, **não existe
+mais**: a `SEQO` removeu o `STATIC_FOLDER` e a pasta `static/` não está na árvore. O que resta, e
+sustenta este bug, é o estado global em memória mais a pasta `uploads/` compartilhada.
 
 ## Steps to Reproduce
 
