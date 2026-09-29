@@ -45,11 +45,26 @@ regra de negócio confirmada de `domain.md` foi alterada. A regra de matching co
 150, regex de ID `[A-Z]{2}\d{7}`, agregação por chave) permanece intacta: a `AU76` mudou apenas onde
 o valor é calculado, nunca o valor.
 
-## Divergências de documentação que permanecem abertas
+## Divergências de documentação
+
+### Fechada em 2026-09-29
+
+| Documento | O que afirmava | Correção aplicada |
+|-----------|----------------|-------------------|
+| `analisador-genealogico/README.md` linhas 15, 25 e 34 | Anunciavam `Pyvis` como a biblioteca de visualização de grafo | Trocado por Mermaid. A varredura do repositório não encontra nenhuma ocorrência de `pyvis` no código: a pilha real é `generate_mermaid_graph` (`reconstructed/path_search.py:205`, saída começando por `flowchart BT`), renderizada no cliente por `mermaid@10` via CDN (`templates/index.html:8` e `182-186`). As três linhas também perderam o qualificador "interactive", que o Mermaid 10 não sustenta: a saída é um SVG estático, sem pan, zoom ou arrasto |
+
+Fonte da correção: `analisador-genealogico/README.md` no commit que acompanha este adendo. Suíte de 76 testes verde antes e depois, sem relação causal (a mudança é de documentação, não de código).
+
+### Abertas
 
 | Documento | O que afirma | Situação |
 |-----------|--------------|----------|
-| `analisador-genealogico/README.md:25` | "This path is then rendered as an interactive `pyvis` graph" | Falso no código atual. É o README do legado, mantido por decisão do usuário na limpeza de histórico. Não foi editado por este adendo |
+| `README.md` da raiz, linhas 21, 74 e 100 | Anuncia `Pyvis` na stack, na estrutura do projeto e nas funcionalidades | **Fora do gate de edição.** O arquivo da raiz não casa com `analisador-genealogico/**` nem com `tests/**`, então nenhuma edição foi feita. É o README do projeto Reversa, não o do legado |
+| `README.md` da raiz, linha 74 | Documenta `static/graph_path_search.html` como "HTML estático gerado para grafos interativos (Pyvis)" | A pasta `analisador-genealogico/static/` **não existe** na árvore. Mesma situação de gate da linha acima |
+| `README.md` da raiz, linhas 104 e 118 | Afirma que o `app.py` tem cerca de 86 linhas e que a suíte tem 47 testes | Medido na árvore atual: `app.py` tem 84 linhas e a suíte tem 76 testes. Mesma situação de gate |
+| `README.md` da raiz, linha 69 | Descreve as entidades de `domain.py` como PERSON, FAMILIA e DNA_MATCH | As entidades reais são `Family`, `GenealogyGraph` e `DNAGroup` (a linha 112 do mesmo arquivo já lista os nomes corretos). Mesma situação de gate |
+| `_reversa_docs/assets/data/modules.json` e `_reversa_docs/assets/js/data.js` | Inventariam `static/graph_path_search.html` com 321 linhas e citam Pyvis | É o mini-site "Documentação Antes" (ver `README.md:138` da raiz), um retrato do estado pré-refactor. Corrigir à mão seria falsear o retrato. O caminho é regenerar via `/reversa-docs` |
+| `.reversa/context/surface.json:55` | Lista `pyvis` como dependência vinda de `requirements.txt` | Instantâneo da extração, quando `pyvis` de fato estava no manifesto. Historicamente correto, potencialmente enganoso hoje |
 | `_reversa_sdd/oracle/ORACLE_MANIFEST.md:63-64` | Lista `matplotlib` 3.11.1 e `pyvis` 0.3.2 no ambiente do oráculo | Histórico do ambiente do legado, que não existe mais na árvore |
 | `_reversa_sdd/parity/harness.py:40` | Aponta para `_reversa_sdd/oracle/app_legacy_e43ca22.py` | Esse arquivo foi removido na limpeza de histórico. **O harness diferencial não pode mais rodar**, e o projeto perdeu o oráculo de equivalência mais forte que tinha. As redes de caracterização e equivalência do refactor passam a ser a melhor prova disponível |
 
@@ -60,4 +75,5 @@ o valor é calculado, nunca o valor.
 - `_reversa_refactor/analise-dna/transformations/OPP-20260929-32Q7-podar-given-index/transformation.md`
 - `_reversa_refactor/upload-gedcom/transformations/OPP-20260929-SEQO-podar-residuos/transformation.md`
 - `_reversa_refactor/generated/index.md`
+- `analisador-genealogico/README.md` (correção da divergência de Pyvis)
 - `.reversa/reversa-config.json`
