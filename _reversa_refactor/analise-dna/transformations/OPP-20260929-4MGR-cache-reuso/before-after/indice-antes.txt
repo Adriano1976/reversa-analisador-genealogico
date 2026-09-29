@@ -1,0 +1,18 @@
+﻿build_ged_indexes para 2000 pessoas: mediana 0.610s (min 0.561, max 0.787)
+
+chamada                   total  por pessoa
+get_name                   2000        1.00
+norm_name                 16000        8.00
+split_name_pt              4000        2.00
+surnames_set               2000        1.00
+surname_core_tokens        4000        2.00
+top_given_tokens           2000        1.00
+
+=== o que o codigo faz por pessoa ===
+    4  O cache existe porque ``norm_name`` custa cerca de 41 us e ``surnames_set``
+   14  nm = get_name(person)
+   15  key = norm_name(nm)
+   17  _given, surnames, _suffixes = split_name_pt(nm)
+   21  features[pid] = {
+   23  "given_tokens": [norm_name(t) for t in top_given_tokens(nm, k=2)],
+   24  "surnames": surnames_set(nm),
