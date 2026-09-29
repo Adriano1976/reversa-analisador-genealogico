@@ -51,9 +51,11 @@ o valor é calculado, nunca o valor.
 
 | Documento | O que afirmava | Correção aplicada |
 |-----------|----------------|-------------------|
-| `analisador-genealogico/README.md` linhas 15, 25 e 34 | Anunciavam `Pyvis` como a biblioteca de visualização de grafo | Trocado por Mermaid. A varredura do repositório não encontra nenhuma ocorrência de `pyvis` no código: a pilha real é `generate_mermaid_graph` (`reconstructed/path_search.py:205`, saída começando por `flowchart BT`), renderizada no cliente por `mermaid@10` via CDN (`templates/index.html:8` e `182-186`). As três linhas também perderam o qualificador "interactive", que o Mermaid 10 não sustenta: a saída é um SVG estático, sem pan, zoom ou arrasto |
+| `analisador-genealogico/README.md` linhas 15, 25 e 34 | Anunciavam `Pyvis` como a biblioteca de visualização de grafo | Trocado por Mermaid. A varredura de `analisador-genealogico/` e `tests/` não encontra nenhuma ocorrência de `pyvis` no código do aplicativo: a pilha real é `generate_mermaid_graph` (`reconstructed/path_search.py:205`, saída começando por `flowchart BT`), renderizada no cliente por `mermaid@10` via CDN (`templates/index.html:8` e `182-186`). As três linhas também perderam o qualificador "interactive", que o Mermaid 10 não sustenta: a saída é um SVG estático, sem pan, zoom ou arrasto |
 
-Fonte da correção: `analisador-genealogico/README.md` no commit que acompanha este adendo. Suíte de 76 testes verde antes e depois, sem relação causal (a mudança é de documentação, não de código).
+Fonte da correção: `analisador-genealogico/README.md`, nos commits `70703f7` e `27aaed5`. Suíte de 76 testes verde antes e depois, sem relação causal (a mudança é de documentação, não de código).
+
+Nota de precisão sobre a varredura, para quem for reproduzi-la: a contagem depende do escopo. Restrita a `analisador-genealogico/` e a `tests/`, ela retorna zero, e antes desta correção retornava exatamente as 3 linhas deste README. Sobre o repositório inteiro, excluindo `.git/` e `.pytest-tmp/`, ela retorna 89 ocorrências em 28 arquivos, e nenhuma delas está no código do aplicativo. As 89 vivem em artefatos do Reversa que registram o histórico da extração, o estado pré-refactor, ou a própria remoção do `pyvis` pela `OPP-20260929-SEQO`: `_reversa_docs/`, `_reversa_sdd/`, o `intake` dos bugs e as pastas de transformação. O `README.md` da raiz contribui com 3 delas e segue fora do gate.
 
 ### Abertas
 
