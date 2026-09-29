@@ -20,6 +20,7 @@ import unicodedata
 import pandas as pd
 from thefuzz import fuzz
 
+from .domain import demojibake, strip_bad_utf
 from .path_search import find_ancestral_path, generate_mermaid_graph
 from .upload import get_name, people
 
@@ -69,24 +70,6 @@ def get_relationships_by_cm(cm_value):
 # ---------------------------------------------------------------------------
 # Normalização e decomposição de nomes (idênticas ao legado)
 # ---------------------------------------------------------------------------
-
-def strip_bad_utf(s):
-    if s is None:
-        return ""
-    s = str(s)
-    fixes = {
-        "A�": "ç", "Ã§": "ç",
-        "Ã£": "ã", "Ã¡": "á", "Ã¢": "â",
-        "Ã©": "é", "Ãª": "ê", "Ã¨": "è",
-        "Ã­": "í", "Ã³": "ó", "Ã´": "ô", "Ãº": "ú",
-        "Ã": "Ã",
-        "GouvA�": "Gouvê",
-        "A�": "ç",
-        "JoA�o": "João", "SA�": "Sá", "GonA�": "Gonç",
-    }
-    for bad, good in fixes.items():
-        s = s.replace(bad, good)
-    return re.sub(r"[^\w\sÁ-ú'-]", " ", s)
 
 
 def norm_name(s):
@@ -141,19 +124,6 @@ def token_prefixes(tokens, min_len=3):
         if len(t) >= min_len:
             out.add(t[:min_len])
     return out
-
-
-def demojibake(s):
-    if not s:
-        return s
-    if any(p in s for p in ("Ã", "Â", "A�", "�")):
-        try:
-            fixed = s.encode("latin1").decode("utf-8")
-            if "�" not in fixed and "Ã" not in fixed and "A�" not in fixed:
-                return fixed
-        except Exception:
-            pass
-    return s
 
 
 def soft_prefix_jaccard(a, b, min_pref=4, min_len=2) -> float:
