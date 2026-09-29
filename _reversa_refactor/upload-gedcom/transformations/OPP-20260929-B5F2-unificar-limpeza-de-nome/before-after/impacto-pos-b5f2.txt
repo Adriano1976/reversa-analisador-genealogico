@@ -1,0 +1,38 @@
+﻿pacote sob analise: D:\Projetos\reversa_analisador_gelealogico\analisador-genealogico
+
+=== 1. Divergencia entre as duas implementacoes ===
+entrada               domain.demojibake       dna.demojibake          igual?
+cedilha corrompida    'Françisco'             'Françisco'             sim
+marcadores U+FFFD     'Jo�a�o'                'Jo�a�o'                sim
+A + til combinante    'Ã'                    'Ã'                    sim
+A + til + o           'Ão'                   'Ão'                   sim
+O + til combinante    'Õ'                    'Õ'                    sim
+mojibake com U+FFFD   'GouvA�o'               'GouvA�o'               sim
+sem corrupcao         'texto normal'          'texto normal'          sim
+vazio                 ''                      ''                      sim
+nulo                  'None'                  'None'                  sim
+
+entrada               domain.strip_bad_utf    dna.strip_bad_utf       igual?
+cedilha corrompida    'Françisco'             'Françisco'             sim
+marcadores U+FFFD     'Jo a o'                'Jo a o'                sim
+A + til combinante    'A '                    'A '                    sim
+A + til + o           'A o'                   'A o'                   sim
+O + til combinante    'O '                    'O '                    sim
+mojibake com U+FFFD   'Gouvço'                'Gouvço'                sim
+sem corrupcao         'texto normal'          'texto normal'          sim
+vazio                 ''                      ''                      sim
+nulo                  ''                      ''                      sim
+
+=== 2. Assercoes de tests/test_domain.py contra os corpos VIVOS (dna) ===
+MOJIBAKE_MAP existe em domain.py? False
+  test_strip_bad_utf_removes_replacement_char          passa
+  test_strip_bad_utf_handles_none_and_empty            passa
+  test_demojibake_fixes_cedilha                        passa
+  test_demojibake_returns_input_for_empty              passa
+  test_demojibake_applies_known_map                    passa
+  test_register_person_normalizes_name                 passa
+
+=== Veredito ===
+assercoes que quebram: 0 de 6
+
+MOJIBAKE_MAP nao existe mais em domain.py, e o import do teste ja foi ajustado.

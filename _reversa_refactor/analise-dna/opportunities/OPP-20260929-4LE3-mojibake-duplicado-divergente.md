@@ -14,11 +14,26 @@ roi:
   impact: risco de correção no lugar errado. Quem for ajustar mojibake tem dois alvos plausíveis
   cost: low
   est_return: uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras]
   specs: [_reversa_sdd/domain.md#23-regras-de-namespace-de-nome-matching-viral, _reversa_sdd/parity/harness.py#162]
 ---
+
+## Executada dentro da B5F2 (2026-09-29)
+
+Esta oportunidade **não teve transformação própria**: ela foi executada como o CHG-001 e o CHG-002 da
+`OPP-20260929-B5F2`, que escolheu a opção B. `domain.py` passou a ser a autoridade da limpeza de nome,
+com os corpos vivos extraídos de `dna_analysis` por AST, e `dna_analysis` passou a importar de
+`.domain`. A duplicação deixou de existir e a divergência entre as duas implementações foi resolvida
+em favor da que estava viva.
+
+Prova: equivalência isolada do pipeline, pré-B5F2 contra pós-B5F2, com 2.206 comparações e zero
+divergências, mais suíte verde. Ver
+`../upload-gedcom/transformations/OPP-20260929-B5F2-unificar-limpeza-de-nome/transformation.md`.
+
+Fica registrado aqui, e não apagado, porque a numeração e o histórico desta oportunidade explicam por
+que a limpeza de nome tem um dono só.
 
 ## Recusa de verbo e dependência de decisão (2026-09-29)
 

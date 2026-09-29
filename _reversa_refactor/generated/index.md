@@ -1,10 +1,10 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T13:59:44-03:00 a partir de 10 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T14:35:29-03:00 a partir de 10 oportunidades -->
 
 # Registro de qualidade de código · visão global
 
-> Gerado em `2026-09-29T13:59:44-03:00`. Ordenado por retorno estimado, não por estética.
+> Gerado em `2026-09-29T14:35:29-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, 4 aplicada(s) e 6 em aberto.
+Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, 6 aplicada(s) e 4 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -13,9 +13,9 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, 4
 | #1 | `OPP-20260929-AU76` | optimize | green | hotpath | low | applied | cerca de 3 vezes menos tempo por match, sem alterar nenhum resultado |
 | #5 | `OPP-20260929-TPSH` | restructure | green | risco de correção pela metade | low | applied | uma única autoridade de escape e de id de nó, eliminando a divergência em curso |
 | #2 | `OPP-20260929-32Q7` | prune | green | custo de construção pago em toda análise e uma afirmação falsa na documentação do módulo | low | applied | remove cerca de um terço do custo de build_ged_indexes e alinha o docstring ao código |
-| #8 | `OPP-20260929-B5F2` | prune | green | 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga | low | proposed | menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes |
 | #9 | `OPP-20260929-SEQO` | prune | green | superfície de instalação e efeito colateral em disco no start da aplicação | low | applied | menos dependência instalada e nenhuma pasta criada sem motivo |
-| #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | proposed | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
+| #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | applied | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
+| #8 | `OPP-20260929-B5F2` | modularize | green | 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga | low | applied | menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes |
 | #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | proposed | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
 | #6 | `OPP-20260929-UXEF` | modularize | yellow | acoplamento e testabilidade | medium | proposed | busca testável sem render, e o render isolado como o ponto onde o escape vive |
 | #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | proposed | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
@@ -40,7 +40,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 10 oportunidades, 4
 
 ## Roteamento aprovado
 
-Ordem de encadeamento definida pelo usuário em 2026-09-29. As 4 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
+Ordem de encadeamento definida pelo usuário em 2026-09-29. As 6 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
 
 | Ordem | ID | Comando |
 |-------|----|---------|

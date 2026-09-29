@@ -3,7 +3,7 @@ schema_version: 1
 id: OPP-20260929-B5F2
 display_number: 8
 context: upload-gedcom
-verb: prune
+verb: modularize
 title: domain.py é módulo morto sustentado apenas pelos próprios testes
 target:
   files: [analisador-genealogico/reconstructed/domain.py, tests/test_domain.py]
@@ -14,11 +14,53 @@ roi:
   impact: 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga
   cost: low
   est_return: menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#entidades-centrais, .reversa/soul.md#lacunas-🔴-validação-humana]
   specs: [_reversa_sdd/architecture.md#3-erd-resumido, _reversa_sdd/reconstruction-plan.md#tarefa-01-entidades-de-domínio]
 ---
+
+## Opção escolhida e impacto medido (2026-09-29)
+
+O usuário escolheu a **opção B**: `domain.py` passa a ser a autoridade da limpeza de nome e absorve
+as funções de `dna_analysis`. O verbo deste registro foi corrigido de `prune` para **`modularize`**,
+porque a opção B não remove o módulo, ela o promove e inverte a dependência.
+
+A descrição original da opção B afirmava que ela "mantém os 50 testes". **Isso estava impreciso**, e
+a medição corrigiu:
+
+| Entrada | `domain` hoje | `dna_analysis` vivo | Igual? |
+|---------|---------------|---------------------|--------|
+| `demojibake("FranÃ§isco")` | `'Françisco'` | `'Françisco'` | sim |
+| `demojibake("A\u0303")` | `'Ã'` | `'A\u0303'` | **não** |
+| `demojibake("A\u0303o")` | `'Ão'` | `'A\u0303o'` | **não** |
+| `strip_bad_utf("FranÃ§isco")` | `'FranÃ§isco'` | `'Françisco'` | **não** |
+| `strip_bad_utf("GouvA\ufffdo")` | `'GouvAo'` | `'Gouvço'` | **não** |
+| `strip_bad_utf(None)` | `'None'` | `''` | **não** |
+
+São 5 divergências em 9 casos para `strip_bad_utf` e 3 em 9 para `demojibake`. As duas
+implementações não são variações da mesma ideia: são funções diferentes com o mesmo nome.
+
+Rodando as asserções de `tests/test_domain.py` contra os corpos **vivos**, **1 de 6 quebra**:
+`test_demojibake_applies_known_map`, que afirma que `demojibake("A\u0303")` contém `"Ã"`. Os corpos
+vivos não fazem essa substituição. O teste estava caracterizando a implementação **morta**.
+
+Consequência para a linha de base: a suíte continua com 50 testes, mas **uma expectativa muda**. Isso
+é uma decisão explícita, não um efeito colateral aceitável em silêncio, e é ela que está no gate.
+
+Além disso, `MOJIBAKE_MAP` é importado por `tests/test_domain.py:19`. Se ele sair de `domain.py`, o
+import quebra e o módulo inteiro falha na coleta, o que derruba 14 testes de uma vez.
+
+## Change set da opção B
+
+| CHG | Arquivo | O que faz |
+|-----|---------|-----------|
+| CHG-001 | `analisador-genealogico/reconstructed/domain.py` | Recebe, **verbatim**, os corpos vivos de `strip_bad_utf` e `demojibake`, extraídos de `dna_analysis` por AST. Remove `MOJIBAKE_MAP`, que só a implementação morta usava |
+| CHG-002 | `analisador-genealogico/reconstructed/dna_analysis.py` | Remove as duas definições locais e passa a importar de `.domain`. O comportamento do sistema não muda: o código executado é literalmente o mesmo, os nomes continuam existindo no módulo por reexportação, e `domain` não importa nada de `dna_analysis`, então não há ciclo |
+| CHG-003 | `tests/test_domain.py` | Remove `MOJIBAKE_MAP` do import e substitui `test_demojibake_applies_known_map` por asserção do comportamento vivo (recuperação latin1 para utf-8) |
+
+Prova de preservação exigida: equivalência do pipeline completo de `dna_analysis` sobre o corpus
+sintético, antes e depois, com zero divergências, mais suíte verde.
 
 ## Antes observado
 
