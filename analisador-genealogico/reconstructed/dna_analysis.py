@@ -211,17 +211,22 @@ def build_ged_indexes():
     for pid, person in people.items():
         nm = get_name(person)
         key = norm_name(nm)
+        key_tokens = key.split()
         ged_index.setdefault(key, []).append(pid)
         _given, surnames, _suffixes = split_name_pt(nm)
         for sn in surnames:
             if sn:
                 surname_index.setdefault(sn, []).append(pid)
+        # `key` ja e norm_name(nm), e norm_name e idempotente sobre os proprios
+        # tokens, entao nao ha nada a renormalizar aqui. Reproduz o fallback de
+        # top_given_tokens para o caso de todos os tokens serem stop words.
+        non_stop = [t for t in key_tokens if t not in STOP_WORDS]
         features[pid] = {
             "norm": key,
-            "given_tokens": [norm_name(t) for t in top_given_tokens(nm, k=2)],
-            "surnames": surnames_set(nm),
+            "given_tokens": non_stop[:2] or key_tokens[:2],
+            "surnames": set(surnames),
             "surnames_list": surnames,
-            "tokens": set(key.split()),
+            "tokens": set(key_tokens),
         }
     return ged_index, surname_index, features
 
