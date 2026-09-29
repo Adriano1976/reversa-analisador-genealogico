@@ -1,0 +1,27 @@
+﻿=== DW3U: quem usa GenealogyGraph e quem chama a propriedade g ===
+
+GenealogyGraph: 8 ocorrencia(s)
+  tests\test_domain.py:3  Cobre Family, GenealogyGraph, DNAGroup e as rotinas de limpeza de
+  tests\test_domain.py:18  GenealogyGraph,
+  tests\test_domain.py:87  # GenealogyGraph (grafo pessoa<->família)
+  tests\test_domain.py:91  g = GenealogyGraph()
+  tests\test_domain.py:100  g = GenealogyGraph()
+  tests\test_domain.py:107  assert GenealogyGraph().get_person("@ZZZ@") is None
+  tests\test_domain.py:111  g = GenealogyGraph()
+  analisador-genealogico\reconstructed\domain.py:74  class GenealogyGraph:
+
+chamadas de '.g' fora da definicao da classe: 0
+
+mencoes a 'conexoes' (o atributo que nunca existe): 0
+
+=== IM3Q: quem importa Levenshtein ===
+imports de Levenshtein: 0
+
+=== IM3Q: o que a biblioteca consumidora exige ===
+thefuzz requires: ['rapidfuzz <4.0.0,>=3.0.0']
+  thefuzz/fuzz.py: from rapidfuzz.fuzz import (
+
+=== Veredito ===
+DW3U opcao B : 0 chamada(s) de '.g'. MORTO, elegivel
+               atributo 'conexoes' definido em 0 ponto(s)
+IM3Q         : 0 import(s) de Levenshtein. MORTO como dependencia, elegivel

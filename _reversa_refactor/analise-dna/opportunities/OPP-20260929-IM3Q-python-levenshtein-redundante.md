@@ -14,7 +14,7 @@ roi:
   impact: superfície de instalação e tempo de build de ambiente, sem nenhum ganho em troca
   cost: low
   est_return: uma dependência nativa a menos para compilar em cada ambiente novo
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras]
   specs: [_reversa_sdd/dependencies.md#2-dependências-diretas-requirementstxt, _reversa_sdd/architecture.md#5-dívidas-técnicas-identificadas]

@@ -1,10 +1,10 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T14:49:41-03:00 a partir de 15 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-29T15:03:42-03:00 a partir de 15 oportunidades -->
 
 # Registro de qualidade de código · visão global
 
-> Gerado em `2026-09-29T14:49:41-03:00`. Ordenado por retorno estimado, não por estética.
+> Gerado em `2026-09-29T15:03:42-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 7 aplicada(s) e 8 em aberto.
+Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 9 aplicada(s) e 6 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -16,8 +16,8 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 7
 | #2 | `OPP-20260929-32Q7` | prune | green | custo de construção pago em toda análise e uma afirmação falsa na documentação do módulo | low | applied | remove cerca de um terço do custo de build_ged_indexes e alinha o docstring ao código |
 | #9 | `OPP-20260929-SEQO` | prune | green | superfície de instalação e efeito colateral em disco no start da aplicação | low | applied | menos dependência instalada e nenhuma pasta criada sem motivo |
 | #12 | `OPP-20260929-NUMT` | optimize | green | custo que cresce linearmente com o CSV, e CSV de GEDmatch tem milhares de linhas | medium | proposed | ingestão proporcional ao tamanho real do arquivo, não ao número de chamadas Python |
-| #13 | `OPP-20260929-IM3Q` | prune | green | superfície de instalação e tempo de build de ambiente, sem nenhum ganho em troca | low | proposed | uma dependência nativa a menos para compilar em cada ambiente novo |
-| #14 | `OPP-20260929-DW3U` | prune | green | superfície de leitura e uma pista falsa, na forma de uma propriedade quebrada | low | proposed | menos código sem consumidor, ao custo de decisão sobre a linha de base de testes |
+| #13 | `OPP-20260929-IM3Q` | prune | green | superfície de instalação e tempo de build de ambiente, sem nenhum ganho em troca | low | applied | uma dependência nativa a menos para compilar em cada ambiente novo |
+| #14 | `OPP-20260929-DW3U` | prune | green | superfície de leitura e uma pista falsa, na forma de uma propriedade quebrada | low | applied | menos código sem consumidor, ao custo de decisão sobre a linha de base de testes |
 | #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | applied | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
 | #8 | `OPP-20260929-B5F2` | modularize | green | 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga | low | applied | menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes |
 | #15 | `OPP-20260929-5XGJ` | standardize | green | quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso | low | proposed | uma única regra de import no arquivo, com o motivo escrito |
@@ -45,7 +45,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom. Total: 15 oportunidades, 7
 
 ## Roteamento aprovado
 
-Ordem de encadeamento definida pelo usuário em 2026-09-29. As 7 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
+Ordem de encadeamento definida pelo usuário em 2026-09-29. As 9 primeiras foram aplicadas sob o gate de edição do legado liberado; as demais seguem a mesma ordem e param no gate até serem autorizadas.
 
 | Ordem | ID | Comando |
 |-------|----|---------|

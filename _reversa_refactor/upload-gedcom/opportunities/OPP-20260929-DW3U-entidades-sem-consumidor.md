@@ -14,11 +14,23 @@ roi:
   impact: superfície de leitura e uma pista falsa, na forma de uma propriedade quebrada
   cost: low
   est_return: menos código sem consumidor, ao custo de decisão sobre a linha de base de testes
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#entidades-centrais]
   specs: [_reversa_sdd/architecture.md#3-erd-resumido, _reversa_sdd/reconstruction-plan.md#tarefa-01-entidades-de-domínio]
 ---
+
+## Resultado: opção B aplicada (2026-09-29)
+
+A propriedade `g` foi removida. A prova de morte confirmou **0 chamadas** de `.g` em todo o
+repositório e **0 pontos** que definem o atributo `conexoes`, e a suíte permaneceu em 76 testes, sem
+nenhuma alteração de teste. Ver
+`../transformations/OPP-20260929-DW3U-remover-propriedade-g/transformation.md`.
+
+O defeito garantido está corrigido. As **entidades continuam sem consumidor de produção**, e as
+opções A e C seguem abertas: a A remove as três entidades ao custo de decidir sobre a linha de base de
+testes, e a C exige reescrever `upload.py`, o que é Forward. Esta oportunidade fica fechada porque o
+alvo registrado, a propriedade quebrada, foi eliminado.
 
 ## Contexto: o que a B5F2 resolveu e o que ela deixou
 
