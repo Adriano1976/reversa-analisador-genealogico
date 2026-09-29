@@ -1,0 +1,62 @@
+﻿arquivos varridos no repositorio: 406
+
+=== STATIC_FOLDER: 3 ocorrencia(s) ===
+  [CODIGO] analisador-genealogico\app.py:14  STATIC_FOLDER = "static"
+  [CODIGO] analisador-genealogico\app.py:16  os.makedirs(STATIC_FOLDER, exist_ok=True)
+  [documento/config] _reversa_sdd\inventory.md:57  * `STATIC_FOLDER` = `"static"`
+
+=== matplotlib: 6 ocorrencia(s) ===
+  [documento/config] analisador-genealogico\requirements.txt:4  matplotlib
+  [documento/config] _reversa_sdd\dependencies.md:25  | **matplotlib** | *Não fixada* | Plotagem | Suporte/fallback a visualizações gráficas de redes. |
+  [documento/config] _reversa_sdd\reconstruction-plan.md:4  **Stack:** Python 3 / Flask (Jinja2, Bootstrap 5) · ged4py · networkx · pandas · thefuzz · python-Levenshtein 
+  [documento/config] _reversa_sdd\migration\.state.json:364  "numpy": "2.5.0", "matplotlib": "3.11.1", "pyvis": "0.3.2", "gunicorn": "26.0.0",
+  [documento/config] _reversa_sdd\migration\topology_decision.md:47  - **Camadas redundantes**: **nenhuma em código** — não há camadas. Em assets, `static/graph_path_search.html` 
+  [documento/config] _reversa_sdd\oracle\ORACLE_MANIFEST.md:63  | `matplotlib` | 3.11.1 | Suporte a visualização |
+
+=== pyvis: 25 ocorrencia(s) ===
+  [documento/config] analisador-genealogico\README.md:25  6.  This path is then rendered as an interactive `pyvis` graph, and the cM value is used to predict the relati
+  [documento/config] analisador-genealogico\requirements.txt:8  pyvis
+  [documento/config] _reversa_sdd\dependencies.md:24  | **pyvis** | *Não fixada* | Visualização de Grafos | Geração de grafos de parentesco interativos em HTML está
+  [documento/config] _reversa_sdd\reconstruction-plan.md:4  **Stack:** Python 3 / Flask (Jinja2, Bootstrap 5) · ged4py · networkx · pandas · thefuzz · python-Levenshtein 
+  [documento/config] _reversa_sdd\migration\.state.json:364  "numpy": "2.5.0", "matplotlib": "3.11.1", "pyvis": "0.3.2", "gunicorn": "26.0.0",
+  [documento/config] _reversa_sdd\migration\ambiguity_log.md:154  - **Descrição**: O legado gera **Mermaid/pyvis no servidor**; com React o grafo passa a ser renderizado no cli
+  [documento/config] _reversa_sdd\migration\discard_log.md:58  - **Origem**: `_reversa_sdd/busca-caminho/design.md` § Interface (`generate_mermaid_graph`, `generate_mermaid_
+  [documento/config] _reversa_sdd\migration\discard_log.md:59  - **Descrição**: Geração de diagramas **Mermaid no servidor** como string, e página **pyvis** estática, injeta
+  [documento/config] _reversa_sdd\migration\discard_log.md:60  - **Justificativa**: Com React no cliente, gerar sintaxe Mermaid no servidor mantém acoplamento a uma tecnolog
+  [documento/config] _reversa_sdd\migration\discard_log.md:64  - **Reposição no sistema novo**: substituído por payload estruturado do caminho + biblioteca de grafo no clien
+  [documento/config] _reversa_sdd\migration\discard_log.md:94  | BR-DESCARTAR-005 | `busca-caminho/design.md`, `analise-dna/design.md` § Interface | Geração de Mermaid/pyvis
+  [documento/config] _reversa_sdd\migration\migration_brief.md:77  - **Outros componentes relevantes**: observabilidade não definida na entrevista; considerar que o legado possu
+  [documento/config] _reversa_sdd\migration\migration_brief.md:96  - **UI do legado**: 1 tela (`templates/index.html`) + `static/graph_path_search.html` (pyvis). UI server-side,
+  [documento/config] _reversa_sdd\migration\paradigm_decision.md:63  `inventory.md` §3 descreve a UI como `templates/index.html` (Jinja2 + Bootstrap 5) e `static/graph_path_search
+  [documento/config] _reversa_sdd\migration\paradigm_decision.md:102  | **Designer** (Fase 2) | Restrição LGPD/GDPR e visualização de grafo (pyvis) estão no escopo. | Incluir requi
+  [documento/config] _reversa_sdd\migration\risk_register.md:139  - **Descrição**: **Perda silenciosa das regras de decomposição do caminho.** BR-DESCARTAR-005 remove a geração
+  [documento/config] _reversa_sdd\migration\screen_modernization_decision.md:34  > **Nota sobre a contagem de telas.** O legado tem **uma única rota** (`GET /` e `POST /`), mas ela materializ
+  [documento/config] _reversa_sdd\migration\target_architecture.md:195  - **Decisão**: `split_path_by_marriage` e `are_spouses` migram como **funções puras de domínio**; o servidor e
+  [documento/config] _reversa_sdd\migration\target_architecture.md:226  | 5 | *A renderização server-side some, e o transporte de estado pela `index.html` desaparece* | `presentation
+  [documento/config] _reversa_sdd\migration\target_business_rules.md:389  - **Descrição**: O legado gera **Mermaid no servidor** como string (`generate_mermaid_graph`, `generate_mermai
+  [documento/config] _reversa_sdd\migration\topology_decision.md:37  │   └── graph_path_search.html  # página gerada pelo pyvis
+  [documento/config] _reversa_sdd\migration\topology_decision.md:47  - **Camadas redundantes**: **nenhuma em código** — não há camadas. Em assets, `static/graph_path_search.html` 
+  [documento/config] _reversa_sdd\migration\topology_decision.md:168  | `templates/index.html` + Bootstrap/CDN + `static/graph_path_search.html` (pyvis) | `presentation/` (React + 
+  [documento/config] _reversa_sdd\oracle\ORACLE_MANIFEST.md:64  | `pyvis` | 0.3.2 | Grafo interativo |
+  [documento/config] .reversa\context\surface.json:55  "name": "pyvis",
+
+=== ensure_dirs: 4 ocorrencia(s) ===
+  [CODIGO] tests\test_upload.py:123  # ensure_dirs
+  [CODIGO] tests\test_upload.py:129  upload.ensure_dirs()
+  [documento/config] _reversa_sdd\reconstruction-report.md:22  - `tests/test_upload.py` (13) — Tarefa 02: `ref_id`, `get_name`, `ensure_dirs`, `load_gedcom_and_build_graph` 
+  [CODIGO] analisador-genealogico\reconstructed\upload.py:24  def ensure_dirs() -> None:
+
+=== imports reais dos pacotes candidatos ===
+  total de imports de matplotlib/pyvis em .py: 0
+
+=== uso de ensure_dirs (quem chama) ===
+  tests\test_upload.py:123  # ensure_dirs
+  tests\test_upload.py:126  def test_ensure_dirs_creates_uploads(monkeypatch, tmp_path):
+  tests\test_upload.py:129  upload.ensure_dirs()
+  analisador-genealogico\reconstructed\upload.py:24  def ensure_dirs() -> None:
+
+=== Veredito ===
+STATIC_FOLDER : morto. Declaracao e makedirs, sem nenhum consumidor.
+matplotlib    : morto como dependencia. Zero imports em todo o repositorio.
+pyvis         : morto como dependencia. Zero imports; segue citado no README e no ORACLE_MANIFEST.
+ensure_dirs   : ORFAO SUSPEITO. Chamado apenas pelo proprio teste, nunca pelo app.

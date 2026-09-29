@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de poda · OPP-20260929-SEQO</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 20px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.morto { background: #2b1b1b; border: 1px solid #5a3a3a; color: #ffb4b4; }
+  .tag.orfo { background: #2b2a1b; border: 1px solid #5a573a; color: #ffe08a; }
+  .tag.vivo { background: #1b2b1b; border: 1px solid #3a5a3a; color: #a8e6a8; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de poda · OPP-20260929-SEQO</h1>
+<div class="meta">
+  Resíduos sem uso no app e nas dependências · contexto <code>upload-gedcom</code> ·
+  verbo <code>prune</code> · gerado por reversa-prune em 2026-09-29 ·
+  ordem de encadeamento <strong>4 de 4</strong> · patch <strong>não empilhado</strong>
+</div>
+
+<div class="cards">
+  <div class="card good"><div class="v">406</div><div class="k">arquivos varridos na prova</div></div>
+  <div class="card good"><div class="v">0</div><div class="k">imports de matplotlib e pyvis</div></div>
+  <div class="card good"><div class="v">86 → 84</div><div class="k">linhas em app.py</div></div>
+  <div class="card good"><div class="v">9 → 7</div><div class="k">linhas em requirements.txt</div></div>
+  <div class="card good"><div class="v">2 rotas</div><div class="k">idênticas antes e depois</div></div>
+</div>
+
+<div class="block note">
+  <strong>Gate de edição fechado.</strong> <code>.reversa/reversa-config.json</code> está em
+  <code>allowLegacyEdits: false</code>. Nada foi aplicado. Esta transformação <strong>não</strong>
+  empilha sobre as outras duas: <code>app.py</code> e <code>requirements.txt</code> não são tocados
+  pela AU76 nem pela 32Q7, então o patch se aplica direto ao estado atual do projeto.
+</div>
+
+<h2>1. Candidatos e classificação</h2>
+
+<table>
+  <thead><tr><th>Candidato</th><th>Classificação</th><th>Base da prova</th></tr></thead>
+  <tbody>
+    <tr><td><code>STATIC_FOLDER</code> e o <code>makedirs</code> em <code>app.py:14,16</code></td>
+        <td><span class="tag morto">morto</span></td>
+        <td>2 ocorrências no código, ambas escritas. Zero leituras</td></tr>
+    <tr><td><code>matplotlib</code> em <code>requirements.txt:4</code></td>
+        <td><span class="tag morto">morto</span></td>
+        <td>Zero imports em todo o repositório, 406 arquivos varridos</td></tr>
+    <tr><td><code>pyvis</code> em <code>requirements.txt:8</code></td>
+        <td><span class="tag morto">morto</span></td>
+        <td>Zero imports. Segue citado em documentação, ver seção 5</td></tr>
+    <tr><td><code>ensure_dirs</code> em <code>upload.py:24</code></td>
+        <td><span class="tag orfo">órfão suspeito</span></td>
+        <td>Chamado apenas pelo próprio teste. NÃO será removido</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Prova de morte</h2>
+
+<p>Varredura em <strong>todo o repositório</strong>, não só no app, porque
+<code>requirements.txt</code> é um manifesto que scripts fora do pacote podem consumir. Saída crua
+em <code>before-after/death-proof.txt</code>.</p>
+
+<pre><span class="cmt">### STATIC_FOLDER: 3 ocorrencias (2 codigo, 1 doc)</span>
+analisador-genealogico/app.py:14  [CODIGO]  STATIC_FOLDER = "static"
+analisador-genealogico/app.py:16  [CODIGO]  os.makedirs(STATIC_FOLDER, exist_ok=True)
+_reversa_sdd/inventory.md:57       [doc]     * `STATIC_FOLDER` = `"static"`
+
+<span class="cmt">### imports reais de matplotlib e pyvis em arquivos .py de todo o repositorio</span>
+total de imports de matplotlib/pyvis em .py: <span class="add">0</span>
+
+<span class="cmt">### ensure_dirs: quem chama</span>
+analisador-genealogico/reconstructed/upload.py:24  def ensure_dirs() -> None:
+tests/test_upload.py:126  def test_ensure_dirs_creates_uploads(monkeypatch, tmp_path):
+tests/test_upload.py:129  upload.ensure_dirs()</pre>
+
+<p><strong>Condição 1, sem referência estática:</strong> cumprida para os três alvos. Para
+<code>ensure_dirs</code> não é cumprida, porque o teste chama.</p>
+
+<p><strong>Condição 2, sem entrada dinâmica:</strong> cumprida, e aqui há uma sutileza que vale
+registrar. <code>app = Flask(__name__)</code> usa o padrão do framework:
+<code>static_folder='static'</code> e <code>static_url_path='/static'</code>. Ou seja, o
+<strong>Flask registra a rota <code>/static/&lt;path:filename&gt;</code> de qualquer forma</strong>, e
+isso é independente da variável <code>STATIC_FOLDER</code>. Remover a variável e o
+<code>makedirs</code> não remove a rota, apenas deixa de criar a pasta no start.</p>
+
+<div class="note ok">
+  <strong>Isso foi provado, não argumentado.</strong> O script
+  <code>safety-net/smoke_app_routes.py</code> carrega as duas versões de <code>app.py</code> como
+  módulos distintos e compara o <code>url_map</code>:
+
+<pre>rotas do app atual (2):
+  GET,POST   /                       -> index
+  GET        /static/&lt;path:filename&gt; -> static
+static_folder    : static (relativo ao modulo)
+static_url_path  : /static
+
+EQUIVALENCIA VERDE: 2 rotas, static_folder, static_url_path e 2 views identicos</pre>
+
+  O <code>getattr</code> de <code>upload.py:30</code> continua sendo a única entrada dinâmica do
+  projeto, e o próprio Flask é a segunda: a rota static. Nenhuma das duas alcança os candidatos.
+</div>
+
+<h2>3. O que a poda faz</h2>
+
+<pre><span class="cmt"># CHG-001, analisador-genealogico/app.py</span>
+ UPLOAD_FOLDER = "uploads"
+<span class="del">-STATIC_FOLDER = "static"
+</span> os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+<span class="del">-os.makedirs(STATIC_FOLDER, exist_ok=True)</span>
+
+<span class="cmt"># CHG-002, analisador-genealogico/requirements.txt</span>
+ Flask
+ ged4py
+ networkx
+<span class="del">-matplotlib
+</span> pandas
+ python-Levenshtein
+ thefuzz
+<span class="del">-pyvis
+</span> gunicorn</pre>
+
+<p><code>UPLOAD_FOLDER</code> e o <code>makedirs</code> correspondente <strong>ficam</strong>: são
+usados pelo fluxo de upload. E <code>import os</code> continua necessário em <code>app.py</code>,
+com 5 usos de <code>os.path.join</code> e <code>os.path.exists</code> nas rotas. Nenhum import órfão
+é criado.</p>
+
+<h2>4. O que NÃO será removido</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Classificação</th><th>Motivo</th></tr></thead>
+  <tbody>
+    <tr><td><code>ensure_dirs</code> (<code>upload.py:24</code>)</td>
+        <td><span class="tag orfo">órfão suspeito</span></td>
+        <td>Sem chamador de produção, mas é API pública do módulo, com teste próprio e citada em
+            <code>_reversa_sdd/reconstruction-report.md</code>. Pode ser religada. Fica registrado
+            com <code>promoted_to: null</code>, nunca removido automaticamente</td></tr>
+    <tr><td><code>UPLOAD_FOLDER</code> e seu <code>makedirs</code></td>
+        <td><span class="tag vivo">vivo</span></td>
+        <td>Base do fluxo de upload, usada pelas rotas</td></tr>
+    <tr><td><code>gunicorn</code></td>
+        <td><span class="tag vivo">vivo</span></td>
+        <td>Não é importado, mas é o servidor WSGI declarado para deploy. Dependência de runtime, não de import</td></tr>
+    <tr><td><code>templates/index.html</code></td>
+        <td><span class="tag vivo">vivo</span></td>
+        <td>Renderizado pelas três ações da rota</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Divergências de documentação que a poda expõe</h2>
+
+<p>Remover as dependências deixa três documentos afirmando o contrário do código. Isto é a mesma
+classe de problema do docstring do <code>HARD_MIN</code> na outra poda: documentação que descreve um
+sistema que não existe mais. Nada disso é removido aqui, mas fica registrado para decisão.</p>
+
+<table>
+  <thead><tr><th>Documento</th><th>O que afirma</th><th>Situação</th></tr></thead>
+  <tbody>
+    <tr><td><code>analisador-genealogico/README.md:25</code></td>
+        <td>"This path is then rendered as an interactive <code>pyvis</code> graph"</td>
+        <td>Falso no código atual. É README do projeto legado, mantido por decisão sua na limpeza
+            de histórico. Corrigir é <code>standardize</code>, fora desta poda</td></tr>
+    <tr><td><code>_reversa_sdd/oracle/ORACLE_MANIFEST.md:63-64</code></td>
+        <td>Registra matplotlib 3.11.1 e pyvis 0.3.2 no ambiente do oráculo</td>
+        <td>Histórico do ambiente do legado. Não é consumidor vivo: o oráculo não existe mais na árvore</td></tr>
+    <tr><td><code>_reversa_sdd/dependencies.md:24-25</code></td>
+        <td>Lista as duas como dependências diretas</td>
+        <td>Documento da extração reversa. Descreve o legado, não o estado atual. Somente leitura aqui</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Risco de ambiente, com mitigação.</strong> Remover entrada de
+  <code>requirements.txt</code> não desinstala nada de ambientes já montados, e um script de
+  diagnóstico futuro que precise de matplotlib teria de declará-lo por conta própria. A varredura
+  mostra que <strong>nenhum</strong> script atual, nem os de <code>_reversa_sdd/parity/</code>,
+  importa as duas. O risco é hipotético e reversível pelo diff.
+</div>
+
+<h2>6. Confirmação</h2>
+
+<table>
+  <thead><tr><th>Rede</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte completa</td><td><span class="tag vivo">50 passed in 1.92s</span></td></tr>
+    <tr><td>Equivalência de rotas, <code>static_folder</code> e views</td><td><span class="tag vivo">idênticos</span></td></tr>
+    <tr><td>Prova de morte, 406 arquivos varridos</td><td><span class="tag vivo">anexada</span></td></tr>
+  </tbody>
+</table>
+
+<h2>7. Como aplicar e como reverter</h2>
+
+<ol>
+  <li>Você libera <code>analisador-genealogico/app.py</code> e
+      <code>analisador-genealogico/requirements.txt</code> em
+      <code>.reversa/reversa-config.json</code>.</li>
+  <li>Aplico as duas remoções, com o mesmo script verificado que gerou a sombra.</li>
+  <li>Rodo a suíte e a equivalência de rotas contra o projeto, e cole a saída.</li>
+  <li>Reverto com
+      <code>git checkout -- analisador-genealogico/app.py analisador-genealogico/requirements.txt</code>.</li>
+</ol>
+
+<div class="foot">
+  Plano gerado pelo time Code Quality do Reversa. Aprovar este plano não aplica nada: remover código
+  exige gate e a liberação da política de edição do legado.
+</div>
+
+</div>
+</body>
+</html>

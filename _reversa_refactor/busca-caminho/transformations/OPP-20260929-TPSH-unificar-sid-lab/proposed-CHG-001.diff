@@ -1,0 +1,70 @@
+﻿diff --git a/analisador-genealogico/reconstructed/path_search.py b/analisador-genealogico/reconstructed/path_search.py
+index 4c261d6..75c4d75 100644
+--- a/analisador-genealogico/reconstructed/path_search.py
++++ b/analisador-genealogico/reconstructed/path_search.py
+@@ -182,21 +182,28 @@ def find_ancestral_path(start_id, end_id, max_depth=MAX_DEPTH):
+ # Renderização Mermaid
+ # ---------------------------------------------------------------------------
+ 
++def _mermaid_sid(raw) -> str:
++    """Identificador de no Mermaid: apenas [A-Za-z0-9_], prefixado com N_."""
++    if isinstance(raw, (list, tuple, set)):
++        raw = next(iter(raw), "")
++    safe_str = str(raw).replace('@', '').replace('+', '_')
++    return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
++
++
++def _mermaid_label(txt) -> str:
++    """Rotulo de no Mermaid: NFC, sem controle, com &, < e > escapados."""
++    s = unicodedata.normalize("NFC", str(txt))
++    s = (s.replace('\u00A0', ' ')
++           .replace('\u2013', '-')
++           .replace('\u2014', '-')
++           .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
++    s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
++    s = s.replace('"', "'")
++    return re.sub(r'[\r\n]+', ' ', s)
++
++
+ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+-    def sid(raw: str) -> str:
+-        safe_str = str(raw).replace('@', '').replace('+', '_')
+-        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+-
+-    def lab(txt: str) -> str:
+-        s = unicodedata.normalize("NFC", str(txt))
+-        s = (s.replace('\u00A0', ' ')
+-               .replace('\u2013', '-')
+-               .replace('\u2014', '-')
+-               .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
+-        s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
+-        s = s.replace('"', "'")
+-        s = re.sub(r'[\r\n]+', ' ', s)
+-        return s
++    sid, lab = _mermaid_sid, _mermaid_label
+ 
+     lines = ["flowchart BT"]
+     seen_nodes = set()
+@@ -245,21 +252,7 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+ 
+ 
+ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
+-    def sid(raw: str) -> str:
+-        if isinstance(raw, (list, tuple, set)):
+-            raw = next(iter(raw), "")
+-        safe_str = str(raw).replace('@', '').replace('+', '_')
+-        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+-
+-    def lab(txt: str) -> str:
+-        s = unicodedata.normalize("NFC", str(txt))
+-        s = (s.replace('\u00A0', ' ')
+-               .replace('\u2013', '-').replace('\u2014', '-')
+-               .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
+-        s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
+-        s = s.replace('"', "'")
+-        s = re.sub(r'[\r\n]+', ' ', s)
+-        return s
++    sid, lab = _mermaid_sid, _mermaid_label
+ 
+     def norm_ids(seq):
+         out = []

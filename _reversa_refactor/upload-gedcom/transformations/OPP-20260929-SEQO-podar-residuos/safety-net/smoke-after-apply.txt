@@ -1,0 +1,9 @@
+﻿CWD do teste: D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\temp
+
+rotas do app atual (2):
+  GET,POST   /                    -> index
+  GET        /static/<path:filename> -> static
+static_folder    : static (relativo ao modulo)
+static_url_path  : /static
+
+EQUIVALENCIA VERDE: 2 rotas, static_folder, static_url_path e 2 views identicos

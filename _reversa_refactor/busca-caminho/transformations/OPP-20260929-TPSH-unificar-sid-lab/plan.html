@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de transformação · OPP-20260929-TPSH</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  h3 { font-size: 14px; margin: 18px 0 6px; color: #d8d8d8; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 140px; }
+  .card .v { font-size: 20px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .block { background: #241f1f; border-left: 3px solid #e05252; padding: 12px 16px;
+           border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; background: #2b1b1b; border: 1px solid #5a3a3a;
+         color: #ffb4b4; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.g { background: #1b2b1b; border-color: #3a5a3a; color: #a8e6a8; }
+  .tag.y { background: #2b2a1b; border-color: #5a573a; color: #ffe08a; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de transformação · OPP-20260929-TPSH</h1>
+<div class="meta">
+  Unificar <code>sid</code> e <code>lab</code> duplicadas no render Mermaid ·
+  contexto <code>busca-caminho</code> · verbo <code>restructure</code> ·
+  gerado por reversa-restructure em 2026-09-29 · ordem de encadeamento <strong>1 de 4</strong>
+</div>
+
+<div class="cards">
+  <div class="card"><div class="v">501 → 494</div><div class="k">linhas em path_search.py</div></div>
+  <div class="card"><div class="v">4 → 0</div><div class="k">definições internas de sid/lab</div></div>
+  <div class="card"><div class="v">0</div><div class="k">pontos de chamada alterados</div></div>
+  <div class="card"><div class="v"><span class="tag g">verde</span></div><div class="k">caracterização contra a sombra</div></div>
+  <div class="card"><div class="v">50 passed</div><div class="k">suíte contra a sombra</div></div>
+</div>
+
+<div class="block">
+  <strong>Gate de edição fechado.</strong> <code>.reversa/reversa-config.json</code> está em
+  <code>allowLegacyEdits: false</code> com <code>allowedPaths: []</code>. Plano aprovado não substitui
+  a política: nenhum arquivo do projeto foi tocado. Para autorizar a aplicação, quem edita a config
+  é o usuário. A prova de equivalência já foi feita numa cópia sombra, então a aplicação é mecânica.
+</div>
+
+<h2>1. Trecho antes</h2>
+
+<p>Quatro definições internas, dois pares duplicados. As duas cópias de <code>lab</code> são
+equivalentes no escape. As duas cópias de <code>sid</code> já divergiram:</p>
+
+<pre><span class="cmt"># dentro de generate_mermaid_graph (linhas 185-199)</span>
+    def sid(raw: str) -> str:
+        safe_str = str(raw).replace('@', '').replace('+', '_')
+        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+
+    def lab(txt: str) -> str:
+        s = unicodedata.normalize("NFC", str(txt))
+        s = (s.replace('\u00A0', ' ') ... )
+        s = (s.replace('&amp;', ...) ...)
+        s = s.replace('"', "'")
+        s = re.sub(r'[\r\n]+', ' ', s)
+        return s
+
+<span class="cmt"># dentro de generate_mermaid_graph_indirect_bridge (linhas 247-262)</span>
+    def sid(raw: str) -> str:
+        if isinstance(raw, (list, tuple, set)):   <span class="cmt"># so existe nesta copia</span>
+            raw = next(iter(raw), "")
+        safe_str = str(raw).replace('@', '').replace('+', '_')
+        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+
+    def lab(txt: str) -> str:
+        <span class="cmt"># corpo equivalente ao de cima, com formatacao de linha diferente</span></pre>
+
+<h2>2. Code smells e refatorações nomeadas</h2>
+
+<table>
+  <thead><tr><th>Smell</th><th>Refatoração Fowler</th><th>Onde</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Duplicate Code no nível de função: dois pares de corpos idênticos</td>
+      <td><strong>Extract Function</strong> seguida de <strong>Remove Duplication</strong></td>
+      <td>4 definições internas viram 2 funções de módulo</td>
+    </tr>
+    <tr>
+      <td>Divergent Change já iniciada: a segunda <code>sid</code> trata sequência, a primeira não</td>
+      <td><strong>Consolidate Conditional Expression</strong> e unificação de comportamento</td>
+      <td>verificado: o ramo de sequência é inalcançável</td>
+    </tr>
+    <tr>
+      <td>Dead branch: <code>isinstance(raw, (list, tuple, set))</code> nunca é verdadeiro</td>
+      <td><strong>Remove Dead Code</strong></td>
+      <td>todos os pontos de chamada passam <code>str</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Por que a unificação é segura.</strong> Inspecionei os 45 pontos de chamada de
+  <code>sid</code> nos dois renders. Todos recebem string: ids de pessoa (<code>@I3@</code>),
+  ids compostos de casal (<code>@I1@+@I2@</code>), âncoras (<code>f"{A}_anc"</code>) ou elementos
+  já normalizados por <code>norm_ids</code>, que converte tudo para <code>str</code>. O ramo
+  <code>isinstance</code> da segunda cópia nunca dispara. Adotar a versão tolerante a sequência,
+  portanto, não muda nenhuma saída. A caracterização confirma.
+</div>
+
+<h2>3. Sequência de passos</h2>
+
+<ol>
+  <li>
+    <strong>CHG-001 · Extract Function.</strong> Inserir <code>_mermaid_sid</code> e
+    <code>_mermaid_label</code> em nível de módulo, logo antes de
+    <code>generate_mermaid_graph</code>, na seção de renderização.
+  </li>
+  <li>
+    <strong>CHG-002 · Remove Duplication no render direto.</strong> Remover as duas definições
+    internas de <code>generate_mermaid_graph</code> e substituir por
+    <code>sid, lab = _mermaid_sid, _mermaid_label</code>.
+  </li>
+  <li>
+    <strong>CHG-003 · Remove Duplication no render indireto.</strong> Mesma substituição em
+    <code>generate_mermaid_graph_indirect_bridge</code>.
+  </li>
+</ol>
+
+<div class="note ok">
+  <strong>Alias em vez de reescrita de chamadas.</strong> Manter <code>sid</code> e <code>lab</code>
+  como nomes locais ligados às funções de módulo deixa o diff em 3 hunks e <strong>zero</strong>
+  alteração nos 45 pontos de chamada. É o menor passo reversível possível. Renomear os pontos de
+  chamada para usar os nomes de módulo direto é um passo 2 opcional, separado e igualmente reversível.
+</div>
+
+<h2>4. Prova de equivalência já executada</h2>
+
+<p>Feita contra uma cópia sombra do pacote, sem tocar no projeto:
+<code>.pytest-tmp/shadow/reconstructed/</code>.</p>
+
+<table>
+  <thead><tr><th>Rede</th><th>Antes (projeto)</th><th>Depois (sombra transformada)</th></tr></thead>
+  <tbody>
+    <tr><td>Caracterização Mermaid, 4 casos, 40 linhas</td><td><span class="tag g">verde</span></td><td><span class="tag g">verde</span>, saída byte a byte idêntica</td></tr>
+    <tr><td>Suíte completa</td><td><span class="tag g">50 passed in 2.05s</span></td><td><span class="tag g">50 passed in 2.23s</span></td></tr>
+  </tbody>
+</table>
+
+<p>Evidências em <code>safety-net/</code>: <code>mermaid-golden.json</code>,
+<code>characterize_mermaid.py</code>, <code>pytest-before.txt</code>. O diff revisável está em
+<code>proposed-CHG-001.diff</code> (3 hunks, 70 linhas).</p>
+
+<h2>5. O que fica de fora deste plano</h2>
+
+<ul>
+  <li><strong>O escape incompleto não é corrigido aqui.</strong> <code>lab</code> deixar passar
+      <code>[</code>, <code>]</code>, crase e palavras-chave do Mermaid é o
+      <code>BUG-20260929-J6PQ</code>, um defeito de segurança registrado no time Bugs. Refactor
+      preserva comportamento: consertar o escape mudaria a saída. Este plano apenas deixa o
+      conserto em um único ponto.</li>
+  <li><strong>Mover o render para outro módulo</strong> é <code>modularize</code>, não
+      <code>restructure</code>. Está na <code>OPP-20260929-UXEF</code>, que vem depois.</li>
+  <li><strong>Renomear os 45 pontos de chamada</strong> para dropar os aliases: passo 2 opcional,
+      fica para depois deste estar verde.</li>
+  <li><strong>Nada em <code>tests/</code>.</strong> A caracterização vive em
+      <code>_reversa_refactor/</code>, porque escrever em <code>tests/</code> está bloqueado pelo
+      gate. Promovê-la a teste permanente da suíte é decisão sua, em outra etapa.</li>
+</ul>
+
+<h2>6. Como aplicar e como reverter</h2>
+
+<ol>
+  <li>Você libera o caminho em <code>.reversa/reversa-config.json</code>.</li>
+  <li>Eu aplico as 3 substituições em <code>path_search.py</code> (mesmo script verificado que
+      gerou a sombra, com verificação de ocorrência em cada passo).</li>
+  <li>Rodo as duas redes contra o projeto: caracterização e suíte. Colei a saída no relatório.</li>
+  <li>Se qualquer uma ficar vermelha, reverto com
+      <code>git checkout -- analisador-genealogico/reconstructed/path_search.py</code> e paro, sem
+      insistir.</li>
+</ol>
+
+<div class="foot">
+  Plano gerado pelo time Code Quality do Reversa. Aprovar este plano não aplica nada:
+  a aplicação exige gate e a liberação da política de edição do legado.
+</div>
+
+</div>
+</body>
+</html>
