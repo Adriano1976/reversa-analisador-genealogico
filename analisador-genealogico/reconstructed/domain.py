@@ -103,12 +103,6 @@ class GenealogyGraph:
     def register_family(self, familie: Family) -> None:
         self.families[familie.xref_id] = familie
 
-    @property
-    def g(self):
-        """Retorna o grafo (lazy) — definido na Tarefa 02."""
-        return self.conexoes
-
-
 @dataclass
 class DNAGroup:
     """Entidade DNA_MATCH — agregação de segmentos de um mesmo match.
