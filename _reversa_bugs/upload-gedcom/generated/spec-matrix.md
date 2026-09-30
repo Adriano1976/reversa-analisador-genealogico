@@ -7,3 +7,6 @@ Todos os 1 bug(s) deste contexto têm `visibility: restricted`. Os locators de s
 | Seção de spec | open | active | resolved |
 |---------------|------|--------|----------|
 | (omitida por política de visibilidade) | 1 | 0 | 0 |
+
+---
+*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

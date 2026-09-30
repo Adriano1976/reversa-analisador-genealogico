@@ -1,6 +1,5 @@
 # Diagrama C4 — Contexto — analisador-genealogico
 
-> Gerado pelo **Architect** em 2026-08-03
 > Nível de documentação: **Essencial**
 > Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO
 
@@ -46,3 +45,6 @@ flowchart LR
 
 - Não há banco de dados, fila, cache ou API externa consumida/produzida. 🟢
 - Todas as interações externas de dados são **entrada de arquivos locais**. 🟢
+
+---
+*Gerado pelo Reversa-Architect em 2026-08-03.*

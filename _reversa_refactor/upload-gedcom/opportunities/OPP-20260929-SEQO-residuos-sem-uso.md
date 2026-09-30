@@ -105,3 +105,6 @@ Fica registrado aqui em vez de removido, conforme a regra do verbo: na dúvida, 
 `requirements.txt` também não tem nenhuma versão fixada, o que `_reversa_sdd/architecture.md#5` já
 registra como dívida de severidade alta. Fixar versões é `standardize` e mexe em risco de ambiente,
 não em qualidade de código. Fica fora deste registro de propósito.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

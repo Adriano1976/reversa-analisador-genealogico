@@ -64,3 +64,6 @@ A abordagem consistirá em reconstruir o arquivo `templates/index.html` de forma
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-08-11 | Versão inicial gerada por `/reversa-plan` | reversa |
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

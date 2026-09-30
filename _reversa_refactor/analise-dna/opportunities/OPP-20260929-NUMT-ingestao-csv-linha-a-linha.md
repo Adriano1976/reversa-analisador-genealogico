@@ -74,3 +74,6 @@ Médio. A mudança de `apply` para operação de coluna é onde mora o risco: qu
 
 A segunda mudança é a de menor risco e a de menor ganho: um CSV tem poucas colunas. Se as duas forem
 separadas, ela pode ser descartada sem prejuízo.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

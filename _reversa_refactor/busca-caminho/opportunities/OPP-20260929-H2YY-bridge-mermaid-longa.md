@@ -75,3 +75,6 @@ caracterização por fixture é o que fecha esse buraco.
 Esta é a transformação com **menor retorno de execução** da lista deste contexto, e a de maior custo de
 leitura. É candidata natural a ficar por último, ou a não ser feita. Fica registrada porque o custo de
 manutenção do trecho é real.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

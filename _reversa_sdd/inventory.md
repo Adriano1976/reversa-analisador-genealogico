@@ -1,6 +1,5 @@
 # Inventário do Sistema Legado — analisador-genealogico
 
-> Gerado pelo **Scout** em 2026-08-03
 > Nível de documentação: **Completo**
 
 ---
@@ -74,3 +73,6 @@ analisador-genealogico/
 * **Arquivos de Teste:** 0 arquivos.
 * **CI/CD:** Nenhum workflow configurado (ausência de `.github/workflows`, `Jenkinsfile` ou `.gitlab-ci.yml`).
 * **Docker:** Não possui `Dockerfile` nem `docker-compose.yml`.
+
+---
+*Gerado pelo Reversa-Scout em 2026-08-03.*

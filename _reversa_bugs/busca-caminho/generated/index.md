@@ -39,3 +39,6 @@ Total: 1.
 ## Inconsistências
 
 Nenhuma: as invariantes do schema foram validadas.
+
+---
+*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

@@ -106,3 +106,6 @@ Baixo no código, com duas ressalvas de registro.
 2. **Divergência entre spec e código.** O OBS-03 e o adendo 002 afirmam que as constantes foram
    preservadas; o código não as tem. Ou o registro está errado, ou a reconstrução as perdeu. A decisão
    sobre `HARD_MIN`/`GIVEN_MIN` resolve isso em um sentido ou no outro.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

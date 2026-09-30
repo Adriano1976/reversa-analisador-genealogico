@@ -26,3 +26,6 @@
 - Confiança: 🟢 coberto e entendido | 🟡 parcial | 🔴 sem prova de comportamento
 - Custo: `low` | `medium` | `high`
 - Estado: `proposed` | `approved` | `applied` | `reverted` | `declined`
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-30.*

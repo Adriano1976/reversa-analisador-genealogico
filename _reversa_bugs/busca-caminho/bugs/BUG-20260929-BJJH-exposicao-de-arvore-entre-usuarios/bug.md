@@ -185,3 +185,6 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
   isolamento não puder ser garantido de forma estrutural, não liberar a onda seguinte. Corrigir este
   bug é pré-requisito de go-live, não melhoria.
 - **Taxonomia.** `area`, `module` e `feature` usam valores existentes em `_reversa_bugs/taxonomy.yaml`.
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

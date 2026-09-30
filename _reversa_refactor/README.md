@@ -1,8 +1,7 @@
 # Registro de Qualidade de Código (Reversa Refactor)
 
-> GENERATED / MANAGED pelo time Code Quality do Reversa. Este README guarda as políticas do registro.
+> GENERATED / MANAGED. Este README guarda as políticas do registro.
 > As pastas de contexto e os artefatos de transformação nascem sob demanda.
-> Criado em 2026-09-29.
 
 ## Políticas
 
@@ -83,3 +82,6 @@ caracterização e equivalência a teste permanente da suíte continua sendo dec
 - Medição: todo `optimize` registra antes e depois. Os scripts de medição e de equivalência ficam
   junto de cada transformação, e aceitam `VARIANT_A_DIR` e `VARIANT_B_DIR` para comparar duas
   variantes arbitrárias do pacote.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

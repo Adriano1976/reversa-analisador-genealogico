@@ -54,3 +54,6 @@ por `rapidfuzz` direto (o backend ja e rapidfuzz, retorno zero).
 ## Estado dos arquivos
 
 `409` linhas antes, `424` depois.
+
+---
+*Gerado pelo Reversa-Optimize em 2026-09-29.*

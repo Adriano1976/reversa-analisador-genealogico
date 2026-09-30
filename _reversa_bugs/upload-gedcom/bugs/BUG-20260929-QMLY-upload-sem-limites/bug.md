@@ -181,3 +181,6 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
 - **Relação proposta.** Aresta `related-to` gravada em `BUG-20260929-BJJH`, apontando para este bug,
   porque ambos dependem da mesma pasta compartilhada e do mesmo nome de arquivo como chave.
 - **Taxonomia.** `area`, `module` e `feature` usam valores existentes em `_reversa_bugs/taxonomy.yaml`.
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

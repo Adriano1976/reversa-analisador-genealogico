@@ -77,3 +77,6 @@ Médio. Dois consumidores dependem dos nomes atuais no namespace de `path_search
 
 Depois da `OPP-20260929-TPSH`. Separar o render é mais fácil quando as duas cópias de `sid` e `lab`
 já viraram uma só.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

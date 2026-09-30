@@ -29,3 +29,6 @@
 ## Impacto em fixtures de teste
 
 - Os testes existentes (`tests/`) referenciam `reconstructed.*`. Com a movimentação, os imports dos testes precisam ser atualizados para o novo caminho (ex.: `analisador-genealogico.reconstructed.*` ou o novo subpacote). Isso é cobertura de código, não delta de dados.
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

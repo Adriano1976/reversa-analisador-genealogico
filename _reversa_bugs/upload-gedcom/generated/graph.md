@@ -22,3 +22,6 @@ Heurística de triagem (`causados*3 + bloqueados*2 + regressões*4 + relacionado
 | Bug | Impact score |
 |-----|--------------|
 | `BUG-20260929-QMLY` | 0 |
+
+---
+*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

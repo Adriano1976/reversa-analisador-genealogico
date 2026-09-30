@@ -88,3 +88,6 @@ deixar a **A** como decisão separada.
 Baixo na opção B. Na opção A, o risco é de processo: as entidades foram entregues pela Tarefa 01 da
 reconstrução e estão citadas em `reconstruction-report.md`, então removê-las desvia de um registro de
 entrega, do mesmo modo que a remoção do `given_index` desviou do critério da T-07.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

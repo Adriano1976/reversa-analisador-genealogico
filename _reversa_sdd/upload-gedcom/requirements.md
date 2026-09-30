@@ -73,3 +73,6 @@ Então uma mensagem de erro com a exceção é exibida sem quebrar a aplicação
 | `analisador-genealogico/app.py` | `load_gedcom_and_build_graph()` | 🟢 |
 | `analisador-genealogico/app.py` | `build_graph_from_parser()` | 🟢 |
 | `analisador-genealogico/app.py` | `get_name()` | 🟢 |
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

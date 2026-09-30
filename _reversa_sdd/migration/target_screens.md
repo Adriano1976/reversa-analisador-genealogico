@@ -997,3 +997,6 @@ spec.notes:
 - **Nas telas modernizadas, o texto É novo** — porque não havia texto antes. Elas não estão sujeitas à invariante de paridade textual, e isso está declarado em cada seção.
 - **A invariante de dependência do núcleo vale para este artefato indiretamente**: o componente de grafo (SCR-005) consome `KinshipPath` estruturado, que é produzido por `core/decomposition.py`. **Se a implementação do grafo recalcular a decomposição no cliente em vez de consumir a estrutura do domínio, RISK-011 se materializa** (perda da regra de negócio junto com a tecnologia). Esta é a instrução mais importante deste documento para o codificador de front-end.
 - **Bloqueio de handoff**: **nenhum**. Todas as 10 deviations estão `aprovado` — as 9 primeiras derivam de decisões humanas de gates anteriores, e DEV-010 foi decidida em 2026-09-28T03:24:30Z.
+
+---
+*Gerado pelo Reversa-Screen-Translator em 2026-09-28.*

@@ -79,3 +79,6 @@ Nota de precisão sobre a varredura, para quem for reproduzi-la: a contagem depe
 - `_reversa_refactor/generated/index.md`
 - `analisador-genealogico/README.md` (correção da divergência de Pyvis)
 - `.reversa/reversa-config.json`
+
+---
+*Gerado pelo Reversa-Sync em 2026-09-29.*

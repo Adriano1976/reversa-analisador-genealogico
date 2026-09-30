@@ -133,3 +133,6 @@ exatamente o tipo de pista falsa que o registro combate.
 Pelos dois diffs, nesta ordem inversa: `CHG-002.diff` restaura as supressoes e `CHG-001.diff` restaura
 a tabela. Reverter apenas o `CHG-001` reintroduz o defeito de configuracao e deixa as supressoes
 novamente necessarias, entao os dois andam juntos.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

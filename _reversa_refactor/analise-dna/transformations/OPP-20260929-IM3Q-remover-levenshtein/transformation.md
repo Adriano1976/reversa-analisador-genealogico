@@ -67,3 +67,6 @@ fixa versão de nada, então esse cenário já era possível por outro caminho, 
 
 Pelo `CHG-001.diff`, ou por
 `git checkout -- analisador-genealogico/requirements.txt`.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

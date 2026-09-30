@@ -23,3 +23,6 @@
 
 4. **Verificação de regressão visual**
    - Confira que o `templates/index.html` não foi alterado (diff vazio no template) e que o Mermaid continua renderizando com `securityLevel: 'strict'`
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

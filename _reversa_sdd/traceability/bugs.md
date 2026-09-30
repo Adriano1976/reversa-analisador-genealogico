@@ -11,3 +11,6 @@ Os 3 bugs registrados têm `visibility: restricted`. Por política, bugs restrit
 | `BUG-20260929-BJJH` | restrito |
 | `BUG-20260929-QMLY` | restrito |
 | `BUG-20260929-J6PQ` | restrito |
+
+---
+*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

@@ -31,3 +31,6 @@ Regras 🟢 do `domain.md` que continuam intactas (nenhuma foi alterada por esta
 ## Modificadas
 
 Nenhuma regra 🟢 do `domain.md` foi alterada ou removida por esta feature. A mudança de `securityLevel` do Mermaid é uma decisão de frontend/segurança (D-02), não uma regra de negócio do domínio.
+
+---
+*Gerado pelo Reversa-Coding em 2026-08-11.*

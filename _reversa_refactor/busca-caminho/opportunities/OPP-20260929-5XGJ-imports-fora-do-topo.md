@@ -65,3 +65,6 @@ para o grafo antigo. A transformação não faz isso; ela apenas documenta por q
 
 Retorno pequeno, custo pequeno. A `OPP-20260929-UXEF` vai tocar este mesmo arquivo para separar busca
 de render, e é provável que resolva isto de passagem. As duas não devem ser feitas ao mesmo tempo.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

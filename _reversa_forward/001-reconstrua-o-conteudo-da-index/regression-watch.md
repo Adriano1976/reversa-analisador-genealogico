@@ -26,3 +26,6 @@ Itens sem peso de regressão (originalmente 🟡/🔴 ou não derivados de regra
 ## Arquivadas
 
 *(Vazio.)*
+
+---
+*Gerado pelo Reversa-Coding em 2026-08-11.*

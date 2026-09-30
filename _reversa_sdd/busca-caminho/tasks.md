@@ -63,3 +63,6 @@ Não aplicável — sem banco de dados. 🟢
 ## Lacunas Pendentes (🔴)
 - Uso do primeiro ID em caso de homônimos — definir política de desambiguação.
 - Cobertura de famílias adotivas/complexas no `find_ancestral_path`.
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

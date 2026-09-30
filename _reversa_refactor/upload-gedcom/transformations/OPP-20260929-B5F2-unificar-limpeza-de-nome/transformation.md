@@ -99,3 +99,6 @@ observado pelos testes do próprio módulo morto e por `register_person`, que n�
 
 Pelos três diffs, ou por `git checkout --` dos três arquivos. O estado congelado em
 `.pytest-tmp/state-pre-b5f2/` permite refazer a comparação a qualquer momento.
+
+---
+*Gerado pelo Reversa-Modularize em 2026-09-29.*

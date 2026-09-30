@@ -50,3 +50,6 @@ de base: 2.206 comparacoes, 0 divergencias. Suite verde.
 ## Estado dos arquivos
 
 `424` linhas antes, `421` depois.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

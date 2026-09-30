@@ -148,3 +148,6 @@ Justificativa verificada item a item:
 - **O núcleo é a única coisa que não pode ser corrigida depois com baixo custo.** A fronteira pode ser refatorada, a UI redesenhada, o schema migrado. O matching, uma vez em produção com resultados divergentes, contamina a confiança de todos os resultados já produzidos — e dado genético não permite "reprocessar a confiança". Por isso a ordem das ondas coloca o núcleo primeiro.
 - **Recomendação de sequenciamento prático**: comece pela **Onda 0**, e comece pelo golden mais barato do `manifest.yaml` — `SCR-G02` (submeter o formulário sem arquivo), que prova uma **mensagem congelada** sem exigir **nenhuma fixture**. É o menor passo possível que produz evidência real de paridade, e ele valida que o harness funciona antes de você investir na materialização das fixtures de GEDCOM e CSV.
 - **O legado está intacto.** Nenhum arquivo em `analisador-genealogico/` foi criado, modificado, movido ou removido em nenhum momento do pipeline. Ele permanece a **especificação executável** do comportamento congelado e deve ser preservado mesmo após o cutover (o `cutover_plan.md` recomenda não removê-lo no decommission).
+
+---
+*Gerado pelo Reversa em 2026-09-28.*

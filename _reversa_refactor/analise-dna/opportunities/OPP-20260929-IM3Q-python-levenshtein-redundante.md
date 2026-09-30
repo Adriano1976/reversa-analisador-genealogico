@@ -53,3 +53,6 @@ possível hoje por outro caminho, e é a dívida número 1 de `architecture.md#5
 
 Ganho real pequeno, mas o custo também é: é uma linha, com prova mecânica. Fica registrada porque a
 re-inventariação deve reportar o que encontrou, não só o que é empolgante.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

@@ -65,3 +65,6 @@ durante a transição e só depois limpar.
 
 Este é o passo que habilita a `OPP-20260929-AU76` a ficar menor e mais legível, mas não é pré-requisito
 dela. A otimização pode ser feita antes, sozinha e com diff pequeno.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

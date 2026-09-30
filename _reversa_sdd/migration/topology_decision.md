@@ -192,3 +192,6 @@ hash: "sha256:b74af37922a0a255330108551a59c679c9414f42641e6124a32141e320acf8ba"
 - **A árvore proposta não é uma meta a ser atingida no dia 1.** As ondas do `cutover_plan.md` entregam progressivamente: Onda 1 cria `core/` + `tests/parity/`; Onda 2 cria `application/`, `api/`, `ports/`; Onda 3 cria `adapters/persistence/`; Onda 4 cria `presentation/`; Onda 5 toca `adapters/persistence/` e `api/` para conformidade. Nada de `adapters/` precisa existir para a Onda 1 ser concluída — e é isso que mantém o risco concentrado e barato.
 - **Toda constante transcrita deve trazer referência de linha ao legado** (`# analisador-genealogico/app.py:759`). Este é o mecanismo mais eficaz contra RISK-003 e deve ser exigido na revisão de código da Onda 1.
 - **Alerta para o agente de codificação**: o maior risco desta topologia não é criar as pastas — é **não** deixar a fronteira vazar para o núcleo. Se `core/` importar `fastapi`, `sqlalchemy`, `pydantic` ou `flask`, a paridade deixa de ser isolável e a Onda 0 perde valor. Sugestão de verificação automática: um teste que falha se qualquer módulo em `core/` importar algo fora da biblioteca padrão e das dependências de núcleo (`ged4py`, `networkx`, `pandas`, `thefuzz`).
+
+---
+*Gerado pelo Reversa-Designer em 2026-09-28.*

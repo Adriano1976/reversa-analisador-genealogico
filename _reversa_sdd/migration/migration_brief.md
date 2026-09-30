@@ -95,3 +95,6 @@ O que muda no negócio:
 - **Correção já aplicada na reconstrução**: `upload.py` muta as globais in-place (`clear` + `update`) para manter válidas as referências importadas por `path_search`/`dna_analysis`. Isso é um artefato do estado global e **não deve ser transportado** para o alvo multiusuário — mas o comportamento observável sim.
 - **UI do legado**: 1 tela (`templates/index.html`) + `static/graph_path_search.html` (pyvis). UI server-side, single-user, sem RBAC — a entrevista de descoberta classificou fluxos de usuário como "não aplicável", o que **deixa de valer** agora que o alvo é multiusuário.
 - **Suíte de testes atual**: 47 passed (`tests/`) sobre a reconstrução. Servem de base factual para os `parity_tests/` do Inspector, mas testam código, não comportamento do legado — o Inspector deve decidir o que é oráculo válido.
+
+---
+*Gerado pelo Reversa em 2026-09-28.*

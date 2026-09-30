@@ -97,3 +97,6 @@ Então o candidato é rejeitado pelo filtro anti-falso-positivo
 | `analisador-genealogico/app.py` | `find_ancestral_path` | 🟢 |
 | `analisador-genealogico/app.py` | `get_relationships_by_cm` | 🟢 |
 | `analisador-genealogico/app.py` | `generate_mermaid_graph` | 🟢 |
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

@@ -115,3 +115,6 @@ Uma ideia vizinha foi deliberadamente **excluída** deste registro por violar o 
 `given_index` para podar o pool de candidatos. Podar o pool muda qual candidato vence, logo muda
 comportamento observável. Isso é feature do Forward, não refactor. O índice morto em si está na
 `OPP-20260929-32Q7`.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

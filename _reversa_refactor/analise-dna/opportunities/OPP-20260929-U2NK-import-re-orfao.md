@@ -77,3 +77,6 @@ do modulo le o nome `re`.
 Nenhum identificado. Se algum consumidor externo ao repositorio fizer `from reconstructed.dna_analysis
 import re`, a remocao o quebraria, mas esse uso seria um erro de quem consome, e nao existe no
 repositorio.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

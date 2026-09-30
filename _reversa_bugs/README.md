@@ -1,6 +1,6 @@
 # Registro de Bugs (Reversa Bugs)
 
-> Gerado pelo Reversa em 2026-09-29. Este arquivo é o contrato do registro de bugs deste projeto.
+> Este arquivo é o contrato do registro de bugs deste projeto.
 > Source of truth: cada `<contexto>/bugs/<ID>/bug.md`. Tudo em `generated/` é projeção regenerável.
 
 ## Configuração do projeto
@@ -83,3 +83,6 @@ Um bug NÃO pode ser `resolved: fixed` com `traceability.specs`, `root_cause` (c
 |----------|---------------------------|-----------------|
 | `busca-caminho` | `busca-caminho/` | Resolução de pessoa por nome, conexão direta/indireta e renderização do grafo (Mermaid e o artefato HTML de grafo) |
 | `upload-gedcom` | `upload-gedcom/` | Recebimento, armazenamento e parsing do arquivo GEDCOM, e o estado global em memória que ele alimenta |
+
+---
+*Gerado pelo Reversa em 2026-09-29.*

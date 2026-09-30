@@ -156,3 +156,6 @@ hash: "sha256:237433895c1e0f4f53b059ad3ec325ead2a54d3bca45a7b5bb610e84d42cf673"
 - **A recomendação tem uma consequência que o usuário deve encarar explicitamente**: a Onda 1 preserva o núcleo **copiando o comportamento do legado, inclusive os defeitos** — a lista incompleta de mojibake (BR-HUMANA-005), o 1º ID cego para homônimos (BR-HUMANA-003, mitigado por sinalização), o caminho por pais que ignora famílias adotivas. Isso é intencional e foi decidido. O que **não** deve ser copiado é o *mecanismo*: funções puras, não estado global.
 - **O legado nunca será modificado.** Ele é usado como oráculo (executado, nunca escrito). A regra absoluta do Reversa é preservada: nada fora de `_reversa_sdd/migration/` é tocado.
 - **`cutover_plan.md` foi escrito para a estratégia recomendada** (Parallel Run em ondas). Se o usuário escolher outra, o plano precisa ser reescrito — registrado no topo daquele artefato.
+
+---
+*Gerado pelo Reversa-Strategist em 2026-09-28.*

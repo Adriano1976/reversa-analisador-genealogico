@@ -1,6 +1,5 @@
 # Arquitetura — analisador-genealogico
 
-> Gerado pelo **Architect** em 2026-08-03
 > Nível de documentação: **Essencial** (`state.json`)
 > Obs.: `inventory.md` menciona "Completo"; o nível ativo definido em `doc_level` é **essencial**.
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
@@ -112,3 +111,6 @@ erDiagram
 - **Integrações externas**: nenhuma API — apenas entrada de arquivos `.ged`/`.csv` e assets web via CDN.
 - **Dívidas técnicas**: 8 identificadas, com risco alto de dependências soltas e ausência de testes.
 - **Packing**: Gunicorn listado no `requirements.txt` — deploy WSGI em produção (Heroku/Render/AWS) 🟡.
+
+---
+*Gerado pelo Reversa-Architect em 2026-08-03.*

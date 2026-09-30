@@ -68,3 +68,6 @@ Não aplicável — sem banco de dados. 🟢
 - Validar política de upload: aceitar extensões/tamanhos arbitrários é intencional?
 - Colisão de nomes em `uploads/` (sobrescrita) precisa de tratamento?
 - Estado global em memória: ok para uso single-user / single-worker?
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

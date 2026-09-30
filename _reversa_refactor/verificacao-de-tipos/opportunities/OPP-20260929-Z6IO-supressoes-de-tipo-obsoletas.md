@@ -100,3 +100,6 @@ O conserto expoe 35 erros de tipo que ja existiam e que a config inerte mascarav
 
 Nao ha ganho de comportamento nesta transformacao. O ganho e que a ferramenta passa a medir o que
 alegava medir.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

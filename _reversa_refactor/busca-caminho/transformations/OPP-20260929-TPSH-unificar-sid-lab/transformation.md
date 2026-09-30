@@ -40,3 +40,6 @@ ponto de correcao.
 ## Estado dos arquivos
 
 `501` linhas antes, `494` depois.
+
+---
+*Gerado pelo Reversa-Restructure em 2026-09-29.*

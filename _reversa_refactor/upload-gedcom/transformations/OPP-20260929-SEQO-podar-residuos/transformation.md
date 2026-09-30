@@ -50,3 +50,6 @@ Divergencias de documentacao deixadas registradas para decisao: `README.md:25` a
 ## Estado dos arquivos
 
 `86 e 9` linhas antes, `84 e 7` depois.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

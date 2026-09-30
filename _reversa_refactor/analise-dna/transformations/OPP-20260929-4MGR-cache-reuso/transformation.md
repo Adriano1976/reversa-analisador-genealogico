@@ -113,3 +113,6 @@ O `build_ged_indexes` continua sendo a fase mais cara do pipeline depois desta c
 Pelo `CHG-001.diff`, ou por
 `git checkout -- analisador-genealogico/reconstructed/dna_analysis.py`. O estado congelado em
 `.pytest-tmp/state-pre-4mgr/` permite refazer a comparação.
+
+---
+*Gerado pelo Reversa-Optimize em 2026-09-29.*

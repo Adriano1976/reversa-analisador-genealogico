@@ -68,3 +68,6 @@ comportamento não é demonstrável, e o gate deve barrar.
 
 Alto se executado como refactor. É exatamente o caso que o princípio II prevê: uma mudança que parece
 estrutural mas muda comportamento observável em cenário multiusuário.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

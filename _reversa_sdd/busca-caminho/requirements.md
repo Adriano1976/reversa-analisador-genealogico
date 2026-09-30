@@ -81,3 +81,6 @@ Então "Nenhuma conexão encontrada entre 'X' e 'Y'." é exibido
 | `analisador-genealogico/app.py` | `find_ancestral_path` | 🟢 |
 | `analisador-genealogico/app.py` | `find_indirect_path` | 🟢 |
 | `analisador-genealogico/app.py` | `generate_mermaid_graph` / `generate_mermaid_graph_indirect_bridge` | 🟢 |
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

@@ -82,3 +82,6 @@ A aplicação está **bloqueada** por `.reversa/reversa-config.json` em `allowLe
 
 Executar **antes** da correção do `BUG-20260929-J6PQ`. Unificar primeiro reduz a correção de segurança
 a um único ponto.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

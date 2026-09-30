@@ -84,3 +84,6 @@ grafo exibido" e o que se observa é "impede o grafo de ser exibido".
 A reprodução usou **dois** nomes hostis no mesmo diagrama, então ela não isola qual deles causou o
 erro. A atribuição à crase vem da leitura da gramática, e é a explicação mais provável, não uma
 medição isolada. Uma segunda passada com um único nome hostil por diagrama fecharia essa lacuna.
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

@@ -83,3 +83,6 @@ Para funções:
 - 🔴 `find_ancestral_path` assume caminho pelos pais; famílias adotivas/complexas podem não ser cobertas.
 - 🟡 `split_path_by_marriage` detecta só o 1º par de cônjuges — caminhos com múltiplas afinidades podem renderizar de forma simplificada.
 - 🟡 Sem testes automatizados.
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

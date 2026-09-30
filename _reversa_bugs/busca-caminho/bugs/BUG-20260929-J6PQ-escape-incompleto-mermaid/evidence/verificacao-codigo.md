@@ -148,3 +148,6 @@ Conclusão: o escape cobre a via de HTML e XSS, e não cobre a via de sintaxe do
 | `_reversa_forward/001-reconstrua-o-conteudo-da-index/requirements.md#9-esclarecimentos` | Resposta humana: "Mudar para o padrão strict (maior segurança)" |
 | `_reversa_sdd/busca-caminho/design.md#interface` | Assinatura de `generate_mermaid_graph` e `generate_mermaid_graph_indirect_bridge` |
 | `_reversa_sdd/busca-caminho/design.md#riscos-e-lacunas` | Riscos registrados da feature |
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

@@ -1,6 +1,5 @@
 # Relatório de Confiança — teste_reversa
 
-> Gerado pelo Revisor em 2026-08-03
 > Nível de documentação: **Essencial**
 
 ---
@@ -67,3 +66,6 @@ Itens que permaneceram sem confirmação e precisam de validação humana — de
 - [ ] **Priorizar**: responder `questions.md` (4 perguntas) — em especial a #1 (regras A/B/C/D), que mais afeta a fielidade do matching.
 - [ ] **Remover código morto** `HARD_MIN`/`GIVEN_MIN` numa futura refatoração (ou usá-lo como fonte de literal) — consideração p/ implementação.
 - [ ] **Adicionar testes** para matching e regras A/B/C/D — hoje condicionais com 🔴.
+
+---
+*Gerado pelo Reversa-Reviewer em 2026-08-03.*

@@ -118,3 +118,6 @@ A limitação é conhecida, documentada e deliberada. O que mudou foi o contexto
 | `_reversa_sdd/upload-gedcom/design.md#riscos-e-lacunas` | Riscos da feature de upload |
 | `_reversa_sdd/upload-gedcom/requirements.md#requisitos-não-funcionais` | Requisitos não funcionais da feature |
 | `_reversa_sdd/confidence-report.md#lacunas-pendentes-` | Lacuna registrada na revisão de confiança |
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

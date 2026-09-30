@@ -1,6 +1,5 @@
 # Mapeamento de Dependências — analisador-genealogico
 
-> Gerado pelo **Scout** em 2026-08-03
 
 ---
 
@@ -34,3 +33,6 @@
 
 > [!NOTE]
 > **Compatibilidade C-Extension:** `python-Levenshtein` requer toolchain de compilação C/C++ caso não haja wheel binário disponível no sistema operacional alvo.
+
+---
+*Gerado pelo Reversa-Scout em 2026-08-03.*

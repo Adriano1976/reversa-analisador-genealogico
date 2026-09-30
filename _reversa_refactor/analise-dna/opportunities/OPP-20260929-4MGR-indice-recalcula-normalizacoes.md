@@ -104,3 +104,6 @@ com as fixtures atuais, mas a equivalência diferencial é o que garante.
 
 Esta oportunidade **não depende** de nenhuma das restantes. É a de maior retorno da re-inventariação, e
 o diff é de duas linhas.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

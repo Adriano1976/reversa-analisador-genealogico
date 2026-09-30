@@ -101,3 +101,6 @@ Não aplicável — sem banco de dados. 🟢
 - Regras A/B/C/D de aceitação precisam de validação com amostra real de dados.
 - Relaxamento de Jaccard para cM alto (0.5→0.33) é intencional?
 - Detecção de ID por regex `[A-Z]{2}\d{7}` cobre todos os exportadores (GEDmatch etc.)?
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

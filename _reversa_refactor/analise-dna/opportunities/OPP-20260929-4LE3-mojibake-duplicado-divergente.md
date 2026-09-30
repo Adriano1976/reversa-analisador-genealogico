@@ -102,3 +102,6 @@ Médio se a remoção for feita sem conferir o teste. `tests/test_domain.py` afi
 `demojibake` que o corpo de `dna_analysis.py` pode não satisfazer, porque o mapa de entrada difere.
 Antes de mexer, rodar os testes de `domain.py` contra as funções de `dna_analysis.py` e ver o que
 quebra. Se quebrar, a divergência é real e maior do que parece: dois contratos para o mesmo nome.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

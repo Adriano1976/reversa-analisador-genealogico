@@ -8,3 +8,6 @@ O `app.py` expõe variáveis Jinja2 (como `gedcom_filename`, `message`, `success
 Na versão original, a inicialização ocorre com:
 `mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });`
 A documentação do Mermaid afirma que `loose` permite renderizar tags HTML, o que é um vetor conhecido de XSS se o input não for higienizado. Mudar para `strict` converte automaticamente tags não seguras e protege o renderizador, sacrificando caso o código original fizesse uso pesado de injeções HTML nos rótulos de vértices. A mitigação definida é testar visualmente.
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

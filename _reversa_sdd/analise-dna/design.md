@@ -86,3 +86,6 @@ Para funções:
 - 🔴 Sem testes; regressões de matching não são detectadas.
 - 🟡 Requisito de cM alto relaxa threshold de Jaccard (0.5→0.33) — pode gerar falsos positivos.
 - 🟢 Dependência de ordem/posição das colunas do CSV (heurística, pode variar entre exportadores).
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

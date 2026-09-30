@@ -35,3 +35,6 @@ Nenhum watch item (`W001`...) foi criado nesta rodada — ver `_reversa_forward/
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/progress.jsonl`
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/legacy-impact.md`
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/regression-watch.md`
+
+---
+*Gerado pelo Reversa-Sync em 2026-08-11.*

@@ -315,3 +315,6 @@ de regressão.
   `generated/index.md` o mostra apenas como ID e "restrito". Os nomes hostis usados na sonda ficam
   apenas em `evidence/`, e os passos de reprodução acima foram escritos sem payload pronto.
 - **Taxonomia.** `area`, `module` e `feature` usam valores existentes em `_reversa_bugs/taxonomy.yaml`.
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

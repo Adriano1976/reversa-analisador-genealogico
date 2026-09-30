@@ -1,6 +1,5 @@
 # Perguntas para Validação — teste_reversa
 
-> Gerado pelo Revisor em 2026-08-03
 > Nível essencial — apenas 🔴 críticos que bloqueiam reimplementação.
 > Responda cada pergunta e me avise quando terminar.
 
@@ -47,3 +46,6 @@
 **Impacto:** Se intencional, mantém-se. Se não, o threshold deve ser mais rígido.
 
 **Resposta:** Intencional — mantém-se o relaxamento do threshold de Jaccard (0.5 → 0.33) para cM ≥ 150 e dado não-genérico.
+
+---
+*Gerado pelo Reversa-Reviewer em 2026-08-03.*

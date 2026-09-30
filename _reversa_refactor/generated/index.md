@@ -56,3 +56,6 @@ Ordem de encadeamento definida pelo usuário em 2026-09-29. As 11 primeiras fora
 | 2 | `OPP-20260929-AU76` | `/reversa-optimize OPP-20260929-AU76` |
 | 3 | `OPP-20260929-32Q7` | `/reversa-prune OPP-20260929-32Q7` |
 | 4 | `OPP-20260929-SEQO` | `/reversa-prune OPP-20260929-SEQO` |
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-30.*

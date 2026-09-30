@@ -84,3 +84,6 @@ sai por `<string>["]`.
 Logo, o vetor de falsificacao nao e alcancavel pelo texto do rotulo. O que a regra
 `<*>["][`]` abre e outra coisa: um caminho para **quebrar a renderizacao**, nao para falsificar o
 parentesco exibido.
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

@@ -99,3 +99,6 @@ validada, e nenhuma rota verifica identidade.
 | `_reversa_sdd/migration/migration_brief.md#métricas-de-sucesso` | Métrica: nenhum cruzamento de árvores entre contas |
 | `_reversa_sdd/domain.md#4-lacunas-requerem-validação-humana` | Registra a ausência de autenticação e autorização como lacuna |
 | `_reversa_sdd/architecture.md#5-dívidas-técnicas-identificadas` | Dívida 4: estado em memória com re-parse a cada requisição |
+
+---
+*Gerado pelo Reversa-Debugger em 2026-09-29.*

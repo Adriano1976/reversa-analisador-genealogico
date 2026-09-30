@@ -7,3 +7,6 @@ Lista esparsa de arestas. Arestas simétricas são gravadas uma única vez, no b
 | Origem | Tipo | Destino | State | Evidência |
 |--------|------|---------|-------|-----------|
 | `BUG-20260929-QMLY` | related-to (derivada) | `BUG-20260929-BJJH` | proposed | aresta gravada em BUG-20260929-BJJH |
+
+---
+*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

@@ -135,3 +135,6 @@ histórico.
 
 O que se perdeu de fato foi a **alcançabilidade por git**, não o conteúdo. Este documento registra o
 caminho alternativo antes que ele também se perca.
+
+---
+*Gerado pelo Reversa em 2026-09-29.*

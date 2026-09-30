@@ -71,3 +71,6 @@ nao existe na arvore. A remocao e de uma vinculacao de modulo, nao de comportame
 
 Pelo `CHG-001.diff`, ou por
 `git checkout -- analisador-genealogico/reconstructed/dna_analysis.py`.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

@@ -40,3 +40,6 @@ Regras 🟢 do `domain.md` que continuam intactas:
 ## Modificadas
 
 Nenhuma regra 🟢 do `domain.md` foi alterada ou removida em comportamento. A mudança é estrutural (localização do código), não semântica.
+
+---
+*Gerado pelo Reversa-Coding em 2026-08-11.*

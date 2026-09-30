@@ -301,3 +301,6 @@ hash: "sha256:97ee497482a263ffc74e7539f8583150671012313c1e8763a60623c22a22a1b8"
 - **Os 10 itens REFERIDOS À CODIFICAÇÃO (AMB-002, AMB-003, AMB-015 a AMB-022) não bloqueiam nada.** São decisões de implementação — não lacunas de especificação. Nenhum deles impede o início da Onda 0 ou da Onda 1. Dois merecem destaque: **AMB-018** é a única pergunta que só o usuário pode responder (base legal e prazo de retenção) e é **No-go absoluto de go-live**; **AMB-022** registra que a paridade visual das telas literais está especificada mas **não provada**, porque nenhum golden file foi capturado.
 - **Correção factual aplicada em AMB-004** pelo Curator: as respostas de `questions.md` estão no próprio arquivo, não apenas em prosa no `reconstruction-plan.md`. Conclusão inalterada; rastreabilidade melhorada.
 - **Correção de encoding registrada**: uma corrupção de mojibake (`DECISÃƒO`) foi introduzida por script PowerShell ao fechar as decisões do Curator e corrigida por round-trip UTF-8 explícito. Verificado por varredura de assinaturas de mojibake em todos os artefatos. A única ocorrência remanescente é **intencional**: o exemplo `Ã§` em `target_business_rules.md` BR-MIGRAR-006, que documenta o próprio mojibake.
+
+---
+*Gerado pelo Reversa em 2026-09-28.*

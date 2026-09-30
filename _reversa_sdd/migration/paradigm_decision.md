@@ -110,3 +110,6 @@ hash: "sha256:1500a7fdfd7835a58d57a09d52eae03d30acefbfec7e724adb68cec31e2c818f"
 - **O que `balanced` explicitamente autoriza**: (a) descartar a estrutura de `app.py` inteiramente; (b) não reaproveitar `reconstructed/*.py` como código, usando-os como referência de comportamento; (c) substituir renderização server-side por API + SPA; (d) introduzir persistência onde o legado tinha memória volátil.
 - **Dívidas técnicas do legado que a migração deve resolver por serem de fronteira** (`architecture.md` §5): #1 dependências sem versão fixada (pins obrigatórios), #3 ausência de CI/CD e Docker, #6 `secret_key` hardcoded (`'f@milyse@rch_dna_edition_v16'`) — em produto multiusuário isso é crítico, #4 estado em memória + re-parse, #5 monólito acoplado.
 - **Dívida #7 (correções de mojibake heurísticas) é núcleo**, não fronteira: `strip_bad_utf`/`demojibake` afetam o resultado do matching e devem ser portados com fidelidade, mesmo sendo heurísticos e incompletos.
+
+---
+*Gerado pelo Reversa-Paradigm-Advisor em 2026-09-28.*

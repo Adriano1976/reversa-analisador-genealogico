@@ -1,6 +1,5 @@
 # Análise Técnica de Código — analisador-genealogico
 
-> Gerado pelo **Archaeologist** em 2026-08-03
 > Nível de documentação: **Essencial**
 > Confiança: 🟢 CONFIRMADO (Extraído diretamente do código fonte `app.py`)
 
@@ -123,3 +122,6 @@ Traduz o valor de cM total acumulado para relações prováveis:
 | **DnaMatchRecord** | `_group_key` | String | Sim | Chave única (Nome normalizado + ID/Email). |
 | | `cM` | Float/Int | Sim | Soma de centiMorgans dos segmentos do match. |
 | | `matched_name` | String | Sim | Nome original do parente no relatório CSV. |
+
+---
+*Gerado pelo Reversa-Archaeologist em 2026-08-03.*

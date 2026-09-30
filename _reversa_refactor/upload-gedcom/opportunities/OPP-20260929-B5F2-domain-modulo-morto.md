@@ -118,3 +118,6 @@ efetiva antes de decidir.
 
 Qualquer das duas opções escreve em `analisador-genealogico/**` e `tests/**`, e o
 `.reversa/reversa-config.json` está em `allowLegacyEdits: false`. O especialista vai travar no gate.
+
+---
+*Gerado pelo Reversa-Refactor em 2026-09-29.*

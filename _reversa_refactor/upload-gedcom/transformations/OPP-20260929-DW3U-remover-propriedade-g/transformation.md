@@ -71,3 +71,6 @@ Verificado depois de aplicar, com importação real do módulo:
 
 Pelo `CHG-001.diff`, ou por
 `git checkout -- analisador-genealogico/reconstructed/domain.py`.
+
+---
+*Gerado pelo Reversa-Prune em 2026-09-29.*

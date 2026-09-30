@@ -100,3 +100,6 @@ hash: "sha256:0a5729fac66499ab4610ba1ace51c50c819b8ed95192ca92e779e5f00ebe5cf2"
 - **BR-DESCARTAR-007 é descarte sem trade-off**: o `secret_key` hardcoded não descreve comportamento de domínio. Preservá-lo não seria fidelidade, seria publicar um segredo de sessão que dá acesso a dados genéticos.
 - **Risco transversal a vigiar pelo Inspector**: BR-DESCARTAR-005 é o item com maior chance de perda silenciosa de regra de negócio, porque a fronteira entre "tecnologia de desenho" (descartável) e "regra de decomposição do parentesco" (migrável) é sutil. Os `parity_tests/` devem cobrir explicitamente a decomposição do caminho em conexões indiretas por casamento.
 - **Nada aqui foi descartado por conveniência de reescrita.** Cada item tem justificativa checável contra uma restrição explícita do `migration_brief.md` ou contra um mecanismo de paradigma nomeado no `paradigm_decision.md`.
+
+---
+*Gerado pelo Reversa-Curator em 2026-09-28.*

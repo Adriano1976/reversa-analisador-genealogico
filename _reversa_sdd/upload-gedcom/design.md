@@ -82,3 +82,6 @@ Esses globais são sobrescritos a cada novo parse. 🟢
 - 🔴 Sobrescrita de arquivos com mesmo nome no diretório `uploads/`.
 - 🔴 Estado global compartilhado — concorrência entre requisições pode corromper a análise em servidores multi-worker.
 - 🟡 `secret_key` exposta no código-fonte.
+
+---
+*Gerado pelo Reversa-Writer em 2026-08-03.*

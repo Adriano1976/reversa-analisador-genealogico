@@ -1,6 +1,5 @@
 # Domínio de Negócio — analisador-genealogico
 
-> Gerado pelo **Detective** em 2026-08-03
 > Nível de documentação: **Essencial**
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 
@@ -81,3 +80,6 @@ Dada a pessoa raiz e um match, o sistema busca o **ancestral comum de menor prof
 - **Máquinas de estado**: nenhuma entidade central com múltiplos status (sem geração de `state-machines.md` no nível essencial).
 - **Permissões**: ausentes (sem RBAC; não gera `permissions.md`).
 - **ADRs**: não aplicáveis neste nível/contexto (sem Git).
+
+---
+*Gerado pelo Reversa-Detective em 2026-08-03.*
