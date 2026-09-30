@@ -21,7 +21,18 @@ Itens sem peso de regressão (originalmente 🟡/🔴 ou não derivados de regra
 
 ## Histórico de re-extrações
 
-*(Vazio — será preenchido quando `/reversa` rodar novamente sobre o código atualizado.)*
+### Re-extração 2026-09-30 18:15
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| —  | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item (`W001`…) foi criado, portanto não há regra sob vigilância a conferir. |
+
+**Verificações de contexto feitas nesta passagem (itens de `## Observações`, sem peso de regressão — não são watch items):**
+
+- `OBS-01` (`HARD_MIN`/`GIVEN_MIN` como código morto, confidência) — permanece reclassificado 🟡 no SDD atual: `confidence-report.md` e `analise-dna/design.md` seguem descrevendo ambos como declarados e nunca usados. O adendo `003-refactor-code-quality` corrigiu que os dois **não existem** no módulo reconstruído. Veredito 🟡 amarelo: expectativa não bateu e a divergência já está registrada em adendo.
+- `OBS-02` (`securityLevel: 'strict'`, presença) — **ausente** de todos os artefatos principais do SDD. O comportamento está confirmado no código atual (`analisador-genealogico/templates/index.html:182`) e aparece nos goldens (`_reversa_sdd/screens/golden/SCR-001` e `SCR-G02`) e no adendo `001`, mas nunca em `architecture.md`, `domain.md` ou nos specs por feature. Veredito 🟡 amarelo: evidência presente nos artefatos de tela, ausente no artefato ancorado (`architecture.md#2`).
+
+**Nota de cronologia — leia antes de confiar no SDD.** Os artefatos principais de `_reversa_sdd/` foram gerados na extração de **2026-08-03** e **não foram regenerados** desde então. Esta verificação não é uma re-extração real. Os adendos `_reversa_sdd/addenda/001`, `002` e `003` descrevem o código **posterior** a esse congelamento, e `architecture.md` ainda os contradiz (por exemplo, `architecture.md:101` ainda afirma "Código monolítico (app.py ~887 linhas)"). Trate os adendos como estado mais recente até que uma re-extração real rode.
 
 ## Arquivadas
 

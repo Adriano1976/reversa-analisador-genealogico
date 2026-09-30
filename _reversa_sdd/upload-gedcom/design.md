@@ -1,87 +1,134 @@
-# Upload e Parsing de GEDCOM, Design Técnico
+# upload-gedcom, Design Técnico
 
-> Nível de documentação: **Essencial**
-> Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Unit do tipo **endpoint** — `POST /` com `action=upload_gedcom`.
+> Nível de documentação: **Essencial**. Escala: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Re-extração de 2026-09-30. Substitui o design de 2026-08-03.
 
 ## Interface
 
-Para o endpoint HTTP (formulário multipart):
+### Endpoint HTTP (formulário multipart)
 
 | Método | Caminho | Entrada | Saída | Status codes |
 |--------|---------|---------|-------|--------------|
-| GET | `/` | — | `index.html` com formulário | 200 |
-| POST | `/` | `action=upload_gedcom`, `gedcom: File` | `index.html` com lista de nomes ou mensagem de erro | 200 (sempre; sem redirects) |
+| GET | `/` | — | `index.html` com formulário de upload | 200 🟢 |
+| POST | `/` | `action=upload_gedcom`, arquivo no campo `gedcom` | `index.html` com `gedcom_filename`, `all_names` e `message` | 200 sempre — **não há redirect nem 4xx**; o erro vira mensagem na tela 🟢 |
 
-Para funções:
+> O sistema **nunca** responde 400/500 ao usuário por erro de negócio: toda falha é renderizada como HTML com `success=False`. A única exceção não tratada seria um erro fora dos blocos `try`. 🟢
+
+### Símbolos do núcleo
 
 | Símbolo | Assinatura | Retorno | Observação |
 |---------|-----------|---------|------------|
-| `load_gedcom_and_build_graph` | `(file_path: str)` | `all_names: list[str]` | Popula globais `people`, `families`, `graph`, `child_to_family` |
-| `build_graph_from_parser` | `(people_dict: dict, parser: GedcomReader)` | `(g: nx.Graph, c2f: dict)` | Grafo bidirecional + índice filho→famílias |
-| `get_name` | `(person)` | `str` | "Sem Nome" se ausente |
+| `load_gedcom_and_build_graph` | `(file_path: str)` | `list[str]` | Substitui as globais `people`, `families`, `graph`, `child_to_family` in-place 🟢 |
+| `build_graph_from_parser` | `(people_dict: dict, parser)` | `(nx.Graph, dict)` | Grafo não-direcionado + índice filho→famílias 🟢 |
+| `get_name` | `(person)` | `str` | `person.name.format()` se `person and person.name`; senão `"Sem Nome"` 🟢 |
+| `ref_id` | `(val)` | `str` | `getattr(val, "xref_id", val)` — aceita objeto ged4py ou string 🟢 |
+| `ensure_dirs` | `()` | `None` | `os.makedirs("uploads", exist_ok=True)` 🟢 |
+| `strip_bad_utf` | `(s)` | `str` | Mapa de 18 pares de mojibake + remoção por regex 🟢 |
+| `demojibake` | `(s)` | `str` | Round-trip `latin1 → utf-8`, condicional 🟢 |
+
+### Contrato de estado global
+
+| Global | Tipo | Chave → Valor |
+|--------|------|---------------|
+| `people` | `dict` | `xref_id` → registro `INDI` do ged4py 🟢 |
+| `families` | `dict` | `xref_id` → registro `FAM` do ged4py 🟢 |
+| `graph` | `nx.Graph \| None` | nós de pessoa (`type="person"`) e de família (`type="family"`) 🟢 |
+| `child_to_family` | `dict[str, list[str]]` | `xref_id` do filho → lista de famílias onde aparece como `CHIL` 🟢 |
 
 ## Fluxo Principal
-1. Recebe `POST /` com `action=upload_gedcom` (`app.py:562`). 🟢
-2. Valida presença do campo `gedcom`; ausente → erro "Nenhum arquivo GEDCOM enviado." (`app.py:563-564`). 🟢
-3. Valida `filename` não vazio; vazio → erro "Nenhum arquivo selecionado." (`app.py:566-567`). 🟢
-4. Salva o arquivo em `UPLOAD_FOLDER` com nome original (`app.py:569-570`). 🟢
-5. Chama `load_gedcom_and_build_graph` para parsear e construir o grafo (`app.py:571`). 🟢
-6. Renderiza `index.html` com `gedcom_filename`, `all_names` e mensagem de sucesso (`app.py:572`). 🟢
-7. Em exceção, renderiza com mensagem de erro (`app.py:573-574`). 🟢
 
-### Detalhe do fluxo de parsing (`load_gedcom_and_build_graph`)
-1. Abre o arquivo com `GedcomReader` (`app.py:177`). 🟢
-2. Lê registros `INDI` → dicionário `people` (`app.py:178`). 🟢
-3. Lê registros `FAM` → dicionário `families` (`app.py:179`). 🟢
-4. Chama `build_graph_from_parser` → `graph`, `child_to_family` (`app.py:180`). 🟢
-5. Ordena nomes alfabeticamente e retorna (`app.py:181`). 🟢
+### Camada de rota (`app.py:19-34`)
 
-### Detalhe do grafo (`build_graph_from_parser`)
-1. Adiciona nó por pessoa (`app.py:187-188`). 🟢
-2. Adiciona nó por família (`app.py:190-193`). 🟢
-3. Lê `HUSB`, `WIFE`, `CHIL` de cada família (`app.py:195-201`). 🟢
-4. Conecta cônjuges e filhos ao nó da família (`app.py:202-205`). 🟢
-5. Preenche `c2f` (índice filho → famílias) (`app.py:201`). 🟢
+1. `app.py:20-22` — `POST` com `action == "upload_gedcom"`. 🟢
+2. `app.py:23-24` — se `"gedcom" not in request.files` → renderiza com `"Nenhum arquivo GEDCOM enviado."`, `success=False`. 🟢
+3. `app.py:25-27` — se `gedcom_file.filename == ''` → `"Nenhum arquivo selecionado."`. 🟢
+4. `app.py:29-30` — salva em `uploads/<filename>`. 🟢
+5. `app.py:31` — chama `load_gedcom_and_build_graph(gedcom_path)`. 🟢
+6. `app.py:32` — renderiza com `gedcom_filename`, `all_names` e `"Arquivo '{nome}' carregado!"`. 🟢
+7. `app.py:33-34` — qualquer exceção → `"Erro ao processar GEDCOM: {e}"`, `success=False`. 🟢
+
+### Núcleo — parsing e publicação (`upload.py:82-100`)
+
+1. `upload.py:88` — abre `GedcomReader(file_path)` como context manager. 🟢
+2. `upload.py:89` — `new_people = {ref_id(i.xref_id): i for i in parser.records0("INDI")}`. 🟢
+3. `upload.py:90` — `new_families = {ref_id(f.xref_id): f for f in parser.records0("FAM")}`. 🟢
+4. `upload.py:91` — `build_graph_from_parser(new_people, parser)` devolve `(new_graph, new_child_to_family)`. 🟢
+5. `upload.py:95-98` — **publicação in-place**: `people.clear(); people.update(new_people)`, idem para `families` e `child_to_family`; e `graph = new_graph` (rebind, não mutação — ver Decisões). 🟢
+6. `upload.py:99` — `all_names = sorted([get_name(p) for p in people.values()])`. 🟢
+7. `upload.py:100` — devolve `all_names`. 🟢
+
+### Núcleo — construção do grafo (`upload.py:50-79`)
+
+1. `upload.py:52-53` — cria `nx.Graph()` e `c2f = {}`. 🟢
+2. `upload.py:54-55` — para cada pessoa, `add_node(pid, label=get_name(person), type="person")`. 🟢
+3. `upload.py:56-60` — para cada `FAM`: se `xref_id` ausente, `continue`; senão `add_node(fam_id, label="Familia", type="family")`. 🟢
+4. `upload.py:63-71` — varre `sub_records` da família: `HUSB` → `husband_id`; `WIFE` → `wife_id`; `CHIL` → acumula em `child_ids` **e** registra `c2f[cid].append(fam_id)`. 🟢
+5. `upload.py:72-78` — cria aresta para marido, esposa e cada filho, **apenas se o nó existir** (`g.has_node`). 🟢
+6. `upload.py:79` — devolve `(g, c2f)`. 🟢
 
 ## Fluxos Alternativos
-- **Sem arquivo:** renderiza erro, não processa (`app.py:563-564`). 🟢
-- **Arquivo sem nome:** renderiza erro (`app.py:566-567`). 🟢
-- **Exceção no parsing:** renderiza mensagem com `e` (`app.py:573-574`). 🟢
-- **Pessoa sem nome:** `get_name` retorna "Sem Nome" (`app.py:43`). 🟢
+
+- **Sem arquivo no campo `gedcom`:** renderiza erro, não grava nada. 🟢
+- **Arquivo com nome vazio:** renderiza erro, não grava nada. 🟢
+- **Exceção no parse (GEDCOM malformado):** a exceção sobe do `with` e é capturada em `app.py:33`; as globais **não** são tocadas, porque a mutação só ocorre depois do parse bem-sucedido (`upload.py:95`). Estado anterior preservado. 🟢
+- **`FAM` sem `xref_id`:** ignorada, sem erro. 🟢
+- **Referência para pessoa inexistente (`HUSB`/`WIFE`/`CHIL` órfão):** a aresta é descartada em silêncio por `g.has_node`; a referência permanece nos `sub_records` e pode reaparecer via `child_to_family`. 🟡
+- **Pessoa sem o atributo `name`:** `get_name` devolve `"Sem Nome"`. 🔴 Inalcançável a partir de registros `INDI` reais (ver Riscos e Lacunas). 🟢
+- **Recarga de árvore:** substituição integral; nenhum resíduo da anterior. 🟢
 
 ## Dependências
-- **ged4py** — parsing GEDCOM (`GedcomReader`). 🟢
-- **networkx** — estrutura do grafo de relacionamento. 🟢
-- **Flask** — roteamento e renderização Jinja2. 🟢
-- **Sistema de arquivos** — persistência temporária em `uploads/`. 🟢
+
+| Dependência | Versão | Como usa |
+|-------------|--------|----------|
+| **ged4py** | 0.5.2 | `GedcomReader` para `records0("INDI")` / `records0("FAM")` e acesso a `sub_records` 🟢 |
+| **networkx** | 3.6.1 | `nx.Graph`, `add_node`, `add_edge`, `has_node` 🟢 |
+| **Flask** | 3.1.3 | Rota única, `request.files`, `render_template` 🟢 |
+| **Depende de unit interna: nenhuma** | — | `upload` é a base; as outras units dependem dele, não o contrário 🟢 |
+| **Sistema de arquivos** | — | `uploads/`, criada no boot por `os.makedirs(..., exist_ok=True)` 🟢 |
 
 ## Decisões de Design Identificadas
 
 | Decisão | Evidência no código | Confiança |
 |---------|---------------------|-----------|
-| Estado em memória global (singleton por processo) | `app.py:20-23` | 🟢 |
-| Re-parse a cada requisição POST | `app.py:582` | 🟢 |
-| Arquivo salvo com nome original do cliente (risco de path/colisão) | `app.py:569` | 🟡 |
-| Pasta de upload fixa `uploads/` criada no boot | `app.py:15-17` | 🟢 |
+| Estado em memória global, singleton por processo, sem injeção de dependência | `upload.py:16-19` | 🟢 |
+| **Mutação in-place (`clear()` + `update()`) em vez de rebind** para `people`, `families` e `child_to_family`, para que referências importadas por outros módulos continuem válidas | `upload.py:92-98` (comentário explícito) | 🟢 |
+| **`graph` é exceção: sofre rebind**, e por isso `find_indirect_path` o importa *dentro* da função | `upload.py:97` vs `path_search.py:131` | 🟢 |
+| Re-parse integral a cada POST, sem cache | `app.py:31`, `:42` | 🟢 |
+| Arquivo salvo com o nome original do cliente, sem sanitização | `app.py:29` | 🟢 |
+| Pasta de upload fixa, criada no boot | `upload.py:21`, `:24-25` | 🟢 |
+| Nenhuma validação de extensão, tipo ou tamanho | `app.py:23-30` | 🟢 |
 
 ## Estado Interno
-Globais em memória, compartilhados por todo o processo:
-- `people: dict[str, Person]` — pessoas do GEDCOM. 🟢
-- `families: dict[str, Family]` — famílias do GEDCOM. 🟢
-- `graph: nx.Graph` — grafo bidirecional pessoa↔família. 🟢
-- `child_to_family: dict[str, list[str]]` — índice filho → famílias onde é `CHIL`. 🟢
 
-Esses globais são sobrescritos a cada novo parse. 🟢
+Preenchido por este fluxo e mantido para os seguintes:
+
+| Campo | Onde vive | Como evolui |
+|-------|-----------|-------------|
+| `people` | `upload.py:16` | `clear()` + `update()` a cada carga 🟢 |
+| `families` | `upload.py:17` | `clear()` + `update()` a cada carga 🟢 |
+| `graph` | `upload.py:18` | Rebind a cada carga 🟢 |
+| `child_to_family` | `upload.py:19` | `clear()` + `update()` a cada carga 🟢 |
+| Arquivo `.ged` | `uploads/` | Sobrescrito se o nome colidir 🟢 |
+
+> **Não há sessão.** O estado sobrevive à requisição porque vive no processo, não porque está associado a um usuário. Qualquer visitante subsequente vê a última árvore carregada. 🟢
 
 ## Observabilidade
-- Nenhum log explícito de upload/parse no código. 🔴
-- Erros de parsing são propagados ao template como mensagem de usuário (`message=...`). 🟢
+
+- Nenhum `logging`, métrica ou trace é emitido pela unit. 🔴
+- Erros de parse chegam ao usuário como `message` no template (`app.py:34`). 🟢
+- A instrumentação de desenvolvimento (oráculo congelado, harness de paridade, goldens) vive em `_reversa_sdd/` e **não faz parte da aplicação**. 🟢
 
 ## Riscos e Lacunas
-- 🔴 Sem validação de extensão/tamanho do arquivo — risco de upload de arquivos arbitrários para `uploads/`.
-- 🔴 Sobrescrita de arquivos com mesmo nome no diretório `uploads/`.
-- 🔴 Estado global compartilhado — concorrência entre requisições pode corromper a análise em servidores multi-worker.
-- 🟡 `secret_key` exposta no código-fonte.
+
+- 🔴 **`"Sem Nome"` é inalcançável a partir de `INDI` reais.** O `ged4py` entrega um objeto `Name` cujo `.format()` é `''` mesmo quando a tag `NAME` é removida; e um registro sem o atributo `name` faz o `ged4py` levantar `AttributeError`, que o curto-circuito `person and` nunca alcança. Consequência: o literal tem **0 ocorrências** medidas em 55.523 nomes reais. Não é bug, é detalhe de contrato que precisa ser preservado. 🟢
+- 🔴 **Sem validação de extensão/tamanho.** Limitação **aceita pelo usuário** para uso local (`questions.md#3`); documentar como limitação, não como pendência.
+- 🔴 **Colisão de nome sobrescreve.** Mesma decisão acima. `BUG-20260929-QMLY-upload-sem-limites` registra a lacuna.
+- 🔴 **Estado global compartilhado.** Sem isolamento entre usuários ou requisições; quebra em deploy multi-worker. Risco registrado em `migration/risk_register.md`.
+- 🟡 **`secret_key` hardcoded** (`app.py:11`) — irrelevante hoje porque não há sessão, mas é um cheiro.
+- 🟡 **`Family`, `GenealogyGraph` e `DNAGroup` declaradas e não instanciadas** — arquitetura intencional abandonada? (`L-01`)
+- 🟡 **`GenealogyGraph` declara `networkx.MultiGraph` no docstring** (`domain.py:77`), mas o grafo real é `nx.Graph`. Contradição documental interna.
 
 ---
-*Gerado pelo Reversa-Writer em 2026-08-03.*
+
+*Gerado pelo Reversa-Writer em 2026-09-30 (re-extração).*

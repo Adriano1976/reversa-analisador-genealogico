@@ -14,14 +14,30 @@
     "escavacao",
     "interpretacao",
     "geracao",
-    "revisao"
+    "revisao",
+    "reconhecimento (re-extracao 2026-09-30)",
+    "escavacao (re-extracao 2026-09-30)",
+    "interpretacao (re-extracao 2026-09-30)",
+    "geracao (re-extracao 2026-09-30)",
+    "revisao (re-extracao 2026-09-30)"
   ],
-  "pending": [
-    "escavacao",
-    "interpretacao",
-    "geracao",
-    "revisao"
-  ],
+  "pending": [],
+  "reextraction": {
+    "started_at": "2026-09-30T18:30:00Z",
+    "authorized_by": "Adriano (pedido explicito: 'Sim' apos relatorio do Passo 4 apontar que o _reversa_sdd/ estava congelado em 2026-08-03 e contradizia o codigo)",
+    "doc_level": "essencial",
+    "doc_level_resolution": "CONFLITO RESOLVIDO POR DECISAO DO USUARIO: config.toml [analysis] doc_level dizia 'completo' enquanto state.json dizia 'essencial'. Usuario escolheu 'essencial'. config.toml NAO foi editado (arquivo do instalador); esta e a fonte da verdade para esta rodada.",
+    "snapshot": ".reversa/snapshots/2026-09-30-pre-reextracao/ (28 arquivos, 115049 bytes) - copia dos artefatos anteriores a sobrescrita, para diff e para a base de comparacao dos addenda",
+    "specs_organization": "secao [specs] de config.toml ja decidida (feature-folder / endpoint, decidida em 2026-08-03); passo-03 pulado automaticamente conforme a regra",
+    "preserved_not_regenerated": [
+      "_reversa_sdd/migration/ (19 artefatos do Time de Migracao)",
+      "_reversa_sdd/oracle/ (oraculo congelado)",
+      "_reversa_sdd/parity/ (harness diferencial, PARIDADE 100%)",
+      "_reversa_sdd/screens/ (goldens e inventario)",
+      "_reversa_sdd/addenda/ (nao pertencem ao Writer)"
+    ],
+    "motivo_do_preservado": "Sao produtos de pipelines posteriores ao congelamento. Regenerar as specs de feature nao invalida o oraculo, o harness de paridade nem os goldens."
+  },
   "checkpoints": {
     "scout": {
       "completed_at": "2026-08-03T11:48:40Z",
@@ -54,6 +70,40 @@
         "_reversa_sdd/architecture.md",
         "_reversa_sdd/c4-context.md"
       ]
+    },
+    "redator_reextracao": {
+      "phase": "geracao",
+      "reextraction": true,
+      "granularity": "endpoint",
+      "layout": "feature-folder",
+      "started_at": "2026-09-30T20:30:00Z",
+      "units_total": 3,
+      "files_total": 9,
+      "units": [
+        {
+          "unit": "upload-gedcom",
+          "status": "concluida",
+          "completed_at": "2026-09-30T20:45:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md"]
+        },
+        {
+          "unit": "analise-dna",
+          "status": "concluida",
+          "completed_at": "2026-09-30T21:05:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md"]
+        },
+        {
+          "unit": "busca-caminho",
+          "status": "concluida",
+          "completed_at": "2026-09-30T21:30:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md"]
+        }
+      ],
+      "next_file": null,
+      "geracao_completa": true,
+      "globais_gerados": "nenhum - code-spec-matrix, openapi e user-stories sao niveis completo/detalhado",
+      "opcionais_gerados": "nenhum - contracts.md exige nivel completo; tests.md referenciado dentro das tasks.md de cada unit",
+      "non_destructive_note": "Os 9 arquivos canonicos ja existiam da extracao de 2026-08-03 e foram sobrescritos por decisao explicita do usuario ('regenerar o _reversa_sdd/ a partir do codigo atual'). Snapshot integral dos anteriores em .reversa/snapshots/2026-09-30-pre-reextracao/."
     },
     "redator_progress": {
       "phase": "geracao",
@@ -110,6 +160,230 @@
       "completed_at": "2026-08-03T12:52:00Z",
       "regression_check": "silent",
       "addenda_pending": false
+    },
+    "regression_check_2026_09_30": {
+      "completed_at": "2026-09-30T18:15:00Z",
+      "kind": "passo-04-verificacao-de-regressao-semantica",
+      "trigger": "retomada de sessao com plano integralmente concluido e _reversa_forward/ com regression-watch.md",
+      "features_checked": [
+        "001-reconstrua-o-conteudo-da-index",
+        "002-integrar-rota-app-modulos"
+      ],
+      "watch_items_in_main_tables": 0,
+      "verdicts": {
+        "verde": 0,
+        "amarelo": 4,
+        "vermelho": 1
+      },
+      "block_on_red": false,
+      "files": [
+        "_reversa_forward/001-reconstrua-o-conteudo-da-index/regression-watch.md",
+        "_reversa_forward/002-integrar-rota-app-modulos/regression-watch.md",
+        "_reversa_sdd/addenda/001-reconstrua-o-conteudo-da-index.md",
+        "_reversa_sdd/addenda/002-integrar-rota-app-modulos.md",
+        "_reversa_sdd/addenda/003-refactor-code-quality.md"
+      ],
+      "addenda_marked_superseded": 3,
+      "addenda_preserved": [
+        "_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md"
+      ],
+      "preserve_reason": "Adendo aditivo: especifica pela primeira vez o contrato de escape do rotulo Mermaid. Nenhum artefato principal cobre o assunto, entao marcar como superado tornaria a regra invisivel para /reversa-requirements e /reversa-plan. Decisao explicita do usuario (Adriano) nesta sessao.",
+      "findings": [
+        "Nenhuma das duas features tem watch item na tabela principal; os itens OBS-* vivem na secao Observacoes e nao tem peso de regressao.",
+        "CRONOLOGIA INVERTIDA: _reversa_sdd/ e o da extracao de 2026-08-03 e nao foi regenerado desde entao. Os adendos 001/002 (2026-08-11), 003 e bug-J6PQ (2026-09-29) descrevem codigo POSTERIOR a esse congelamento.",
+        "architecture.md:101 ainda afirma 'Codigo monolitico (app.py ~887 linhas)' enquanto app.py real tem 84 linhas.",
+        "securityLevel 'strict' existe no codigo e nos goldens, mas em nenhum artefato principal de _reversa_sdd/.",
+        "OBS-03 da feature 002 estava factualmente errado (afirmava HARD_MIN/GIVEN_MIN preservados na reconstrucao); verificado por varredura: zero ocorrencias no codigo. O adendo 003 ja corrigia esse registro."
+      ],
+      "verification_against_code": {
+        "app_py_lines": 84,
+        "securityLevel_strict": "analisador-genealogico/templates/index.html:182",
+        "HARD_MIN_GIVEN_MIN_in_app": "ausentes",
+        "matplotlib_pyvis_in_requirements": "ausentes",
+        "STATIC_FOLDER_in_app": "ausente"
+      }
+    },
+    "scout_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T18:40:00Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/dependencies.md",
+        ".reversa/context/surface.json"
+      ],
+      "snapshot_of_previous": ".reversa/snapshots/2026-09-30-pre-reextracao/",
+      "summary": {
+        "primary_language": "Python 3.14.6",
+        "main_framework": "Flask 3.1.3",
+        "modules_identified": ["upload-gedcom", "analise-dna", "busca-caminho"],
+        "database": "ausente",
+        "ci_cd": "ausente",
+        "docker": "ausente",
+        "test_files": 7,
+        "test_items_collected": 95,
+        "total_project_files": 27,
+        "python_lines": 991,
+        "external_integrations": "nenhuma API externa; apenas CDN (Bootstrap 5, Mermaid 10) no navegador"
+      },
+      "corrections_vs_previous_extraction": [
+        "app.py: 887 -> 70 linhas (camada de rota fina)",
+        "tests/: 0 -> 7 arquivos, 95 itens coletados",
+        "pyvis e matplotlib: removidos do requirements.txt (mas ainda citados em dependencies.md antigo e no README do modulo)",
+        "static/: pasta deixou de existir; STATIC_FOLDER removido de app.py",
+        "valor de action da analise de DNA: 'process_dna' (inexistente no codigo) -> 'dna_analysis'",
+        "acrescentado reconstructed/ como local do nucleo de negocio"
+      ],
+      "organization_suggestion": "endpoint",
+      "organization_note": "Sugestao CONFIRMA a decisao ja persistida em config.toml [specs]; scout_suggestion NAO foi reescrito (regra de imutabilidade do surface-schema.md). Passo 3 (organizacao das specs) pulado automaticamente.",
+      "doc_level": "essencial"
+    },
+    "archaeologist_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T19:30:00Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/code-analysis.md",
+        ".reversa/context/modules.json"
+      ],
+      "modules_analyzed": [
+        "upload-gedcom",
+        "busca-caminho",
+        "analise-dna"
+      ],
+      "modules_pending": [],
+      "summary": {
+        "lines_read": 1201,
+        "files_read": [
+          "analisador-genealogico/app.py",
+          "analisador-genealogico/reconstructed/domain.py",
+          "analisador-genealogico/reconstructed/upload.py",
+          "analisador-genealogico/reconstructed/path_search.py",
+          "analisador-genealogico/reconstructed/dna_analysis.py"
+        ],
+        "business_rules_catalogued": 53,
+        "by_module": { "upload-gedcom": 11, "busca-caminho": 17, "analise-dna": 25 },
+        "entities_declared": 5,
+        "entities_used_in_flow": 2,
+        "algorithms_documented": 10,
+        "gaps_for_human_validation": 6,
+        "doc_level_artifacts": "essencial -> data-dictionary.md e flowcharts/ NAO gerados (por nivel); tabela de dados embutida no code-analysis.md §5 e fluxo descrito em texto no §2.1 e §3.1"
+      },
+      "corrections_applied_during_analysis": [
+        "Contagens de linha do inventario estavam truncadas: app.py 84 (nao 70), reconstructed/ 1117 (nao 921), tests/ 1197 (nao 954), index.html 200 (nao 188). Corrigidas em inventory.md e surface.json, com o metodo de contagem registrado.",
+        "U-08: o mapa de mojibake tem 18 pares, nao 13 (contado por AST).",
+        "L-05 verificado por AST: COMMON_SURNAMES tem 16 itens e 15 unicos ('souza' duplicado).",
+        "Entidades decorativas verificadas por varredura: GenealogyGraph, DNAGroup e a dataclass Family nao sao instanciadas em nenhum ponto de producao."
+      ],
+      "notable_findings": [
+        "HARD_MIN/GIVEN_MIN NAO existem em nenhum arquivo de analisador-genealogico/ - os literais 92 e 90 vivem dentro dos ramos 4 e 5 de aceitacao. A afirmacao da extracao anterior de que estavam 'declarados mas nao usados' na reconstrucao era FALSA.",
+        "As 9 faixas de cM se sobrepoem ate 4 vezes; get_relationships_by_cm devolve lista e cM<=0 devolve lista VAZIA (nao o literal de relacao distante).",
+        "O contrato de escape do rotulo Mermaid (lista branca) e regra de primeira classe, ausente da extracao anterior.",
+        "find_indirect_path faz 'from .upload import graph' DENTRO da funcao, para captar o rebind da global - import no topo capturaria None."
+      ],
+      "doc_level": "essencial"
+    },
+    "detective_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T20:05:00Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/domain.md"
+      ],
+      "state_machines_generated": false,
+      "state_machines_reason": "varredura de app.py e reconstructed/ nao encontrou nenhum campo status/state/flag/enabled/active - nenhuma entidade central com multiplos estados",
+      "permissions_generated": false,
+      "permissions_reason": "nenhum session/login/auth/logout/password/current_user no sistema - sem usuarios, papeis ou permissoes",
+      "adrs_generated": false,
+      "adrs_reason": "nivel essencial nao gera _reversa_sdd/adrs/; as 8 decisoes ficam consolidadas em domain.md seção 7",
+      "summary": {
+        "business_rules": 12,
+        "adrs_retroativos": 8,
+        "contract_messages": 21,
+        "human_decisions_still_valid": 4,
+        "gaps": 5
+      },
+      "corrections_vs_previous_extraction": [
+        "FALSO na extracao anterior: 'nao ha repositorio Git no projeto - ADRs retrospectivos nao sao possiveis'. O repositorio tem 66 commits; 8 ADRs foram reconstruidos (ADR-01 a ADR-08).",
+        "FALSO na extracao anterior: 'cM <= 0 ou nao numerico retorna Relacao distante ou indeterminada'. O codigo devolve LISTA VAZIA nesses casos; o literal so aparece com valor positivo fora de todas as faixas.",
+        "Impreciso na extracao anterior: 'profundidade maxima 20 niveis'. O teto conta iteracoes de profundidade do BFS bidirecional, nao geracoes.",
+        "Lacuna da extracao anterior fechada: 'delimitacao de escopo do matching nao coberta por testes' - agora ha test_characterization_matching.py congelando a decisao."
+      ],
+      "source_of_adrs": "git log (66 commits, 2026-08-03 a 2026-09-30): 6b6483d, d2ea17a, 5ee57c9, f51bac1, c709ea0, e82451b, c272bde, 9318864, 8e09fe5, 80afe02, 4e172cd"
+    },
+    "architect_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T20:25:00Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/c4-context.md"
+      ],
+      "containers": 1,
+      "layers": 2,
+      "entities_identified": 9,
+      "entities_actually_used": 3,
+      "external_integrations": 0,
+      "technical_debts": 9,
+      "debts_closed_vs_previous_extraction": [
+        "monolito app.py ~887 linhas com rotas + logica acopladas",
+        "ausencia total de testes",
+        "correcoes de mojibake heuristicas/fragmentadas"
+      ],
+      "not_generated_reason": "nivel essencial: c4-containers.md, c4-components.md, erd-complete.md, traceability/spec-impact-matrix.md e deployment.md NAO sao gerados (por nivel). ERD embutido no architecture.md seção 3, com ressalva registrada de que 9 entidades excedem o limiar de 5 do nivel essencial.",
+      "notes": "Os artefatos de instrumentacao de desenvolvimento em _reversa_sdd/ (oracle/, parity/, screens/, migration/) foram explicitamente declarados FORA do escopo do sistema em runtime, para nao serem confundidos com a arquitetura da aplicacao."
+    },
+    "reviewer_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T22:00:00Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/confidence-report.md",
+        "_reversa_sdd/questions.md"
+      ],
+      "specs_reviewed": 3,
+      "canonical_files_reviewed": 9,
+      "cross_review": false,
+      "cross_review_reason": "nivel essencial nao oferece revisao cruzada (Passo 0 do agente); nenhuma engine externa foi consultada",
+      "confidence": {
+        "unit_specs": { "verde": 496, "amarelo": 32, "vermelho": 28, "total": 556, "pct": 89.2, "confianca_geral_pct": 92.1 },
+        "transversais": { "verde": 203, "amarelo": 37, "vermelho": 30, "total": 270, "pct": 75.2, "confianca_geral_pct": 82.0 },
+        "extracao_completa": { "verde": 699, "amarelo": 69, "vermelho": 58, "total": 826, "pct": 84.6, "confianca_geral_pct": 88.8 }
+      },
+      "reclassifications_vs_previous_extraction": 8,
+      "internal_upgrades": 4,
+      "checks_executed": [
+        "9/9 arquivos canonicos presentes",
+        "units geradas == surface.json.modules (3/3, nada faltando nem sobrando)",
+        "varredura de HARD_MIN/GIVEN_MIN/process_dna/given_index/Pyvis: as 6 ocorrencias sao avisos de 'nao fazer isso', nenhuma afirmacao funcional",
+        "globais do nivel essencial (code-spec-matrix, spec-impact-matrix, gaps.md, openapi/, user-stories/) ausentes - correto para o nivel",
+        "valores-contrato coerentes entre units (MAX_DEPTH, MAX_HOPS, limiares de Jaccard, faixas de cM)",
+        "contagem de RFs confere: 12 / 13 / 15",
+        "dependencias entre units reais, sem ciclo"
+      ],
+      "self_corrections_during_review": [
+        "A contagem por regex de PowerShell reportou 21/22/24 RFs (pegava referencias em prosa que comecam com '| RF-'). A contagem exata por linha de tabela e 12/13/15, que e a que consta no relatorio.",
+        "O contador de emoji falhou por encoding cp1252 do console PowerShell (retornou 0/0/0). Refeito em Python com PYTHONIOENCODING=utf-8 e leitura UTF-8."
+      ],
+      "questions_generated": 6,
+      "questions_blocking": 3,
+      "questions_answered": 0,
+      "note_questions": "answer_mode = chat. As 4 decisoes humanas de 2026-08-03 foram verificadas contra o codigo atual e continuam vigentes; NAO foram reabertas. As 6 perguntas novas sao sobre lacunas descobertas por esta re-extracao."
+    },
+    "extraction_complete_reextracao_2026_09_30": {
+      "completed_at": "2026-09-30T22:00:00Z",
+      "kind": "re-extracao integral do _reversa_sdd/",
+      "agents_run": ["scout", "archaeologist", "detective", "architect", "writer", "reviewer"],
+      "agents_run_count": 6,
+      "doc_level": "essencial",
+      "snapshot_of_previous": ".reversa/snapshots/2026-09-30-pre-reextracao/",
+      "preserved_not_regenerated": [
+        "_reversa_sdd/migration/",
+        "_reversa_sdd/oracle/",
+        "_reversa_sdd/parity/",
+        "_reversa_sdd/screens/",
+        "_reversa_sdd/addenda/",
+        "_reversa_sdd/design-system/",
+        "_reversa_sdd/traceability/bugs.md"
+      ],
+      "regression_check": "concluido na mesma sessao em 2026-09-30T18:15Z (ver checkpoint regression_check_2026_09_30). Nenhuma re-verificacao necessaria: os watch items das duas features sao OBS-*, sem peso de regressao, e a comparacao ja foi feita contra estes mesmos artefatos regenerados.",
+      "pending": "6 perguntas de validacao humana em _reversa_sdd/questions.md (3 bloqueantes)",
+      "legacy_untouched": true
     }
   },
   "engines": [

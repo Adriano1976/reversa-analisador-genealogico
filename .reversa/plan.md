@@ -6,6 +6,67 @@
 
 ---
 
+## Re-extração de 2026-09-30 🔁
+
+> Disparada porque o `_reversa_sdd/` estava congelado em 2026-08-03 e contradizia o código atual (app.py 887 → 84 linhas, `reconstructed/` criado, 95 testes adicionados, pyvis/matplotlib removidos).
+> Nível de documentação: **essencial** (decisão do usuário; `config.toml` dizia `completo`).
+> Snapshot da extração anterior: `.reversa/snapshots/2026-09-30-pre-reextracao/` (28 arquivos, 115 KB).
+> Preservados sem regeneração: `_reversa_sdd/migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`.
+
+### Fase 1: Reconhecimento 🔍
+
+- [x] **Scout** — Estrutura, tecnologias, entry points, dependências e cobertura de testes ✅
+- [x] **Scout** — Sugestão de organização das specs (confirmou `endpoint` já persistido) ✅
+
+### Fase 2: Escavação 🏗️
+
+- [x] **Arqueólogo** — Análise do módulo `upload-gedcom` (11 regras) ✅
+- [x] **Arqueólogo** — Análise do módulo `busca-caminho` (17 regras) ✅
+- [x] **Arqueólogo** — Análise do módulo `analise-dna` (25 regras) ✅
+
+### Fase 3: Interpretação 🧠
+
+- [x] **Detetive** — Arqueologia Git e ADRs retroativos ✅ (8 ADRs reconstruídos de 66 commits)
+- [x] **Detetive** — Regras de negócio implícitas e máquinas de estado ✅ (12 regras; nenhuma máquina de estado existe)
+- [x] **Detetive** — Matriz de permissões (RBAC/ACL) ✅ (inexistente — sem auth; consequência de negócio registrada)
+- [x] **Arquiteto** — Diagramas C4 (Contexto) ✅
+- [x] **Arquiteto** — ERD e integrações externas ✅ (9 entidades, 0 integrações de API)
+- [x] **Arquiteto** — Spec Impact Matrix ✅ (não aplicável no nível essencial)
+
+### Fase 4: Geração 📝
+
+- [x] **Redator** — Specs SDD da unit `upload-gedcom` ✅ (12 RF, 14 tarefas)
+- [x] **Redator** — Specs SDD da unit `analise-dna` ✅ (13 RF, 18 tarefas)
+- [x] **Redator** — Specs SDD da unit `busca-caminho` ✅ (15 RF, 20 tarefas)
+- [x] **Redator** — OpenAPI / User Stories / Code-Spec Matrix ✅ (não aplicáveis no nível essencial)
+
+### Fase 5: Revisão ✅
+
+- [x] **Revisor** — Revisão cruzada de specs ✅ (não oferecida no nível essencial; 7 verificações de consistência executadas)
+- [x] **Revisor** — Resolução de lacunas com o usuário ✅ (6 perguntas geradas, 3 bloqueantes — aguardando resposta)
+- [x] **Revisor** — Relatório de confiança final ✅ (88,8% na extração completa)
+
+---
+
+## ✅ Re-extração concluída em 2026-09-30
+
+> 6 agentes, nível **essencial**, 826 afirmações, 88,8% de confiança geral.
+> Snapshot da extração anterior: `.reversa/snapshots/2026-09-30-pre-reextracao/`
+> Preservados: `migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`, `design-system/`, `traceability/bugs.md`
+> Pendente: 6 perguntas em `_reversa_sdd/questions.md` (3 bloqueantes)
+> Próximos passos possíveis: `/reversa-forward` (evoluir), `/reversa-migrate` (reavaliar migração), `/reversa-docs` (regenerar mini-site)
+
+### Passo 4 — Verificação de regressão semântica 🔁
+
+- [x] **Reversa** — Verificação contra `_reversa_forward/*/regression-watch.md` ✅ (2026-09-30, 0 watch items, 4 amarelos, 1 vermelho)
+- [x] **Reversa** — Reconciliação de adendos ✅ (001, 002 e 003 marcados; `bug-J6PQ` preservado por decisão do usuário)
+
+---
+
+## Extração original de 2026-08-03 (histórico)
+
+> Mantida como registro. Os artefatos desta rodada foram substituídos pela re-extração acima.
+
 ## Fase 1: Reconhecimento 🔍
 
 - [x] **Scout** — Mapeamento de estrutura de pastas e tecnologias ✅

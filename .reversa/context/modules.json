@@ -1,131 +1,320 @@
 {
-  "generated_at": "2026-08-03T12:22:00Z",
+  "generated_at": "2026-09-30T19:20:00Z",
+  "extraction": {
+    "kind": "re-extraction",
+    "previous_extraction": "2026-08-03",
+    "doc_level": "essencial",
+    "source": "leitura integral de app.py (84 linhas) + reconstructed/{domain,upload,path_search,dna_analysis}.py (1117 linhas)"
+  },
   "modules": [
     {
-      "name": "analisador-genealogico",
-      "path": "analisador-genealogico",
-      "purpose": "Parsing de GEDCOM, processamento de correspondências de DNA CSV, matching difuso de nomes, cálculo de menor caminho em grafos de parentesco e renderização de conexões genealógicas.",
+      "name": "upload-gedcom",
+      "path": "analisador-genealogico/reconstructed",
+      "purpose": "Receber o arquivo GEDCOM, parsear registros INDI/FAM, construir o grafo nao-direcionado pessoa<->familia e publicar o estado global em memoria que os demais fluxos consomem.",
       "primary_files": [
-        "analisador-genealogico/app.py",
-        "analisador-genealogico/templates/index.html"
+        "analisador-genealogico/reconstructed/upload.py",
+        "analisador-genealogico/reconstructed/domain.py",
+        "analisador-genealogico/app.py"
       ],
+      "endpoints": ["POST / action=upload_gedcom"],
       "functions": [
-        {
-          "name": "load_gedcom_and_build_graph",
-          "file": "analisador-genealogico/app.py",
-          "params": ["file_path: str"],
-          "returns": "list[str]",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "build_graph_from_parser",
-          "file": "analisador-genealogico/app.py",
-          "params": ["people_dict: dict", "parser: GedcomReader"],
-          "returns": "tuple[nx.Graph, dict]",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "find_ancestral_path",
-          "file": "analisador-genealogico/app.py",
-          "params": ["start_id: str", "end_id: str", "max_depth: int = 20"],
-          "returns": "tuple[list[str], str]",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "find_indirect_path",
-          "file": "analisador-genealogico/app.py",
-          "params": ["start_id: str", "end_id: str", "max_hops: int = 40"],
-          "returns": "list[str] | None",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "get_relationships_by_cm",
-          "file": "analisador-genealogico/app.py",
-          "params": ["cm_value: float"],
-          "returns": "list[str]",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "soft_prefix_jaccard",
-          "file": "analisador-genealogico/app.py",
-          "params": ["a: set[str]", "b: set[str]", "min_pref: int = 4", "min_len: int = 2"],
-          "returns": "float",
-          "confidence": "confirmed"
-        },
-        {
-          "name": "strip_bad_utf",
-          "file": "analisador-genealogico/app.py",
-          "params": ["s: str"],
-          "returns": "str",
-          "confidence": "confirmed"
-        }
+        { "name": "load_gedcom_and_build_graph", "file": "analisador-genealogico/reconstructed/upload.py", "line": 82, "params": ["file_path: str"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "build_graph_from_parser", "file": "analisador-genealogico/reconstructed/upload.py", "line": 50, "params": ["people_dict: dict", "parser: GedcomReader"], "returns": "tuple[nx.Graph, dict]", "confidence": "confirmed" },
+        { "name": "get_name", "file": "analisador-genealogico/reconstructed/upload.py", "line": 33, "params": ["person"], "returns": "str", "confidence": "confirmed" },
+        { "name": "ref_id", "file": "analisador-genealogico/reconstructed/upload.py", "line": 28, "params": ["val"], "returns": "str", "confidence": "confirmed" },
+        { "name": "ensure_dirs", "file": "analisador-genealogico/reconstructed/upload.py", "line": 24, "params": [], "returns": "None", "confidence": "confirmed" },
+        { "name": "strip_bad_utf", "file": "analisador-genealogico/reconstructed/domain.py", "line": 25, "params": ["s"], "returns": "str", "confidence": "confirmed" },
+        { "name": "demojibake", "file": "analisador-genealogico/reconstructed/domain.py", "line": 44, "params": ["s"], "returns": "str", "confidence": "confirmed" },
+        { "name": "register_person", "file": "analisador-genealogico/reconstructed/domain.py", "line": 89, "params": ["xref_id: str", "name: str", "sub_records=None"], "returns": "None", "confidence": "confirmed" },
+        { "name": "register_family", "file": "analisador-genealogico/reconstructed/domain.py", "line": 103, "params": ["familie: Family"], "returns": "None", "confidence": "confirmed" },
+        { "name": "get_person", "file": "analisador-genealogico/reconstructed/domain.py", "line": 100, "params": ["xref_id: str"], "returns": "dict | None", "confidence": "confirmed" }
       ],
       "entities": [
         {
-          "name": "Person",
+          "name": "PERSON",
+          "source": "registro INDI do ged4py",
           "fields": [
-            { "name": "xref_id", "type": "str", "required": true },
-            { "name": "name", "type": "str", "required": true },
-            { "name": "sub_records", "type": "list", "required": true }
+            { "name": "xref_id", "type": "string", "required": true },
+            { "name": "name", "type": "objeto Name do ged4py", "required": true },
+            { "name": "sub_records", "type": "list", "required": true, "note": "contem FAMC, FAMS e eventos" }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "FAMILIA",
+          "source": "registro FAM do ged4py",
+          "fields": [
+            { "name": "xref_id", "type": "string", "required": true },
+            { "name": "HUSB", "type": "string", "required": false },
+            { "name": "WIFE", "type": "string", "required": false },
+            { "name": "CHIL", "type": "list[string]", "required": false }
           ],
           "confidence": "confirmed"
         },
         {
           "name": "Family",
+          "source": "dataclass em domain.py:61",
           "fields": [
-            { "name": "xref_id", "type": "str", "required": true },
-            { "name": "HUSB", "type": "str", "required": false },
-            { "name": "WIFE", "type": "str", "required": false },
-            { "name": "CHIL", "type": "list[str]", "required": false }
+            { "name": "xref_id", "type": "string", "required": true },
+            { "name": "husb", "type": "string", "required": false, "default": "" },
+            { "name": "wife", "type": "string", "required": false, "default": "" },
+            { "name": "chil", "type": "list", "required": false, "default": "[]" }
           ],
-          "confidence": "confirmed"
+          "confidence": "confirmed",
+          "used_in_flow": false
         },
         {
-          "name": "DnaMatchRecord",
+          "name": "GenealogyGraph",
+          "source": "classe em domain.py:74",
           "fields": [
-            { "name": "_group_key", "type": "str", "required": true },
-            { "name": "cM", "type": "float", "required": true },
-            { "name": "matched_name", "type": "str", "required": true }
+            { "name": "persons", "type": "dict", "required": true },
+            { "name": "families", "type": "dict", "required": true },
+            { "name": "graph", "type": "nx.Graph | None", "required": false, "default": "None" }
+          ],
+          "confidence": "confirmed",
+          "used_in_flow": false
+        },
+        {
+          "name": "Registro de pessoa (dict interno)",
+          "source": "domain.py:93-98",
+          "fields": [
+            { "name": "xref_id", "type": "string", "required": true },
+            { "name": "name", "type": "string", "required": true },
+            { "name": "name_clean", "type": "string", "required": true, "note": "demojibake(name).strip()" },
+            { "name": "sub_records", "type": "list", "required": true, "default": "[]" }
           ],
           "confidence": "confirmed"
         }
       ],
       "business_rules": [
-        {
-          "description": "Limpeza e correção de Mojibake decorrente de encoding Latin-1 lido erroneamente como UTF-8",
-          "location": "analisador-genealogico/app.py:62",
-          "confidence": "confirmed"
-        },
-        {
-          "description": "Agregação da soma de cM por pessoa em arquivos de segmentos de DNA",
-          "location": "analisador-genealogico/app.py:627",
-          "confidence": "confirmed"
-        },
-        {
-          "description": "Algoritmo de pontuação ponderada para matching difuso de nomes GEDCOM vs CSV com penalidade para sobrenomes comuns",
-          "location": "analisador-genealogico/app.py:718",
-          "confidence": "confirmed"
-        },
-        {
-          "description": "Filtro anti-falso-positivo bloqueando correspondências sem interseção de sobrenomes",
-          "location": "analisador-genealogico/app.py:736",
-          "confidence": "confirmed"
-        },
-        {
-          "description": "Classificação de parentesco estimado a partir de tabela de faixas de centiMorgans acumulados",
-          "location": "analisador-genealogico/app.py:169",
-          "confidence": "confirmed"
-        }
+        { "id": "U-01", "description": "Nome formatado e person.name.format(); 'Sem Nome' so se person ou person.name ausente", "location": "analisador-genealogico/reconstructed/upload.py:47", "confidence": "confirmed" },
+        { "id": "U-02", "description": "Formato vazio devolve string vazia; medido em dado real: 296/35460 e 17/3056 pessoas", "location": "analisador-genealogico/reconstructed/upload.py:40-45", "confidence": "confirmed" },
+        { "id": "U-03", "description": "Grafo nao-direcionado (nx.Graph) com nos type=person e type=family", "location": "analisador-genealogico/reconstructed/upload.py:52-60", "confidence": "confirmed" },
+        { "id": "U-04", "description": "Aresta pessoa<->familia so e criada se a pessoa ja existir como no; referencias orfas sao descartadas em silencio", "location": "analisador-genealogico/reconstructed/upload.py:72-78", "confidence": "confirmed" },
+        { "id": "U-05", "description": "FAM sem xref_id e ignorada por completo", "location": "analisador-genealogico/reconstructed/upload.py:57-59", "confidence": "confirmed" },
+        { "id": "U-06", "description": "child_to_family acumula todas as familias em que a pessoa aparece como CHIL", "location": "analisador-genealogico/reconstructed/upload.py:71", "confidence": "confirmed" },
+        { "id": "U-07", "description": "xref_id extraido por getattr(val, 'xref_id', val) - aceita objeto ged4py ou string", "location": "analisador-genealogico/reconstructed/upload.py:30", "confidence": "confirmed" },
+        { "id": "U-08", "description": "strip_bad_utf aplica mapa fixo de 18 pares de mojibake e remove o que nao case [\\w\\sÁ-ú'-]", "location": "analisador-genealogico/reconstructed/domain.py:29-41", "confidence": "confirmed" },
+        { "id": "U-09", "description": "demojibake so tenta latin1->utf-8 se houver marcador (Ã, Â, A?, ?) e so aceita sem residuo", "location": "analisador-genealogico/reconstructed/domain.py:44-54", "confidence": "confirmed" },
+        { "id": "U-10", "description": "register_person e idempotente: xref_id ja existente retorna sem alterar", "location": "analisador-genealogico/reconstructed/domain.py:91-92", "confidence": "confirmed" },
+        { "id": "U-11", "description": "Sem validacao de extensao, tipo ou tamanho; nome enviado pelo cliente vira caminho, entao colisao sobrescreve", "location": "analisador-genealogico/app.py:29", "confidence": "confirmed", "known_gap": "BUG-20260929-QMLY-upload-sem-limites" }
       ],
       "dependencies": [],
       "algorithms": [
-        "fuzzy_name_scoring",
-        "soft_prefix_jaccard",
-        "ancestral_mrca_bfs",
-        "mojibake_decoding",
-        "cm_relationship_mapping"
+        { "name": "Construcao do grafo bidirecional pessoa<->familia", "location": "analisador-genealogico/reconstructed/upload.py:50-79", "confidence": "confirmed" }
       ],
-      "complexity": "medium"
+      "state": {
+        "globals": ["people", "families", "graph", "child_to_family"],
+        "mutated_at": "analisador-genealogico/reconstructed/upload.py:95-98",
+        "pattern": "clear() + update() in-place para preservar referencias ja importadas",
+        "scope": "singleton por processo - sem isolamento entre usuarios",
+        "confidence": "confirmed"
+      },
+      "complexity": "low"
+    },
+    {
+      "name": "busca-caminho",
+      "path": "analisador-genealogico/reconstructed",
+      "purpose": "Resolver duas pessoas por nome e encontrar a conexao entre elas: caminho ancestral direto (BFS bidirecional subindo por pais) ou ponte indireta por afinidade/casamento, emitindo caminho textual e diagrama Mermaid com escape de rotulo.",
+      "primary_files": [
+        "analisador-genealogico/reconstructed/path_search.py",
+        "analisador-genealogico/app.py"
+      ],
+      "endpoints": ["POST / action=path_search"],
+      "functions": [
+        { "name": "path_search", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 463, "params": ["person1_name: str", "person2_name: str"], "returns": "tuple[dict | None, str, bool]", "confidence": "confirmed" },
+        { "name": "find_person_by_name", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 30, "params": ["name_query"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "find_ancestral_path", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 144, "params": ["start_id", "end_id", "max_depth: int = 20"], "returns": "tuple[list[str] | None, str | None]", "confidence": "confirmed" },
+        { "name": "find_indirect_path", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 126, "params": ["start_id", "end_id", "max_hops: int = 40"], "returns": "list[str] | None", "confidence": "confirmed" },
+        { "name": "get_parents", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 42, "params": ["person_id"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "get_spouses", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 64, "params": ["person_id"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "are_spouses", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 91, "params": ["a_id", "b_id"], "returns": "bool", "confidence": "confirmed" },
+        { "name": "split_path_by_marriage", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 95, "params": ["person_path"], "returns": "tuple[list, list, tuple | None]", "confidence": "confirmed" },
+        { "name": "pick_spouse_for_couple", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 106, "params": ["person_id", "candidate_path=None"], "returns": "str | None", "confidence": "confirmed" },
+        { "name": "exclude_tail", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 117, "params": ["seq", "n: int = 1"], "returns": "list", "confidence": "confirmed" },
+        { "name": "_mermaid_sid", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 185, "params": ["raw"], "returns": "str", "confidence": "confirmed" },
+        { "name": "_mermaid_label", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 204, "params": ["txt"], "returns": "str", "confidence": "confirmed" },
+        { "name": "generate_mermaid_graph", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 217, "params": ["path", "p1_id", "p2_id", "common_ancestor_id"], "returns": "str", "confidence": "confirmed" },
+        { "name": "generate_mermaid_graph_indirect_bridge", "file": "analisador-genealogico/reconstructed/path_search.py", "line": 266, "params": ["p1_id", "p2_id", "person_path"], "returns": "str", "confidence": "confirmed" }
+      ],
+      "entities": [],
+      "business_rules": [
+        { "id": "P-01", "description": "Resolucao de nome em duas passadas: igualdade case-insensitive, depois substring", "location": "analisador-genealogico/reconstructed/path_search.py:30-35", "confidence": "confirmed" },
+        { "id": "P-02", "description": "Pais: prefere FAMC do proprio registro; se ausente usa o indice child_to_family", "location": "analisador-genealogico/reconstructed/path_search.py:42-61", "confidence": "confirmed" },
+        { "id": "P-03", "description": "Conjuges por FAMS; a varredura global so roda se spouse_ids ficou vazio", "location": "analisador-genealogico/reconstructed/path_search.py:64-88", "confidence": "confirmed" },
+        { "id": "P-04", "description": "BFS bidirecional por pais com teto de 20 iteracoes de profundidade (nao de geracoes)", "location": "analisador-genealogico/reconstructed/path_search.py:144-178", "confidence": "confirmed" },
+        { "id": "P-05", "description": "Caminho indireto por nx.shortest_path, teto de 40 arestas, nos de familia comprimidos, exige >= 2 pessoas", "location": "analisador-genealogico/reconstructed/path_search.py:126-141", "confidence": "confirmed" },
+        { "id": "P-06", "description": "Decomposicao usa o PRIMEIRO par adjacente de conjuges", "location": "analisador-genealogico/reconstructed/path_search.py:95-103", "confidence": "confirmed" },
+        { "id": "P-07", "description": "exclude_tail(n=1) evita repetir o ancestral nas duas colunas", "location": "analisador-genealogico/reconstructed/path_search.py:117-119", "confidence": "confirmed" },
+        { "id": "P-10", "description": "_mermaid_sid mantem apenas [A-Za-z0-9_], remove @, troca + por _, prefixa N_", "location": "analisador-genealogico/reconstructed/path_search.py:185-190", "confidence": "confirmed" },
+        { "id": "P-11", "description": "_mermaid_label: NFC, normaliza NBSP/travessoes/aspas curvas, troca aspas duplas, achata quebras de linha, aplica LISTA BRANCA", "location": "analisador-genealogico/reconstructed/path_search.py:201-214", "confidence": "confirmed" },
+        { "id": "P-12", "description": "Depois da lista branca, &, < e > viram entidades HTML", "location": "analisador-genealogico/reconstructed/path_search.py:214", "confidence": "confirmed" },
+        { "id": "P-13", "description": "Lista branca e nao negra: a negra anterior foi furada pela crase (markdown-string do lexer Mermaid)", "location": "analisador-genealogico/reconstructed/path_search.py:193-201", "confidence": "confirmed" },
+        { "id": "P-14", "description": "Homonimos: usa o primeiro ID encontrado, sem desempate nem aviso", "location": "analisador-genealogico/reconstructed/path_search.py:479", "confidence": "confirmed", "known_gap": true },
+        { "id": "P-15", "description": "Familias adotivas/complexas assumem caminho por pais", "location": "analisador-genealogico/reconstructed/path_search.py:8-10", "confidence": "confirmed", "known_gap": true },
+        { "id": "P-16", "description": "get_parents ignora irmaos quando nao ha FAMC nem entrada em child_to_family", "location": "analisador-genealogico/reconstructed/path_search.py:47-48", "confidence": "inferred" },
+        { "id": "P-17", "description": "Sem conexao devolve success=True com path_result=None - a tela distingue 'sem conexao' de erro por outro meio", "location": "analisador-genealogico/reconstructed/path_search.py:488-491", "confidence": "inferred" }
+      ],
+      "dependencies": ["upload-gedcom"],
+      "algorithms": [
+        { "name": "BFS bidirecional por ascendencia (ancestral comum mais proximo)", "location": "analisador-genealogico/reconstructed/path_search.py:144-178", "confidence": "confirmed" },
+        { "name": "Shortest path nao ponderado com compressao de nos de familia", "location": "analisador-genealogico/reconstructed/path_search.py:126-141", "confidence": "confirmed" },
+        { "name": "Decomposicao do caminho pela ponte matrimonial", "location": "analisador-genealogico/reconstructed/path_search.py:95-103", "confidence": "confirmed" },
+        { "name": "Emissao Mermaid com lista branca de caracteres e entidades HTML", "location": "analisador-genealogico/reconstructed/path_search.py:201-214", "confidence": "confirmed" }
+      ],
+      "constants": [
+        { "name": "MAX_DEPTH", "value": 20, "location": "analisador-genealogico/reconstructed/path_search.py:22" },
+        { "name": "MAX_HOPS", "value": 40, "location": "analisador-genealogico/reconstructed/path_search.py:23" },
+        { "name": "_LABEL_SEGURO", "value": "regex de lista branca", "location": "analisador-genealogico/reconstructed/path_search.py:201" }
+      ],
+      "complexity": "high"
+    },
+    {
+      "name": "analise-dna",
+      "path": "analisador-genealogico/reconstructed",
+      "purpose": "Cruzar o CSV de matches de DNA com a arvore GEDCOM: agrupar e somar segmentos de cM por match, casar nomes por similaridade difusa com filtros anti-falso-positivo, achar o caminho ancestral ate a raiz e prever o parentesco por faixa de cM.",
+      "primary_files": [
+        "analisador-genealogico/reconstructed/dna_analysis.py",
+        "analisador-genealogico/app.py"
+      ],
+      "endpoints": ["POST / action=dna_analysis"],
+      "functions": [
+        { "name": "dna_analysis", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 340, "params": ["csv_path: str", "root_name: str"], "returns": "tuple[list[dict], list[dict], str]", "confidence": "confirmed" },
+        { "name": "get_relationships_by_cm", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 62, "params": ["cm_value"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "norm_name", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 74, "params": ["s"], "returns": "str", "confidence": "confirmed" },
+        { "name": "drop_short_tokens", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 84, "params": ["S", "n: int = 3"], "returns": "set", "confidence": "confirmed" },
+        { "name": "surname_core_tokens", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 88, "params": ["name", "keep_last: int = 3"], "returns": "tuple[list, list]", "confidence": "confirmed" },
+        { "name": "split_name_pt", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 99, "params": ["s"], "returns": "tuple[str, list, set]", "confidence": "confirmed" },
+        { "name": "surnames_set", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 108, "params": ["name"], "returns": "set", "confidence": "confirmed" },
+        { "name": "top_given_tokens", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 113, "params": ["name", "k: int = 2"], "returns": "list[str]", "confidence": "confirmed" },
+        { "name": "token_prefixes", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 119, "params": ["tokens", "min_len: int = 3"], "returns": "set", "confidence": "confirmed" },
+        { "name": "soft_prefix_jaccard", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 128, "params": ["a", "b", "min_pref: int = 4", "min_len: int = 2"], "returns": "float", "confidence": "confirmed" },
+        { "name": "read_csv_with_fallback", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 151, "params": ["path"], "returns": "DataFrame", "confidence": "confirmed" },
+        { "name": "detect_columns", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 160, "params": ["df"], "returns": "tuple[str | None, str | None, str | None, str | None]", "confidence": "confirmed" },
+        { "name": "aggregate_matches", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 173, "params": ["df", "name_col", "cm_col", "match_id_col", "match_email_col"], "returns": "DataFrame", "confidence": "confirmed" },
+        { "name": "build_ged_indexes", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 198, "params": [], "returns": "tuple[dict, dict, dict]", "confidence": "confirmed" },
+        { "name": "match_candidates", "file": "analisador-genealogico/reconstructed/dna_analysis.py", "line": 233, "params": ["match_name", "cm_value", "ged_index", "surname_index", "features"], "returns": "tuple[list[str], str | None]", "confidence": "confirmed" }
+      ],
+      "entities": [
+        {
+          "name": "DNA_MATCH (agregado em memoria)",
+          "source": "derivado do CSV",
+          "fields": [
+            { "name": "_group_key", "type": "string", "required": true, "note": "norm(demojibake(nome)) + ' | ' + (ID ou email)" },
+            { "name": "cm", "type": "float", "required": true, "note": "SOMA dos segmentos do grupo" },
+            { "name": "matched_name", "type": "string", "required": false }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "DNAGroup",
+          "source": "dataclass em domain.py:106",
+          "fields": [
+            { "name": "_group_key", "type": "string", "required": true },
+            { "name": "cm", "type": "float", "required": true },
+            { "name": "matched_name", "type": "string", "required": false, "default": "" },
+            { "name": "aux", "type": "string", "required": false, "default": "" }
+          ],
+          "confidence": "confirmed",
+          "used_in_flow": false
+        }
+      ],
+      "business_rules": [
+        { "id": "D-01", "description": "Normalizacao: strip_bad_utf -> NFKD -> remove diacriticos -> / vira espaco -> pontuacao vira espaco -> minusculas -> colapsa espacos", "location": "analisador-genealogico/reconstructed/dna_analysis.py:74-81", "confidence": "confirmed" },
+        { "id": "D-02", "description": "Chave de agrupamento = nome normalizado + ID ([A-Z]{2}\\d{7}) se houver, senao email normalizado", "location": "analisador-genealogico/reconstructed/dna_analysis.py:174-180", "confidence": "confirmed" },
+        { "id": "D-03", "description": "A cM do match e a SOMA dos segmentos do grupo", "location": "analisador-genealogico/reconstructed/dna_analysis.py:183-190", "confidence": "confirmed" },
+        { "id": "D-04", "description": "Coluna de ID: qualquer coluna com >= 30% dos valores casando [A-Z]{2}\\d{7}; usa a primeira", "location": "analisador-genealogico/reconstructed/dna_analysis.py:163-167", "confidence": "confirmed" },
+        { "id": "D-05", "description": "Coluna de email: nome contendo 'mail' (case-insensitive); usa a ultima", "location": "analisador-genealogico/reconstructed/dna_analysis.py:168-169", "confidence": "confirmed" },
+        { "id": "D-06", "description": "Colunas aceitas: Name/MatchedName/Nome e cM/TotalCM/Total cM", "location": "analisador-genealogico/reconstructed/dna_analysis.py:161-162", "confidence": "confirmed" },
+        { "id": "D-07", "description": "Score = round(0.55*token_sort_ratio + 0.25*partial_ratio + 0.20*ratio(given) + bonus, 2)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:272", "confidence": "confirmed" },
+        { "id": "D-08", "description": "Bonus de sobrenomes = 8.0*intersecao - 4.0*quantos_sao_comuns", "location": "analisador-genealogico/reconstructed/dna_analysis.py:270-271", "confidence": "confirmed" },
+        { "id": "D-09", "description": "Desempate: mais sobrenomes em comum, depois maior given, depois maior score", "location": "analisador-genealogico/reconstructed/dna_analysis.py:274-277", "confidence": "confirmed" },
+        { "id": "D-10", "description": "Filtro anti-falso-positivo: ambos com sobrenome, intersecao 0 e sem acerto de sufixo -> descarta", "location": "analisador-genealogico/reconstructed/dna_analysis.py:287-289", "confidence": "confirmed" },
+        { "id": "D-11", "description": "required_intersection sobe de 1 para 2 se prenome generico E >= 2 sobrenomes no CSV", "location": "analisador-genealogico/reconstructed/dna_analysis.py:291-293", "confidence": "confirmed" },
+        { "id": "D-12", "description": "Jaccard com prefixo suave: limiar 0.5 quando ha >= 2 sobrenomes no CSV", "location": "analisador-genealogico/reconstructed/dna_analysis.py:295-298", "confidence": "confirmed" },
+        { "id": "D-13", "description": "Limiar cai para 0.33 SOMENTE se cM >= 150 E prenome nao-generico", "location": "analisador-genealogico/reconstructed/dna_analysis.py:299-301", "confidence": "confirmed" },
+        { "id": "D-14", "description": "Seis ramos de aceitacao avaliados em ordem (gen 100/0.67; 80/85/0.50; 86/0.80; 92/90; 88/95; bonus de prefixo 86/90)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:305-320", "confidence": "confirmed" },
+        { "id": "D-15", "description": "Conflito de nome do meio rebaixa o aceite para score>=96 e given>=92", "location": "analisador-genealogico/reconstructed/dna_analysis.py:322-326", "confidence": "confirmed" },
+        { "id": "D-16", "description": "Nove faixas de cM declaradas, SOBREPOSTAS", "location": "analisador-genealogico/reconstructed/dna_analysis.py:30-40", "confidence": "confirmed" },
+        { "id": "D-17", "description": "cM <= 0 ou nao numerico devolve LISTA VAZIA; positivo fora das faixas devolve 'Relacao distante ou indeterminada'", "location": "analisador-genealogico/reconstructed/dna_analysis.py:62-66", "confidence": "confirmed" },
+        { "id": "D-18", "description": "O contrato e LISTA, nunca escalar: 50 cM casa 4 faixas simultaneamente", "location": "analisador-genealogico/reconstructed/dna_analysis.py:65", "confidence": "confirmed" },
+        { "id": "D-19", "description": "STOP_WORDS = de, da, do, das, dos, e; SHORT_KEEP = sa, sa(acentuado)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:42,59,84-85", "confidence": "confirmed" },
+        { "id": "D-20", "description": "SURNAME_EQUIV: netto->neto, gouvea/gouvea-acentuado/gouveia-acentuado -> gouveia", "location": "analisador-genealogico/reconstructed/dna_analysis.py:53-58,95", "confidence": "confirmed" },
+        { "id": "D-21", "description": "Sufixos removidos e guardados a parte: filho, neto, junior, junior-acentuado, sobrinho", "location": "analisador-genealogico/reconstructed/dna_analysis.py:48,91-93", "confidence": "confirmed" },
+        { "id": "D-22", "description": "GENERIC_GIVENS tem 20 prenomes (com e sem acento)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:43-47", "confidence": "confirmed" },
+        { "id": "D-23", "description": "soft_prefix_jaccard usa prefixo de 4 quando algum token e curto ou termina em ponto", "location": "analisador-genealogico/reconstructed/dna_analysis.py:128-144", "confidence": "confirmed" },
+        { "id": "D-24", "description": "De cada match aceito, usa o PRIMEIRO candidato que tiver caminho ancestral ate a raiz (break)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:374-389", "confidence": "confirmed" },
+        { "id": "D-25", "description": "Quatro motivos de descarte registrados: sem candidato por sobrenome, filtro anti-falso-positivo, score insuficiente, sem caminho por pais", "location": "analisador-genealogico/reconstructed/dna_analysis.py:255,289,330-331,391", "confidence": "confirmed" }
+      ],
+      "dependencies": ["upload-gedcom", "busca-caminho"],
+      "algorithms": [
+        { "name": "Agregacao de segmentos cM por chave composta (nome normalizado + ID/email)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:173-191", "confidence": "confirmed" },
+        { "name": "Scoring difuso ponderado com bonus de intersecao de sobrenomes", "location": "analisador-genealogico/reconstructed/dna_analysis.py:262-277", "confidence": "confirmed" },
+        { "name": "Seis ramos de aceitacao com filtros anti-falso-positivo", "location": "analisador-genealogico/reconstructed/dna_analysis.py:303-331", "confidence": "confirmed" },
+        { "name": "Jaccard com prefixo suave", "location": "analisador-genealogico/reconstructed/dna_analysis.py:128-144", "confidence": "confirmed" },
+        { "name": "Mapeamento cM -> parentesco por faixas sobrepostas", "location": "analisador-genealogico/reconstructed/dna_analysis.py:62-66", "confidence": "confirmed" }
+      ],
+      "constants": [
+        { "name": "SHARED_CM_DATA", "value": "9 faixas", "location": "analisador-genealogico/reconstructed/dna_analysis.py:30-40" },
+        { "name": "STOP_WORDS", "value": "6 palavras", "location": "analisador-genealogico/reconstructed/dna_analysis.py:42" },
+        { "name": "GENERIC_GIVENS", "value": "20 prenomes", "location": "analisador-genealogico/reconstructed/dna_analysis.py:43-47" },
+        { "name": "SURNAME_SUFFIXES", "value": "5 sufixos", "location": "analisador-genealogico/reconstructed/dna_analysis.py:48" },
+        { "name": "COMMON_SURNAMES", "value": "16 itens, 15 unicos ('souza' duplicado)", "location": "analisador-genealogico/reconstructed/dna_analysis.py:49-52" },
+        { "name": "SURNAME_EQUIV", "value": "4 equivalencias", "location": "analisador-genealogico/reconstructed/dna_analysis.py:53-58" },
+        { "name": "SHORT_KEEP", "value": "sa, sa-acentuado", "location": "analisador-genealogico/reconstructed/dna_analysis.py:59" }
+      ],
+      "complexity": "high"
     }
-  ]
+  ],
+  "cross_cutting": {
+    "routing_layer": {
+      "file": "analisador-genealogico/app.py",
+      "lines": 84,
+      "purpose": "Camada de rota fina: valida entrada HTTP, chama um fluxo, renderiza o template.",
+      "business_rules": "nenhuma",
+      "confidence": "confirmed"
+    },
+    "template": {
+      "file": "analisador-genealogico/templates/index.html",
+      "lines": 200,
+      "purpose": "Unica tela da aplicacao. Bootstrap 5 + Mermaid 10 via CDN. Mermaid inicializado com securityLevel='strict' na linha 182.",
+      "confidence": "confirmed"
+    },
+    "tests": {
+      "path": "tests/",
+      "files": 7,
+      "test_functions": 61,
+      "items_collected": 95,
+      "notable": [
+        "tests/test_characterization_matching.py - congela a saida do matching",
+        "tests/test_characterization_mermaid.py - congela a saida Mermaid",
+        "tests/test_mermaid_escape.py - dedicado ao contrato de escape de rotulo"
+      ],
+      "confidence": "confirmed"
+    },
+    "corrections_vs_previous_extraction": [
+      "app.py: 887 -> 84 linhas (camada de rota fina)",
+      "reconstructed/ passou a existir com 1117 linhas",
+      "tests/: 0 -> 7 arquivos, 95 itens coletados",
+      "HARD_MIN / GIVEN_MIN nao existem na reconstrucao (eram codigo morto do monolito original)",
+      "pyvis e matplotlib removidos do requirements.txt e do codigo",
+      "static/ deixou de existir; STATIC_FOLDER removido de app.py",
+      "action de analise de DNA: 'process_dna' (inexistente) -> 'dna_analysis'"
+    ]
+  },
+  "gaps_for_human_validation": [
+    { "id": "L-01", "description": "GenealogyGraph e DNAGroup sao arquitetura abandonada ou preparacao para uso futuro?", "confidence": "unknown" },
+    { "id": "L-02", "description": "get_spouses so faz varredura global se nenhum FAMS resolveu - intencional ou acidente?", "confidence": "inferred" },
+    { "id": "L-03", "description": "Teto de 20 do find_ancestral_path conta iteracoes de profundidade, nao geracoes; efeito pratico nao documentado", "confidence": "inferred" },
+    { "id": "L-04", "description": "soft_prefix_jaccard trunca OS DOIS lados em 4 caracteres quando um token e curto - risco de falso positivo", "confidence": "inferred" },
+    { "id": "L-05", "description": "COMMON_SURNAMES tem 'souza' duplicado (16 itens, 15 unicos)", "confidence": "confirmed" },
+    { "id": "L-06", "description": "success=True com path_result=None: distincao 'sem conexao' x 'erro' depende do template", "confidence": "inferred" }
+  ],
+  "summary": {
+    "modules_analyzed": 3,
+    "business_rules_catalogued": 53,
+    "entities_declared": 5,
+    "entities_used_in_flow": 2,
+    "algorithms_documented": 10
+  }
 }

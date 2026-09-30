@@ -1,88 +1,164 @@
-# Busca de Caminho, Design Técnico
+# busca-caminho, Design Técnico
 
-> Nível de documentação: **Essencial**
-> Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Unit do tipo **endpoint** — `POST /` com `action=path_search`.
+> Nível de documentação: **Essencial**. Escala: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Re-extração de 2026-09-30. Substitui o design de 2026-08-03.
 
 ## Interface
 
-Para o endpoint HTTP (formulário):
+### Endpoint HTTP (formulário)
 
 | Método | Caminho | Entrada | Saída | Status codes |
 |--------|---------|---------|-------|--------------|
-| POST | `/` | `action=path_search`, `gedcom_filename`, `person1_name`, `person2_name` | `index.html` com `path_result` ou mensagem | 200 (sempre) |
+| POST | `/` | `action=path_search`, `gedcom_filename`, `person1_name`, `person2_name` | `index.html` com `path_result` ou `message` | 200 sempre 🟢 |
 
-Para funções:
+### Símbolos do núcleo
 
 | Símbolo | Assinatura | Retorno | Observação |
 |---------|-----------|---------|------------|
-| `find_person_by_name` | `(name_query: str)` | `list[str]` | Exact match, depois substring |
-| `find_ancestral_path` | `(start_id, end_id, max_depth=20)` | `(path, common_ancestor)` ou `(None, None)` | BFS bidirecional pelos pais |
-| `find_indirect_path` | `(start_id, end_id, max_hops=40)` | `person_path: list[str]` ou `None` | `nx.shortest_path` com compressão de famílias |
-| `generate_mermaid_graph` | `(path, p1_id, p2_id, common_ancestor_id)` -> `str` | Mermaid para conexão direta |
-| `generate_mermaid_graph_indirect_bridge` | `(p1_id, p2_id, person_path)` -> `str` | Mermaid para conexão indireta |
-| `split_path_by_marriage` | `(person_path)` | `(left, right, spouses)` | 1º par de cônjuges adjacentes |
-| `are_spouses` | `(a_id, b_id)` -> `bool` | Verifica casamento |
+| `path_search` | `(person1_name: str, person2_name: str)` | `(path_result \| None, msg, success)` | Fluxo completo 🟢 |
+| `find_person_by_name` | `(name_query)` | `list[str]` | Passada exata, depois substring 🟢 |
+| `find_ancestral_path` | `(start_id, end_id, max_depth=20)` | `(path, common_ancestor)` ou `(None, None)` | BFS bidirecional por pais 🟢 |
+| `find_indirect_path` | `(start_id, end_id, max_hops=40)` | `list[str]` ou `None` | `nx.shortest_path` com compressão 🟢 |
+| `get_parents` | `(person_id)` | `list[str]` | `FAMC` preferencial, fallback `child_to_family` 🟢 |
+| `get_spouses` | `(person_id)` | `list[str]` | `FAMS`; varredura global só se vazio 🟢 |
+| `are_spouses` | `(a_id, b_id)` | `bool` | `b in set(get_spouses(a))` 🟢 |
+| `split_path_by_marriage` | `(person_path)` | `(left, right, (a,b))` ou `(None, None, None)` | Primeiro par adjacente 🟢 |
+| `pick_spouse_for_couple` | `(person_id, candidate_path=None)` | `str \| None` | Prefere cônjuge já no caminho 🟢 |
+| `exclude_tail` | `(seq, n=1)` | `list` | Evita duplicar o ancestral na ponta 🟢 |
+| `_mermaid_sid` | `(raw)` | `str` | Id de nó seguro, prefixo `N_` 🟢 |
+| `_mermaid_label` | `(txt)` | `str` | Rótulo com lista branca + entidades HTML 🟢 |
+| `generate_mermaid_graph` | `(path, p1_id, p2_id, common_ancestor_id)` | `str` | Diagrama da conexão direta 🟢 |
+| `generate_mermaid_graph_indirect_bridge` | `(p1_id, p2_id, person_path)` | `str` | Diagrama de ponte 🟢 |
+
+### Contrato de retorno
+
+| Campo de `path_result` | Conteúdo |
+|------------------------|----------|
+| `person1_name` / `person2_name` | Nomes já com `strip()` 🟢 |
+| `text_path` | Nomes unidos por `" → "` 🟢 |
+| `mermaid_data` | Texto do diagrama Mermaid 🟢 |
+
+### Constantes
+
+| Constante | Valor | Papel |
+|-----------|-------|-------|
+| `MAX_DEPTH` | `20` | Iterações de profundidade do BFS bidirecional 🟢 |
+| `MAX_HOPS` | `40` | Arestas máximas do caminho indireto 🟢 |
+| `_LABEL_SEGURO` | `[^0-9A-Za-zÀ-ÖØ-öø-ÿ .,'()&<>:;/\[\]!?-]` | Regex de **lista branca** 🟢 |
 
 ## Fluxo Principal
-1. Valida GEDCOM carregado e re-parseia (`app.py:576-582`). 🟢
-2. Lê `person1_name` e `person2_name` (strip) (`app.py:840`). 🟢
-3. Localiza IDs; inexistente → erro específico por pessoa (`app.py:843-850`). 🟢
-4. Usa o primeiro ID de cada lista (`app.py:853`). 🟢
-5. Tenta `find_ancestral_path(p1, p2)` (`app.py:856`). 🟢
-6. Se achou: monta nomes, `generate_mermaid_graph`, msg direta (`app.py:857-860`). 🟢
-7. Senão: tenta `find_indirect_path(p1, p2, max_hops=40)` (`app.py:863`). 🟢
-8. Sem caminho → "Nenhuma conexão encontrada..." (`app.py:864-867`). 🟢
-9. Com caminho: `generate_mermaid_graph_indirect_bridge`, msg indireta (`app.py:868-870`). 🟢
-10. Monta `path_result` e renderiza (`app.py:872-879`). 🟢
-11. Exceções → erro amigável (`app.py:880-882`). 🟢
 
-### Detalhe da conexão direta (`find_ancestral_path`)
-1. Duas filas BFS, uma de cada extremo, subindo por `get_parents`. 🟢
-2. Intercalando expansão de `q1` e `q2`; ao encontrar interseção, monta caminho (`app.py:298-317`). 🟢
-3. `start_id == end_id` → caminho trivial (`app.py:300`). 🟢
-4. Limite de `max_depth` iterações; estoura → `(None, None)` (`app.py:301`, `318`). 🟢
+### Camada de rota (`app.py:65-78`)
 
-### Detalhe da conexão indireta (`find_indirect_path`)
-1. Verifica nós presentes no grafo (`app.py:284`). 🟢
-2. `nx.shortest_path(graph, source, target)` — BFS não ponderado (`app.py:287`). 🟢
-3. `len(path)-1 > max_hops` → `None` (`app.py:288-289`). 🟢
-4. Comprime o caminho mantendo só nós de pessoa (`app.py:291`). 🟢
-5. Menos de 2 pessoas → `None` (`app.py:292`). 🟢
+1. `app.py:36-42` — herdado: valida `gedcom_filename`, existência em disco e **re-parseia** a árvore. 🟢
+2. `app.py:67-68` — lê `person1_name` e `person2_name` com `strip()`. 🟢
+3. `app.py:70` — chama `path_search_flow(person1_name, person2_name)`. 🟢
+4. `app.py:71-73` — se `not success and path_result is None` → renderiza com a mensagem, `success=False`. 🟢
+5. `app.py:74-75` — caso contrário, renderiza com `path_result` e `success=True`. 🟢
+6. `app.py:76-78` — exceção → `"Ocorreu um erro: {e}"`, `success=False`. 🟢
+
+### Núcleo (`path_search.py:463-502`)
+
+1. `:469-470` — `strip()` nos dois nomes. 🟢
+2. `:472-473` — resolve as duas listas de ids. 🟢
+3. `:474-477` — lista vazia → `(None, "Pessoa N '{nome}' não encontrada.", False)`. 🟢
+4. `:479` — `p1_id, p2_id = p1_ids[0], p2_ids[0]` — **primeiro id, homônimos ignorados**. 🟢
+5. `:481` — `find_ancestral_path(p1_id, p2_id)`. 🟢
+6. `:482-485` — sucesso → nomes, `generate_mermaid_graph`, `"Conexão direta encontrada (ancestral comum)."` 🟢
+7. `:486-491` — senão, `find_indirect_path`; sem caminho → `(None, "Nenhuma conexão encontrada entre ...", True)`. 🟢
+8. `:492-494` — com caminho → `generate_mermaid_graph_indirect_bridge`, `"Conexão indireta encontrada (via casamento/afinidade)."` 🟢
+9. `:496-502` — monta `path_result` com `text_path` unido por `" → "` e devolve. 🟢
+
+### BFS bidirecional (`find_ancestral_path`, `:144-178`)
+
+1. `:149-150` — duas filas `deque([(id, [id])])` e dois mapas `visited` com o caminho até cada nó. 🟢
+2. `:151-152` — `start_id == end_id` → `([start_id], start_id)`. 🟢
+3. `:153-165` — **primeiro turno:** expande um nível de `q1`; se um nó já está em `visited2`, concatena `path + visited2[curr][::-1][1:]` e devolve com o ancestral. 🟢
+4. `:166-177` — **segundo turno:** mesma lógica do lado de `q2`, concatenando `visited1[curr] + path[::-1][1:]`. 🟢
+5. `:178` — teto atingido sem interseção → `(None, None)`. 🟢
+
+### Caminho indireto (`find_indirect_path`, `:126-141`)
+
+1. `:131` — `from .upload import graph` **dentro da função** — capta o rebind da global. 🟢
+2. `:132-133` — grafo ausente ou nó inexistente → `None`. 🟢
+3. `:135` — `nx.shortest_path(graph, source, target)` — BFS não ponderado. 🟢
+4. `:136-137` — `len(path) - 1 > max_hops` → `None`. 🟢
+5. `:138-139` — comprime para só pessoas; menos de 2 → `None`. 🟢
+6. `:140-141` — `NetworkXNoPath` / `NodeNotFound` → `None`. 🟢
+
+### Escape do rótulo (`:185-214`)
+
+1. `:185-190` — `_mermaid_sid`: se receber coleção, pega o primeiro elemento; remove `@`; troca `+` por `_`; remove tudo fora de `[a-zA-Z0-9_]`; prefixa `N_`. 🟢
+2. `:206` — `unicodedata.normalize("NFC", ...)`. 🟢
+3. `:207-210` — substitui NBSP por espaço; `–` e `—` por `-`; aspas curvas (`“`, `”`, `’`) por `'`. 🟢
+4. `:211` — `"` vira `'`. 🟢
+5. `:212` — quebras de linha viram espaço. 🟢
+6. `:213` — `_LABEL_SEGURO.sub('', s)` — **lista branca**: remove tudo que não consta. 🟢
+7. `:214` — **por último**, `&`→`&amp;`, `<`→`&lt;`, `>`→`&gt;`. 🟢
+
+> ⚠️ A ordem dos passos 6 e 7 é a **invariante** que sustenta a correção do `BUG-20260929-J6PQ`. Se a conversão em entidades vier antes do filtro, o `&` de `&amp;` pode ser reavaliado. Não reordenar.
 
 ## Fluxos Alternativos
-- **Pessoa 1 não encontrada:** "Pessoa 1 'X' não encontrada." (`app.py:845-847`). 🟢
-- **Pessoa 2 não encontrada:** "Pessoa 2 'X' não encontrada." (`app.py:848-850`). 🟢
-- **Sem conexão direta nem indireta:** mensagem de nenhuma conexão (`app.py:864-867`). 🟢
-- **Sem cônjuges no caminho indireto:** fallback para `generate_mermaid_graph` simples (`app.py:408`). 🟢
+
+- **Pessoa 1 não encontrada:** `"Pessoa 1 '{nome}' não encontrada."` com `success=False`. 🟢
+- **Pessoa 2 não encontrada:** idem para Pessoa 2. 🟢
+- **Sem conexão direta nem indireta:** `"Nenhuma conexão encontrada entre '{p1}' e '{p2}'."` com **`success=True`** e `path_result=None`. 🟡 Ver Riscos.
+- **Sem cônjuges no caminho indireto:** `generate_mermaid_graph_indirect_bridge` delega para `generate_mermaid_graph(person_path, p1_id, p2_id, None)` (`:281-282`). 🟢
+- **`find_ancestral_path` não achou o ancestral de P1:** mesma delegação (`:290-291`). 🟢
+- **`find_ancestral_path` não achou o ancestral de P2:** mesma delegação (`:376-377`). 🟢
+- **GEDCOM re-parseado antes da busca:** o grafo é reconstruído a cada POST, garantindo que a busca use a árvore do arquivo `gedcom_filename` informado. 🟢
+- **Exceção inesperada:** `"Ocorreu um erro: {e}"` com `success=False`. 🟢
 
 ## Dependências
-- **networkx** — `shortest_path` e grafo de relacionamento. 🟢
-- **ged4py + Flask** — infraestrutura herdada do GEDCOM. 🟢
+
+| Dependência | Versão | Como usa |
+|-------------|--------|----------|
+| **networkx** | 3.6.1 | `nx.Graph`, `nx.shortest_path`, `NetworkXNoPath`, `NodeNotFound` 🟢 |
+| **unit `upload-gedcom`** | — | `people`, `families`, `child_to_family`, `get_name`, `ref_id`, e a global mutável `graph` 🟢 |
+| **Flask** | 3.1.3 | Rota, `request.form`, `render_template` 🟢 |
+| **`templates/index.html`** | — | Renderiza o diagrama; Mermaid inicializado com `securityLevel: 'strict'` 🟢 |
 
 ## Decisões de Design Identificadas
 
 | Decisão | Evidência no código | Confiança |
 |---------|---------------------|-----------|
-| Busca direta primeiro, indireta como fallback | `app.py:856-870` | 🟢 |
-| BFS bidirecional manual para MRCA (não usa `nx.lowest_common_ancestor`) | `app.py:297-318` | 🟢 |
-| Compressão de nós de família no caminho indireto | `app.py:291` | 🟢 |
-| Âncoras transparentes `--- |Casamento| ---` no Mermaid indireto | `app.py:534` | 🟢 |
-| Uso do 1º ID encontrado por nome (ambiguidade ignorada) | `app.py:853` | 🟢 |
+| Busca direta primeiro, indireta como fallback — nunca as duas | `path_search.py:481-494` | 🟢 |
+| BFS bidirecional **manual**, em vez de `nx.lowest_common_ancestor` — porque a subida é restrita às arestas de paternidade, não ao grafo todo | `path_search.py:144-178` | 🟢 |
+| Compressão dos nós de família no caminho indireto | `path_search.py:138` | 🟢 |
+| Âncoras transparentes com aresta rotulada `Casamento` para o diagrama indireto | `path_search.py:424-434` | 🟢 |
+| Uso do 1º id por nome; ambiguidade ignorada por decisão do usuário | `path_search.py:479`; `questions.md#2` | 🟢 |
+| `import` da global `graph` **dentro** da função, para captar o rebind | `path_search.py:131` | 🟢 |
+| **`&`/`<`/`>` escapados depois do filtro**, não antes — invariante do contrato | `path_search.py:213-214` | 🟢 |
+| **Lista branca** em vez de negra — a negra era furada pela crase | `path_search.py:193-201` (comentário) | 🟢 |
+| `_mermaid_sid` tolera receber coleção (pega o primeiro elemento) | `path_search.py:187-188` | 🟢 |
 
 ## Estado Interno
-- Usa os globals `people`, `families`, `graph`, `child_to_family` (produzidos pelo upload). 🟢
-- `path_result` é local à requisição e renderizado. 🟢
-- Sem persistência. 🟢
+
+| Estado | Escopo | Observação |
+|--------|--------|------------|
+| `people`, `families`, `graph`, `child_to_family` | global do processo | Produzidos pelo upload; **lidos** aqui 🟢 |
+| `path_result` | local da requisição | Renderizado e descartado 🟢 |
+
+> Nada é persistido. Sem sessão: a busca sempre opera sobre a última árvore carregada no processo. 🟢
 
 ## Observabilidade
-- Nenhum log estruturado. 🔴
-- Mensagens de resultado/erro são passadas ao template. 🟢
+
+- Nenhum `logging`, métrica ou trace. 🔴
+- As mensagens de resultado e erro são o único sinal ao usuário. 🟢
+- O contrato de escape tem **evidência própria** fora da aplicação: `tests/test_mermaid_escape.py` (6 testes), o fuzz de 288 payloads combinados e a varredura de 30.000 nomes, registrados no adendo `bug-BUG-20260929-J6PQ-v001.md`. 🟢
 
 ## Riscos e Lacunas
-- 🔴 Uso do 1º ID em caso de homônimos — pode conectar a pessoa errada.
-- 🔴 `find_ancestral_path` assume caminho pelos pais; famílias adotivas/complexas podem não ser cobertas.
-- 🟡 `split_path_by_marriage` detecta só o 1º par de cônjuges — caminhos com múltiplas afinidades podem renderizar de forma simplificada.
-- 🟡 Sem testes automatizados.
+
+- 🔴 **Homônimos:** o primeiro ID é escolhido sem desempate nem aviso. Decisão do usuário (`questions.md#2`), mas o risco de conectar a pessoa errada permanece. Não é bug; é contrato.
+- 🔴 **Famílias adotivas/complexas:** `find_ancestral_path` só sobe por `HUSB`/`WIFE`, então adoção não é representável como laço parental. Cai para a busca indireta, que pode achar um caminho por afinidade sem significado genealógico.
+- 🔴 **`get_spouses` só faz a varredura global se nenhum `FAMS` resolveu** (`:79-80`). Com `FAMS` parcialmente resolvidos, cônjuges podem faltar — e o fallback nunca roda. Comportamento não documentado em nenhum lugar; intencional ou acidente? (`L-02`)
+- 🟡 **`success=True` com `path_result=None`** (`:488-491`): "sem conexão" e "erro" chegam ao template com a mesma forma de `path_result`, distinguidos apenas por `success`. A tela depende de o template tratar os dois casos. (`L-06`)
+- 🟡 **`split_path_by_marriage` acha só o primeiro par de cônjuges.** Caminhos com múltiplas afinidades renderizam de forma simplificada.
+- 🟡 **Teto de 20 conta iterações, não gerações** (`L-03`). O efeito prático do corte não está documentado; árvores profundas podem falhar na conexão direta e cair na indireta sem aviso.
+- 🟡 **`soft_prefix_jaccard` é da unit `analise-dna`**, mas a mesma família de heurísticas de nome atravessa as duas units — qualquer mudança de normalização afeta ambas.
+- 🟢 **Resolvido no legado:** o vazamento de gramática Mermaid por aspa dupla + crase (`BUG-20260929-J6PQ`), com 19 testes e fuzz independente.
 
 ---
-*Gerado pelo Reversa-Writer em 2026-08-03.*
+
+*Gerado pelo Reversa-Writer em 2026-09-30 (re-extração).*

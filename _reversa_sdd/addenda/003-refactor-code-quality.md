@@ -10,6 +10,15 @@
 Vigente desde 2026-09-29, aplicado sob o gate de edição do legado liberado pelo usuário em
 `.reversa/reversa-config.json` (`allowLegacyEdits: true`, `allowedPaths: ["analisador-genealogico/**", "tests/**"]`).
 
+Superado pela re-extração de 2026-09-30.
+
+> Ressalva de cronologia (registrada nesta data, sem remover as linhas acima): a marcação é uma
+> declaração de vigência, não a constatação de que os deltas abaixo foram absorvidos. Nesta data o
+> `_reversa_sdd/` ainda é o da extração de 2026-08-03 e **não** reflete estas quatro
+> transformações — `dependencies.md` ainda lista `matplotlib`/`pyvis` e `architecture.md` ainda
+> descreve a criação da pasta `static`. Os deltas continuam válidos até que uma re-extração real
+> rode.
+
 ## Resumo da entrega
 
 Quatro transformações de Code Quality, todas com comportamento observável preservado e provado:
