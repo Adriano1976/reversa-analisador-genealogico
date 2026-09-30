@@ -14,7 +14,9 @@
 * **Framework Principal:** Flask 3.1.3 🟢
 * **Arquitetura:** Aplicação web Flask com renderização server-side (Jinja2), em **camada de rota fina + pacote de módulos internos**. 🟢
 
-> **Mudança estrutural em relação à extração anterior.** O que era um monolito de 887 linhas (`app.py`) virou uma **camada de apresentação de 84 linhas** que delega a três fluxos. A lógica de negócio reside em `analisador-genealogico/reconstructed/` (1117 linhas). Nenhuma rota nova foi criada: a superfície HTTP é a mesma.
+> **Mudança estrutural em relação à extração anterior.** O que era um monolito de 887 linhas (`app.py`) virou uma **camada de apresentação de 84 linhas** que delega a três fluxos. A lógica de negócio reside em `analisador-genealogico/reconstructed/` (1086 linhas). Nenhuma rota nova foi criada: a superfície HTTP é a mesma.
+>
+> **Nota de contagem:** os números desta seção são os de **2026-09-30, após** a remoção das entidades mortas de `domain.py` (115 → 84 linhas). Na extração anterior à remoção, `reconstructed/` tinha 1117 linhas e o total de Python era 1201.
 
 ---
 
@@ -31,7 +33,7 @@ Excluídos: `.git/`, `.agents/` (framework Reversa instalado, não é sistema le
 │   ├── .gitignore.txt               # Regras de ignore (nome com sufixo .txt, provavelmente acidental)
 │   ├── reconstructed/               # Núcleo de negócio extraído do monolito
 │   │   ├── __init__.py
-│   │   ├── domain.py                # Entidades e limpeza de nome GEDCOM (115 linhas)
+│   │   ├── domain.py                # Limpeza de nome GEDCOM (84 linhas; era 115 antes da remoção das entidades mortas)
 │   │   ├── upload.py                # Parse GEDCOM, grafo, carga de estado global (100 linhas)
 │   │   ├── path_search.py           # Busca de caminho direto/indireto + emissão Mermaid (506 linhas)
 │   │   └── dna_analysis.py          # Matching difuso, agregação de cM, faixas de relação (395 linhas)
@@ -66,7 +68,7 @@ Excluídos: `.git/`, `.agents/` (framework Reversa instalado, não é sistema le
 | Módulo / Arquivo | Linhas | Responsabilidade | Tecnologias |
 | --- | --- | --- | --- |
 | `app.py` | 84 | Camada de rota. Rota única `index()` com `GET`/`POST`; despacho por `request.form["action"]`; validação de arquivo e mensagens de erro; delega aos módulos internos. | Flask |
-| `reconstructed/domain.py` | 115 | Entidades de domínio (`Family`, `GenealogyGraph`, `DNAGroup`) e limpeza/correção de mojibake de nomes GEDCOM. | stdlib |
+| `reconstructed/domain.py` | 84 | Limpeza/correção de mojibake de nomes GEDCOM (`strip_bad_utf`, `demojibake`). **Era 115 linhas** — as entidades `Family`, `GenealogyGraph` e `DNAGroup` foram removidas em 2026-09-30 por serem arquitetura abandonada. | stdlib |
 | `reconstructed/upload.py` | 100 | Abre o GEDCOM com `ged4py`, popula o **estado global** (`people`, `families`, `graph`, `child_to_family`) e devolve a lista de nomes. | ged4py, networkx |
 | `reconstructed/path_search.py` | 506 | Busca de caminho direto e indireto (ponte matrimonial), decomposição do caminho e emissão do grafo Mermaid com escape de rótulo. | networkx |
 | `reconstructed/dna_analysis.py` | 395 | Agregação de segmentos cM por chave (nome + ID/email), matching difuso, regras de aceitação, faixas de relação por cM, auditoria de descartados. | pandas, thefuzz, RapidFuzz |
@@ -116,9 +118,9 @@ Excluídos: `.git/`, `.agents/` (framework Reversa instalado, não é sistema le
 | --- | --- |
 | Framework | **pytest** (`pytest.ini`) 🟢 |
 | Arquivos de teste | **7** (5 unitários + 2 de caracterização) 🟢 |
-| Funções `def test_` | **61** 🟢 |
-| Itens coletados por `pytest --collect-only` | **95** (parametrizações expandidas) 🟢 |
-| Linhas de teste | **1197** 🟢 |
+| Funções `def test_` | **52** 🟢 (eram 61 antes da remoção de 9 testes das entidades extintas) |
+| Itens coletados por `pytest --collect-only` | **86** 🟢 (eram 95; 85 passam, 1 erra por restrição de sandbox) |
+| Linhas de teste | **1134** 🟢 |
 | Cobertura estimada | Não medida — sem `pytest-cov` nem configuração de cobertura. 🟡 |
 
 **Tipos de teste presentes:** unitários por módulo (`domain`, `upload`, `path_search`, `dna_analysis`), **caracterização de matching** e **caracterização de Mermaid** (congelam a saída observável) e um arquivo dedicado ao **escape de rótulo Mermaid** (`test_mermaid_escape.py`).

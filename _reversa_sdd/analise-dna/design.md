@@ -111,6 +111,8 @@
 | Chave de match = nome normalizado + ID **ou** e-mail, com ID tendo precedência | `dna_analysis.py:174-180` | 🟢 |
 | Usar o **primeiro** candidato com caminho, em vez de avaliar todos | `dna_analysis.py:374-389` | 🟢 |
 | Limpeza de nome delegada a `domain.py` (autoridade única) | ADR-07; `dna_analysis.py:22` | 🟢 |
+| **Desempate triplo SEM critério final determinístico** — empates no terceiro critério caem na ordem de iteração de `set` | `dna_analysis.py:262`, `:274-277` | 🟢 |
+| Faixas de cM **escritas à mão**, sem calibração documentada — a sobreposição é sintoma disso | `dna_analysis.py:30-40` | 🟡 |
 
 ## Estado Interno
 
@@ -131,11 +133,13 @@
 
 ## Riscos e Lacunas
 
-- 🔴 **L-08:** a cobertura dos 6 ramos de aceitação é conhecida apenas pelos testes de caracterização, que congelam o comportamento **atual**. Não há prova de que cobrem exportadores diferentes — a detecção de ID é específica do padrão `[A-Z]{2}\d{7}`.
-- 🔴 **L-13:** o teto de precisão do score é `round(..., 2)`. Empates exatos no terceiro critério de desempate são resolvidos pela ordem de iteração de um `set`, que **não é determinística entre processos**. Risco de resultado não reprodutível em casos-limite. 🟡
-- 🔴 **Dependência de versão de biblioteca:** `thefuzz` → `RapidFuzz`/`python-Levenshtein`. Trocar versão muda o resultado sem mudar o projeto (`RISK-006`). Fixar as versões é mitigação obrigatória numa reimplementação.
-- 🟡 **Justificativa do relaxamento de Jaccard:** a decisão é intencional (`questions.md#4`), confirmada pelo usuário, mas a **base empírica** para 0,33 (e não 0,35 ou 0,30) não está documentada em lugar nenhum.
-- 🟡 **Fonte da tabela de cM:** as 9 faixas não citam origem nem versão; e o fato de se **sobreporem** é atípico para uma tabela derivada de percentis do Shared cM Project (`L-07`).
+- 🟢 **RESOLVIDO em 2026-09-30 — as faixas de cM são heurísticas, não calibradas.** Decisão do usuário (`questions.md#pergunta-5`): foram **escritas à mão**. A sobreposição de até 4× é consequência do método, não do Shared cM Project. As 9 faixas passam a ser declaradas como **heurísticas sem fonte verificável** (`RF-10a`), e a reimplementação pode tratá-las como parâmetro ajustável em vez de tabela canônica.
+  - **Consequência para a fidelidade:** o *comportamento* (devolver lista de todas as faixas que contêm o valor) continua 🟢 e deve ser preservado. O que muda de status é a **autoridade dos números**, não a mecânica.
+- 🟢 **RESOLVIDO em 2026-09-30 — o desempate precisa ser determinístico.** Decisão do usuário (`questions.md#pergunta-4`). O legado deixa empates exatos no terceiro critério caírem na ordem de iteração de `set`, que varia com `PYTHONHASHSEED` (`L-13`). A reimplementação **deve** acrescentar um critério final determinístico — sugestão: menor `xref_id` entre os empatados. Requisito `RF-14` + tarefa `T-19`. 🟢
+- 🔴 **Origem empírica do valor 0,33** permanece aberta: o usuário indicou ter a medição de calibração, mas ela ainda **não foi fornecida**. A decisão de *manter* o relaxamento é 🟢 (`questions.md#4`, 2026-08-03); o *número* segue 🔴 até a medição ser registrada.
+  - Pergunta correspondente: `questions.md#pergunta-6`
+- 🔴 **Cobertura de exportadores de CSV** — a regex `[A-Z]{2}\d{7}` é específica; sem prova de generalidade.
+- 🟡 **Justificativa do relaxamento de Jaccard:** a decisão é intencional, mas a base empírica para 0,33 (e não 0,35 ou 0,30) não está documentada — ver o item 🔴 acima.
 - 🟡 **`COMMON_SURNAMES` contém `"souza"` duas vezes** (`:50`) — inofensivo para um `set`, mas indica curadoria descuidada da lista.
 - 🟡 **`soft_prefix_jaccard` trunca os dois lados em 4 caracteres** quando algum token é curto, o que pode aproximar sobrenomes de mesmo prefixo (`L-04`).
 

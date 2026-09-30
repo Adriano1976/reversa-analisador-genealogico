@@ -110,6 +110,8 @@
   - Confiança: 🟢
   - ⚠️ **Não devolver o literal para `cM ≤ 0`.** Foi exatamente esse erro que a extração anterior cometeu e que o confronto com o oráculo corrigiu (`AMB-023`).
 
+### Saída
+
 - [ ] **T-17**, Ordenar por cM decrescente e montar a mensagem final
   - Origem no legado: `analisador-genealogico/reconstructed/dna_analysis.py:393-395`
   - Critério de pronto: ordenação por `cm` desc; mensagem `"{n} conexões encontradas. {m} descartadas."`
@@ -119,6 +121,24 @@
   - Origem no legado: `analisador-genealogico/app.py:62-63`
   - Critério de pronto: exceção → `"Ocorreu um erro: {e}"` com `success=False`, sem quebrar
   - Confiança: 🟢
+
+### Correções decididas pelo usuário em 2026-09-30
+
+> Estas duas tarefas **divergem de propósito** do legado. Todas as outras preservam comportamento; estas corrigem o que o usuário decidiu que não deve ser preservado.
+
+- [ ] **T-19**, Acrescentar critério final **determinístico** ao desempate de candidatos
+  - Origem no legado: `analisador-genealogico/reconstructed/dna_analysis.py:262`, `:274-277` — onde o legado deixa empates exatos caírem na ordem de iteração de `set`
+  - Critério de pronto: duas execuções sobre a mesma entrada, com `PYTHONHASHSEED` diferente, escolhem o **mesmo** candidato; sugestão de critério final: menor `xref_id`
+  - Confiança: 🟢
+  - Decisão do usuário: `_reversa_sdd/questions.md#pergunta-4` — "precisa ser determinístico"
+  - Alinha com: `RF-14` em `requirements.md`; teste `TT-13`
+
+- [ ] **T-20**, Declarar as 9 faixas de cM como **heurísticas** e expô-las como parâmetro
+  - Origem no legado: `analisador-genealogico/reconstructed/dna_analysis.py:30-40`
+  - Critério de pronto: a tabela é configurável (não literal cravado) e a documentação declara ausência de fonte; a mecânica de devolver **lista** permanece intacta
+  - Confiança: 🟡
+  - Decisão do usuário: `_reversa_sdd/questions.md#pergunta-5` — as faixas foram **escritas à mão**, não calibradas; a sobreposição de até 4× é consequência disso
+  - Alinha com: `RF-10a` em `requirements.md`
 
 ## Tarefas de Teste
 
@@ -150,16 +170,17 @@ O legado **já tem** estes testes:
 4. **T-01 a T-03 (pré-condições).** Podem ser feitas em paralelo, mas são testáveis só com o núcleo pronto.
 5. **T-09 a T-13 (matching).** Nesta ordem — cada tarefa depende da anterior. É o bloco mais crítico.
 6. **T-14 a T-17 (saída).** Dependem do matching.
-7. **T-18 (erro) por último.**
-8. **Bloqueios:** T-14 depende de `find_ancestral_path` (unit `busca-caminho`); nada aqui funciona sem a unit `upload-gedcom`.
+7. **T-19 (erro) por último.**
+8. **T-18 (faixas de cM como parâmetro)** e **T-20/`RF-14` (determinismo)** podem ser feitas em paralelo ao bloco de matching, mas T-18 depende de T-16 estar pronto.
+9. **Bloqueios:** T-14 depende de `find_ancestral_path` (unit `busca-caminho`); nada aqui funciona sem a unit `upload-gedcom`.
 
 ## Lacunas Pendentes (🔴)
 
-- **L-08:** cobertura dos exportadores de CSV — a regex de ID é específica. Confirmar quais exportadores precisam ser suportados.
-- **L-13:** determinismo do desempate — a ordem de iteração de `set` pode variar entre processos. Decidir se o desempate precisa de critério final determinístico.
-- **L-07:** origem e versão da tabela de faixas de cM. As faixas se **sobrepõem**, o que é atípico; documentar a fonte.
-- **L-14:** justificativa empírica do valor 0,33 no relaxamento de Jaccard — intencional (`questions.md#4`), mas o número em si não tem base documentada.
-- **Já decididas, não são pendências:** regras de aceitação são definitivas (`questions.md#1`); relaxamento de Jaccard é intencional (`questions.md#4`).
+- ✅ **L-13 RESOLVIDA em 2026-09-30:** o desempate **precisa ser determinístico** — decisão do usuário (`questions.md#pergunta-4`). Virou requisito `RF-14` em `requirements.md` e tarefas `T-19`/`TT-13`. **É a única divergência deliberada do legado em toda a re-extração.**
+- ✅ **L-07 RESOLVIDA em 2026-09-30:** as faixas de cM foram **escritas à mão**, sem calibração — decisão do usuário (`questions.md#pergunta-5`). Virou `RF-10a` e tarefa `T-18`; a sobreposição de até 4× é consequência do método.
+- **L-08:** cobertura dos exportadores de CSV — a regex de ID `[A-Z]{2}\d{7}` é específica. Confirmar quais exportadores precisam ser suportados.
+- **L-14:** origem empírica do valor 0,33 no relaxamento de Jaccard — o usuário indicou ter a medição de calibração, mas ela **ainda não foi fornecida**. A decisão de manter o relaxamento é 🟢; o número segue 🔴 (`questions.md#pergunta-6`).
+- **Já decididas, não são pendências:** regras de aceitação são definitivas (`questions.md#1`); relaxamento de Jaccard é intencional (`questions.md#4`); determinismo é exigido (`questions.md#pergunta-4`); faixas de cM são heurísticas (`questions.md#pergunta-5`).
 
 ---
 

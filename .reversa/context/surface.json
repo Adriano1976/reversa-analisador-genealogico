@@ -91,20 +91,22 @@
   ],
   "code_size": {
     "app_py_lines": 84,
-    "reconstructed_lines": 1117,
-    "tests_lines": 1197,
+    "reconstructed_lines": 1086,
+    "tests_lines": 1134,
     "template_lines": 200,
-    "total_python_lines": 1201,
-    "counting_method": "[System.IO.File]::ReadAllLines - inclui a linha vazia final quando o arquivo termina em newline"
+    "total_python_lines": 1170,
+    "counting_method": "[System.IO.File]::ReadAllLines - inclui a linha vazia final quando o arquivo termina em newline",
+    "post_extraction_change": "2026-09-30: Family, GenealogyGraph e DNAGroup removidas de reconstructed/domain.py (115 -> 84 linhas) por decisao do usuario (questions.md#pergunta-3); 9 testes das classes extintas removidos de tests/test_domain.py. Antes da remocao: reconstructed 1117, python total 1201, testes 1197 linhas / 95 itens."
   },
   "notable_changes_since_previous_extraction": [
-    "app.py passou de 887 para 70 linhas: virou camada de rota que delega a tres fluxos.",
+    "app.py passou de 887 para 84 linhas: virou camada de rota que delega a tres fluxos.",
     "Surgiu analisador-genealogico/reconstructed/ com domain.py, upload.py, path_search.py, dna_analysis.py.",
-    "Surgiu a suite tests/ (7 arquivos, 95 itens coletados) - a extracao anterior registrava ZERO testes.",
+    "Surgiu a suite tests/ (7 arquivos, 86 itens coletados apos a remocao das entidades mortas; 95 antes dela) - a extracao anterior registrava ZERO testes.",
     "pyvis e matplotlib foram REMOVIDOS do requirements.txt; a visualizacao de grafo passou a ser Mermaid renderizado no cliente.",
     "A pasta static/ deixou de existir; STATIC_FOLDER saiu de app.py.",
     "O valor de action para analise de DNA e 'dna_analysis'; a extracao anterior registrava 'process_dna', que nao existe no codigo.",
-    "Surgiram dois testes de caracterizacao (matching e Mermaid) e um teste dedicado a escape de rotulo Mermaid."
+    "Surgiram dois testes de caracterizacao (matching e Mermaid) e um teste dedicado a escape de rotulo Mermaid.",
+    "As entidades Family, GenealogyGraph e DNAGroup foram removidas: eram arquitetura abandonada, nunca instanciadas em producao."
   ],
   "documentation_debt": [
     "analisador-genealogico/README.md ainda anuncia Pyvis como biblioteca de visualizacao (removida do projeto)."

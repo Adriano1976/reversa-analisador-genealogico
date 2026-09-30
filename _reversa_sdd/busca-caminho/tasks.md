@@ -174,9 +174,9 @@ O legado **já tem** estes testes:
 
 ## Lacunas Pendentes (🔴)
 
-- **L-02:** `get_spouses` só faz varredura global se nenhum `FAMS` resolveu — intencional ou acidente?
+- ✅ **L-02 RESOLVIDA em 2026-09-30:** `get_spouses` faz varredura global **apenas** quando nenhum `FAMS` resolveu — confirmado como **intencional** (economia de varredura) por decisão do usuário (`questions.md#pergunta-2`). Registrado como contrato em `design.md`; a reimplementação **não** deve tornar a varredura complementar.
+- ✅ **L-03 RESOLVIDA em 2026-09-30:** o teto de 20 conta **iterações de profundidade**, não gerações — fato confirmado no código. O corte silencioso foi **aceito como está** por decisão do usuário (`questions.md#pergunta-1`), preservando a fidelidade ao legado. Não acrescentar aviso nem distinguir "limite atingido" de "sem caminho".
 - **L-06:** `success=True` com `path_result=None` — o template distingue "sem conexão" de "erro"?
-- **L-03:** o teto de 20 conta iterações, não gerações; o efeito prático do corte não está documentado.
 - **L-15:** política de homônimos — aceita pelo usuário, mas não há desambiguação nem aviso ao usuário de que uma pessoa diferente poderia ter sido escolhida.
 - **L-16:** `TT-15` e `TT-16` não existem como testes permanentes; as evidências de fuzz do `bug-J6PQ` estão em arquivo de adendo, não na suíte.
 - **Já decididas, não são pendências:** homônimos usam o 1º ID (`questions.md#2`); famílias adotivas não têm tratamento dedicado (limitação conhecida do legado).

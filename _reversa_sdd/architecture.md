@@ -58,7 +58,7 @@ flowchart LR
 
 ## 3. ERD Resumido
 
-**9 entidades** foram identificadas — acima do limiar de 5, então `erd-complete.md` seria o destino natural no nível `completo`. Como o nível ativo é `essencial`, o ERD fica **embutido aqui**, com a ressalva de que **6 delas são conceituais ou decorativas** e apenas **3 existem de fato em memória durante a execução**.
+**9 entidades** foram identificadas originalmente — acima do limiar de 5, então `erd-complete.md` seria o destino natural no nível `completo`. Como o nível ativo é `essencial`, o ERD fica **embutido aqui**. Após a remoção de 2026-09-30, restam **6 entidades**: 2 efetivamente em uso (§3.1), 1 removida e as estruturas de runtime (§3.3).
 
 ### 3.1. Entidades efetivamente usadas no fluxo 🟢
 
@@ -96,17 +96,19 @@ erDiagram
 
 **Observação de cardinalidade:** o grafo é `nx.Graph` (não-direcionado), com nós de dois tipos (`type="person"` e `type="family"`). A direção parental **não** está no grafo — ela é derivada por `get_parents`. 🟢
 
-### 3.2. Entidades declaradas mas decorativas 🟡
+### 3.2. Entidades declaradas e não instanciadas — REMOVIDAS em 2026-09-30 🟢
 
-Verificado por varredura: aparecem **apenas na própria definição**, nunca instanciadas em caminho de produção.
+A varredura de referências confirmou que `Family` (`domain.py:61`), `GenealogyGraph` (`domain.py:74`) e `DNAGroup` (`domain.py:106`) apareciam **apenas nas próprias definições**, nunca instanciadas em caminho de produção. Consultada, a decisão do usuário foi **remover** (`questions.md#pergunta-3`): arquitetura abandonada, não preparação futura.
 
-| Entidade | Definição | Situação |
-| --- | --- | --- |
-| `Family` (dataclass) | `domain.py:61` | Só referenciada na anotação de `register_family`. O fluxo real guarda os registros do ged4py. 🟡 |
-| `GenealogyGraph` | `domain.py:74` | Não instanciada. O grafo real é a global `graph`. 🟡 |
-| `DNAGroup` (dataclass) | `domain.py:106` | Não instanciada. `dna_analysis` monta resultados como `dict`. 🟡 |
+| Entidade | Situação |
+| --- | --- |
+| `Family` (dataclass) | **Removida.** O fluxo real sempre guardou os registros `FAM` do ged4py diretamente. |
+| `GenealogyGraph` | **Removida.** O grafo real é a global `upload.graph` — e é `nx.Graph`, não `nx.MultiGraph` como a classe documentava. |
+| `DNAGroup` (dataclass) | **Removida.** `dna_analysis` monta resultados como `dict` simples. |
 
-> 🔴 **L-01:** essas três são arquitetura abandonada ou preparação para uso futuro? Ninguém decidiu.
+**Efeito medido:** `reconstructed/domain.py` caiu de 115 para **84 linhas** e hoje contém apenas `strip_bad_utf` e `demojibake`. `tests/test_domain.py` perdeu 9 testes (suíte: 95 → 86 itens coletados). A contradição do `MultiGraph` desapareceu com a classe.
+
+> Consequência para a reimplementação: **o sistema não tem modelo de domínio em classes.** O "modelo" são dicionários e o objeto de grafo do networkx. Quem reimplementar tem liberdade para introduzir entidades próprias — não há contrato de classe a honrar.
 
 ### 3.3. Estruturas de persistência e runtime 🟢
 
@@ -167,7 +169,7 @@ Verificado por varredura: aparecem **apenas na própria definição**, nunca ins
 - **Containers:** 1 (aplicação web Flask single-process). Sem banco, fila ou cache. 🟢
 - **Camadas:** 2 (rota fina de 84 linhas + núcleo de 1117 linhas), integradas por **estado global mutável**. 🟢
 - **Integrações externas:** nenhuma API — apenas entrada de arquivos `.ged`/`.csv` e assets web via CDN. 🟢
-- **Entidades:** 9 identificadas; **3 efetivamente em uso**, 3 decorativas, 3 estruturas de runtime. 🟢
+- **Entidades:** 6 após a remoção de 2026-09-30 — **2 efetivamente em uso** (registro de pessoa e agregado DNA_MATCH), 3 removidas e 1 conjunto de estruturas de runtime. 🟢
 - **Dívidas técnicas:** 9 identificadas, 4 de severidade alta. 🟢
 - **Packing:** `gunicorn` está no `requirements.txt` mas **não é usado no código** — deploy WSGI em produção é inferência. 🟡
 - **Instrumentação de desenvolvimento (fora do runtime):** `_reversa_sdd/` contém oráculo congelado (`oracle/`), harness diferencial de paridade com 100% em 6 fixtures e 5 árvores reais (`parity/`), goldens de tela (`screens/`) e a suíte de migração (`migration/`). **Nada disso faz parte do sistema em execução** e não deve ser confundido com a arquitetura da aplicação. 🟢

@@ -14,7 +14,7 @@ O código tem **duas camadas com contratos diferentes**:
 | Camada | Arquivo | Linhas | Papel |
 | --- | --- | --- | --- |
 | Apresentação / rota | `app.py` | 84 | Recebe HTTP, valida entrada, chama um fluxo, renderiza. Nenhuma regra de negócio. 🟢 |
-| Núcleo | `reconstructed/*.py` | 1117 | Toda a lógica: parsing, grafo, matching, caminho, Mermaid. 🟢 |
+| Núcleo | `reconstructed/*.py` | 1086 | Toda a lógica: parsing, grafo, matching, caminho, Mermaid. 🟢 |
 
 O núcleo comunica-se por **estado global mutável** em `upload.py` (`people`, `families`, `graph`, `child_to_family`), importado pelos outros módulos. Não há injeção de dependência nem objeto de sessão. 🔴 (acoplamento — ver §6)
 
@@ -34,7 +34,7 @@ domain.py ◄── importado por upload.py (demojibake) e dna_analysis.py (stri
 
 ## 2. Módulo `upload-gedcom`
 
-**Arquivos:** `reconstructed/upload.py` (100 linhas), `reconstructed/domain.py` (115 linhas)
+**Arquivos:** `reconstructed/upload.py` (100 linhas), `reconstructed/domain.py` (84 linhas, após a remoção das entidades mortas)
 **Rota:** `POST /` com `action=upload_gedcom` (`app.py:22-34`)
 
 ### 2.1 Fluxo de controle
@@ -72,14 +72,16 @@ Texto do fluxo (nível `essencial` — sem flowchart dedicado):
 
 ### 2.3 Estruturas de dados
 
-| Entidade | Definição | Campos |
-| --- | --- | --- |
-| `Family` (dataclass) | `domain.py:61-71` | `xref_id: str`; `husb: str = ""`; `wife: str = ""`; `chil: list = []` |
-| `GenealogyGraph` | `domain.py:74-104` | `persons: dict`; `families: dict`; `graph = None` |
-| `DNAGroup` (dataclass) | `domain.py:106-115` | `_group_key: str`; `cm: float`; `matched_name: str = ""`; `aux: str = ""` |
-| Registro de pessoa (dict) | `domain.py:93-98` | `xref_id`; `name`; `name_clean`; `sub_records` |
+| Entidade | Definição | Campos | Observação |
+| --- | --- | --- | --- |
+| Registro de pessoa (dict) | `domain.py:93-98` — **antes** da remoção de 2026-09-30 | `xref_id`; `name`; `name_clean`; `sub_records` | Pertencia a `GenealogyGraph`; **a classe foi removida** |
+| ~~`Family`~~ | *(removida)* | — | **Removida em 2026-09-30** — decisão do usuário, `questions.md#pergunta-3` |
+| ~~`GenealogyGraph`~~ | *(removida)* | — | **Removida em 2026-09-30** |
+| ~~`DNAGroup`~~ | *(removida)* | — | **Removida em 2026-09-30** |
 
-> 🟡 **Inferência verificada por varredura:** `GenealogyGraph`, `DNAGroup` e a dataclass `Family` **não são instanciados em nenhum ponto de produção**. `GenealogyGraph` e `DNAGroup` aparecem apenas na própria definição; `Family` aparece na definição e na anotação de `register_family`. O fluxo real usa os dicionários globais e os registros do ged4py diretamente. São entidades que documentam o domínio sem serem consumidas. Mantido como 🟡 (afirmação de ausência baseada em busca, não em prova de execução).
+> 🟢 **REMOÇÃO APLICADA em 2026-09-30.** A varredura de referências confirmou que `Family`, `GenealogyGraph` e `DNAGroup` **não eram instanciadas em nenhum caminho de produção** — apareciam apenas nas próprias definições. Consultada, a decisão do usuário foi **remover** (`questions.md#pergunta-3`): arquitetura abandonada, não preparação futura.
+>
+> **Efeito:** `reconstructed/domain.py` caiu de 115 para **84 linhas** e hoje contém **apenas** `strip_bad_utf` e `demojibake` — o que de fato era consumido. A contradição do `networkx.MultiGraph` no docstring de `GenealogyGraph` desapareceu junto com a classe. `tests/test_domain.py` perdeu os 9 testes que exercitavam as classes extintas (suíte: 95 → 86 itens coletados).
 
 ### 2.4 Estado global
 
@@ -245,9 +247,9 @@ Nível `essencial` embute a tabela aqui, sem `data-dictionary.md` separado.
 | --- | --- | --- | --- |
 | PERSON | registro `INDI` do ged4py | `xref_id`, `name`, `sub_records` (`FAMC`, `FAMS`, eventos) | Não persistido. 🟢 |
 | FAMILIA | registro `FAM` do ged4py | `xref_id`, `HUSB`, `WIFE`, `CHIL` | `HUSB`/`WIFE` opcionais. 🟢 |
-| FAMILIA (dataclass `Family`) | `domain.py:61` | `xref_id`, `husb`, `wife`, `chil` | **Não instanciada no fluxo real.** 🟡 |
+| FAMILIA (dataclass `Family`) | ~`domain.py:61`~ | — | **REMOVIDA em 2026-09-30** — não instanciada em produção. 🟢 |
 | DNA_MATCH (agregado) | derivado do CSV | `_group_key`, `cm` (soma), `matched_name` | Chave = nome normalizado + ID **ou** e-mail. 🟢 |
-| DNAGroup (dataclass) | `domain.py:106` | `_group_key`, `cm`, `matched_name`, `aux` | **Não instanciada no fluxo real.** 🟡 |
+| DNAGroup (dataclass) | ~`domain.py:106`~ | — | **REMOVIDA em 2026-09-30** — não instanciada em produção. 🟢 |
 
 ### 5.2 Estruturas de runtime
 
@@ -296,7 +298,7 @@ Nível `essencial` embute a tabela aqui, sem `data-dictionary.md` separado.
 | 7 | Sem persistência de resultados | 🟢 Baixa | `dna_analysis.py:393` monta tudo em memória |
 | 8 | `README.md` do módulo anuncia `Pyvis`, que foi removido | 🟢 Baixa | `analisador-genealogico/README.md` |
 
-> A dívida "ausência total de testes" da extração anterior **deixou de existir**: 7 arquivos, 95 itens coletados. **CI/CD e Docker seguem ausentes.** 🟢
+> A dívida "ausência total de testes" da extração anterior **deixou de existir**: 7 arquivos, 86 itens coletados (eram 95 antes da remoção de 9 testes das entidades extintas). **CI/CD e Docker seguem ausentes.** 🟢
 
 ---
 
@@ -304,9 +306,9 @@ Nível `essencial` embute a tabela aqui, sem `data-dictionary.md` separado.
 
 | ID | Lacuna | Conf. |
 | --- | --- | --- |
-| L-01 | `GenealogyGraph` e `DNAGroup` são intenção de arquitetura abandonada ou preparação para uso futuro? | 🔴 |
-| L-02 | `get_spouses` só faz a varredura global se nenhum `FAMS` resolveu — intencional ou acidente? Com `FAMS` parcialmente resolvidos, cônjuges podem faltar. | 🟡 |
-| L-03 | O teto de 20 do `find_ancestral_path` conta **iterações de profundidade** do BFS bidirecional, não gerações. O efeito prático do corte não está documentado em nenhum lugar. | 🟡 |
+| ~~L-01~~ | ✅ **RESOLVIDA em 2026-09-30** — eram arquitetura abandonada; as três entidades foram **removidas** por decisão do usuário (`questions.md#pergunta-3`). | 🟢 |
+| L-02 | `get_spouses` só faz a varredura global se nenhum `FAMS` resolveu — ✅ **RESOLVIDO em 2026-09-30**: confirmado **intencional** (economia de varredura), registrado como contrato. | 🟢 |
+| L-03 | O teto de 20 do `find_ancestral_path` conta **iterações de profundidade**, não gerações — ✅ **RESOLVIDO em 2026-09-30**: corte silencioso **aceito** por decisão do usuário, preservando fidelidade ao legado. | 🟢 |
 | L-04 | `soft_prefix_jaccard`: quando algum token é curto, os **dois** lados são truncados em 4 caracteres — pode criar falso positivo entre sobrenomes de mesmo prefixo. | 🟡 |
 | L-05 | `COMMON_SURNAMES` contém `"souza"` **duas vezes** (`:50`). Inofensivo para um `set`, mas indica descuido na curadoria. Verificado por varredura: 16 itens, 15 únicos. | 🟢 |
 | L-06 | `success=True` com `path_result=None` (P-17): a distinção "sem conexão" × "erro" depende do template, não do contrato do handler. | 🟡 |
@@ -317,7 +319,7 @@ Nível `essencial` embute a tabela aqui, sem `data-dictionary.md` separado.
 
 - **Módulos analisados:** 3 (`upload-gedcom`, `analise-dna`, `busca-caminho`) + a camada de rota `app.py`.
 - **Principais algoritmos:** BFS bidirecional por pais (teto 20), caminho indireto por `shortest_path` com compressão de nós de família (teto 40), scoring difuso ponderado com 6 ramos de aceitação, agregação de segmentos cM por chave composta, emissão de Mermaid com lista branca de caracteres.
-- **Entidades:** 5 declaradas — **2 efetivamente usadas** (registro de pessoa e agregado DNA_MATCH); `Family`, `GenealogyGraph` e `DNAGroup` são decorativas.
+- **Entidades:** **após a remoção de 2026-09-30**, restam **2 efetivamente usadas** (registro de pessoa e agregado DNA_MATCH, ambos como `dict` em memória). As 3 declaradas e não instanciadas — `Family`, `GenealogyGraph` e `DNAGroup` — foram **removidas** por decisão do usuário (`questions.md#pergunta-3`).
 - **Regras catalogadas:** 11 (upload) + 17 (caminho) + 25 (DNA) = **53**, mais as constantes de domínio.
 - **Correções contra a extração anterior:** `HARD_MIN`/`GIVEN_MIN` não existem na reconstrução; a `action` de DNA é `dna_analysis` (não `process_dna`); a suíte de testes existe e é significativa; `Pyvis` e `matplotlib` foram removidos.
 

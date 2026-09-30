@@ -126,8 +126,9 @@ Preenchido por este fluxo e mantido para os seguintes:
 - 🔴 **Colisão de nome sobrescreve.** Mesma decisão acima. `BUG-20260929-QMLY-upload-sem-limites` registra a lacuna.
 - 🔴 **Estado global compartilhado.** Sem isolamento entre usuários ou requisições; quebra em deploy multi-worker. Risco registrado em `migration/risk_register.md`.
 - 🟡 **`secret_key` hardcoded** (`app.py:11`) — irrelevante hoje porque não há sessão, mas é um cheiro.
-- 🟡 **`Family`, `GenealogyGraph` e `DNAGroup` declaradas e não instanciadas** — arquitetura intencional abandonada? (`L-01`)
-- 🟡 **`GenealogyGraph` declara `networkx.MultiGraph` no docstring** (`domain.py:77`), mas o grafo real é `nx.Graph`. Contradição documental interna.
+- 🟢 **RESOLVIDO em 2026-09-30 — entidades decorativas removidas.** `Family`, `GenealogyGraph` e `DNAGroup` foram **removidas** de `reconstructed/domain.py` por decisão do usuário (`questions.md#pergunta-3`): arquitetura abandonada, não preparação futura. Nenhuma era instanciada em caminho de produção. A remoção levou `domain.py` de 115 para 84 linhas e exigiu retirar 9 testes de `tests/test_domain.py` que exercitavam as classes extintas. Suíte: 95 → 86 itens coletados.
+  - O que **permanece** em `domain.py` é apenas o que é de fato consumido: `strip_bad_utf` e `demojibake`.
+  - A contradição do `networkx.MultiGraph` no docstring de `GenealogyGraph` (`domain.py:77`) **desapareceu junto com a classe**.
 
 ---
 

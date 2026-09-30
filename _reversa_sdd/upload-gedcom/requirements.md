@@ -122,7 +122,7 @@ E a contagem de nomes continua igual à contagem de pessoas
 | `analisador-genealogico/reconstructed/upload.py` | `load_gedcom_and_build_graph` (`:82`) | 🟢 |
 | `analisador-genealogico/reconstructed/upload.py` | `build_graph_from_parser` (`:50`) | 🟢 |
 | `analisador-genealogico/reconstructed/upload.py` | `get_name` (`:33`), `ref_id` (`:28`), `ensure_dirs` (`:24`) | 🟢 |
-| `analisador-genealogico/reconstructed/domain.py` | `strip_bad_utf` (`:25`), `demojibake` (`:44`), `Family` (`:61`), `GenealogyGraph` (`:74`) | 🟢 |
+| `analisador-genealogico/reconstructed/domain.py` | `strip_bad_utf` (`:25`), `demojibake` (`:44`) — **após a remoção de 2026-09-30, é tudo o que o módulo contém** | 🟢 |
 | `tests/test_upload.py` | 16 testes, incl. `test_reload_replaces_globals`, `test_get_name_empty_formatted_returns_empty_string`, `test_load_returns_exactly_one_name_per_person_and_no_empty_entries` | 🟢 |
 | `tests/test_domain.py` | 14 testes de entidades e limpeza de nome | 🟢 |
 

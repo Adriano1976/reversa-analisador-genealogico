@@ -120,8 +120,8 @@ O legado **já tem** estes testes; a reimplementação deve passar pelos equival
 
 ## Lacunas Pendentes (🔴)
 
-- **L-01:** `Family`, `GenealogyGraph` e `DNAGroup` são declaradas e nunca instanciadas. Implementar ou remover?
-- **L-11:** `GenealogyGraph` documenta `networkx.MultiGraph` (`domain.py:77`) mas o grafo real é `nx.Graph`. Qual é a intenção?
+- ✅ **L-01 RESOLVIDA em 2026-09-30:** `Family`, `GenealogyGraph` e `DNAGroup` eram arquitetura abandonada — **removidas** de `domain.py` por decisão do usuário (`questions.md#pergunta-3`). A remoção exigiu retirar 9 testes de `tests/test_domain.py`; suíte passou de 95 para 86 itens coletados, com 85 passando. O único erro de coleta é `PermissionError` do sandbox ao escanear diretórios temporários, reproduzível em qualquer `--basetemp` — restrição de ambiente, não regressão.
+- ✅ **L-11 RESOLVIDA em 2026-09-30:** a contradição do `networkx.MultiGraph` no docstring de `GenealogyGraph` **desapareceu junto com a classe**. Não há mais divergência.
 - **L-12:** O `app.secret_key` hardcoded deve ser preservado por fidelidade ou substituído por configuração? (Irrelevante em comportamento hoje — não há sessão.)
 - **Já decididas, não são pendências:** política de upload sem validação (`questions.md#3`, aceita); uso do 1º ID em homônimos (`questions.md#2`, aceito).
 

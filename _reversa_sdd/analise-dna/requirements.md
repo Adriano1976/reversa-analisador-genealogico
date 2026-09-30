@@ -76,6 +76,8 @@ Cruza a árvore GEDCOM já carregada com um CSV de matches de DNA (ex.: GEDmatch
 | RF-08 | Aplicar os 6 ramos de aceitação em ordem | Must | Decisão igual à do legado nos casos cobertos por caracterização 🟢 |
 | RF-09 | Calcular o caminho ancestral até a raiz para o primeiro candidato aceito com caminho | Must | Resultado com `text_path` e `common_ancestor` corretos 🟢 |
 | RF-10 | Prever o parentesco por faixa de cM, devolvendo **lista** | Must | 50 cM devolve 4 relações; `cM ≤ 0` devolve lista vazia 🟢 |
+| RF-10a | As 9 faixas de cM são **heurísticas sem fonte verificável** — a sobreposição é consequência de terem sido escritas à mão | Must | A spec declara a natureza heurística; a reimplementação pode tratá-las como parâmetro ajustável 🟡 |
+| RF-14 | Tornar o desempate de candidatos **determinístico** | Must | Duas execuções sobre a mesma entrada, com `PYTHONHASHSEED` diferente, produzem o mesmo vencedor 🟢 |
 | RF-11 | Listar os descartados com motivo específico | Should | Cada descarte traz um dos 4 motivos conhecidos 🟢 |
 | RF-12 | Ordenar os resultados por cM decrescente | Must | Lista ordenada por `cm` desc 🟢 |
 | RF-13 | Reportar erro amigável, sem quebrar a aplicação | Must | Raiz inexistente e colunas ausentes viram mensagem na tela 🟢 |
@@ -89,6 +91,7 @@ Cruza a árvore GEDCOM já carregada com um CSV de matches de DNA (ex.: GEDmatch
 | Segurança | **Sem sanitização** do nome de arquivo CSV recebido. | `analisador-genealogico/app.py:49-50` | 🟢 |
 | Segurança | `app.secret_key` hardcoded. | `analisador-genealogico/app.py:11` | 🟢 |
 | Confiabilidade | A dependência `thefuzz` delega a `RapidFuzz`/`python-Levenshtein`; trocar a versão de qualquer uma **altera o resultado do matching** sem mudar uma linha do projeto. | `requirements.txt` + `migration/risk_register.md` (RISK-006) | 🟢 |
+| Reprodutibilidade | **Requisito novo (2026-09-30).** O desempate de candidatos precisa de critério final determinístico. O legado deixa empates exatos no terceiro critério serem resolvidos pela **ordem de iteração de um `set`**, que varia com `PYTHONHASHSEED`. Decisão do usuário (`questions.md#pergunta-4`): **precisa ser determinístico**. | `reconstructed/dna_analysis.py:262`, `:274-277` | 🟢 |
 | Escalabilidade | Estado global compartilhado; a análise de um usuário usa a árvore do último upload, de qualquer usuário. | `reconstructed/upload.py:16-19` | 🟢 |
 
 > A unit **não emite nenhuma observabilidade**: sem `logging`, métrica ou trace. 🟢

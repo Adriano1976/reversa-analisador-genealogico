@@ -21,7 +21,7 @@
 | `find_ancestral_path` | `(start_id, end_id, max_depth=20)` | `(path, common_ancestor)` ou `(None, None)` | BFS bidirecional por pais 🟢 |
 | `find_indirect_path` | `(start_id, end_id, max_hops=40)` | `list[str]` ou `None` | `nx.shortest_path` com compressão 🟢 |
 | `get_parents` | `(person_id)` | `list[str]` | `FAMC` preferencial, fallback `child_to_family` 🟢 |
-| `get_spouses` | `(person_id)` | `list[str]` | `FAMS`; varredura global só se vazio 🟢 |
+| `get_spouses` | `(person_id)` | `list[str]` | `FAMS`; varredura global só se `spouse_ids` ficou **vazio** — contrato explícito, ver nota 🟢 |
 | `are_spouses` | `(a_id, b_id)` | `bool` | `b in set(get_spouses(a))` 🟢 |
 | `split_path_by_marriage` | `(person_path)` | `(left, right, (a,b))` ou `(None, None, None)` | Primeiro par adjacente 🟢 |
 | `pick_spouse_for_couple` | `(person_id, candidate_path=None)` | `str \| None` | Prefere cônjuge já no caminho 🟢 |
@@ -152,10 +152,14 @@
 
 - 🔴 **Homônimos:** o primeiro ID é escolhido sem desempate nem aviso. Decisão do usuário (`questions.md#2`), mas o risco de conectar a pessoa errada permanece. Não é bug; é contrato.
 - 🔴 **Famílias adotivas/complexas:** `find_ancestral_path` só sobe por `HUSB`/`WIFE`, então adoção não é representável como laço parental. Cai para a busca indireta, que pode achar um caminho por afinidade sem significado genealógico.
-- 🔴 **`get_spouses` só faz a varredura global se nenhum `FAMS` resolveu** (`:79-80`). Com `FAMS` parcialmente resolvidos, cônjuges podem faltar — e o fallback nunca roda. Comportamento não documentado em nenhum lugar; intencional ou acidente? (`L-02`)
 - 🟡 **`success=True` com `path_result=None`** (`:488-491`): "sem conexão" e "erro" chegam ao template com a mesma forma de `path_result`, distinguidos apenas por `success`. A tela depende de o template tratar os dois casos. (`L-06`)
 - 🟡 **`split_path_by_marriage` acha só o primeiro par de cônjuges.** Caminhos com múltiplas afinidades renderizam de forma simplificada.
-- 🟡 **Teto de 20 conta iterações, não gerações** (`L-03`). O efeito prático do corte não está documentado; árvores profundas podem falhar na conexão direta e cair na indireta sem aviso.
+- 🟢 **RESOLVIDO em 2026-09-30 — contrato de `get_spouses` confirmado como intencional.** A varredura global de `families` **é fallback total, não complemento**: ela só roda quando `spouse_ids` ficou vazio (`:79-80`). Decisão do usuário (`questions.md#pergunta-2`), confirmada como economia deliberada de varredura.
+  - **Consequência que a reimplementação deve preservar:** com `FAMS` parcialmente resolvidos, cônjuges legítimos podem faltar, e o fallback **não** roda para corrigir. Quem reimplementar e "melhorar" isso para varredura complementar **muda o resultado** da busca indireta e das pontes matrimoniais. Não melhorar.
+  - Registrado aqui como contrato, não como lacuna.
+- 🟢 **RESOLVIDO em 2026-09-30 — corte silencioso do `MAX_DEPTH` aceito como está.** Decisão do usuário (`questions.md#pergunta-1`): **preservar a fidelidade ao legado**, sem sinalização ao usuário. O teto continua contando **iterações de profundidade** do BFS bidirecional (não gerações), e o corte continua indistinguível de "não existe caminho" no retorno `(None, None)`.
+  - **Consequência aceita:** uma árvore com mais de ~20 níveis de ascendência faz a conexão direta falhar em silêncio e cair para a busca indireta, que pode achar um laço por afinidade sem significado genealógico.
+  - **A reimplementação não deve acrescentar aviso nem distinguir os dois casos.** Se quiser melhorar isso no alvo, é decisão de produto, não de migração.
 - 🟡 **`soft_prefix_jaccard` é da unit `analise-dna`**, mas a mesma família de heurísticas de nome atravessa as duas units — qualquer mudança de normalização afeta ambas.
 - 🟢 **Resolvido no legado:** o vazamento de gramática Mermaid por aspa dupla + crase (`BUG-20260929-J6PQ`), com 19 testes e fuzz independente.
 

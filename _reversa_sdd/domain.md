@@ -238,7 +238,7 @@ Quatro perguntas foram respondidas pelo usuário em 2026-08-03 e **continuam val
 
 | ID | Lacuna | Conf. |
 | --- | --- | --- |
-| L-01 | `GenealogyGraph` e `DNAGroup` são arquitetura abandonada ou preparação para uso futuro? Não são instanciados em nenhum caminho de produção. | 🔴 |
+| ✅ L-01 | **RESOLVIDA em 2026-09-30:** `GenealogyGraph` e `DNAGroup` (e a dataclass `Family`) eram **arquitetura abandonada** — **removidas** por decisão do usuário (`questions.md#pergunta-3`). Não eram preparação para uso futuro. | 🟢 |
 | L-07 | **Fonte das faixas de cM**: a tabela `SHARED_CM_DATA` não cita origem. O README menciona o Shared cM Project, mas não há referência à versão nem aos dados que geraram as faixas — e elas **se sobrepõem**, o que é atípico para uma tabela derivada de percentis. | 🔴 |
 | L-08 | **Escopo do matching**: a cobertura dos 6 ramos de aceitação é conhecida apenas pelos testes de caracterização, que congelam o comportamento atual. Não há prova de que os ramos cobrem os casos reais de exportadores diferentes (o regex `[A-Z]{2}\d{7}` é específico). | 🟡 |
 | L-09 | **Política de descarte**: match rejeitado é exibido em `skipped_matches` com motivo textual. Não há indicação de negócio sobre se o usuário deve agir sobre os descartados. | 🟡 |

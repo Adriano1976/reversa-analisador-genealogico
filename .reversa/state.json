@@ -362,8 +362,84 @@
       ],
       "questions_generated": 6,
       "questions_blocking": 3,
-      "questions_answered": 0,
-      "note_questions": "answer_mode = chat. As 4 decisoes humanas de 2026-08-03 foram verificadas contra o codigo atual e continuam vigentes; NAO foram reabertas. As 6 perguntas novas sao sobre lacunas descobertas por esta re-extracao."
+      "questions_answered": 5,
+      "questions_open": 1,
+      "note_questions": "answer_mode = chat. As 4 decisoes humanas de 2026-08-03 foram verificadas contra o codigo atual e continuam vigentes; NAO foram reabertas. Das 6 perguntas novas, 5 foram respondidas e aplicadas em 2026-09-30; resta a pergunta 6 (medicao de calibracao do 0,33)."
+    },
+    "respostas_humanas_2026_09_30": {
+      "completed_at": "2026-09-30T23:15:00Z",
+      "answered": 5,
+      "open": 1,
+      "answers": {
+        "pergunta_1_max_depth": {
+          "resposta": "Aceitavel - preservar fidelidade ao legado",
+          "efeito": "busca-caminho/design.md registra o corte silencioso como contrato aceito; NENHUM requisito novo (a decisao foi nao sinalizar). Fecha L-03."
+        },
+        "pergunta_2_get_spouses": {
+          "resposta": "Intencional - documentar como contrato",
+          "efeito": "busca-caminho/design.md promove a varredura condicional a contrato explicito, com aviso de que torna-la complementar muda o resultado. Fecha L-02."
+        },
+        "pergunta_3_entidades": {
+          "resposta": "Arquitetura abandonada - REMOVER",
+          "efeito": "MUDOU O CODIGO: Family, GenealogyGraph e DNAGroup removidas de reconstructed/domain.py (115 -> 84 linhas); imports dataclass/field removidos; 9 testes removidos de tests/test_domain.py; suite 95 -> 86 itens (85 passam). Fecha L-01 e L-11.",
+          "files_edited_outside_reversa": [
+            "analisador-genealogico/reconstructed/domain.py",
+            "tests/test_domain.py"
+          ],
+          "authorization": "reversa-config.json allowLegacyEdits=true, allowedPaths cobre analisador-genealogico/** e tests/**"
+        },
+        "pergunta_4_determinismo": {
+          "resposta": "Precisa ser deterministico (criterio final sugerido: menor xref_id)",
+          "efeito": "Novo RF-14 + requisito nao funcional de Reprodutibilidade + T-19 em secao propria. UNICA divergencia deliberada do legado em toda a re-extração. Fecha L-13."
+        },
+        "pergunta_5_faixas_cm": {
+          "resposta": "Escritas a mao - declarar como heuristica",
+          "efeito": "Novo RF-10a + T-20. RF-10 permanece verde na MECANICA (devolver lista); caiu a autoridade dos numeros. Fecha L-07."
+        },
+        "pergunta_6_jaccard_033": {
+          "resposta": "Calibrado - o usuario tem a medicao, mas ela NAO foi fornecida",
+          "efeito": "Nada alterado nas specs. Lacuna L-14 segue ABERTA aguardando o dado."
+        }
+      },
+      "files_updated": [
+        "_reversa_sdd/questions.md",
+        "_reversa_sdd/confidence-report.md",
+        "_reversa_sdd/busca-caminho/design.md",
+        "_reversa_sdd/busca-caminho/tasks.md",
+        "_reversa_sdd/upload-gedcom/requirements.md",
+        "_reversa_sdd/upload-gedcom/design.md",
+        "_reversa_sdd/upload-gedcom/tasks.md",
+        "_reversa_sdd/analise-dna/requirements.md",
+        "_reversa_sdd/analise-dna/design.md",
+        "_reversa_sdd/analise-dna/tasks.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/inventory.md",
+        ".reversa/context/surface.json",
+        ".reversa/context/modules.json"
+      ],
+      "confidence_after": {
+        "unit_specs": { "verde": 509, "amarelo": 30, "vermelho": 29, "total": 568, "pct": 89.6, "confianca_geral_pct": 92.3 },
+        "transversais": { "verde": 206, "amarelo": 23, "vermelho": 22, "total": 251, "pct": 82.1, "confianca_geral_pct": 86.7 },
+        "extracao_completa": { "verde": 715, "amarelo": 53, "vermelho": 51, "total": 819, "pct": 87.3, "confianca_geral_pct": 90.5 },
+        "antes_das_respostas": { "total": 826, "confianca_geral_pct": 88.8, "vermelho": 58 }
+      },
+      "self_corrections": [
+        "Criei dois IDs T-19 em analise-dna/tasks.md (determinismo e tratamento de erro) e um T-18 fora de ordem. Renumerado: T-18 (erro), T-19 (determinismo), T-20 (faixas heuristicas), com secao propria para as duas divergencias deliberadas.",
+        "Um edit em busca-caminho/design.md nao removeu as linhas que eu pretendia substituir, deixando a lacuna L-02 declarada como aberta e resolvida ao mesmo tempo. Detectado por varredura e corrigido.",
+        "O surface.json dizia 'app.py passou de 887 para 70 linhas' na secao de mudancas, contradizendo o code_size que dizia 84. Detectado e corrigido."
+      ],
+      "code_change_impact": {
+        "domain_py_lines": "115 -> 84",
+        "reconstructed_lines": "1117 -> 1086",
+        "total_python_lines": "1201 -> 1170",
+        "tests_collected": "95 -> 86",
+        "test_functions": "61 -> 52",
+        "tests_passing": 85,
+        "tests_erroring": 1,
+        "error_cause": "PermissionError do sandbox ao escanear diretorios temporarios; reproduz em qualquer --basetemp, nao e regressao"
+      }
     },
     "extraction_complete_reextracao_2026_09_30": {
       "completed_at": "2026-09-30T22:00:00Z",
