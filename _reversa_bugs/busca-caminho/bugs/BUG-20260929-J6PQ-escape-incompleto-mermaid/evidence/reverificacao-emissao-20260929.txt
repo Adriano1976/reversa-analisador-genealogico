@@ -1,4 +1,4 @@
-﻿re-verificacao do J6PQ depois da TPSH
+re-verificacao do J6PQ depois da TPSH
 ==============================================================================
 Pergunta: o payload consegue encerrar o rotulo antes das aspas de fechamento?
 

@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T15:55:18-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 2 bugs -->
 
 # Matriz BUG x SPEC · busca-caminho
 
@@ -6,4 +6,4 @@ Todos os 2 bug(s) deste contexto têm `visibility: restricted`. Os locators de s
 
 | Seção de spec | open | active | resolved |
 |---------------|------|--------|----------|
-| (omitida por política de visibilidade) | 2 | 0 | 0 |
+| (omitida por política de visibilidade) | 1 | 0 | 1 |

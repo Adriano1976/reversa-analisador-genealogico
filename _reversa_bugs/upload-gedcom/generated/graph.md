@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T15:55:18-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 1 bugs -->
 
 # Grafo de bugs · upload-gedcom
 

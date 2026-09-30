@@ -1,4 +1,4 @@
-﻿nomes carregados do GEDCOM:
+nomes carregados do GEDCOM:
    'Alvo Filho'
    'Ana Raiz'
    'Joao] --> N_evil["pwn Hostil'

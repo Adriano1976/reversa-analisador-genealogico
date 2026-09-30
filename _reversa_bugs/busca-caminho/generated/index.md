@@ -1,18 +1,19 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-29T15:55:18-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 2 bugs -->
 
 # Índice de bugs · busca-caminho
 
-> Gerado em `2026-09-29T15:55:18-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-09-30T11:11:31-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
 | Status | Qtd |
 |--------|-----|
-| open | 2 |
+| open | 1 |
+| resolved | 1 |
 
 | Phase | Qtd |
 |-------|-----|
-| diagnosing | 1 |
+| patching | 1 |
 | triaging | 1 |
 
 ## Bugs abertos e ativos
@@ -20,11 +21,11 @@
 | # | ID | Severidade | Prioridade | Título | area / module / feature | Status | Phase | Bloqueado |
 |---|----|-----------|-----------|--------|------------------------|--------|-------|-----------|
 | 1 | `BUG-20260929-BJJH` | critical | P0 | restrito | analisador-genealogico / upload / busca-caminho | open | triaging | não |
-| 3 | `BUG-20260929-J6PQ` | high | P1 | restrito | analisador-genealogico / path-search / busca-caminho | open | diagnosing | não |
+| 3 | `BUG-20260929-J6PQ` | medium | P1 | restrito | analisador-genealogico / path-search / busca-caminho | resolved | patching | não |
 
 ## Resolvidos
 
-Nenhum bug resolvido neste contexto.
+Total: 1.
 
 ## Visibilidade restrita
 

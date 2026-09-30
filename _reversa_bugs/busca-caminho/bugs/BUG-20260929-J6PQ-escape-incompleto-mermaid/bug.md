@@ -3,9 +3,9 @@ schema_version: 1
 id: BUG-20260929-J6PQ
 display_number: 3
 title: Escape incompleto de nomes no rótulo Mermaid permite falsificar o grafo exibido
-status: open
-phase: diagnosing
-severity: high
+status: resolved
+phase: patching
+severity: medium
 priority: P1
 created: 2026-09-29
 updated: 2026-09-29
@@ -17,18 +17,18 @@ origin:
 area: analisador-genealogico
 module: path-search
 feature: busca-caminho
-labels: [seguranca, injecao, mermaid, paridade]
+labels: [seguranca, injecao, mermaid, paridade, spec-gap]
 
 visibility: restricted
 security_suspected: true
 
 reproduction:
-  classification: not-reproduced
-  rate: null
+  classification: deterministic
+  rate: 1/1
   suspected_triggers:
-    - nome de pessoa no GEDCOM contendo colchetes
-    - nome de pessoa no GEDCOM contendo crase
-    - nome de pessoa no GEDCOM contendo palavra-chave do Mermaid
+    - nome de pessoa no GEDCOM que comeca com crase, produzindo a sequencia aspa mais crase no rotulo emitido
+    - nome de pessoa no GEDCOM contendo colchete (medido como inerte: fica dentro das aspas)
+    - nome de pessoa no GEDCOM contendo palavra-chave do Mermaid (medida como inerte)
 
 blocking: []
 
@@ -43,21 +43,62 @@ traceability:
     - _reversa_forward/001-reconstrua-o-conteudo-da-index/requirements.md#9-esclarecimentos
     - _reversa_sdd/busca-caminho/design.md#interface
     - _reversa_sdd/busca-caminho/design.md#riscos-e-lacunas
+    - _reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md
   affected_code:
     - analisador-genealogico/reconstructed/path_search.py
     - analisador-genealogico/templates/index.html
-  root_cause: "supported: o rotulo e emitido entre aspas duplas (path_search.py:227, :235 e :305) e o unico caractere capaz de encerra-lo antes do fim e a propria aspa dupla, que o escape troca por apostrofo (path_search.py:201). Colchete, crase e palavra-chave ficam dentro das aspas. Re-verificado em 2026-09-29 depois da OPP-20260929-TPSH"
-  reproduction_tests: []
-  regression_tests: []
+  root_cause:
+    state: confirmed
+    hypothesis: >-
+      A sequencia aspa mais crase no rotulo, produzida por nome que comeca com crase, desvia o lexer
+      do Mermaid para o modo md_string, e ali o fecha-colchete nunca vira o token SQE que a regra
+      vertex exige, o que impede o diagrama de renderizar.
+    causal_path:
+      - o nome vindo do GEDCOM tem crase na primeira posicao
+      - _mermaid_label emite o rotulo entre aspas duplas sem neutralizar a crase
+      - o lexer do flowchart casa a regra de aspa seguida de crase e entra em md_string
+      - o fecha-colchete e consumido como texto e o token SQE nunca e emitido
+      - a regra vertex fica sem fechamento e o Mermaid reporta Syntax error in text
+    evidence:
+      - ref: evidence/reproduction.md
+        observation: navegador real com Mermaid 10.9.8 exibiu Syntax error in text no lugar do diagrama
+      - ref: evidence/analise-gramatica-mermaid-20260929.md
+        observation: a regra de lexer que dispara o desvio, citada literalmente do flow.jison
+      - ref: tests/test_mermaid_escape.py
+        observation: os 2 casos de reproducao falham antes da correcao e passam depois, e os 4 payloads sem crase passam nos dois estados
+    code_refs:
+      - file: analisador-genealogico/reconstructed/path_search.py
+        symbol: _mermaid_label
+        commit: null
+  reproduction_tests:
+    - tests/test_mermaid_escape.py::test_rotulo_neutraliza_crase
+    - tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica
+  regression_tests:
+    - tests/test_mermaid_escape.py::test_entidades_html_preservadas
+    - tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem
+    - tests/test_mermaid_escape.py::test_neutralizacoes_que_ja_existiam
+    - tests/test_mermaid_escape.py::test_rotulo_vazio_continua_vazio
+    - tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada
+    - tests/test_characterization_mermaid.py::test_rotulo_com_caracteres_de_escape
 
-spec_verdict: null
+spec_verdict: spec-gap
 
-change_set: []
+change_set:
+  - id: CHG-001
+    kind: code
+    artifact: analisador-genealogico/reconstructed/path_search.py
+    purpose: Troca a neutralizacao por lista negra por lista branca de caracteres no rotulo Mermaid
+    diff: fix/CHG-001.diff
+  - id: CHG-002
+    kind: specification
+    artifact: _reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md
+    purpose: Especifica pela primeira vez o contrato de escape do rotulo Mermaid
+    diff: null
 
 closure:
   policy: local-software
-  satisfied: false
-resolution_kind: null
+  satisfied: true
+resolution_kind: fixed
 ---
 
 # Escape incompleto de nomes no rótulo Mermaid permite falsificar o grafo exibido
@@ -88,6 +129,12 @@ O comportamento esperado está na spec efetiva:
 
 A intenção declarada da spec é que conteúdo vindo de arquivo do usuário não consiga alterar o que o
 diagrama expressa. O escape parcial não cumpre essa intenção, mesmo com o modo estrito ativo.
+
+**Lacuna declarada (`spec-gap`).** A spec efetiva trata do vetor de HTML e script, fechado pela
+decisão D-02, e nunca tratou do vetor de integridade do diagrama: `design.md#riscos-e-lacunas` não
+menciona escape nem caracteres de rótulo. O contrato existia apenas como detalhe de implementação. Foi
+especificado pela primeira vez em `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md`, aprovado pelo
+usuário em 2026-09-29, na etapa 7 do fluxo de correção.
 
 ## Actual Behavior
 
@@ -128,10 +175,14 @@ que ainda não foi feita.
    restante passa a ser interpretado como sintaxe, acrescentando nós ou arestas que não existem na
    árvore.
 
-Reprodução não obtida nesta sessão. A classificação é `not-reproduced`: a sonda executada prova que
-o escape é incompleto, mas se o analisador do Mermaid encerra ou não o rótulo no primeiro colchete
-depende do parser e precisa de execução em navegador. O veredito do `bug.md` registra a hipótese,
-não o fato.
+**Reproduzido em 2026-09-29, em navegador**, com a cápsula completa em `evidence/reproduction.md`.
+O diagrama não renderiza: a página exibe `Syntax error in text` com `mermaid version 10.9.8`.
+
+O sintoma observado **não** é o que o título deste bug afirma. Nenhum payload falsificou o
+parentesco exibido. O que acontece é a renderização falhar por completo, e o gatilho é a sequência
+de aspa seguida de crase, produzida por um nome que começa com crase. Essa sequência casa a regra
+`<*>["][`]` do lexer do `flowchart`, que desvia o modo para `md_string`; ali o `]` de fechamento é
+engolido como texto e nunca vira o token `SQE` que a regra `vertex` exige.
 
 ## Evidence
 
@@ -156,14 +207,17 @@ não o fato.
 
 ## Acceptance Criteria
 
-- [ ] Nome de pessoa proveniente do GEDCOM não altera a estrutura do diagrama, qualquer que seja o
-      conjunto de caracteres que ele contenha.
-- [ ] Existe teste que alimenta a geração do Mermaid com nomes hostis e falha antes da correção.
+- [x] Nome de pessoa proveniente do GEDCOM não altera a estrutura do diagrama, qualquer que seja o
+      conjunto de caracteres que ele contenha. **Satisfeito** pela lista branca do `CHG-001` e
+      coberto por `tests/test_mermaid_escape.py`.
+- [x] Existe teste que alimenta a geração do Mermaid com nomes hostis e falha antes da correção.
+      **Satisfeito**: 2 casos falhavam antes, ver `fix/gate1-testes-falham.txt`.
 - [x] O escape é definido em um único lugar, e não em duas cópias que podem divergir. **Satisfeito
       pela `OPP-20260929-TPSH`**, antes desta correção: `_mermaid_label` existe uma única vez, em
       `path_search.py:193`, e as duas funções o alcançam por alias.
-- [ ] O modo `securityLevel: 'strict'` permanece ativo, conforme
-      `_reversa_sdd/addenda/001-reconstrua-o-conteudo-da-index.md#resumo-da-entrega`.
+- [x] O modo `securityLevel: 'strict'` permanece ativo, conforme
+      `_reversa_sdd/addenda/001-reconstrua-o-conteudo-da-index.md#resumo-da-entrega`. **Satisfeito**:
+      o `CHG-001` não tocou `templates/index.html`.
 
 ## Traceability
 
@@ -171,14 +225,62 @@ não o fato.
 |------|-------|
 | Specs | `_reversa_sdd/addenda/001-reconstrua-o-conteudo-da-index.md#resumo-da-entrega`, `_reversa_sdd/addenda/001-reconstrua-o-conteudo-da-index.md#impacto-por-artefato-da-extração`, `_reversa_forward/001-reconstrua-o-conteudo-da-index/legacy-impact.md#modificadas`, `_reversa_forward/001-reconstrua-o-conteudo-da-index/investigation.md#segurança-do-mermaid`, `_reversa_forward/001-reconstrua-o-conteudo-da-index/requirements.md#9-esclarecimentos`, `_reversa_sdd/busca-caminho/design.md#interface`, `_reversa_sdd/busca-caminho/design.md#riscos-e-lacunas` |
 | Código afetado | `analisador-genealogico/reconstructed/path_search.py`, `analisador-genealogico/templates/index.html` |
-| Causa raiz | `supported`: o rótulo é emitido entre aspas duplas (`path_search.py:227`, `:235`, `:305`) e o único caractere capaz de encerrá-lo, a aspa dupla, é trocado por apóstrofo (`:201`). Re-verificado em 2026-09-29 pós-`TPSH` |
-| Testes de reprodução | nenhum ainda |
-| Testes de regressão | nenhum ainda |
-| Veredito de spec | a decidir por humano (`spec_verdict` nulo) |
+| Causa raiz | `confirmed`: a sequência aspa mais crase no rótulo desvia o lexer do Mermaid para `md_string`, o `]` de fechamento nunca vira `SQE` e o diagrama não renderiza. Reproduzido em navegador com Mermaid 10.9.8 em 2026-09-29. O vetor de falsificação não se sustenta |
+| Testes de reprodução | `tests/test_mermaid_escape.py::test_rotulo_neutraliza_crase`, `tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica` |
+| Testes de regressão | `tests/test_mermaid_escape.py::test_entidades_html_preservadas`, `::test_caracteres_legitimos_sobrevivem`, `::test_neutralizacoes_que_ja_existiam`, `::test_rotulo_vazio_continua_vazio`, `tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada`, `tests/test_characterization_mermaid.py::test_rotulo_com_caracteres_de_escape` |
+| Veredito de spec | `spec-gap`, com adendo aditivo `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md` |
 
 ## Resolution
 
-Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates de aprovação.
+**Causa raiz.** `confirmed`. A sequência aspa mais crase no rótulo, produzida por nome que começa com
+crase, casa a regra de lexer que desvia o modo para `md_string`; ali o fecha-colchete nunca vira o
+token `SQE` que a regra `vertex` exige, e o diagrama não renderiza. O caminho causal está no front
+matter, com evidência por elo.
+
+**O que o bug registrava, e o que era de fato.** O título afirmava falsificação do parentesco
+exibido. A medição refutou esse vetor: a aspa dupla, único caractere que sairia do estado `string`, é
+trocada por apóstrofo, e nenhum dos dez payloads encerrou o rótulo. O defeito confirmado é outro,
+falha determinística de renderização. É por isso que a severidade caiu de `high` para `medium`, por
+decisão do usuário registrada nas Agent Notes.
+
+**Veredito de spec.** `spec-gap`, aprovado pelo usuário na etapa 7. A spec efetiva trata do vetor de
+HTML e script, fechado pela decisão D-02 com `securityLevel: 'strict'`, e nunca tratou do vetor de
+integridade do diagrama: `design.md#riscos-e-lacunas` não menciona escape nem caracteres de rótulo. O
+contrato foi especificado pela primeira vez no adendo aditivo.
+
+**`resolution_kind`.** `fixed`.
+
+### Change set
+
+| CHG | Tipo | Artefato | Propósito | Diff |
+|-----|------|----------|-----------|------|
+| `CHG-001` | code | `analisador-genealogico/reconstructed/path_search.py` | Lista negra vira lista branca em `_mermaid_label` | `fix/CHG-001.diff` |
+| `CHG-002` | specification | `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md` | Especifica o contrato de escape pela primeira vez | arquivo novo, sem diff |
+
+O diff de código e o adendo de spec ficam registrados **juntos**, como exige o protocolo do registro.
+
+### Testes
+
+Vermelho para verde, medido no mesmo commit:
+
+| Estado | `tests/test_mermaid_escape.py` | Suíte completa |
+|--------|-------------------------------|----------------|
+| Antes do `CHG-001` | 2 falhas, 17 passam | 2 falhas, 93 passam |
+| Depois do `CHG-001` | **19 passam** | **95 passam** |
+
+- Evidência do vermelho: `fix/gate1-testes-falham.txt`
+- Evidência do verde: `fix/gate2-testes-passam.txt`
+- O diff aplicado foi conferido por hash contra o aprovado no Gate 2, e é idêntico.
+
+### Aprovações
+
+Plano, Gate 1 e Gate 2 aprovados pelo usuário em 2026-09-29, na mesma sessão.
+
+### Reversão
+
+`git checkout -- analisador-genealogico/reconstructed/path_search.py` e remoção do adendo. O arquivo de
+teste pode permanecer: ele passaria a falhar, que é exatamente o comportamento desejado de um teste
+de regressão.
 
 ## Agent Notes
 
@@ -196,6 +298,13 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
   `_mermaid_label` (`path_search.py:193`), alcançada por alias em `:206` e `:255`. O critério de
   aceitação que exigia um único lugar para o escape está satisfeito desde então, antes de qualquer
   correção deste bug.
+- **Severidade rebaixada de `high` para `medium` em 2026-09-29, por decisão do usuário**, cumprindo o
+  que esta Agent Note pedia. Motivo: o vetor de falsificação do parentesco foi **refutado por
+  medição** (a aspa dupla é neutralizada, e nenhum dos dez payloads encerrou o rótulo), e o defeito
+  que sobrou é falha determinística de renderização, disparada por uma classe de caractere incomum.
+  A prioridade segue `P1`: o defeito é total quando dispara, mesmo com gatilho raro.
+- **Vocabulário pendente de revisão.** Com o vetor de injeção refutado, os labels `seguranca` e
+  `injecao` ficaram imprecisos. A revisão deles é decisão humana e não foi feita aqui.
 - **Duplicação relevante.** `lab()` existe duas vezes, em `generate_mermaid_graph` e em
   `generate_mermaid_graph_indirect_bridge`. Uma correção em apenas uma das cópias deixa metade dos
   caminhos desprotegida. `sid()` também está duplicada, com pequena diferença de tratamento de

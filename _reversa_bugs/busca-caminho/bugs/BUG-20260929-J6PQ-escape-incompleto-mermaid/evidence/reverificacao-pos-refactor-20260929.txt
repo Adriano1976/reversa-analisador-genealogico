@@ -1,4 +1,4 @@
-﻿sonda de escape do rotulo Mermaid apos a TPSH
+sonda de escape do rotulo Mermaid apos a TPSH
 ==============================================================
 colchete                 'Joao [Silva]'               -> 'Joao [Silva]'               PASSA INTACTO
 crase                    'Maria `teste`'              -> 'Maria `teste`'              PASSA INTACTO
