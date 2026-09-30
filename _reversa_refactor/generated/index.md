@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T11:11:31-03:00 a partir de 17 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 17 oportunidades -->
 
 # Registro de qualidade de código · visão global
 
-> Gerado em `2026-09-30T11:11:31-03:00`. Ordenado por retorno estimado, não por estética.
+> Gerado em `2026-09-30T13:10:36-03:00`. Ordenado por retorno estimado, não por estética.
 
 Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 11 aplicada(s) e 6 em aberto.
 

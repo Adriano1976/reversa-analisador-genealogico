@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T11:11:31-03:00 a partir de 4 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 4 oportunidades -->
 
 # Índice de qualidade de código · busca-caminho
 
-> Gerado em `2026-09-30T11:11:31-03:00`. Fonte de verdade: `../opportunities/*.md`.
+> Gerado em `2026-09-30T13:10:36-03:00`. Fonte de verdade: `../opportunities/*.md`.
 
 ## Oportunidades
 
