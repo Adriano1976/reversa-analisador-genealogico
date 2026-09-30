@@ -1,4 +1,4 @@
-﻿diff --git a/analisador-genealogico/requirements.txt b/analisador-genealogico/requirements.txt
+diff --git a/analisador-genealogico/requirements.txt b/analisador-genealogico/requirements.txt
 index 8cfbc37..a2ce6ee 100644
 --- a/analisador-genealogico/requirements.txt
 +++ b/analisador-genealogico/requirements.txt

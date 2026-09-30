@@ -1,4 +1,4 @@
-﻿diff --git a/tests/test_domain.py b/tests/test_domain.py
+diff --git a/tests/test_domain.py b/tests/test_domain.py
 index b2f1002..a4ac954 100644
 --- a/tests/test_domain.py
 +++ b/tests/test_domain.py

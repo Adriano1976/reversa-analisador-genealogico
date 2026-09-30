@@ -1,4 +1,4 @@
-﻿diff --git a/analisador-genealogico/reconstructed/path_search.py b/analisador-genealogico/reconstructed/path_search.py
+diff --git a/analisador-genealogico/reconstructed/path_search.py b/analisador-genealogico/reconstructed/path_search.py
 index 4c261d6..75c4d75 100644
 --- a/analisador-genealogico/reconstructed/path_search.py
 +++ b/analisador-genealogico/reconstructed/path_search.py

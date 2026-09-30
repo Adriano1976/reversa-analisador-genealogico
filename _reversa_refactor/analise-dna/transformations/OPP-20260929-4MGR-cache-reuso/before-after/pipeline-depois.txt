@@ -1,4 +1,4 @@
-﻿arvore: 1023 pessoas, 511 familias | CSV: 300 linhas | modo: nomes exatos da arvore
+arvore: 1023 pessoas, 511 familias | CSV: 300 linhas | modo: nomes exatos da arvore
 
 fase                        chamadas   segundos  % do total
 read_csv_with_fallback             1      0.003        0.7%

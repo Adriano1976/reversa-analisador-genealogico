@@ -1,4 +1,4 @@
-﻿diff --git a/tests/test_characterization_matching.py b/tests/test_characterization_matching.py
+diff --git a/tests/test_characterization_matching.py b/tests/test_characterization_matching.py
 index 642844c..a31d156 100644
 --- a/tests/test_characterization_matching.py
 +++ b/tests/test_characterization_matching.py

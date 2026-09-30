@@ -1,4 +1,4 @@
-﻿variante atual     : D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\state-pre-b5f2\reconstructed\dna_analysis.py
+variante atual     : D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\state-pre-b5f2\reconstructed\dna_analysis.py
 variante otimizada : D:\Projetos\reversa_analisador_gelealogico\analisador-genealogico\reconstructed\dna_analysis.py
 campos do cache    : ['given_tokens', 'norm', 'surnames', 'surnames_list', 'tokens']
 

@@ -1,4 +1,4 @@
-﻿py :  INFO Checking project configured at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+py :  INFO Checking project configured at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
 No linha:1 caractere:983
 + ...  12; "`n=== ANTES: check ==="; py -3.14 -m pyrefly check 2>&1 | Out-F ...
 +                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

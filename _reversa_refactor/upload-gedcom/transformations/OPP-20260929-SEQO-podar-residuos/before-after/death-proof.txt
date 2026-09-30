@@ -1,4 +1,4 @@
-﻿arquivos varridos no repositorio: 406
+arquivos varridos no repositorio: 406
 
 === STATIC_FOLDER: 3 ocorrencia(s) ===
   [CODIGO] analisador-genealogico\app.py:14  STATIC_FOLDER = "static"

@@ -1,4 +1,4 @@
-﻿diff --git a/analisador-genealogico/reconstructed/domain.py b/analisador-genealogico/reconstructed/domain.py
+diff --git a/analisador-genealogico/reconstructed/domain.py b/analisador-genealogico/reconstructed/domain.py
 index e9e87ba..fbb5bc6 100644
 --- a/analisador-genealogico/reconstructed/domain.py
 +++ b/analisador-genealogico/reconstructed/domain.py

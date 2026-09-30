@@ -1,4 +1,4 @@
-﻿pacote sob analise: D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\state-pre-b5f2
+pacote sob analise: D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\state-pre-b5f2
 
 === 1. Divergencia entre as duas implementacoes ===
 entrada               domain.demojibake       dna.demojibake          igual?

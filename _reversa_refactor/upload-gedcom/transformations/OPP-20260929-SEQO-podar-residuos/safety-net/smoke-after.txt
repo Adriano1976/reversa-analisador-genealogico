@@ -1,4 +1,4 @@
-﻿CWD do teste: D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\temp
+CWD do teste: D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\temp
 
 rotas do app atual (2):
   GET,POST   /                    -> index

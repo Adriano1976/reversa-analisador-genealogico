@@ -1,4 +1,4 @@
-﻿metrica                        atual   otimizada     ganho
+metrica                        atual   otimizada     ganho
 build_ged_indexes_s           0.5317      0.7983     0.67x
 ms_por_match                   27.77        2.29    12.13x
 norm_name_por_pessoa             3.0         8.0     0.38x

@@ -1,4 +1,4 @@
-﻿Configuration at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+Configuration at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
   Using interpreter: C:\Users\venda\AppData\Local\Microsoft\WindowsApps\python3.exe
   Covered files:
     D:\Projetos\reversa_analisador_gelealogico\tests\test_upload.py

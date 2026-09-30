@@ -1,4 +1,4 @@
-﻿diff --git a/analisador-genealogico/app.py b/analisador-genealogico/app.py
+diff --git a/analisador-genealogico/app.py b/analisador-genealogico/app.py
 index c432869..09249a2 100644
 --- a/analisador-genealogico/app.py
 +++ b/analisador-genealogico/app.py

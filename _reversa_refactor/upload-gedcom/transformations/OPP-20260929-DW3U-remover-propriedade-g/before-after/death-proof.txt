@@ -1,4 +1,4 @@
-﻿=== DW3U: quem usa GenealogyGraph e quem chama a propriedade g ===
+=== DW3U: quem usa GenealogyGraph e quem chama a propriedade g ===
 
 GenealogyGraph: 8 ocorrencia(s)
   tests\test_domain.py:3  Cobre Family, GenealogyGraph, DNAGroup e as rotinas de limpeza de

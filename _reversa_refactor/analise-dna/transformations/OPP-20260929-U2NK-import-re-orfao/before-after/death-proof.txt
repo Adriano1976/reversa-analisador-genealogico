@@ -1,4 +1,4 @@
-﻿PROVA DE MORTE - OPP-20260929-U2NK
+PROVA DE MORTE - OPP-20260929-U2NK
 Alvo: import re em analisador-genealogico/reconstructed/dna_analysis.py
 Data: 2026-09-29
 

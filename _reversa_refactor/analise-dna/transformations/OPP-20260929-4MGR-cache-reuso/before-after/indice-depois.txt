@@ -1,4 +1,4 @@
-﻿build_ged_indexes para 2000 pessoas: mediana 0.360s (min 0.247, max 0.387)
+build_ged_indexes para 2000 pessoas: mediana 0.360s (min 0.247, max 0.387)
 
 chamada                   total  por pessoa
 get_name                   2000        1.00
