@@ -1,20 +1,31 @@
 """Testes da Tarefa 01 — Entidades de Domínio.
 
-Cobre Family, GenealogyGraph, DNAGroup e as rotinas de limpeza de
-mojibake (strip_bad_utf, demojibake) documentadas em domain.md.
+Cobre as rotinas de limpeza de mojibake (strip_bad_utf, demojibake)
+documentadas em domain.md.
+
+ALTERACAO REGISTRADA (2026-09-30): os testes de `Family`, `GenealogyGraph` e
+`DNAGroup` foram REMOVIDOS junto com as classes que eles exercitavam. As tres
+eram arquitetura abandonada: nenhuma era instanciada em qualquer caminho de
+producao. Decisao do usuario em `_reversa_sdd/questions.md#pergunta-3`.
+
+Removidos nesta data (9 testes):
+  Family:          test_family_defaults, test_family_fields,
+                   test_family_chil_is_isolated_per_instance
+  GenealogyGraph:  test_register_person_normalizes_name,
+                   test_register_person_ignores_duplicate,
+                   test_get_person_missing_returns_none, test_register_family
+  DNAGroup:        test_dna_group_fields, test_dna_group_defaults
+
+O que permanece — e que continua sendo consumido por `upload.py` e
+`dna_analysis.py` — sao as rotinas de limpeza de nome.
 """
 import os
 import sys
-
-import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "analisador-genealogico"))
 
 from reconstructed.domain import (
-    DNAGroup,
-    Family,
-    GenealogyGraph,
     demojibake,
     strip_bad_utf,
 )
@@ -54,77 +65,3 @@ def test_demojibake_recupera_latin1_lido_como_utf8():
     assert demojibake("texto normal") == "texto normal"
     assert demojibake("") == ""
     assert demojibake(None) is None
-
-
-# ---------------------------------------------------------------------------
-# Family (entidade FAMILIA)
-# ---------------------------------------------------------------------------
-
-def test_family_defaults():
-    fam = Family(xref_id="@F1@")
-    assert fam.husb == ""
-    assert fam.wife == ""
-    assert fam.chil == []
-
-
-def test_family_fields():
-    fam = Family(xref_id="@F2@", husb="@I1@", wife="@I2@", chil=["@I3@", "@I4@"])
-    assert fam.husb == "@I1@"
-    assert fam.wife == "@I2@"
-    assert len(fam.chil) == 2
-
-
-def test_family_chil_is_isolated_per_instance():
-    # field(default_factory=list) garante que cada instância tem lista própria.
-    a = Family("@F1@")
-    b = Family("@F2@")
-    a.chil.append("@I9@")
-    assert b.chil == []
-
-
-# ---------------------------------------------------------------------------
-# GenealogyGraph (grafo pessoa<->família)
-# ---------------------------------------------------------------------------
-
-def test_register_person_normalizes_name():
-    g = GenealogyGraph()
-    g.register_person("@I1@", "Jo\uFFFDa\u0303o")
-    p = g.get_person("@I1@")
-    assert p["xref_id"] == "@I1@"
-    # name_clean passa por demojibake + strip.
-    assert "name_clean" in p
-
-
-def test_register_person_ignores_duplicate():
-    g = GenealogyGraph()
-    g.register_person("@I1@", "Nome Original")
-    g.register_person("@I1@", "Nome Novo")
-    assert g.get_person("@I1@")["name"] == "Nome Original"
-
-
-def test_get_person_missing_returns_none():
-    assert GenealogyGraph().get_person("@ZZZ@") is None
-
-
-def test_register_family():
-    g = GenealogyGraph()
-    fam = Family("@F1@", husb="@I1@", wife="@I2@")
-    g.register_family(fam)
-    assert g.families["@F1@"] is fam
-
-
-# ---------------------------------------------------------------------------
-# DNAGroup (entidade DNA_MATCH)
-# ---------------------------------------------------------------------------
-
-def test_dna_group_fields():
-    grp = DNAGroup(_group_key="ana | ana@x.com", cm=537.0)
-    assert grp.cm == 537.0
-    assert grp.matched_name == ""
-    assert grp.aux == ""
-
-
-def test_dna_group_defaults():
-    grp = DNAGroup(_group_key="k", cm=0)
-    assert grp.matched_name == ""
-    assert grp.aux == ""

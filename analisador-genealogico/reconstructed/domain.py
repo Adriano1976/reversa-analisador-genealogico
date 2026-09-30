@@ -1,13 +1,23 @@
-"""Tarefa 01 — Entidades de Domínio.
+"""Tarefa 01 — Rotinas de limpeza de nome.
 
-Representação em memória das entidades do analisador-genealogico:
-PERSON, FAMILIA e DNA_MATCH, sem persistência (estado em memória).
-Inclui as rotinas de limpeza de mojibake documentadas em domain.md.
+Este modulo concentra a autoridade unica de limpeza de mojibake
+(`strip_bad_utf`, `demojibake`) usada por `upload.py` e `dna_analysis.py`.
+
+DECISAO DO USUARIO (2026-09-30, _reversa_sdd/questions.md#pergunta-3):
+`Family`, `GenealogyGraph` e `DNAGroup` foram REMOVIDAS daqui. Eram
+arquitetura abandonada no meio do caminho: nenhuma das tres era instanciada em
+qualquer caminho de producao, confirmado por varredura de referencias. O fluxo
+real usa os dicionarios globais de upload.py e os registros do ged4py
+diretamente. Preservar as classes sem uso custaria a quem reimplementar a
+obrigacao de decidir entre adotar ou descartar algo que o legado nunca adotou.
+
+Nota historica: a docstring anterior dizia que este modulo representava "PERSON,
+FAMILIA e DNA_MATCH em memoria". Nunca foi verdade — o fluxo real sempre usou
+dicionarios e registros do ged4py. As entidades eram decorativas.
 """
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
 
 
 # ---------------------------------------------------------------------------
@@ -55,61 +65,20 @@ def demojibake(s):
 
 
 # ---------------------------------------------------------------------------
-# Entidades de domínio
+# Entidades de domínio — REMOVIDAS em 2026-09-30
 # ---------------------------------------------------------------------------
-
-@dataclass
-class Family:
-    """Entidade lógica FAMILIA (registro FAM do GEDCOM).
-
-    Contém referências ao marido (HUSB), esposa (WIFE) e filhos (CHIL),
-    todos representados por xref_id de PERSON.
-    """
-    xref_id: str
-    husb: str = ""
-    wife: str = ""
-    chil: list = field(default_factory=list)
-
-
-class GenealogyGraph:
-    """Grafo pessoa<->família construído em memória.
-
-    Encapsula os dicionários de pessoas/famílias e o networkx.MultiGraph
-    que liga indivíduos entre si, permitindo buscas de caminho.
-    """
-
-    def __init__(self) -> None:
-        # PERSON:  xref_id -> dict(campos INDI)
-        self.persons: dict = {}
-        # FAMILIA: xref_id -> Family
-        self.families: dict = {}
-        # Grafo de parentesco (nós = pessoas).
-        self.graph = None  # networkx.MultiGraph, construído em tarefa 02
-
-    def register_person(self, xref_id: str, name: str, sub_records=None) -> None:
-        """Registra uma pessoa na árvore, normalizando 'name'.."""
-        if xref_id in self.persons:
-            return
-        self.persons[xref_id] = {
-            "xref_id": xref_id,
-            "name": name,
-            "name_clean": demojibake(name).strip(),
-            "sub_records": sub_records or [],
-        }
-
-    def get_person(self, xref_id: str):
-        return self.persons.get(xref_id)
-
-    def register_family(self, familie: Family) -> None:
-        self.families[familie.xref_id] = familie
-
-@dataclass
-class DNAGroup:
-    """Entidade DNA_MATCH — agregação de segmentos de um mesmo match.
-
-    _group_key = nome normalizado + ID/email; cm é a soma de centiMorgans.
-    """
-    _group_key: str
-    cm: float
-    matched_name: str = ""
-    aux: str = ""
+#
+# `Family`, `GenealogyGraph` e `DNAGroup` viviam aqui e foram removidas por
+# decisao do usuario (_reversa_sdd/questions.md#pergunta-3). Nenhuma das tres
+# era instanciada em qualquer caminho de producao:
+#
+#   - `Family`         aparecia apenas na propria definicao e na anotacao de
+#                      `GenealogyGraph.register_family`. O fluxo real guarda os
+#                      registros `FAM` do ged4py em `upload.families`.
+#   - `GenealogyGraph` nao era instanciada. O grafo real e a global
+#                      `upload.graph` — um `nx.Graph`, nao `nx.MultiGraph` como
+#                      o docstring afirmava (havia contradicao interna aqui).
+#   - `DNAGroup`       nao era instanciada. `dna_analysis` monta os resultados
+#                      como `dict` simples.
+#
+# Ver `_reversa_sdd/upload-gedcom/design.md` para o registro completo.
