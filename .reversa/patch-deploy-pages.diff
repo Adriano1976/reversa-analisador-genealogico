@@ -1,0 +1,39 @@
+﻿diff --git "a/.github\\workflows\\deploy-pages.yml" "b/.pytest-tmp\\deploy-pages.yml"
+index e1c0e6b..55c9e8d 100644
+--- "a/.github\\workflows\\deploy-pages.yml"
++++ "b/.pytest-tmp\\deploy-pages.yml"
+@@ -2,7 +2,7 @@ name: Deploy GitHub Pages
+ 
+ on:
+   push:
+-    branches: ["main"] # Altere para 'master' se sua branch principal for master
++    branches: ["master"] # Branch principal deste repositorio. Era "main", que nao existe aqui: o deploy nunca disparava.
+ 
+   workflow_dispatch:
+ 
+@@ -28,6 +28,25 @@ jobs:
+       - name: Setup Pages
+         uses: actions/configure-pages@v5
+ 
++      - name: Limpar o que nao deve ser publicado
++        # O mini-site vive em _reversa_docs/ e essa pasta contem artefatos internos que
++        # nao pertencem ao site publicado:
++        #   .backup-*/        backup automatico de regeneracao (1,5 MB)
++        #   .state.json       telemetria interna da execucao
++        #   .config.json      respostas da entrevista e seed
++        #   assets/data/*.json  JSONs intermediarios: o site le tudo de assets/js/data.js,
++        #                       que ja embute esses dados. Sem esta remocao, o mesmo
++        #                       conteudo sobe duas vezes.
++        run: |
++          rm -rf _reversa_docs/.backup-*
++          rm -f  _reversa_docs/.state.json
++          rm -f  _reversa_docs/.config.json
++          rm -f  _reversa_docs/assets/data/*.json
++          touch  _reversa_docs/.nojekyll
++          echo "Conteudo a publicar:"
++          find _reversa_docs -type f | wc -l
++          du -sh _reversa_docs
++
+       - name: Upload artifact
+         uses: actions/upload-pages-artifact@v3
+         with:
