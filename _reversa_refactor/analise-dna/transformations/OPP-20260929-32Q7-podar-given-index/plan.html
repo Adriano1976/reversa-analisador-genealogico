@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de poda · OPP-20260929-32Q7</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 20px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.morto { background: #2b1b1b; border: 1px solid #5a3a3a; color: #ffb4b4; }
+  .tag.orfo { background: #2b2a1b; border: 1px solid #5a573a; color: #ffe08a; }
+  .tag.vivo { background: #1b2b1b; border: 1px solid #3a5a3a; color: #a8e6a8; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de poda · OPP-20260929-32Q7</h1>
+<div class="meta">
+  Código morto no matching · contexto <code>analise-dna</code> · verbo <code>prune</code> ·
+  gerado por reversa-prune em 2026-09-29 · ordem de encadeamento <strong>3 de 4</strong> ·
+  patch empilhado sobre a AU76
+</div>
+
+<div class="cards">
+  <div class="card good"><div class="v">1 de 3</div><div class="k">candidatos era realmente morto</div></div>
+  <div class="card bad"><div class="v">2 de 3</div><div class="k">candidatos não existem no código</div></div>
+  <div class="card"><div class="v">4 hunks</div><div class="k">46 linhas no diff</div></div>
+  <div class="card good"><div class="v">50 passed</div><div class="k">suíte contra a sombra</div></div>
+  <div class="card good"><div class="v">0 divergências</div><div class="k">em 2.206 comparações</div></div>
+</div>
+
+<div class="block note">
+  <strong>Correção de escopo, antes de tudo.</strong> A oportunidade pedia podar três coisas:
+  <code>given_index</code>, <code>HARD_MIN</code> e <code>GIVEN_MIN</code>. A varredura completa
+  mostra que <strong>as duas constantes não existem no código do projeto</strong>. A única menção é
+  uma linha do docstring do próprio módulo afirmando que elas existem. O pedido era 3, o que existe
+  para podar é 1. A oportunidade foi corrigida no registro.
+</div>
+
+<h2>1. Candidatos e classificação</h2>
+
+<table>
+  <thead><tr><th>Candidato</th><th>Classificação</th><th>Prova</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>given_index</code></td>
+      <td><span class="tag morto">morto</span> com ressalva de spec</td>
+      <td>3 ocorrências, todas escritas. Único leitor é o descarte <code>_</code></td>
+    </tr>
+    <tr>
+      <td><code>HARD_MIN</code></td>
+      <td><span class="tag orfo">inexistente</span></td>
+      <td>Só aparece no docstring da linha 11. Não há declaração</td>
+    </tr>
+    <tr>
+      <td><code>GIVEN_MIN</code></td>
+      <td><span class="tag orfo">inexistente</span></td>
+      <td>Mesma linha de docstring. Não há declaração</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Prova de morte por trecho</h2>
+
+<p>Varredura completa dos 6 arquivos Python de <code>analisador-genealogico/</code>, não amostra.
+Saída crua em <code>before-after/death-proof.txt</code>.</p>
+
+<pre><span class="cmt">### given_index: 3 ocorrencias, todas no mesmo arquivo</span>
+dna_analysis.py:233  [DECLARACAO]  given_index = {}
+dna_analysis.py:239  [POPULACAO]   given_index.setdefault(given, []).append(pid)
+dna_analysis.py:243  [RETORNO]     return ged_index, surname_index, given_index
+
+<span class="cmt">### consumidores do retorno de build_ged_indexes</span>
+dna_analysis.py:230  def build_ged_indexes():
+dna_analysis.py:371  ged_index, surname_index, _ = build_ged_indexes()
+                                          <span class="cmt">^ unico chamador, descarta o terceiro</span></pre>
+
+<p><strong>Condição 1, sem referência estática:</strong> cumprida. Nenhuma linha lê
+<code>given_index</code>. As três ocorrências são declaração, escrita e devolução, e o único
+chamador joga fora o valor.</p>
+
+<p><strong>Condição 2, sem entrada dinâmica:</strong> cumprida. Varredura por
+<code>getattr</code>, <code>setattr</code>, <code>globals()</code>, <code>locals()</code>,
+<code>eval</code>, <code>exec</code>, <code>importlib</code>, <code>__dict__</code>,
+<code>vars</code> e <code>compile</code> em todo o projeto devolve <strong>uma</strong>
+ocorrência, <code>upload.py:30</code>, que é o <code>getattr(val, "xref_id", val)</code> do ged4py
+e não tem relação com o alvo. Não há rota, evento, configuração, cron nem feature flag que alcance
+uma variável local de função.</p>
+
+<div class="note">
+  <strong>Ressalva de spec, e é o ponto que você decide no gate.</strong>
+  <code>_reversa_sdd/analise-dna/tasks.md</code>, tarefa T-07, linha 46, define o critério de pronto
+  como <em>"ged_index, surname_index, given_index populados"</em>, com origem declarada em
+  <code>app.py:639-651</code> do legado. O legado também construía os três. Remover o
+  <code>given_index</code> desvia desse critério. Não é regra de negócio, é lista de conferência de
+  implementação, então não cai na trava dura da alma. Mas o desvio precisa de registro: o change set
+  inclui um adendo de spec <code>kind: specification</code> em
+  <code>_reversa_sdd/addenda/bug-...-vNNN.md</code> ou equivalente, autorizado por você.
+</div>
+
+<h2>3. O que a poda faz</h2>
+
+<pre><span class="cmt"># CHG-001, quatro edições em build_ged_indexes mais o chamador</span>
+ def build_ged_indexes():
+     ged_index = {}
+     surname_index = {}
+<span class="del">-    given_index = {}
+</span>     for pid, person in people.items():
+         ...
+         ged_index.setdefault(key, []).append(pid)
+<span class="del">-        given, surnames, _ = split_name_pt(nm)
+-        given_index.setdefault(given, []).append(pid)</span>
+<span class="add">+        _given, surnames, _suffixes = split_name_pt(nm)</span>
+         for sn in surnames:
+             ...
+<span class="del">-    return ged_index, surname_index, given_index, features
+</span><span class="add">+    return ged_index, surname_index, features
+</span>
+<span class="cmt"># chamador, linha 383</span>
+<span class="del">-    ged_index, surname_index, _, features = build_ged_indexes()</span>
+<span class="add">+    ged_index, surname_index, features = build_ged_indexes()</span></pre>
+
+<p><strong>CHG-002, a linha de docstring que mente.</strong> <code>dna_analysis.py:11</code> afirma
+<em>"HARD_MIN/GIVEN_MIN declarados porém não usados (código morto)"</em>. A afirmação é falsa: nenhum
+dos dois é declarado. Duas saídas, e a escolha é sua:</p>
+
+<table>
+  <thead><tr><th>Opção</th><th>O que faz</th><th>Base</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A, recomendada</strong></td>
+      <td>Remover a linha do docstring, alinhando código e documentação</td>
+      <td><code>_reversa_sdd/migration/topology_decision.md:166</code> já decidiu que as constantes
+          são <strong>removidas</strong> e "não entram no alvo";
+          <code>data_migration_plan.md:54</code> registra "não migrar"</td>
+    </tr>
+    <tr>
+      <td>B</td>
+      <td>Restaurar <code>HARD_MIN = 92</code> e <code>GIVEN_MIN = 90</code> para honrar o registro
+          de que foram preservados</td>
+      <td><code>_reversa_forward/002-integrar-rota-app-modulos/regression-watch.md</code> OBS-03 e
+          <code>_reversa_sdd/addenda/002-...md:28</code>, que afirmam terem sido preservados nos
+          módulos reconstruídos</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Divergência entre spec e código, registrada.</strong> O OBS-03 e o adendo 002 afirmam que
+  <code>HARD_MIN</code>/<code>GIVEN_MIN</code> foram preservados nos módulos reconstruídos. O código
+  não os contém. Ou o registro está errado, ou a reconstrução os perdeu. Pelos dois artefatos de
+  migração citados acima, o alvo decidiu que eles não pertencem ao sistema, então a Opção A é a que
+  alinha tudo. Mas a divergência fica registrada aqui em vez de apagada.
+</div>
+
+<h2>4. O que NÃO será removido, e por quê</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Classificação</th><th>Motivo</th></tr></thead>
+  <tbody>
+    <tr><td><code>ged_index</code></td><td><span class="tag vivo">vivo</span></td><td>Lido em <code>match_candidates</code>, na busca exata por nome</td></tr>
+    <tr><td><code>surname_index</code></td><td><span class="tag vivo">vivo</span></td><td>Lido no laço de montagem do pool, inclusive no fallback por prefixo</td></tr>
+    <tr><td><code>getattr</code> em <code>upload.py:30</code></td><td><span class="tag vivo">vivo</span></td><td>Extrai <code>xref_id</code> de objetos ged4py. É a entrada dinâmica legítima do projeto</td></tr>
+    <tr>
+      <td><code>reconstructed/domain.py</code></td>
+      <td><span class="tag orfo">órfão suspeito</span></td>
+      <td>Sem consumidor em produção, mas sustentado por 14 testes e pelo harness de paridade.
+          Não é alvo desta poda: está na <code>OPP-20260929-B5F2</code>, pendente de decisão sua,
+          porque removê-lo derruba a suíte de 50 para 36 e conflita com o princípio III</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. Confirmação</h2>
+
+<p>A poda é empilhada sobre a AU76, porque as duas tocam <code>build_ged_indexes</code>: o diff se
+aplica ao estado pós-AU76, não ao estado atual do projeto. Isso foi declarado na ordem de
+encadeamento aprovada e está registrado no cabeçalho do diff.</p>
+
+<table>
+  <thead><tr><th>Rede</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte completa contra a sombra (AU76 + 32Q7)</td><td><span class="tag vivo">50 passed in 4.04s</span></td></tr>
+    <tr><td>Equivalência de saída, 2.206 comparações</td><td><span class="tag vivo">0 divergências</span></td></tr>
+    <tr><td>Prova de morte, varredura completa</td><td><span class="tag vivo">anexada</span></td></tr>
+  </tbody>
+</table>
+
+<h2>6. Como aplicar e como reverter</h2>
+
+<ol>
+  <li>Você libera <code>analisador-genealogico/reconstructed/dna_analysis.py</code> em
+      <code>.reversa/reversa-config.json</code>.</li>
+  <li>Aplico a AU76 primeiro, depois esta poda, com o mesmo script verificado que gerou a sombra.</li>
+  <li>Rodo suíte e equivalência contra o projeto, e cole a saída.</li>
+  <li>Reverto com <code>git checkout -- analisador-genealogico/reconstructed/dna_analysis.py</code>.</li>
+</ol>
+
+<div class="foot">
+  Plano gerado pelo time Code Quality do Reversa. Aprovar este plano não aplica nada: remover código
+  exige gate e a liberação da política de edição do legado.
+</div>
+
+</div>
+<!-- Gerado pelo Reversa-Prune em 2026-09-29. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Prune em 2026-09-29.</div>
+</body>
+</html>

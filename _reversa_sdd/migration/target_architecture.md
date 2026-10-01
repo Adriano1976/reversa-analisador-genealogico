@@ -288,3 +288,6 @@ flowchart TB
 - **`pandas` no núcleo é aceitável, mas não é obrigatório.** Ele está listado como dependência de núcleo por ser container de dados, não framework de aplicação. Se o agente de codificação preferir implementar a agregação de CSV sem `pandas`, é permitido — **desde que a ordem de acumulação de cM seja idêntica** (AD-03). A paridade do fallback de encoding e da detecção de colunas é obrigatória de qualquer forma.
 - **`networkx` no núcleo é aceitável pelo mesmo critério.** ⚠️ Atenção ao BR-MIGRAR-024: `nx.shortest_path` com múltiplos caminhos de mesmo comprimento retorna aquele determinado pela **ordem de inserção das arestas**. Se o grafo for reconstruído com ordem diferente, o caminho indireto muda. A ordem deriva da ordem dos registros no GEDCOM e deve ser preservada.
 - **Nenhum evento de domínio foi definido** (AD-05). Se o paradigma fosse event-driven, esta seção seria obrigatória — registrado explicitamente para que a ausência não seja lida como omissão.
+
+---
+*Gerado pelo Reversa-Designer em 2026-09-28.*

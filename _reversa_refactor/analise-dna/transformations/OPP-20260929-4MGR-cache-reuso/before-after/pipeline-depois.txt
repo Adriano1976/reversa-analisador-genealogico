@@ -1,0 +1,17 @@
+arvore: 1023 pessoas, 511 familias | CSV: 300 linhas | modo: nomes exatos da arvore
+
+fase                        chamadas   segundos  % do total
+read_csv_with_fallback             1      0.003        0.7%
+detect_columns                     1      0.003        0.7%
+aggregate_matches                  1      0.045       10.3%
+build_ged_indexes                  1      0.263       60.5%
+match_candidates                 300      0.015        3.4%
+find_ancestral_path             2384      0.051       11.8%
+generate_mermaid_graph             1      0.000        0.0%
+parse + grafo (fora)               -      1.644
+TOTAL dna_analysis                        0.435
+
+resultado: 1 conexões encontradas. 299 descartadas.
+aceitos: 1 | descartados: 299
+soma das fases instrumentadas: 0.381s (87.4% do total)
+nao atribuido (laco, montagem, ordenacao): 0.055s

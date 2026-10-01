@@ -1,0 +1,260 @@
+py :  INFO Checking project configured at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+No linha:1 caractere:680
++ ... yrefly DEPOIS da remocao ==="; py -3.14 -m pyrefly check 2>&1 | Out-F ...
++                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( INFO Checking ...o\pyrefly.toml`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ERROR `nomes` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:125:32
+    |
+125 |         "matches_medidos": len(nomes),
+    |                                ^^^^^
+ERROR `metricas` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:128:39
+    |
+128 |         "norm_name_por_pessoa": round(metricas["norm_nome_por_pessoa"], 2),
+    |                                       ^^^^^^^^
+ERROR Object of class `bool` has no attribute `splitlines` [missing-attribute]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:94:21
+   |
+94 |             n = len((v["mermaid_data"] or "").splitlines())
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:33:43
+   |
+33 |     mod = importlib.util.module_from_spec(spec)
+   |                                           ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:35:5
+   |
+35 |     spec.loader.exec_module(mod)
+   |     ^^^^^^^^^^^
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:33:5
+   |
+33 |     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:34:5
+   |
+34 |     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\oracle\run_oracle.py:81:50
+   |
+81 |         module = importlib.util.module_from_spec(spec)
+   |                                                  ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:83:9
+   |
+83 |         spec.loader.exec_module(module)
+   |         ^^^^^^^^^^^
+ERROR Cannot find module `harness` [missing-import]
+  --> _reversa_sdd\parity\_profile_collector_costs.py:24:12
+   |
+24 |     import harness  # noqa
+   |            ^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\analisador-genealogico"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+  Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+ERROR Argument `bytes | None` is not assignable to parameter `buffer` with type `Buffer` in function `_io.BufferedWriter.write` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:91:18
+   |
+91 |         fh.write(b)
+   |                  ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `bytes | None` is not assignable to parameter `data` with type `Buffer` in function `_hashlib.openssl_sha256` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:92:24
+   |
+92 |     h = hashlib.sha256(b).hexdigest()
+   |                        ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:45:41
+   |
+45 |     m = importlib.util.module_from_spec(spec)
+   |                                         ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:47:5
+   |
+47 |     spec.loader.exec_module(m)
+   |     ^^^^^^^^^^^
+ERROR `dict[Unknown, dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | list[dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to upper bound `SupportsDunderGT[Any] | SupportsDunderLT[Any]` of type variable `SupportsRichComparisonT` [bad-specialization]
+   --> _reversa_sdd\parity\harness.py:280:22
+    |
+280 |         return sorted(_canon(x) for x in v)
+    |                      ^^^^^^^^^^^^^^^^^^^^^^
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+  --> analisador-genealogico\app.py:29:43
+   |
+29 |                 gedcom_path = os.path.join(UPLOAD_FOLDER, gedcom_file.filename)
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+  --> analisador-genealogico\app.py:49:44
+   |
+49 |                 matches_path = os.path.join(UPLOAD_FOLDER, matches_file.filename)
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR `<=` is not supported between `str` and `float` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `float`
+   |                                                                has type `str`
+  Argument `float` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `str` and `int` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `int`
+   |                                                                has type `str`
+  Argument `int` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `float` and `str` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `float`
+  Argument `str` is not assignable to parameter `value` with type `float` in function `float.__le__`
+ERROR `<=` is not supported between `int` and `str` [unsupported-operation]
+  --> analisador-genealogico\reconstructed\dna_analysis.py:65:64
+   |
+65 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `int`
+  Argument `str` is not assignable to parameter `value` with type `int` in function `int.__le__`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> analisador-genealogico\reconstructed\dna_analysis.py:385:47
+    |
+ INFO 40 errors (3 warnings not shown)
+385 |                     "relationships": ", ".join(probable_relationships),
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR `couple1_label` may be uninitialized [unbound-name]
+   --> analisador-genealogico\reconstructed\path_search.py:341:39
+    |
+341 |         lines.append(f'{couple1_id}["{couple1_label}"]')
+    |                                       ^^^^^^^^^^^^^
+ERROR `couple2_label` may be uninitialized [unbound-name]
+   --> analisador-genealogico\reconstructed\path_search.py:398:43
+    |
+398 |             lines.append(f'{couple2_id}["{couple2_label}"]')
+    |                                           ^^^^^^^^^^^^^
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+  --> analisador-genealogico\reconstructed\upload.py:88:10
+   |
+88 |     with GedcomReader(file_path) as parser:
+   |          ^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Missing argument `features` in function `reconstructed.dna_analysis.match_candidates` [missing-argument]
+  --> tests\test_characterization_matching.py:63:28
+   |
+63 |     return match_candidates(nome, cm, indices[0], indices[1])
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_characterization_mermaid.py:133:23
+    |
+133 |     assert "&amp;" in result["mermaid_data"]
+    |                       ^^^^^^^^^^^^^^^^^^^^^^
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> tests\test_dna_analysis.py:263:43
+    |
+263 |     assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> tests\test_dna_analysis.py:264:33
+    |
+264 |     assert "Primos" in ", ".join(get_relationships_by_cm(600))
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_domain.py:93:12
+   |
+93 |     assert p["xref_id"] == "@I1@"
+   |            ^^^^^^^^^^^^
+ERROR `in` is not supported between `Literal['name_clean']` and `None` [not-iterable]
+  --> tests\test_domain.py:95:12
+   |
+95 |     assert "name_clean" in p
+   |            ^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_domain.py:102:12
+    |
+102 |     assert g.get_person("@I1@")["name"] == "Nome Original"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:63:30
+   |
+63 |     assert "Carlos Silva" in result["text_path"]
+   |                              ^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:65:12
+   |
+65 |     assert result["mermaid_data"].startswith("flowchart BT")
+   |            ^^^^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:73:30
+   |
+73 |     assert "Bia Oliveira" in result["text_path"]
+   |                              ^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_path_search.py:107:12
+    |
+107 |     assert result["text_path"] == "Carlos Silva"
+    |            ^^^^^^^^^^^^^^^^^^^
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:193:10
+    |
+193 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Object of class `NoneType` has no attribute `nodes` [missing-attribute]
+   --> tests\test_upload.py:211:12
+    |
+211 |     assert g.nodes["@I1@"]["type"] == "person"
+    |            ^^^^^^^
+ERROR Object of class `NoneType` has no attribute `nodes` [missing-attribute]
+   --> tests\test_upload.py:212:12
+    |
+212 |     assert g.nodes["@F1@"]["type"] == "family"
+    |            ^^^^^^^
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:239:10
+    |
+239 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`

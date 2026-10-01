@@ -1,6 +1,5 @@
 # Relatório Final de Reconstrução — teste_reversa
 
-> Gerado pelo Reconstructor em 2026-08-07
 > Fonte: **original** · Stack: Python 3 · ged4py · networkx · pandas · thefuzz · python-Levenshtein
 
 ---
@@ -57,3 +56,6 @@ Todos os 4 módulos da reconstrução possuem cobertura de testes:
 ## Pendência opcional
 
 - Baixo acoplamento: o código mantém o estado global do legado (decisão do usuário de preservar fidelidade). Um refactor futuro poderia injetar dependências (ex.: `GraphStore`), sem alterar comportamento.
+
+---
+*Gerado pelo Reversa-Reconstructor em 2026-08-07.*

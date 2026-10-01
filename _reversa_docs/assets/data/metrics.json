@@ -1,62 +1,179 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:15:00Z",
+  "generatedAt": "2026-10-01T03:37:54Z",
   "project": "analisador-genealogico",
   "treemap_loc_by_folder": [
-    {"folder": "reconstructed/", "loc": 1126, "modules": 5},
-    {"folder": "tests/", "loc": 583, "modules": 4},
-    {"folder": "static/", "loc": 321, "modules": 1},
-    {"folder": "templates/", "loc": 200, "modules": 1},
-    {"folder": "tests/fixtures/", "loc": 105, "modules": 2},
-    {"folder": "analisador-genealogico/", "loc": 86, "modules": 1}
+    {
+      "folder": "tests/",
+      "loc": 1134,
+      "modules": 7
+    },
+    {
+      "folder": "reconstructed/",
+      "loc": 1086,
+      "modules": 5
+    },
+    {
+      "folder": "templates/",
+      "loc": 200,
+      "modules": 1
+    },
+    {
+      "folder": "tests/fixtures/",
+      "loc": 105,
+      "modules": 2
+    },
+    {
+      "folder": "analisador-genealogico/",
+      "loc": 84,
+      "modules": 1
+    }
   ],
   "top_complexity": [
-    {"id": "path_search.py", "complexity": 8, "loc": 501},
-    {"id": "dna_analysis.py", "complexity": 8, "loc": 409},
-    {"id": "static/graph_path_search.html", "complexity": 5, "loc": 321},
-    {"id": "templates/index.html", "complexity": 5, "loc": 200},
-    {"id": "upload.py", "complexity": 5, "loc": 91},
-    {"id": "app.py", "complexity": 5, "loc": 86},
-    {"id": "test_upload.py", "complexity": 3, "loc": 185},
-    {"id": "test_dna_analysis.py", "complexity": 3, "loc": 168},
-    {"id": "domain.py", "complexity": 3, "loc": 124},
-    {"id": "test_domain.py", "complexity": 2, "loc": 123},
-    {"id": "test_path_search.py", "complexity": 2, "loc": 107},
-    {"id": "fixtures/sample_gedcom.py", "complexity": 1, "loc": 57},
-    {"id": "fixtures/sample_dna.py", "complexity": 1, "loc": 48},
-    {"id": "reconstructed/__init__.py", "complexity": 1, "loc": 1}
+    {
+      "id": "path_search.py",
+      "complexity": 8,
+      "loc": 506
+    },
+    {
+      "id": "dna_analysis.py",
+      "complexity": 8,
+      "loc": 395
+    },
+    {
+      "id": "test_dna_analysis.py",
+      "complexity": 7,
+      "loc": 279
+    },
+    {
+      "id": "test_upload.py",
+      "complexity": 7,
+      "loc": 242
+    },
+    {
+      "id": "test_path_search.py",
+      "complexity": 6,
+      "loc": 107
+    },
+    {
+      "id": "upload.py",
+      "complexity": 6,
+      "loc": 100
+    },
+    {
+      "id": "test_mermaid_escape.py",
+      "complexity": 5,
+      "loc": 154
+    },
+    {
+      "id": "app.py",
+      "complexity": 5,
+      "loc": 84
+    },
+    {
+      "id": "test_characterization_matching.py",
+      "complexity": 4,
+      "loc": 151
+    },
+    {
+      "id": "test_domain.py",
+      "complexity": 4,
+      "loc": 67
+    },
+    {
+      "id": "test_characterization_mermaid.py",
+      "complexity": 3,
+      "loc": 134
+    },
+    {
+      "id": "domain.py",
+      "complexity": 3,
+      "loc": 84
+    },
+    {
+      "id": "index.html",
+      "complexity": 2,
+      "loc": 200
+    },
+    {
+      "id": "__init__.py",
+      "complexity": 2,
+      "loc": 1
+    }
   ],
   "loc_histogram": {
-    "bins": [0, 50, 100, 200, 500, 1000],
-    "counts": [2, 3, 5, 2, 1, 0]
+    "bins": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000
+    ],
+    "counts": [
+      2,
+      4,
+      5,
+      4,
+      1,
+      0
+    ]
   },
   "dependency_sankey": {
     "nodes": [
-      {"id": "app.py"},
-      {"id": "dna_analysis.py"},
-      {"id": "path_search.py"},
-      {"id": "upload.py"},
-      {"id": "domain.py"},
-      {"id": "tests/"},
-      {"id": "templates / static"}
+      {
+        "name": "analisador-genealogico/"
+      },
+      {
+        "name": "reconstructed/"
+      },
+      {
+        "name": "tests/"
+      }
     ],
     "links": [
-      {"source": "app.py", "target": "dna_analysis.py", "value": 1},
-      {"source": "app.py", "target": "path_search.py", "value": 1},
-      {"source": "app.py", "target": "upload.py", "value": 1},
-      {"source": "app.py", "target": "templates / static", "value": 1},
-      {"source": "dna_analysis.py", "target": "path_search.py", "value": 1},
-      {"source": "dna_analysis.py", "target": "upload.py", "value": 1},
-      {"source": "path_search.py", "target": "upload.py", "value": 1},
-      {"source": "path_search.py", "target": "domain.py", "value": 1},
-      {"source": "tests/", "target": "dna_analysis.py", "value": 2},
-      {"source": "tests/", "target": "path_search.py", "value": 2},
-      {"source": "tests/", "target": "upload.py", "value": 3},
-      {"source": "tests/", "target": "domain.py", "value": 1}
+      {
+        "source": 0,
+        "target": 1,
+        "value": 1
+      },
+      {
+        "source": 0,
+        "target": 1,
+        "value": 1
+      },
+      {
+        "source": 0,
+        "target": 1,
+        "value": 1
+      },
+      {
+        "source": 2,
+        "target": 1,
+        "value": 1
+      },
+      {
+        "source": 2,
+        "target": 1,
+        "value": 1
+      },
+      {
+        "source": 2,
+        "target": 1,
+        "value": 1
+      }
     ]
   },
   "language_distribution": [
-    {"language": "python", "modules": 12, "loc": 1900},
-    {"language": "html", "modules": 2, "loc": 521}
+    {
+      "language": "python",
+      "modules": 15,
+      "loc": 2409
+    },
+    {
+      "language": "html",
+      "modules": 1,
+      "loc": 200
+    }
   ]
 }

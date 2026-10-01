@@ -16,4 +16,10 @@ _reversa_sdd/parity/_obs_*.json
 
 # Backups e caches genericos
 .backup-*
-.pytest_cache/
+.reversa/snapshots/
+.pytest_cache/
+
+# Dados reais do usuario: GEDCOM e CSV de DNA nunca sao versionados (principio I).
+# O padrao com barra final casa em qualquer profundidade, cobrindo
+# uploads/ e analisador-genealogico/uploads/.
+uploads/

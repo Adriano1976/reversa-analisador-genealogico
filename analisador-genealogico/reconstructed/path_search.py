@@ -182,21 +182,40 @@ def find_ancestral_path(start_id, end_id, max_depth=MAX_DEPTH):
 # Renderização Mermaid
 # ---------------------------------------------------------------------------
 
-def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
-    def sid(raw: str) -> str:
-        safe_str = str(raw).replace('@', '').replace('+', '_')
-        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+def _mermaid_sid(raw) -> str:
+    """Identificador de no Mermaid: apenas [A-Za-z0-9_], prefixado com N_."""
+    if isinstance(raw, (list, tuple, set)):
+        raw = next(iter(raw), "")
+    safe_str = str(raw).replace('@', '').replace('+', '_')
+    return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
 
-    def lab(txt: str) -> str:
-        s = unicodedata.normalize("NFC", str(txt))
-        s = (s.replace('\u00A0', ' ')
-               .replace('\u2013', '-')
-               .replace('\u2014', '-')
-               .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
-        s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
-        s = s.replace('"', "'")
-        s = re.sub(r'[\r\n]+', ' ', s)
-        return s
+
+# Caracteres que podem sobreviver num rotulo entre aspas do Mermaid. A gramatica
+# do flowchart prova que, dentro do estado `string`, o lexer consome tudo com
+# `<string>[^"]+`, entao colchete, dois pontos, barra e palavra-chave sao inertes.
+# O que nao pode passar e a aspa dupla, que encerra o rotulo, e a crase, que logo
+# apos a aspa de abertura desvia o lexer para markdown-string e faz o
+# fecha-colchete nunca virar o token que a gramatica exige.
+# Lista branca, e nao negra: a negra anterior foi furada justamente pela crase.
+# Ver BUG-20260929-J6PQ, evidence/analise-gramatica-mermaid-20260929.md.
+_LABEL_SEGURO = re.compile(r"[^0-9A-Za-zÀ-ÖØ-öø-ÿ .,'()&<>:;/\[\]!?-]")
+
+
+def _mermaid_label(txt) -> str:
+    """Rotulo de no Mermaid: NFC, lista branca de caracteres seguros, com &, < e > em entidade."""
+    s = unicodedata.normalize("NFC", str(txt))
+    s = (s.replace('\u00A0', ' ')
+           .replace('\u2013', '-')
+           .replace('\u2014', '-')
+           .replace('\u201c', "'").replace('\u201d', "'").replace('\u2019', "'"))
+    s = s.replace('"', "'")
+    s = re.sub(r'[\r\n]+', ' ', s)
+    s = _LABEL_SEGURO.sub('', s)
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+    sid, lab = _mermaid_sid, _mermaid_label
 
     lines = ["flowchart BT"]
     seen_nodes = set()
@@ -245,21 +264,7 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
 
 
 def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
-    def sid(raw: str) -> str:
-        if isinstance(raw, (list, tuple, set)):
-            raw = next(iter(raw), "")
-        safe_str = str(raw).replace('@', '').replace('+', '_')
-        return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
-
-    def lab(txt: str) -> str:
-        s = unicodedata.normalize("NFC", str(txt))
-        s = (s.replace('\u00A0', ' ')
-               .replace('\u2013', '-').replace('\u2014', '-')
-               .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
-        s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
-        s = s.replace('"', "'")
-        s = re.sub(r'[\r\n]+', ' ', s)
-        return s
+    sid, lab = _mermaid_sid, _mermaid_label
 
     def norm_ids(seq):
         out = []

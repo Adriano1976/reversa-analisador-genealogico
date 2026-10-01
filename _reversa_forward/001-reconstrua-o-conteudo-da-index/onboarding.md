@@ -7,3 +7,6 @@
 5. Verifique se, após o arquivo carregar com sucesso, as abas "Buscar Conexão no GEDCOM" e "Analisador de DNA" aparecem logo abaixo.
 6. Em qualquer fluxo que exiba o grafo de resultados (pesquisa de caminho ou matches de DNA), inspecione a inicialização do Mermaid.js visualizando o código fonte ou console do navegador para confirmar que `securityLevel` está definido como `'strict'`.
 7. O spinner de carregamento deve ser exibido durante submissões de formulário, travando interações adicionais até a página recarregar.
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

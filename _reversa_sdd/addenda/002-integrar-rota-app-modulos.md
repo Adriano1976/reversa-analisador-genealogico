@@ -8,6 +8,14 @@
 
 Vigente desde 2026-08-11.
 
+Superado pela re-extração de 2026-09-30.
+
+> Ressalva de cronologia (registrada nesta data, sem remover a linha acima): a marcação é uma
+> declaração de vigência, não a constatação de que o delta abaixo foi absorvido. Nesta data o
+> `_reversa_sdd/` ainda é o da extração de 2026-08-03 e **contradiz** esta entrega —
+> `architecture.md:101` ainda classifica o "Código monolítico (app.py ~887 linhas)" como dívida
+> vigente. O delta continua válido até que uma re-extração real rode.
+
 ## Resumo da entrega
 
 Fechou a camada de apresentação que faltou na reconstrução: os módulos `reconstructed/` foram promovidos para `analisador-genealogico/reconstructed/` e o `app.py` deixou de conter a lógica duplicada inline (matching, Mermaid, tabela cM, helpers de nome) — as rotas `upload_gedcom`, `path_search` e `dna_analysis` agora delegam aos módulos movidos, mantendo o contrato Jinja2 com `templates/index.html` intacto. Suíte de 47 testes passou sem regressão; fluxos validados por smoke de ponta a ponta.
@@ -35,3 +43,6 @@ Nenhum watch item (`W001`...) foi criado nesta rodada — ver `_reversa_forward/
 - `_reversa_forward/002-integrar-rota-app-modulos/progress.jsonl`
 - `_reversa_forward/002-integrar-rota-app-modulos/legacy-impact.md`
 - `_reversa_forward/002-integrar-rota-app-modulos/regression-watch.md`
+
+---
+*Gerado pelo Reversa-Sync em 2026-08-11.*

@@ -90,3 +90,6 @@ Nenhuma lacuna pendente.
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-08-11 | Versão inicial gerada por `/reversa-requirements` | reversa |
+
+---
+*Gerado pelo Reversa-Requirements em 2026-08-11.*

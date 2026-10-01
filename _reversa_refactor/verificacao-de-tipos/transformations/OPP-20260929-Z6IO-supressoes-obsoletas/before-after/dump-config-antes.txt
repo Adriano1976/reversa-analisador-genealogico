@@ -1,0 +1,14 @@
+Configuration at `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+  Using interpreter: C:\Users\venda\AppData\Local\Microsoft\WindowsApps\python3.exe
+  Covered files:
+    D:\Projetos\reversa_analisador_gelealogico\tests\test_upload.py
+  Resolving imports from:
+    Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico"
+    Site package path queried from interpreter: ["C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64", "C:\\Users\\venda\\AppData\\Roaming\\Python\\Python314\\site-packages", "C:\\Users\\venda\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"]
+py :  WARN D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml: Extra keys found in config: pyrefly
+No linha:1 caractere:753
++ ... rada) ==="; py -3.14 -m pyrefly dump-config tests/test_upload.py 2>&1 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( WARN D:\Projet...config: pyrefly:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

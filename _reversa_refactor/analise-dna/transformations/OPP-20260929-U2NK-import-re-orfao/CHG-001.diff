@@ -1,0 +1,12 @@
+diff --git a/analisador-genealogico/reconstructed/dna_analysis.py b/analisador-genealogico/reconstructed/dna_analysis.py
+index 221760f..56b11bb 100644
+--- a/analisador-genealogico/reconstructed/dna_analysis.py
++++ b/analisador-genealogico/reconstructed/dna_analysis.py
+@@ -13,7 +13,6 @@ Comportamento idêntico ao legado, incluindo as decisões documentadas:
+ """
+ from __future__ import annotations
+ 
+-import re
+ import string
+ import unicodedata
+ 

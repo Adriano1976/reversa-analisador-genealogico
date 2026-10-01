@@ -336,3 +336,6 @@ Registrado para não dar impressão de cobertura maior do que a real:
 - **Confirmação de integridade**: `_verify_hashes.py` reporta **30 hashes conferem, 0 divergem, 0 ausentes**. Convenção: `.md` → sha256 do **corpo** (abaixo do front-matter, LF-normalizado); `.py`/`.json`/`.yaml` → sha256 do **arquivo inteiro**.
 - **Scripts de diagnóstico não registrados**: `_profile_big.py` e `_profile_collector_costs.py` (perfil de tempo) existem como ferramentas de investigação, mas **não** estão em `.state.json` — não são artefatos do pipeline. São o que permitiu refutar as duas hipóteses erradas de gargalo descritas na lacuna 5.
 - **Nenhum arquivo do legado foi tocado.** O harness lê o oráculo e o candidato, escreve apenas em `_reversa_sdd/parity/` e em diretórios temporários que remove ao final.
+
+---
+*Gerado pelo Reversa em 2026-09-28.*

@@ -159,3 +159,6 @@ Todas as **10 deviations** de `screen_deviation_log.md` estão **aprovadas** (0 
 - **A estratégia inteira depende de um único ato não executado**: apontar o harness para `analisador-genealogico/app.py`. Enquanto isso não acontecer, nada aqui é verificável. É o primeiro item da Onda 0 e o pré-requisito do pré-requisito.
 - **Nenhum cenário assere sobre HTML, sobre a string Mermaid ou sobre `status 200`** — exceto os de `@paridade-visual`, que comparam **texto visível** dentro das `normalizationRules`, e que dependem de goldens ainda não capturados.
 - **O corpus de fixtures é a entrega mais valiosa da Onda 0.** Os fixtures Python existentes (`tests/fixtures/sample_gedcom.py`, `sample_dna.py`) e o GEDCOM de exemplo (`_reversa_sdd/upload-gedcom/exemplo_familia.ged`) são ponto de partida, **mas não cobrem os casos de borda** que os cenários exigem (fronteiras de cM, homônimos, múltiplas afinidades, GEDCOM com referência pendente). Expandir o corpus é trabalho da Onda 0, não deste artefato.
+
+---
+*Gerado pelo Reversa-Inspector em 2026-09-28.*

@@ -12,7 +12,7 @@ This tool bridges the gap between a documented family tree (a GEDCOM file) and a
 -   **DNA Data Aggregation:** Correctly processes segment-based CSV files (like those from GEDmatch's Ancestor Project) by grouping all segments for a single person and summing the shared centiMorgans (cM) to get an accurate total.
 -   **Shortest Path Calculation:** For each confirmed match, it uses the NetworkX library to calculate the shortest genealogical path from you to that person.
 -   **Relationship Prediction:** Translates the total shared cM value into a list of probable relationships (e.g., "2nd Cousin," "1st Cousin once removed") based on data from the Shared cM Project.
--   **Interactive Graph Visualization:** Generates a clean, interactive, and hierarchical graph for each connection using Pyvis, making it easy to visualize the ancestral path.
+-   **Hierarchical Graph Visualization:** Generates a clean and hierarchical diagram for each connection using Mermaid, making it easy to visualize the ancestral path.
 -   **Sorted Results:** The final results are sorted by the highest shared cM value, showing the most significant matches first.
 
 ## How It Works
@@ -22,7 +22,7 @@ This tool bridges the gap between a documented family tree (a GEDCOM file) and a
 3.  It then reads the DNA match CSV file with `pandas`, automatically cleaning column headers and aggregating segment data to get a total cM value for each unique match.
 4.  The core logic iterates through the aggregated DNA matches, using `thefuzz` to find a corresponding person in the GEDCOM graph.
 5.  When a match is found, `networkx.shortest_path` calculates the genealogical connection.
-6.  This path is then rendered as an interactive `pyvis` graph, and the cM value is used to predict the relationship.
+6.  This path is then rendered as a `Mermaid` diagram in the browser, and the cM value is used to predict the relationship.
 7.  All results are collected, sorted, and displayed on the web page.
 
 ## Technology Stack
@@ -31,7 +31,7 @@ This tool bridges the gap between a documented family tree (a GEDCOM file) and a
 -   **Data Processing:** Pandas, NetworkX
 -   **Genealogy Parsing:** Ged4py
 -   **Fuzzy String Matching:** TheFuzz
--   **Graph Visualization:** Pyvis
+-   **Graph Visualization:** Mermaid (rendered client-side from a CDN)
 -   **Frontend:** HTML, Bootstrap 5
 
 ## Getting Started

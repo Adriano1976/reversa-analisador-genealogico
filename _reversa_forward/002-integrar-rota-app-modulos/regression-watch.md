@@ -20,8 +20,23 @@ Itens sem peso de regressão (mudanças estruturais/refactor que uma futura extr
 
 ## Histórico de re-extrações
 
-*(Vazio — será preenchido quando `/reversa` rodar novamente sobre o código atualizado.)*
+### Re-extração 2026-09-30 18:15
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| —  | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item (`W001`…) foi criado, portanto não há regra sob vigilância a conferir. |
+
+**Verificações de contexto feitas nesta passagem (itens de `## Observações`, sem peso de regressão — não são watch items):**
+
+- `OBS-01` (`app.py` como camada de rota fina, presença) — **ausente** do SDD principal. `architecture.md:101` ainda classifica "Código monolítico (app.py ~887 linhas) com rotas + lógica acopladas" como dívida técnica vigente, e a frase espelha o estado pré-feature. O adendo `002` já registra que a dívida nº 5 foi endereçada. Veredito 🟡 amarelo: expectativa não bateu no artefato ancorado, com delta registrado em adendo.
+- `OBS-02` (módulos em `analisador-genealogico/reconstructed/`, presença) — parcialmente presente no SDD, mas no local **antigo**: `reconstruction-report.md` lista `reconstructed/domain.py`, `upload.py`, `path_search.py` e `dna_analysis.py` (raiz). O adendo `002` registra a promoção para `analisador-genealogico/reconstructed/`. Veredito 🟡 amarelo: mesma essência semântica, caminho desatualizado.
+- `OBS-03` (`HARD_MIN`/`GIVEN_MIN` preservados na reconstrução, confidência) — **o próprio OBS-03 está errado**, não o SDD. O adendo `003-refactor-code-quality` (§ Impacto por artefato, linha de `regression-watch.md`) registra que "o código nunca os teve" e corrige este OBS-03 explicitamente. O SDD permanece 🟡 em `confidence-report.md` e `analise-dna/design.md`. Veredito 🔴 vermelho: item de observação refutado por evidência e já corrigido por adendo — nenhuma ação pendente, mantido como registro.
+
+**Nota de cronologia — leia antes de confiar no SDD.** Os artefatos principais de `_reversa_sdd/` foram gerados na extração de **2026-08-03** e **não foram regenerados** desde então. Esta verificação não é uma re-extração real. Os adendos `_reversa_sdd/addenda/001`, `002` e `003` descrevem o código **posterior** a esse congelamento, inclusive a mudança estrutural desta feature, que `architecture.md` ainda não reflete. Trate os adendos como estado mais recente até que uma re-extração real rode.
 
 ## Arquivadas
 
 *(Vazio.)*
+
+---
+*Gerado pelo Reversa-Coding em 2026-08-11.*

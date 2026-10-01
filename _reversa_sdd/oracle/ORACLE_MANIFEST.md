@@ -142,3 +142,6 @@ Execução real de `get_relationships_by_cm`:
 - **Este artefato não existia no plano original do pipeline.** Ele nasceu de uma verificação empírica feita **depois** do handoff, quando o usuário perguntou qual era o próximo passo. É a evidência de que **executar o oráculo antes de escrever código** já pagou: descobriu um bloqueio (oráculo contaminado), um erro nos nossos próprios artefatos (cM ≤ 0) e duas armadilhas operacionais — tudo antes de uma linha de código de produto.
 - **O que ainda falta para a Onda 0 estar completa**: o **harness diferencial** propriamente dito (o executável que roda oráculo e candidato sobre as mesmas fixtures e compara) e a **materialização das fixtures** `.ged`/`.csv`. O oráculo é a fundação; o harness é a construção.
 - **Os dados reais do usuário são o melhor corpus disponível** — 5 árvores GEDCOM (de 949 KB a 5,6 MB) e 6 CSVs de DNA. São ordens de magnitude superiores às fixtures sintéticas de `tests/fixtures/`. ⚠️ São **dados genéticos reais de terceiros**: o corpus de paridade deve usar preferencialmente as fixtures sintéticas nos testes versionados, e os dados reais para **validação de escala e descoberta de casos de borda**, nunca commitados em repositório público.
+
+---
+*Gerado pelo Reversa em 2026-09-28.*

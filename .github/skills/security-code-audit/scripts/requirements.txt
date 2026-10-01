@@ -1,0 +1,5 @@
+# Necessárias apenas para --formato pdf ou --formato ambos.
+# --formato md não requer nenhuma dependência externa.
+reportlab>=4.0
+matplotlib>=3.7
+pypdf>=4.0

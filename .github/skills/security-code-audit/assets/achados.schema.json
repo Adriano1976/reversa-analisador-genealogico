@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "achados.json — Auditoria de Segurança de Código",
+  "description": "Estrutura intermediária que separa os dados brutos da auditoria (achados) da geração do relatório. Permite regerar o relatório em PDF e/ou Markdown sem repetir a auditoria.",
+  "type": "object",
+  "required": ["projeto", "achados"],
+  "properties": {
+    "projeto": {
+      "type": "object",
+      "required": ["nome", "data", "escopo"],
+      "properties": {
+        "nome": { "type": "string", "description": "Nome do projeto/repositório auditado." },
+        "data": { "type": "string", "description": "Data da auditoria, formato livre (ex: '03/09/2026')." },
+        "escopo": { "type": "string", "description": "O que foi auditado (diretórios, branch, commit, etc.)." },
+        "stack_detectada": {
+          "type": "object",
+          "description": "Resultado da detecção de stack feita no Passo 1 do SKILL.md. Campos livres — inclua só os que fizerem sentido para o projeto.",
+          "properties": {
+            "linguagem": { "type": "string" },
+            "framework": { "type": "string" },
+            "orm": { "type": "string" },
+            "autenticacao": { "type": "string" },
+            "frontend": { "type": "string" },
+            "arquivos_deploy": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "nota_metodologica": {
+          "type": "string",
+          "description": "Como cada uma das 5 categorias foi mapeada para a stack detectada."
+        }
+      }
+    },
+    "achados": {
+      "type": "array",
+      "description": "Cada vulnerabilidade verificada no código real. Nunca inclua achados especulativos.",
+      "items": {
+        "type": "object",
+        "required": ["id", "categoria", "severidade", "arquivo", "linhas", "descricao"],
+        "properties": {
+          "id": { "type": "string", "description": "Identificador curto, ex: 'F-01'. Usado em issues_github.achados_relacionados." },
+          "categoria": {
+            "type": "string",
+            "enum": ["banco_sem_tranca", "permissao_navegador", "idor", "chaves_expostas", "inputs_sem_tratamento"]
+          },
+          "severidade": {
+            "type": "string",
+            "enum": ["critica", "alta", "media", "baixa", "informativa"],
+            "description": "Ver references/rubrica-severidade.md para o critério de classificação."
+          },
+          "arquivo": { "type": "string", "description": "Caminho do arquivo relativo à raiz do projeto." },
+          "linhas": { "type": "string", "description": "Número da linha ou intervalo, ex: '42' ou '42-47'." },
+          "trecho_codigo": { "type": "string", "description": "Trecho literal do código (para a lista no chat e para a evidência da issue)." },
+          "descricao": { "type": "string", "description": "O que é o achado (vai para a tabela do relatório)." },
+          "por_que_exploravel": { "type": "string" },
+          "condicoes_exploracao": { "type": "string", "description": "Feature flags, config insegura necessária, etc. (opcional)." },
+          "recomendacao": { "type": "string" }
+        }
+      }
+    },
+    "pontos_fortes": {
+      "type": "array",
+      "description": "O que foi verificado e está correto — prova a cobertura da auditoria.",
+      "items": {
+        "type": "object",
+        "required": ["categoria", "descricao"],
+        "properties": {
+          "categoria": { "type": "string" },
+          "arquivo": { "type": "string" },
+          "descricao": { "type": "string" }
+        }
+      }
+    },
+    "categorias_nao_aplicaveis": {
+      "type": "array",
+      "description": "Categorias que não se aplicam à stack detectada (ex: projeto sem frontend → sem XSS de frontend).",
+      "items": {
+        "type": "object",
+        "required": ["categoria", "motivo"],
+        "properties": {
+          "categoria": { "type": "string" },
+          "motivo": { "type": "string" }
+        }
+      }
+    },
+    "pontos_fracos_resumo": {
+      "type": "array",
+      "description": "Opcional. Resumo executivo dos riscos centrais, em texto livre. Se omitido, o script deriva automaticamente a partir dos achados críticos/altos.",
+      "items": { "type": "string" }
+    },
+    "recomendacoes_priorizadas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["prioridade", "titulo", "descricao"],
+        "properties": {
+          "prioridade": { "type": "string", "description": "Ex: 'P1', 'P2', 'P3'." },
+          "titulo": { "type": "string" },
+          "descricao": { "type": "string" }
+        }
+      }
+    },
+    "issues_github": {
+      "type": "array",
+      "description": "Uma entrada por issue a ser criada. Agrupe achados triviais relacionados numa única issue quando fizer sentido.",
+      "items": {
+        "type": "object",
+        "required": ["titulo", "labels", "descricao", "evidencia", "impacto", "sugestao_correcao", "criterios_aceite"],
+        "properties": {
+          "titulo": { "type": "string", "description": "Formato: '[Segurança] <descrição curta>'." },
+          "labels": { "type": "array", "items": { "type": "string" }, "description": "Ex: ['security', 'critica']." },
+          "achados_relacionados": { "type": "array", "items": { "type": "string" }, "description": "IDs de achados agrupados nesta issue." },
+          "descricao": { "type": "string" },
+          "evidencia": { "type": "string", "description": "arquivo:linha + trecho de código, em Markdown." },
+          "impacto": { "type": "string" },
+          "sugestao_correcao": { "type": "string" },
+          "criterios_aceite": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

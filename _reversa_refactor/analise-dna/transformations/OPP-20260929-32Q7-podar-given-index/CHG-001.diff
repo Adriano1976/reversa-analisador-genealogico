@@ -1,0 +1,46 @@
+diff --git a/analisador-genealogico/reconstructed/dna_analysis.py b/analisador-genealogico/reconstructed/dna_analysis.py
+index 7ed3517..334d3d1 100644
+--- a/analisador-genealogico/reconstructed/dna_analysis.py
++++ b/analisador-genealogico/reconstructed/dna_analysis.py
+@@ -8,7 +8,6 @@ decrescente e lista os descartados para auditoria.
+ 
+ Comportamento idêntico ao legado, incluindo as decisões documentadas:
+ - Limiares de score/given como literais nas regras A/B/C/D (92, 90, 86, ...).
+-- `HARD_MIN`/`GIVEN_MIN` declarados porém não usados (código morto).
+ - Relaxamento de Jaccard (0.5 -> 0.33) para cM>=150 e dado não-genérico.
+ - Regex de ID `[A-Z]{2}\\d{7}`.
+ """
+@@ -238,14 +237,12 @@ def build_ged_indexes():
+     """
+     ged_index = {}
+     surname_index = {}
+-    given_index = {}
+     features = {}
+     for pid, person in people.items():
+         nm = get_name(person)
+         key = norm_name(nm)
+         ged_index.setdefault(key, []).append(pid)
+-        given, surnames, _ = split_name_pt(nm)
+-        given_index.setdefault(given, []).append(pid)
++        _given, surnames, _suffixes = split_name_pt(nm)
+         for sn in surnames:
+             if sn:
+                 surname_index.setdefault(sn, []).append(pid)
+@@ -256,7 +253,7 @@ def build_ged_indexes():
+             "surnames_list": surnames,
+             "tokens": set(key.split()),
+         }
+-    return ged_index, surname_index, given_index, features
++    return ged_index, surname_index, features
+ 
+ 
+ def match_candidates(match_name, cm_value, ged_index, surname_index, features):
+@@ -383,7 +380,7 @@ def dna_analysis(csv_path: str, root_name: str):
+         raise ValueError("Colunas de Nome e cM não encontradas no CSV.")
+     aggregated = aggregate_matches(df, name_col, cm_col, match_id_col, match_email_col)
+ 
+-    ged_index, surname_index, _, features = build_ged_indexes()
++    ged_index, surname_index, features = build_ged_indexes()
+ 
+     results_list = []
+     skipped_matches = []

@@ -415,3 +415,6 @@ hash: "sha256:2a42d1b6a9e6bc49923151e77c897f027becd994028af2a6e629d05fccb9d601"
 - **Duas regras MIGRAR carregam aviso de que o dado necessário não está nas specs**: BR-MIGRAR-011 (lista de primeiros nomes genéricos) e BR-MIGRAR-012 (tabela de equivalentes de grafia). Elas só existem no código `app.py`. **O agente de codificação deve transcrevê-las do legado, nunca reconstruí-las de memória** — é o modo mais provável de quebrar paridade silenciosamente.
 - **Ponto de maior alavancagem identificado**: BR-HUMANA-006. Sem oráculo derivado do próprio legado, a métrica primária do brief ("paridade de matching ≥ 100%") é inverificável, porque os 47 testes existentes validam a reconstrução contra si mesma.
 - Itens replicados em `ambiguity_log.md`: BR-HUMANA-001 a BR-HUMANA-009 → AMB-006 a AMB-014. **Todos RESOLVIDOS** em 2026-09-28T02:56:00Z; nenhum PENDENTE. BR-HUMANA-002 foi reclassificada como descarte (`discard_log.md` BR-DESCARTAR-007).
+
+---
+*Gerado pelo Reversa-Curator em 2026-09-28.*

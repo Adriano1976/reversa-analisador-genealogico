@@ -1,17 +1,25 @@
 # Arquitetura — analisador-genealogico
 
-> Gerado pelo **Architect** em 2026-08-03
-> Nível de documentação: **Essencial** (`state.json`)
-> Obs.: `inventory.md` menciona "Completo"; o nível ativo definido em `doc_level` é **essencial**.
+> Nível de documentação: **Essencial** (`state.json` → `doc_level`)
+> Re-extração de 2026-09-30. Substitui o `architecture.md` de 2026-08-03, que descrevia um monólito de ~887 linhas sem testes.
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 
 ---
 
 ## 1. Visão Geral da Arquitetura
 
-Sistema **monolítico** de servidor web em Python/Flask com renderização server-side (Jinja2 + Bootstrap 5). Não há banco de dados persistente — todo o estado é mantido em memória (dicionários e grafo `networkx`) durante a sessão, com armazenamento temporário apenas dos arquivos enviados (`.ged`, `.csv`) na pasta `uploads/`.
+Aplicação **web monolítica de um único processo**, com renderização server-side (Flask + Jinja2), **sem banco de dados** e **sem persistência de resultados**.
 
-O funcionamento é de **análise sob demanda**: a cada requisição `POST`, o GEDCOM é re-parseado e o grafo reconstruído, os dados de DNA são agregados e o matching difuso de nomes localiza correspondências até a pessoa-raiz.
+O que define a arquitetura atual é a separação entre duas camadas com contratos opostos:
+
+| Camada | Arquivo(s) | Linhas | Contrato |
+| --- | --- | --- | --- |
+| **Apresentação** | `app.py` | 84 | Valida entrada HTTP, despacha por `action`, renderiza. **Zero regra de negócio.** 🟢 |
+| **Núcleo** | `reconstructed/{domain,upload,path_search,dna_analysis}.py` | 1117 | Toda a lógica de domínio. Não conhece HTTP. 🟢 |
+
+O funcionamento é de **análise sob demanda**: a cada `POST`, o GEDCOM é **re-parseado integralmente** e o grafo reconstruído, os segmentos de DNA são agregados e o matching difuso localiza correspondências até a pessoa-raiz. 🟢
+
+**O mecanismo de integração entre as camadas é estado global mutável**, não injeção de dependência: `upload.py` mantém `people`, `families`, `graph` e `child_to_family` no escopo do módulo, e os demais módulos os importam. A substituição é feita **in-place** (`clear()` + `update()`) para preservar as referências já importadas. 🟢
 
 ---
 
@@ -19,75 +27,116 @@ O funcionamento é de **análise sob demanda**: a cada requisição `POST`, o GE
 
 ```mermaid
 flowchart LR
-    U[Genealogista Genético<br/>(usuário humano)]
-    S([analisador-genealogico<br/>Aplicação Web Flask])
-    C1[Arquivos GEDCOM .ged<br/>Árvore genealógica]:::ext
-    C2[CSV de DNA matches<br/>GEDmatch .csv]:::ext
-    C3[Recursos de Google Fonts/CDN<br/>Bootstrap/Mermaid (navegador do cliente)]
+    U[Genealogista Genético<br/>usuário humano]:::person
+    S([analisador-genealogico<br/>Flask · rota única ·<br/>estado em memória]):::system
+    C1[Arquivos GEDCOM .ged<br/>árvore genealógica]:::ext
+    C2[CSV de DNA matches<br/>GEDmatch]:::ext
+    C3[CDN: Bootstrap 5<br/>e Mermaid 10]:::ext
 
-    U -->|"upload GEDCOM + CSV, busca de caminho"| S
-    S -->|"leitura/parsing"| C1
-    S -->|"leitura/agregação de segmentos cM"| C2
-    S -.->|"download CDN (Bootstrap/Mermaid)"| U
+    U -->|"upload .ged e .csv,<br/>nome da raiz, dois nomes"| S
+    S -->|"parsing (ged4py)"| C1
+    S -->|"agregação de cM (pandas)"| C2
+    S -.->|"assets carregados pelo<br/>navegador do cliente"| C3
 
-    classDef ext fill:#e8f0fe,stroke:#4285f4,stroke-width:1px;
-
-    %% Persona (usuário
-    U2[Genealogista Genético] --> S
+    classDef person fill:#08427B,color:#fff
+    classDef system fill:#1168BD,color:#fff
+    classDef ext fill:#85BBF0
 ```
 
-> Confiança do modelo: 🟢 para a estrutura monolítica; as integrações externas de rede (Bootstrap/Mermaid via CDN) são 🟡 INFERIDAS a partir do template.
+> O C4 de Contexto completo, com a legenda e o contrato de interação, está em `c4-context.md`. Níveis 2 (Containers) e 3 (Componentes) **não são gerados** no nível `essencial`.
 
 ### Atores e Sistemas Externos
 
 | Participante | Papel | Direção |
 | --- | --- | --- |
-| **Genealogista Genético** (persona única) | Envia GEDCOM + CSV e executa buscas de caminho | → sistema |
-| **Arquivos GEDCOM (.ged)** | Fonte da árvore genealógica | entrada |
-| **Arquivos CSV de DNA** | Lista de matches de DNA (GEDmatch Ancestor Project) | entrada |
-| **CDN (Bootstrap 5, Mermaid.js)** | Estilo e renderização de diagramas no navegador | navegador externo 🟡 |
+| **Genealogista Genético** (persona única) | Envia GEDCOM + CSV, escolhe a raiz, busca caminhos | → sistema 🟢 |
+| **Arquivos GEDCOM (`.ged`)** | Fonte da árvore genealógica | entrada 🟢 |
+| **Arquivos CSV de DNA** | Lista de matches com cM, ID e/ou e-mail | entrada 🟢 |
+| **CDN (Bootstrap 5, Mermaid 10)** | Estilo e renderização do diagrama no navegador | navegador externo 🟢 |
 
 ---
 
 ## 3. ERD Resumido
 
-Apenas **3 entidades lógicas** (abaixo de 5) — ERD embutido aqui em vez de `erd-complete.md`.
+**9 entidades** foram identificadas originalmente — acima do limiar de 5, então `erd-complete.md` seria o destino natural no nível `completo`. Como o nível ativo é `essencial`, o ERD fica **embutido aqui**. Após a remoção de 2026-09-30, restam **6 entidades**: 2 efetivamente em uso (§3.1), 1 removida e as estruturas de runtime (§3.3).
+
+### 3.1. Entidades efetivamente usadas no fluxo 🟢
 
 ```mermaid
 erDiagram
-    PERSON ||--o{ FAMILIAR : "membro (HUSB/WIFE)"
-    PERSON ||--o{ FAMILIA : "filho em (CHIL"
-    FAMILIA {
-        string xref_id PK
-        string husb FK "marido: PERSON.xref_id"
-        string wife FK "esposa: PERSON.xref_id"
-    }
+    PERSON ||--o{ FAMILIA : "cônjuge (FAMS)"
+    PERSON ||--o{ FAMILIA : "filho (FAMC/CHIL)"
+    FAMILIA ||--o{ PERSON : "HUSB / WIFE / CHIL"
+    DNA_MATCH }o--|| PERSON : "casa por nome difuso"
+
     PERSON {
         string xref_id PK
-        string name "nome formatado GEDCOM"
-        list sub_records "eventos, FAMC, FAMS"
+        string name "person.name.format()"
+        list sub_records "FAMC, FAMS, eventos"
+    }
+    FAMILIA {
+        string xref_id PK
+        string HUSB FK "opcional"
+        string WIFE FK "opcional"
+        list CHIL FK "0..N"
     }
     DNA_MATCH {
-        string _group_key PK "nome normalizado + ID/email"
-        float cm "soma de centiMorgans"
+        string _group_key PK "norm(nome) + ID ou e-mail"
+        float cm "SOMA dos segmentos"
         string matched_name
     }
 ```
 
-- **PERSON → FAMILIA**: um indivíduo é cônjuge em 0..N famílias (`FAMS`) e filho em 0..1 (`FAMC`) ou deduzido por `CHIL`. 🟢
-- **FAMILIA**: contém `HUSB`, `WIFE` (opcionais) e `CHIL` (0..N). 🟢
-- **DNA_MATCH**: entidade derivada do CSV agregado em memória — s/ persistência. 🟢
+| Relacionamento | Cardinalidade | Regra |
+| --- | --- | --- |
+| PERSON → FAMILIA (como cônjuge) | 0..N | via referências `FAMS` no `INDI`. 🟢 |
+| PERSON → FAMILIA (como filho) | 0..1 preferencial, 0..N no índice | `FAMC` é preferido; na ausência, o índice `child_to_family` acumula **todas** as famílias em que a pessoa aparece como `CHIL`. 🟢 |
+| FAMILIA → PERSON | 0..2 cônjuges + 0..N filhos | `HUSB` e `WIFE` são opcionais. 🟢 |
+| DNA_MATCH → PERSON | 0..1 | matching difuso; se casar, precisa ainda ter caminho ancestral até a raiz. 🟢 |
+
+**Observação de cardinalidade:** o grafo é `nx.Graph` (não-direcionado), com nós de dois tipos (`type="person"` e `type="family"`). A direção parental **não** está no grafo — ela é derivada por `get_parents`. 🟢
+
+### 3.2. Entidades declaradas e não instanciadas — REMOVIDAS em 2026-09-30 🟢
+
+A varredura de referências confirmou que `Family` (`domain.py:61`), `GenealogyGraph` (`domain.py:74`) e `DNAGroup` (`domain.py:106`) apareciam **apenas nas próprias definições**, nunca instanciadas em caminho de produção. Consultada, a decisão do usuário foi **remover** (`questions.md#pergunta-3`): arquitetura abandonada, não preparação futura.
+
+| Entidade | Situação |
+| --- | --- |
+| `Family` (dataclass) | **Removida.** O fluxo real sempre guardou os registros `FAM` do ged4py diretamente. |
+| `GenealogyGraph` | **Removida.** O grafo real é a global `upload.graph` — e é `nx.Graph`, não `nx.MultiGraph` como a classe documentava. |
+| `DNAGroup` (dataclass) | **Removida.** `dna_analysis` monta resultados como `dict` simples. |
+
+**Efeito medido:** `reconstructed/domain.py` caiu de 115 para **84 linhas** e hoje contém apenas `strip_bad_utf` e `demojibake`. `tests/test_domain.py` perdeu 9 testes (suíte: 95 → 86 itens coletados). A contradição do `MultiGraph` desapareceu com a classe.
+
+> Consequência para a reimplementação: **o sistema não tem modelo de domínio em classes.** O "modelo" são dicionários e o objeto de grafo do networkx. Quem reimplementar tem liberdade para introduzir entidades próprias — não há contrato de classe a honrar.
+
+### 3.3. Estruturas de persistência e runtime 🟢
+
+| Estrutura | Tipo | Chave → Valor | Onde |
+| --- | --- | --- | --- |
+| `people` | dict global | `xref_id` → registro `INDI` | `upload.py:16` |
+| `families` | dict global | `xref_id` → registro `FAM` | `upload.py:17` |
+| `graph` | `nx.Graph` global | nós pessoa e família | `upload.py:18` |
+| `child_to_family` | dict global | `xref_id` do filho → lista de famílias | `upload.py:19` |
+| `ged_index` | dict local | nome normalizado → lista de `pid` | `build_ged_indexes` |
+| `surname_index` | dict local | sobrenome → lista de `pid` | `build_ged_indexes` |
+| `features` | dict local (cache) | `pid` → atributos normalizados | `build_ged_indexes` |
+| `uploads/` | filesystem | nome enviado → arquivo `.ged`/`.csv` | `UPLOAD_FOLDER` |
+
+**Não há tabela, esquema, migration, ORM ou arquivo de configuração de banco.** 🟢
 
 ---
 
 ## 4. Mapa de Integrações Externas
 
-| Sistema Externo | Tipo | Protocolo/Dados | Uso |
+| Sistema externo | Tipo | Protocolo / formato | Uso |
 | --- | --- | --- | --- |
-| **Nenhuma API REST/GraphQL externa consumida ou produzida** | — | — | A aplicação é standalone; leitura local de `.ged` e `.csv`. 🟢 |
-| **GEDCOM** | Arquivo | ISO do formato GEDCOM (ged4py) | Parsing da árvore. 🟢 |
-| **CSV de DNA** | Arquivo | CSV com colunas de Nome, cM, ID/Email | Agregação de segmentos. 🟢 |
-| **CDN de recursos web** 🟡 | Assets | HTTPS | Bootstrap 5 + Mermaid.js renderizados no navegador. |
+| **Nenhuma API REST/GraphQL consumida ou produzida** | — | — | A aplicação é standalone. 🟢 |
+| **Nenhum webhook, fila, evento ou mensageria** | — | — | Não há integração assíncrona. 🟢 |
+| **GEDCOM** | Arquivo | Formato GEDCOM, lido por `ged4py` 0.5.2 | Parsing da árvore. 🟢 |
+| **CSV de DNA** | Arquivo | CSV com colunas de Nome, cM, ID/Email; UTF-8 com fallback Latin-1 | Agregação de segmentos. 🟢 |
+| **CDN de assets web** | Assets | HTTPS | Bootstrap 5 + Mermaid 10 no navegador. 🟢 |
+| **Exportadores de CSV** | Indirecto | GEDmatch Ancestor Project e similares | Detecção de coluna de ID depende do padrão `[A-Z]{2}\d{7}` — 🟡 específico de um exportador. |
 
 ---
 
@@ -95,20 +144,36 @@ erDiagram
 
 | # | Dívida | Severidade | Evidência |
 | --- | --- | --- | --- |
-| 1 | **Dependências sem versão fixada** em `requirements.txt` | 🔴 Alta | Sem `pins` — risco de breaking changes em novos ambientes. |
-| 2 | **Ausência total de testes** | 🔴 Alta | Nenhum arquivo de teste detectado. |
-| 3 | **Ausência de CI/CD e Docker** | 🟡 Média | Sem pipelines/default workflows detectados. |
-| 4 | **Estado em memória + re-parse a cada requisição** | 🟡 Média | Ineficiente; recálculo integral a cada `POST`. |
-| 5 | **Código monolítico (app.py ~887 linhas)** com rotas + lógica acopladas | 🟡 Média | Responsabilidades de parsing, matching e renderização num único módulo. |
-| 6 | **`secret_key` hardcoded e versão "v16" no público** | 🟡 Média | `app.secret_key = 'f@milyse@rch_dna_edition_v16'` — segredo embutido. |
-| 7 | **Correções de mojibake heurísticas/fragmentadas (`strip_bad_utf`)** | 🟢 Baixa | Substituições manuais incompletas. |
-| 8 | **Colunas calculadas em memória, sem persistência de resultados** | 🟢 Baixa | Resultados não persistidos entre requisições. |
+| 1 | **Estado global mutável** compartilhado entre requisições e usuários | 🔴 Alta | `upload.py:16-19`; mutação em `:95-98` |
+| 2 | **Dependências sem versão fixada** em `requirements.txt` | 🔴 Alta | 6 dependências, zero `pins` |
+| 3 | **`secret_key` hardcoded** no código | 🔴 Alta | `app.py:11` — `'f@milyse@rch_dna_edition_v16'` |
+| 4 | **Upload sem validação** de extensão, tipo ou tamanho; nome do cliente vira caminho | 🔴 Alta | `app.py:29` — limitação **aceita** pelo usuário em 2026-08-03 |
+| 5 | **Re-parse integral do GEDCOM a cada requisição** | 🟡 Média | `app.py:31` e `:42` |
+| 6 | **Ausência de CI/CD e Docker** | 🟡 Média | Sem `.github/`, `Dockerfile` ou `docker-compose` |
+| 7 | **Entidades declaradas que o fluxo não usa** | 🟢 Baixa | `domain.py:74`, `:106` |
+| 8 | **Sem persistência de resultados** | 🟢 Baixa | `dna_analysis.py:393` monta tudo em memória |
+| 9 | **`README.md` do módulo anuncia Pyvis**, removida do projeto | 🟢 Baixa | `analisador-genealogico/README.md` |
+
+**Dívidas que deixaram de existir desde a extração anterior:**
+
+| Dívida antiga | Situação atual |
+| --- | --- |
+| "Código monolítico (`app.py` ~887 linhas) com rotas + lógica acopladas" | ✅ endereçada — `app.py` tem 84 linhas e delega |
+| "Ausência total de testes" | ✅ endereçada — 7 arquivos, 95 itens, incluindo caracterização |
+| "Correções de mojibake heurísticas/fragmentadas" | ✅ endereçada — autoridade única em `domain.py` (ADR-07) |
 
 ---
 
 ## 6. Resumo para o Reversa
 
-- **Containers**: 1 (aplicação web Flask monolítica). Sem banco, fila ou cache.
-- **Integrações externas**: nenhuma API — apenas entrada de arquivos `.ged`/`.csv` e assets web via CDN.
-- **Dívidas técnicas**: 8 identificadas, com risco alto de dependências soltas e ausência de testes.
-- **Packing**: Gunicorn listado no `requirements.txt` — deploy WSGI em produção (Heroku/Render/AWS) 🟡.
+- **Containers:** 1 (aplicação web Flask single-process). Sem banco, fila ou cache. 🟢
+- **Camadas:** 2 (rota fina de 84 linhas + núcleo de 1117 linhas), integradas por **estado global mutável**. 🟢
+- **Integrações externas:** nenhuma API — apenas entrada de arquivos `.ged`/`.csv` e assets web via CDN. 🟢
+- **Entidades:** 6 após a remoção de 2026-09-30 — **2 efetivamente em uso** (registro de pessoa e agregado DNA_MATCH), 3 removidas e 1 conjunto de estruturas de runtime. 🟢
+- **Dívidas técnicas:** 9 identificadas, 4 de severidade alta. 🟢
+- **Packing:** `gunicorn` está no `requirements.txt` mas **não é usado no código** — deploy WSGI em produção é inferência. 🟡
+- **Instrumentação de desenvolvimento (fora do runtime):** `_reversa_sdd/` contém oráculo congelado (`oracle/`), harness diferencial de paridade com 100% em 6 fixtures e 5 árvores reais (`parity/`), goldens de tela (`screens/`) e a suíte de migração (`migration/`). **Nada disso faz parte do sistema em execução** e não deve ser confundido com a arquitetura da aplicação. 🟢
+
+---
+
+*Gerado pelo Reversa-Architect em 2026-09-30 (re-extração).*

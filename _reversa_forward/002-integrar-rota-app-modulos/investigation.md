@@ -17,3 +17,6 @@ O objetivo é fechar a lacuna da "camada de apresentação": mover os módulos p
 - O `upload.py` reconstruído já usa mutação in-place (`clear` + `update`) das globals para manter referências importadas válidas — comportamento necessário ao re-parse a cada `POST` (RF-06).
 - Os módulos usam `from __future__ import annotations` e imports relativos (`from .upload import ...`), o que facilita a movimentação como subpacote.
 - Suíte de testes: `tests/test_upload.py`, `tests/test_path_search.py`, `tests/test_dna_analysis.py`, `tests/test_domain.py` (47 passed) — rede de segurança para a movimentação.
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

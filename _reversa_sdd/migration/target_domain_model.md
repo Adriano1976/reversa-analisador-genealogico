@@ -185,3 +185,6 @@ hash: "sha256:24a92255e20db7b1a04d2924dbbbf0ba6684723fe4257d347437bd58faed71f8"
 - **A lista de motivos de `SkippedMatch` deve ser fechada (enum)**, não string livre como no legado. Isso transforma a auditoria visual (`skipped_matches`) em auditoria programática e é o que permite asserção nos `parity_tests/`. ⚠️ Ao mesmo tempo, o **texto** apresentado ao usuário deve continuar correspondendo ao que o legado mostrava (BR-MIGRAR-028), então cada código carrega sua mensagem.
 - **`MatchResult.matched_person_xref` pode ser nulo?** Não. Pela I-4 de AGG-02 e pelo fluxo do legado (`analise-dna/design.md` § Fluxos Alternativos), um match sem candidato no GEDCOM **não** vira `MatchResult` — vira `SkippedMatch`. Um `MatchResult` sempre tem pessoa correspondente na árvore.
 - **Nenhum evento de domínio foi definido** (AD-05). Ausência consciente, não omissão.
+
+---
+*Gerado pelo Reversa-Designer em 2026-09-28.*

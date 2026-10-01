@@ -108,3 +108,6 @@ Todos devem estar satisfeitos antes de iniciar a janela de cutover. Os itens mar
 - **A ausência de prazo é um ativo, não uma omissão.** Ela é o que permite recusar Big Bang e exigir paridade provada antes da Onda 2. Se um prazo for introduzido, este plano precisa ser revisado: o caminho mais curto seria cortar as ondas 4–5 e entregar apenas núcleo + fronteira mínima.
 - **O maior risco deste cutover não está no cutover.** Não há dados, não há usuários, não há SLA. O risco está em (a) o oráculo ser inválido ou circular, e (b) abrir cadastro antes de o isolamento e a conformidade estarem provados. Os passos 1 e 9 são, respectivamente, o portão técnico e o portão de negócio.
 - **Nenhum arquivo do legado foi, é ou será modificado por este plano.** O legado é lido para gerar o oráculo e mantido como referência; nunca escrito.
+
+---
+*Gerado pelo Reversa-Strategist em 2026-09-28.*

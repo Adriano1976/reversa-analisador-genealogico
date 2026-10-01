@@ -1,5 +1,8 @@
 # Configuração do Pyrefly (analisador estático de tipos)
 # Adiciona o diretório onde o pacote `reconstructed` realmente reside,
 # espelhando o sys.path.insert feito em tempo de execução nos testes.
-[pyrefly]
-search_path = ["analisador-genealogico"]
+# As opções ficam no topo do documento. Envolvê-las numa tabela `[pyrefly]` faz
+# o pyrefly tratar `pyrefly` como chave desconhecida e descartar o arquivo
+# inteiro, com o aviso "Extra keys found in config: pyrefly", e o search path
+# deixa de valer sem nenhum erro visível.
+search-path = ["analisador-genealogico"]

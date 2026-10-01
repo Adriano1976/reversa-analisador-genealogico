@@ -1,105 +1,156 @@
 {
-  "generated_at": "2026-08-03T11:48:40Z",
-  "project_root": "C:/teste_reversa/analisador-genealogico",
+  "generated_at": "2026-09-30T18:40:00Z",
+  "project_root": "D:/Projetos/reversa_analisador_gelealogico",
+  "project_name": "analisador-genealogico",
+  "extraction": {
+    "kind": "re-extraction",
+    "previous_extraction": "2026-08-03",
+    "doc_level": "essencial",
+    "note": "Re-extracao sobre o codigo posterior a extracao de 2026-08-03. O monolito de 887 linhas foi substituido por camada de rota fina (70 linhas) + pacote reconstructed/."
+  },
   "languages": [
-    {
-      "name": "Python",
-      "extensions": [
-        ".py"
-      ],
-      "file_count": 1
-    },
-    {
-      "name": "HTML",
-      "extensions": [
-        ".html"
-      ],
-      "file_count": 2
-    },
-    {
-      "name": "Markdown",
-      "extensions": [
-        ".md"
-      ],
-      "file_count": 1
-    }
+    { "name": "Python", "extensions": [".py"], "file_count": 15 },
+    { "name": "HTML", "extensions": [".html"], "file_count": 1 },
+    { "name": "Markdown", "extensions": [".md"], "file_count": 4 }
   ],
   "primary_language": "Python",
+  "language_runtime": { "name": "Python", "version": "3.14.6", "source": "execucao verificada (python --version)" },
   "frameworks": [
-    {
-      "name": "Flask",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    },
-    {
-      "name": "NetworkX",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    },
-    {
-      "name": "Pandas",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    },
-    {
-      "name": "ged4py",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    },
-    {
-      "name": "thefuzz",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    },
-    {
-      "name": "pyvis",
-      "version": "unpinned",
-      "source": "requirements.txt"
-    }
+    { "name": "Flask", "version": "3.1.3", "source": "requirements.txt + instalacao verificada" },
+    { "name": "ged4py", "version": "0.5.2", "source": "requirements.txt + instalacao verificada" },
+    { "name": "networkx", "version": "3.6.1", "source": "requirements.txt + instalacao verificada" },
+    { "name": "pandas", "version": "3.0.3", "source": "requirements.txt + instalacao verificada" },
+    { "name": "thefuzz", "version": "0.22.1", "source": "requirements.txt + instalacao verificada" },
+    { "name": "gunicorn", "version": "26.0.0", "source": "requirements.txt + instalacao verificada" },
+    { "name": "RapidFuzz", "version": "3.14.5", "source": "transitiva do thefuzz - backend real do matching" },
+    { "name": "python-Levenshtein", "version": "0.27.3", "source": "transitiva do thefuzz - aceleracao C" },
+    { "name": "pytest", "version": "instalado (versao nao medida)", "source": "pytest.ini" }
   ],
+  "pinned_versions": false,
+  "virtualenv_present": false,
   "package_manager": "pip",
   "entry_points": [
-    {
-      "path": "analisador-genealogico/app.py",
-      "type": "server_entry"
-    },
-    {
-      "path": "analisador-genealogico/templates/index.html",
-      "type": "template_entry"
-    }
+    { "path": "analisador-genealogico/app.py", "type": "server_entry", "detail": "app = Flask(__name__); app.run(debug=True) sob __main__" },
+    { "path": "analisador-genealogico/templates/index.html", "type": "template_entry" }
+  ],
+  "routes": [
+    { "methods": ["GET"], "rule": "/", "action": null, "handler": "index", "file": "analisador-genealogico/app.py", "line": 18 },
+    { "methods": ["POST"], "rule": "/", "action": "upload_gedcom", "handler": "index", "file": "analisador-genealogico/app.py", "line": 22 },
+    { "methods": ["POST"], "rule": "/", "action": "dna_analysis", "handler": "index", "file": "analisador-genealogico/app.py", "line": 44 },
+    { "methods": ["POST"], "rule": "/", "action": "path_search", "handler": "index", "file": "analisador-genealogico/app.py", "line": 65 }
   ],
   "config_files": [
-    "analisador-genealogico/requirements.txt",
-    "analisador-genealogico/.gitignore.txt"
+    "pytest.ini",
+    "pyrefly.toml",
+    ".gitignore",
+    ".gitattributes",
+    "analisador-genealogico/.gitignore.txt",
+    "analisador-genealogico/requirements.txt"
   ],
   "ci_cd": [],
   "docker": {},
   "database_hints": [],
-  "test_framework": "None",
-  "test_file_count": 0,
+  "database_present": false,
+  "persistence": {
+    "kind": "memoria + arquivos enviados",
+    "note": "Estado global mutavel (people, families, graph, child_to_family) em upload.py; nenhum resultado persistido. GEDCOM re-parseado a cada POST.",
+    "upload_folder": "uploads"
+  },
+  "test_framework": "pytest",
+  "test_file_count": 7,
+  "test_function_count": 61,
+  "test_items_collected": 95,
+  "test_coverage_measured": false,
   "modules": [
-    "analisador-genealogico"
+    "upload-gedcom",
+    "analise-dna",
+    "busca-caminho"
   ],
-  "total_files": 7,
+  "module_details": [
+    {
+      "name": "upload-gedcom",
+      "endpoints": ["POST / action=upload_gedcom"],
+      "implementation": [
+        "analisador-genealogico/reconstructed/upload.py",
+        "analisador-genealogico/reconstructed/domain.py"
+      ],
+      "lines": 215
+    },
+    {
+      "name": "analise-dna",
+      "endpoints": ["POST / action=dna_analysis"],
+      "implementation": ["analisador-genealogico/reconstructed/dna_analysis.py"],
+      "lines": 395
+    },
+    {
+      "name": "busca-caminho",
+      "endpoints": ["POST / action=path_search"],
+      "implementation": ["analisador-genealogico/reconstructed/path_search.py"],
+      "lines": 506
+    }
+  ],
+  "code_size": {
+    "app_py_lines": 84,
+    "reconstructed_lines": 1086,
+    "tests_lines": 1134,
+    "template_lines": 200,
+    "total_python_lines": 1170,
+    "counting_method": "[System.IO.File]::ReadAllLines - inclui a linha vazia final quando o arquivo termina em newline",
+    "post_extraction_change": "2026-09-30: Family, GenealogyGraph e DNAGroup removidas de reconstructed/domain.py (115 -> 84 linhas) por decisao do usuario (questions.md#pergunta-3); 9 testes das classes extintas removidos de tests/test_domain.py. Antes da remocao: reconstructed 1117, python total 1201, testes 1197 linhas / 95 itens."
+  },
+  "notable_changes_since_previous_extraction": [
+    "app.py passou de 887 para 84 linhas: virou camada de rota que delega a tres fluxos.",
+    "Surgiu analisador-genealogico/reconstructed/ com domain.py, upload.py, path_search.py, dna_analysis.py.",
+    "Surgiu a suite tests/ (7 arquivos, 86 itens coletados apos a remocao das entidades mortas; 95 antes dela) - a extracao anterior registrava ZERO testes.",
+    "pyvis e matplotlib foram REMOVIDOS do requirements.txt; a visualizacao de grafo passou a ser Mermaid renderizado no cliente.",
+    "A pasta static/ deixou de existir; STATIC_FOLDER saiu de app.py.",
+    "O valor de action para analise de DNA e 'dna_analysis'; a extracao anterior registrava 'process_dna', que nao existe no codigo.",
+    "Surgiram dois testes de caracterizacao (matching e Mermaid) e um teste dedicado a escape de rotulo Mermaid.",
+    "As entidades Family, GenealogyGraph e DNAGroup foram removidas: eram arquitetura abandonada, nunca instanciadas em producao."
+  ],
+  "documentation_debt": [
+    "analisador-genealogico/README.md ainda anuncia Pyvis como biblioteca de visualizacao (removida do projeto)."
+  ],
+  "total_files": 27,
   "organization_suggestion": {
     "granularity": "endpoint",
-    "rationale": "Roteamento centralizado via Flask @app.route em app.py para rotas de upload de GEDCOM/DNA e busca de caminhos.",
+    "rationale": "A aplicacao tem roteamento centralizado numa rota unica com despacho pelo campo action; os tres valores distintos de action delimitam exatamente tres unidades funcionais.",
     "signals": [
       {
         "type": "centralized_routing",
         "evidence": [
-          "analisador-genealogico/app.py"
+          "analisador-genealogico/app.py:18",
+          "analisador-genealogico/app.py:21",
+          "analisador-genealogico/app.py:44",
+          "analisador-genealogico/app.py:65"
         ]
       }
     ],
-    "features": [
-      "gedcom_parser",
-      "dna_matches_processor",
-      "fuzzy_name_matching",
-      "ancestral_path_finder",
-      "relationship_predictor",
-      "graph_visualization",
-      "web_interface"
+    "features": [],
+    "persisted_decision": {
+      "source": ".reversa/config.toml [specs]",
+      "layout": "feature-folder",
+      "granularity": "endpoint",
+      "scout_suggestion": "endpoint",
+      "decided_at": "2026-08-03T12:18:50Z",
+      "note": "Decisao ja persistida; conforme a regra de imutabilidade o orquestrador NAO reescreve scout_suggestion. Esta sugestao apenas confirma a escolha existente."
+    }
+  },
+  "confidence": {
+    "confirmed": [
+      "estrutura de diretorios",
+      "linguagem e versoes instaladas",
+      "entry point e superficie de rotas",
+      "ausencia de banco, CI/CD e Docker",
+      "contagem de testes",
+      "dependencias diretas"
+    ],
+    "inferred": [
+      "que app.py e a unica origem das rotas (nenhum Blueprint registrado em outro arquivo)"
+    ],
+    "gaps": [
+      "cobertura de testes nao medida",
+      "versao do pytest nao medida"
     ]
   }
 }

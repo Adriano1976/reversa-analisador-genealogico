@@ -8,19 +8,18 @@ decrescente e lista os descartados para auditoria.
 
 Comportamento idêntico ao legado, incluindo as decisões documentadas:
 - Limiares de score/given como literais nas regras A/B/C/D (92, 90, 86, ...).
-- `HARD_MIN`/`GIVEN_MIN` declarados porém não usados (código morto).
 - Relaxamento de Jaccard (0.5 -> 0.33) para cM>=150 e dado não-genérico.
 - Regex de ID `[A-Z]{2}\\d{7}`.
 """
 from __future__ import annotations
 
-import re
 import string
 import unicodedata
 
 import pandas as pd
 from thefuzz import fuzz
 
+from .domain import demojibake, strip_bad_utf
 from .path_search import find_ancestral_path, generate_mermaid_graph
 from .upload import get_name, people
 
@@ -70,24 +69,6 @@ def get_relationships_by_cm(cm_value):
 # ---------------------------------------------------------------------------
 # Normalização e decomposição de nomes (idênticas ao legado)
 # ---------------------------------------------------------------------------
-
-def strip_bad_utf(s):
-    if s is None:
-        return ""
-    s = str(s)
-    fixes = {
-        "A�": "ç", "Ã§": "ç",
-        "Ã£": "ã", "Ã¡": "á", "Ã¢": "â",
-        "Ã©": "é", "Ãª": "ê", "Ã¨": "è",
-        "Ã­": "í", "Ã³": "ó", "Ã´": "ô", "Ãº": "ú",
-        "Ã": "Ã",
-        "GouvA�": "Gouvê",
-        "A�": "ç",
-        "JoA�o": "João", "SA�": "Sá", "GonA�": "Gonç",
-    }
-    for bad, good in fixes.items():
-        s = s.replace(bad, good)
-    return re.sub(r"[^\w\sÁ-ú'-]", " ", s)
 
 
 def norm_name(s):
@@ -142,19 +123,6 @@ def token_prefixes(tokens, min_len=3):
         if len(t) >= min_len:
             out.add(t[:min_len])
     return out
-
-
-def demojibake(s):
-    if not s:
-        return s
-    if any(p in s for p in ("Ã", "Â", "A�", "�")):
-        try:
-            fixed = s.encode("latin1").decode("utf-8")
-            if "�" not in fixed and "Ã" not in fixed and "A�" not in fixed:
-                return fixed
-        except Exception:
-            pass
-    return s
 
 
 def soft_prefix_jaccard(a, b, min_pref=4, min_len=2) -> float:
@@ -228,22 +196,41 @@ def aggregate_matches(df, name_col, cm_col, match_id_col, match_email_col):
 # ---------------------------------------------------------------------------
 
 def build_ged_indexes():
+    """Constroi os indices de busca e o cache de atributos normalizados.
+
+    O cache existe porque ``norm_name`` custa cerca de 41 us e ``surnames_set``
+    cerca de 72 us: o laco de candidatos de ``match_candidates`` renormalizava o
+    mesmo nome aproximadamente 7 vezes por candidato, a cada match do CSV, para
+    um valor que nao depende do CSV. Calcular aqui, uma vez por analise, nao
+    altera nenhuma decisao: os valores sao os mesmos.
+    """
     ged_index = {}
     surname_index = {}
-    given_index = {}
+    features = {}
     for pid, person in people.items():
         nm = get_name(person)
         key = norm_name(nm)
+        key_tokens = key.split()
         ged_index.setdefault(key, []).append(pid)
-        given, surnames, _ = split_name_pt(nm)
-        given_index.setdefault(given, []).append(pid)
+        _given, surnames, _suffixes = split_name_pt(nm)
         for sn in surnames:
             if sn:
                 surname_index.setdefault(sn, []).append(pid)
-    return ged_index, surname_index, given_index
+        # `key` ja e norm_name(nm), e norm_name e idempotente sobre os proprios
+        # tokens, entao nao ha nada a renormalizar aqui. Reproduz o fallback de
+        # top_given_tokens para o caso de todos os tokens serem stop words.
+        non_stop = [t for t in key_tokens if t not in STOP_WORDS]
+        features[pid] = {
+            "norm": key,
+            "given_tokens": non_stop[:2] or key_tokens[:2],
+            "surnames": set(surnames),
+            "surnames_list": surnames,
+            "tokens": set(key_tokens),
+        }
+    return ged_index, surname_index, features
 
 
-def match_candidates(match_name, cm_value, ged_index, surname_index):
+def match_candidates(match_name, cm_value, ged_index, surname_index, features):
     """Retorna `(candidate_pids, reason)` seguindo o bloco de scoring do legado."""
     key = norm_name(match_name)
     candidate_pids = ged_index.get(key, [])
@@ -273,12 +260,11 @@ def match_candidates(match_name, cm_value, ged_index, surname_index):
             key_norm = norm_name(match_name)
 
             for pid in pool:
-                nm = get_name(people[pid])
-                ged_given_candidates = [norm_name(t) for t in top_given_tokens(nm, k=2)]
-                s_given = max((fuzz.ratio(given_norm, gg) for gg in ged_given_candidates), default=0)
-                s_token = fuzz.token_sort_ratio(key_norm, norm_name(nm))
-                s_part = fuzz.partial_ratio(key_norm, norm_name(nm))
-                ged_surn_set = surnames_set(nm)
+                feat = features[pid]
+                s_given = max((fuzz.ratio(given_norm, gg) for gg in feat["given_tokens"]), default=0)
+                s_token = fuzz.token_sort_ratio(key_norm, feat["norm"])
+                s_part = fuzz.partial_ratio(key_norm, feat["norm"])
+                ged_surn_set = feat["surnames"]
                 inter_set = csv_surn_all & ged_surn_set
                 inter_cnt_local = len(inter_set)
                 common_penalty = sum(1 for s in inter_set if s in COMMON_SURNAMES)
@@ -291,12 +277,12 @@ def match_candidates(match_name, cm_value, ged_index, surname_index):
                     best_pid, best_score, best_g, best_inter = pid, score, s_given, inter_cnt_local
 
             if best_pid is not None:
-                nm_best = get_name(people[best_pid])
-                ged_surn_best = surnames_set(nm_best)
+                feat_best = features[best_pid]
+                ged_surn_best = feat_best["surnames"]
                 inter_best = csv_surn_all & ged_surn_best
                 inter_cnt = len(inter_best)
 
-                ged_tokens = set(norm_name(nm_best).split())
+                ged_tokens = feat_best["tokens"]
                 suffix_hit = bool(csv_suffixes & ged_tokens)
                 if csv_surn_all and ged_surn_best and inter_cnt == 0 and not suffix_hit:
                     candidate_pids = []
@@ -329,7 +315,7 @@ def match_candidates(match_name, cm_value, ged_index, surname_index):
                     else:
                         pref_csv = token_prefixes(surn_csv, min_len=3)
                         if pref_csv:
-                            cand_given, cand_surns, _ = split_name_pt(nm_best)
+                            cand_surns = feat_best["surnames_list"]
                             if any(sn.startswith(tuple(pref_csv)) for sn in cand_surns) and best_g >= 90 and best_score >= 86 and inter_cnt >= 1 and jacc_ok:
                                 ACCEPT = True
 
@@ -368,7 +354,7 @@ def dna_analysis(csv_path: str, root_name: str):
         raise ValueError("Colunas de Nome e cM não encontradas no CSV.")
     aggregated = aggregate_matches(df, name_col, cm_col, match_id_col, match_email_col)
 
-    ged_index, surname_index, _ = build_ged_indexes()
+    ged_index, surname_index, features = build_ged_indexes()
 
     results_list = []
     skipped_matches = []
@@ -378,7 +364,7 @@ def dna_analysis(csv_path: str, root_name: str):
         match_name = demojibake(csv_name_raw)
         cm_value = row[cm_col]
 
-        candidate_pids, reason = match_candidates(match_name, cm_value, ged_index, surname_index)
+        candidate_pids, reason = match_candidates(match_name, cm_value, ged_index, surname_index, features)
 
         if not candidate_pids:
             skipped_matches.append({"csv_name": csv_name_raw, "motivo": reason or "não encontrado"})

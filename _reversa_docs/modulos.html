@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-mapper">
 <meta name="reversa-template" content="modulos">
-<meta name="reversa-generated-at" content="2026-08-12T14:10:00Z">
+<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
 <!-- TITLE -->
 <title>Módulos — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -119,7 +119,7 @@
   <div class="item"><span class="sw" style="background:#4f8cff"></span> app.py</div>
   <div class="item"><span class="sw" style="background:#6fbf73"></span> reconstructed/</div>
   <div class="item"><span class="sw" style="background:#e0a458"></span> tests/</div>
-  <div class="item"><span class="sw" style="background:#b587e6"></span> templates / static</div>
+  <div class="item"><span class="sw" style="background:#b587e6"></span> templates/</div>
 </div>
 <div class="cycle-tag" id="cycleTag"></div>
 
@@ -149,12 +149,11 @@
   d3.select("#fFolder").selectAll("option").data(folders).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
 
   var folderColor = {
-    "analisador-genealogico": "#4f8cff",
-    "reconstructed": "#6fbf73",
-    "tests": "#e0a458",
-    "tests/fixtures": "#e0a458",
-    "analisador-genealogico/templates": "#b587e6",
-    "analisador-genealogico/static": "#b587e6"
+    "analisador-genealogico/": "#4f8cff",
+    "reconstructed/": "#6fbf73",
+    "tests/": "#e0a458",
+    "tests/fixtures/": "#e0a458",
+    "templates/": "#b587e6"
   };
   var colorOf = function(m){ return folderColor[m.folder] || "#8b909a"; };
 
@@ -250,5 +249,7 @@
   });
 })();
 </script>
+<!-- Gerado pelo Reversa-Docs-Mapper em 2026-10-01. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Mapper em 2026-10-01.</div>
 </body>
 </html>

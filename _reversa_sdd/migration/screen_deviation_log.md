@@ -202,3 +202,6 @@ hash: "sha256:9dee212c9905df6b7fb1c81059700f62445945515a324864cf55bd2c103f24b6"
 - **A observação (3) é a mais subestimada** e vale destacar: o legado decide **qual tela mostrar** no servidor (`{% if not gedcom_filename %}`, `index.html:41`). Em uma SPA isso não existe — o front-end precisa receber esse estado do backend. Se a implementação tratar SCR-001 e SCR-002 como rotas independentes sem essa fonte de estado, o comportamento do usuário muda de forma não intencional. Registrado também em `target_screens.md`.
 - **DEV-007 e EC-03**: como `ui/inventory.md` não existe, a checagem de divergência de inventário (>10%) **não pôde ser executada**. Não é uma falha do agente — é consequência da ausência do artefato de Discovery. Se o usuário rodar `reversa-visor` posteriormente, o inventário interno deve ser reconciliado.
 - **Este log é append-only.** Entradas não são editadas; mudanças de decisão geram nova entrada e a anterior muda apenas o campo `Aprovação` para refletir o desfecho.
+
+---
+*Gerado pelo Reversa-Screen-Translator em 2026-09-28.*

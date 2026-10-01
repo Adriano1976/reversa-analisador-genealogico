@@ -156,3 +156,6 @@ hash: "sha256:d2e5e382eb1d1f0f48726bcc4047a428e77315cb27168bf79ec7894d29389a5f"
 - **Sobre a captura de golden files (oráculo legado)**: diferente dos casos típicos do agente (COBOL, Win32, Android), aqui o oráculo é **um servidor Flask que roda localmente**. Isso torna a captura tecnicamente viável para SCR-001 (estado inicial, sem dependência de dados). As telas SCR-002 a SCR-005 exigem um GEDCOM carregado e, para SCR-005, um CSV de matches — o determinismo passa a depender de **fixtures fixos**, que já existem parcialmente (`tests/fixtures/sample_gedcom.py`, `sample_dna.py`; `_reversa_sdd/upload-gedcom/exemplo_familia.ged`). O `manifest.yaml` da Fase 2 deve declarar o comando de captura por tela e as fixtures exigidas. ⚠️ Conforme o SKILL, **não** automatizo o driver de captura em v1 (OQ-02) — emito o manifesto e instruo a execução manual.
 - **O legado não foi modificado.** Toda a leitura de `templates/index.html` foi read-only, conforme a regra absoluta do Reversa.
 - **Consequência do modo escolhido para o escopo**: se você escolher **híbrido** ou **modernizado**, a Fase 2 produzirá specs para **10 telas** (5 legadas + 5 novas), não para 5. Isso é intencional e reflete o brief (SaaS multiusuário com conformidade) — não é inflação de escopo.
+
+---
+*Gerado pelo Reversa-Screen-Translator em 2026-09-28.*

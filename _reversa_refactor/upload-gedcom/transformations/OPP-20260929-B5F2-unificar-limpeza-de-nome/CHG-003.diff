@@ -1,0 +1,33 @@
+diff --git a/tests/test_domain.py b/tests/test_domain.py
+index b2f1002..a4ac954 100644
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -16,7 +16,6 @@ from reconstructed.domain import (
+     DNAGroup,
+     Family,
+     GenealogyGraph,
+-    MOJIBAKE_MAP,
+     demojibake,
+     strip_bad_utf,
+ )
+@@ -45,9 +44,17 @@ def test_demojibake_returns_input_for_empty():
+     assert demojibake(None) is None
+ 
+ 
+-def test_demojibake_applies_known_map():
+-    if "A\u0303" in MOJIBAKE_MAP:
+-        assert "Ã" in demojibake("A\u0303")
++def test_demojibake_recupera_latin1_lido_como_utf8():
++    """Afirma o comportamento vivo, que agora e o unico que existe.
++
++    A assercao anterior verificava a substituicao de "A + til combinante" por "Ã",
++    que so a implementacao morta de domain.py fazia. O corpo vivo, vindo de
++    dna_analysis, recupera o texto quando a conversao latin1 para utf-8 e valida.
++    """
++    assert demojibake("FranÃ§isco") == "Françisco"
++    assert demojibake("texto normal") == "texto normal"
++    assert demojibake("") == ""
++    assert demojibake(None) is None
+ 
+ 
+ # ---------------------------------------------------------------------------

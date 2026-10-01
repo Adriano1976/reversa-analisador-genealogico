@@ -77,3 +77,6 @@ Os módulos reconstruídos (`reconstructed/upload.py`, `path_search.py`, `dna_an
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-08-11 | Versão inicial gerada por `/reversa-plan` | reversa |
+
+---
+*Gerado pelo Reversa-Plan em 2026-08-11.*

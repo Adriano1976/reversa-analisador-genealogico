@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de otimização · OPP-20260929-AU76</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  td.num { text-align: right; font-family: Consolas, Menlo, monospace; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; background: #1b2b1b; border: 1px solid #3a5a3a;
+         color: #a8e6a8; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de otimização · OPP-20260929-AU76</h1>
+<div class="meta">
+  Cache de atributos normalizados no matching difuso · contexto <code>analise-dna</code> ·
+  verbo <code>optimize</code> · gerado por reversa-optimize em 2026-09-29 ·
+  ordem de encadeamento <strong>2 de 4</strong>
+</div>
+
+<div class="cards">
+  <div class="card good"><div class="v">15,0x</div><div class="k">mais rápido por match</div></div>
+  <div class="card good"><div class="v">182x</div><div class="k">menos norm_name por match</div></div>
+  <div class="card bad"><div class="v">2,1x</div><div class="k">mais lento ao montar o índice</div></div>
+  <div class="card"><div class="v">~15</div><div class="k">matches para o ponto de equilíbrio</div></div>
+  <div class="card"><div class="v"><span class="tag">0 divergências</span></div><div class="k">em 2.206 comparações</div></div>
+</div>
+
+<div class="block note">
+  <strong>Gate de edição fechado.</strong> <code>.reversa/reversa-config.json</code> está em
+  <code>allowLegacyEdits: false</code>. Nada foi aplicado. A equivalência e a medição já estão
+  feitas contra uma cópia sombra, então a aplicação é mecânica depois da liberação.
+</div>
+
+<h2>1. Gargalo, com evidência</h2>
+
+<p>O laço de candidatos de <code>match_candidates</code> renormalizava o nome do candidato a cada
+iteração, para um valor que <strong>não depende do match do CSV</strong>. Em
+<code>dna_analysis.py:275-286</code>, por candidato:</p>
+
+<pre>nm = get_name(people[pid])                                   <span class="cmt"># leitura</span>
+ged_given_candidates = [norm_name(t) for t in top_given_tokens(nm, k=2)]
+s_token = fuzz.token_sort_ratio(key_norm, norm_name(nm))     <span class="cmt"># 1a</span>
+s_part  = fuzz.partial_ratio(key_norm, norm_name(nm))        <span class="cmt"># 2a</span>
+ged_surn_set = surnames_set(nm)                              <span class="cmt"># 2 norm_name por dentro</span></pre>
+
+<p><code>top_given_tokens</code> chama <code>norm_name</code> por dentro, e <code>surnames_set</code>
+chama <code>split_name_pt</code> e <code>surname_core_tokens</code>, que chamam <code>norm_name</code>
+mais duas vezes. Total medido: <strong>7,28 chamadas de norm_name por candidato</strong>, a
+aproximadamente 41 µs cada.</p>
+
+<div class="note">
+  <strong>O que não é o gargalo.</strong> As chamadas de fuzzy. <code>python-Levenshtein 0.27.3</code>
+  está instalado e o <code>thefuzz</code> resolve para <code>rapidfuzz</code>, que é C++. A medição
+  confirma: 413 chamadas de fuzzy por match, custo irrelevante. Minha hipótese inicial estava errada
+  nesse ponto, e a medição corrigiu.
+</div>
+
+<h2>2. Medição baseline e resultado</h2>
+
+<p>3000 pessoas sintéticas, 100 matches, mediana de 3 repetições, semente fixa. Script reproduzível
+em <code>before-after/profile_matching.py</code>, saída crua em <code>before-after/measurement.txt</code>.</p>
+
+<table>
+  <thead><tr><th>Métrica</th><th>Atual</th><th>Otimizada</th><th>Ganho</th></tr></thead>
+  <tbody>
+    <tr><td><code>build_ged_indexes</code> (s)</td><td class="num">0,390</td><td class="num">0,821</td><td class="num">0,48x</td></tr>
+    <tr><td><code>ms</code> por match</td><td class="num">31,90</td><td class="num">2,13</td><td class="num"><strong>14,98x</strong></td></tr>
+    <tr><td><code>norm_name</code> por pessoa</td><td class="num">3,0</td><td class="num">8,0</td><td class="num">0,38x</td></tr>
+    <tr><td><code>norm_name</code> por match</td><td class="num">728,2</td><td class="num">4,0</td><td class="num"><strong>182x</strong></td></tr>
+    <tr><td>chamadas de fuzzy por match</td><td class="num">413,0</td><td class="num">413,0</td><td class="num">1,00x</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Complexidade assintótica não muda.</strong> Antes e depois o laço é <code>O(M x P)</code>
+  para M matches e P candidatos no pool. O ganho é de <strong>fator constante</strong>, não
+  algorítmico. Não vou chamar isso de melhoria de ordem, porque não é.
+</div>
+
+<div class="note">
+  <strong>E o custo subiu onde era esperado.</strong> <code>build_ged_indexes</code> ficou 2,1x mais
+  lento, porque passou a calcular o cache. Isso é trabalho deslocado, não desperdiçado: sai de dentro
+  do laço e acontece uma vez por análise. <code>norm_name</code> por pessoa subiu de 3 para 8, e
+  <code>norm_name</code> por match caiu de 728 para 4.
+</div>
+
+<h3>Ponto de equilíbrio: cerca de 15 matches</h3>
+
+<pre>antes:    0,390 s + M x 0,03190 s
+depois:   0,821 s + M x 0,00213 s
+equilíbrio:  0,431 / 0,02977  ~  14,5 matches</pre>
+
+<p>CSV com mais de 15 matches: ganho, e o ganho cresce linearmente. CSV com menos de 15: pequena
+regressão, no pior caso de 0,43 s em uma única análise. Para um CSV típico do GEDmatch, com centenas
+a milhares de matches, o efeito ponta a ponta é grande: com 1500 matches, de cerca de 48,2 s para
+4,0 s, ou aproximadamente <strong>12x</strong> (extrapolação a partir das duas medições acima, não
+medição direta).</p>
+
+<h2>3. Otimização proposta</h2>
+
+<p>Pré-calcular os atributos de cada pessoa uma vez por análise, em <code>build_ged_indexes</code>, e
+consumir esse cache no laço:</p>
+
+<pre><span class="cmt"># CHG-001, em build_ged_indexes</span>
+        features[pid] = {
+            "norm": key,
+            "given_tokens": [norm_name(t) for t in top_given_tokens(nm, k=2)],
+            "surnames": surnames_set(nm),
+            "surnames_list": surnames,
+            "tokens": set(key.split()),
+        }
+    return ged_index, surname_index, given_index<span class="add">, features</span>
+
+<span class="cmt"># CHG-003, no laço de candidatos</span>
+            for pid in pool:
+<span class="del">                nm = get_name(people[pid])
+                ged_given_candidates = [norm_name(t) for t in top_given_tokens(nm, k=2)]
+                s_given = max((fuzz.ratio(given_norm, gg) for gg in ged_given_candidates), default=0)
+                s_token = fuzz.token_sort_ratio(key_norm, norm_name(nm))
+                s_part = fuzz.partial_ratio(key_norm, norm_name(nm))
+                ged_surn_set = surnames_set(nm)</span>
+<span class="add">                feat = features[pid]
+                s_given = max((fuzz.ratio(given_norm, gg) for gg in feat["given_tokens"]), default=0)
+                s_token = fuzz.token_sort_ratio(key_norm, feat["norm"])
+                s_part = fuzz.partial_ratio(key_norm, feat["norm"])
+                ged_surn_set = feat["surnames"]</span></pre>
+
+<p>São 8 substituições, agrupadas em 7 hunks. A única mudança de interface é a assinatura de
+<code>build_ged_indexes</code> (de 3 para 4 retornos) e de <code>match_candidates</code> (ganha o
+parâmetro <code>features</code>). Verifiquei quem chama: apenas <code>dna_analysis</code>, nas linhas
+371 e 381. Os testes importam cinco outros símbolos do módulo e não tocam nesses dois, e o harness de
+paridade importa o módulo sem chamá-los.</p>
+
+<h2>4. Prova de equivalência de saída</h2>
+
+<p>Script em <code>safety-net/equivalence_matching.py</code>. Ele carrega as <strong>duas</strong>
+variantes do pacote na mesma base sintética e compara campo a campo, inclusive a string de motivo que
+o código monta com os valores calculados.</p>
+
+<table>
+  <thead><tr><th>O que foi comparado</th><th>Casos</th><th>Divergências</th></tr></thead>
+  <tbody>
+    <tr><td><code>match_candidates</code>: candidatos e string de motivo</td><td class="num">2.198</td><td class="num">0</td></tr>
+    <tr><td><code>dna_analysis</code>: fluxo completo, resultados + descartados + mensagem</td><td class="num">8</td><td class="num">0</td></tr>
+    <tr><td><strong>Total</strong></td><td class="num"><strong>2.206</strong></td><td class="num"><strong>0</strong></td></tr>
+  </tbody>
+</table>
+
+<p>Os 2.198 casos de <code>match_candidates</code> incluem bordas exigidas pelo protocolo:
+string vazia, espaço, <code>None</code>, uma letra, nome só com stop words, nome só com sobrenome,
+caixa alta, sufixos <code>Filho</code>/<code>Neto</code>/<code>Junior</code>, mojibake, truncamento,
+abreviação, hífen, vírgula, nome com 240 caracteres, e cM em <code>0</code>, <code>-1</code>,
+<code>149,9</code>, <code>150</code>, <code>3720</code> e <code>None</code>. Mais 2.000 casos
+pseudoaleatórios com semente fixa.</p>
+
+<table>
+  <thead><tr><th>Rede</th><th>Projeto (antes)</th><th>Sombra otimizada</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte completa</td><td><span class="tag">50 passed in 2.05s</span></td><td><span class="tag">50 passed in 2.05s</span></td></tr>
+    <tr><td>Equivalência diferencial</td><td><span class="tag">referência</span></td><td><span class="tag">2.206 / 0 divergências</span></td></tr>
+  </tbody>
+</table>
+
+<h2>5. Alternativas avaliadas e descartadas</h2>
+
+<table>
+  <thead><tr><th>Alternativa</th><th>Decisão</th><th>Motivo</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Podar o pool com <code>given_index</code>, que hoje é construído e nunca lido</td>
+      <td><strong>Descartada</strong></td>
+      <td>Muda quais candidatos entram na disputa, logo pode mudar qual vence. É mudança de
+          comportamento, vai para o Forward, não para cá.</td>
+    </tr>
+    <tr>
+      <td><code>functools.lru_cache</code> em <code>norm_name</code> e <code>surnames_set</code></td>
+      <td><strong>Descartada</strong></td>
+      <td>Diff menor (cerca de 3 linhas), mas cria cache global com crescimento não limitado em
+          processo de vida longa, e mantém as chamadas por candidato. O pré-cálculo é explícito, tem
+          custo previsível e ainda elimina o <code>get_name</code> dentro do laço.</td>
+    </tr>
+    <tr>
+      <td>Trocar <code>thefuzz</code> por <code>rapidfuzz</code> direto</td>
+      <td><strong>Descartada</strong></td>
+      <td>Não há ganho: o backend já é rapidfuzz. Seria mudança de dependência com risco de paridade
+          e retorno zero.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. O que fica de fora</h2>
+
+<ul>
+  <li><strong>Remover o <code>given_index</code> morto</strong> e as constantes <code>HARD_MIN</code> e
+      <code>GIVEN_MIN</code>: é a <code>OPP-20260929-32Q7</code>, próximo da fila. Fica depois desta
+      porque as duas tocam as mesmas funções.</li>
+  <li><strong>Extrair normalização, ingestão de CSV e matching</strong> para módulos separados: é a
+      <code>OPP-20260929-ZV52</code>, <code>modularize</code>. Esta otimização é pré-requisito
+      opcional dela, não o contrário.</li>
+  <li><strong>Promover a equivalência diferencial a teste permanente</strong> da suíte: exigiria
+      escrever em <code>tests/</code>, bloqueado pela política. Fica como decisão sua.</li>
+</ul>
+
+<h2>7. Como aplicar e como reverter</h2>
+
+<ol>
+  <li>Você libera <code>analisador-genealogico/reconstructed/dna_analysis.py</code> em
+      <code>.reversa/reversa-config.json</code>.</li>
+  <li>Aplico as 8 substituições com o mesmo script verificado que gerou a sombra, com checagem de
+      ocorrência em cada passo.</li>
+  <li>Rodo a medição, a equivalência e a suíte contra o projeto, e cole a saída.</li>
+  <li>Sem ganho ou com divergência, reverto com
+      <code>git checkout -- analisador-genealogico/reconstructed/dna_analysis.py</code> e paro.</li>
+</ol>
+
+<div class="foot">
+  Plano gerado pelo time Code Quality do Reversa. Aprovar este plano não aplica nada: a aplicação
+  exige gate e a liberação da política de edição do legado.
+</div>
+
+</div>
+<!-- Gerado pelo Reversa-Optimize em 2026-09-29. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Optimize em 2026-09-29.</div>
+</body>
+</html>

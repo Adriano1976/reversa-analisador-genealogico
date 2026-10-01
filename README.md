@@ -18,7 +18,7 @@ O projeto conta com uma stack web moderna em Python, sem a necessidade de um ban
 - **Grafos & Algoritmos:** NetworkX (busca de caminhos, BFS)
 - **Leitura de GEDCOM:** Ged4py
 - **Busca Aproximada (Fuzzy Matching):** TheFuzz
-- **Frontend & UI:** HTML5, Jinja2, Bootstrap 5, Mermaid.js, Pyvis
+- **Frontend & UI:** HTML5, Jinja2, Bootstrap 5, Mermaid.js
 
 ## Arquitetura do Projeto
 
@@ -66,15 +66,13 @@ analisador-genealogico/
 ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
 ├── requirements.txt            # Dependências do Python
 ├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
-│   ├── domain.py               # Entidades de domínio (PERSON, FAMILIA, DNA_MATCH) e limpeza de mojibake
+│   ├── domain.py               # Entidades de domínio (Family, GenealogyGraph, DNAGroup) e limpeza de mojibake
 │   ├── upload.py               # Upload e parsing de GEDCOM, construção do grafo networkx
 │   ├── path_search.py          # Busca de caminhos diretos (MRCA) e indiretos (afinidade), Mermaid
 │   └── dna_analysis.py         # Cruzamento GEDCOM × CSV de matches, fuzzy matching e previsão de parentesco
-├── static/
-│   └── graph_path_search.html  # HTML estático gerado para grafos interativos (Pyvis)
 ├── templates/
 │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
-└── uploads/                    # Armazenamento dos arquivos GEDCOM e CSV enviados (inclui exemplos)
+└── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado
 ```
 
 ### Testes
@@ -97,11 +95,11 @@ tests/
 - **Previsões baseadas em cM:** Mapeia DNA compartilhado (centiMorgans) para prováveis graus de parentesco biológico.
 - **Busca de Ancestrais Diretos:** Encontra o Ancestral Comum Mais Recente (MRCA - *Most Recent Common Ancestor*) e o caminho direto até 20 gerações de profundidade.
 - **Busca de Caminhos Indiretos (Afinidade):** Utiliza uma Busca em Largura (BFS - *Breadth-First Search*) como alternativa para encontrar conexões por casamento e outras pontes de afinidade (até 40 saltos).
-- **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js e Pyvis.
+- **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
 
 ## Fluxo de Desenvolvimento
 
-O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para o pacote `reconstructed/`, e o `app.py` passou a apenas orquestrar as rotas Flask (~86 linhas).
+O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para o pacote `reconstructed/`, e o `app.py` passou a apenas orquestrar as rotas Flask (84 linhas).
 - **CI/CD:** Não há pipelines de implantação automatizada ou arquivos Docker (Dockerfiles) configurados.
 - **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
 
@@ -115,7 +113,7 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 
 ## Testes
 
-- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **47 testes** cobrindo parsing de GEDCOM, construção de grafo, entidades de domínio, busca de caminhos e análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM).
+- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **76 testes** cobrindo parsing de GEDCOM, construção de grafo, entidades de domínio, busca de caminhos e análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM).
 - **Como rodar:**
   ```bash
   pip install -r requirements.txt pytest

@@ -1,88 +1,148 @@
-# Análise de DNA, Design Técnico
+# analise-dna, Design Técnico
 
-> Nível de documentação: **Essencial**
-> Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Unit do tipo **endpoint** — `POST /` com `action=dna_analysis`.
+> Nível de documentação: **Essencial**. Escala: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> Re-extração de 2026-09-30. Substitui o design de 2026-08-03.
 
 ## Interface
 
-Para o endpoint HTTP (formulário multipart):
+### Endpoint HTTP (formulário multipart)
 
 | Método | Caminho | Entrada | Saída | Status codes |
 |--------|---------|---------|-------|--------------|
-| POST | `/` | `action=dna_analysis`, `gedcom_filename`, `root_name`, `matches_csv: File` | `index.html` com `dna_results`, `skipped_matches` ou erro | 200 (sempre) |
+| POST | `/` | `action=dna_analysis`, `gedcom_filename`, `root_name`, arquivo no campo `matches_csv` | `index.html` com `dna_results`, `skipped_matches`, `message`, `success` | 200 sempre — o erro vira mensagem na tela 🟢 |
 
-Para funções:
+### Símbolos do núcleo
 
 | Símbolo | Assinatura | Retorno | Observação |
 |---------|-----------|---------|------------|
-| `load_gedcom_and_build_graph` | `(file_path: str)` | `all_names: list[str]` | Re-parse do GEDCOM a cada POST |
-| `demojibake` | `(s: str)` | `str` | Corrige encoding via `encode("latin1").decode("utf-8")` |
-| `norm_name` | `(s)` -> `str` | Normaliza (NFKD, sem acentos, minúsculas) |
-| `split_name_pt` | `(name)` -> `(given, surnames, suffixes)` | Decompõe nome pt-BR |
-| `surnames_set` | `(name)` -> `set[str]` | Sobrenomes deduplicados |
-| `find_ancestral_path` | `(start_id, end_id, max_depth=20)` | `(path, common_ancestor)` ou `(None, None)` | BFS bidirecional pelos pais |
-| `get_relationships_by_cm` | `(cm_value)` -> `list[str]` | Relações prováveis por faixa |
-| `generate_mermaid_graph` | `(path, p1_id, p2_id, common_ancestor_id)` -> `str` | Diagrama Mermaid da conexão |
+| `dna_analysis` | `(csv_path: str, root_name: str)` | `(results_sorted, skipped, message)` | **Lança exceção** em raiz ausente ou colunas faltantes 🟢 |
+| `match_candidates` | `(match_name, cm_value, ged_index, surname_index, features)` | `(candidate_pids, reason)` | Coração do scoring e da aceitação 🟢 |
+| `build_ged_indexes` | `()` | `(ged_index, surname_index, features)` | Lê as globais `people`; cacheia atributos normalizados 🟢 |
+| `aggregate_matches` | `(df, name_col, cm_col, match_id_col, match_email_col)` | `DataFrame` | Agrupa por `_group_key` e **soma** cM 🟢 |
+| `detect_columns` | `(df)` | `(name_col, cm_col, match_id_col, match_email_col)` | Heurística tolerante 🟢 |
+| `read_csv_with_fallback` | `(path)` | `DataFrame` | `utf-8` → `latin-1`; `strip()` nos nomes de coluna 🟢 |
+| `get_relationships_by_cm` | `(cm_value)` | `list[str]` | Contrato de **lista** 🟢 |
+| `norm_name` | `(s)` | `str` | NFKD, sem diacríticos, minúsculas, espaços colapsados 🟢 |
+| `split_name_pt` | `(s)` | `(given, surnames, suffixes)` | Decomposição pt-BR 🟢 |
+| `soft_prefix_jaccard` | `(a, b, min_pref=4, min_len=2)` | `float` | Trunca **os dois lados** em 4 quando há token curto 🟢 |
+| `drop_short_tokens` | `(S, n=3)` | `set` | Mantém `sa` e `sá` por `SHORT_KEEP` 🟢 |
+| `token_prefixes` | `(tokens, min_len=3)` | `set` | Prefixos usados no resgate de abreviações 🟢 |
+
+### Contrato de retorno do fluxo
+
+| Saída | Estrutura |
+|-------|-----------|
+| item de resultado | `{match_name, cm, text_path, mermaid_data, relationships, csv_name}` 🟢 |
+| item de descarte | `{csv_name, motivo}` 🟢 |
+| mensagem | `"{n} conexões encontradas. {m} descartadas."` 🟢 |
 
 ## Fluxo Principal
-1. Valida GEDCOM carregado e re-parseia (`app.py:576-582`). 🟢
-2. Valida arquivo `matches_csv` presente; ausente → "Por favor, carregue o arquivo CSV de matches." (`app.py:586-587`). 🟢
-3. Salva CSV em `uploads/` (`app.py:589`). 🟢
-4. Localiza a raiz por nome; não encontrada → erro (`app.py:592-594`). 🟢
-5. Lê CSV com fallback UTF-8/Latin-1 (`app.py:598-601`). 🟢
-6. Identifica colunas de Nome, cM, ID/Email (`app.py:606-615`). 🟢
-7. Monta `_group_key` por match (nome + ID/email) (`app.py:617-625`). 🟢
-8. Agrega segmentos somando cM (`groupby.agg`) (`app.py:627-635`). 🟢
-9. Constrói índices GEDCOM (nome, sobrenome, given) (`app.py:639-651`). 🟢
-10. Para cada match, busca candidato no GEDCOM via fuzzy (bloco de scoring). 🟢
-11. Para cada candidato aceito, calcula `find_ancestral_path` até a raiz e monta resultado (`app.py:803-820`). 🟢
-12. Ordena por cM decrescente e renderiza, com `skipped_matches` para auditoria (`app.py:824-833`). 🟢
-13. Exceções → erro amigável (`app.py:835-836`). 🟢
 
-### Detalhe do matching (bloco de scoring)
-1. `match_name = demojibake(csv)`, `key = norm_name(match_name)`. 🟢
-2. Busca exata normalizada em `ged_index` (`app.py:667`). 🟢
-3. Se não há exact, restringe por sobrenome via `surname_index` (`app.py:672-681`). 🟢
-4. Fallback por prefixos de sobrenome (`token_prefixes`) (`app.py:684-688`). 🟢
-5. Para candidatos no pool, calcula `s_given`, `s_token`, `s_part`, `inter_bonus` (`app.py:700-718`). 🟢
-6. Desempate por interseção > given > score (`app.py:721-724`). 🟢
-7. Regras de aceitação (A/B/C/D) decidem `candidate_pids` (`app.py:726-793`). 🟢
+### Camada de rota (`app.py:44-63`)
+
+1. `app.py:36-42` — fora do ramo de `action`: recupera `gedcom_filename`, valida presença (`"Erro: Arquivo GEDCOM não encontrado."`) e existência em disco (`"Erro: Arquivo '{nome}' não existe mais."`); **re-parseia** o GEDCOM. 🟢
+2. `app.py:46-47` — se `matches_csv` ausente ou com nome vazio → `"Por favor, carregue o arquivo CSV de matches."` com `all_names` preservados. 🟢
+3. `app.py:48-50` — salva o CSV em `uploads/<nome>`. 🟢
+4. `app.py:52` — chama `dna_analysis_flow(matches_path, root_name)`. 🟢
+5. `app.py:53-61` — renderiza com `dna_results`, `skipped_matches`, `message`, `success=True`. 🟢
+6. `app.py:62-63` — exceção → `"Ocorreu um erro: {e}"`, `success=False`. 🟢
+
+### Núcleo (`dna_analysis.py:340-395`)
+
+1. `:346-349` — resolve a raiz por substring case-insensitive; sem match → `raise ValueError(...)`. Usa `root_person_ids[0]`. 🟢
+2. `:351` — `read_csv_with_fallback`. 🟢
+3. `:352-354` — `detect_columns`; faltando nome ou cM → `raise ValueError(...)`. 🟢
+4. `:355` — `aggregate_matches`. 🟢
+5. `:357` — `build_ged_indexes`. 🟢
+6. `:362-367` — itera os matches agregados; `demojibake` no nome; chama `match_candidates`. 🟢
+7. `:369-371` — sem candidatos → descarte com `reason`. 🟢
+8. `:374-389` — para o primeiro candidato com caminho ancestral até a raiz: monta nomes, relações e Mermaid; `break`. 🟢
+9. `:390-391` — nenhum candidato tinha caminho → descarte `"sem caminho subindo por pais (pais ausentes no GED?)"`. 🟢
+10. `:393-395` — ordena por `cm` desc e monta a mensagem. 🟢
+
+### Detalhe do scoring (`match_candidates`, `:233-333`)
+
+1. `:235-236` — `key = norm_name(match_name)`; busca **exata** em `ged_index`. Se achou, `reason = None` e retorna. 🟢
+2. `:240-242` — decompõe o nome do CSV e calcula o conjunto de sobrenomes (sem tokens curtos). 🟢
+3. `:244-252` — monta o `pool` de candidatos por `surname_index`; se vazio, tenta por **prefixos** de sobrenome. 🟢
+4. `:254-255` — pool vazio → `reason = "sem candidatos por sobrenome (abreviação/corrupção?)"`. 🟢
+5. `:262-277` — para cada candidato: `s_given`, `s_token`, `s_part`, interseção de sobrenomes e `common_penalty`; calcula o score e aplica o desempate triplo. 🟢
+6. `:279-283` — recalcula a interseção do **melhor** candidato. 🟢
+7. `:285-289` — filtro anti-falso-positivo. 🟢
+8. `:291-301` — `required_intersection` adaptativo e limiar de Jaccard (0.5 ou 0.33). 🟢
+9. `:303-320` — seis ramos de aceitação. 🟢
+10. `:322-326` — rebaixamento por conflito de nome do meio. 🟢
+11. `:328-331` — `candidate_pids = [best_pid] if ACCEPT else []`, com `reason` detalhado contendo `given`, `final`, `inter` e `jacc`. 🟢
 
 ## Fluxos Alternativos
-- **Sem arquivo CSV:** erro claro (`app.py:586-587`). 🟢
-- **Raiz não encontrada:** erro com o nome (`app.py:592-594`). 🟢
-- **Match sem candidato:** entra em `skipped_matches` com motivo (`app.py:799-801`). 🟢
-- **Candidato sem caminho ancestral:** entra em `skipped_matches` (`app.py:821-822`). 🟢
-- **Encoding inválido:** fallback para Latin-1 (`app.py:600-601`). 🟢
+
+- **Sem GEDCOM carregado:** erro antes de qualquer análise. 🟢
+- **Arquivo GEDCOM apagado do disco:** `"Erro: Arquivo '{nome}' não existe mais."` 🟢
+- **Sem CSV:** `"Por favor, carregue o arquivo CSV de matches."`, preservando a lista de nomes na tela. 🟢
+- **Raiz não encontrada:** `ValueError` → `"Ocorreu um erro: Seu nome 'X' não foi encontrado no GEDCOM."` 🟢
+- **Colunas ausentes:** `ValueError` → `"Ocorreu um erro: Colunas de Nome e cM não encontradas no CSV."` 🟢
+- **CSV não-UTF-8:** fallback para `latin-1` apenas em `UnicodeDecodeError`. 🟢
+- **Match sem candidato:** descarte com um dos motivos catalogados. 🟢
+- **Candidato aceito sem caminho ancestral:** descarte `"sem caminho subindo por pais (pais ausentes no GED?)"`. 🟢
+- **`cM` não numérico na coluna:** `get_relationships_by_cm` protege com `isinstance` e devolve lista vazia; o `sorted` usa `.get("cm", 0)`. 🟡
 
 ## Dependências
-- **pandas** — leitura e agregação do CSV (`read_csv`, `groupby.agg`, `merge`). 🟢
-- **thefuzz** — `ratio`, `token_sort_ratio`, `partial_ratio`. 🟢
-- **networkx** — grafo (não usado aqui diretamente, mas base do `find_ancestral_path`). 🟢
-- **ged4py + Flask** — infraestrutura herdada do GEDCOM. 🟢
+
+| Dependência | Versão | Como usa |
+|-------------|--------|----------|
+| **pandas** | 3.0.3 | `read_csv`, `groupby().agg()`, `merge`, `apply` 🟢 |
+| **thefuzz** | 0.22.1 | `fuzz.ratio`, `fuzz.token_sort_ratio`, `fuzz.partial_ratio` 🟢 |
+| **RapidFuzz** | 3.14.5 | Backend real do `thefuzz` (transitiva) 🟢 |
+| **python-Levenshtein** | 0.27.3 | Aceleração C do cálculo (transitiva) 🟢 |
+| **unit `upload-gedcom`** | — | Consome as globais `people` e o grafo 🟢 |
+| **unit `busca-caminho`** | — | Reusa `find_ancestral_path` e `generate_mermaid_graph` 🟢 |
+| **`domain`** | — | `demojibake`, `strip_bad_utf` 🟢 |
 
 ## Decisões de Design Identificadas
 
 | Decisão | Evidência no código | Confiança |
 |---------|---------------------|-----------|
-| Agregação em memória com `groupby` + `merge` | `app.py:627-635` | 🟢 |
-| Heurísticas de matching com limiares literais (92, 90, 86, 100 etc.) nas regras A/B/C/D | `app.py:759,764,769,773,775,782,790` | 🟢 |
-| Constantes `HARD_MIN=92` e `GIVEN_MIN=90` declaradas mas **nunca usadas** (código morto) | `app.py:653-654` | 🟡 |
-| Fallback de encoding CSV | `app.py:598-601` | 🟢 |
-| Chave de match = nome + ID/email (ocorrência) | `app.py:617-623` | 🟢 |
+| Agregação em memória com `groupby` + `merge` sobre a chave composta | `dna_analysis.py:183-190` | 🟢 |
+| Limiares literais dentro dos ramos de aceitação, **sem constantes nomeadas** | `dna_analysis.py:305-320` | 🟢 |
+| **Não implementar** `HARD_MIN`/`GIVEN_MIN` — eram código morto no monolito original | `migration/data_migration_plan.md`; ADR-08 | 🟢 |
+| Cache de atributos normalizados para evitar renormalização no laço de candidatos | `dna_analysis.py:198-230` | 🟢 |
+| Fallback de encoding apenas em `UnicodeDecodeError` (não em qualquer erro de parse) | `dna_analysis.py:151-157` | 🟢 |
+| Chave de match = nome normalizado + ID **ou** e-mail, com ID tendo precedência | `dna_analysis.py:174-180` | 🟢 |
+| Usar o **primeiro** candidato com caminho, em vez de avaliar todos | `dna_analysis.py:374-389` | 🟢 |
+| Limpeza de nome delegada a `domain.py` (autoridade única) | ADR-07; `dna_analysis.py:22` | 🟢 |
+| **Desempate triplo SEM critério final determinístico** — empates no terceiro critério caem na ordem de iteração de `set` | `dna_analysis.py:262`, `:274-277` | 🟢 |
+| Faixas de cM **escritas à mão**, sem calibração documentada — a sobreposição é sintoma disso | `dna_analysis.py:30-40` | 🟡 |
 
 ## Estado Interno
-- Usa os globals `people`, `families`, `graph`, `child_to_family` (produzidos pelo upload). 🟢
-- `dna_matches_df` é local à requisição (DataFrame). 🟢
-- `results_list` e `skipped_matches` são locais à requisição e renderizados. 🟢
-- Sem persistência de resultados entre requisições. 🟢
+
+| Estado | Escopo | Observação |
+|--------|--------|------------|
+| `people`, `graph` | global do processo | Produzidos pelo upload; **lidos**, não escritos 🟢 |
+| `ged_index`, `surname_index`, `features` | local da requisição | Reconstruídos a cada análise 🟢 |
+| `df`, `aggregated` | local da requisição | DataFrames transitórios 🟢 |
+| `results_list`, `skipped_matches` | local da requisição | Renderizados e descartados 🟢 |
+
+> **Nenhum resultado é persistido.** Repetir a análise com o mesmo CSV recalcula tudo do zero. 🟢
 
 ## Observabilidade
-- Nenhum log estruturado. 🔴
-- `skipped_matches` retorna motivos de descarte na UI (auditoria). 🟢
+
+- Nenhum `logging`, métrica ou trace. 🔴
+- `skipped_matches` funciona como **auditoria funcional** — é a única visibilidade do motivo de um match não aparecer. 🟢
+- A instrumentação de paridade (harness diferencial, fixtures, oráculo) vive em `_reversa_sdd/` e **não faz parte da aplicação**. 🟢
 
 ## Riscos e Lacunas
-- 🔴 Complexidade das regras A/B/C/D de aceitação — difícil de validar sem dados reais/amostra.
-- 🔴 Sem testes; regressões de matching não são detectadas.
-- 🟡 Requisito de cM alto relaxa threshold de Jaccard (0.5→0.33) — pode gerar falsos positivos.
-- 🟢 Dependência de ordem/posição das colunas do CSV (heurística, pode variar entre exportadores).
+
+- 🟢 **RESOLVIDO em 2026-09-30 — as faixas de cM são heurísticas, não calibradas.** Decisão do usuário (`questions.md#pergunta-5`): foram **escritas à mão**. A sobreposição de até 4× é consequência do método, não do Shared cM Project. As 9 faixas passam a ser declaradas como **heurísticas sem fonte verificável** (`RF-10a`), e a reimplementação pode tratá-las como parâmetro ajustável em vez de tabela canônica.
+  - **Consequência para a fidelidade:** o *comportamento* (devolver lista de todas as faixas que contêm o valor) continua 🟢 e deve ser preservado. O que muda de status é a **autoridade dos números**, não a mecânica.
+- 🟢 **RESOLVIDO em 2026-09-30 — o desempate precisa ser determinístico.** Decisão do usuário (`questions.md#pergunta-4`). O legado deixa empates exatos no terceiro critério caírem na ordem de iteração de `set`, que varia com `PYTHONHASHSEED` (`L-13`). A reimplementação **deve** acrescentar um critério final determinístico — sugestão: menor `xref_id` entre os empatados. Requisito `RF-14` + tarefa `T-19`. 🟢
+- 🔴 **Origem empírica do valor 0,33** permanece aberta: o usuário indicou ter a medição de calibração, mas ela ainda **não foi fornecida**. A decisão de *manter* o relaxamento é 🟢 (`questions.md#4`, 2026-08-03); o *número* segue 🔴 até a medição ser registrada.
+  - Pergunta correspondente: `questions.md#pergunta-6`
+- 🔴 **Cobertura de exportadores de CSV** — a regex `[A-Z]{2}\d{7}` é específica; sem prova de generalidade.
+- 🟡 **Justificativa do relaxamento de Jaccard:** a decisão é intencional, mas a base empírica para 0,33 (e não 0,35 ou 0,30) não está documentada — ver o item 🔴 acima.
+- 🟡 **`COMMON_SURNAMES` contém `"souza"` duas vezes** (`:50`) — inofensivo para um `set`, mas indica curadoria descuidada da lista.
+- 🟡 **`soft_prefix_jaccard` trunca os dois lados em 4 caracteres** quando algum token é curto, o que pode aproximar sobrenomes de mesmo prefixo (`L-04`).
+
+---
+
+*Gerado pelo Reversa-Writer em 2026-09-30 (re-extração).*

@@ -1,0 +1,90 @@
+diff --git a/analisador-genealogico/reconstructed/domain.py b/analisador-genealogico/reconstructed/domain.py
+index e9e87ba..fbb5bc6 100644
+--- a/analisador-genealogico/reconstructed/domain.py
++++ b/analisador-genealogico/reconstructed/domain.py
+@@ -14,47 +14,44 @@ from dataclasses import dataclass, field
+ # Correção de mojibake (encoding corrompido Latin-1 lido como UTF-8)
+ # ---------------------------------------------------------------------------
+ 
+-# Pares de substituição heurística para acentos portugueses corrompidos.
+-MOJIBAKE_MAP = {
+-    # Combinações de caractere de composição (\u0303 til combinante).
+-    "A\u0303": "Ã",
+-    "O\u0303": "Õ",
+-    "N\u0303v": "Ñ",
+-    "a\u0303o": "ão",
+-    "A\u0303o": "ão",
+-    "O\u0303": "Ão",
+-}
+-
+-
+-def strip_bad_utf(text: str) -> str:
+-    """Remove bytes/caracteres inválidos de encodings quebrados.
+-
+-    Substituições manuais incompletas de caracteres corrompidos por acento.
+-    Mantém apenas texto minimamente sanitizado para matching.
+-    """
+-    if not text:
+-        return text
+-    cleaned = text
+-    # Fallback de control chars e markers de substituição.
+-    cleaned = cleaned.replace("\ufffd", "")
+-    return cleaned
+-
+-
+-def demojibake(text: str) -> str:
+-    """Corrige encoding corrompido de acentos portugueses (mojibake).
+-
+-    Converte seqüências corrompidas típicas de nomes (ex.: "Ã§" -> "ç",
+-    "JoA�o" -> "João") para a forma esperada.
+-    """
+-    if not text:
+-        return text
+-    out = text
+-    for broken, fixed in MOJIBAKE_MAP.items():
+-        out = out.replace(broken, fixed)
+-    # Corrige "Ã§" e variantes usando a decomposição de cedilha.
+-    out = out.replace("Ã§", "ç")
+-    out = out.replace("Ã\u00e7", "ç")
+-    return out
++# Limpeza de nome: autoridade unica do projeto.
++#
++# Estes dois corpos vieram de `dna_analysis` por extracao, porque era ele quem os
++# usava de fato. A versao anterior deste modulo apenas removia U+FFFD e nao era
++# consumida por nenhum caminho de producao, o que fazia as duas implementacoes
++# divergirem em 5 de 9 casos. Ver `_reversa_sdd/addenda/003-refactor-code-quality.md`.
++
++
++def strip_bad_utf(s):
++    if s is None:
++        return ""
++    s = str(s)
++    fixes = {
++        "A�": "ç", "Ã§": "ç",
++        "Ã£": "ã", "Ã¡": "á", "Ã¢": "â",
++        "Ã©": "é", "Ãª": "ê", "Ã¨": "è",
++        "Ã­": "í", "Ã³": "ó", "Ã´": "ô", "Ãº": "ú",
++        "Ã": "Ã",
++        "GouvA�": "Gouvê",
++        "A�": "ç",
++        "JoA�o": "João", "SA�": "Sá", "GonA�": "Gonç",
++    }
++    for bad, good in fixes.items():
++        s = s.replace(bad, good)
++    return re.sub(r"[^\w\sÁ-ú'-]", " ", s)
++
++
++def demojibake(s):
++    if not s:
++        return s
++    if any(p in s for p in ("Ã", "Â", "A�", "�")):
++        try:
++            fixed = s.encode("latin1").decode("utf-8")
++            if "�" not in fixed and "Ã" not in fixed and "A�" not in fixed:
++                return fixed
++        except Exception:
++            pass
++    return s
+ 
+ 
+ # ---------------------------------------------------------------------------

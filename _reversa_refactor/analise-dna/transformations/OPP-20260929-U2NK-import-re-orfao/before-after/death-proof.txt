@@ -1,0 +1,21 @@
+PROVA DE MORTE - OPP-20260929-U2NK
+Alvo: import re em analisador-genealogico/reconstructed/dna_analysis.py
+Data: 2026-09-29
+
+CONDICAO 1: sem referencia estatica
+  usos de 're.' no arquivo inteiro: 0
+  ocorrencias do token 're' (inclui a propria linha de import): 1
+  modulos que importam 're' a partir de dna_analysis: 0
+
+CONDICAO 2: sem entrada dinamica
+  globals\(\) : 0
+  getattr : 0
+  __import__ : 0
+  importlib : 0
+  eval\( : 0
+  exec\( : 0
+
+CONFERENCIA CONTRA A ALMA: a regex de ID [A-Z]{2}\\d{7} citada no docstring (linha 12) e implementada na linha 166 com str.fullmatch do pandas, nao com o modulo re.
+  ocorrencias de 'str.fullmatch' no arquivo: 1
+
+CLASSIFICACAO: morto. Elegivel para remocao.

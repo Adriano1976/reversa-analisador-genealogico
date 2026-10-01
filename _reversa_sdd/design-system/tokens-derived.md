@@ -82,3 +82,6 @@ hash: "sha256:77d5fe4986bceda2780085f92089afe8864808aade24f4e9d0bf49264f1c4a63"
 
 - **Nenhum destes tokens foi inventado.** Todos têm linha de origem no legado ou são explicitamente marcados como herdados do Bootstrap. Onde o legado é silente (família tipográfica), a lacuna está registrada em vez de preenchida com um palpite.
 - **Este arquivo é a única fonte de tokens do projeto** até que um `design-system/` real exista. O agente de codificação deve consumi-lo, e o `screen_deviation_log.md` registra que ele é derivado (DEV-006) e que a tipografia é uma lacuna (DEV-008).
+
+---
+*Gerado pelo Reversa-Screen-Translator em 2026-09-28.*

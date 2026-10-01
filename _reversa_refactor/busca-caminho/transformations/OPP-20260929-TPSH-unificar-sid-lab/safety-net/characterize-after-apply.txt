@@ -1,0 +1,1 @@
+CARACTERIZACAO VERDE: 4 casos, 40 linhas de Mermaid identicas ao golden

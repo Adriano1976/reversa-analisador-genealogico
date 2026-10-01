@@ -2,7 +2,6 @@
 
 **Fonte:** original
 **Stack:** Python 3 / Flask (Jinja2, Bootstrap 5) · ged4py · networkx · pandas · thefuzz · python-Levenshtein · pyvis · matplotlib · gunicorn
-**Gerado em:** 2026-08-07 (Reconstructor)
 **Status:** 4 tarefas | 4 concluídas | 0 pendentes
 
 > Nota (Reconstructor): Tarefa 03 concluída com testes em `tests/test_path_search.py` (9 passed).
@@ -70,3 +69,6 @@
 - Schema de banco: **não aplicável** (estado 100% em memória, sem persistência).
 
 Para iniciar, diga **INICIAR** ou **execute a tarefa 1**.
+
+---
+*Gerado pelo Reversa-Reconstructor em 2026-08-07.*

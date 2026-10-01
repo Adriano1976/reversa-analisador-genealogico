@@ -8,8 +8,8 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-12T14:26:00Z">
-<title>Upload e Parsing de GEDCOM — analisador-genealogico</title>
+<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<title>upload-gedcom — analisador-genealogico</title>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
 <style>
@@ -36,7 +36,9 @@
   th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
   th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;}
   td b{color:#fff;}
+  code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
   pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
+  .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
 </style>
 </head>
 <body>
@@ -65,63 +67,96 @@
 </svg>
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Feature</span>
-  <!-- NAV_LINKS -->
   <nav class="reversa-doc-nav"></nav>
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
-  <h1>Upload e Parsing de GEDCOM</h1>
-  <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: upload-gedcom</span></div>
-  <p class="summary">Recebe um arquivo GEDCOM (.ged), salva-o em <code>uploads/</code>, faz o parsing da árvore genealógica e constrói o grafo de famílias em memória para a sessão.</p>
+  <h1>upload-gedcom</h1>
+  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>upload_gedcom</code></span><span class="pill">12 requisitos</span><span class="pill">14 tarefas</span><span class="pill">Spec: upload-gedcom</span></div>
+  <p class="summary">Porta de entrada do sistema. Recebe o arquivo GEDCOM (.ged), parseia os registros <code>INDI</code> e <code>FAM</code>, constrói o grafo não-direcionado pessoa↔família em memória e publica esse grafo como estado global do processo. As outras duas features consomem esse estado. Sem um GEDCOM carregado com sucesso, nada mais opera.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
-    <tr><td><b>Salvar arquivo</b></td><td>Persistir o .ged enviado na pasta uploads/</td></tr>
-    <tr><td><b>Parsear registros</b></td><td>INDI (pessoas) e FAM (famílias) via ged4py</td></tr>
-    <tr><td><b>Construir grafo</b></td><td>NetworkX bidirecional de pessoas ↔ famílias</td></tr>
-    <tr><td><b>Listar nomes</b></td><td>Ordem alfabética para seleção posterior</td></tr>
+    <tr><td><b>Receber o upload</b></td><td>Validar presença e nome do arquivo; persistir em <code>uploads/</code> com o nome original</td></tr>
+    <tr><td><b>Parsear registros</b></td><td><code>INDI</code> (pessoas) e <code>FAM</code> (famílias) via <code>ged4py</code>, indexados por <code>xref_id</code></td></tr>
+    <tr><td><b>Construir o grafo</b></td><td><code>nx.Graph</code> não-direcionado, com nós tipados <code>person</code> e <code>family</code>, mais o índice <code>child_to_family</code></td></tr>
+    <tr><td><b>Publicar o estado</b></td><td>Substituir as globais anteriores in-place; devolver a lista de nomes ordenada</td></tr>
+    <tr><td><b>Corrigir mojibake</b></td><td>Recuperar nomes Latin-1 lidos como UTF-8 (<code>strip_bad_utf</code>, <code>demojibake</code>)</td></tr>
   </tbody></table>
 
   <h2>Regras de Negócio</h2>
   <table><tbody>
-    <tr><td>Upload exige</td><td>Campo de arquivo <code>gedcom</code> obrigatório</td></tr>
-    <tr><td>Sem arquivo</td><td>Erro "Nenhum arquivo GEDCOM enviado."</td></tr>
-    <tr><td>Arquivo sem nome</td><td>Erro "Nenhum arquivo selecionado."</td></tr>
-    <tr><td>Exceção no parsing</td><td>Mensagem de erro com detalhe, sem crash</td></tr>
-    <tr><td>Pessoa s/ nome</td><td>Listada como "Sem Nome"</td></tr>
-    <tr><td>Ordenação</td><td>Nomes em ordem alfabética</td></tr>
+    <tr><td><b>Nome formatado</b></td><td><code>person.name.format()</code>; o literal <code>"Sem Nome"</code> só aparece se <code>person</code> ou <code>person.name</code> estiver ausente</td></tr>
+    <tr><td><b>Formato vazio</b></td><td>Devolve <b>string vazia</b>. Comportamento canônico, medido em dado real: 296 de 35.460 pessoas numa árvore e 17 de 3.056 em outra</td></tr>
+    <tr><td><b>Grafo</b></td><td>Não-direcionado. A direção parental não é armazenada; é derivada depois por <code>get_parents</code></td></tr>
+    <tr><td><b>Aresta órfã</b></td><td>Só é criada se a pessoa já existir como nó. Referências para id inexistente são descartadas em silêncio</td></tr>
+    <tr><td><b><code>FAM</code> sem <code>xref_id</code></b></td><td>Ignorada por completo</td></tr>
+    <tr><td><b><code>child_to_family</code></b></td><td>Acumula <b>todas</b> as famílias em que a pessoa aparece como <code>CHIL</code></td></tr>
+    <tr><td><b>Recarga</b></td><td><b>Substitui</b> o estado anterior, não acumula</td></tr>
+    <tr><td><b>Sem validação</b></td><td>Nenhuma checagem de extensão, tipo ou tamanho; nome do cliente vira caminho, então colisão sobrescreve</td></tr>
+    <tr><td><b>Erro no parsing</b></td><td>Mensagem amigável, sem crash. As globais anteriores não são tocadas, porque a mutação só ocorre após o parse bem-sucedido</td></tr>
   </tbody></table>
+
+  <div class="warn">
+    <b>Ponto que já causou um bug real.</b> O caso comum de nome é <b>formato vazio</b>, que devolve <code>''</code> — e isso é correto. Uma versão anterior tratava formato vazio como <code>"Sem Nome"</code> e quebrava a paridade com o oráculo congelado (<code>DIV-001</code>). O literal <code>"Sem Nome"</code> é inalcançável a partir de registros <code>INDI</code> reais: tem <b>0 ocorrências</b> medidas em 55.523 nomes.
+  </div>
 
   <h2>Requisitos Funcionais</h2>
   <table><tbody>
     <tr><th>ID</th><th>Requisito</th><th>Priori.</th></tr>
-    <tr><td>RF-01</td><td>Salvar GEDCOM em uploads/ com nome original</td><td>Must</td></tr>
-    <tr><td>RF-02</td><td>Parsear INDI/FAM e construir grafo bidirecional</td><td>Must</td></tr>
-    <tr><td>RF-03</td><td>Listar nomes ordenados</td><td>Must</td></tr>
-    <tr><td>RF-04</td><td>Validar presença e nome do arquivo</td><td>Must</td></tr>
-    <tr><td>RF-05</td><td>Responder erros de parsing de forma amigável</td><td>Must</td></tr>
+    <tr><td>RF-01</td><td>Persistir o arquivo em <code>uploads/</code> com o nome recebido</td><td>Must</td></tr>
+    <tr><td>RF-02</td><td>Rejeitar envio sem arquivo: <code>"Nenhum arquivo GEDCOM enviado."</code></td><td>Must</td></tr>
+    <tr><td>RF-03</td><td>Rejeitar arquivo com nome vazio: <code>"Nenhum arquivo selecionado."</code></td><td>Should</td></tr>
+    <tr><td>RF-04</td><td>Parsear <code>INDI</code> e <code>FAM</code> e indexar por <code>xref_id</code></td><td>Must</td></tr>
+    <tr><td>RF-05</td><td>Construir grafo com nós tipados, arestas só para ids resolvíveis</td><td>Must</td></tr>
+    <tr><td>RF-06</td><td>Construir o índice <code>child_to_family</code></td><td>Must</td></tr>
+    <tr><td>RF-07</td><td>Substituir integralmente o estado global anterior a cada carga</td><td>Must</td></tr>
+    <tr><td>RF-08</td><td>Devolver a lista de nomes ordenada alfabeticamente</td><td>Must</td></tr>
+    <tr><td>RF-09</td><td>Corrigir mojibake de nomes nos pontos de entrada</td><td>Should</td></tr>
+    <tr><td>RF-10</td><td>Reportar falha de parsing sem derrubar a aplicação</td><td>Must</td></tr>
+    <tr><td>RF-11</td><td>Recusar operação quando o arquivo não existe mais no disco</td><td>Should</td></tr>
+    <tr><td>RF-12</td><td>Devolver exatamente um nome por pessoa, sem entradas vazias indevidas</td><td>Should</td></tr>
   </tbody></table>
 
   <h2>Critérios de Aceitação</h2>
-  <pre>Dado um GEDCOM válido (ex.: "familia.ged")
-Quando o usuário envia o arquivo no campo "gedcom"
-Então o arquivo é salvo em uploads/, o grafo é construído e a lista de nomes é exibida
+  <pre>Dado que o usuário está na tela inicial sem GEDCOM carregado
+Quando ele envia um arquivo .ged válido com nome "familia.ged"
+Então o arquivo é salvo em uploads/familia.ged
+E o grafo é construído com nós de pessoa e de família
+E a tela exibe "Arquivo 'familia.ged' carregado!"
+E a lista de nomes aparece ordenada alfabeticamente
 
-Dado que nenhum arquivo foi enviado
-Quando o usuário submete o formulário sem o campo "gedcom"
-Então a mensagem "Nenhum arquivo GEDCOM enviado." é exibida
+Dado que o usuário está na tela inicial
+Quando ele submete o formulário sem selecionar arquivo
+Então a tela exibe "Nenhum arquivo GEDCOM enviado."
+E nenhum arquivo é gravado em uploads/
 
-Dado um arquivo GEDCOM malformado
-Quando o sistema tenta fazer o parsing
-Então uma mensagem de erro com a exceção é exibida sem quebrar a aplicação</pre>
+Dado que o usuário envia um arquivo .ged sintaticamente inválido
+Quando o parse falha
+Então a aplicação não quebra
+E a tela exibe "Erro ao processar GEDCOM: {mensagem}"
+
+Dado que uma árvore com 1.000 pessoas já está carregada
+Quando o usuário carrega uma árvore diferente com 10 pessoas
+Então o estado global contém exatamente as 10 pessoas da nova árvore
+E nenhuma pessoa da árvore anterior permanece consultável
+
+Dado um registro INDI cujo nome existe mas cujo formato resulta em string vazia
+Quando a lista de nomes é montada
+Então essa pessoa NÃO aparece como "Sem Nome"
+E a contagem de nomes continua igual à contagem de pessoas</pre>
 
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
-    <tr><td><b>app.py</b></td><td>index() (bloco upload_gedcom)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td>load_gedcom_and_build_graph()</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td>build_graph_from_parser()</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td>get_name()</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td><code>index()</code> — ramo <code>upload_gedcom</code> (:22-34)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td><code>load_gedcom_and_build_graph</code> (:82)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td><code>build_graph_from_parser</code> (:50)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/upload.py</b></td><td><code>get_name</code> (:33), <code>ref_id</code> (:28), <code>ensure_dirs</code> (:24)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/domain.py</b></td><td><code>strip_bad_utf</code> (:25), <code>demojibake</code> (:44)</td><td>🟢</td></tr>
+    <tr><td><b>tests/test_upload.py</b></td><td>16 testes, incl. <code>test_reload_replaces_globals</code></td><td>🟢</td></tr>
   </tbody></table>
 </main>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
 </body>
 </html>

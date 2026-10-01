@@ -1,0 +1,15 @@
+diff --git a/analisador-genealogico/requirements.txt b/analisador-genealogico/requirements.txt
+index 8cfbc37..a2ce6ee 100644
+--- a/analisador-genealogico/requirements.txt
++++ b/analisador-genealogico/requirements.txt
+@@ -1,9 +1,7 @@
+ Flask
+ ged4py
+ networkx
+-matplotlib
+ pandas
+ python-Levenshtein
+ thefuzz
+-pyvis
+ gunicorn 
+\ No newline at end of file

@@ -1,0 +1,36 @@
+arquivos Python varridos em analisador-genealogico/: 6
+  analisador-genealogico\app.py
+  analisador-genealogico\reconstructed\__init__.py
+  analisador-genealogico\reconstructed\dna_analysis.py
+  analisador-genealogico\reconstructed\domain.py
+  analisador-genealogico\reconstructed\path_search.py
+  analisador-genealogico\reconstructed\upload.py
+
+=== 1. Ocorrencias por candidato ===
+
+given_index: 3 ocorrencia(s)
+  analisador-genealogico\reconstructed\dna_analysis.py:233  [DECLARACAO / atribuicao]  given_index = {}
+  analisador-genealogico\reconstructed\dna_analysis.py:239  [POPULACAO (escrita)]  given_index.setdefault(given, []).append(pid)
+  analisador-genealogico\reconstructed\dna_analysis.py:243  [RETORNO (valor devolvido a quem chamou)]  return ged_index, surname_index, given_index
+
+HARD_MIN: 1 ocorrencia(s)
+  analisador-genealogico\reconstructed\dna_analysis.py:11  [OUTRO]  - `HARD_MIN`/`GIVEN_MIN` declarados porém não usados (código morto).
+
+GIVEN_MIN: 1 ocorrencia(s)
+  analisador-genealogico\reconstructed\dna_analysis.py:11  [OUTRO]  - `HARD_MIN`/`GIVEN_MIN` declarados porém não usados (código morto).
+
+=== 2. Entrada dinamica no projeto ===
+  analisador-genealogico\reconstructed\upload.py:30  return getattr(val, "xref_id", val)
+
+=== 3. Consumidores do retorno de build_ged_indexes ===
+  analisador-genealogico\reconstructed\dna_analysis.py:230  def build_ged_indexes():
+  analisador-genealogico\reconstructed\dna_analysis.py:371  ged_index, surname_index, _ = build_ged_indexes()
+
+=== 4. Consumidores de match_candidates ===
+  analisador-genealogico\reconstructed\dna_analysis.py:381  candidate_pids, reason = match_candidates(match_name, cm_value, ged_index, surname_index)
+
+=== Veredito ===
+given_index : o unico leitor e o descarte explicito `_` no chamador unico.
+              Sem leitura em nenhum ponto. Sem entrada dinamica no projeto.
+HARD_MIN    : nao existe no codigo. Nada a remover.
+GIVEN_MIN   : nao existe no codigo. Nada a remover.

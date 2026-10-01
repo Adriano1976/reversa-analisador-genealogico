@@ -1,0 +1,26 @@
+{
+  "direto-carlos-ana": {
+    "mermaid_data": "flowchart BT\nN_I1_I2[\"Joao Silva &amp; Maria Souza\"]\nN_I3[\"Carlos Silva\"]\nN_I4[\"Ana Silva\"]\nN_I3 --> N_I1_I2\nN_I4 --> N_I1_I2\nstyle N_I3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px\nstyle N_I4 fill:#ffebee,stroke:#ef5350,stroke-width:2px\nstyle N_I1_I2 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px",
+    "msg": "Conexão direta encontrada (ancestral comum).",
+    "success": true,
+    "text_path": "Carlos Silva → Joao Silva → Ana Silva"
+  },
+  "indireto-carlos-bia": {
+    "mermaid_data": "flowchart BT\nsubgraph COLUMNS\ndirection BT\nsubgraph ESQ[Ramo 1]\ndirection BT\nsubgraph ESQ_COLS\ndirection BT\nend\nN_I3_I5[\"Carlos Silva &amp; Bia Oliveira\"]\nend\nsubgraph DIR[Ramo 2]\ndirection BT\nN_I5[\"Bia Oliveira\"]\nend\nN_I3_anc[\" \"]\nN_I5_anc[\" \"]\nstyle N_I3_anc fill:transparent,stroke:transparent,stroke-width:0\nstyle N_I5_anc fill:transparent,stroke:transparent,stroke-width:0\nN_I3 --- N_I3_anc\nN_I5_anc --- N_I5\nN_I3_anc --- |Casamento| N_I5_anc\nend\nstyle N_I5 fill:#ffebee,stroke:#ef5350,stroke-width:2px\nstyle N_I3_I5 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px\nstyle N_I3 fill:#fff8e1,stroke:#f6a821,stroke-width:2px\nstyle N_I5 fill:#fff8e1,stroke:#f6a821,stroke-width:2px",
+    "msg": "Conexão indireta encontrada (via casamento/afinidade).",
+    "success": true,
+    "text_path": "Carlos Silva → Bia Oliveira"
+  },
+  "sem-conexao": {
+    "mermaid_data": null,
+    "msg": "Nenhuma conexão encontrada entre 'Carlos Silva' e 'Lone Ranger'.",
+    "success": true,
+    "text_path": null
+  },
+  "trivial-carlos-carlos": {
+    "mermaid_data": "flowchart BT\nN_I3[\"Carlos Silva\"]\nstyle N_I3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px\nstyle N_I3 fill:#ffebee,stroke:#ef5350,stroke-width:2px\nstyle N_I3 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px",
+    "msg": "Conexão direta encontrada (ancestral comum).",
+    "success": true,
+    "text_path": "Carlos Silva"
+  }
+}

@@ -1,34 +1,129 @@
 {
   "schemaVersion": 1,
-  "startedAt": "2026-08-12T14:00:00Z",
-  "lastCheckpoint": "2026-08-16T19:42:11Z",
-  "pipelineDurationMs": 2100000,
-  "completedAgents": ["mapper", "analyst", "storyteller", "publisher"],
+  "startedAt": "2026-10-01T03:30:00Z",
+  "lastCheckpoint": "2026-10-01T03:47:11Z",
+  "pipelineDurationMs": 900000,
+  "completedAgents": [
+    "mapper",
+    "analyst",
+    "storyteller",
+    "publisher"
+  ],
   "pendingAgents": [],
   "pages": {
-    "index.html": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:D170D38A9FB0D4EA"},
-    "arquitetura.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:c42bbe09c00c864a"},
-    "modulos.html": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:bd85a97f341360e9"},
-    "metricas.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:0feb9a10fdf6b7e6"},
-    "deck.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:da67c5191e1cb942"},
-    "glossario.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:90c287684657a9ec"},
-    "assets/data/soul.json": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:ee645043955d4e9c"},
-    "features/upload-gedcom.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:3ff0d806a5dcc250"},
-    "features/busca-caminho.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:86e116248ba3c293"},
-    "features/analise-dna.html": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:afa5e2d99429f431"},
-    "assets/data/modules.json": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:0f15575056177dc3"},
-    "assets/data/deps.json": {"status": "created", "agent": "reversa-docs-mapper", "hash": "sha256:a3f0b0672f8fa249"},
-    "assets/data/metrics.json": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:57282715d2959e45"},
-    "assets/data/features-index.json": {"status": "created", "agent": "reversa-docs-storyteller", "hash": "sha256:ab636f2f9fed1a6b"},
-    "assets/js/data.js": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:E87E7C44BCB658E4"},
-    "assets/img/seal.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:e9498fe5b6bf0f85"},
-    "assets/img/seal-mini.svg": {"status": "created", "agent": "reversa-docs-publisher", "hash": "sha256:70442156f65a3b61"},
-    "timeline.html": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:05284ACF51EF3390F65AA84014B9448739D55FD132EADD2B8D29CC2AE4134CCB"},
-    "assets/data/timeline.json": {"status": "created", "agent": "reversa-docs-analyst", "hash": "sha256:210DAD3A6FD7AC84"}
+    "index.html": {
+      "status": "created",
+      "agent": "reversa-docs-publisher",
+      "hash": "sha256:D170D38A9FB0D4EA"
+    },
+    "arquitetura.html": {
+      "status": "created",
+      "agent": "reversa-docs-mapper",
+      "hash": "sha256:c42bbe09c00c864a"
+    },
+    "modulos.html": {
+      "status": "created",
+      "agent": "reversa-docs-mapper",
+      "hash": "sha256:bd85a97f341360e9"
+    },
+    "metricas.html": {
+      "status": "created",
+      "agent": "reversa-docs-analyst",
+      "hash": "sha256:0feb9a10fdf6b7e6"
+    },
+    "deck.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:da67c5191e1cb942"
+    },
+    "glossario.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:90c287684657a9ec"
+    },
+    "assets/data/soul.json": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:ee645043955d4e9c"
+    },
+    "features/upload-gedcom.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:3ff0d806a5dcc250"
+    },
+    "features/busca-caminho.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:86e116248ba3c293"
+    },
+    "features/analise-dna.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:afa5e2d99429f431"
+    },
+    "assets/data/modules.json": {
+      "status": "created",
+      "agent": "reversa-docs-mapper",
+      "hash": "sha256:0f15575056177dc3"
+    },
+    "assets/data/deps.json": {
+      "status": "created",
+      "agent": "reversa-docs-mapper",
+      "hash": "sha256:a3f0b0672f8fa249"
+    },
+    "assets/data/metrics.json": {
+      "status": "created",
+      "agent": "reversa-docs-analyst",
+      "hash": "sha256:57282715d2959e45"
+    },
+    "assets/data/features-index.json": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:ab636f2f9fed1a6b"
+    },
+    "assets/js/data.js": {
+      "status": "created",
+      "agent": "reversa-docs-publisher",
+      "hash": "sha256:E87E7C44BCB658E4"
+    },
+    "assets/img/seal.svg": {
+      "status": "created",
+      "agent": "reversa-docs-publisher",
+      "hash": "sha256:e9498fe5b6bf0f85"
+    },
+    "assets/img/seal-mini.svg": {
+      "status": "created",
+      "agent": "reversa-docs-publisher",
+      "hash": "sha256:70442156f65a3b61"
+    },
+    "timeline.html": {
+      "status": "created",
+      "agent": "reversa-docs-analyst",
+      "hash": "sha256:05284ACF51EF3390F65AA84014B9448739D55FD132EADD2B8D29CC2AE4134CCB"
+    },
+    "assets/data/timeline.json": {
+      "status": "created",
+      "agent": "reversa-docs-analyst",
+      "hash": "sha256:210DAD3A6FD7AC84"
+    }
   },
-  "pagesGenerated": ["index.html", "arquitetura.html", "modulos.html", "metricas.html", "deck.html", "glossario.html", "features/upload-gedcom.html", "features/busca-caminho.html", "features/analise-dna.html", "timeline.html"],
+  "pagesGenerated": [
+    "index.html",
+    "arquitetura.html",
+    "modulos.html",
+    "metricas.html",
+    "deck.html",
+    "glossario.html",
+    "timeline.html",
+    "features/upload-gedcom.html",
+    "features/busca-caminho.html",
+    "features/analise-dna.html"
+  ],
   "pagesOmitted": [
-    {"page": "topologia.html", "reason": "architecture.md nao declara secao Topologia / variantes de topologia"}
+    {
+      "page": "topologia.html",
+      "reason": "architecture.md nao declara secao Topologia / variantes de topologia"
+    }
   ],
   "auxiliaryHtmls": [],
   "auxiliaryHtmlsDiscovered": 0,
@@ -38,5 +133,30 @@
   "vendorMissing": [],
   "smokeTestFailed": false,
   "smokeTestErrors": [],
-  "brokenLinks": []
+  "brokenLinks": [],
+  "history": [
+    {
+      "startedAt": "2026-08-12T14:00:00Z",
+      "lastCheckpoint": "2026-08-16T19:42:11Z",
+      "pipelineDurationMs": 2100000,
+      "note": "Execucao original do pipeline, com os 4 agentes instalados."
+    }
+  ],
+  "regeneration": {
+    "kind": "atualizacao da camada de dados e das paginas de features",
+    "reason": "O mini-site estava gerado de 2026-08-16 e descrevia o sistema anterior a migracao, ao refactor de 2026-09-29 e a re-extracao de 2026-09-30. As metricas divergiam em todas as pastas e a timeline terminava em 2026-08-13.",
+    "infrastructureGap": "templates/documentation/ NAO existe nesta instalacao: nem viewer.html, nem os .tpl das paginas, nem extract_modules.py/extract_deps.py, nem sidebar.js. A extracao de dados foi feita inline, como o proprio agente preve para quando o script falta, e o data.js foi reconstruido a mao a partir do Passo 3 do Publisher.",
+    "whatChanged": [
+      "modules.json: 14 -> 16 modulos (entram os 3 testes novos; sai graph_path_search.html)",
+      "deps.json: regerado, 7 nos e 6 arestas, 0 ciclos",
+      "metrics.json: 5 pastas; static/ removido; LOC alinhado com o _reversa_sdd/",
+      "timeline.json: 27 -> 78 eventos, de 2026-08-03 a 2026-09-30",
+      "data.js: reconstruido, passa a embedar os dados novos",
+      "features/*.html: as 3 paginas reescritas a partir das specs novas (12/15/15 requisitos)",
+      "modulos.html: folderColor corrigido (as chaves nao casavam com as pastas) e legenda sem 'static'",
+      "10 paginas: carimbo de geracao atualizado, meta e assinatura visual"
+    ],
+    "verifiedBy": "Smoke test proprio: data.js parseavel, 10/10 paginas sem fetch() local, 8/8 referencias de vendor resolvendo no disco, integridade do grafo (nenhuma aresta orfa) e cobertura completa dos requisitos nas 3 features.",
+    "backup": ".backup-20261001-003512/ (31 arquivos, 1,5 MB)"
+  }
 }

@@ -1,0 +1,37 @@
+diff --git a/analisador-genealogico/reconstructed/path_search.py b/analisador-genealogico/reconstructed/path_search.py
+index 75c4d75..b6b610d 100644
+--- a/analisador-genealogico/reconstructed/path_search.py
++++ b/analisador-genealogico/reconstructed/path_search.py
+@@ -190,16 +190,28 @@ def _mermaid_sid(raw) -> str:
+     return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
+ 
+ 
++# Caracteres que podem sobreviver num rotulo entre aspas do Mermaid. A gramatica
++# do flowchart prova que, dentro do estado `string`, o lexer consome tudo com
++# `<string>[^"]+`, entao colchete, dois pontos, barra e palavra-chave sao inertes.
++# O que nao pode passar e a aspa dupla, que encerra o rotulo, e a crase, que logo
++# apos a aspa de abertura desvia o lexer para markdown-string e faz o
++# fecha-colchete nunca virar o token que a gramatica exige.
++# Lista branca, e nao negra: a negra anterior foi furada justamente pela crase.
++# Ver BUG-20260929-J6PQ, evidence/analise-gramatica-mermaid-20260929.md.
++_LABEL_SEGURO = re.compile(r"[^0-9A-Za-zÀ-ÖØ-öø-ÿ .,'()&<>:;/\[\]!?-]")
++
++
+ def _mermaid_label(txt) -> str:
+-    """Rotulo de no Mermaid: NFC, sem controle, com &, < e > escapados."""
++    """Rotulo de no Mermaid: NFC, lista branca de caracteres seguros, com &, < e > em entidade."""
+     s = unicodedata.normalize("NFC", str(txt))
+     s = (s.replace('\u00A0', ' ')
+            .replace('\u2013', '-')
+            .replace('\u2014', '-')
+-           .replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'"))
+-    s = (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
++           .replace('\u201c', "'").replace('\u201d', "'").replace('\u2019', "'"))
+     s = s.replace('"', "'")
+-    return re.sub(r'[\r\n]+', ' ', s)
++    s = re.sub(r'[\r\n]+', ' ', s)
++    s = _LABEL_SEGURO.sub('', s)
++    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+ 
+ 
+ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):

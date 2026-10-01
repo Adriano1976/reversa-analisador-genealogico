@@ -8,6 +8,14 @@
 
 Vigente desde 2026-08-11.
 
+Superado pela re-extração de 2026-09-30.
+
+> Ressalva de cronologia (registrada nesta data, sem remover a linha acima): a marcação é uma
+> declaração de vigência, não a constatação de que o delta abaixo foi absorvido. Nesta data o
+> `_reversa_sdd/` ainda é o da extração de 2026-08-03 e **não** reflete esta entrega — o
+> `securityLevel: 'strict'` segue ausente dos artefatos principais. O delta continua válido até
+> que uma re-extração real rode.
+
 ## Resumo da entrega
 
 Reconstrução fiel da interface principal (`templates/index.html`) do analisador genealógico e de DNA: estrutura base com Bootstrap 5 via CDN, formulário de upload de GEDCOM, abas "Buscar Conexão no GEDCOM" / "Analisador de DNA" com blocos condicionais Jinja2 de resultados (path_search, dna_results, skipped_matches) e spinner de loading durante submissão. Única mudança funcional: inicialização do Mermaid com `securityLevel: 'strict'` (antes `'loose'`), conforme decisão D-02 do roadmap — fecha vetor de XSS vindo dos arquivos do usuário (GEDCOM/CSV).
@@ -35,3 +43,6 @@ Nenhum watch item (`W001`...) foi criado nesta rodada — ver `_reversa_forward/
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/progress.jsonl`
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/legacy-impact.md`
 - `_reversa_forward/001-reconstrua-o-conteudo-da-index/regression-watch.md`
+
+---
+*Gerado pelo Reversa-Sync em 2026-08-11.*

@@ -1,0 +1,8 @@
+variante atual     : D:\Projetos\reversa_analisador_gelealogico\.pytest-tmp\baseline\analisador-genealogico\reconstructed\dna_analysis.py
+variante otimizada : D:\Projetos\reversa_analisador_gelealogico\analisador-genealogico\reconstructed\dna_analysis.py
+campos do cache    : ['given_tokens', 'norm', 'surnames', 'surnames_list', 'tokens']
+
+match_candidates : 2198 casos comparados, 0 divergencias
+dna_analysis     : 8 execucoes comparadas, 0 divergencias
+
+EQUIVALENCIA VERDE: 2206 comparacoes identicas (inclui vazio, nulo e limites de cM)
