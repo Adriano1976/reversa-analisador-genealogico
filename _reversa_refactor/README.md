@@ -49,7 +49,7 @@ _reversa_refactor/
 edição do próprio usuário, e hoje são quatro:
 `["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml"]`.
 
-Onze transformações foram aplicadas sob esse gate:
+Treze transformações foram aplicadas sob esse gate:
 
 | Oportunidade | Verbo | Arquivo | Estado |
 |--------------|-------|---------|--------|
@@ -64,6 +64,8 @@ Onze transformações foram aplicadas sob esse gate:
 | `OPP-20260929-DW3U` | prune | `reconstructed/domain.py` | aplicada, opção B |
 | `OPP-20260929-U2NK` | prune | `reconstructed/dna_analysis.py` | aplicada |
 | `OPP-20260929-Z6IO` | prune | `pyrefly.toml`, seis arquivos de `tests/` | aplicada |
+| `OPP-20260929-5XGJ` | standardize | `reconstructed/path_search.py` | aplicada em 2026-10-01 |
+| `OPP-20260929-NUMT` | optimize | `reconstructed/dna_analysis.py` | aplicada em 2026-10-01 |
 
 Nenhuma delas escreveu fora dos globs liberados na época. `tests/**` passou a ser usado na
 `OPP-20260929-Z6IO`, que removeu seis supressões de tipo obsoletas. Promover as redes de segurança por
