@@ -8,8 +8,8 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-busca-caminho">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-08-12T14:27:00Z">
-<title>Busca de Caminho (Path Search) — analisador-genealogico</title>
+<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<title>busca-caminho — analisador-genealogico</title>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
 <style>
@@ -36,7 +36,9 @@
   th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
   th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;}
   td b{color:#fff;}
+  code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
   pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
+  .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
 </style>
 </head>
 <body>
@@ -65,71 +67,108 @@
 </svg>
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Feature</span>
-  <!-- NAV_LINKS -->
   <nav class="reversa-doc-nav"></nav>
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
-  <h1>Busca de Caminho (Path Search)</h1>
-  <div class="meta"><span class="pill">Confiança 🟢 CONFIRMADO</span><span class="pill">Prioridade: Must</span><span class="pill">Spec: busca-caminho</span></div>
-  <p class="summary">Busca a conexão genealógica entre duas pessoas da árvore GEDCOM: conexão <b>direta</b> via ancestral comum (MRCA, BFS bidirecional) e, se não existir, fallback de <b>conexão indireta</b> por afinidade (casamentos). Renderiza caminho textual + Mermaid.</p>
+  <h1>busca-caminho</h1>
+  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>path_search</code></span><span class="pill">15 requisitos</span><span class="pill">20 tarefas</span><span class="pill">Spec: busca-caminho</span></div>
+  <p class="summary">Busca a conexão genealógica entre duas pessoas de uma árvore já carregada. Tenta primeiro a conexão <b>direta</b> pelo ancestral comum mais próximo, subindo exclusivamente por linhas parentais; se não existir, cai no <b>fallback indireto</b> por afinidade. Renderiza caminho textual e um diagrama Mermaid cuja forma muda conforme o tipo de conexão.</p>
 
   <h2>Responsabilidades</h2>
   <table><tbody>
-    <tr><td><b>Localizar pessoas</b></td><td>Resolução por nome no GEDCOM</td></tr>
-    <tr><td><b>Conexão direta</b></td><td>find_ancestral_path via MRCA</td></tr>
-    <tr><td><b>Conexão indireta</b></td><td>find_indirect_path por afinidade (casamentos)</td></tr>
-    <tr><td><b>Renderizar</b></td><td>Caminho textual + diagrama Mermaid</td></tr>
+    <tr><td><b>Resolver pessoas</b></td><td>Duas passadas: igualdade case-insensitive, depois substring</td></tr>
+    <tr><td><b>Navegar a família</b></td><td>Pais via <code>FAMC</code> com fallback no índice; cônjuges via <code>FAMS</code></td></tr>
+    <tr><td><b>Conexão direta</b></td><td>BFS bidirecional subindo por pais, com teto de profundidade</td></tr>
+    <tr><td><b>Conexão indireta</b></td><td>Caminho mais curto no grafo pessoa↔família, com compressão de nós de família</td></tr>
+    <tr><td><b>Ponte matrimonial</b></td><td>Decomposição do caminho no primeiro par de cônjuges adjacentes</td></tr>
+    <tr><td><b>Emitir o diagrama</b></td><td>Sanitizar rótulos por lista branca e emitir Mermaid válido</td></tr>
   </tbody></table>
 
   <h2>Regras de Negócio</h2>
   <table><tbody>
-    <tr><td>Pré-condição</td><td>GEDCOM carregado (gedcom_filename)</td></tr>
-    <tr><td>Nomes obrigatórios</td><td>person1_name e person2_name não vazios</td></tr>
-    <tr><td>Pessoa inexistente</td><td>Mensagem de erro específica</td></tr>
-    <tr><td>Homônimos</td><td>Usa o primeiro ID encontrado</td></tr>
-    <tr><td>Direta</td><td>BFS bidirecional por pais, profundidade máx. 20</td></tr>
-    <tr><td>Indireta</td><td>shortest_path no grafo, máx. 40 hops</td></tr>
-    <tr><td>Sem conexão</td><td>"Nenhuma conexão encontrada entre 'X' e 'Y'."</td></tr>
+    <tr><td><b>Resolução de nome</b></td><td>Duas passadas: igualdade <code>case-insensitive</code> primeiro; substring só se a igualdade falhar</td></tr>
+    <tr><td><b>Homônimos</b></td><td>Usa o <b>primeiro ID</b>, sem desempate e sem aviso. Decisão do usuário, comportamento aceito</td></tr>
+    <tr><td><b>Não encontrada</b></td><td><code>"Pessoa 1 '{nome}' não encontrada."</code>, distinguindo Pessoa 1 de Pessoa 2</td></tr>
+    <tr><td><b>BFS bidirecional</b></td><td>Duas filas alternando um nível de cada lado; sobe <b>apenas por pais</b></td></tr>
+    <tr><td><b>Teto da direta</b></td><td><code>MAX_DEPTH = 20</code> <b>iterações de profundidade</b>, não gerações</td></tr>
+    <tr><td><b>Pessoas idênticas</b></td><td>Caminho trivial <code>[id]</code>, com o próprio id como ancestral</td></tr>
+    <tr><td><b>Indireta</b></td><td>Só roda se a direta falhar. Caminho mais curto não ponderado no grafo</td></tr>
+    <tr><td><b>Teto da indireta</b></td><td><code>MAX_HOPS = 40</code> arestas; exige ao menos 2 pessoas no caminho comprimido</td></tr>
+    <tr><td><b>Composição da família</b></td><td>Os nós de família são <b>comprimidos</b>: o caminho devolvido contém só pessoas</td></tr>
+    <tr><td><b>Ponte</b></td><td><code>split_path_by_marriage</code> acha o <b>primeiro</b> par adjacente de cônjuges</td></tr>
+    <tr><td><b>Escape do rótulo</b></td><td><code>_mermaid_label</code> aplica NFC e depois uma <b>lista branca</b> de caracteres seguros</td></tr>
+    <tr><td><b>Entidades HTML</b></td><td><code>&</code>, <code>&lt;</code> e <code>&gt;</code> viram entidades <b>depois</b> do filtro, nunca antes</td></tr>
+    <tr><td><b>Sem conexão</b></td><td><code>"Nenhuma conexão encontrada entre '{p1}' e '{p2}'."</code> com <code>success=True</code></td></tr>
   </tbody></table>
+
+  <div class="warn">
+    <b>O contrato de escape é regra de primeira classe.</b> A lista é <b>branca, não negra</b>. O gatilho do bug corrigido (<code>BUG-20260929-J6PQ</code>) é <b>aspa dupla seguida de crase</b> num nome vindo do GEDCOM: o lexer do Mermaid desvia para <i>markdown-string</i> e o fecha-colchete nunca vira o token que a gramática exige, derrubando o diagrama inteiro. A lista negra anterior era furada justamente pela crase. A ordem <b>filtro → entidades</b> é invariante: invertê-la reintroduz o defeito.
+  </div>
 
   <h2>Requisitos Funcionais</h2>
   <table><tbody>
     <tr><th>ID</th><th>Requisito</th><th>Priori.</th></tr>
-    <tr><td>RF-01</td><td>Localizar pessoas por nome</td><td>Must</td></tr>
-    <tr><td>RF-02</td><td>Buscar conexão direta por ancestral comum</td><td>Must</td></tr>
-    <tr><td>RF-03</td><td>Fallback para conexão indireta por afinidade</td><td>Must</td></tr>
-    <tr><td>RF-04</td><td>Renderizar caminho textual e Mermaid</td><td>Must</td></tr>
-    <tr><td>RF-05</td><td>Tratar erro amigável em exceções</td><td>Must</td></tr>
+    <tr><td>RF-01</td><td>Resolver pessoa em duas passadas (exato, depois substring)</td><td>Must</td></tr>
+    <tr><td>RF-02</td><td>Usar o primeiro ID quando houver homônimos</td><td>Must</td></tr>
+    <tr><td>RF-03</td><td>Reportar por pessoa quando o nome não resolve</td><td>Must</td></tr>
+    <tr><td>RF-04</td><td>Buscar conexão direta por BFS bidirecional subindo por pais</td><td>Must</td></tr>
+    <tr><td>RF-05</td><td>Respeitar o teto de 20 iterações de profundidade</td><td>Must</td></tr>
+    <tr><td>RF-06</td><td>Tratar pessoas idênticas com caminho trivial</td><td>Should</td></tr>
+    <tr><td>RF-07</td><td>Cair para a indireta somente quando a direta falhar</td><td>Must</td></tr>
+    <tr><td>RF-08</td><td>Buscar indireta por caminho mais curto, teto de 40 arestas</td><td>Must</td></tr>
+    <tr><td>RF-09</td><td>Comprimir nós de família do caminho indireto</td><td>Must</td></tr>
+    <tr><td>RF-10</td><td>Decompor o caminho pela primeira ponte matrimonial</td><td>Should</td></tr>
+    <tr><td>RF-11</td><td>Sanitizar o rótulo do nó por lista branca</td><td>Must</td></tr>
+    <tr><td>RF-12</td><td>Converter &amp;, &lt; e &gt; em entidades <b>após</b> o filtro</td><td>Must</td></tr>
+    <tr><td>RF-13</td><td>Emitir diagrama adequado ao tipo de conexão</td><td>Must</td></tr>
+    <tr><td>RF-14</td><td>Distinguir "sem conexão" de erro de entrada</td><td>Should</td></tr>
+    <tr><td>RF-15</td><td>Reportar erro amigável em exceções</td><td>Must</td></tr>
   </tbody></table>
 
   <h2>Critérios de Aceitação</h2>
-  <pre>Dado um GEDCOM carregado e duas pessoas existentes com ancestral comum
-Quando o usuário submete path_search
-Então "Conexão direta encontrada (ancestral comum)." é exibido com caminho e Mermaid
+  <pre>Dado um GEDCOM carregado e duas pessoas com ancestral comum
+Quando o usuário busca o caminho
+Então a tela exibe "Conexão direta encontrada (ancestral comum)."
+E o caminho textual mostra a sequência do ancestral até as duas pessoas
 
-Dado duas pessoas existentes sem ancestral comum mas com vínculo por afinidade
-Quando o usuário submete path_search
-Então "Conexão indireta encontrada (via casamento/afinidade)." é exibido
+Dado que a busca direta falha mas existe vínculo por casamento
+Quando o usuário busca o caminho
+Então a tela exibe "Conexão indireta encontrada (via casamento/afinidade)."
+E o diagrama é emitido na forma de ponte, com a aresta rotulada "Casamento"
 
-Dado um nome de pessoa inexistente
-Quando o usuário submete path_search
-Então a mensagem "Pessoa 1 'X' não encontrada." é exibida
+Dado um nome que não existe na árvore
+Quando o usuário busca o caminho
+Então a tela exibe "Pessoa 1 'X' não encontrada." (ou Pessoa 2)
 
-Dado duas pessoas sem nenhuma conexão no grafo
-Quando o usuário submete path_search
-Então "Nenhuma conexão encontrada entre 'X' e 'Y'." é exibido</pre>
+Dado duas pessoas existentes sem nenhum caminho no grafo
+Quando o usuário busca o caminho
+Então a tela exibe "Nenhuma conexão encontrada entre 'X' e 'Y'."
+E a resposta não é tratada como erro
+
+Dado um nome vindo do GEDCOM que contém aspa dupla seguida de crase
+Quando o diagrama é emitido
+Então o rótulo do nó é neutralizado
+E nenhuma aspa dupla crua ou crase sobrevive no rótulo
+
+Dado um nome com "&", "<" ou ">"
+Quando o diagrama é emitido
+Então esses caracteres aparecem como &amp;, &lt; e &gt;
+E os caracteres legítimos (acentos, pontos, parênteses) sobrevivem intactos</pre>
 
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
-    <tr><td><b>app.py</b></td><td>index() (bloco path_search)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_person_by_name</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_ancestral_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>find_indirect_path</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td>generate_mermaid_graph / indirect bridge</td><td>🟢</td></tr>
+    <tr><td><b>app.py</b></td><td><code>index()</code> — ramo <code>path_search</code> (:65-78)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/path_search.py</b></td><td><code>path_search</code> (:463)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/path_search.py</b></td><td><code>find_ancestral_path</code> (:144), <code>find_indirect_path</code> (:126)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/path_search.py</b></td><td><code>get_parents</code> (:42), <code>get_spouses</code> (:64), <code>are_spouses</code> (:91)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/path_search.py</b></td><td><code>split_path_by_marriage</code> (:95), <code>pick_spouse_for_couple</code> (:106)</td><td>🟢</td></tr>
+    <tr><td><b>reconstructed/path_search.py</b></td><td><code>_mermaid_sid</code> (:185), <code>_mermaid_label</code> (:204)</td><td>🟢</td></tr>
+    <tr><td><b>tests/test_path_search.py</b></td><td>9 testes, incl. <code>test_indirect_connection_via_marriage</code></td><td>🟢</td></tr>
+    <tr><td><b>tests/test_mermaid_escape.py</b></td><td>6 testes do contrato de escape</td><td>🟢</td></tr>
   </tbody></table>
 </main>
-<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-08-12. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-08-12.</div>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
 </body>
 </html>
