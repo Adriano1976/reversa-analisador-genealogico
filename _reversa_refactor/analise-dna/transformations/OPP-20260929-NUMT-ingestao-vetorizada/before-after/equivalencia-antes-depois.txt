@@ -1,0 +1,33 @@
+Prova de equivalencia antes e depois · OPP-20260929-NUMT
+Versao anterior carregada de HEAD: 395 linhas
+Versao atual em disco
+Comparacao pelo fluxo completo `dna_analysis(csv, raiz)`
+
+Arvore: 5 pessoas (tests/fixtures/sample_dna.py)
+
+### Fixtures de DNA (arvore dos testes)
+  cm_boundaries.csv                              identico   0 conexoes, 1 descartados
+  duplicated.csv                                 identico   0 conexoes, 1 descartados
+  generic.csv                                    identico   0 conexoes, 1 descartados
+  latin1.csv                                     identico   0 conexoes, 1 descartados
+  missing_col.csv                                identico   ValueError
+  no_intersection.csv                            identico   0 conexoes, 1 descartados
+  utf8.csv                                       identico   0 conexoes, 1 descartados
+  -> 7 identicos, 0 divergentes
+
+### CSVs do teste de caracterizacao (caminho de ACEITACAO)
+  DNA_CSV_UTF8                                   identico   1 conexoes cm=[200], 0 descartados
+  DNA_CSV_DUPLICATED                             identico   1 conexoes cm=[537], 0 descartados
+  DNA_CSV_NO_INTERSECTION                        identico   0 conexoes, 1 descartados
+  DNA_CSV_LATIN1_RAW (bytes latin-1)             identico   1 conexoes cm=[200], 0 descartados
+  -> 4 identicos, 0 divergentes
+
+Arvore: 1023 pessoas (.pytest-tmp\numt-bench\bench.ged)
+
+### Corpus sintetico do benchmark
+  bench_300.csv                                  identico   0 conexoes, 300 descartados
+  bench_1000.csv                                 identico   1 conexoes cm=[120], 999 descartados
+  bench_3000.csv                                 identico   3 conexoes cm=[175, 88, 37], 2997 descartados
+  -> 3 identicos, 0 divergentes
+
+### VEREDITO: EQUIVALENTE em todo o corpus

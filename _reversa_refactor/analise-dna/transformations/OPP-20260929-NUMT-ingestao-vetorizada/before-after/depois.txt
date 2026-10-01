@@ -1,0 +1,38 @@
+GEDCOM sintetico : 1023 pessoas, 341 familias
+CSV por escala   : [300, 1000, 3000] linhas, 8 colunas (3 no diagnostico)
+repeticoes       : 15 por fase, 5 por fluxo, com aquecimento e intercaladas
+==============================================================================
+
+### CSV de 300 linhas  |  colunas detectadas: ('Name', 'cM', 'Match ID', 'Email')
+  detect_columns     min  0.00270 s   mediana  0.00342 s     1.1% do fluxo
+  aggregate_matches  min  0.01654 s   mediana  0.01887 s     7.0% do fluxo
+  fluxo completo     min  0.23664 s   mediana  0.24012 s
+  soma das duas fases:  0.01924 s     8.1% do fluxo (min)
+  so 3 colunas       min  0.01620 s   (mesmas 300 linhas, 8 -> 3 colunas)
+
+### CSV de 1000 linhas  |  colunas detectadas: ('Name', 'cM', 'Match ID', 'Email')
+  detect_columns     min  0.00460 s   mediana  0.00626 s     1.3% do fluxo
+  aggregate_matches  min  0.02947 s   mediana  0.03547 s     8.3% do fluxo
+  fluxo completo     min  0.35547 s   mediana  0.36812 s
+  soma das duas fases:  0.03407 s     9.6% do fluxo (min)
+  so 3 colunas       min  0.02816 s   (mesmas 1000 linhas, 8 -> 3 colunas)
+
+### CSV de 3000 linhas  |  colunas detectadas: ('Name', 'cM', 'Match ID', 'Email')
+  detect_columns     min  0.01070 s   mediana  0.01466 s     1.5% do fluxo
+  aggregate_matches  min  0.04302 s   mediana  0.05137 s     6.1% do fluxo
+  fluxo completo     min  0.70932 s   mediana  0.78309 s
+  soma das duas fases:  0.05371 s     7.6% do fluxo (min)
+  so 3 colunas       min  0.03715 s   (mesmas 3000 linhas, 8 -> 3 colunas)
+
+==============================================================================
+CRESCIMENTO COM O TAMANHO DO CSV (minimo)
+  linhas     detect_col      aggregate          fluxo
+     300        0.00270        0.01654        0.23664
+    1000        0.00460        0.02947        0.35547
+    3000        0.01070        0.04302        0.70932
+
+DEPENDENCIA DE aggregate_matches COM O NUMERO DE COLUNAS (minimo)
+  linhas        8 colunas        3 colunas      razao
+     300          0.01654          0.01620      1.02x
+    1000          0.02947          0.02816      1.05x
+    3000          0.04302          0.03715      1.16x

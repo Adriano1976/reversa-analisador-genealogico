@@ -1,0 +1,45 @@
+SONDA DO CANDIDATO · OPP-20260929-NUMT
+==============================================================================
+
+### Equivalencia: v1 contra v2 e v3
+  cm_boundaries.csv      linhas=6  colunas=('Name', 'cM', None, None)  identico
+  duplicated.csv         linhas=2  colunas=('Name', 'cM', None, None)  identico
+  generic.csv            linhas=1  colunas=('Name', 'cM', None, None)  identico
+  latin1.csv             linhas=1  colunas=('Name', 'cM', None, None)  identico
+  missing_col.csv        linhas=1  colunas=fora-do-fluxo  fora do fluxo
+  no_intersection.csv    linhas=1  colunas=('Name', 'cM', None, None)  identico
+  utf8.csv               linhas=1  colunas=('Name', 'cM', None, 'Email')  identico
+  cabecalho-so           linhas=0  colunas=('Name', 'cM', None, None)  identico
+  sem-id-sem-email       linhas=1  colunas=('Name', 'cM', None, None)  identico
+  cm-numerico            linhas=1  colunas=('Name', 'cM', 'Match ID', None)  identico
+  id-e-email             linhas=1  colunas=('Name', 'cM', 'Match ID', 'Email')  identico
+  nome-nan               linhas=2  colunas=('Name', 'cM', 'Match ID', None)  identico
+  nome-vazio             linhas=2  colunas=('Name', 'cM', 'Match ID', None)  identico
+  mojibake               linhas=2  colunas=('Name', 'cM', 'Match ID', None)  identico
+  duplicado              linhas=2  colunas=('Name', 'cM', 'Match ID', None)  identico
+  email-repetido         linhas=2  colunas=('Name', 'cM', None, 'Email')  identico
+
+### Veredito: IDENTICO em todo o corpus
+
+==============================================================================
+### Ganho medido: v1, v2, v3 intercalados, minimo de 15 repeticoes
+(negativo = mais rapido que a v1)
+
+  CSV de 300 linhas  |  253 nomes distintos em 300 linhas
+    detect_columns     v1  0.00417 s   v2  0.00252 s    -39.6%
+    aggregate_matches  v1  0.01875 s   v2 (map)       0.01513 s    -19.3%
+    aggregate_matches  v1  0.01875 s   v3 (map+dedup)  0.01481 s    -21.0%
+
+  CSV de 1000 linhas  |  628 nomes distintos em 1000 linhas
+    detect_columns     v1  0.00753 s   v2  0.00459 s    -39.1%
+    aggregate_matches  v1  0.05000 s   v2 (map)       0.03777 s    -24.5%
+    aggregate_matches  v1  0.05000 s   v3 (map+dedup)  0.02844 s    -43.1%
+
+  CSV de 3000 linhas  |  973 nomes distintos em 3000 linhas
+    detect_columns     v1  0.01766 s   v2  0.01051 s    -40.5%
+    aggregate_matches  v1  0.14194 s   v2 (map)       0.10524 s    -25.9%
+    aggregate_matches  v1  0.14194 s   v3 (map+dedup)  0.04509 s    -68.2%
+
+  CONTROLE: 3000 linhas, 3000 nomes distintos (nenhuma repeticao)
+    aggregate_matches  v1  0.17111 s   v2 (map)       0.13258 s    -22.5%
+    aggregate_matches  v1  0.17111 s   v3 (map+dedup)  0.13619 s    -20.4%

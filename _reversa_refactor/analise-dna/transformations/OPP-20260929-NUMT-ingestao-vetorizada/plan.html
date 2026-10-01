@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Plano de otimização · OPP-20260929-NUMT</title>
+<style>
+  :root { --tinta:#1c2024; --suave:#5b6570; --linha:#dfe3e8; --fundo:#f7f8fa;
+          --ok:#1f7a45; --alerta:#9a6700; --erro:#b42318; --azul:#1b4f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--fundo); color:var(--tinta);
+         font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:960px; margin:0 auto; background:#fff; border:1px solid var(--linha);
+         border-radius:10px; padding:34px 38px 44px; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  .sub { color:var(--suave); font-size:14px; margin-bottom:26px; }
+  h2 { font-size:17px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--linha); }
+  h3 { font-size:15px; margin:20px 0 6px; color:var(--azul); }
+  p { margin:10px 0; }
+  code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:13px;
+         font-family:Consolas,Menlo,monospace; }
+  pre { background:#22272e; color:#e6edf3; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:13px; line-height:1.5; }
+  pre code { background:none; color:inherit; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--linha); padding:8px 10px; text-align:left; }
+  th { background:#eef1f4; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums;
+                   font-family:Consolas,Menlo,monospace; }
+  .tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+  .tag { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--linha);
+         background:#fff; color:var(--suave); }
+  .tag.ok { border-color:#a7d3b8; color:var(--ok); background:#f0f8f3; }
+  .tag.al { border-color:#e6d3a3; color:var(--alerta); background:#fdf8ec; }
+  .caixa { border-left:3px solid var(--azul); background:#f4f7fb; padding:12px 16px;
+           border-radius:0 6px 6px 0; margin:16px 0; }
+  .caixa.aviso { border-color:var(--alerta); background:#fdf8ec; }
+  .caixa.erro { border-color:var(--erro); background:#fdf3f2; }
+  .caixa.ok { border-color:var(--ok); background:#f0f8f3; }
+  .caixa p:first-child { margin-top:0; }
+  .caixa p:last-child { margin-bottom:0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:5px 0; }
+  .peq { font-size:13px; color:var(--suave); }
+  footer { margin-top:38px; padding-top:14px; border-top:1px solid var(--linha);
+           font-size:13px; color:var(--suave); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Otimizar a ingestão de CSV da análise de DNA</h1>
+<div class="sub">OPP-20260929-NUMT · contexto <code>analise-dna</code> · verbo <code>optimize</code> ·
+alvo <code>analisador-genealogico/reconstructed/dna_analysis.py</code></div>
+
+<div class="tags">
+  <span class="tag">confiança 🟢</span>
+  <span class="tag">custo médio</span>
+  <span class="tag">control_mode: gated</span>
+  <span class="tag">safety_net_policy: require-characterization</span>
+  <span class="tag">rede de segurança: existente</span>
+</div>
+
+<h2>1. O gargalo, com evidência</h2>
+
+<p>Dois trechos da ingestão de CSV fazem trabalho por linha em Python puro onde a biblioteca
+opera em coluna:</p>
+
+<table>
+  <tr><th>Símbolo</th><th>Linha</th><th>O que faz hoje</th></tr>
+  <tr><td><code>detect_columns</code></td><td>163 a 167</td>
+      <td>monta a <strong>lista completa</strong> das colunas que casam a regex, para depois pegar
+          <code>[0]</code>. A varredura por regex roda em todas as colunas mesmo quando a primeira
+          já resolveu.</td></tr>
+  <tr><td><code>aggregate_matches</code></td><td>182</td>
+      <td><code>df.apply(build_group_key, axis=1)</code>. O <code>apply(axis=1)</code> monta uma
+          <code>Series</code> por linha, e dentro dela chama <code>norm_name(demojibake(str(...)))</code>.</td></tr>
+</table>
+
+<p>As duas crescem com o número de <strong>linhas do CSV</strong>, não com o número de candidatos do
+GEDCOM. Um export do GEDmatch tem milhares de linhas, e traz <strong>vários segmentos por
+match</strong>, que é justamente por que a agregação por chave existe.</p>
+
+<h2>2. Baseline medido</h2>
+
+<p>Instrumento: <code>before-after/bench_ingest.py</code>. GEDCOM sintético de 1023 pessoas e 341
+famílias, CSV sintético de 8 colunas (a forma de um export), 15 repetições por fase e 5 por fluxo,
+com aquecimento e <strong>medições intercaladas</strong> entre os tamanhos. Saída crua em
+<code>before-after/baseline.txt</code>.</p>
+
+<table>
+  <tr><th>Linhas no CSV</th><th class="num">detect_columns</th><th class="num">aggregate_matches</th>
+      <th class="num">fluxo completo</th><th class="num">soma das fases</th></tr>
+  <tr><td>300</td><td class="num">4,60 ms</td><td class="num">22,38 ms</td>
+      <td class="num">275,99 ms</td><td class="num">26,97 ms (9,8%)</td></tr>
+  <tr><td>1 000</td><td class="num">7,63 ms</td><td class="num">66,06 ms</td>
+      <td class="num">418,13 ms</td><td class="num">73,69 ms (17,6%)</td></tr>
+  <tr><td>3 000</td><td class="num">20,87 ms</td><td class="num">196,62 ms</td>
+      <td class="num">920,44 ms</td><td class="num">217,49 ms (23,6%)</td></tr>
+</table>
+
+<div class="caixa ok">
+  <p><strong>O baseline reproduz o da oportunidade.</strong> Na escala de 300 linhas, a OPP registrou
+  <code>aggregate_matches</code> em 0,027 s = 8,2% do fluxo. Medido agora: 22,4 ms = 8,1%. Duas
+  medições independentes, com quase dois meses de distância e instrumentos diferentes, concordam.</p>
+</div>
+
+<p>E a conclusão estrutural da OPP se confirma: a fatia das duas fases <strong>cresce</strong> com o
+tamanho do arquivo, de 9,8% para 23,6%.</p>
+
+<h3>Duas correções que eu fiz no próprio instrumento</h3>
+<ul>
+  <li>A primeira versão media cada tamanho em bloco, e a máquina lenta num momento contaminava um
+      tamanho só: <code>detect_columns</code> saiu <em>mais rápido</em> com 1000 linhas do que com 300,
+      o que é impossível. Passei a intercalar as medições.</li>
+  <li>A primeira versão cronometrava o <code>df.copy()</code> junto com a função, porque a cópia estava
+      dentro da região medida. Corrigido: as cópias são criadas antes.</li>
+</ul>
+
+<h3>Uma hipótese minha que caiu</h3>
+<p>Suspeitei que <code>apply(axis=1)</code> também encarecesse com o número de colunas, já que monta uma
+<code>Series</code> por linha com todas elas. Medi um CSV de 3 colunas contra o de 8, nas mesmas
+contagens de linha: a razão ficou entre 1,03x e 1,21x, ou seja, ruído. <strong>A hipótese estava
+errada</strong> e não a usei para justificar nada.</p>
+
+<h2>3. Complexidade declarada</h2>
+
+<table>
+  <tr><th>Fase</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td><code>detect_columns</code></td>
+      <td>O(k · n): k = todas as colunas, sempre</td>
+      <td>O(j · n): j = índice da primeira coluna que casa, com j ≤ k</td></tr>
+  <tr><td><code>aggregate_matches</code> (v2)</td>
+      <td>O(n) chamadas Python, cada uma alocando uma <code>Series</code></td>
+      <td>O(n) chamadas Python, sem alocar <code>Series</code></td></tr>
+  <tr><td><code>aggregate_matches</code> (v3)</td>
+      <td>O(n) chamadas Python + uma <code>Series</code> por linha</td>
+      <td>O(u) chamadas Python, u = nomes distintos, com u ≤ n</td></tr>
+</table>
+
+<p>Espaço: O(n) nos três casos. A v3 acrescenta um dicionário de u entradas, que é do mesmo tamanho
+que a coluna já existente.</p>
+
+<h2>4. O que muda no código</h2>
+
+<h3><code>detect_columns</code>: parar na primeira coluna que casa</h3>
+<pre><code>-    id_cols_guess = [
+-        c for c in df.columns
+-        if df[c].astype(str).str.fullmatch(r"[A-Z]{2}\d{7}").mean() > 0.3
+-    ]
+-    match_id_col = id_cols_guess[0] if id_cols_guess else None
++    match_id_col = next(
++        (c for c in df.columns
++         if df[c].astype(str).str.fullmatch(r"[A-Z]{2}\d{7}").mean() > 0.3), None)</code></pre>
+<p>A escolha é a mesma, porque a semântica sempre foi "a primeira que casa". A diferença é que hoje
+as demais são calculadas para nada.</p>
+
+<h3><code>aggregate_matches</code>: chave por coluna</h3>
+<pre><code>-    def build_group_key(row):
+-        parts = [norm_name(demojibake(str(row[name_col])))]
+-        if match_id_col:
+-            parts.append(str(row[match_id_col]).strip().upper())
+-        elif match_email_col:
+-            parts.append(norm_name(str(row[match_email_col])))
+-        return " | ".join(parts)
+-
+-    df["_group_key"] = df.apply(build_group_key, axis=1)
++    nomes = df[name_col].map(str)
++    mapa = {v: norm_name(demojibake(v)) for v in nomes.drop_duplicates()}
++    name_key = nomes.map(mapa)
++    if match_id_col:
++        cauda = df[match_id_col].map(str).str.strip().str.upper()
++    elif match_email_col:
++        emails = df[match_email_col].map(str)
++        cauda = emails.map({v: norm_name(v) for v in emails.drop_duplicates()})
++    else:
++        cauda = None
++    df["_group_key"] = name_key if cauda is None else name_key + " | " + cauda</code></pre>
+
+<p>Este é o bloco da <strong>v3</strong>. A <strong>v2</strong> é o mesmo código sem as duas linhas de
+dicionário, chamando <code>norm_name</code> dentro do <code>.map</code>, uma vez por linha.</p>
+
+<div class="caixa erro">
+  <p><strong>A armadilha que a sonda pegou, e por que ela importa.</strong> A primeira versão da v3 que
+  escrevi usava <code>.astype(str)</code>, que é o reflexo natural em pandas. Em coluna de objeto, o
+  <code>astype(str)</code> <strong>preserva <code>NaN</code> como float</strong> em vez de virar a string
+  <code>'nan'</code>. A v1 converte com <code>str(...)</code> por elemento, então o resultado não bate:
+  o <code>demojibake</code> recebe um float e estoura com
+  <code>TypeError: argument of type 'float' is not iterable</code>. É literalmente o risco que a OPP
+  registrou em "qualquer diferença em como o <code>str</code> do pandas trata <code>NaN</code> muda a
+  chave". A sonda só pegou porque eu incluí um caso de borda com <code>None</code> na coluna de nome.</p>
+</div>
+
+<h2>5. Ganho medido</h2>
+
+<p>Instrumento: <code>before-after/probe_candidato.py</code>, que <strong>não toca no módulo</strong>:
+reimplementa as variantes e compara contra a versão atual. 15 repetições, intercaladas. Saída crua em
+<code>before-after/ganho-candidato.txt</code>.</p>
+
+<table>
+  <tr><th>Linhas no CSV</th><th class="num">detect_columns (v2)</th>
+      <th class="num">aggregate v2 (map)</th><th class="num">aggregate v3 (map+dedup)</th></tr>
+  <tr><td>300 <span class="peq">(253 nomes distintos)</span></td><td class="num">−39,6%</td>
+      <td class="num">−19,3%</td><td class="num">−21,0%</td></tr>
+  <tr><td>1 000 <span class="peq">(628 distintos)</span></td><td class="num">−39,1%</td>
+      <td class="num">−24,5%</td><td class="num">−43,1%</td></tr>
+  <tr><td>3 000 <span class="peq">(973 distintos)</span></td><td class="num">−40,5%</td>
+      <td class="num">−25,9%</td><td class="num">−68,2%</td></tr>
+  <tr><td>3 000 <span class="peq">(todos distintos)</span></td><td class="num">n/a</td>
+      <td class="num">−22,5%</td><td class="num">−20,4%</td></tr>
+</table>
+
+<div class="caixa aviso">
+  <p><strong>A v3 não domina a v2, e a última linha é a razão.</strong> Com todos os nomes distintos,
+  a v3 fica <em>levemente pior</em> que a v2 (−20,4% contra −22,5%), porque montar o dicionário e
+  consultá-lo custa um pouco mais que a chamada direta. Ela ganha exatamente na proporção de
+  repetição: quanto mais segmentos por match, mais ela economiza.</p>
+  <p>A forma do dado real é a que tem repetição. A agregação por chave existe justamente para somar
+  os vários segmentos de um mesmo match, e a fixture <code>duplicated.csv</code> congela esse caso
+  (387 + 150 = 537). Ainda assim, a decisão é sua, e ela está no fim deste plano.</p>
+</div>
+
+<h3>Ganho esperado no fluxo completo</h3>
+
+<p>Combinando o ganho medido por fase com a fatia que cada fase ocupa do fluxo:</p>
+
+<table>
+  <tr><th>Cenário</th><th class="num">3 000 linhas, v2</th><th class="num">3 000 linhas, v3</th>
+      <th class="num">300 linhas, v3</th></tr>
+  <tr><td>Redução do fluxo completo</td><td class="num">≈ 6,4%</td><td class="num">≈ 15,5%</td>
+      <td class="num">≈ 2,4%</td></tr>
+</table>
+
+<p>Ou seja: <strong>pequeno em CSV pequeno, material em CSV grande</strong>, que é exatamente o
+argumento estrutural da oportunidade.</p>
+
+<h2>6. Prova de equivalência</h2>
+
+<h3>Já executada, antes de tocar em qualquer arquivo</h3>
+<p>As variantes v2 e v3 foram comparadas contra a v1 com igualdade exata
+(<code>DataFrame.equals</code>) em 16 entradas: as 7 fixtures de DNA do harness de paridade e 9 casos
+de borda. Veredito: <strong>idêntico em todo o corpus</strong>, zero divergências.</p>
+
+<table>
+  <tr><th>Grupo</th><th>Entradas</th><th>Resultado</th></tr>
+  <tr><td>Fixtures de DNA</td>
+      <td><code>cm_boundaries</code>, <code>duplicated</code>, <code>generic</code>,
+          <code>latin1</code>, <code>no_intersection</code>, <code>utf8</code></td>
+      <td>idêntico</td></tr>
+  <tr><td><code>missing_col.csv</code></td><td>sem coluna de nome nem de cM</td>
+      <td>fora do fluxo: <code>dna_analysis</code> levanta <code>ValueError</code> antes de chegar aqui,
+          e a v1 quebra com <code>KeyError</code> se chamada direto. Não é regressão de ninguém</td></tr>
+  <tr><td>Casos de borda</td>
+      <td>só cabeçalho, sem id e sem email, cM numérico, id e email juntos, nome <code>None</code>,
+          nome vazio e só espaços, mojibake, linha duplicada, email repetido em caixas diferentes</td>
+      <td>idêntico</td></tr>
+</table>
+
+<h3>Planejada, depois de aplicar</h3>
+<ul>
+  <li><strong>Suíte completa</strong> (<code>python -m pytest -q</code>), com a saída verde em
+      <code>safety-net/pytest-after-apply.txt</code>. Hoje: 85 passed, 1 error, e o erro é o
+      <code>PermissionError</code> de sandbox em <code>test_ensure_dirs_creates_uploads</code>.</li>
+  <li><strong><code>tests/test_characterization_matching.py</code></strong> é a barreira central: ele
+      congela <code>cm: 537</code> para o caso duplicado, via <code>test_pipeline_caracterizado</code>,
+      atravessando <code>dna_analysis</code> inteiro. É o teste que morre se a chave de agrupamento
+      mudar.</li>
+  <li><strong>Reexecutar a sonda</strong> contra o módulo já editado, para confirmar que a v1 nova
+      reproduz a saída da v1 antiga nas mesmas 16 entradas.</li>
+  <li><strong>Remedir</strong> com o mesmo instrumento e comparar antes e depois. Sem ganho ou com
+      regressão, eu reverto pelo diff.</li>
+</ul>
+
+<h2>7. O que esta otimização não resolve</h2>
+<p>Mesmo na v3, o custo continua proporcional ao número de <strong>nomes distintos</strong>, e cada um
+paga <code>norm_name</code>, que a docstring do módulo estima em 41 µs. A medição confirma: o
+coeficiente que ajustei nos dados dá ≈ 40 µs por nome distinto. <code>norm_name</code> é normalização
+customizada (NFKD, combinação, pontuação, mojibake) e não vira operação vetorizada de pandas sem
+reescrever a regra, o que sairia do escopo desta oportunidade e tocaria uma função usada por todo o
+matching.</p>
+
+<h2>8. A decisão que eu preciso de você</h2>
+
+<table>
+  <tr><th>Opção</th><th>Ganho</th><th>Custo e risco</th></tr>
+  <tr><td><strong>v3</strong> (map + dedup)</td>
+      <td>−39% em <code>detect_columns</code>; −21% a −68% em <code>aggregate_matches</code>,
+          conforme a repetição. ≈ 15% do fluxo em 3 000 linhas</td>
+      <td>Duas linhas a mais que a v2. É levemente pior (<code>≈ 2,7%</code>) quando não há repetição
+          nenhuma. Exige <code>.map(str)</code>, nunca <code>.astype(str)</code></td></tr>
+  <tr><td><strong>v2</strong> (só map)</td>
+      <td>−39% em <code>detect_columns</code>; −19% a −26% em <code>aggregate_matches</code>. ≈ 6% do
+          fluxo em 3 000 linhas</td>
+      <td>Não depende da forma do dado. É a proposta literal da OPP</td></tr>
+  <tr><td><strong>Recusar</strong></td>
+      <td>nada</td>
+      <td>A OPP fica registrada como <code>declined</code>, com a medição anexada. Nada é tocado</td></tr>
+</table>
+
+<p class="peq">As duas opções passam pelo mesmo gate de diff antes de aplicar. A escolha é entre a
+proposta literal da OPP e a variante que mede melhor no dado que este sistema de fato processa.</p>
+
+<footer>
+  Plano gerado pelo Reversa-Optimize em 2026-10-01, antes de qualquer escrita no código.
+  Evidências: <code>before-after/bench_ingest.py</code>, <code>before-after/baseline.txt</code>,
+  <code>before-after/probe_candidato.py</code>, <code>before-after/ganho-candidato.txt</code>.
+</footer>
+
+</main>
+</body>
+</html>

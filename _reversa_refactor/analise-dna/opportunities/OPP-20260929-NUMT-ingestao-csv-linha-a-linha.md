@@ -14,7 +14,7 @@ roi:
   impact: custo que cresce linearmente com o CSV, e CSV de GEDmatch tem milhares de linhas
   cost: medium
   est_return: ingestão proporcional ao tamanho real do arquivo, não ao número de chamadas Python
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras]
   specs: [_reversa_sdd/analise-dna/design.md#fluxo-principal, _reversa_sdd/migration/target_business_rules.md#br-migrar-016-agregação-de-segmentos-chave-_group_key-e-soma-de-cm]
