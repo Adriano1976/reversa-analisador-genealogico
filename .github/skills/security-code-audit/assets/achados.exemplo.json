@@ -1,0 +1,162 @@
+{
+  "projeto": {
+    "nome": "acme-saas-api",
+    "data": "03/09/2026",
+    "escopo": "Backend (src/), migrações (prisma/) e infraestrutura (docker-compose.yml, .github/workflows/)",
+    "stack_detectada": {
+      "linguagem": "TypeScript (Node.js 20)",
+      "framework": "Express 4",
+      "orm": "Prisma",
+      "autenticacao": "JWT via middleware próprio (src/middlewares/auth.ts)",
+      "frontend": "React 18 (Vite)",
+      "arquivos_deploy": ["docker-compose.yml", ".github/workflows/deploy.yml"]
+    },
+    "nota_metodologica": "Projeto sem Supabase/RLS nativo — o isolamento de tenant é feito manualmente via workspaceId no middleware requireWorkspace. A categoria 1 foi tratada como 'filtro manual por workspaceId ausente/furado' em vez de RLS."
+  },
+  "achados": [
+    {
+      "id": "F-01",
+      "categoria": "banco_sem_tranca",
+      "severidade": "critica",
+      "arquivo": "src/routes/relatorios.ts",
+      "linhas": "58-64",
+      "trecho_codigo": "const relatorios = await prisma.relatorio.findMany({\n  where: { status: 'ativo' }\n});",
+      "descricao": "Endpoint de exportação de relatórios lista registros de todos os workspaces, sem filtrar por workspaceId do usuário autenticado.",
+      "por_que_exploravel": "Qualquer usuário autenticado (de qualquer workspace) recebe dados de todos os outros clientes na resposta.",
+      "condicoes_exploracao": "Basta estar autenticado; não depende de feature flag.",
+      "recomendacao": "Adicionar where: { workspaceId: req.usuario.workspaceId } à query, seguindo o padrão já usado em src/routes/faturas.ts."
+    },
+    {
+      "id": "F-02",
+      "categoria": "idor",
+      "severidade": "alta",
+      "arquivo": "src/routes/documentos.ts",
+      "linhas": "112-118",
+      "trecho_codigo": "router.delete('/documentos/:id', auth, async (req, res) => {\n  await prisma.documento.delete({ where: { id: req.params.id } });\n  res.sendStatus(204);\n});",
+      "descricao": "Rota de exclusão de documento não verifica se o documento pertence ao workspace/usuário que fez a requisição.",
+      "por_que_exploravel": "Um usuário autenticado pode apagar documentos de outros workspaces só sabendo (ou enumerando) o ID.",
+      "condicoes_exploracao": "",
+      "recomendacao": "Buscar o documento antes com where: { id, workspaceId }, e retornar 404 se não encontrado."
+    },
+    {
+      "id": "F-03",
+      "categoria": "permissao_navegador",
+      "severidade": "alta",
+      "arquivo": "src/routes/usuarios.ts",
+      "linhas": "80-95",
+      "trecho_codigo": "router.post('/usuarios/:id/promover-admin', auth, async (req, res) => {\n  await prisma.usuario.update({ where: { id: req.params.id }, data: { role: 'admin' } });\n  res.sendStatus(200);\n});",
+      "descricao": "O frontend esconde o botão 'Promover a admin' quando isAdmin é falso, mas a rota equivalente no backend só exige o middleware auth (autenticado), não verifica req.usuario.role === 'admin'.",
+      "por_que_exploravel": "Qualquer usuário autenticado pode chamar a rota diretamente e se autopromover a admin.",
+      "condicoes_exploracao": "",
+      "recomendacao": "Adicionar middleware requireRole('admin') nesta rota, igual ao já usado em /configuracoes."
+    },
+    {
+      "id": "F-04",
+      "categoria": "chaves_expostas",
+      "severidade": "critica",
+      "arquivo": "docker-compose.yml",
+      "linhas": "22",
+      "trecho_codigo": "JWT_SECRET: ${JWT_SECRET:-troque-em-producao}",
+      "descricao": "Default público de JWT_SECRET vira segredo real em qualquer ambiente onde a variável não seja sobrescrita, e não há validação de startup rejeitando esse valor.",
+      "por_que_exploravel": "Se subir para produção sem definir JWT_SECRET, qualquer pessoa pode forjar tokens válidos usando o valor 'troque-em-producao', que está público no repositório.",
+      "condicoes_exploracao": "Só é explorável se a variável de ambiente real não for definida no deploy.",
+      "recomendacao": "Remover o default e falhar o startup (process.exit) se JWT_SECRET não estiver definido."
+    },
+    {
+      "id": "F-05",
+      "categoria": "inputs_sem_tratamento",
+      "severidade": "media",
+      "arquivo": "src/frontend/components/ComentarioCard.tsx",
+      "linhas": "34",
+      "trecho_codigo": "<div dangerouslySetInnerHTML={{ __html: comentario.texto }} />",
+      "descricao": "Texto de comentário vindo do usuário é renderizado como HTML sem sanitização.",
+      "por_que_exploravel": "Um usuário mal-intencionado pode injetar <script> em um comentário e executar JS no navegador de quem visualizar.",
+      "condicoes_exploracao": "",
+      "recomendacao": "Sanitizar com DOMPurify antes de passar para dangerouslySetInnerHTML, ou renderizar como texto puro."
+    }
+  ],
+  "pontos_fortes": [
+    {
+      "categoria": "idor",
+      "arquivo": "src/routes/faturas.ts",
+      "descricao": "Todos os handlers validam posse do recurso via where: { id, workspaceId } antes de ler, alterar ou deletar."
+    },
+    {
+      "categoria": "chaves_expostas",
+      "arquivo": ".github/workflows/deploy.yml",
+      "descricao": "Segredos de deploy usam secrets.* do GitHub Actions corretamente, sem nenhum valor hardcoded encontrado no workflow."
+    },
+    {
+      "categoria": "inputs_sem_tratamento",
+      "arquivo": "src/frontend/components/PostBody.tsx",
+      "descricao": "Conteúdo de posts é renderizado via biblioteca de markdown com sanitização (react-markdown + rehype-sanitize) configurada corretamente."
+    }
+  ],
+  "categorias_nao_aplicaveis": [],
+  "recomendacoes_priorizadas": [
+    {
+      "prioridade": "P1",
+      "titulo": "Corrigir isolamento de workspace em queries de listagem/exportação",
+      "descricao": "Auditar todos os findMany/aggregate do Prisma e garantir workspaceId no where. Começar por F-01."
+    },
+    {
+      "prioridade": "P1",
+      "titulo": "Adicionar verificação de posse em rotas de escrita/exclusão por ID",
+      "descricao": "Padronizar um helper buscarOuFalhar(model, id, workspaceId) e aplicar em todas as rotas DELETE/PATCH que recebem :id."
+    },
+    {
+      "prioridade": "P2",
+      "titulo": "Adicionar checagem de papel no backend para ações administrativas",
+      "descricao": "Cruzar todos os gates de UI baseados em isAdmin/role com o endpoint correspondente e adicionar requireRole()."
+    },
+    {
+      "prioridade": "P3",
+      "titulo": "Sanitizar HTML gerado por usuário no frontend",
+      "descricao": "Aplicar DOMPurify em todos os pontos com dangerouslySetInnerHTML restantes."
+    }
+  ],
+  "issues_github": [
+    {
+      "titulo": "[Segurança] Queries de relatório não filtram por workspace (isolamento de tenant quebrado)",
+      "labels": ["security", "critica"],
+      "achados_relacionados": ["F-01"],
+      "descricao": "O endpoint de relatórios lista dados de todos os workspaces para qualquer usuário autenticado, quebrando o isolamento multi-tenant.",
+      "evidencia": "`src/routes/relatorios.ts:58-64`\n```ts\nconst relatorios = await prisma.relatorio.findMany({\n  where: { status: 'ativo' }\n});\n```",
+      "impacto": "Vazamento de dados entre clientes (cross-tenant data leak) — qualquer conta paga tem acesso aos relatórios de todas as outras.",
+      "sugestao_correcao": "Adicionar workspaceId: req.usuario.workspaceId ao where, seguindo o padrão de src/routes/faturas.ts.",
+      "criterios_aceite": [
+        "A query em relatorios.ts filtra por workspaceId do usuário autenticado",
+        "Teste automatizado cobre o caso de dois workspaces distintos e garante que um não vê dados do outro",
+        "Revisão manual confirma que não há outro findMany/aggregate no mesmo router sem o filtro"
+      ]
+    },
+    {
+      "titulo": "[Segurança] IDOR na exclusão de documentos + autopromoção a admin sem checagem de papel no backend",
+      "labels": ["security", "alta"],
+      "achados_relacionados": ["F-02", "F-03"],
+      "descricao": "Duas falhas de controle de acesso relacionadas: (1) exclusão de documento por ID não valida posse; (2) promoção a admin não valida papel do requisitante no servidor, apenas no frontend.",
+      "evidencia": "`src/routes/documentos.ts:112-118`\n```ts\nrouter.delete('/documentos/:id', auth, async (req, res) => {\n  await prisma.documento.delete({ where: { id: req.params.id } });\n});\n```\n`src/routes/usuarios.ts:80-95`\n```ts\nrouter.post('/usuarios/:id/promover-admin', auth, async (req, res) => {\n  await prisma.usuario.update({ where: { id: req.params.id }, data: { role: 'admin' } });\n});\n```",
+      "impacto": "Qualquer usuário autenticado pode apagar documentos de terceiros e se autopromover a administrador.",
+      "sugestao_correcao": "Adicionar verificação de posse (where com workspaceId) na exclusão, e middleware requireRole('admin') na promoção.",
+      "criterios_aceite": [
+        "DELETE /documentos/:id retorna 404 para documentos de outro workspace",
+        "POST /usuarios/:id/promover-admin retorna 403 quando o requisitante não é admin",
+        "Testes automatizados cobrem os dois casos"
+      ]
+    },
+    {
+      "titulo": "[Segurança] Default inseguro de JWT_SECRET no docker-compose",
+      "labels": ["security", "critica"],
+      "achados_relacionados": ["F-04"],
+      "descricao": "JWT_SECRET tem um valor default público (${JWT_SECRET:-troque-em-producao}) e não há validação de startup que rejeite esse valor em produção.",
+      "evidencia": "`docker-compose.yml:22`\n```yaml\nJWT_SECRET: ${JWT_SECRET:-troque-em-producao}\n```",
+      "impacto": "Se a variável real não for definida no deploy, tokens podem ser forjados por qualquer pessoa com acesso ao código-fonte público.",
+      "sugestao_correcao": "Remover o default e adicionar checagem de startup que encerra o processo se JWT_SECRET não estiver definido.",
+      "criterios_aceite": [
+        "docker-compose.yml não define mais um valor default para JWT_SECRET",
+        "A aplicação falha ao subir (com mensagem clara) se JWT_SECRET estiver ausente",
+        "Repetir a mesma checagem para outros segredos com default público, se houver"
+      ]
+    }
+  ]
+}
