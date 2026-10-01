@@ -1,5 +1,5 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 8 oportunidades -->
-<!-- Atualizado a mao em 2026-10-01: OPP-20260929-NUMT passou a applied. O gerador nao foi reexecutado. -->
+<!-- Atualizado a mao em 2026-10-01: OPP-20260929-NUMT e OPP-20260929-ZV52 passaram a applied. O gerador nao foi reexecutado. -->
 
 # Índice de qualidade de código · analise-dna
 
@@ -16,7 +16,7 @@
 | #13 | `OPP-20260929-IM3Q` | prune | green | superfície de instalação e tempo de build de ambiente, sem nenhum ganho em troca | low | applied | uma dependência nativa a menos para compilar em cada ambiente novo |
 | #16 | `OPP-20260929-U2NK` | prune | green | clareza do modulo e uma pista falsa sobre onde a regex de ID vive | low | applied | uma linha a menos e nenhuma ambiguidade sobre a origem da regex de ID |
 | #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | applied | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
-| #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | proposed | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
+| #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | applied | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
 
 ## Transformações
 
@@ -28,6 +28,7 @@
 | `OPP-20260929-IM3Q` | aplicada | - | sim | 1 artefato(s) |
 | `OPP-20260929-U2NK` | aplicada | - | sim | 2 artefato(s) |
 | `OPP-20260929-NUMT` | aplicada | `plan.html` | sim | 8 artefato(s) |
+| `OPP-20260929-ZV52` | aplicada | `plan.html` | sim | 9 artefato(s) |
 
 ## Legenda
 

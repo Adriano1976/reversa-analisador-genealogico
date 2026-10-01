@@ -1,0 +1,55 @@
+ACOPLAMENTO ENTRE OS BLOCOS DE dna_analysis.py
+arquivo: analisador-genealogico\reconstructed\dna_analysis.py
+linhas : 402
+==============================================================================
+
+head               linhas   1-25   ( 25 linhas)  docstring e imports
+  define     ( 0): -
+  usa de outro bloco: nenhum
+
+cm_e_vocabulario   linhas  26-67   ( 42 linhas)  faixas de cM e vocabulario
+  define     ( 8): COMMON_SURNAMES, GENERIC_GIVENS, SHARED_CM_DATA, SHORT_KEEP, STOP_WORDS, SURNAME_EQUIV, SURNAME_SUFFIXES, get_relationships_by_cm
+  usa de outro bloco: nenhum
+
+normalizacao       linhas  69-145  ( 77 linhas)  normalizacao e nomes
+  define     ( 8): drop_short_tokens, norm_name, soft_prefix_jaccard, split_name_pt, surname_core_tokens, surnames_set, token_prefixes, top_given_tokens
+  usa de cm_e_vocabulario: GENERIC_GIVENS (definido na linha 43)
+  usa de cm_e_vocabulario: SHORT_KEEP (definido na linha 59)
+  usa de cm_e_vocabulario: STOP_WORDS (definido na linha 42)
+  usa de cm_e_vocabulario: SURNAME_EQUIV (definido na linha 53)
+  usa de cm_e_vocabulario: SURNAME_SUFFIXES (definido na linha 48)
+
+csv_ingest         linhas 147-199  ( 53 linhas)  leitura e agregacao do CSV
+  define     ( 3): aggregate_matches, detect_columns, read_csv_with_fallback
+  usa de normalizacao    : norm_name (definido na linha 74)
+
+matching           linhas 201-341  (141 linhas)  indices e matching difuso
+  define     ( 2): build_ged_indexes, match_candidates
+  usa de cm_e_vocabulario: COMMON_SURNAMES (definido na linha 49)
+  usa de cm_e_vocabulario: GENERIC_GIVENS (definido na linha 43)
+  usa de cm_e_vocabulario: STOP_WORDS (definido na linha 42)
+  usa de normalizacao    : drop_short_tokens (definido na linha 84)
+  usa de normalizacao    : norm_name (definido na linha 74)
+  usa de normalizacao    : soft_prefix_jaccard (definido na linha 128)
+  usa de normalizacao    : split_name_pt (definido na linha 99)
+  usa de normalizacao    : surnames_set (definido na linha 108)
+  usa de normalizacao    : token_prefixes (definido na linha 119)
+
+fluxo              linhas 343-402  ( 60 linhas)  fluxo principal
+  define     ( 1): dna_analysis
+  usa de csv_ingest      : aggregate_matches (definido na linha 173)
+  usa de matching        : build_ged_indexes (definido na linha 205)
+  usa de csv_ingest      : detect_columns (definido na linha 160)
+  usa de cm_e_vocabulario: get_relationships_by_cm (definido na linha 62)
+  usa de matching        : match_candidates (definido na linha 240)
+  usa de csv_ingest      : read_csv_with_fallback (definido na linha 151)
+
+==============================================================================
+GRAFO ENTRE BLOCOS (quem depende de quem)
+  csv_ingest         -> normalizacao
+  fluxo              -> cm_e_vocabulario
+  fluxo              -> csv_ingest
+  fluxo              -> matching
+  matching           -> cm_e_vocabulario
+  matching           -> normalizacao
+  normalizacao       -> cm_e_vocabulario

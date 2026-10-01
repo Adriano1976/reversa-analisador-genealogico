@@ -1,0 +1,14 @@
+CUSTO DE IMPORT POR FRONTEIRA (processo novo por medicao, minimo de 5)
+==============================================================================
+alvo                              modulos           ms  dependencias caras
+reconstructed.dna_analysis           1009      1093.18  ged4py,networkx,numpy,pandas,rapidfuzz,thefuzz
+reconstructed.domain                   67        15.41  -
+reconstructed.upload                  501       405.76  ged4py,networkx
+reconstructed.path_search             503       406.03  ged4py,networkx
+pandas                                601       743.93  numpy,pandas
+thefuzz                                47         0.88  thefuzz
+networkx                              451       360.48  networkx
+ged4py.parser                         147       123.78  ged4py
+==============================================================================
+Leitura: quanto menor a coluna de dependencias caras, mais barato testar
+aquela fronteira isoladamente. 'dna_analysis' puxa todas elas.

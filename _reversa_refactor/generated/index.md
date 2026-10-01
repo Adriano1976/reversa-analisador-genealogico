@@ -1,11 +1,11 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 17 oportunidades -->
-<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ e OPP-20260929-NUMT passaram a applied. O gerador nao foi reexecutado. -->
+<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ, OPP-20260929-NUMT e OPP-20260929-ZV52 passaram a applied. O gerador nao foi reexecutado. -->
 
 # Registro de qualidade de código · visão global
 
 > Gerado em `2026-09-30T13:10:36-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 13 aplicada(s) e 4 em aberto.
+Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 14 aplicada(s) e 3 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -24,7 +24,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Tota
 | #4 | `OPP-20260929-4LE3` | modularize | green | risco de correção no lugar errado | low | applied | uma única autoridade sobre limpeza de nome, com a divergência documentada em vez de escondida |
 | #8 | `OPP-20260929-B5F2` | modularize | green | 124 linhas e 14 testes que não protegem nada do que roda; pistas falsas para quem investiga | low | applied | menos superfície de leitura, ao custo de decisão explícita sobre a linha de base de testes |
 | #15 | `OPP-20260929-5XGJ` | standardize | green | quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso | low | applied | uma única regra de import no arquivo, com o motivo escrito |
-| #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | proposed | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
+| #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | applied | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
 | #6 | `OPP-20260929-UXEF` | modularize | yellow | acoplamento e testabilidade | medium | proposed | busca testável sem render, e o render isolado como o ponto onde o escape vive |
 | #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | proposed | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
 | #10 | `OPP-20260929-EHNZ` | decouple | yellow | acoplamento estrutural | high | proposed | nenhum ganho como refactor. Ver a nota de escopo abaixo antes de rotear |

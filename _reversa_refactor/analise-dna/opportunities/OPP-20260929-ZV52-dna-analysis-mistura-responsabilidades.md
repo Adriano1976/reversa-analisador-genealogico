@@ -14,7 +14,7 @@ roi:
   impact: acoplamento e clareza. É o módulo mais difícil de testar em partes e o que mais muda
   cost: medium
   est_return: cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras, .reversa/soul.md#entidades-centrais]
   specs: [_reversa_sdd/analise-dna/design.md#interface, _reversa_sdd/analise-dna/design.md#fluxo-principal]

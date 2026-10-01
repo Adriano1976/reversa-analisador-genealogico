@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Plano de modularização · OPP-20260929-ZV52</title>
+<style>
+  :root { --tinta:#1c2024; --suave:#5b6570; --linha:#dfe3e8; --fundo:#f7f8fa;
+          --ok:#1f7a45; --alerta:#9a6700; --erro:#b42318; --azul:#1b4f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--fundo); color:var(--tinta);
+         font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; background:#fff; border:1px solid var(--linha);
+         border-radius:10px; padding:34px 38px 44px; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  .sub { color:var(--suave); font-size:14px; margin-bottom:26px; }
+  h2 { font-size:17px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--linha); }
+  h3 { font-size:15px; margin:20px 0 6px; color:var(--azul); }
+  p { margin:10px 0; }
+  code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:13px;
+         font-family:Consolas,Menlo,monospace; }
+  pre { background:#22272e; color:#e6edf3; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:12.5px; line-height:1.5; }
+  pre code { background:none; color:inherit; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--linha); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#eef1f4; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums;
+                   font-family:Consolas,Menlo,monospace; }
+  .tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+  .tag { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--linha);
+         background:#fff; color:var(--suave); }
+  .tag.ok { border-color:#a7d3b8; color:var(--ok); background:#f0f8f3; }
+  .tag.al { border-color:#e6d3a3; color:var(--alerta); background:#fdf8ec; }
+  .caixa { border-left:3px solid var(--azul); background:#f4f7fb; padding:12px 16px;
+           border-radius:0 6px 6px 0; margin:16px 0; }
+  .caixa.aviso { border-color:var(--alerta); background:#fdf8ec; }
+  .caixa.erro { border-color:var(--erro); background:#fdf3f2; }
+  .caixa.ok { border-color:var(--ok); background:#f0f8f3; }
+  .caixa p:first-child { margin-top:0; }
+  .caixa p:last-child { margin-bottom:0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:5px 0; }
+  .peq { font-size:13px; color:var(--suave); }
+  .mono { font-family:Consolas,Menlo,monospace; font-size:13px; }
+  footer { margin-top:38px; padding-top:14px; border-top:1px solid var(--linha);
+           font-size:13px; color:var(--suave); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Separar dna_analysis.py por responsabilidade</h1>
+<div class="sub">OPP-20260929-ZV52 · contexto <code>analise-dna</code> · verbo <code>modularize</code> ·
+alvo <code>analisador-genealogico/reconstructed/dna_analysis.py</code></div>
+
+<div class="tags">
+  <span class="tag">confiança 🟡</span>
+  <span class="tag">custo médio</span>
+  <span class="tag">control_mode: gated</span>
+  <span class="tag">safety_net_policy: require-characterization</span>
+  <span class="tag">nenhum corpo de função muda</span>
+</div>
+
+<h2>1. Responsabilidades hoje</h2>
+
+<p>O módulo <strong>já está dividido</strong> por banners de seção escritos pelo próprio autor. Não é
+preciso inventar fronteira: ela está declarada no arquivo. O que existe é um único arquivo de 402
+linhas com cinco blocos que não compartilham motivo de mudança.</p>
+
+<table>
+  <tr><th>Bloco</th><th class="num">Linhas</th><th class="num">Tamanho</th>
+      <th class="num">Símbolos</th><th>Responsabilidade única</th></tr>
+  <tr><td><code>head</code></td><td class="num">1-25</td><td class="num">25</td><td class="num">0</td>
+      <td>docstring e imports</td></tr>
+  <tr><td><code>cm_e_vocabulario</code></td><td class="num">26-67</td><td class="num">42</td>
+      <td class="num">8</td><td>faixas de cM e vocabulário de nomes</td></tr>
+  <tr><td><code>normalizacao</code></td><td class="num">69-145</td><td class="num">77</td>
+      <td class="num">8</td><td>normalização e decomposição de nomes</td></tr>
+  <tr><td><code>csv_ingest</code></td><td class="num">147-199</td><td class="num">53</td>
+      <td class="num">3</td><td>leitura e agregação do CSV</td></tr>
+  <tr><td><code>matching</code></td><td class="num">201-341</td><td class="num">141</td>
+      <td class="num">2</td><td>índices e matching difuso</td></tr>
+  <tr><td><code>fluxo</code></td><td class="num">343-402</td><td class="num">60</td>
+      <td class="num">1</td><td>orquestração e montagem da resposta</td></tr>
+</table>
+
+<h2>2. Acoplamento real entre os blocos</h2>
+
+<p>Medido por AST, não estimado. Instrumento em <code>before-after/analise_blocos.py</code>, saída em
+<code>before-after/acoplamento-antes.txt</code>. Ele agrupa as instruções de nível de módulo pelos
+banners e calcula, para cada bloco, quais nomes definidos em <em>outro</em> bloco ele referencia.</p>
+
+<pre><code>normalizacao  -> cm_e_vocabulario   (GENERIC_GIVENS, SHORT_KEEP, STOP_WORDS, SURNAME_EQUIV, SURNAME_SUFFIXES)
+csv_ingest    -> normalizacao       (norm_name)
+matching      -> cm_e_vocabulario   (COMMON_SURNAMES, GENERIC_GIVENS, STOP_WORDS)
+matching      -> normalizacao       (drop_short_tokens, norm_name, soft_prefix_jaccard,
+                                     split_name_pt, surnames_set, token_prefixes)
+fluxo         -> cm_e_vocabulario   (get_relationships_by_cm)
+fluxo         -> csv_ingest         (read_csv_with_fallback, detect_columns, aggregate_matches)
+fluxo         -> matching           (build_ged_indexes, match_candidates)</code></pre>
+
+<div class="caixa ok">
+  <p><strong>O grafo é um DAG: nenhum ciclo.</strong> Isso é o que torna esta divisão segura. Se
+  houvesse ciclo entre os blocos, separá-los exigiria import tardio ou inversão de dependência, e aí a
+  transformação deixaria de ser mecânica.</p>
+</div>
+
+<h3>O único bloco misto</h3>
+<p><code>cm_e_vocabulario</code> reúne duas coisas com donos diferentes, e o próprio banner admite isso
+ao dizer "faixas de cM <em>e</em> vocabulário":</p>
+
+<table>
+  <tr><th>Parte</th><th>Símbolos</th><th>Quem usa</th><th>Vai para</th></tr>
+  <tr><td>Regra de cM</td><td><code>SHARED_CM_DATA</code>, <code>get_relationships_by_cm</code></td>
+      <td>só o <code>fluxo</code></td><td>fica em <code>dna_analysis.py</code></td></tr>
+  <tr><td>Vocabulário de nomes</td>
+      <td><code>STOP_WORDS</code>, <code>GENERIC_GIVENS</code>, <code>SURNAME_SUFFIXES</code>,
+          <code>COMMON_SURNAMES</code>, <code>SURNAME_EQUIV</code>, <code>SHORT_KEEP</code></td>
+      <td><code>normalizacao</code> e <code>matching</code></td>
+      <td><code>name_normalization.py</code></td></tr>
+</table>
+
+<p>Este é o <strong>único ponto em que a transformação não é um movimento puro de linhas</strong>, e é
+onde está o julgamento: o vocabulário é um conceito único (partículas e sufixos de nome brasileiro) e
+fica com o módulo que trata nomes, com <code>matching.py</code> importando o que precisa. A
+alternativa, repartir as constantes por quem as usa, daria três donos para um vocabulário só.</p>
+
+<h2>3. Fronteira proposta</h2>
+
+<table>
+  <tr><th>Módulo</th><th>Responsabilidade única</th><th>Conteúdo</th><th class="num">≈ linhas</th></tr>
+  <tr><td><code>name_normalization.py</code></td>
+      <td>Transformar e decompor nomes, e o vocabulário que isso usa</td>
+      <td>vocabulário (6 constantes), <code>norm_name</code>, <code>drop_short_tokens</code>,
+          <code>surname_core_tokens</code>, <code>split_name_pt</code>, <code>surnames_set</code>,
+          <code>top_given_tokens</code>, <code>token_prefixes</code>, <code>soft_prefix_jaccard</code></td>
+      <td class="num">119</td></tr>
+  <tr><td><code>csv_ingest.py</code></td>
+      <td>Ler o CSV e reduzir a uma linha por match</td>
+      <td><code>read_csv_with_fallback</code>, <code>detect_columns</code>, <code>aggregate_matches</code></td>
+      <td class="num">53</td></tr>
+  <tr><td><code>matching.py</code></td>
+      <td>Decidir quais candidatos do GEDCOM aceitam cada match</td>
+      <td><code>build_ged_indexes</code>, <code>match_candidates</code></td>
+      <td class="num">141</td></tr>
+  <tr><td><code>dna_analysis.py</code></td>
+      <td>Orquestrar o fluxo e traduzir cM em parentesco</td>
+      <td><code>SHARED_CM_DATA</code>, <code>get_relationships_by_cm</code>, <code>dna_analysis</code>,
+          e a superfície de compatibilidade</td>
+      <td class="num">≈ 90</td></tr>
+</table>
+
+<h3>Interfaces e direção das dependências</h3>
+
+<pre><code>name_normalization  ->  .domain                       (strip_bad_utf)
+csv_ingest          ->  .domain, .name_normalization  (demojibake, norm_name)
+matching            ->  .name_normalization, .upload  (vocabulário+funções, get_name/people)
+dna_analysis        ->  .csv_ingest, .matching, .path_search, .upload, .domain</code></pre>
+
+<p>Nenhuma aresta aponta para trás. <code>matching</code> não importa <code>csv_ingest</code>, e
+<code>csv_ingest</code> não importa <code>matching</code>, o que mantém as duas testáveis sem a outra.</p>
+
+<div class="caixa aviso">
+  <p><strong>Não vou mover <code>strip_bad_utf</code> nem <code>demojibake</code>.</strong> Eles já
+  vivem em <code>domain.py</code>, unificados pela <code>OPP-20260929-4LE3</code>. O harness de
+  paridade tem um comentário longo explicando que existirem <em>duas</em> funções com esse nome, uma em
+  <code>domain</code> e outra em <code>dna_analysis</code>, gerava <strong>falso positivo de
+  divergência</strong>. Criar uma terceira cópia dentro de <code>name_normalization</code> reintroduziria
+  exatamente esse defeito. O módulo novo consome as existentes.</p>
+</div>
+
+<h2>4. O que a alma e a spec exigem preservar</h2>
+
+<p>Fonte: <code>.reversa/soul.md</code> (o caminho <code>&lt;output_folder&gt;/soul.md</code> que o
+skill indica não existe; a alma está em <code>.reversa/</code>, que é onde a própria OPP a referencia).</p>
+
+<table>
+  <tr><th>Decisão da alma</th><th>O que exige</th><th>Efeito nesta transformação</th></tr>
+  <tr><td>#3 Predição por faixas de cM</td>
+      <td><code>SHARED_CM_DATA</code> é a autoridade única das faixas</td>
+      <td>A tabela e <code>get_relationships_by_cm</code> ficam juntos e intactos. Nenhum número muda</td></tr>
+  <tr><td>#4 Matching viral e defensivo</td>
+      <td>Score difuso, bônus por interseção de sobrenomes, rejeição de candidato suspeito</td>
+      <td><code>match_candidates</code> e <code>build_ged_indexes</code> movem <strong>sem uma linha
+          alterada</strong> no corpo</td></tr>
+  <tr><td>#6 Mojibake embutido</td>
+      <td><code>strip_bad_utf</code> e <code>demojibake</code> são uma decisão de primeira classe</td>
+      <td>Continuam em <code>domain.py</code>, uma autoridade só. Ver a caixa acima</td></tr>
+  <tr><td>#1 Tudo em memória</td>
+      <td><code>people</code>/<code>families</code>/grafo são globais mutados in place</td>
+      <td><code>matching.py</code> importa <code>get_name</code> e <code>people</code> do topo, que é
+          seguro porque são mutados in place. Mesma regra documentada na 5XGJ</td></tr>
+</table>
+
+<p>A alma <strong>não declara</strong> <code>dna_analysis.py</code> como um módulo coeso. Ela lista três
+decisões distintas (#3, #4, #6) que hoje convivem num arquivo, o que sustenta a divisão. E o
+<code>analise-dna/design.md</code> § Interface declara os 12 símbolos do núcleo como <strong>um contrato
+da unit</strong>, não de um arquivo: a unit <code>analise-dna</code> continua inteira, só a
+implementação se reparte.</p>
+
+<h2>5. Superfície de compatibilidade, verificada</h2>
+
+<p>A OPP aponta o risco: os testes importam de <code>reconstructed.dna_analysis</code>. Fui ver quem
+importa o quê, e o risco é <strong>maior do que a OPP registrou</strong>: o harness de paridade também,
+e ele é a rede de segurança mais forte que existe aqui.</p>
+
+<table>
+  <tr><th>Consumidor</th><th>O que importa de <code>dna_analysis</code></th></tr>
+  <tr><td><code>analisador-genealogico/app.py</code></td><td><code>dna_analysis</code></td></tr>
+  <tr><td><code>tests/test_dna_analysis.py</code></td>
+      <td><code>aggregate_matches</code>, <code>detect_columns</code>, <code>dna_analysis</code>,
+          <code>get_relationships_by_cm</code>, <code>read_csv_with_fallback</code></td></tr>
+  <tr><td><code>tests/test_characterization_matching.py</code></td>
+      <td><code>build_ged_indexes</code>, <code>dna_analysis</code>, <code>match_candidates</code></td></tr>
+  <tr><td><code>_reversa_sdd/parity/harness.py</code></td>
+      <td><code>norm_name</code>, <code>strip_bad_utf</code>, <code>demojibake</code>,
+          <code>split_name_pt</code>, <code>surnames_set</code>, <code>top_given_tokens</code>,
+          <code>token_prefixes</code>, <code>drop_short_tokens</code>, <code>surname_core_tokens</code>,
+          <code>get_relationships_by_cm</code></td></tr>
+  <tr><td><code>_reversa_sdd/parity/_check_split_types.py</code></td><td>importa o módulo inteiro</td></tr>
+</table>
+
+<p>Logo, <code>dna_analysis.py</code> mantém um bloco explícito de reexportação, com comentário dizendo
+por que ele existe. <strong>Não vou limpar essa superfície nesta transformação</strong>: migrar os
+consumidores mexeria em arquivos de teste que são justamente a rede de segurança, e aumentaria o diff
+sem entregar nada. Fica registrado como passo futuro, para quando os consumidores forem migrados.</p>
+
+<h2>6. Ganho medido</h2>
+
+<p>O <code>est_return</code> da OPP é "cada responsabilidade testável isoladamente". Isso se mede pelo
+custo de importar só a parte que interessa. Instrumento em <code>before-after/custo_import.py</code>,
+cada alvo num processo novo, saída em <code>before-after/custo-import-antes.txt</code>.</p>
+
+<table>
+  <tr><th>Alvo</th><th class="num">Módulos carregados</th><th class="num">ms</th>
+      <th>Dependências caras</th></tr>
+  <tr><td><code>dna_analysis</code> hoje</td><td class="num">1009</td><td class="num">1093</td>
+      <td>ged4py, networkx, numpy, pandas, rapidfuzz, thefuzz</td></tr>
+  <tr><td><code>domain</code></td><td class="num">67</td><td class="num">15</td><td>nenhuma</td></tr>
+  <tr><td><code>upload</code></td><td class="num">501</td><td class="num">406</td>
+      <td>ged4py, networkx</td></tr>
+  <tr><td><code>pandas</code> sozinho</td><td class="num">601</td><td class="num">744</td>
+      <td>numpy, pandas</td></tr>
+  <tr><td><code>thefuzz</code> sozinho</td><td class="num">47</td><td class="num">0,9</td>
+      <td>thefuzz</td></tr>
+  <tr><td><code>networkx</code> sozinho</td><td class="num">451</td><td class="num">360</td>
+      <td>networkx</td></tr>
+  <tr><td><code>ged4py</code> sozinho</td><td class="num">147</td><td class="num">124</td>
+      <td>ged4py</td></tr>
+</table>
+
+<p>Projeção depois da divisão, somando as dependências de cada fronteira:</p>
+
+<table>
+  <tr><th>Fronteira</th><th class="num">Módulos</th><th class="num">ms</th><th>Dependências caras</th></tr>
+  <tr><td><code>name_normalization</code></td><td class="num">≈ 68</td><td class="num">≈ 15</td>
+      <td><strong>nenhuma</strong></td></tr>
+  <tr><td><code>csv_ingest</code></td><td class="num">≈ 610</td><td class="num">≈ 750</td>
+      <td>pandas, numpy</td></tr>
+  <tr><td><code>matching</code></td><td class="num">≈ 510</td><td class="num">≈ 410</td>
+      <td>ged4py, networkx, thefuzz</td></tr>
+  <tr><td><code>dna_analysis</code> (fluxo)</td><td class="num">≈ 1009</td><td class="num">≈ 1093</td>
+      <td>todas, e agora só quem orquestra paga</td></tr>
+</table>
+
+<div class="caixa">
+  <p><strong>O número que resume:</strong> chegar em <code>norm_name</code> sai de <strong>1009
+  módulos e ≈ 1,09 s</strong> para <strong>≈ 68 módulos e ≈ 15 ms</strong>. É a promessa da OPP, medida.
+  Nenhum desses valores é ganho de runtime da aplicação: import acontece uma vez. O ganho é de
+  testabilidade e de tempo de ciclo de quem mexe nessas funções.</p>
+</div>
+
+<h2>7. Rede de segurança</h2>
+
+<p>Mover código quebra referência com facilidade, então a rede é a parte obrigatória.</p>
+
+<ul>
+  <li><strong>Suíte completa</strong> verde antes e depois: hoje 85 passed, 1 error, e o erro é o
+      <code>PermissionError</code> de sandbox em <code>test_ensure_dirs_creates_uploads</code>.</li>
+  <li><strong><code>tests/test_dna_analysis.py</code></strong>, que importa cinco nomes de
+      <code>dna_analysis</code>: se a reexportação falhar, ele quebra no import e o erro é óbvio.</li>
+  <li><strong><code>tests/test_characterization_matching.py</code></strong>, que congela o cM somado de
+      537 para o caso duplicado.</li>
+  <li><strong>Harness de paridade diferencial</strong> (<code>_reversa_sdd/parity/harness.py</code>),
+      que exercita <code>D.norm_name</code>, <code>D.split_name_pt</code>, <code>D.surnames_set</code> e
+      mais sete nomes pela superfície de compatibilidade. É a prova de que nenhum caminho de decisão
+      mudou, e ele roda de verdade: medi 100% nas 6 fixtures nesta sessão.</li>
+  <li><strong>Prova de equivalência antes e depois</strong>, no mesmo formato que usei na
+      <code>NUMT</code>: carregar a versão de <code>HEAD</code> lado a lado com a nova e comparar
+      <code>dna_analysis(csv, raiz)</code> e as 12 funções do núcleo, uma a uma, sobre o corpus das
+      fixtures e dos casos de borda.</li>
+</ul>
+
+<h2>8. Riscos e o que eu não vou fazer</h2>
+
+<table>
+  <tr><th>Risco</th><th>Mitigação</th></tr>
+  <tr><td>Reexportação incompleta quebra um consumidor silenciosamente</td>
+      <td>A lista foi levantada por varredura de todos os imports, não pela memória da OPP, e o
+          harness entra na prova</td></tr>
+  <tr><td>Segunda autoridade para mojibake</td>
+      <td>Os módulos novos consomem <code>domain.py</code>; nada de cópia</td></tr>
+  <tr><td>Import circular</td>
+      <td>O grafo medido é um DAG, e a direção proposta não cria aresta de volta</td></tr>
+  <tr><td>Diff grande e difícil de revisar</td>
+      <td>O diff é de movimento: os corpos de função aparecem como contexto, não como alteração. Vou
+          mostrar a prova de que <strong>nenhuma linha de corpo mudou</strong>, comparando o conjunto de
+          linhas movidas</td></tr>
+</table>
+
+<p>Não vou, nesta transformação: mudar qualquer corpo de função, mudar a tabela de cM, mexer em
+<code>domain.py</code>, migrar os consumidores para os módulos novos, nem remover a reexportação. A
+<code>OPP-20260929-EHNZ</code> continua sendo o lugar do acoplamento por estado global, que aqui é
+preservado exatamente como está.</p>
+
+<h2>9. A decisão que eu preciso de você</h2>
+
+<p>Aprovar a fronteira acima antes de qualquer arquivo ser tocado. Depois disso eu monto o diff, mostro
+no gate, e só aplico com a sua aprovação, como na 5XGJ e na NUMT.</p>
+
+<footer>
+  Plano gerado pelo Reversa-Modularize em 2026-10-01, antes de mover qualquer arquivo.
+  Evidências: <code>before-after/analise_blocos.py</code>, <code>before-after/acoplamento-antes.txt</code>,
+  <code>before-after/custo_import.py</code>, <code>before-after/custo-import-antes.txt</code>.
+</footer>
+
+</main>
+</body>
+</html>
