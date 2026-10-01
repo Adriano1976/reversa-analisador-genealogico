@@ -17,7 +17,11 @@ from collections import deque
 
 import networkx as nx
 
-from .upload import child_to_family, families, get_name, people
+# Contrato de import com `.upload`: os nomes mutados in place (`people`, `families`,
+# `child_to_family`) e as funções (`get_name`, `ref_id`) vêm do topo, porque o
+# binding continua apontando para o objeto vivo. `graph` é a exceção: é reatribuído
+# a cada parse, então continua sendo importado dentro de `find_indirect_path`.
+from .upload import child_to_family, families, get_name, people, ref_id
 
 MAX_DEPTH = 20
 MAX_HOPS = 40
@@ -128,6 +132,8 @@ def find_indirect_path(start_id, end_id, max_hops=MAX_HOPS):
 
     Retorna apenas os nós de pessoa, comprimindo os nós de família.
     """
+    # `graph` é reatribuído por `load_gedcom_and_build_graph` (graph = new_graph),
+    # então um import no topo ficaria preso ao grafo antigo. Ver o contrato no topo.
     from .upload import graph
     if graph is None or start_id not in graph or end_id not in graph:
         return None
@@ -500,7 +506,3 @@ def path_search(person1_name: str, person2_name: str):
         "mermaid_data": mermaid_data,
     }
     return path_result, msg, True
-
-
-# Re-exporta ref_id usado internamente (herdado de upload).
-from .upload import ref_id  # noqa: E402

@@ -1,0 +1,19 @@
+Prova de equivalencia da padronizacao de imports (OPP-20260929-5XGJ)
+Alvo: analisador-genealogico/reconstructed/path_search.py
+
+1. ref_id continua acessivel em path_search (o re-export do rodape nao se perdeu)
+   P.ref_id is U.ref_id                 ->  True
+
+2. graph e None antes do parse, como antes
+   U.graph antes                        ->  None
+   U.graph depois                       ->  5 nos, 3 arestas
+
+3. o import tardio de graph ainda capta a REATRIBUICAO (o motivo do comentario)
+   find_indirect_path(@I1@    , @I4@    ) -> None
+   find_indirect_path(@I1@    , @I2@    ) -> caminho de 2 nos
+
+4. os nomes mutados in place continuam vivos no binding do topo
+   P.people is U.people                 ->  True
+   P.families is U.families             ->  True
+   find_person_by_name resolve          ->  True
+   U.get_name is P.get_name             ->  True

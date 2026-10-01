@@ -14,7 +14,7 @@ roi:
   impact: quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso
   cost: low
   est_return: uma única regra de import no arquivo, com o motivo escrito
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras]
   specs: [_reversa_sdd/busca-caminho/design.md#estado-interno]
