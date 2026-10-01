@@ -14,7 +14,7 @@ roi:
   impact: acoplamento e testabilidade. O algoritmo de busca não pode ser exercitado sem carregar o render
   cost: medium
   est_return: busca testável sem render, e o render isolado como o ponto onde o escape vive
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras, .reversa/soul.md#entidades-centrais]
   specs: [_reversa_sdd/busca-caminho/design.md#interface, _reversa_sdd/busca-caminho/design.md#detalhe-da-conexão-direta-find_ancestral_path]

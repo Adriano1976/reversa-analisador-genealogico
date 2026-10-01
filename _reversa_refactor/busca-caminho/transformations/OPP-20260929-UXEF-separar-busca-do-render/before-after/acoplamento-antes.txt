@@ -1,0 +1,64 @@
+ACOPLAMENTO ENTRE OS BLOCOS DE path_search.py
+arquivo: analisador-genealogico\reconstructed\path_search.py
+linhas : 508
+==============================================================================
+
+head         linhas   1-27  ( 27 linhas) docstring, imports e constantes
+   define MAX_DEPTH                                  linha  26- 26 (  1 linhas)
+   define MAX_HOPS                                   linha  27- 27 (  1 linhas)
+
+resolucao    linhas  28-41  ( 14 linhas) resolucao de pessoa por nome
+   define find_person_by_name                        linha  34- 39 (  6 linhas)
+   usa importado      : get_name(.upload), people(.upload)
+
+navegacao    linhas  42-125 ( 84 linhas) navegacao familiar
+   define are_spouses                                linha  95- 96 (  2 linhas)
+   define exclude_tail                               linha 121-123 (  3 linhas)
+   define get_parents                                linha  46- 65 ( 20 linhas)
+   define get_spouses                                linha  68- 92 ( 25 linhas)
+   define pick_spouse_for_couple                     linha 110-118 (  9 linhas)
+   define split_path_by_marriage                     linha  99-107 (  9 linhas)
+   usa importado      : child_to_family(.upload), families(.upload), people(.upload), ref_id(.upload)
+
+busca        linhas 126-186 ( 61 linhas) busca de caminho
+   define find_ancestral_path                        linha 150-184 ( 35 linhas)
+   define find_indirect_path                         linha 130-147 ( 18 linhas)
+   usa de outro bloco : MAX_DEPTH, MAX_HOPS, get_parents
+   usa importado      : deque(collections), graph(.upload), nx(networkx), people(.upload)
+
+render       linhas 187-464 (278 linhas) renderizacao Mermaid
+   define _LABEL_SEGURO                              linha 207-207 (  1 linhas)
+   define _mermaid_label                             linha 210-220 ( 11 linhas)
+   define _mermaid_sid                               linha 191-196 (  6 linhas)
+   define generate_mermaid_graph                     linha 223-269 ( 47 linhas)
+   define generate_mermaid_graph_indirect_bridge     linha 272-462 (191 linhas)
+   usa de outro bloco : exclude_tail, find_ancestral_path, get_spouses, pick_spouse_for_couple, split_path_by_marriage
+   usa importado      : get_name(.upload), people(.upload), re(re), unicodedata(unicodedata)
+
+handler      linhas 465-508 ( 44 linhas) handler do fluxo
+   define path_search                                linha 469-508 ( 40 linhas)
+   usa de outro bloco : MAX_HOPS, find_ancestral_path, find_indirect_path, find_person_by_name, generate_mermaid_graph, generate_mermaid_graph_indirect_bridge
+   usa importado      : get_name(.upload), people(.upload)
+
+==============================================================================
+IMPORTS FORA DO TOPO
+   linha 137 no bloco busca      ['graph']
+
+==============================================================================
+GRAFO ENTRE BLOCOS (quem depende de quem)
+   busca        -> head
+   busca        -> navegacao
+   handler      -> busca
+   handler      -> head
+   handler      -> render
+   handler      -> resolucao
+   render       -> busca
+   render       -> navegacao
+
+==============================================================================
+DEPENDENCIAS EXTERNAS POR BLOCO (para prever o custo de import)
+   resolucao    .upload
+   navegacao    .upload
+   busca        .upload, collections, networkx
+   render       .upload, re, unicodedata
+   handler      .upload

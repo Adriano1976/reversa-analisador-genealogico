@@ -1,0 +1,15 @@
+CUSTO DE IMPORT POR FRONTEIRA (processo novo, minimo de 5)
+==============================================================================
+alvo                              modulos           ms  dependencias caras
+reconstructed.path_search             503       482.18  ged4py,networkx
+reconstructed.upload                  501       525.11  ged4py,networkx
+reconstructed.domain                   67        19.33  -
+networkx                              451       462.37  networkx
+ged4py.parser                         147       134.67  ged4py
+unicodedata                            47         2.73  -
+re                                     64        16.42  -
+collections                            54         4.57  -
+==============================================================================
+Leitura: o que decide o custo aqui e o `.upload`. Se `path_search` e
+`upload` medirem quase o mesmo, entao separar os blocos NAO reduz import,
+e o ganho da transformacao e de coesao, nao de tempo.

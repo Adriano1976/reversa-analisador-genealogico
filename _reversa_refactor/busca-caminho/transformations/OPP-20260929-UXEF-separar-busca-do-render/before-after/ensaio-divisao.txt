@@ -1,0 +1,19 @@
+ENSAIO DA DIVISAO DA path_search · real contra pacote espelho
+==============================================================================
+superficie de compatibilidade : 18 nomes, 0 divergentes
+nomes publicos que somem     : child_to_family, deque, families, nx, re, unicodedata
+nomes publicos que surgem    : nenhum
+ancestral                     : identico (49)
+casamento                     : identico (7)
+conjuge_de                    : identico (42)
+constantes                    : identico (3)
+escolha_conjuge               : identico (7)
+fluxo                         : identico (8)
+fluxo_grande                  : identico (3)
+indireto                      : identico (49)
+label                         : identico (11)
+navegacao                     : identico (7)
+pessoa_por_nome               : identico (9)
+sid                           : identico (7)
+==============================================================================
+VEREDITO: EQUIVALENTE

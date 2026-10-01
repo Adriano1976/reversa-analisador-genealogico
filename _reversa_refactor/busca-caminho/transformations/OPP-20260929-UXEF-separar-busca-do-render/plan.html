@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Plano de modularização · OPP-20260929-UXEF</title>
+<style>
+  :root { --tinta:#1c2024; --suave:#5b6570; --linha:#dfe3e8; --fundo:#f7f8fa;
+          --ok:#1f7a45; --alerta:#9a6700; --erro:#b42318; --azul:#1b4f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--fundo); color:var(--tinta);
+         font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; background:#fff; border:1px solid var(--linha);
+         border-radius:10px; padding:34px 38px 44px; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  .sub { color:var(--suave); font-size:14px; margin-bottom:26px; }
+  h2 { font-size:17px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--linha); }
+  h3 { font-size:15px; margin:20px 0 6px; color:var(--azul); }
+  p { margin:10px 0; }
+  code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:13px;
+         font-family:Consolas,Menlo,monospace; }
+  pre { background:#22272e; color:#e6edf3; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:12.5px; line-height:1.5; }
+  pre code { background:none; color:inherit; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--linha); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#eef1f4; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums;
+                   font-family:Consolas,Menlo,monospace; }
+  .tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+  .tag { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--linha);
+         background:#fff; color:var(--suave); }
+  .tag.ok { border-color:#a7d3b8; color:var(--ok); background:#f0f8f3; }
+  .tag.al { border-color:#e6d3a3; color:var(--alerta); background:#fdf8ec; }
+  .tag.er { border-color:#e8b4ae; color:var(--erro); background:#fdf3f2; }
+  .caixa { border-left:3px solid var(--azul); background:#f4f7fb; padding:12px 16px;
+           border-radius:0 6px 6px 0; margin:16px 0; }
+  .caixa.aviso { border-color:var(--alerta); background:#fdf8ec; }
+  .caixa.erro { border-color:var(--erro); background:#fdf3f2; }
+  .caixa.ok { border-color:var(--ok); background:#f0f8f3; }
+  .caixa p:first-child { margin-top:0; }
+  .caixa p:last-child { margin-bottom:0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:5px 0; }
+  .peq { font-size:13px; color:var(--suave); }
+  footer { margin-top:38px; padding-top:14px; border-top:1px solid var(--linha);
+           font-size:13px; color:var(--suave); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Separar a busca do render na path_search</h1>
+<div class="sub">OPP-20260929-UXEF · contexto <code>busca-caminho</code> · verbo <code>modularize</code> ·
+alvo <code>analisador-genealogico/reconstructed/path_search.py</code></div>
+
+<div class="tags">
+  <span class="tag">confiança 🟡</span>
+  <span class="tag">custo médio</span>
+  <span class="tag">control_mode: gated</span>
+  <span class="tag al">a divisão proposta cria ciclo de import</span>
+  <span class="tag er">o ganho NÃO é de import</span>
+</div>
+
+<h2>1. Responsabilidades hoje</h2>
+
+<p>O arquivo tem 508 linhas e <strong>cinco banners escritos pelo próprio autor</strong>. Como na ZV52,
+a fronteira não precisa ser inventada: ela está declarada no arquivo.</p>
+
+<table>
+  <tr><th>Bloco</th><th class="num">Linhas</th><th class="num">Tam.</th><th>Responsabilidade</th>
+      <th>Depende de fora</th></tr>
+  <tr><td><code>head</code></td><td class="num">1-27</td><td class="num">27</td>
+      <td>docstring, imports, <code>MAX_DEPTH</code>, <code>MAX_HOPS</code></td><td>-</td></tr>
+  <tr><td><code>resolucao</code></td><td class="num">28-41</td><td class="num">14</td>
+      <td>resolução de pessoa por nome</td><td><code>.upload</code></td></tr>
+  <tr><td><code>navegacao</code></td><td class="num">42-125</td><td class="num">84</td>
+      <td>navegação familiar</td><td><code>.upload</code></td></tr>
+  <tr><td><code>busca</code></td><td class="num">126-186</td><td class="num">61</td>
+      <td>busca de caminho</td><td><code>.upload</code>, <code>collections</code>, <strong>networkx</strong></td></tr>
+  <tr><td><code>render</code></td><td class="num">187-464</td><td class="num">278</td>
+      <td>renderização Mermaid</td><td><code>.upload</code>, <code>re</code>, <strong>unicodedata</strong></td></tr>
+  <tr><td><code>handler</code></td><td class="num">465-508</td><td class="num">44</td>
+      <td>handler do fluxo</td><td><code>.upload</code></td></tr>
+</table>
+
+<p>O bloco <code>render</code> é <strong>278 das 508 linhas, 54,7%</strong>, e é ele que carrega as
+regras de escape. A busca em si ocupa 61 linhas.</p>
+
+<h2>2. Acoplamento medido</h2>
+
+<p>Por AST, com <code>before-after/analise_blocos.py</code> e saída em
+<code>before-after/acoplamento-antes.txt</code>. Desta vez o instrumento também rastreia quais nomes
+<em>importados</em> cada bloco usa, porque é isso que decide os imports dos módulos novos.</p>
+
+<pre><code>busca    -> head, navegacao      (MAX_DEPTH, MAX_HOPS, get_parents)
+render   -> busca, navegacao     (find_ancestral_path; get_spouses, split_path_by_marriage,
+                                  pick_spouse_for_couple, exclude_tail)
+handler  -> busca, head, render, resolucao
+                                  (find_ancestral_path, find_indirect_path, MAX_HOPS,
+                                   generate_mermaid_graph, generate_mermaid_graph_indirect_bridge,
+                                   find_person_by_name)</code></pre>
+
+<div class="caixa erro">
+  <p><strong>A divisão que a oportunidade propõe cria um ciclo de import.</strong> A OPP propõe três
+  módulos, deixando <code>path_search.py</code> com a busca <em>e</em> o handler. Mas o render precisa
+  da busca e o handler precisa do render:</p>
+  <pre><code>render  -> busca    find_ancestral_path, usado nas linhas 295 e 381,
+                    dentro de generate_mermaid_graph_indirect_bridge
+handler -> render   generate_mermaid_graph (490) e
+                    generate_mermaid_graph_indirect_bridge (499)</code></pre>
+  <p>Com a busca e o handler no mesmo módulo, isso vira
+  <code>path_search &rarr; mermaid_render &rarr; path_search</code>. A OPP não previu isso, e o
+  <code>plan.html</code> dela não menciona o assunto. Sem resolver esse ponto, a divisão não fecha com
+  imports no topo.</p>
+</div>
+
+<h2>3. Duas saídas</h2>
+
+<h3>Opção A, quatro módulos com DAG puro</h3>
+<p>O handler sai do módulo da busca e passa a ser quem compõe os três. A dependência fica estritamente
+descendente:</p>
+
+<pre><code>family_navigation  ->  .upload
+path_finding       ->  family_navigation, .upload, collections, networkx
+mermaid_render     ->  family_navigation, path_finding, .upload, re, unicodedata
+path_search        ->  family_navigation, path_finding, mermaid_render, .upload
+                       (handler + superficie de compatibilidade)</code></pre>
+
+<p>Nenhum import tardio. <code>path_search.py</code>, o módulo que dá nome à unit, continua sendo o
+ponto de entrada público.</p>
+
+<h3>Opção B, três módulos com um import tardio documentado</h3>
+<p>Como a OPP propõe, com o handler importando o render <strong>dentro da função</strong>, exatamente
+como o arquivo já faz com <code>graph</code> na linha 137:</p>
+
+<pre><code>def path_search(person1_name: str, person2_name: str):
+    # Import tardio: `mermaid_render` precisa de `find_ancestral_path` deste modulo,
+    # entao um import no topo criaria ciclo.
+    from .mermaid_render import (generate_mermaid_graph,
+                                 generate_mermaid_graph_indirect_bridge)</code></pre>
+
+<p>Fica com três módulos e um segundo import tardio no arquivo. A diferença entre as duas é de uma
+decisão: <strong>um módulo a mais, ou um import tardio a mais</strong>.</p>
+
+<h2>4. Fronteira recomendada: Opção A</h2>
+
+<table>
+  <tr><th>Módulo</th><th>Responsabilidade única</th><th>Conteúdo</th><th class="num">≈ linhas</th></tr>
+  <tr><td><code>family_navigation.py</code></td>
+      <td>Quem é parente de quem, na árvore carregada</td>
+      <td><code>find_person_by_name</code>, <code>get_parents</code>, <code>get_spouses</code>,
+          <code>are_spouses</code>, <code>split_path_by_marriage</code>,
+          <code>pick_spouse_for_couple</code>, <code>exclude_tail</code></td>
+      <td class="num">≈ 125</td></tr>
+  <tr><td><code>path_finding.py</code></td>
+      <td>Achar o caminho entre duas pessoas</td>
+      <td><code>MAX_DEPTH</code>, <code>MAX_HOPS</code>, <code>find_indirect_path</code>,
+          <code>find_ancestral_path</code></td>
+      <td class="num">≈ 85</td></tr>
+  <tr><td><code>mermaid_render.py</code></td>
+      <td>Emitir o diagrama, e as regras de escape do rótulo</td>
+      <td><code>_mermaid_sid</code>, <code>_LABEL_SEGURO</code>, <code>_mermaid_label</code>,
+          <code>generate_mermaid_graph</code>,
+          <code>generate_mermaid_graph_indirect_bridge</code></td>
+      <td class="num">≈ 305</td></tr>
+  <tr><td><code>path_search.py</code></td>
+      <td>Compor o fluxo e manter a superfície pública</td>
+      <td><code>path_search</code> mais a reexportação</td>
+      <td class="num">≈ 110</td></tr>
+</table>
+
+<div class="caixa">
+  <p><strong>Por que não deixar o handler junto da busca.</strong> A decisão #5 da alma,
+  "conexão direta primeiro, afinidade como fallback", é a política que o handler implementa. Os dois
+  algoritmos são o mecanismo. Separar política de mecanismo é o que a divisão por responsabilidade
+  pede, e é também o que evita o ciclo sem import tardio. O módulo continua se chamando
+  <code>path_search.py</code> e continua sendo o ponto de entrada da unit.</p>
+</div>
+
+<h2>5. Superfície de compatibilidade, verificada</h2>
+
+<p>A OPP avisa que dois consumidores dependem dos nomes atuais. A varredura achou <strong>sete</strong>
+arquivos, incluindo o harness de paridade e as sondas do BUG-J6PQ.</p>
+
+<table>
+  <tr><th>Consumidor</th><th>Nomes usados de <code>path_search</code></th></tr>
+  <tr><td><code>analisador-genealogico/app.py</code></td><td><code>path_search</code></td></tr>
+  <tr><td><code>reconstructed/dna_analysis.py</code></td>
+      <td><code>find_ancestral_path</code>, <code>generate_mermaid_graph</code></td></tr>
+  <tr><td><code>tests/test_path_search.py</code></td>
+      <td><code>find_ancestral_path</code>, <code>find_indirect_path</code>,
+          <code>find_person_by_name</code>, <code>path_search</code></td></tr>
+  <tr><td><code>tests/test_mermaid_escape.py</code></td>
+      <td><code>_mermaid_label</code>, <code>path_search</code></td></tr>
+  <tr><td><code>tests/test_characterization_mermaid.py</code></td><td><code>path_search</code></td></tr>
+  <tr><td><code>_reversa_sdd/parity/harness.py</code></td>
+      <td><code>get_parents</code>, <code>get_spouses</code>, <code>find_ancestral_path</code>,
+          <code>find_indirect_path</code></td></tr>
+  <tr><td>sondas do <code>BUG-20260929-J6PQ</code> e da <code>TPSH</code></td>
+      <td><code>path_search</code>, <code>_mermaid_label</code></td></tr>
+</table>
+
+<p>O módulo mantém a reexportação de <strong>todos</strong> os nomes que ele expunha, e não só dos que
+a varredura achou: reexportar um superconjunto custa nada e evita que uma sonda antiga quebre. A
+superfície não será removida nesta transformação, pela mesma razão da ZV52: migrar consumidores
+mexeria nos arquivos de teste que são a rede de segurança.</p>
+
+<h2>6. O que a alma e a spec exigem preservar</h2>
+
+<table>
+  <tr><th>Fonte</th><th>Exigência</th><th>Como será honrada</th></tr>
+  <tr><td>Alma #5</td><td>Conexão direta primeiro, afinidade como fallback, com profundidade 20 e 40
+      hops</td><td>É a política do handler, que não muda. <code>MAX_DEPTH</code> e
+      <code>MAX_HOPS</code> vão para <code>path_finding</code> com os mesmos valores</td></tr>
+  <tr><td>Alma #2</td><td>Monolito Flask server-side, sem API</td><td>Sem efeito: nenhuma rota muda</td></tr>
+  <tr><td>Alma, entidades</td><td>Grafo pessoa↔família em memória</td><td><code>matching.py</code> da
+      ZV52 e <code>path_finding</code> leem os mesmos globais, mutados in place</td></tr>
+  <tr><td><code>design.md</code> § Interface</td>
+      <td>15 símbolos do núcleo com assinatura e retorno fixos</td>
+      <td>Nenhuma assinatura muda. O contrato é da <strong>unit</strong>, não de um arquivo</td></tr>
+  <tr><td><code>design.md</code> § Estado Interno</td>
+      <td>O import de <code>graph</code> dentro da função, e o motivo</td>
+      <td>Preservado, e o comentário da 5XGJ que o explica vai junto para
+          <code>path_finding.py</code></td></tr>
+</table>
+
+<p>A alma não declara <code>path_search.py</code> como módulo coeso. Ela descreve uma decisão de
+política (#5) e uma estrutura de dados (grafo), que são exatamente as duas coisas que a divisão
+separa.</p>
+
+<h2>7. Ganho: o que eu medi, e o que caiu</h2>
+
+<div class="caixa aviso">
+  <p><strong>O ganho NÃO é de custo de import, e eu esperava que fosse.</strong> Medi antes de propor:</p>
+  <table>
+    <tr><th>Alvo</th><th class="num">Módulos</th><th class="num">ms</th><th>Dependências caras</th></tr>
+    <tr><td><code>reconstructed.path_search</code></td><td class="num">503</td><td class="num">482</td>
+        <td>ged4py, networkx</td></tr>
+    <tr><td><code>reconstructed.upload</code></td><td class="num">501</td><td class="num">525</td>
+        <td>ged4py, networkx</td></tr>
+    <tr><td><code>reconstructed.domain</code></td><td class="num">67</td><td class="num">19</td>
+        <td>nenhuma</td></tr>
+  </table>
+  <p>O arquivo inteiro custa <strong>2 módulos a mais</strong> que o <code>.upload</code> sozinho, e a
+  diferença de tempo ficou <strong>dentro do ruído</strong>: entre duas execuções, o próprio
+  <code>upload</code> variou de 416 ms para 525 ms. Todos os blocos dependem de <code>.upload</code>,
+  que arrasta ged4py e networkx, então <strong>separar os blocos não reduz o custo de import em
+  nada</strong>. Isso é o oposto da ZV52, onde a normalização conseguiu fugir de pandas e thefuzz.</p>
+</div>
+
+<p>O que a divisão entrega, então, e que eu consigo sustentar com evidência:</p>
+
+<table>
+  <tr><th>Propriedade</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td>Arquivo que um teste do contrato de escape precisa carregar</td>
+      <td>508 linhas, com busca, navegação e handler dentro</td>
+      <td><code>mermaid_render.py</code>, ≈ 305 linhas, e só ele</td></tr>
+  <tr><td>Onde <code>networkx</code> é necessário</td>
+      <td>no módulo inteiro</td><td>só em <code>path_finding</code></td></tr>
+  <tr><td>Onde <code>unicodedata</code> e <code>re</code> são necessários</td>
+      <td>no módulo inteiro</td><td>só em <code>mermaid_render</code></td></tr>
+  <tr><td>Onde vive a autoridade de escape do rótulo</td>
+      <td>no meio de um arquivo de 508 linhas</td><td>isolada, num módulo próprio</td></tr>
+</table>
+
+<p>É um ganho <strong>estrutural</strong>, e não um número de tempo. Digo isso explicitamente porque,
+na NUMT e na ZV52, eu consegui apresentar um número; aqui não existe número equivalente, e inventar um
+seria pior do que dizer que não há.</p>
+
+<h2>8. Rede de segurança</h2>
+
+<ul>
+  <li><strong>Suíte completa</strong> verde antes e depois: hoje 85 passed, 1 error, sendo o erro o
+      <code>PermissionError</code> de sandbox em <code>test_ensure_dirs_creates_uploads</code>.</li>
+  <li><strong><code>tests/test_path_search.py</code></strong>, que importa quatro nomes deste módulo.</li>
+  <li><strong><code>tests/test_mermaid_escape.py</code></strong> e
+      <strong><code>tests/test_characterization_mermaid.py</code></strong>, que cobrem justamente o
+      contrato de escape movido para <code>mermaid_render.py</code>.</li>
+  <li><strong><code>tests/test_dna_analysis.py</code></strong>, porque o <code>dna_analysis.py</code>
+      importa <code>find_ancestral_path</code> e <code>generate_mermaid_graph</code> daqui.</li>
+  <li><strong>Harness de paridade diferencial</strong>, que usa quatro nomes por esta superfície e é a
+      prova mais forte de que nenhum caminho de decisão mudou. Medi 100% nas 6 fixtures nesta sessão.</li>
+  <li><strong>Ensaio em pacote espelho</strong>, no mesmo formato da ZV52: montar os módulos novos num
+      espelho, rodar o mesmo runner em dois processos, real contra espelho, comparando a superfície de
+      compatibilidade, as funções puras e o <code>path_search</code> ponta a ponta.</li>
+</ul>
+
+<h2>9. Riscos</h2>
+
+<table>
+  <tr><th>Risco</th><th>Mitigação</th></tr>
+  <tr><td>Reexportação incompleta quebra sonda antiga ou harness</td>
+      <td>Reexportar o superconjunto, e o harness entra na prova de equivalência</td></tr>
+  <tr><td>O ciclo reaparecer numa implementação descuidada</td>
+      <td>A Opção A não tem ciclo por construção; o ensaio importa cada módulo isoladamente e
+          quebraria com ImportError circular</td></tr>
+  <tr><td>O import tardio de <code>graph</code> se perder no movimento</td>
+      <td>Ele está documentado pela 5XGJ e vai junto com o comentário; a equivalência cobre o caminho
+          indireto, que é o único que o usa</td></tr>
+</table>
+
+<p>Não vou, nesta transformação: mudar assinatura, mudar corpo de função, mudar
+<code>MAX_DEPTH</code> ou <code>MAX_HOPS</code>, mexer nas regras de escape, nem remover a
+reexportação.</p>
+
+<h2>10. A decisão que eu preciso de você</h2>
+
+<p>Aprovar a fronteira antes de qualquer arquivo ser tocado. Depois disso eu monto o diff por AST,
+ensaio num pacote espelho, mostro no gate, e só aplico com a sua aprovação.</p>
+
+<footer>
+  Plano gerado pelo Reversa-Modularize em 2026-10-01, antes de mover qualquer arquivo.
+  Evidências: <code>before-after/analise_blocos.py</code>, <code>before-after/acoplamento-antes.txt</code>,
+  <code>before-after/custo_import.py</code>, <code>before-after/custo-import-antes.txt</code>.
+</footer>
+
+</main>
+</body>
+</html>
