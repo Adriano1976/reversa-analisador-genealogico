@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 1 bugs -->
 
 # Índice de bugs · upload-gedcom
 
-> Gerado em `2026-09-30T11:11:31-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-02T16:28:42-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
@@ -35,6 +35,3 @@ Nenhum bug resolvido neste contexto.
 ## Inconsistências
 
 Nenhuma: as invariantes do schema foram validadas.
-
----
-*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

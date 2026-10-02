@@ -1,2 +1,2 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 1 bugs -->
 {"id": "BUG-20260929-QMLY", "display_number": 2, "title": "restrito", "status": "open", "phase": "triaging", "severity": "high", "priority": "P1", "area": "analisador-genealogico", "module": "upload", "feature": "upload-gedcom", "context": "upload-gedcom", "visibility": "restricted", "security_suspected": true, "labels": [], "specs": [], "blocking": [], "is_blocked": false, "done": false, "path": "upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md"}

@@ -1,19 +1,19 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
 
 # Índice de bugs · busca-caminho
 
-> Gerado em `2026-09-30T11:11:31-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-02T16:28:42-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
 | Status | Qtd |
 |--------|-----|
 | open | 1 |
-| resolved | 1 |
+| resolved | 2 |
 
 | Phase | Qtd |
 |-------|-----|
-| patching | 1 |
+| patching | 2 |
 | triaging | 1 |
 
 ## Bugs abertos e ativos
@@ -22,10 +22,11 @@
 |---|----|-----------|-----------|--------|------------------------|--------|-------|-----------|
 | 1 | `BUG-20260929-BJJH` | critical | P0 | restrito | analisador-genealogico / upload / busca-caminho | open | triaging | não |
 | 3 | `BUG-20260929-J6PQ` | medium | P1 | restrito | analisador-genealogico / path-search / busca-caminho | resolved | patching | não |
+| 4 | `BUG-20261002-T4ZM` | low | P3 | Rotulo Mermaid descarta 14 caracteres inertes que o legado preservava | analisador-genealogico / path-search / busca-caminho | resolved | patching | não |
 
 ## Resolvidos
 
-Total: 1.
+Total: 2.
 
 ## Visibilidade restrita
 
@@ -39,6 +40,3 @@ Total: 1.
 ## Inconsistências
 
 Nenhuma: as invariantes do schema foram validadas.
-
----
-*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

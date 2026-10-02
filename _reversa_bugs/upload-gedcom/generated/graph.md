@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 1 bugs -->
 
 # Grafo de bugs · upload-gedcom
 
@@ -22,6 +22,3 @@ Heurística de triagem (`causados*3 + bloqueados*2 + regressões*4 + relacionado
 | Bug | Impact score |
 |-----|--------------|
 | `BUG-20260929-QMLY` | 0 |
-
----
-*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*

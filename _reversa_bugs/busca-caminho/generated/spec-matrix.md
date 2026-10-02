@@ -1,12 +1,9 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-09-30T11:11:31-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
 
 # Matriz BUG x SPEC · busca-caminho
 
-Todos os 2 bug(s) deste contexto têm `visibility: restricted`. Os locators de spec não são projetados nas views; consulte a seção `## Traceability` de cada `bug.md`.
-
 | Seção de spec | open | active | resolved |
 |---------------|------|--------|----------|
-| (omitida por política de visibilidade) | 1 | 0 | 1 |
-
----
-*Gerado pelo Reversa-Debugger-Graph em 2026-09-30.*
+| `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md` | - | - | BUG-20261002-T4ZM |
+| `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v002.md` | - | - | BUG-20261002-T4ZM |
+| `_reversa_sdd/busca-caminho/design.md#interface` | - | - | BUG-20261002-T4ZM |
