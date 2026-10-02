@@ -152,3 +152,52 @@ def test_neutralizacoes_que_ja_existiam(entrada, esperado):
 def test_rotulo_vazio_continua_vazio():
     """O diagrama indireto usa um no de rotulo vazio, e ele nao pode ganhar conteudo."""
     assert _mermaid_label(" ") == " "
+
+
+# ---------------------------------------------------------------------------
+# Reproducao do BUG-20261002-T4ZM: a lista branca enumerava por "seguro" em vez
+# de por "inerte", e 14 caracteres imprimiveis sumiam do nome exibido.
+#
+# Estes dois casos FALHAM antes da correcao. O segundo tambem serve de travas
+# permanente da amplitude: depois de corrigido, ele impede que a lista volte a
+# estreitar em silencio.
+#
+# O lado da regressao desta correcao nao precisa de caso novo: os testes do
+# BUG-20260929-J6PQ, acima, ja congelam que a crase sai, que a aspa dupla vira
+# apostrofo e que &, < e > saem como entidade. Eles tem de seguir verdes.
+# ---------------------------------------------------------------------------
+
+CARACTERES_INERTES = "#$%*+=@\\^_{|}~"
+
+
+@pytest.mark.parametrize("ch", list(CARACTERES_INERTES))
+def test_caractere_inerte_sobrevive_ao_rotulo(ch):
+    """Caractere inerte dentro das aspas nao pode ser descartado do rotulo.
+
+    A gramatica do Mermaid consome tudo com `<string>[^"]+` no estado `string`,
+    entao estes 14 caracteres nao tem como alterar o diagrama. O legado os
+    preservava, e o candidato passou a descarta-los.
+    """
+    entrada = "Ana%sSilva" % ch
+    assert _mermaid_label(entrada) == entrada, (
+        "o caractere %r foi descartado do rotulo" % ch)
+
+
+def test_lista_branca_preserva_todo_ascii_imprimivel_menos_a_crase():
+    """O contrato de amplitude, medido caractere a caractere nos 95 imprimiveis.
+
+    O unico descarte admitido e a crase, porque aspa seguida de crase desvia o
+    lexer do Mermaid para markdown-string e o diagrama inteiro deixa de
+    renderizar, que foi o BUG-20260929-J6PQ.
+
+    Ficam fora da checagem `&`, `<` e `>` porque saem como entidade HTML, e a
+    aspa dupla porque vira apostrofo antes de a lista ser aplicada.
+    """
+    descartados = []
+    for codigo in range(0x20, 0x7F):
+        ch = chr(codigo)
+        if ch in '&<>"':
+            continue
+        if ch not in _mermaid_label("Ana%sSilva" % ch):
+            descartados.append(ch)
+    assert descartados == ["`"], "descartes inesperados: %r" % descartados
