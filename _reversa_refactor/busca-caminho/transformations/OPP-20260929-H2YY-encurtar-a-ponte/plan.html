@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Plano de simplificação · OPP-20260929-H2YY</title>
+<style>
+  :root { --tinta:#1c2024; --suave:#5b6570; --linha:#dfe3e8; --fundo:#f7f8fa;
+          --ok:#1f7a45; --alerta:#9a6700; --erro:#b42318; --azul:#1b4f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--fundo); color:var(--tinta);
+         font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; background:#fff; border:1px solid var(--linha);
+         border-radius:10px; padding:34px 38px 44px; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  .sub { color:var(--suave); font-size:14px; margin-bottom:26px; }
+  h2 { font-size:17px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--linha); }
+  h3 { font-size:15px; margin:20px 0 6px; color:var(--azul); }
+  p { margin:10px 0; }
+  code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:13px;
+         font-family:Consolas,Menlo,monospace; }
+  pre { background:#22272e; color:#e6edf3; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:12.5px; line-height:1.5; }
+  pre code { background:none; color:inherit; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--linha); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#eef1f4; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums;
+                   font-family:Consolas,Menlo,monospace; }
+  .tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+  .tag { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--linha);
+         background:#fff; color:var(--suave); }
+  .tag.ok { border-color:#a7d3b8; color:var(--ok); background:#f0f8f3; }
+  .tag.al { border-color:#e6d3a3; color:var(--alerta); background:#fdf8ec; }
+  .caixa { border-left:3px solid var(--azul); background:#f4f7fb; padding:12px 16px;
+           border-radius:0 6px 6px 0; margin:16px 0; }
+  .caixa.aviso { border-color:var(--alerta); background:#fdf8ec; }
+  .caixa.erro { border-color:var(--erro); background:#fdf3f2; }
+  .caixa.ok { border-color:var(--ok); background:#f0f8f3; }
+  .caixa p:first-child { margin-top:0; }
+  .caixa p:last-child { margin-bottom:0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:5px 0; }
+  .peq { font-size:13px; color:var(--suave); }
+  footer { margin-top:38px; padding-top:14px; border-top:1px solid var(--linha);
+           font-size:13px; color:var(--suave); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Encurtar a montagem da ponte Mermaid</h1>
+<div class="sub">OPP-20260929-H2YY · contexto <code>busca-caminho</code> · verbo <code>simplify</code> ·
+alvo <code>analisador-genealogico/reconstructed/mermaid_render.py</code>, função
+<code>generate_mermaid_graph_indirect_bridge</code></div>
+
+<div class="tags">
+  <span class="tag">confiança 🟡</span>
+  <span class="tag">custo médio</span>
+  <span class="tag">control_mode: gated</span>
+  <span class="tag al">a OPP diz que é a de menor retorno da lista</span>
+  <span class="tag ok">298 casos congelados byte a byte</span>
+</div>
+
+<div class="caixa aviso">
+  <p><strong>Começo pelo que a própria oportunidade diz de si mesma.</strong> A observação final dela é
+  literal: <em>"Esta é a transformação com menor retorno de execução da lista deste contexto, e a de
+  maior custo de leitura. É candidata natural a ficar por último, ou a não ser feita."</em> Não vou
+  tratar isso como detalhe. Ela é a última da fila por esse motivo, e a opção de não fazer continua na
+  mesa no gate final.</p>
+</div>
+
+<h2>1. A lógica hoje, com números</h2>
+
+<p>A função tem <strong>191 linhas</strong> (106 a 296 de <code>mermaid_render.py</code>) e monta o texto
+do diagrama por acúmulo literal em uma lista, com quatro funções internas já existentes:
+<code>norm_ids</code>, <code>split_at</code>, <code>add_node</code> e <code>add_chain</code>.</p>
+
+<table>
+  <tr><th>Trecho</th><th class="num">Linhas</th><th>O que faz</th></tr>
+  <tr><td>helpers internos</td><td class="num">30</td><td>normalização de ids, corte de caminho, nó e cadeia</td></tr>
+  <tr><td>ramo 1 (<code>ESQ</code>)</td><td class="num">38</td><td>abre 4 subgrafos, emite cadeias, fecha os 4</td></tr>
+  <tr><td>atalho de conexão direta</td><td class="num">7</td><td>quando <code>p2</code> é o próprio cônjuge</td></tr>
+  <tr><td>ramo 2 (<code>DIR</code>)</td><td class="num">49</td><td>quase o mesmo do ramo 1, com o atalho dentro</td></tr>
+  <tr><td>âncoras, cores e retorno</td><td class="num">43</td><td>regra congelada por paridade</td></tr>
+</table>
+
+<h3>As duas formas de complexidade acidental</h3>
+
+<p><strong>Primeira: abertura e fechamento de subgrafo são posicionais.</strong> O texto
+<code>subgraph X</code> mais <code>direction BT</code> aparece <strong>9 vezes</strong>, e há
+<strong>10</strong> chamadas de <code>lines.append("end")</code> espalhadas, cada uma fechando um
+subgrafo diferente. Nada no código liga um <code>end</code> à sua abertura: a ligação é a ordem em que
+as linhas são executadas. É exatamente o risco que a OPP nomeia, e ela está certa:</p>
+
+<pre><code>if left_col_r1:
+    lines.append("subgraph ESQ_L[ ]")
+    lines.append("direction BT")
+    add_chain(left_col_r1)
+    lines.append("end")
+</code></pre>
+
+<p>Um <code>end</code> a mais ou a menos muda a árvore do diagrama e não levanta erro nenhum. O
+Mermaid continua sintaticamente válido, e o produto sai errado.</p>
+
+<p><strong>Segunda: o bloco do casal ou do ancestral aparece duas vezes</strong>, com 12 linhas cada,
+idêntico a menos do sufixo das variáveis:</p>
+
+<pre><code>if couple1_id:
+    lines.append(f'{couple1_id}["{couple1_label}"]')
+    if left_col_r1:
+        lines.append(f'{sid(left_col_r1[-1])} --> {couple1_id}')
+    if right_col_r1:
+        lines.append(f'{sid(right_col_r1[-1])} --> {couple1_id}')
+else:
+    add_node(ca1)
+    ...</code></pre>
+
+<h3>O que é complexidade essencial, e não será tocada</h3>
+
+<p>A OPP é explícita: <em>"Parte da complexidade é regra de negócio legítima e congelada por paridade:
+<code>split_path_by_marriage</code>, o par de cônjuges no topo do ramo e as âncoras transparentes
+<code>--- |Casamento| ---</code> são comportamento especificado. A oportunidade é de forma, não de
+regra."</em> Concordo, e confirmo pela alma e pela spec: a decisão #5 da alma fixa direta-primeiro e
+afinidade como fallback, e o <code>busca-caminho/design.md</code> § Interface declara
+<code>generate_mermaid_graph_indirect_bridge</code> com assinatura e contrato de retorno fixos.</p>
+
+<p>Também não é acidental a assimetria entre os dois ramos. As colunas são cortadas em ordem trocada de
+propósito:</p>
+
+<table>
+  <tr><th>Ramo</th><th>coluna esquerda</th><th>coluna direita</th></tr>
+  <tr><td><code>ESQ</code> (ramo 1)</td><td><code>exclude_tail(r1_down)</code></td>
+      <td><code>exclude_tail(r1_up_from_A)</code></td></tr>
+  <tr><td><code>DIR</code> (ramo 2)</td><td><code>exclude_tail(r2_up_from_B)</code></td>
+      <td><code>exclude_tail(r2_down)</code></td></tr>
+</table>
+
+<p>Isso é regra, não descuido, e é o motivo pelo qual uma fusão dos dois ramos precisa manter os
+argumentos no ponto de chamada.</p>
+
+<h2>2. Uma correção à proposta da OPP</h2>
+
+<p>A proposta tem quatro itens, e o item 2 <strong>já está implementado</strong>:</p>
+
+<table>
+  <tr><th>Item da OPP</th><th>Situação</th></tr>
+  <tr><td>1. <code>emit_subgraph(lines, name, body_lines)</code></td><td>não existe: é o trabalho real</td></tr>
+  <tr><td>2. <code>emit_chain(lines, seq)</code></td>
+      <td><strong>já existe</strong>, com o nome <code>add_chain</code> (linhas 161 a 166)</td></tr>
+  <tr><td>3. <code>emit_couple_node(lines, couple_id, label)</code></td><td>não existe: aparece duas vezes</td></tr>
+  <tr><td>4. manter <code>split_at</code> e <code>norm_ids</code></td><td>concordo</td></tr>
+</table>
+
+<h2>3. A solução proposta</h2>
+
+<p>Trocar o par posicional por <strong>aninhamento léxico</strong>. Em vez de abrir com dois
+<code>append</code> e fechar com um terceiro perdido no meio do fluxo, o subgrafo passa a ser um bloco
+<code>with</code>:</p>
+
+<pre><code>@contextmanager
+def _subgraph(header):
+    """Abre o subgrafo, escreve a direcao e o fecha. Um `end` a mais deixa de ser
+    possivel: o fechamento e o fim do bloco, nao uma linha que alguem precisa
+    lembrar de posicionar."""
+    lines.append("subgraph %s" % header)
+    lines.append("direction BT")
+    yield
+    lines.append("end")
+</code></pre>
+
+<p>O corpo do ramo 1 passa de 38 linhas de abertura e fechamento espalhados para isto:</p>
+
+<pre><code>with _subgraph("COLUMNS"):
+    with _subgraph("ESQ[Ramo 1]"):
+        with _subgraph("ESQ_COLS"):
+            if left_col_r1:
+                with _subgraph("ESQ_L[ ]"):
+                    add_chain(left_col_r1)
+            if right_col_r1:
+                with _subgraph("ESQ_R[ ]"):
+                    add_chain(right_col_r1)
+        emit_couple_or_ancestor(couple1_id, ca1, left_col_r1, right_col_r1)
+</code></pre>
+
+<p>A saída é idêntica <strong>por construção</strong>, e não por sorte: o helper escreve as mesmas
+linhas na mesma ordem, e o <code>yield</code> acontece exatamente onde o corpo era emitido. A diferença
+é que agora a estrutura do diagrama é a estrutura do código, e o aninhamento de quatro níveis que a OPP
+desenha como diagrama de texto aparece como aninhamento de verdade.</p>
+
+<h3>O bloco do casal ou do ancestral, uma vez só</h3>
+
+<pre><code>def emit_couple_or_ancestor(couple_id, ca, left_col, right_col):
+    """Emite o par de conjuge ou, na falta dele, o ancestral comum."""
+    if couple_id:
+        lines.append('%s["%s"]' % (couple_id, _rotulo_casal))
+        alvo = couple_id
+    else:
+        add_node(ca)
+        alvo = sid(ca)
+    if left_col:
+        lines.append('%s --> %s' % (sid(left_col[-1]), alvo))
+    if right_col:
+        lines.append('%s --> %s' % (sid(right_col[-1]), alvo))
+</code></pre>
+
+<div class="caixa">
+  <p><strong>Um detalhe que exige cuidado e que eu já verifiquei.</strong> No código de hoje, o ramo
+  <code>if couple_id</code> usa <code>couple1_id</code> (já passado por <code>sid</code>) nas setas,
+  enquanto o ramo <code>else</code> usa <code>sid(ca1)</code>. São os dois caminhos do mesmo helper
+  acima, e é por isso que ele calcula <code>alvo</code> nos dois ramos. Se eu tivesse assumido que
+  <code>ca1</code> serve para os dois, a saída mudaria nos casos com cônjuge.</p>
+</div>
+
+<h2>4. A tabela de casos que prova equivalência</h2>
+
+<p>Instrumento em <code>before-after/caracterizar.py</code>, saída em
+<code>before-after/caracterizacao-antes.txt</code> e o corpus completo em
+<code>caracterizacao-antes.json</code>. Ele congela o sha256 da saída de cada caso, em duas frentes:</p>
+
+<ul>
+  <li><strong>Fluxo completo</strong>: <code>path_search</code> para todos os pares de pessoas de cada
+      fixture de GEDCOM, cobrindo conexão direta, ponte por afinidade e sem conexão.</li>
+  <li><strong>Função alvo, chamada direto</strong>: <code>generate_mermaid_graph_indirect_bridge</code>
+      para todo par que tenha caminho indireto. Isso exercita a função que vai ser mexida muito além
+      dos casos em que o roteamento escolhe a ponte.</li>
+</ul>
+
+<table>
+  <tr><th>Fixture</th><th class="num">Pessoas</th><th class="num">Pares</th>
+      <th class="num">Fluxo</th><th class="num">com ponte</th><th class="num">Ponte direta</th></tr>
+  <tr><td><code>affinity.ged</code></td><td class="num">6</td><td class="num">30</td>
+      <td class="num">30</td><td class="num">6</td><td class="num">6</td></tr>
+  <tr><td><code>basic.ged</code></td><td class="num">7</td><td class="num">42</td>
+      <td class="num">42</td><td class="num">20</td><td class="num">30</td></tr>
+  <tr><td><code>deep25.ged</code></td><td class="num">25</td><td class="num">60</td>
+      <td class="num">60</td><td class="num">28</td><td class="num">56</td></tr>
+  <tr><td><code>mojibake_latin1.ged</code></td><td class="num">3</td><td class="num">6</td>
+      <td class="num">6</td><td class="num">4</td><td class="num">6</td></tr>
+  <tr><td><code>no_name.ged</code></td><td class="num">3</td><td class="num">6</td>
+      <td class="num">6</td><td class="num">2</td><td class="num">6</td></tr>
+  <tr><td><code>variants.ged</code></td><td class="num">6</td><td class="num">30</td>
+      <td class="num">30</td><td class="num">14</td><td class="num">20</td></tr>
+  <tr><td><strong>total</strong></td><td class="num">50</td><td class="num">174</td>
+      <td class="num"><strong>174</strong></td><td class="num">74</td><td class="num"><strong>124</strong></td></tr>
+</table>
+
+<div class="caixa ok">
+  <p><strong>298 casos, e o digest é a prova.</strong> O digest da caracterização antes é</p>
+  <p><code>242512b451e243764b145461cd78ae329173c6a3695d35fc019ca67d92bb9eaf</code></p>
+  <p>Se depois da simplificação o digest for o mesmo, <strong>todas as 298 saídas são idênticas caso a
+  caso</strong>, e não apenas "não vazias". É essa a diferença que a OPP pede quando diz que o risco
+  "não é comportamental, é visual".</p>
+</div>
+
+<p>Somam-se a isso: <code>tests/test_characterization_mermaid.py</code>, que congela a saída de
+Mermaid; <code>tests/test_path_search.py</code> e <code>tests/test_mermaid_escape.py</code>; a suíte
+completa; e o harness de paridade diferencial, hoje em 100%.</p>
+
+<h2>5. Os três escopos possíveis</h2>
+
+<table>
+  <tr><th>Escopo</th><th>O que muda</th><th class="num">Linhas economizadas</th><th>Risco</th></tr>
+  <tr><td><strong>1. Subgrafo atômico</strong></td>
+      <td>O par posicional vira <code>with</code>. Elimina a classe de defeito que a OPP nomeia</td>
+      <td class="num">≈ 25</td><td>baixo</td></tr>
+  <tr><td><strong>2. + casal ou ancestral</strong></td>
+      <td>O bloco de 12 linhas que aparece duas vezes vira um helper</td>
+      <td class="num">≈ 20</td><td>baixo</td></tr>
+  <tr><td><strong>3. + fundir os dois ramos</strong></td>
+      <td>Os dois blocos quase iguais viram um helper parametrizado pelo prefixo do nome e pelo rótulo
+          do ramo, com as colunas já calculadas na chamada</td>
+      <td class="num">≈ 35</td><td>médio</td></tr>
+</table>
+
+<p>O escopo 3 é o de maior redução e o único com risco real, por um motivo específico: os dois ramos
+diferem em <strong>ordem de argumentos</strong>, e um helper genérico demais pode esconder a troca em
+vez de preservá-la. A defesa é manter as colunas calculadas no ponto de chamada, onde a troca fica
+visível, e nunca mover essa ordenação para dentro do helper.</p>
+
+<p>Os três escopos produzem a mesma saída, e os três passam pela mesma caracterização. A escolha é de
+quanto risco você quer trocar por quanta linha.</p>
+
+<div class="caixa erro">
+  <p><strong>Correção, com o escopo 1+2 já aplicado: as estimativas de linha acima estão erradas.</strong>
+  O escopo 1+2 está entregando <strong>−13 linhas</strong> na função e −12 no módulo, e não os ≈ 45 que
+  a tabela projeta. O erro foi contar a economia dos <code>append</code> substituídos sem contar as
+  linhas dos dois helpers novos, 34 no total, quase todas docstring.</p>
+  <p>O que a medição confirma do resto: os 10 fechamentos posicionais viraram <strong>1</strong>, e os
+  10 literais <code>subgraph</code> viraram <strong>1</strong>. O custo que a tabela não previa é a
+  indentação máxima, que subiu de 16 para <strong>28 espaços</strong> por causa dos quatro
+  <code>with</code> aninhados. Os números medidos estão no
+  <code>transformation.md</code>.</p>
+</div>
+
+<h2>6. Riscos</h2>
+
+<table>
+  <tr><th>Risco</th><th>Mitigação</th></tr>
+  <tr><td>Um <code>end</code> fora de lugar muda o diagrama sem erro</td>
+      <td>É o risco que o escopo 1 elimina por construção, e é também o que os 298 casos pegariam</td></tr>
+  <tr><td>A troca de ordem das colunas se perder na fusão do escopo 3</td>
+      <td>As colunas continuam calculadas na chamada, e há casos com casamento nos dois ramos em todas
+          as 6 fixtures</td></tr>
+  <tr><td>O <code>contextmanager</code> ser um idioma estranho ao arquivo</td>
+      <td>É Python padrão, e o arquivo já usa funções internas aninhadas. A alternativa sem ele é um
+          helper que recebe o corpo como função, e fica menos legível</td></tr>
+</table>
+
+<p>Não vou: mudar a assinatura de <code>generate_mermaid_graph_indirect_bridge</code>, mudar a ordem de
+nenhuma linha emitida, tocar nas cores, nas âncoras ou nas regras de <code>split_path_by_marriage</code>,
+nem mexer em <code>_mermaid_sid</code>, <code>_mermaid_label</code> ou <code>_LABEL_SEGURO</code>, que
+são o contrato de escape da 5XGJ e do <code>BUG-20260929-J6PQ</code>.</p>
+
+<h2>7. A decisão que eu preciso de você</h2>
+
+<p>Escolher o escopo antes de qualquer arquivo ser tocado. Depois disso eu monto o diff, rodo a
+caracterização de novo, mostro o digest no gate, e só aplico com a sua aprovação.</p>
+
+<footer>
+  Plano gerado pelo Reversa-Simplify em 2026-10-01, antes de tocar em arquivo.
+  Evidências: <code>before-after/caracterizar.py</code>,
+  <code>before-after/caracterizacao-antes.txt</code>,
+  <code>before-after/caracterizacao-antes.json</code>.
+</footer>
+
+</main>
+</body>
+</html>

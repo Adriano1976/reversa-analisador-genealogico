@@ -14,7 +14,7 @@ roi:
   impact: clareza e risco de alteração. É o trecho mais difícil de ler e o mais provável de mudança visual
   cost: medium
   est_return: mesma string gerada, com a estrutura do diagrama legível em nível de bloco
-state: proposed
+state: applied
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras]
   specs: [_reversa_sdd/busca-caminho/design.md#interface, _reversa_sdd/migration/target_business_rules.md#br-migrar-024-conexão-indireta-por-afinidade-shortest_path-com-compressão-de-famílias]

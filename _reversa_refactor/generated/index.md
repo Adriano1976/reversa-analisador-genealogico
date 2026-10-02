@@ -1,11 +1,11 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 17 oportunidades -->
-<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ, OPP-20260929-NUMT, OPP-20260929-ZV52 e OPP-20260929-UXEF passaram a applied. O gerador nao foi reexecutado. -->
+<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ, OPP-20260929-NUMT, OPP-20260929-ZV52, OPP-20260929-UXEF e OPP-20260929-H2YY passaram a applied. O gerador nao foi reexecutado. -->
 
 # Registro de qualidade de código · visão global
 
 > Gerado em `2026-09-30T13:10:36-03:00`. Ordenado por retorno estimado, não por estética.
 
-Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 15 aplicada(s) e 2 em aberto.
+Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Total: 17 oportunidades, 16 aplicada(s) e 1 em aberto.
 
 ## Ordem sugerida de ataque
 
@@ -26,7 +26,7 @@ Contextos: analise-dna, busca-caminho, upload-gedcom, verificacao-de-tipos. Tota
 | #15 | `OPP-20260929-5XGJ` | standardize | green | quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso | low | applied | uma única regra de import no arquivo, com o motivo escrito |
 | #3 | `OPP-20260929-ZV52` | modularize | yellow | acoplamento e clareza | medium | applied | cada responsabilidade testável isoladamente, sem tocar em nenhuma regra de negócio |
 | #6 | `OPP-20260929-UXEF` | modularize | yellow | acoplamento e testabilidade | medium | applied | busca testável sem render, e o render isolado como o ponto onde o escape vive |
-| #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | proposed | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
+| #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | applied | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
 | #10 | `OPP-20260929-EHNZ` | decouple | yellow | acoplamento estrutural | high | proposed | nenhum ganho como refactor. Ver a nota de escopo abaixo antes de rotear |
 
 ## Por contexto

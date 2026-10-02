@@ -1,0 +1,39 @@
+CARACTERIZACAO DA SAIDA DO RENDER DE PONTE (OPP-20260929-H2YY)
+==============================================================================
+
+affinity.ged              6 pessoas   30 pares
+   fluxo completo      :  30 casos
+   ... com ponte       :   6 casos
+   ponte chamada direto:   6 casos
+
+basic.ged                 7 pessoas   42 pares
+   fluxo completo      :  42 casos
+   ... com ponte       :  20 casos
+   ponte chamada direto:  30 casos
+
+deep25.ged               25 pessoas   60 pares
+   fluxo completo      :  60 casos
+   ... com ponte       :  28 casos
+   ponte chamada direto:  56 casos
+
+mojibake_latin1.ged       3 pessoas    6 pares
+   fluxo completo      :   6 casos
+   ... com ponte       :   4 casos
+   ponte chamada direto:   6 casos
+
+no_name.ged               3 pessoas    6 pares
+   fluxo completo      :   6 casos
+   ... com ponte       :   2 casos
+   ponte chamada direto:   6 casos
+
+variants.ged              6 pessoas   30 pares
+   fluxo completo      :  30 casos
+   ... com ponte       :  14 casos
+   ponte chamada direto:  20 casos
+
+==============================================================================
+casos no corpus      : 298
+digest da caracterizacao : 242512b451e243764b145461cd78ae329173c6a3695d35fc019ca67d92bb9eaf
+
+O digest e o que se compara antes e depois. Se ele bate, todas as
+saidas sao identicas caso a caso, e nao apenas 'nao vazias'.

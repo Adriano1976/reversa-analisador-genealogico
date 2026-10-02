@@ -1,5 +1,5 @@
 <!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-09-30T13:10:36-03:00 a partir de 4 oportunidades -->
-<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ e OPP-20260929-UXEF passaram a applied. O gerador nao foi reexecutado. -->
+<!-- Atualizado a mao em 2026-10-01: OPP-20260929-5XGJ, OPP-20260929-UXEF e OPP-20260929-H2YY passaram a applied. O gerador nao foi reexecutado. -->
 
 # Índice de qualidade de código · busca-caminho
 
@@ -12,7 +12,7 @@
 | #5 | `OPP-20260929-TPSH` | restructure | green | risco de correção pela metade | low | applied | uma única autoridade de escape e de id de nó, eliminando a divergência em curso |
 | #15 | `OPP-20260929-5XGJ` | standardize | green | quem lê precisa entender por que três formatos coexistem, e um deles tem supressão de aviso | low | applied | uma única regra de import no arquivo, com o motivo escrito |
 | #6 | `OPP-20260929-UXEF` | modularize | yellow | acoplamento e testabilidade | medium | applied | busca testável sem render, e o render isolado como o ponto onde o escape vive |
-| #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | proposed | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
+| #7 | `OPP-20260929-H2YY` | simplify | yellow | clareza e risco de alteração | medium | applied | mesma string gerada, com a estrutura do diagrama legível em nível de bloco |
 
 ## Transformações
 
@@ -21,6 +21,7 @@
 | `OPP-20260929-TPSH` | aplicada | `plan.html` | sim | 5 artefato(s) |
 | `OPP-20260929-5XGJ` | aplicada | - | sim | 2 artefato(s) |
 | `OPP-20260929-UXEF` | aplicada | `plan.html` | sim | 8 artefato(s) |
+| `OPP-20260929-H2YY` | aplicada | `plan.html` | sim | 12 artefato(s) |
 
 ## Legenda
 
