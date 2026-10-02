@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de correção · BUG #2 · BUG-20260929-QMLY</title>
+<style>
+  :root{
+    --bg:#14161a; --card:#1b1e24; --card2:#21252c; --line:#2e333c;
+    --tx:#e6e9ef; --tx2:#a8b0bd; --tx3:#7b8494;
+    --ok:#66bb6a; --warn:#f6a821; --bad:#ef5350; --info:#4f8cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+       font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       line-height:1.55;font-size:15px}
+  .wrap{max-width:1000px;margin:0 auto;padding:32px 20px 64px}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:18px;margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .sub{color:var(--tx2);font-size:14px;margin-bottom:20px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+  .b{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--card2);
+     border:1px solid var(--line);color:var(--tx2)}
+  .b.sev{background:#3a1f1f;border-color:#5c2a2a;color:#f0a0a0}
+  .b.pri{background:#2a1f2e;border-color:#4a3350;color:#d9a6e0}
+  .b.warn{background:#3a2f16;border-color:#5c4a1e;color:#f0c674}
+  .b.ok{background:#1e3320;border-color:#2f5233;color:#8fd694}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+        padding:16px 18px;margin:14px 0}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--tx3);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:none}
+  code{background:#0f1114;border:1px solid var(--line);border-radius:4px;
+       padding:1px 5px;font-family:Consolas,Menlo,monospace;font-size:13px;color:#cdd6e4}
+  pre{background:#0f1114;border:1px solid var(--line);border-radius:8px;padding:13px 15px;
+      overflow-x:auto;font-family:Consolas,Menlo,monospace;font-size:13px;color:#cdd6e4;margin:10px 0}
+  a{color:var(--info);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .col{flex:1 1 300px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:5px;font-weight:600}
+  .t-ok{background:#1e3320;color:#8fd694}
+  .t-warn{background:#3a2f16;color:#f0c674}
+  .t-bad{background:#3a1f1f;color:#f0a0a0}
+  .note{color:var(--tx2);font-size:13.5px}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:5px 0}
+  .graph{display:flex;justify-content:center;padding:8px 0}
+  .add{color:#8fd694}
+  .del{color:#f0a0a0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Plano de correção · <span style="color:var(--tx2)">BUG #2</span> BUG-20260929-QMLY</h1>
+  <div class="sub">
+    Contexto <code>upload-gedcom</code> · plano gerado em 2026-10-02 ·
+    nenhum arquivo tocado ainda
+  </div>
+
+  <div class="badges">
+    <span class="b sev">severidade: high</span>
+    <span class="b pri">prioridade: P1</span>
+    <span class="b">reprodução: deterministic (medida, 2 execuções idênticas)</span>
+    <span class="b ok">causa raiz: confirmed</span>
+    <span class="b warn">divergência deliberada do legado</span>
+  </div>
+
+  <h2>1. O defeito e a causa raiz</h2>
+
+  <div class="card">
+    <p><strong>O defeito.</strong> O caminho de upload aceita qualquer arquivo, de qualquer tamanho,
+    com qualquer nome, e usa esse nome escolhido pelo cliente como caminho de escrita <em>e</em> como
+    chave de recuperação nas requisições seguintes.</p>
+
+    <p><strong>A causa raiz, confirmada por medição.</strong> O nome do arquivo sempre foi tratado
+    como chave de armazenamento. Ele é concatenado a <code>UPLOAD_FOLDER</code>, gravado
+    <strong>antes</strong> de qualquer validação, e devolvido ao cliente como
+    <code>gedcom_filename</code>, que volta no próximo <code>POST</code> como identificador.</p>
+
+    <p><strong>É herdada do legado, não introduzida pela reconstrução.</strong> O oráculo congelado
+    <code>_reversa_sdd/oracle/app_legacy_e43ca22.py</code> (sha256 conferido nesta sessão) tem as
+    mesmas quatro construções em <code>:569-570</code>, <code>:579</code> e <code>:589-590</code>, e
+    <strong>zero ocorrências</strong> de <code>MAX_CONTENT_LENGTH</code> e
+    <code>secure_filename</code>. A reconstrução preservou a limitação por fidelidade, como seu
+    docstring declara. Corrigir aqui é divergir do legado de forma deliberada, e é por isso que o
+    veredito de spec é obrigatório.</p>
+  </div>
+
+  <h2>2. O que a medição acrescentou ao registro</h2>
+
+  <p class="note">O registro original classificava a reprodução como <code>deterministic</code> por
+  leitura de código. A sonda executou os cinco efeitos. Dois deles o registro não tinha.</p>
+
+  <table>
+    <tr><th>Efeito</th><th>Medida</th><th>Novo?</th></tr>
+    <tr>
+      <td>Sem teto de tamanho</td>
+      <td><code>app.config["MAX_CONTENT_LENGTH"] is None</code></td>
+      <td><span class="tag t-ok">já constava</span></td>
+    </tr>
+    <tr>
+      <td><strong>Gravação fora de <code>uploads/</code></strong></td>
+      <td>nome <code>../ESCAPIU.ged</code> grava em <code>qmly-run/ESCAPIU.ged</code>; <code>uploads/</code> fica vazia</td>
+      <td><span class="tag t-warn">provado por gravação real</span></td>
+    </tr>
+    <tr>
+      <td><strong>Gravação antes da validação</strong></td>
+      <td><code>lixo.bin</code> e <code>vazio.ged</code> falham no parse e <em>ficam</em> em disco</td>
+      <td><span class="tag t-warn">novo</span></td>
+    </tr>
+    <tr>
+      <td>Colisão silenciosa</td>
+      <td>o primeiro envio é perdido, sem erro e com mensagem de sucesso</td>
+      <td><span class="tag t-ok">já constava</span></td>
+    </tr>
+    <tr>
+      <td>Nome como chave de sessão</td>
+      <td><code>gedcom_filename</code> arbitrário responde <code>200</code> e carrega o arquivo</td>
+      <td><span class="tag t-ok">já constava</span></td>
+    </tr>
+  </table>
+
+  <h2>3. Estratégia escolhida</h2>
+
+  <div class="card">
+    <p><strong>Correção direta.</strong> Causa raiz confirmada, alvo localizado e reversível por Git:
+    um change set único que fecha os cinco critérios de aceite de uma vez, porque todos os cinco
+    nascem da mesma decisão de tratar o nome do cliente como chave.</p>
+    <p class="note">O debate multiagente foi oferecido e recusado. Não havia hipóteses concorrentes de
+    diagnóstico: a sonda mediu o comportamento em vez de inferi-lo.</p>
+  </div>
+
+  <h2>4. Correction Change Set proposto</h2>
+
+  <table>
+    <tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr>
+    <tr>
+      <td><code>CHG-001</code></td>
+      <td><span class="tag t-warn">code</span></td>
+      <td><code>analisador-genealogico/reconstructed/validate.py</code><br><span class="note">novo</span></td>
+      <td>Nome visível seguro, chave de armazenamento gerada pelo servidor e validação de conteúdo GEDCOM. Módulo puro, sem Flask e sem disco, para ser testável isoladamente.</td>
+    </tr>
+    <tr>
+      <td><code>CHG-002</code></td>
+      <td><span class="tag t-warn">code</span></td>
+      <td><code>analisador-genealogico/app.py</code></td>
+      <td>Teto de tamanho explícito com rejeição e mensagem própria; usar a chave gerada em vez do nome do cliente; validar antes de gravar; carregar pela chave armazenada, recusando valor ausente ou inválido.</td>
+    </tr>
+    <tr>
+      <td><code>CHG-003</code></td>
+      <td><span class="tag t-ok">specification</span></td>
+      <td><code>_reversa_sdd/addenda/bug-BUG-20260929-QMLY-v001.md</code><br><span class="note">novo, na etapa 7</span></td>
+      <td>Registrar a divergência deliberada. A spec original nunca é editada.</td>
+    </tr>
+  </table>
+
+  <h3>O desenho, em uma frase</h3>
+  <div class="card">
+    <p>O arquivo passa a ser gravado como
+    <code>uploads/&lt;16 hex do sha256 do conteudo&gt;__&lt;nome visivel saneado&gt;.ged</code>.</p>
+    <ul>
+      <li><strong>A chave é derivada do conteúdo, no servidor.</strong> O cliente escolhe o rótulo
+      visível, nunca o caminho.</li>
+      <li><strong>A mesma árvore reenviada gera a mesma chave</strong>, sem duplicar bytes, e a segunda
+      requisição continua encontrando o arquivo. É isto que preserva o contrato de
+      <code>gedcom_filename</code> entre requisições.</li>
+      <li><strong>O nome original vira metadado</strong> legível, dentro do próprio nome do arquivo,
+      depois do separador <code>__</code>.</li>
+      <li><strong>O escape morre por construção.</strong> O valor recebido do formulário só é aceito se
+      casar com <code>^[0-9a-f]{16}__[A-Za-z0-9._-]+$</code>, o que exclui <code>/</code>,
+      <code>\</code> e <code>..</code> sem precisar de lista negra.</li>
+    </ul>
+    <p class="note">Por que a chave é derivada do conteúdo e não um UUID aleatório: um UUID volátil
+    romperia o contrato do campo oculto, porque o navegador devolve o mesmo
+    <code>gedcom_filename</code> na busca de caminho e na análise de DNA, em requisições separadas. A
+    derivação por conteúdo dá chave gerada pelo servidor e estabilidade entre requisições ao mesmo
+    tempo. Deduplicação por nome não está no escopo.</p>
+  </div>
+
+  <h3>Mensagens ao usuário</h3>
+  <table>
+    <tr><th>Situação</th><th>Mensagem</th></tr>
+    <tr><td>Requisição acima do teto</td><td>rejeitada com mensagem própria, sem gravar nada</td></tr>
+    <tr><td>Conteúdo não é GEDCOM</td><td><code>Arquivo não reconhecido como GEDCOM: &lt;motivo&gt;.</code></td></tr>
+    <tr><td>Nome visível colide</td><td>sufixo numérico, em vez de sobrescrever</td></tr>
+  </table>
+
+  <h2>5. Testes planejados</h2>
+
+  <p class="note">Conceitos distintos, ainda que possam viver no mesmo arquivo: o teste de
+  <strong>reprodução</strong> prova que o defeito relatado aparece; os de <strong>regressão</strong>
+  protegem o que não pode voltar a quebrar.</p>
+
+  <div class="row">
+    <div class="col card">
+      <h4>Reprodução (devem falhar hoje)</h4>
+      <ul>
+        <li><code>MAX_CONTENT_LENGTH</code> está definido</li>
+        <li>requisição acima do teto é rejeitada</li>
+        <li>nome com aspas ou <code>/</code> não decide o caminho</li>
+        <li>conteúdo inválido é recusado antes do parse</li>
+        <li>dois envios de mesmo nome não se perdem</li>
+        <li>chave de armazenamento é derivada do servidor</li>
+        <li>nenhum GEDCOM inválido chega a existir em <code>uploads/</code></li>
+      </ul>
+    </div>
+    <div class="col card">
+      <h4>Regressão (devem falhar hoje)</h4>
+      <ul>
+        <li>GEDCOM válido continua sendo aceito e parseado</li>
+        <li>fluxo completo: upload, busca de caminho e análise de DNA</li>
+        <li>a mesma árvore continua encontrável na requisição seguinte</li>
+        <li>as 6 fixtures de paridade continuam sendo aceitas</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <p><strong>Prova vermelho para verde.</strong> A sonda
+    <code>.pytest-tmp/probe-qmly.py</code> é o teste de reprodução literal do defeito. Ela falha no
+    estado atual e deve passar depois do change set. Com a mesma sonda, os dois estados ficam
+    comparáveis por medição.</p>
+  </div>
+
+  <h2>6. Riscos</h2>
+
+  <div class="card">
+    <p><strong><code>change_risk</code>: médio.</strong></p>
+    <table>
+      <tr><th>Fator</th><th>Avaliação</th></tr>
+      <tr><td>Blast radius</td><td>Contido: <code>app.py</code> mais um módulo novo. Não toca o núcleo de matching.</td></tr>
+      <tr><td>Contrato externo</td><td><strong>Sensível.</strong> <code>gedcom_filename</code> é campo oculto que o navegador devolve. Preservado pela derivação por conteúdo.</td></tr>
+      <tr><td>Dados</td><td>Sem corrupção. <code>uploads/</code> é descartável.</td></tr>
+      <tr><td>Concorrência</td><td>Single-user, decidido em 2026-10-02.</td></tr>
+      <tr><td>Reversibilidade</td><td>Total, por Git.</td></tr>
+      <tr><td><strong>Paridade</strong></td><td><strong>Crítico.</strong> Validar extensão pode rejeitar GEDCOM válido e quebrar a paridade de parsing, que é o risco nº 1 do projeto.</td></tr>
+    </table>
+  </div>
+
+  <h3>Mitigação do risco de paridade</h3>
+  <div class="card">
+    <p>Medição de apoio: <strong>todos os 12 GEDCOM do repositório usam <code>.ged</code></strong>,
+    incluindo as duas árvores reais (<code>Adriano_Santos.ged</code>,
+    <code>Arvore_Unificada_Oficial_V1_2.ged</code>) e as 6 fixtures de paridade. O risco de rejeitar
+    arquivo legítimo é baixo.</p>
+    <p>Ainda assim o <code>RISK-007</code> já escreveu a contingência, e ela é adotada: <strong>a
+    extensão não é usada como filtro rígido</strong>. A validação é <em>de conteúdo</em>, procurando a
+    declaração <code>0 HEAD</code> na primeira linha útil, o que aceita GEDCOM de qualquer exportador
+    independentemente do nome. Se um exportador legítimo for rejeitado, a cláusula do
+    <code>RISK-007</code> permite relaxar apenas a extensão, mantendo teto e chave gerada.</p>
+  </div>
+
+  <h3>O que fica de fora</h3>
+  <ul>
+    <li><strong>Isolamento por dono.</strong> É o <code>BUG-20260929-BJJH</code>, decidido hoje como
+    trabalho da Onda 3. As duas arestas <code>related-to</code> ficam confirmadas por medição.</li>
+    <li><strong>O que <code>gedcom_filename</code> referencia no alvo</strong> (<code>AMB-016</code>).
+    Decisão da Onda 3, intocada aqui. O desenho preserva o contrato para não antecipá-la.</li>
+    <li><strong>Criptografia e conformidade LGPD.</strong> Onda 5.</li>
+    <li><strong>Deduplicação por nome.</strong> Fora do escopo, registrado como nota.</li>
+    <li><strong>Sanitização do CSV de DNA.</strong> A mesma fragilidade existe em
+    <code>app.py:49-50</code>. O teto de tamanho e a validação de nome do CHG-002 devem cobrir os
+    dois pontos, ou a correção fica pela metade.</li>
+  </ul>
+
+  <h2>7. Mini-grafo do bug</h2>
+  <div class="graph">
+    <svg viewBox="0 0 620 230" width="100%" height="230" role="img"
+         aria-label="Bug QMLY no centro, relacionado ao BJJH">
+      <line x1="300" y1="115" x2="470" y2="115" stroke="#4a3350" stroke-width="2"/>
+      <text x="385" y="105" fill="#a8b0bd" font-size="11" text-anchor="middle">related-to (confirmed)</text>
+
+      <rect x="90" y="70" width="210" height="90" rx="10" fill="#2a1f2e" stroke="#4a3350"/>
+      <text x="195" y="100" fill="#e6e9ef" font-size="13" text-anchor="middle" font-weight="600">BUG #2 QMLY</text>
+      <text x="195" y="120" fill="#a8b0bd" font-size="11" text-anchor="middle">upload sem limites</text>
+      <text x="195" y="138" fill="#f0c674" font-size="11" text-anchor="middle">high · P1 · open</text>
+
+      <rect x="470" y="70" width="120" height="90" rx="10" fill="#3a1f1f" stroke="#5c2a2a"/>
+      <text x="530" y="100" fill="#e6e9ef" font-size="13" text-anchor="middle" font-weight="600">BJJH</text>
+      <text x="530" y="118" fill="#a8b0bd" font-size="11" text-anchor="middle">exposição entre</text>
+      <text x="530" y="132" fill="#a8b0bd" font-size="11" text-anchor="middle">usuários</text>
+      <text x="530" y="150" fill="#f0a0a0" font-size="11" text-anchor="middle">critical · Onda 3</text>
+    </svg>
+  </div>
+
+  <table>
+    <tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr>
+    <tr>
+      <td><a href="../bug.md">BUG #2 QMLY (este)</a></td>
+      <td><code>related-to</code></td>
+      <td><a href="../../../../busca-caminho/bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">BUG #1 BJJH</a></td>
+      <td><span class="tag t-ok">confirmed</span></td>
+    </tr>
+  </table>
+
+  <h2>8. Ordem sugerida</h2>
+  <p>Este é o único bug do contexto <code>upload-gedcom</code>. Não há cadeia a ordenar. O
+  <code>BJJH</code> relacionado <strong>não entra nesta correção</strong>: foi decidido hoje como
+  trabalho da Onda 3.</p>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:34px 0 16px">
+  <p class="note">
+    Plano escrito por agente em 2026-10-02 · nenhum arquivo do projeto foi tocado ·
+    aguardando aprovação antes dos dois gates.
+  </p>
+
+</div>
+</body>
+</html>

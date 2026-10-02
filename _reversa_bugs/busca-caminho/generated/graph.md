@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 3 bugs -->
 
 # Grafo de bugs · busca-caminho
 
@@ -12,7 +12,7 @@ graph LR
   style BUG-20261002-T4ZM fill:#2b1b1b,stroke:#e05252,color:#f5f5f5
   BUG-20260929-QMLY["#2 QMLY<br/>restrito<br/>high · upload<br/>contexto: upload-gedcom"]
   style BUG-20260929-QMLY fill:#1b1b22,stroke:#5a5a7a,color:#c9c9c9,stroke-dasharray:4 3
-  BUG-20260929-BJJH -.->|related-to proposed| BUG-20260929-QMLY
+  BUG-20260929-BJJH -->|related-to confirmed| BUG-20260929-QMLY
   BUG-20261002-T4ZM -->|caused-by confirmed| BUG-20260929-J6PQ
 ```
 
@@ -27,5 +27,5 @@ Heurística de triagem (`causados*3 + bloqueados*2 + regressões*4 + relacionado
 | Bug | Impact score |
 |-----|--------------|
 | `BUG-20261002-T4ZM` | 3 |
-| `BUG-20260929-BJJH` | 0 |
+| `BUG-20260929-BJJH` | 1 |
 | `BUG-20260929-J6PQ` | 0 |

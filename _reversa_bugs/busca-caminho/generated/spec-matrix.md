@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 3 bugs -->
 
 # Matriz BUG x SPEC · busca-caminho
 

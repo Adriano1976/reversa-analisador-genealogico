@@ -1,28 +1,31 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 1 bugs -->
 
 # Índice de bugs · upload-gedcom
 
-> Gerado em `2026-10-02T16:28:42-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-02T17:38:21-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
 | Status | Qtd |
 |--------|-----|
-| open | 1 |
+| resolved | 1 |
 
 | Phase | Qtd |
 |-------|-----|
-| triaging | 1 |
+| delivering | 1 |
 
 ## Bugs abertos e ativos
 
 | # | ID | Severidade | Prioridade | Título | area / module / feature | Status | Phase | Bloqueado |
 |---|----|-----------|-----------|--------|------------------------|--------|-------|-----------|
-| 2 | `BUG-20260929-QMLY` | high | P1 | restrito | analisador-genealogico / upload / upload-gedcom | open | triaging | não |
 
 ## Resolvidos
 
-Nenhum bug resolvido neste contexto.
+Total: 1.
+
+| # | ID | resolution_kind | Travado (DONE.md) |
+|---|----|-----------------|------------------|
+| 2 | `BUG-20260929-QMLY` | fixed | sim |
 
 ## Visibilidade restrita
 

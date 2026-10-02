@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 3 bugs -->
 
 # Matriz de relações · busca-caminho
 
@@ -6,5 +6,5 @@ Lista esparsa de arestas. Arestas simétricas são gravadas uma única vez, no b
 
 | Origem | Tipo | Destino | State | Evidência |
 |--------|------|---------|-------|-----------|
-| `BUG-20260929-BJJH` | related-to | `BUG-20260929-QMLY` | proposed | aresta gravada no bug de origem |
+| `BUG-20260929-BJJH` | related-to | `BUG-20260929-QMLY` | confirmed | aresta gravada no bug de origem |
 | `BUG-20261002-T4ZM` | caused-by | `BUG-20260929-J6PQ` | confirmed | aresta gravada no bug de origem |

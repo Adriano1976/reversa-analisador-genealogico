@@ -1,0 +1,117 @@
+--- a/analisador-genealogico/app.py
++++ b/analisador-genealogico/app.py
+@@ -1,17 +1,76 @@
+ import os
+ 
+ from flask import Flask, render_template, request
++from werkzeug.exceptions import RequestEntityTooLarge
+ 
+ from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
+ from reconstructed.path_search import path_search as path_search_flow
+ from reconstructed.upload import load_gedcom_and_build_graph
++from reconstructed.validate import (
++    chave_de_armazenamento,
++    chave_recebida_e_valida,
++    nome_do_arquivo_armazenado,
++    validar_conteudo_gedcom,
++)
+ 
+ # --- Configuração ---
+ app = Flask(__name__)
+ app.secret_key = 'f@milyse@rch_dna_edition_v16'
+ 
++# Teto de corpo de requisicao. Ausente no legado, e a ausencia fazia o multipart
++# inteiro ser gravado em disco antes de qualquer verificacao de negocio
++# (BUG-20260929-QMLY). Acima do teto o Flask aborta com 413 antes de ler o corpo.
++app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
++
+ UPLOAD_FOLDER = "uploads"
+ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
++
++
++def _pasta_uploads() -> str:
++    return UPLOAD_FOLDER
++
++
++@app.errorhandler(RequestEntityTooLarge)
++def _requisicao_grande(_erro):
++    limite_mb = app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024)
++    return render_template(
++        "index.html",
++        message=f"Arquivo maior que o limite de {limite_mb} MB.",
++        success=False,
++    ), 413
++
++
++def _guardar_upload(arquivo, kind: str):
++    """Valida e grava o upload sob chave gerada pelo servidor.
++
++    Devolve `(nome_armazenado, motivo)`. `motivo` e None em caso de sucesso, e o
++    nome devolvido e o que o formulario passa a devolver nas requisicoes
++    seguintes. O nome enviado pelo cliente NUNCA compoe o caminho.
++    """
++    conteudo = arquivo.read()
++    motivo = validar_conteudo_gedcom(conteudo) if kind == "gedcom" else None
++    if motivo is not None:
++        return None, f"Arquivo não reconhecido como GEDCOM: {motivo}."
++
++    chave = chave_de_armazenamento(conteudo)
++    nome_armazenado = nome_do_arquivo_armazenado(chave, arquivo.filename)
++    caminho = os.path.join(_pasta_uploads(), nome_armazenado)
++    if not os.path.exists(caminho):
++        with open(caminho, "wb") as destino:
++            destino.write(conteudo)
++    return nome_armazenado, None
++
++
++def _resolver_caminho_armazenado(nome_recebido):
++    """Caminho do arquivo ja armazenado, ou None quando o valor e invalido.
++
++    A validacao de forma e o que impede um `gedcom_filename` manipulado de
++    apontar para fora da pasta de upload (BUG-20260929-QMLY, criterio 5).
++    """
++    if not chave_recebida_e_valida(nome_recebido):
++        return None
++    caminho = os.path.join(_pasta_uploads(), nome_recebido)
++    return caminho if os.path.exists(caminho) else None
+ 
+ 
+ # --- Rota Principal ---
+@@ -26,18 +85,19 @@
+             if gedcom_file.filename == '':
+                 return render_template("index.html", message="Nenhum arquivo selecionado.", success=False)
+             try:
+-                gedcom_path = os.path.join(UPLOAD_FOLDER, gedcom_file.filename)
+-                gedcom_file.save(gedcom_path)
+-                all_names = load_gedcom_and_build_graph(gedcom_path)
+-                return render_template("index.html", gedcom_filename=gedcom_file.filename, all_names=all_names, message=f"Arquivo '{gedcom_file.filename}' carregado!", success=True)
++                nome_armazenado, motivo = _guardar_upload(gedcom_file, "gedcom")
++                if motivo is not None:
++                    return render_template("index.html", message=motivo, success=False)
++                all_names = load_gedcom_and_build_graph(os.path.join(_pasta_uploads(), nome_armazenado))
++                return render_template("index.html", gedcom_filename=nome_armazenado, all_names=all_names, message=f"Arquivo '{gedcom_file.filename}' carregado!", success=True)
+             except Exception as e:
+                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
+ 
+         gedcom_filename = request.form.get("gedcom_filename")
+         if not gedcom_filename:
+             return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
+-        gedcom_path = os.path.join(UPLOAD_FOLDER, gedcom_filename)
+-        if not os.path.exists(gedcom_path):
++        gedcom_path = _resolver_caminho_armazenado(gedcom_filename)
++        if gedcom_path is None:
+             return render_template("index.html", message=f"Erro: Arquivo '{gedcom_filename}' não existe mais.", success=False)
+         all_names = load_gedcom_and_build_graph(gedcom_path)
+ 
+@@ -46,8 +106,9 @@
+                 if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
+                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
+                 matches_file, root_name = request.files["matches_csv"], request.form["root_name"]
+-                matches_path = os.path.join(UPLOAD_FOLDER, matches_file.filename)
+-                matches_file.save(matches_path)
++                matches_path, motivo = _guardar_upload(matches_file, "csv")
++                if motivo is not None:
++                    return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
+ 
+                 results_list_sorted, skipped_matches, message = dna_analysis_flow(matches_path, root_name)
+                 return render_template(

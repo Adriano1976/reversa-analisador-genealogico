@@ -1,0 +1,43 @@
+﻿==============================================================================
+HARNESS DIFERENCIAL � oraculo congelado x reconstrucao
+==============================================================================
+oraculo   : _reversa_sdd\oracle\app_legacy_e43ca22.py
+candidato : analisador-genealogico/reconstructed/
+probes    : 40 valores de cM + grafo completo + pares de caminho
+amostra   : 40x40 = 1600 pares de caminho por lado
+timeout   : 600s por coletor
+
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\affinity.ged (450 bytes)
+  ORACLE coletado: 6 pessoas, 3 familias
+  CANDIDATO coletado: 6 pessoas, 3 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\basic.ged (564 bytes)
+  ORACLE coletado: 7 pessoas, 2 familias
+  CANDIDATO coletado: 7 pessoas, 2 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\deep25.ged (2616 bytes)
+  ORACLE coletado: 25 pessoas, 24 familias
+  CANDIDATO coletado: 25 pessoas, 24 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\mojibake_latin1.ged (277 bytes)
+  ORACLE coletado: 3 pessoas, 1 familias
+  CANDIDATO coletado: 3 pessoas, 1 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\no_name.ged (253 bytes)
+  ORACLE coletado: 3 pessoas, 1 familias
+  CANDIDATO coletado: 3 pessoas, 1 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\variants.ged (543 bytes)
+  ORACLE coletado: 6 pessoas, 2 familias
+  CANDIDATO coletado: 6 pessoas, 2 familias
+  PARIDADE OK � zero divergencia
+
+==============================================================================
+RESULTADO: PARIDADE 100%% (zero divergencia)
+==============================================================================

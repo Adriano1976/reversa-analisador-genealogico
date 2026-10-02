@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 4 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 4 bugs -->
 
 # Bugs por artefato de spec
 
-> Gerado em `2026-10-02T16:28:42-03:00`. Espelho derivado de `_reversa_bugs/*/bugs/*/bug.md`.
+> Gerado em `2026-10-02T17:38:21-03:00`. Espelho derivado de `_reversa_bugs/*/bugs/*/bug.md`.
 
 ## `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md`
 

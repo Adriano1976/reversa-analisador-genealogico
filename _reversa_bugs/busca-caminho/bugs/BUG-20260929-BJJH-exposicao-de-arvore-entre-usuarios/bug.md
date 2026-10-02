@@ -8,7 +8,7 @@ phase: triaging
 severity: critical
 priority: P0
 created: 2026-09-29
-updated: 2026-09-29
+updated: 2026-10-02
 
 origin:
   type: manual-report
@@ -32,10 +32,19 @@ blocking: []
 relationships:
   - bug: BUG-20260929-QMLY
     type: related-to
-    state: proposed
+    state: confirmed
     evidence:
-      - ref: analisador-genealogico/app.py:13-14,29-31,49-50
-        observation: As duas falhas compartilham a mesma pasta fixa uploads/ e o mesmo nome de arquivo controlado pelo cliente atuando como chave de sessão.
+      - ref: _reversa_bugs/upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/fix/gate2-sonda-antes.txt
+        observation: >-
+          Medido em 2026-10-02. POST de path_search com gedcom_filename arbitrario responde 200 e
+          carrega o arquivo correspondente de uploads/ sem verificacao de propriedade. O nome de
+          arquivo controlado pelo cliente funcionava como identificador de sessao, que e o mecanismo
+          compartilhado com este bug.
+      - ref: analisador-genealogico/app.py:31-33,42
+        observation: >-
+          As duas falhas compartilham a mesma pasta fixa uploads/ e o mesmo nome de arquivo
+          controlado pelo cliente. A aresta foi promovida de proposed a confirmed em 2026-10-02,
+          quando a medicao do QMLY fechou o caminho causal.
 
 traceability:
   specs:
@@ -115,6 +124,13 @@ Re-verificado em 2026-09-29, depois do refactor. `upload.py:15-19`, `:95-98`, `a
 `related-to` com o `QMLY`, que citava `app.py:13-16,31,51`: o `:51` designava a gravação do CSV, hoje
 em `:49-50`, e o arquivo encolheu porque a `OPP-20260929-SEQO` removeu o `STATIC_FOLDER`.
 
+> **Atualização de 2026-10-02.** O `app.py` mudou de novo: o `BUG-20260929-QMLY` aplicou o `CHG-002`,
+> e as linhas de upload passaram a ser `:31-33` (gravação sob chave gerada) e `:42` (resolução da
+> chave recebida), com a validação em `reconstructed/validate.py`. O `CHG-002` **não corrige este
+> bug**: o estado global em memória e a ausência de `owner_id` permanecem intactos, e o
+> `gedcom_filename` continua servindo de identificador sem verificação de propriedade. A pasta
+> `uploads/` segue única, agora com nomes de arquivo derivados do conteúdo.
+
 O vetor de "artefato HTML de grafo em caminho fixo", levantado no intake como Problema 1, **não existe
 mais**: a `SEQO` removeu o `STATIC_FOLDER` e a pasta `static/` não está na árvore. O que resta, e
 sustenta este bug, é o estado global em memória mais a pasta `uploads/` compartilhada.
@@ -152,6 +168,12 @@ aceita o nome do arquivo como identificador, e com a renderização de `all_name
 - [ ] Existe teste negativo de isolamento no repositório, e ele falha antes da correção.
 - [ ] A lista de nomes exposta ao cliente contém apenas nomes da árvore do próprio usuário.
 
+> **Estes critérios pertencem à Onda 3, não ao legado.** A verificação de 2026-10-02 estabeleceu
+> que o segundo critério é **inaplicável ao legado**: sem autenticação, sem sessão e sem `owner_id`,
+> não existem "dono A" e "dono B" para que a resposta difira entre `404` e `403`. Ver
+> `fix/plano-de-tratamento.md` § 2. Nenhum deles pode ser marcado por trabalho feito no aplicativo
+> atual.
+
 ## Traceability
 
 | Item | Valor |
@@ -162,6 +184,7 @@ aceita o nome do arquivo como identificador, e com a renderização de `all_name
 | Testes de reprodução | nenhum ainda |
 | Testes de regressão | nenhum ainda |
 | Veredito de spec | a decidir por humano (`spec_verdict` nulo) |
+| Tratamento decidido | Onda 3, conforme `fix/plano-de-tratamento.md`; legado permanece single-tenant |
 
 ## Resolution
 
@@ -178,13 +201,36 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
   (`generated/index.md` o mostra apenas como ID e "restrito"). Nada de payload ou passo a passo
   explorável foi escrito neste arquivo; o relato bruto com os detalhes de mecanismo fica em
   `../intake/relato-20260929-0139.md`, fora de `generated/`.
-- **Correlação proposta.** Aresta `related-to` com `BUG-20260929-QMLY`, gravada aqui porque o
-  endereço de arquivo compartilhado é comum aos dois. Estado `proposed`: é hipótese, não fato
-  promovido.
+- **Correlação CONFIRMADA em 2026-10-02.** A aresta `related-to` com `BUG-20260929-QMLY` foi
+  promovida de `proposed` a `confirmed`. A medição daquele bug fechou o caminho causal: um
+  `gedcom_filename` arbitrário era aceito no `POST` e carregava o arquivo correspondente de
+  `uploads/` sem verificação de propriedade. É exatamente o mecanismo que sustenta este bug, o nome
+  de arquivo controlado pelo cliente atuando como identificador de sessão. Ver
+  `_reversa_bugs/upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/evidence/causacao-medida.txt`
+  § 8.
 - **Relação com a correção.** `risk_register.md#risk-005` já nomeia o plano de contingência: se o
   isolamento não puder ser garantido de forma estrutural, não liberar a onda seguinte. Corrigir este
   bug é pré-requisito de go-live, não melhoria.
 - **Taxonomia.** `area`, `module` e `feature` usam valores existentes em `_reversa_bugs/taxonomy.yaml`.
+- **Decisão de tratamento (2026-10-02, Adriano).** Perguntado se alguém além dele precisa usar a
+  aplicação antes da Onda 3, respondeu: **"Só eu mesmo"**. Com o uso restrito a uma pessoa, a
+  aplicação permanece **single-tenant**, que é exatamente a contingência que o
+  `_reversa_sdd/migration/risk_register.md#risk-005` já autoriza ("manter a aplicação single-tenant
+  até o isolamento ser provado"). O tratamento é a **Rota 3** do `fix/plano-de-tratamento.md`:
+  resolver na Onda 3, onde a spec manda, com `api/auth`, `owner_id` como invariante e repositório
+  escopado. **Consequência: não há trabalho de código deste bug a executar no legado.** A Rota 2
+  (escopo por sessão em memória) foi descartada por decisão humana, e não por impedimento técnico.
+- **Por que o legado não é corrigido.** Não é adiamento por dificuldade. A correção no legado seria
+  código descartado pela Onda 3 e, ainda assim, **não fecharia o segundo critério de aceite**, por
+  não existir identidade. Detalhamento e comparação das três rotas no plano citado.
+- **Condição que reabre esta decisão.** Se qualquer pessoa além de Adriano passar a ter acesso à
+  aplicação antes da Onda 3, esta decisão perde validade e a Rota 2 volta à mesa. O portão de
+  go-live continua sendo o teste negativo de `404` do `cutover_plan.md`.
+- **Divergências de rastreabilidade declaradas, não corrigidas.** `evidence/verificacao-codigo.md`
+  descreve um `STATIC_FOLDER` que a `OPP-20260929-SEQO` removeu, e o
+  `risk_register.md#risk-005` localiza o estado global em `app.py:20-23`, quando ele vive em
+  `reconstructed/upload.py:15-19` e `:95-98`. Ambos são anteriores ao refactor. Não corrigidos
+  porque alterar spec é ato humano; registrados para não se trabalhar sobre premissa morta.
 
 ---
 *Gerado pelo Reversa-Debugger em 2026-09-29.*

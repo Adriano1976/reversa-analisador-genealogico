@@ -1,0 +1,42 @@
+﻿
+========================================================================
+A. Limite de tamanho de requisicao
+========================================================================
+  MAX_CONTENT_LENGTH                     16777216
+  limite definido?                       True
+  requisicao acima do teto, status       413
+  gravou algo acima do teto?             False
+
+========================================================================
+B. Escape por caminho: fechado?
+========================================================================
+  status                                 200
+  gravou FORA de uploads/?               False
+
+========================================================================
+C. Conteudo invalido continua em disco?
+========================================================================
+  lixo.bin (recusado com motivo?)        True
+  lixo.bin (gravado em disco?)           False
+  vazio.ged (recusado com motivo?)       True
+  vazio.ged (gravado em disco?)          False
+
+========================================================================
+D. Colisao: os dois conteudos sobrevivem?
+========================================================================
+  apos primeiro envio, == enviado?       True
+  apos segundo envio, == enviado?        True
+  arquivos em uploads/                   ['28a3f5fc1baa56a5__colisao.ged', 'c0790938a5474f96___ESCAPIU.ged', 'e69135824e0d3838__colisao.ged']
+
+========================================================================
+E. Recuperacao pela chave devolvida
+========================================================================
+  chave do arquivo PRIMEIRO              '28a3f5fc1baa56a5__colisao.ged'
+  status                                 200
+  carregou a arvore?                     True
+
+========================================================================
+F. Nome escolhido pelo cliente virou chave?
+========================================================================
+  nome cru aceito como chave?            False
+  escape aceito como chave?              False

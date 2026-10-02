@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 3 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 3 bugs -->
 
 # Índice de bugs · busca-caminho
 
-> Gerado em `2026-10-02T16:28:42-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-02T17:38:21-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
@@ -21,12 +21,15 @@
 | # | ID | Severidade | Prioridade | Título | area / module / feature | Status | Phase | Bloqueado |
 |---|----|-----------|-----------|--------|------------------------|--------|-------|-----------|
 | 1 | `BUG-20260929-BJJH` | critical | P0 | restrito | analisador-genealogico / upload / busca-caminho | open | triaging | não |
-| 3 | `BUG-20260929-J6PQ` | medium | P1 | restrito | analisador-genealogico / path-search / busca-caminho | resolved | patching | não |
-| 4 | `BUG-20261002-T4ZM` | low | P3 | Rotulo Mermaid descarta 14 caracteres inertes que o legado preservava | analisador-genealogico / path-search / busca-caminho | resolved | patching | não |
 
 ## Resolvidos
 
 Total: 2.
+
+| # | ID | resolution_kind | Travado (DONE.md) |
+|---|----|-----------------|------------------|
+| 3 | `BUG-20260929-J6PQ` | fixed | sim |
+| 4 | `BUG-20261002-T4ZM` | fixed | sim |
 
 ## Visibilidade restrita
 

@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T16:28:42-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 1 bugs -->
 
 # Matriz de relações · upload-gedcom
 
@@ -6,4 +6,4 @@ Lista esparsa de arestas. Arestas simétricas são gravadas uma única vez, no b
 
 | Origem | Tipo | Destino | State | Evidência |
 |--------|------|---------|-------|-----------|
-| `BUG-20260929-QMLY` | related-to (derivada) | `BUG-20260929-BJJH` | proposed | aresta gravada em BUG-20260929-BJJH |
+| `BUG-20260929-QMLY` | related-to | `BUG-20260929-BJJH` | confirmed | aresta gravada no bug de origem |
