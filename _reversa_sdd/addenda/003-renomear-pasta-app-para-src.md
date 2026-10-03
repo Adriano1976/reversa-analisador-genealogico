@@ -107,3 +107,50 @@ Em `_reversa_forward/003-renomear-pasta-app-para-src/evidence/`:
 - `_reversa_sdd/inventory.md`, `architecture.md`, `code-analysis.md`, `domain.md`, `dependencies.md`
 - `.reversa/principles.md` (princípios I, II e III)
 - `_reversa_sdd/addenda/bug-BUG-20260929-QMLY-v001.md` (vigente)
+
+## Atualização 2026-10-03
+
+> **Sincronização parcial.** A feature tem 21 ações previstas e 20 concluídas. A ação `T021` — regeneração do mini-site de documentação — permanece aberta e será complementada em reexecução futura. Decisão do usuário nesta data, entre sincronizar parcialmente, aguardar o fechamento ou tratar de outro modo.
+>
+> O conteúdo acima, publicado pelo ciclo de codificação, **não foi alterado**. Esta seção acrescenta o delta do que está entregue, no formato canônico da sincronização.
+
+### Impacto por artefato da extração
+
+| Artefato | Seção | Tipo de impacto | Delta |
+|----------|-------|-----------------|-------|
+| `_reversa_sdd/architecture.md` | `#1` (visão geral e camadas) | `regra-alterada` | As duas camadas continuam as mesmas e continuam no mesmo diretório, que agora se chama `src/`. Os quantitativos de linha citados já estavam desatualizados antes desta feature |
+| `_reversa_sdd/architecture.md` | `#3.3` (estruturas de runtime) | `regra-alterada` | A pasta de upload é `src/uploads/`. A coluna "Onde" cita um símbolo que não existe mais no módulo do núcleo: ele migrou para o arquivo de entrada, e a pasta passou a ser resolvida por função ancorada no próprio arquivo |
+| `_reversa_sdd/architecture.md` | `#5` (dívidas técnicas) | `regra-removida` | A dívida 9 perde o objeto: o README herdado do módulo, que ela descrevia como desatualizado, foi removido. As dívidas 4 e 6 também estavam desatualizadas, por motivos alheios a esta feature |
+| `_reversa_sdd/architecture.md` | `#6` (resumo para o Reversa) | `regra-alterada` | A instrumentação de desenvolvimento continua fora do runtime; os scripts que resolvem a raiz de código foram atualizados e a paridade foi remedida em 100% |
+| `_reversa_sdd/inventory.md` | `#2` (árvore de diretórios) | `regra-alterada` | A raiz de código é `src/`; `requirements.txt` está na raiz do repositório |
+| `_reversa_sdd/inventory.md` | `#2` (árvore de diretórios) | `componente-extinto` | O README herdado do módulo não existe mais |
+| `_reversa_sdd/inventory.md` | `#2` (árvore de diretórios) | `componente-extinto` | O arquivo de ignore do módulo não existe mais |
+| `_reversa_sdd/inventory.md` | `#2` (árvore de diretórios) | `componente-extinto` | O diretório vazio de artefatos estáticos não existe mais |
+| `_reversa_sdd/inventory.md` | `#4` (pontos de entrada) | `regra-alterada` | O ponto de entrada é `src/app.py` e a configuração do analisador estático passou a apontar para `src` |
+| `_reversa_sdd/code-analysis.md` | `#1` e demais seções de componente | `regra-alterada` | Mesmo mapa de dependências e mesmas responsabilidades, com o prefixo `src/`. As referências de arquivo e linha dos módulos do núcleo seguem válidas, porque nenhum nome de módulo mudou |
+| `_reversa_sdd/domain.md` | `#4.1` (contrato de mensagens do núcleo) | `regra-alterada` | Nenhuma mensagem muda: elas permanecem literais. Apenas o prefixo de caminho das citações de origem |
+| `_reversa_sdd/domain.md` | `#7` (ADR-02) | `regra-alterada` | A decisão de promover os módulos para dentro da raiz de código continua válida; o diretório de destino é agora `src/reconstructed/` |
+| `_reversa_sdd/dependencies.md` | `#1` (gerenciador de pacotes) | `regra-alterada` | O arquivo de dependências está na raiz do repositório, e não mais dentro da raiz de código |
+| `_reversa_sdd/dependencies.md` | `#4` (dependências removidas) | `regra-removida` | A nota de que o README herdado anunciava a biblioteca abandonada perde o objeto: o arquivo foi removido |
+| `_reversa_sdd/migration/parity_harness.md` | comandos de exemplo | `regra-alterada` | Os comandos seguem válidos; o candidato avaliado passou a ser `src/reconstructed/` |
+| `_reversa_sdd/screens/golden/manifest.yaml` | citação ao comando do oráculo | `regra-alterada` | Se ainda citar o caminho antigo, deve ser lida com o prefixo `src/` |
+| `_reversa_sdd/oracle/ORACLE_MANIFEST.md` | citações de caminho | `regra-alterada` | Somente as citações ao commit congelado mantêm o caminho histórico; as demais seguem a regra de leitura única |
+| `_reversa_sdd/oracle/run_oracle.py` | caminhos atuais | `regra-alterada` | Os caminhos atuais foram atualizados; a linha que emite o comando contra o commit congelado foi preservada de propósito, porque aquele commit não tem `src/` |
+
+### Regras sob vigilância
+
+`W001`, `W002`, `W003`, `W004` e `W005` — definidos em `_reversa_forward/003-renomear-pasta-app-para-src/regression-watch.md`.
+
+O watch principal cobre cinco condições estruturais estabelecidas por esta feature: o nome da raiz de código e a identidade do pacote do núcleo (`W001`), a posição do arquivo de dependências (`W002`), a resolução da pasta de upload ancorada no arquivo do aplicativo (`W003`), a ausência dos três artefatos extintos (`W004`) e a permanência da paridade e do conjunto de testes (`W005`).
+
+### Pendência declarada
+
+A regeneração do mini-site de documentação (`T021`) não foi executada. Enquanto ela não rodar, o site derivado continua citando o caminho antigo. A pendência está registrada como observação `O4` no `regression-watch.md` e não afeta código, testes nem paridade.
+
+### Fontes
+
+- `_reversa_forward/003-renomear-pasta-app-para-src/legacy-impact.md` (fonte principal do delta)
+- `_reversa_forward/003-renomear-pasta-app-para-src/regression-watch.md`
+- `_reversa_forward/003-renomear-pasta-app-para-src/requirements.md`
+- `_reversa_forward/003-renomear-pasta-app-para-src/progress.jsonl` (20 ações concluídas de 21)
+- `_reversa_forward/003-renomear-pasta-app-para-src/actions.md`
