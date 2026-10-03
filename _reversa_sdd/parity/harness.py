@@ -7,7 +7,7 @@ diferencial real, nao por inspecao.
 
 O oraculo e `_reversa_sdd/oracle/app_legacy_e43ca22.py` (monolito de 888 linhas,
 extraido do commit e43ca22). NAO use `src/app.py`: ele virou um
-wrapper de 86 linhas que importa `reconstructed/`, e usa-lo produz validacao
+wrapper de 86 linhas que importa `src/`, e usa-lo produz validacao
 circular — comparar a reconstrucao com ela mesma.
 
 ## Arquitetura
@@ -156,11 +156,11 @@ W = sys.argv[1]; GED = sys.argv[2]; OUT = sys.argv[3]
 sys.path.insert(0, os.path.join(W, "src"))
 os.chdir(os.path.join(W, ".parity-run-cand"))
 
-from reconstructed import gedcom_parser as GP
-from reconstructed import gedcom_state as GS
-from reconstructed import path_search as P
-from reconstructed import dna_analysis as D
-from reconstructed import domain as DM
+from parsers import gedcom_parser as GP
+from core import gedcom_state as GS
+from core import path_search as P
+from core import dna_analysis as D
+from utils import text_cleaning as DM
 
 obs = {}
 def jsonable(v):
@@ -199,13 +199,18 @@ obs["norm_name"] = {n: safo(D.norm_name, n) for n in names}
 # ATENCAO — equivalente correto de `strip_bad_utf`:
 #   O oraculo tem UMA funcao `strip_bad_utf` (L62-81) que faz o dicionario de fixes
 #   de mojibake E a limpeza de nao-alfanumericos.
-#   A reconstrucao DIVIDIU isso em duas:
-#     - `dna_analysis.strip_bad_utf` (L74-90) = copia fiel do oraculo  <-- ESTE e o equivalente
-#     - `domain.strip_bad_utf`    (L29-40) = outra coisa (so remove U+FFFD)
-#     - `domain.demojibake`       (L43-57) = parte do trabalho, implementacao diferente
-#   Comparar `domain.strip_bad_utf` com o oraculo gera FALSO POSITIVO de divergencia:
-#   nao e o mesmo comportamento, e nem pretende ser. O probe correto e `norm_name`
-#   (que usa a funcao certa internamente) + `D.strip_bad_utf` abaixo.
+#   A reconstrucao DIVIDIU isso em duas, e a unificacao veio depois:
+#     - `dna_analysis.strip_bad_utf` = copia fiel do oraculo  <-- ESTE e o equivalente
+#     - `text_cleaning.strip_bad_utf` e `text_cleaning.demojibake` = a autoridade unica
+#
+#   HISTORICO, e nao vale mais como aviso: entre a OPP-20260929-ZV52 e a
+#   OPP-20260929-B5F2 as duas implementacoes divergiam, e comparar a do modulo de
+#   limpeza com o oraculo gerava falso positivo, porque uma delas apenas removia
+#   U+FFFD. A B5F2 unificou os corpos. Medido em 2026-10-03:
+#       D.strip_bad_utf is DM.strip_bad_utf  ->  True
+#       D.demojibake   is DM.demojibake     ->  True
+#   Sao o mesmo objeto, entao qualquer um dos dois serve de probe. O probe usado
+#   abaixo continua sendo `D.strip_bad_utf`.
 obs["strip_bad_utf"] = {n: safo(D.strip_bad_utf, n) for n in names}
 obs["demojibake"] = {n: safo(D.demojibake, n) for n in names}
 obs["split_name_pt"] = {n: safo(lambda x: list(D.split_name_pt(x)), n) for n in names}
@@ -381,7 +386,7 @@ def main() -> int:
     print("HARNESS DIFERENCIAL — oraculo congelado x reconstrucao")
     print("=" * 78)
     print("oraculo   : %s" % os.path.relpath(ORACLE, ROOT))
-    print("candidato : src/reconstructed/")
+    print("candidato : src/")
     print("probes    : %d valores de cM + grafo completo + pares de caminho" % len(CM_PROBES))
     print("amostra   : %dx%d = %d pares de caminho por lado" % (SAMPLE, SAMPLE, SAMPLE * SAMPLE))
     print("timeout   : %ds por coletor" % TIMEOUT)

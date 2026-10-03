@@ -13,14 +13,14 @@ import re
 import unicodedata
 from contextlib import contextmanager
 
-from .family_navigation import (
+from core.family_navigation import (
     exclude_tail,
     get_spouses,
     pick_spouse_for_couple,
     split_path_by_marriage,
 )
-from .path_finding import find_ancestral_path
-from .gedcom_state import get_name, people
+from core.path_finding import find_ancestral_path
+from core.gedcom_state import get_name, people
 
 
 def _mermaid_sid(raw) -> str:

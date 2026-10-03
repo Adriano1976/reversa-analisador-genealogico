@@ -1,5 +1,5 @@
 # Configuração do Pyrefly (analisador estático de tipos)
-# Adiciona o diretório onde o pacote `reconstructed` realmente reside,
+# Adiciona o diretório onde os pacotes do núcleo realmente residem,
 # espelhando o sys.path.insert feito em tempo de execução nos testes.
 # As opções ficam no topo do documento. Envolvê-las numa tabela `[pyrefly]` faz
 # o pyrefly tratar `pyrefly` como chave desconhecida e descartar o arquivo

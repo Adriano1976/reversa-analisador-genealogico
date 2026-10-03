@@ -5,9 +5,9 @@ oraculo e candidato. Se, corrigido `get_name`, ainda sobrar divergencia, entao h
 um segundo problema escondido atras do primeiro — e o harness precisa ser
 executado ate a paridade total para provar isso.
 
-Metodo: copia `reconstructed/` para um diretorio temporario, substitui `get_name`
+Metodo: copia `src/` para um diretorio temporario, substitui `get_name`
 pela versao do oraculo, aponta o coletor do candidato para a copia e roda o harness.
-NAO toca em `src/reconstructed/` (artefato de trabalho anterior).
+NAO toca em `src/` (artefato de trabalho anterior).
 """
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-SRC = os.path.join(ROOT, "src", "reconstructed")
-STUB = os.path.join(ROOT, ".parity-stub", "reconstructed")
+SRC = os.path.join(ROOT, "src")
+STUB = os.path.join(ROOT, ".parity-stub")
 
 ORACLE_GET_NAME = '''def get_name(person):
     """COMPORTAMENTO DO ORACULO — copia fiel de app_legacy_e43ca22.py:42-43."""
@@ -30,7 +30,7 @@ ORACLE_GET_NAME = '''def get_name(person):
 def main() -> int:
     shutil.rmtree(os.path.dirname(STUB), ignore_errors=True)
     shutil.copytree(SRC, STUB)
-    alvo = os.path.join(STUB, "gedcom_state.py")
+    alvo = os.path.join(STUB, "core", "gedcom_state.py")
     src = open(alvo, encoding="utf-8").read()
 
     # Substitui a funcao get_name inteira (da def ate a linha em branco dupla).
@@ -51,9 +51,9 @@ def main() -> int:
     #
     # ARMADILHA (custou uma rodada inteira): o coletor faz `os.chdir(run_dir)` ANTES
     # de importar. Com uma entrada '' (ou o proprio run_dir) no sys.path, o Python
-    # resolve `reconstructed` como NAMESPACE PACKAGE do diretorio de trabalho — cria
+    # resolve `core` como NAMESPACE PACKAGE do diretorio de trabalho — cria
     # um pacote VAZIO (`__file__ = None`) que tem precedencia sobre o pacote real, e o
-    # erro que aparece e `cannot import name 'upload' from 'reconstructed'
+    # erro que aparece e `cannot import name 'gedcom_state' from 'core'
     # (unknown location)`. A mensagem nao diz "namespace package", entao engana.
     #
     # Correcao: inserir o DIRETORIO QUE CONTEM o pacote, e nao depender do CWD.

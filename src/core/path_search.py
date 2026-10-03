@@ -20,7 +20,7 @@ estritamente descendente, sem ciclo e sem import tardio novo.
 ## Superficie de compatibilidade
 
 O bloco de reexportacao no fim do arquivo existe porque consumidores externos
-importam nomes daqui: `app.py`, `reconstructed/dna_analysis.py`,
+importam nomes daqui: `app.py`, `core/dna_analysis.py`,
 `tests/test_path_search.py`, `tests/test_mermaid_escape.py`,
 `tests/test_characterization_mermaid.py`, `_reversa_sdd/parity/harness.py` e as
 sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
@@ -37,7 +37,7 @@ from .family_navigation import (
     pick_spouse_for_couple,
     split_path_by_marriage,
 )
-from .mermaid_render import (
+from reporting.mermaid_render import (
     _LABEL_SEGURO,
     _mermaid_label,
     _mermaid_sid,

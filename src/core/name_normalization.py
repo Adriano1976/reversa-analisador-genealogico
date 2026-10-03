@@ -7,15 +7,16 @@ matching consome. O vocabulario de particulas e sufixos vive aqui porque e um
 conceito unico, mesmo sendo consumido tambem pelo matching.
 
 Este modulo NAO define limpeza de mojibake: `strip_bad_utf` e `demojibake` sao
-autoridade de `domain.py`, unificadas pela OPP-20260929-4LE3. Ter duas funcoes
-com esse nome gerava falso positivo de divergencia no harness de paridade.
+autoridade de `text_cleaning.py`, unificadas pela OPP-20260929-4LE3. Ter duas
+funcoes com esse nome gerava falso positivo de divergencia no harness de
+paridade.
 """
 from __future__ import annotations
 
 import string
 import unicodedata
 
-from .domain import strip_bad_utf
+from utils.text_cleaning import strip_bad_utf
 
 
 STOP_WORDS = {"de", "da", "do", "das", "dos", "e"}

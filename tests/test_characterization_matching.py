@@ -31,9 +31,9 @@ from tests.fixtures.sample_dna import (
     DNA_GED,
 )
 
-from reconstructed import gedcom_parser
-from reconstructed import gedcom_state
-from reconstructed.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+from parsers import gedcom_parser
+from core import gedcom_state
+from core.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
 
 
 @pytest.fixture(scope="module")

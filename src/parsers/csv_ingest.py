@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from .domain import demojibake
-from .name_normalization import norm_name
+from utils.text_cleaning import demojibake
+from core.name_normalization import norm_name
 
 
 def read_csv_with_fallback(path):

@@ -20,10 +20,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
-from reconstructed import gedcom_parser
-from reconstructed import gedcom_state
-from reconstructed.gedcom_parser import build_graph_from_parser
-from reconstructed.gedcom_state import get_name, ref_id
+from parsers import gedcom_parser
+from core import gedcom_state
+from parsers.gedcom_parser import build_graph_from_parser
+from core.gedcom_state import get_name, ref_id
 
 
 def _write_g(content=SAMPLE_GED):

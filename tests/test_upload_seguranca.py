@@ -41,13 +41,13 @@ def _carregar_app():
     return modulo.app
 
 def _validate():
-    """Import tardio de `reconstructed.validate`.
+    """Import tardio de `utils.validate`.
 
     O módulo nasce no CHG-001. Importá-lo no topo faria a coleta inteira
     abortar por ImportError, escondendo a falha real dos testes de rota. Com o
     import aqui, cada teste falha pelo seu próprio motivo.
     """
-    from reconstructed import validate as modulo
+    from utils import validate as modulo
 
     return modulo
 

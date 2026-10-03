@@ -23,9 +23,9 @@ from tests.fixtures.sample_dna import (
     DNA_GED,
 )
 
-from reconstructed import gedcom_parser
-from reconstructed import gedcom_state
-from reconstructed.dna_analysis import (
+from parsers import gedcom_parser
+from core import gedcom_state
+from core.dna_analysis import (
     aggregate_matches,
     detect_columns,
     dna_analysis,

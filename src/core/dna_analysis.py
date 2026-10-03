@@ -31,9 +31,9 @@ migrados para os modulos novos, o bloco fica.
 """
 from __future__ import annotations
 
-from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
-from .csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
-from .domain import demojibake, strip_bad_utf
+from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+from parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+from utils.text_cleaning import demojibake, strip_bad_utf
 from .matching import build_ged_indexes, match_candidates
 from .name_normalization import (
     drop_short_tokens,
@@ -46,7 +46,7 @@ from .name_normalization import (
     top_given_tokens,
 )
 from .path_finding import find_ancestral_path
-from .mermaid_render import generate_mermaid_graph
+from reporting.mermaid_render import generate_mermaid_graph
 from .gedcom_state import get_name, people
 
 

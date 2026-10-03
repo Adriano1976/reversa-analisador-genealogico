@@ -12,8 +12,8 @@ from __future__ import annotations
 import networkx as nx
 from ged4py.parser import GedcomReader
 
-from . import gedcom_state
-from .gedcom_state import get_name, ref_id
+from core import gedcom_state
+from core.gedcom_state import get_name, ref_id
 
 def build_graph_from_parser(people_dict: dict, parser):
     """Constrói grafo bidirecional pessoa<->familia e índice filho->famílias."""

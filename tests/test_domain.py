@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
-from reconstructed.domain import (
+from utils.text_cleaning import (
     demojibake,
     strip_bad_utf,
 )
@@ -58,8 +58,9 @@ def test_demojibake_recupera_latin1_lido_como_utf8():
     """Afirma o comportamento vivo, que agora e o unico que existe.
 
     A assercao anterior verificava a substituicao de "A + til combinante" por "Ã",
-    que so a implementacao morta de domain.py fazia. O corpo vivo, vindo de
-    dna_analysis, recupera o texto quando a conversao latin1 para utf-8 e valida.
+    que so a implementacao antiga fazia, a que a OPP-20260929-B5F2 substituiu. O
+    corpo vivo, vindo de dna_analysis, recupera o texto quando a conversao latin1
+    para utf-8 e valida.
     """
     assert demojibake("FranÃ§isco") == "Françisco"
     assert demojibake("texto normal") == "texto normal"

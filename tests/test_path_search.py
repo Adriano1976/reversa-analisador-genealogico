@@ -15,9 +15,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
-from reconstructed import gedcom_parser
-from reconstructed import gedcom_state
-from reconstructed.path_search import (
+from parsers import gedcom_parser
+from core import gedcom_state
+from core.path_search import (
     find_ancestral_path,
     find_indirect_path,
     find_person_by_name,

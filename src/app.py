@@ -3,10 +3,10 @@ import os
 from flask import Flask, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
-from reconstructed.path_search import path_search as path_search_flow
-from reconstructed.gedcom_parser import load_gedcom_and_build_graph
-from reconstructed.validate import (
+from core.dna_analysis import dna_analysis as dna_analysis_flow
+from core.path_search import path_search as path_search_flow
+from parsers.gedcom_parser import load_gedcom_and_build_graph
+from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
     nome_do_arquivo_armazenado,
