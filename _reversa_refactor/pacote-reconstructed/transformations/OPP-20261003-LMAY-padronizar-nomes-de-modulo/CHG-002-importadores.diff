@@ -1,0 +1,67 @@
+--- a/src/reconstructed/csv_ingest.py
++++ b/src/reconstructed/csv_ingest.py
+@@ -8,7 +8,7 @@
+ 
+ import pandas as pd
+ 
+-from .domain import demojibake
++from .text_cleaning import demojibake
+ from .name_normalization import norm_name
+ 
+ 
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/dna_analysis.py
+@@ -33,7 +33,7 @@
+ 
+ from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+ from .csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+-from .domain import demojibake, strip_bad_utf
++from .text_cleaning import demojibake, strip_bad_utf
+ from .matching import build_ged_indexes, match_candidates
+ from .name_normalization import (
+     drop_short_tokens,
+--- a/src/reconstructed/name_normalization.py
++++ b/src/reconstructed/name_normalization.py
+@@ -7,15 +7,16 @@
+ conceito unico, mesmo sendo consumido tambem pelo matching.
+ 
+ Este modulo NAO define limpeza de mojibake: `strip_bad_utf` e `demojibake` sao
+-autoridade de `domain.py`, unificadas pela OPP-20260929-4LE3. Ter duas funcoes
+-com esse nome gerava falso positivo de divergencia no harness de paridade.
++autoridade de `text_cleaning.py`, unificadas pela OPP-20260929-4LE3. Ter duas
++funcoes com esse nome gerava falso positivo de divergencia no harness de
++paridade.
+ """
+ from __future__ import annotations
+ 
+ import string
+ import unicodedata
+ 
+-from .domain import strip_bad_utf
++from .text_cleaning import strip_bad_utf
+ 
+ 
+ STOP_WORDS = {"de", "da", "do", "das", "dos", "e"}
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -25,7 +25,7 @@
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+-from reconstructed.domain import (
++from reconstructed.text_cleaning import (
+     demojibake,
+     strip_bad_utf,
+ )
+@@ -58,8 +58,9 @@
+     """Afirma o comportamento vivo, que agora e o unico que existe.
+ 
+     A assercao anterior verificava a substituicao de "A + til combinante" por "Ã",
+-    que so a implementacao morta de domain.py fazia. O corpo vivo, vindo de
+-    dna_analysis, recupera o texto quando a conversao latin1 para utf-8 e valida.
++    que so a implementacao antiga fazia, a que a OPP-20260929-B5F2 substituiu. O
++    corpo vivo, vindo de dna_analysis, recupera o texto quando a conversao latin1
++    para utf-8 e valida.
+     """
+     assert demojibake("FranÃ§isco") == "Françisco"
+     assert demojibake("texto normal") == "texto normal"

@@ -1,0 +1,69 @@
+--- a/tests/test_characterization_matching.py
++++ b/tests/test_characterization_matching.py
+@@ -31,7 +31,7 @@
+     DNA_GED,
+ )
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed import gedcom_state
+ from reconstructed.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+ 
+--- a/tests/test_dna_analysis.py
++++ b/tests/test_dna_analysis.py
+@@ -23,7 +23,7 @@
+     DNA_GED,
+ )
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed import gedcom_state
+ from reconstructed.dna_analysis import (
+     aggregate_matches,
+--- a/tests/test_upload.py
++++ b/tests/test_upload.py
+@@ -20,9 +20,9 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed import gedcom_state
+-from reconstructed.gedcom_parser import build_graph_from_parser
++from reconstructed.parsers.gedcom_parser import build_graph_from_parser
+ from reconstructed.gedcom_state import get_name, ref_id
+ 
+ 
+--- a/tests/test_mermaid_escape.py
++++ b/tests/test_mermaid_escape.py
+@@ -24,7 +24,7 @@
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed.path_search import _mermaid_label, path_search
+ 
+ # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
+--- a/tests/test_path_search.py
++++ b/tests/test_path_search.py
+@@ -15,7 +15,7 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed import gedcom_state
+ from reconstructed.path_search import (
+     find_ancestral_path,
+--- a/tests/test_characterization_mermaid.py
++++ b/tests/test_characterization_mermaid.py
+@@ -19,7 +19,7 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed import gedcom_parser
++from reconstructed.parsers import gedcom_parser
+ from reconstructed import gedcom_state
+ from reconstructed.path_search import path_search
+ 

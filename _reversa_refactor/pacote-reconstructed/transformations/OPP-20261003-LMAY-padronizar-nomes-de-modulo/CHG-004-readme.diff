@@ -1,0 +1,26 @@
+--- a/README.md
++++ b/README.md
+@@ -65,9 +65,12 @@
+ src/                            # raiz de código da aplicação
+ ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
+ ├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
+-│   ├── domain.py               # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
++│   ├── core/                   # Conhecimento de domínio puro, sem depender do resto do pacote
++│   │   └── cm_estimator.py     # Tradução de cM em relações prováveis (faixas heurísticas)
++│   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
+ │   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
+-│   ├── upload.py               # Upload e parsing de GEDCOM, construção do grafo networkx
++│   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
++│   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
+ │   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
+ │   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
+ │   ├── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
+@@ -135,7 +138,7 @@
+ 
+ - A lógica de negócio está modularizada no pacote `reconstructed/`, separada da camada web (`app.py`).
+ - O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
+-- As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `domain.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
++- As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `text_cleaning.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
+ - Busca de caminhos em `path_finding.py`: direto por MRCA (teto de 20 iterações de profundidade) e indireto por afinidade (até 40 saltos). A emissão do diagrama e o contrato de escape do rótulo ficam em `mermaid_render.py`, e `path_search.py` é a fachada consumida pelo `app.py`.
+ - Cruzamento GEDCOM × CSV, fuzzy matching e previsão de parentesco por faixas de cM em `dna_analysis.py` (fachada), com a leitura do CSV em `csv_ingest.py`, a decisão de aceitação de candidatos em `matching.py` e a normalização de nomes em `name_normalization.py`.
+ - Validação do upload (teto de requisição, chave de armazenamento derivada do conteúdo e recusa de GEDCOM inválido) em `validate.py`.

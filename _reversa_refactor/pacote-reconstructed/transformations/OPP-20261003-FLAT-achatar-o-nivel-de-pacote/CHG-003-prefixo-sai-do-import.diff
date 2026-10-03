@@ -1,0 +1,162 @@
+--- a/src/app.py
++++ b/src/app.py
+@@ -3,10 +3,10 @@
+ from flask import Flask, render_template, request
+ from werkzeug.exceptions import RequestEntityTooLarge
+ 
+-from reconstructed.core.dna_analysis import dna_analysis as dna_analysis_flow
+-from reconstructed.core.path_search import path_search as path_search_flow
+-from reconstructed.parsers.gedcom_parser import load_gedcom_and_build_graph
+-from reconstructed.utils.validate import (
++from core.dna_analysis import dna_analysis as dna_analysis_flow
++from core.path_search import path_search as path_search_flow
++from parsers.gedcom_parser import load_gedcom_and_build_graph
++from utils.validate import (
+     chave_de_armazenamento,
+     chave_recebida_e_valida,
+     nome_do_arquivo_armazenado,
+--- a/tests/test_upload.py
++++ b/tests/test_upload.py
+@@ -20,10 +20,10 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core import gedcom_state
+-from reconstructed.parsers.gedcom_parser import build_graph_from_parser
+-from reconstructed.core.gedcom_state import get_name, ref_id
++from parsers import gedcom_parser
++from core import gedcom_state
++from parsers.gedcom_parser import build_graph_from_parser
++from core.gedcom_state import get_name, ref_id
+ 
+ 
+ def _write_g(content=SAMPLE_GED):
+--- a/tests/test_path_search.py
++++ b/tests/test_path_search.py
+@@ -15,9 +15,9 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core import gedcom_state
+-from reconstructed.core.path_search import (
++from parsers import gedcom_parser
++from core import gedcom_state
++from core.path_search import (
+     find_ancestral_path,
+     find_indirect_path,
+     find_person_by_name,
+--- a/tests/test_dna_analysis.py
++++ b/tests/test_dna_analysis.py
+@@ -23,9 +23,9 @@
+     DNA_GED,
+ )
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core import gedcom_state
+-from reconstructed.core.dna_analysis import (
++from parsers import gedcom_parser
++from core import gedcom_state
++from core.dna_analysis import (
+     aggregate_matches,
+     detect_columns,
+     dna_analysis,
+--- a/tests/test_characterization_matching.py
++++ b/tests/test_characterization_matching.py
+@@ -31,9 +31,9 @@
+     DNA_GED,
+ )
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core import gedcom_state
+-from reconstructed.core.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
++from parsers import gedcom_parser
++from core import gedcom_state
++from core.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+ 
+ 
+ @pytest.fixture(scope="module")
+--- a/tests/test_characterization_mermaid.py
++++ b/tests/test_characterization_mermaid.py
+@@ -19,9 +19,9 @@
+ 
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core import gedcom_state
+-from reconstructed.core.path_search import path_search
++from parsers import gedcom_parser
++from core import gedcom_state
++from core.path_search import path_search
+ 
+ # Saida congelada, linha por linha, para os tres caminhos de render.
+ GOLDEN = {
+--- a/tests/test_mermaid_escape.py
++++ b/tests/test_mermaid_escape.py
+@@ -24,8 +24,8 @@
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+-from reconstructed.parsers import gedcom_parser
+-from reconstructed.core.path_search import _mermaid_label, path_search
++from parsers import gedcom_parser
++from core.path_search import _mermaid_label, path_search
+ 
+ # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
+ LINHA_DE_NO = re.compile(r'^N_[A-Za-z0-9_]+\["[^"]*"\]$')
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -25,7 +25,7 @@
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+-from reconstructed.utils.text_cleaning import (
++from utils.text_cleaning import (
+     demojibake,
+     strip_bad_utf,
+ )
+--- a/tests/test_upload_seguranca.py
++++ b/tests/test_upload_seguranca.py
+@@ -41,7 +41,7 @@
+     return modulo.app
+ 
+ def _validate():
+-    """Import tardio de `reconstructed.validate`.
++    """Import tardio de `utils.validate`.
+ 
+     O módulo nasce no CHG-001. Importá-lo no topo faria a coleta inteira
+     abortar por ImportError, escondendo a falha real dos testes de rota. Com o
+--- a/_reversa_sdd/parity/harness.py
++++ b/_reversa_sdd/parity/harness.py
+@@ -7,7 +7,7 @@
+ 
+ O oraculo e `_reversa_sdd/oracle/app_legacy_e43ca22.py` (monolito de 888 linhas,
+ extraido do commit e43ca22). NAO use `src/app.py`: ele virou um
+-wrapper de 86 linhas que importa `reconstructed/`, e usa-lo produz validacao
++wrapper de 86 linhas que importa `src/`, e usa-lo produz validacao
+ circular — comparar a reconstrucao com ela mesma.
+ 
+ ## Arquitetura
+@@ -386,7 +386,7 @@
+     print("HARNESS DIFERENCIAL — oraculo congelado x reconstrucao")
+     print("=" * 78)
+     print("oraculo   : %s" % os.path.relpath(ORACLE, ROOT))
+-    print("candidato : src/reconstructed/")
++    print("candidato : src/")
+     print("probes    : %d valores de cM + grafo completo + pares de caminho" % len(CM_PROBES))
+     print("amostra   : %dx%d = %d pares de caminho por lado" % (SAMPLE, SAMPLE, SAMPLE * SAMPLE))
+     print("timeout   : %ds por coletor" % TIMEOUT)
+--- a/_reversa_sdd/parity/_check_split_types.py
++++ b/_reversa_sdd/parity/_check_split_types.py
+@@ -39,8 +39,8 @@
+ else:
+     sys.path.insert(0, os.path.join(W, "src"))
+     os.chdir(tmp)
+-    from reconstructed.core import dna_analysis as D
+-    from reconstructed.parsers import gedcom_parser as U
++    from core import dna_analysis as D
++    from parsers import gedcom_parser as U
+     U.load_gedcom_and_build_graph(GED)
+     fn = D.split_name_pt
+ 

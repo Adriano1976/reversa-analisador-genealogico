@@ -1,0 +1,8 @@
+--- /dev/null
++++ b/src/reconstructed/parsers/__init__.py
+@@ -0,0 +1 @@
++"""Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches."""
+--- /dev/null
++++ b/src/reconstructed/reporting/__init__.py
+@@ -0,0 +1 @@
++"""Transformacao de resultado em apresentacao."""

@@ -1,0 +1,77 @@
+rename from src/reconstructed/gedcom_state.py
+rename to src/reconstructed/core/gedcom_state.py
+rename from src/reconstructed/path_search.py
+rename to src/reconstructed/core/path_search.py
+--- a/src/reconstructed/path_search.py
++++ b/src/reconstructed/core/path_search.py
+@@ -20,7 +20,7 @@
+ ## Superficie de compatibilidade
+ 
+ O bloco de reexportacao no fim do arquivo existe porque consumidores externos
+-importam nomes daqui: `app.py`, `reconstructed/dna_analysis.py`,
++importam nomes daqui: `app.py`, `reconstructed/core/dna_analysis.py`,
+ `tests/test_path_search.py`, `tests/test_mermaid_escape.py`,
+ `tests/test_characterization_mermaid.py`, `_reversa_sdd/parity/harness.py` e as
+ sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
+@@ -28,7 +28,7 @@
+ 
+ from __future__ import annotations
+ 
+-from .core.family_navigation import (
++from .family_navigation import (
+     are_spouses,
+     exclude_tail,
+     find_person_by_name,
+@@ -37,14 +37,14 @@
+     pick_spouse_for_couple,
+     split_path_by_marriage,
+ )
+-from .reporting.mermaid_render import (
++from ..reporting.mermaid_render import (
+     _LABEL_SEGURO,
+     _mermaid_label,
+     _mermaid_sid,
+     generate_mermaid_graph,
+     generate_mermaid_graph_indirect_bridge,
+ )
+-from .core.path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
++from .path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
+ from .gedcom_state import get_name, people, ref_id
+ 
+ # `are_spouses`, `get_parents`, `get_spouses`, `pick_spouse_for_couple`,
+rename from src/reconstructed/dna_analysis.py
+rename to src/reconstructed/core/dna_analysis.py
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/core/dna_analysis.py
+@@ -31,11 +31,11 @@
+ """
+ from __future__ import annotations
+ 
+-from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+-from .parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+-from .text_cleaning import demojibake, strip_bad_utf
+-from .core.matching import build_ged_indexes, match_candidates
+-from .core.name_normalization import (
++from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
++from ..parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
++from ..utils.text_cleaning import demojibake, strip_bad_utf
++from .matching import build_ged_indexes, match_candidates
++from .name_normalization import (
+     drop_short_tokens,
+     norm_name,
+     soft_prefix_jaccard,
+@@ -45,8 +45,8 @@
+     token_prefixes,
+     top_given_tokens,
+ )
+-from .core.path_finding import find_ancestral_path
+-from .reporting.mermaid_render import generate_mermaid_graph
++from .path_finding import find_ancestral_path
++from ..reporting.mermaid_render import generate_mermaid_graph
+ from .gedcom_state import get_name, people
+ 
+ 
+rename from src/reconstructed/text_cleaning.py
+rename to src/reconstructed/utils/text_cleaning.py
+rename from src/reconstructed/validate.py
+rename to src/reconstructed/utils/validate.py

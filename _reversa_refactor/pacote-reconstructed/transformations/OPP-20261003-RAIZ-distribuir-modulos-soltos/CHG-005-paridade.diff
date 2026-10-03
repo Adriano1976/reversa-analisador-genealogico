@@ -1,0 +1,39 @@
+--- a/_reversa_sdd/parity/harness.py
++++ b/_reversa_sdd/parity/harness.py
+@@ -157,10 +157,10 @@
+ os.chdir(os.path.join(W, ".parity-run-cand"))
+ 
+ from reconstructed.parsers import gedcom_parser as GP
+-from reconstructed import gedcom_state as GS
+-from reconstructed import path_search as P
+-from reconstructed import dna_analysis as D
+-from reconstructed import text_cleaning as DM
++from reconstructed.core import gedcom_state as GS
++from reconstructed.core import path_search as P
++from reconstructed.core import dna_analysis as D
++from reconstructed.utils import text_cleaning as DM
+ 
+ obs = {}
+ def jsonable(v):
+--- a/_reversa_sdd/parity/_check_split_types.py
++++ b/_reversa_sdd/parity/_check_split_types.py
+@@ -39,7 +39,7 @@
+ else:
+     sys.path.insert(0, os.path.join(W, "src"))
+     os.chdir(tmp)
+-    from reconstructed import dna_analysis as D
++    from reconstructed.core import dna_analysis as D
+     from reconstructed.parsers import gedcom_parser as U
+     U.load_gedcom_and_build_graph(GED)
+     fn = D.split_name_pt
+--- a/_reversa_sdd/parity/_verify_fix_gives_parity.py
++++ b/_reversa_sdd/parity/_verify_fix_gives_parity.py
+@@ -30,7 +30,7 @@
+ def main() -> int:
+     shutil.rmtree(os.path.dirname(STUB), ignore_errors=True)
+     shutil.copytree(SRC, STUB)
+-    alvo = os.path.join(STUB, "gedcom_state.py")
++    alvo = os.path.join(STUB, "core", "gedcom_state.py")
+     src = open(alvo, encoding="utf-8").read()
+ 
+     # Substitui a funcao get_name inteira (da def ate a linha em branco dupla).

@@ -1,0 +1,1975 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\venda\AppData\Local\Python\pythoncore-3.14-64\python.exe
+cachedir: .pytest_cache
+rootdir: D:\Projetos\reversa_analisador_gelealogico
+configfile: pytest.ini
+testpaths: tests
+collecting ... collected 133 items
+
+tests/test_characterization_matching.py::test_pipeline_caracterizado[duplicado] PASSED [  0%]
+tests/test_characterization_matching.py::test_pipeline_caracterizado[sem-intersecao] PASSED [  1%]
+tests/test_characterization_matching.py::test_pipeline_caracterizado[utf8] PASSED [  2%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Ana Silva Souza-pids0-None] PASSED [  3%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Ana Silva Souza Ferreira-pids1-None] PASSED [  3%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Carlos Silva Souza-pids2-None] PASSED [  4%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Marta Souza-pids3-None] PASSED [  5%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Joaquim Silva-pids4-None] PASSED [  6%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Lone Ranger-pids5-None] PASSED [  6%]
+tests/test_characterization_matching.py::test_decisao_de_matching[ana silva souza-pids6-None] PASSED [  7%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Joao Silva-pids7-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [  8%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Ana Souza-pids8-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [  9%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Ana Silva-pids9-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [  9%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Silva-pids10-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [ 10%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Souza-pids11-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [ 11%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Maria Oliveira-pids12-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [ 12%]
+tests/test_characterization_matching.py::test_decisao_de_matching[Zzz Ninguem dos Santos-pids13-sem candidatos por sobrenome (abrevia\xe7\xe3o/corrup\xe7\xe3o?)] PASSED [ 12%]
+tests/test_characterization_matching.py::test_limiar_de_cm_nao_muda_a_decisao[0] PASSED [ 13%]
+tests/test_characterization_matching.py::test_limiar_de_cm_nao_muda_a_decisao[-1] PASSED [ 14%]
+tests/test_characterization_matching.py::test_limiar_de_cm_nao_muda_a_decisao[150] PASSED [ 15%]
+tests/test_characterization_matching.py::test_limiar_de_cm_nao_muda_a_decisao[3720] PASSED [ 15%]
+tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada[direto] PASSED [ 16%]
+tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada[indireto] PASSED [ 17%]
+tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada[sem-conexao] PASSED [ 18%]
+tests/test_characterization_mermaid.py::test_saida_mermaid_caracterizada[trivial] PASSED [ 18%]
+tests/test_characterization_mermaid.py::test_rotulo_com_caracteres_de_escape PASSED [ 19%]
+tests/test_dna_analysis.py::test_read_csv_utf8 PASSED                    [ 20%]
+tests/test_dna_analysis.py::test_read_csv_latin1 PASSED                  [ 21%]
+tests/test_dna_analysis.py::test_detect_columns PASSED                   [ 21%]
+tests/test_dna_analysis.py::test_aggregate_duplicated PASSED             [ 22%]
+tests/test_dna_analysis.py::test_dna_analysis_happy PASSED               [ 23%]
+tests/test_dna_analysis.py::test_anti_false_positive PASSED              [ 24%]
+tests/test_dna_analysis.py::test_root_not_found PASSED                   [ 24%]
+tests/test_dna_analysis.py::test_missing_columns PASSED                  [ 25%]
+tests/test_dna_analysis.py::test_match_without_path PASSED               [ 26%]
+tests/test_dna_analysis.py::test_relationships_by_cm PASSED              [ 27%]
+tests/test_dna_analysis.py::test_relationships_by_cm_out_of_range PASSED [ 27%]
+tests/test_domain.py::test_strip_bad_utf_removes_replacement_char PASSED [ 28%]
+tests/test_domain.py::test_strip_bad_utf_handles_none_and_empty PASSED   [ 29%]
+tests/test_domain.py::test_demojibake_fixes_cedilha PASSED               [ 30%]
+tests/test_domain.py::test_demojibake_returns_input_for_empty PASSED     [ 30%]
+tests/test_domain.py::test_demojibake_recupera_latin1_lido_como_utf8 PASSED [ 31%]
+tests/test_mermaid_escape.py::test_rotulo_neutraliza_crase PASSED        [ 32%]
+tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica[`pwn] PASSED [ 33%]
+tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica[Joao] --> N_evil] PASSED [ 33%]
+tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica[Joao] --> N_evil["pwn] PASSED [ 34%]
+tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica[Ana subgraph] PASSED [ 35%]
+tests/test_mermaid_escape.py::test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica[Pedro end] PASSED [ 36%]
+tests/test_mermaid_escape.py::test_entidades_html_preservadas[A & B-A &amp; B] PASSED [ 36%]
+tests/test_mermaid_escape.py::test_entidades_html_preservadas[A < B-A &lt; B] PASSED [ 37%]
+tests/test_mermaid_escape.py::test_entidades_html_preservadas[A > B-A &gt; B] PASSED [ 38%]
+tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem[Joao Silva-Joao Silva] PASSED [ 39%]
+tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem[Jo\xe3o D'\xc1vila-Jo\xe3o D'\xc1vila] PASSED [ 39%]
+tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem[Ana \u2013 Maria-Ana - Maria] PASSED [ 40%]
+tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem[Ana \u2014 Maria-Ana - Maria] PASSED [ 41%]
+tests/test_mermaid_escape.py::test_caracteres_legitimos_sobrevivem[Maria (Dona) Silva Jr.-Maria (Dona) Silva Jr.] PASSED [ 42%]
+tests/test_mermaid_escape.py::test_neutralizacoes_que_ja_existiam[Jose "Zeca"-Jose 'Zeca'] PASSED [ 42%]
+tests/test_mermaid_escape.py::test_neutralizacoes_que_ja_existiam[Ana\r\nMaria-Ana Maria] PASSED [ 43%]
+tests/test_mermaid_escape.py::test_neutralizacoes_que_ja_existiam[Ana\nMaria-Ana Maria] PASSED [ 44%]
+tests/test_mermaid_escape.py::test_neutralizacoes_que_ja_existiam[Ana\xa0Maria-Ana Maria] PASSED [ 45%]
+tests/test_mermaid_escape.py::test_rotulo_vazio_continua_vazio PASSED    [ 45%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[#] PASSED [ 46%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[$] PASSED [ 47%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[%] PASSED [ 48%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[*] PASSED [ 48%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[+] PASSED [ 49%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[=] PASSED [ 50%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[@] PASSED [ 51%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[\\] PASSED [ 51%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[^] PASSED [ 52%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[_] PASSED [ 53%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[{] PASSED [ 54%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[|] PASSED [ 54%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[}] PASSED [ 55%]
+tests/test_mermaid_escape.py::test_caractere_inerte_sobrevive_ao_rotulo[~] PASSED [ 56%]
+tests/test_mermaid_escape.py::test_lista_branca_preserva_todo_ascii_imprimivel_menos_a_crase PASSED [ 57%]
+tests/test_path_search.py::test_person_lookup PASSED                     [ 57%]
+tests/test_path_search.py::test_direct_connection_trivial PASSED         [ 58%]
+tests/test_path_search.py::test_direct_connection_common_ancestor PASSED [ 59%]
+tests/test_path_search.py::test_path_search_direct PASSED                [ 60%]
+tests/test_path_search.py::test_indirect_connection_via_marriage PASSED  [ 60%]
+tests/test_path_search.py::test_indirect_path_function PASSED            [ 61%]
+tests/test_path_search.py::test_person_not_found PASSED                  [ 62%]
+tests/test_path_search.py::test_no_connection PASSED                     [ 63%]
+tests/test_path_search.py::test_identical_persons PASSED                 [ 63%]
+tests/test_upload.py::test_ref_id_passthrough_for_str PASSED             [ 64%]
+tests/test_upload.py::test_ref_id_reads_xref_id_attribute PASSED         [ 65%]
+tests/test_upload.py::test_get_name_empty_none PASSED                    [ 66%]
+tests/test_upload.py::test_get_name_real_person PASSED                   [ 66%]
+tests/test_upload.py::test_get_name_absent_attribute_returns_sem_nome PASSED [ 67%]
+tests/test_upload.py::test_get_name_empty_formatted_returns_empty_string PASSED [ 68%]
+tests/test_upload.py::test_get_name_indian_without_name_tag_returns_empty_string PASSED [ 69%]
+tests/test_upload.py::test_load_populates_globals PASSED                 [ 69%]
+tests/test_upload.py::test_load_returns_sorted_names PASSED              [ 70%]
+tests/test_upload.py::test_load_returns_exactly_one_name_per_person_and_no_empty_entries PASSED [ 71%]
+tests/test_upload.py::test_reload_replaces_globals PASSED                [ 72%]
+tests/test_upload.py::test_build_graph_structure PASSED                  [ 72%]
+tests/test_upload.py::test_graph_bidirectional_nodes_person_family_types PASSED [ 73%]
+tests/test_upload.py::test_parse_malformed_raises PASSED                 [ 74%]
+tests/test_upload.py::test_family_without_id_skipped PASSED              [ 75%]
+tests/test_upload_seguranca.py::TestReproducao::test_existe_teto_de_tamanho_de_requisicao ERROR [ 75%]
+tests/test_upload_seguranca.py::TestReproducao::test_requisicao_acima_do_teto_e_rejeitada ERROR [ 76%]
+tests/test_upload_seguranca.py::TestReproducao::test_nome_com_aspas_e_barra_nao_escapa_da_pasta ERROR [ 77%]
+tests/test_upload_seguranca.py::TestReproducao::test_nome_com_barra_invertida_nao_escapa_da_pasta ERROR [ 78%]
+tests/test_upload_seguranca.py::TestReproducao::test_chave_de_armazenamento_e_gerada_pelo_servidor ERROR [ 78%]
+tests/test_upload_seguranca.py::TestReproducao::test_conteudo_invalido_e_recusado_antes_do_parse ERROR [ 79%]
+tests/test_upload_seguranca.py::TestReproducao::test_conteudo_invalido_nao_fica_em_disco ERROR [ 80%]
+tests/test_upload_seguranca.py::TestReproducao::test_arquivo_vazio_e_recusado_e_nao_fica_em_disco ERROR [ 81%]
+tests/test_upload_seguranca.py::TestReproducao::test_dois_envios_de_mesmo_nome_nao_se_perdem ERROR [ 81%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_nome_visivel_remove_separadores_de_caminho PASSED [ 82%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_nome_visivel_preserva_acentos_e_espacos PASSED [ 83%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_nome_visivel_nunca_fica_vazio PASSED [ 84%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_chave_e_derivada_do_conteudo_e_estavel PASSED [ 84%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_chave_muda_com_o_conteudo PASSED [ 85%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_chave_nao_contem_separador_de_caminho PASSED [ 86%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_valida_gedcom_aceita_o_fixture PASSED [ 87%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_valida_gedcom_recusa_vazio PASSED [ 87%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_valida_gedcom_recusa_binario PASSED [ 88%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_valida_gedcom_recusa_texto_sem_cabecalho PASSED [ 89%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_valida_gedcom_aceita_bom_e_linhas_em_branco PASSED [ 90%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_chave_recebida_do_formulario_e_aceita PASSED [ 90%]
+tests/test_upload_seguranca.py::TestModuloDeValidacao::test_chave_recebida_recusa_escape PASSED [ 91%]
+tests/test_upload_seguranca.py::TestRegressao::test_gedcom_valido_continua_aceito_e_parseado ERROR [ 92%]
+tests/test_upload_seguranca.py::TestRegressao::test_gedcom_valido_sem_extensao_ged_continua_aceito ERROR [ 93%]
+tests/test_upload_seguranca.py::TestRegressao::test_arvore_continua_encontravel_na_requisicao_seguinte ERROR [ 93%]
+tests/test_upload_seguranca.py::TestRegressao::test_uploads_vazio_antes_do_upload ERROR [ 94%]
+tests/test_upload_seguranca.py::TestRegressao::test_fixtures_de_paridade_continuam_validas PASSED [ 95%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_csv_de_dna_nao_vira_ged PASSED [ 96%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_extensao_do_gedcom_e_preservada PASSED [ 96%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_nome_sem_extensao_recebe_ged PASSED [ 97%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_extensao_em_maiuscula_e_preservada PASSED [ 98%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_fluxo_completo_de_analise_de_dna ERROR [ 99%]
+tests/test_upload_seguranca.py::TestExtensaoPreservada::test_csv_fica_gravado_com_a_extensao_original ERROR [100%]
+
+=================================== ERRORS ====================================
+_ ERROR at setup of TestReproducao.test_existe_teto_de_tamanho_de_requisicao __
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AEAAE0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_requisicao_acima_do_teto_e_rejeitada __
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AEA820>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_nome_com_aspas_e_barra_nao_escapa_da_pasta _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AEB060>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_nome_com_barra_invertida_nao_escapa_da_pasta _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE97A0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_chave_de_armazenamento_e_gerada_pelo_servidor _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE9170>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_conteudo_invalido_e_recusado_antes_do_parse _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE8720>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+__ ERROR at setup of TestReproducao.test_conteudo_invalido_nao_fica_em_disco __
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE92D0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_arquivo_vazio_e_recusado_e_nao_fica_em_disco _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE83B0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestReproducao.test_dois_envios_de_mesmo_nome_nao_se_perdem _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AE8880>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestRegressao.test_gedcom_valido_continua_aceito_e_parseado _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AAC880>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestRegressao.test_gedcom_valido_sem_extensao_ged_continua_aceito _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AAC510>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestRegressao.test_arvore_continua_encontravel_na_requisicao_seguinte _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AAC1A0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_____ ERROR at setup of TestRegressao.test_uploads_vazio_antes_do_upload ______
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8AAC880>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestExtensaoPreservada.test_fluxo_completo_de_analise_de_dna _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8A8EDA0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+_ ERROR at setup of TestExtensaoPreservada.test_csv_fica_gravado_com_a_extensao_original _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x000002E6D8A8EAE0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:136: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:117: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\tmpdir.py:213: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:420: in make_numbered_dir_with_cleanup
+    raise e
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:401: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:228: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:187: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/venda/AppData/Local/Temp/dsh-zFzL8m/pytest-of-Adriano Santos')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+>       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-zFzL8m\\pytest-of-Adriano Santos'
+
+C:\Users\venda\AppData\Roaming\Python\Python314\site-packages\_pytest\pathlib.py:175: PermissionError
+=========================== short test summary info ===========================
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_existe_teto_de_tamanho_de_requisicao
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_requisicao_acima_do_teto_e_rejeitada
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_nome_com_aspas_e_barra_nao_escapa_da_pasta
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_nome_com_barra_invertida_nao_escapa_da_pasta
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_chave_de_armazenamento_e_gerada_pelo_servidor
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_conteudo_invalido_e_recusado_antes_do_parse
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_conteudo_invalido_nao_fica_em_disco
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_arquivo_vazio_e_recusado_e_nao_fica_em_disco
+ERROR tests/test_upload_seguranca.py::TestReproducao::test_dois_envios_de_mesmo_nome_nao_se_perdem
+ERROR tests/test_upload_seguranca.py::TestRegressao::test_gedcom_valido_continua_aceito_e_parseado
+ERROR tests/test_upload_seguranca.py::TestRegressao::test_gedcom_valido_sem_extensao_ged_continua_aceito
+ERROR tests/test_upload_seguranca.py::TestRegressao::test_arvore_continua_encontravel_na_requisicao_seguinte
+ERROR tests/test_upload_seguranca.py::TestRegressao::test_uploads_vazio_antes_do_upload
+ERROR tests/test_upload_seguranca.py::TestExtensaoPreservada::test_fluxo_completo_de_analise_de_dna
+ERROR tests/test_upload_seguranca.py::TestExtensaoPreservada::test_csv_fica_gravado_com_a_extensao_original
+======================= 118 passed, 15 errors in 35.10s =======================

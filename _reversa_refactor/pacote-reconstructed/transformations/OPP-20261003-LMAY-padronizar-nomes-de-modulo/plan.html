@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Plano de padronização · OPP-20261003-LMAY</title>
+<style>
+  :root { --tinta:#1c1f23; --suave:#5b6570; --linha:#d8dee6; --fundo:#f7f9fb; --ok:#1f7a4d; --atencao:#9a6400; --risco:#a8261f; --realce:#eaf2fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:60rem; margin:0 auto; }
+  h1 { font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.01em; }
+  h2 { font-size:1.15rem; margin:2.25rem 0 .75rem; padding-bottom:.35rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:1rem; margin:1.5rem 0 .5rem; }
+  p,li { color:var(--tinta); }
+  .sub { color:var(--suave); font-size:.9rem; margin:0 0 1.5rem; }
+  code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em; background:#eef2f7; padding:.1rem .3rem; border-radius:3px; }
+  pre { background:#0f1720; color:#e6edf3; padding:.9rem 1rem; border-radius:6px; overflow-x:auto; font-size:.83rem; }
+  table { width:100%; border-collapse:collapse; margin:.75rem 0 1.25rem; background:#fff; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .7rem; border:1px solid var(--linha); vertical-align:top; }
+  th { background:#eef2f7; font-weight:600; }
+  .cartao { background:#fff; border:1px solid var(--linha); border-radius:8px; padding:1rem 1.15rem; margin:1rem 0; }
+  .selo { display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; text-transform:uppercase; letter-spacing:.03em; }
+  .verde { background:#e3f4ea; color:var(--ok); }
+  .amarelo { background:#fdf1d8; color:var(--atencao); }
+  .vermelho { background:#fbe6e4; color:var(--risco); }
+  .realce { background:var(--realce); }
+  .num { font-variant-numeric:tabular-nums; font-weight:600; }
+  .novo { background:#e3f4ea; }
+  .sai { background:#fbe6e4; }
+  footer { margin-top:3rem; color:var(--suave); font-size:.85rem; border-top:1px solid var(--linha); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Plano de padronização</h1>
+<p class="sub">
+  Oportunidade <code>OPP-20261003-LMAY</code> · contexto <code>pacote-reconstructed</code> ·
+  verbo <strong>standardize</strong> · <span class="selo verde">confiança green</span> ·
+  modo <strong>gated</strong> · preservação <strong>pattern-only</strong> mais a suíte como confirmação
+</p>
+
+<div class="cartao realce">
+  <strong>Nenhum arquivo do projeto foi tocado.</strong> A escrita até aqui alcançou apenas
+  <code>_reversa_refactor/</code>. O diff dos três lotes está nas seções 4 a 6.
+</div>
+
+<h2>1. O padrão que o próprio projeto pratica</h2>
+
+<p>
+  Dos treze módulos do pacote, doze nomeiam <strong>a ação que executam</strong>, em
+  <code>snake_case</code> e sem prefixo de camada:
+</p>
+
+<pre>csv_ingest · gedcom_state · gedcom_parser · name_normalization · matching
+path_finding · family_navigation · mermaid_render · path_search
+dna_analysis · validate · core/cm_estimator</pre>
+
+<p>O décimo terceiro é a exceção:</p>
+
+<table>
+  <thead><tr><th>Módulo</th><th>Nome sugere</th><th>Faz de fato</th><th>Linhas</th></tr></thead>
+  <tbody>
+    <tr class="sai">
+      <td><code>domain.py</code></td>
+      <td>uma camada de domínio</td>
+      <td>limpeza de texto corrompido: <code>strip_bad_utf</code> e <code>demojibake</code>, duas funções</td>
+      <td>84</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  O nome não é só impreciso, ele <strong>mente sobre a história do próprio arquivo</strong>: o
+  docstring do módulo precisa de três parágrafos para explicar que as entidades de domínio
+  (<code>Family</code>, <code>GenealogyGraph</code>, <code>DNAGroup</code>) foram removidas em
+  2026-09-30 por serem arquitetura abandonada. Quem lê <code>domain.py</code> espera encontrar
+  domínio e encontra limpeza de texto, com um aviso de que o domínio já não está ali.
+</p>
+
+<h2>2. A oportunidade encolheu desde que foi registrada</h2>
+
+<p>
+  A <code>LMAY</code> foi registrada com <strong>dois</strong> nomes a corrigir. O primeiro já não
+  existe:
+</p>
+
+<table>
+  <thead><tr><th>Alvo original</th><th>Situação hoje</th></tr></thead>
+  <tbody>
+    <tr><td><code>upload.py</code></td><td><span class="selo verde">resolvido pela</span> <code>OPP-20261003-TWNT</code>: virou <code>gedcom_state.py</code> mais <code>gedcom_parser.py</code>, e os dois nomes descrevem o que os módulos fazem</td></tr>
+    <tr><td><code>domain.py</code></td><td><span class="selo amarelo">continua</span> e é o único alvo que sobra</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A dependência de ordem que o próprio registro exigia (fazer depois da <code>TWNT</code>, para não
+  escolher um nome que seria revisto em seguida) está satisfeita.
+</p>
+
+<h2>3. Superfície medida: doze referências vivas, em seis arquivos</h2>
+
+<p>Varredura medida, com o medidor arquivado nesta pasta (<code>medir-referencias.py</code>), não estimada.</p>
+
+<table>
+  <thead><tr><th>Arquivo</th><th>Linha</th><th>Tipo</th><th>Trecho</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/reconstructed/csv_ingest.py</code></td><td class="num">11</td><td>import relativo</td><td><code>from .domain import demojibake</code></td></tr>
+    <tr><td><code>src/reconstructed/dna_analysis.py</code></td><td class="num">36</td><td>import relativo</td><td><code>from .domain import demojibake, strip_bad_utf</code></td></tr>
+    <tr><td><code>src/reconstructed/name_normalization.py</code></td><td class="num">18</td><td>import relativo</td><td><code>from .domain import strip_bad_utf</code></td></tr>
+    <tr><td><code>src/reconstructed/name_normalization.py</code></td><td class="num">10</td><td>citação em docstring</td><td>"autoridade de <code>domain.py</code>, unificadas pela OPP-20260929-4LE3"</td></tr>
+    <tr><td><code>tests/test_domain.py</code></td><td class="num">28</td><td>import do pacote</td><td><code>from reconstructed.domain import (</code></td></tr>
+    <tr><td><code>tests/test_domain.py</code></td><td class="num">61</td><td>citação em docstring</td><td>"que só a implementação morta de <code>domain.py</code> fazia"</td></tr>
+    <tr><td><code>_reversa_sdd/parity/harness.py</code></td><td class="num">163</td><td>import <strong>dentro de string</strong></td><td><code>from reconstructed import domain as DM</code></td></tr>
+    <tr><td><code>_reversa_sdd/parity/harness.py</code></td><td class="num">204 a 206</td><td>citação em comentário</td><td><code>domain.strip_bad_utf</code>, <code>domain.demojibake</code></td></tr>
+    <tr><td><code>README.md</code></td><td class="num">68</td><td>árvore do projeto</td><td><code>domain.py</code> na listagem de <code>reconstructed/</code></td></tr>
+    <tr><td><code>README.md</code></td><td class="num">138</td><td>prosa</td><td>"ficam em <code>domain.py</code>, como autoridade única"</td></tr>
+  </tbody>
+</table>
+
+<div class="cartao">
+  <strong>A armadilha da linha 163, declarada.</strong> O import do harness vive <strong>dentro de uma
+  string</strong>, porque o coletor do candidato é um script embutido. Nenhum leitor de AST o enxerga e
+  nenhum <code>grep</code> por <code>import domain</code> o encontra. Se ele ficar para trás, o
+  instrumento que prova a preservação de comportamento morre com <code>ImportError</code>, e a
+  transformação pareceria verde sem ter prova nenhuma. É a mesma armadilha registrada como D-08 no
+  roadmap da feature 003.
+</div>
+
+<h2>4. Lote 1, obrigatório: renomear o módulo e preservar todas as referências</h2>
+
+<table>
+  <thead><tr><th></th><th>Mudança</th></tr></thead>
+  <tbody>
+    <tr class="sai"><td>sai</td><td><code>src/reconstructed/domain.py</code></td></tr>
+    <tr class="novo"><td>entra</td><td><code>src/reconstructed/text_cleaning.py</code>, conteúdo idêntico</td></tr>
+    <tr><td>edita</td><td>os três imports relativos: <code>from .text_cleaning import ...</code></td></tr>
+    <tr><td>edita</td><td>o import do teste, na linha 28 de <code>tests/test_domain.py</code></td></tr>
+    <tr><td>edita</td><td>o import dentro da string do harness, na linha 163</td></tr>
+    <tr><td>edita</td><td>as duas citações em docstring (<code>name_normalization.py:10</code>, <code>test_domain.py:61</code>)</td></tr>
+    <tr><td>edita</td><td>o docstring do próprio módulo: hoje ele diz que a autoridade é "usada por <code>upload.py</code> e <code>dna_analysis.py</code>", e <code>upload.py</code> <strong>não existe mais</strong>. Passa a nomear os consumidores reais</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <strong>Deleção a confirmar:</strong> <code>src/reconstructed/domain.py</code>. É uma renomeação, não
+  uma remoção de conteúdo, mas o arquivo antigo deixa de existir, e a política exige confirmação
+  explícita. O conteúdo vai inteiro para o arquivo novo, sem uma linha alterada.
+</p>
+
+<p>
+  A renomeação é feita por movimentação de arquivo, e <strong>não</strong> por <code>git mv</code>: o
+  repositório tem quinze arquivos modificados e três novos ainda não commitados, e preparar só a
+  renomeação misturaria estado preparado com estado não preparado no mesmo commit.
+</p>
+
+<h2>5. Lote 2, recomendado: o comentário que descreve um mundo que já não existe</h2>
+
+<p>O bloco de comentário que acompanha o probe de <code>strip_bad_utf</code> afirma:</p>
+
+<pre>#     - `domain.strip_bad_utf`    (L29-40) = outra coisa (so remove U+FFFD)
+#     - `domain.demojibake`       (L43-57) = parte do trabalho, implementacao diferente
+#   Comparar `domain.strip_bad_utf` com o oraculo gera FALSO POSITIVO de divergencia:
+#   nao e o mesmo comportamento, e nem pretende ser.</pre>
+
+<p>Isso descrevia o estado anterior à <code>OPP-20260929-B5F2</code>, que unificou a limpeza de nome. Medido agora:</p>
+
+<pre>D.strip_bad_utf is DM.strip_bad_utf  ->  True
+D.demojibake   is DM.demojibake     ->  True</pre>
+
+<p>
+  São <strong>o mesmo objeto</strong>. O comentário manda o mantenedor evitar uma comparação que hoje é
+  legítima, e descreve <code>domain.strip_bad_utf</code> como "outra coisa" quando ele é exatamente a
+  função que o probe usa. A correção substitui os nomes, marca o trecho como histórico e registra a
+  medição, em vez de apagar o aviso.
+</p>
+
+<h2>6. Lote 3, recomendado: a árvore do README, que já estava errada antes desta oportunidade</h2>
+
+<p>A listagem de <code>src/reconstructed/</code> no README está desatualizada por três transformações:</p>
+
+<table>
+  <thead><tr><th>Linha</th><th>Estado atual do README</th><th>Realidade</th></tr></thead>
+  <tbody>
+    <tr><td class="num">68</td><td><code>domain.py</code></td><td><code>text_cleaning.py</code></td></tr>
+    <tr><td class="num">70</td><td><code>upload.py</code></td><td>não existe desde a <code>TWNT</code>: virou <code>gedcom_state.py</code> e <code>gedcom_parser.py</code></td></tr>
+    <tr><td class="num">67 a 78</td><td>não lista <code>core/</code></td><td><code>core/cm_estimator.py</code> existe desde a <code>RGKA</code></td></tr>
+    <tr><td class="num">138</td><td>"ficam em <code>domain.py</code>"</td><td><code>text_cleaning.py</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  Corrigir só a linha 68 e deixar <code>upload.py</code> na árvore seria pior do que não mexer: o README
+  ficaria meio atualizado. Este lote fecha as três dívidas de uma vez, e é só documentação.
+</p>
+
+<h2>7. O que este plano NÃO inclui, e por quê</h2>
+
+<ul>
+  <li><strong>Renomear <code>tests/test_domain.py</code>.</strong> O registro da oportunidade prevê
+      atualizar o import dele, não o nome do arquivo. Renomear acrescentaria referências desatualizadas
+      em <code>_reversa_docs/</code>, que é gerado. Fica sob pedido explícito.</li>
+  <li><strong>Remover o import morto <code>DM</code> do harness.</strong> Ele é importado e nunca usado
+      (nenhuma ocorrência de <code>DM.</code> no arquivo). Remover seria <code>prune</code>, não
+      <code>standardize</code>, e mudaria o conjunto de módulos que o coletor importa. Renomear preserva
+      o comportamento exatamente. Vira oportunidade própria.</li>
+  <li><strong>Atualizar <code>_reversa_sdd/</code>, <code>_reversa_docs/</code> e a alma.</strong> São
+      artefatos de outros donos. A árvore do README é do projeto e está no <code>allowedPaths</code>;
+      as specs não.</li>
+</ul>
+
+<h2>8. Rede de segurança, medida em 2026-10-03</h2>
+
+<table>
+  <thead><tr><th>Instrumento</th><th>Antes</th><th>Exigido depois</th></tr></thead>
+  <tbody>
+    <tr><td>Referências vivas ao nome antigo</td><td><strong>12</strong> em 6 arquivos</td><td><strong>0</strong>, com as três exclusões declaradas acima</td></tr>
+    <tr><td>Suíte</td><td><strong>118 aprovados, 15 erros de ambiente</strong></td><td>idêntico, sem teste removido, desabilitado ou renomeado</td></tr>
+    <tr><td>Paridade diferencial</td><td><strong>100 por cento nas 6 fixtures</strong></td><td>100 por cento de novo: é ela que prova que o import da linha 163 continua vivo</td></tr>
+    <tr><td>Conteúdo do módulo</td><td>84 linhas</td><td>84 linhas, sem uma linha alterada além do docstring do topo</td></tr>
+  </tbody>
+</table>
+
+<h2>9. Critério de pronto</h2>
+
+<ul>
+  <li><code>text_cleaning.py</code> existindo, com o mesmo conteúdo de <code>domain.py</code>, provado por comparação de texto;</li>
+  <li>zero referências vivas ao nome antigo, provado pela varredura, e as três exclusões nomeadas;</li>
+  <li>o harness de paridade rodando e dando 100 por cento, que é a prova de que a string da linha 163 foi alcançada;</li>
+  <li>suíte no mesmo resultado de antes;</li>
+  <li><code>transformation.md</code>, diffs por lote e evidência gravados.</li>
+</ul>
+
+<footer>
+  Gerado por <code>/reversa-standardize</code> em 2026-10-03. Nenhum arquivo do projeto foi tocado.
+</footer>
+
+</main>
+</body>
+</html>

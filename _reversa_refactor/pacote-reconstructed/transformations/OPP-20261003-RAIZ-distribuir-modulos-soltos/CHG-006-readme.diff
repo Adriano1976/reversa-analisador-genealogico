@@ -1,0 +1,24 @@
+--- a/README.md
++++ b/README.md
+@@ -73,14 +73,15 @@
+ │   │   ├── matching.py         # Índices do GEDCOM e decisão de aceitação de candidatos
+ │   │   ├── name_normalization.py  # Normalização e decomposição de nomes (norm_name, split_name_pt)
+ │   │   ├── path_finding.py     # Busca direta por ancestral comum (MRCA) e indireta por afinidade
+-│   │   └── family_navigation.py   # Resolução de pessoa por nome e navegação de parentesco
++│   │   ├── family_navigation.py   # Resolução de pessoa por nome e navegação de parentesco
++│   │   ├── gedcom_state.py     # Estado do GEDCOM carregado: pessoas, famílias e grafo
++│   │   ├── path_search.py      # Fachada da busca de caminhos, consumida pelo app.py
++│   │   └── dna_analysis.py     # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
+ │   ├── reporting/              # Transformação de resultado em apresentação
+ │   │   └── mermaid_render.py   # Emissão do diagrama Mermaid e contrato de escape do rótulo
+-│   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
+-│   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
+-│   ├── validate.py             # Validação do upload: nome visível, chave de conteúdo e GEDCOM
+-│   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
+-│   └── dna_analysis.py         # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
++│   └── utils/                  # Ferramentas utilitárias, sem papel no núcleo
++│       ├── text_cleaning.py    # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
++│       └── validate.py         # Validação do upload: nome visível, chave de conteúdo e GEDCOM
+ ├── templates/
+ │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
+ └── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado

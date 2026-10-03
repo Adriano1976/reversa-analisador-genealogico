@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Plano de modularização · OPP-20261003-RAIZ, lote A</title>
+<style>
+  :root { --tinta:#1c1f23; --suave:#5b6570; --linha:#d8dee6; --fundo:#f7f9fb; --ok:#1f7a4d; --atencao:#9a6400; --risco:#a8261f; --realce:#eaf2fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:64rem; margin:0 auto; }
+  h1 { font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.01em; }
+  h2 { font-size:1.15rem; margin:2.25rem 0 .75rem; padding-bottom:.35rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:1rem; margin:1.5rem 0 .5rem; }
+  p,li { color:var(--tinta); }
+  .sub { color:var(--suave); font-size:.9rem; margin:0 0 1.5rem; }
+  code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em; background:#eef2f7; padding:.1rem .3rem; border-radius:3px; }
+  pre { background:#0f1720; color:#e6edf3; padding:.9rem 1rem; border-radius:6px; overflow-x:auto; font-size:.82rem; line-height:1.45; }
+  table { width:100%; border-collapse:collapse; margin:.75rem 0 1.25rem; background:#fff; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .7rem; border:1px solid var(--linha); vertical-align:top; }
+  th { background:#eef2f7; font-weight:600; }
+  .cartao { background:#fff; border:1px solid var(--linha); border-radius:8px; padding:1rem 1.15rem; margin:1rem 0; }
+  .selo { display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; text-transform:uppercase; letter-spacing:.03em; }
+  .verde { background:#e3f4ea; color:var(--ok); }
+  .amarelo { background:#fdf1d8; color:var(--atencao); }
+  .vermelho { background:#fbe6e4; color:var(--risco); }
+  .realce { background:var(--realce); }
+  .num { font-variant-numeric:tabular-nums; font-weight:600; }
+  .novo { background:#e3f4ea; }
+  footer { margin-top:3rem; color:var(--suave); font-size:.85rem; border-top:1px solid var(--linha); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Plano de modularização · lote A</h1>
+<p class="sub">
+  Oportunidade <code>OPP-20261003-RAIZ</code>, lote A · contexto <code>pacote-reconstructed</code> ·
+  verbo <strong>modularize</strong> · <span class="selo verde">confiança green</span> ·
+  modo <strong>gated</strong> · rede <strong>require-characterization</strong>
+</p>
+
+<div class="cartao realce">
+  <strong>Nenhum arquivo do projeto foi tocado.</strong> A escrita até aqui alcançou apenas
+  <code>_reversa_refactor/</code>. Este plano cobre <strong>somente a movimentação</strong>: os cinco
+  módulos mudam de pasta e <strong>nenhum muda de nome</strong>. Os dois renomes previstos no registro
+  da oportunidade ficam para o lote B, junto com a <code>OPP-20261003-PAST</code>.
+</div>
+
+<h2>1. O que o lote A faz</h2>
+
+<p>
+  A raiz de <code>reconstructed/</code> tem cinco módulos soltos. Nenhum deles é parsing, núcleo de
+  decisão ou apresentação, e é por isso que nenhum entrou nos subpacotes na <code>GUE7</code>. Mas
+  ficar na raiz também não é um papel: é a ausência de um.
+</p>
+
+<table>
+  <thead><tr><th>Módulo</th><th>Vai para</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>gedcom_state.py</code></td><td><code>core/</code></td><td>é o estado que o núcleo lê e escreve</td></tr>
+    <tr><td><code>path_search.py</code></td><td><code>core/</code></td><td>é a fachada da busca, e tudo o que ela reexporta já mora em <code>core/</code></td></tr>
+    <tr><td><code>dna_analysis.py</code></td><td><code>core/</code></td><td>é a orquestração do cruzamento</td></tr>
+    <tr><td><code>text_cleaning.py</code></td><td><code>utils/</code> <span class="selo verde">novo</span></td><td>utilitário puro, fan-out 0, sem papel entre os três do núcleo</td></tr>
+    <tr><td><code>validate.py</code></td><td><code>utils/</code></td><td>validação da requisição HTTP, não do domínio. <strong>Mantém o nome do arquivo:</strong> o que carrega contrato vigente do <code>BUG-20260929-QMLY</code> é o conteúdo, e renomear para <code>file_handler.py</code> é outra conversa</td></tr>
+  </tbody>
+</table>
+
+<h3>Árvore, antes e depois</h3>
+
+<pre>ANTES                                  DEPOIS
+src/reconstructed/                     src/reconstructed/
+├── __init__.py                        ├── __init__.py
+├── dna_analysis.py        ──────────► ├── core/
+├── gedcom_state.py        ──────────► │   ├── __init__.py
+├── path_search.py         ──────────► │   ├── cm_estimator.py
+├── text_cleaning.py       ──────────► │   ├── family_navigation.py
+├── validate.py            ──────────► │   ├── matching.py
+├── core/                              │   ├── name_normalization.py
+│   ├── cm_estimator.py                │   ├── path_finding.py
+│   ├── family_navigation.py           │   ├── gedcom_state.py      (novo aqui)
+│   ├── matching.py                    │   ├── path_search.py       (novo aqui)
+│   ├── name_normalization.py          │   └── dna_analysis.py      (novo aqui)
+│   ├── path_finding.py                ├── parsers/
+│   └── __init__.py                    │   ├── csv_ingest.py
+├── parsers/                           │   ├── gedcom_parser.py
+│   ├── csv_ingest.py                  │   └── __init__.py
+│   ├── gedcom_parser.py               ├── reporting/
+│   └── __init__.py                    │   ├── mermaid_render.py
+└── reporting/                         │   └── __init__.py
+    ├── mermaid_render.py              └── utils/                 (novo)
+    └── __init__.py                        ├── __init__.py        (novo)
+                                           ├── text_cleaning.py   (novo aqui)
+                                           └── validate.py        (novo aqui)</pre>
+
+<p>
+  <strong>Depois do lote A, a raiz de <code>reconstructed/</code> tem só <code>__init__.py</code> e
+  subpacotes.</strong> É isso que torna a <code>OPP-20261003-FLAT</code> trivial: ela passa a ser subir
+  quatro pastas um nível e apagar o diretório, sem tocar em nenhum arquivo.
+</p>
+
+<h2>2. O que a movimentação exige em cada arquivo</h2>
+
+<table>
+  <thead><tr><th>Onde</th><th>Linhas</th><th>Exemplo</th></tr></thead>
+  <tbody>
+    <tr><td>Dentro dos dois módulos que se movem e importam o pacote</td><td class="num">10</td><td><code>from .core.matching import</code> vira <code>from .matching import</code></td></tr>
+    <tr><td>Dentro dos sete módulos que já estão em subpacote</td><td class="num">9</td><td><code>from ..gedcom_state import</code> vira <code>from ..core.gedcom_state import</code></td></tr>
+    <tr><td><code>src/app.py</code></td><td class="num">3</td><td><code>from reconstructed.path_search import</code> vira <code>from reconstructed.core.path_search import</code></td></tr>
+    <tr><td>Oito arquivos de teste</td><td class="num">13</td><td><code>from reconstructed import gedcom_state</code> vira <code>from reconstructed.core import gedcom_state</code></td></tr>
+    <tr><td>Os três scripts do harness de paridade</td><td class="num">6</td><td>quatro delas <strong>dentro das strings dos coletores</strong></td></tr>
+    <tr><td><code>README.md</code></td><td class="num">1 árvore</td><td>a listagem de <code>src/</code></td></tr>
+    <tr><td><strong>Total</strong></td><td class="num"><strong>41 linhas em 21 arquivos</strong></td><td>mais a árvore do README</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Três dos cinco módulos movidos (<code>gedcom_state</code>, <code>text_cleaning</code> e
+  <code>validate</code>) <strong>não importam nada do pacote</strong>, então o AST deles tem de ficar
+  idêntico até nas linhas de import. Os outros dois mudam só as linhas de import.
+</p>
+
+<h2>3. A armadilha que nenhum gate enxerga</h2>
+
+<div class="cartao">
+  <p>
+    O <code>_reversa_sdd/parity/_verify_fix_gives_parity.py</code> abre um arquivo <strong>por
+    nome</strong>:
+  </p>
+  <pre>alvo = os.path.join(STUB, "gedcom_state.py")</pre>
+  <p>
+    Movendo <code>gedcom_state.py</code> para <code>core/</code>, esse script passa a estourar
+    <code>FileNotFoundError</code>. E <strong>nada avisa</strong>: ele não é executado pela suíte nem
+    pelo harness de paridade, então os dois gates ficam verdes enquanto a ferramenta de contraprova
+    apodrece. É a mesma classe de defeito que o projeto já registrou como <code>D-08</code>, e a
+    terceira vez que ela aparece nesta série.
+  </p>
+  <p>
+    A correção entra neste lote, e a conferência estática a verifica: o script é lido, o caminho é
+    resolvido e o arquivo tem de existir.
+  </p>
+</div>
+
+<h2>4. Fronteira da alma</h2>
+
+<table>
+  <thead><tr><th>Fonte</th><th>O que diz</th><th>Situação</th></tr></thead>
+  <tbody>
+    <tr><td><code>.reversa/soul.md#entidades-centrais</code></td><td>o grafo é a estrutura sobre a qual rodam a busca e o menor caminho</td><td><span class="selo verde">preservada</span> o módulo do estado muda de pasta, e a identidade do objeto não muda</td></tr>
+    <tr><td><code>.reversa/soul.md#decisoes-fundadoras</code></td><td>conexão direta primeiro, afinidade como alternativa</td><td><span class="selo verde">preservada</span> nenhuma ordem de estágio é tocada</td></tr>
+    <tr><td>princípio II</td><td>refatoração não muda comportamento observável</td><td><span class="selo verde">preservado</span> nenhuma linha de lógica muda; só o caminho pelo qual os nomes são importados</td></tr>
+    <tr><td>regra dura do verbo</td><td>não fundir o que o projeto separou</td><td><span class="selo verde">respeitada</span> nada funde, nada separa; as cinco fronteiras de módulo ficam intactas</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Sobre o watch W001</h2>
+
+<p>
+  O <code>W001</code> vigia <em>"o pacote do núcleo continua sendo importado pelo mesmo nome,
+  <code>reconstructed.*</code>"</em>. <strong>Este lote não dispara o watch:</strong> o prefixo
+  <code>reconstructed.</code> continua idêntico, e o que muda são os caminhos internos
+  (<code>reconstructed.path_search</code> passa a <code>reconstructed.core.path_search</code>). Quem
+  dispara o <code>W001</code> é o <code>FLAT</code>, e é por isso que fazer o <code>RAIZ</code>
+  primeiro é a ordem certa: a decisão sobre o nome do pacote fica para um gate próprio, com a raiz já
+  limpa.
+</p>
+
+<h2>6. Rede de segurança</h2>
+
+<table>
+  <thead><tr><th>Instrumento</th><th>Antes, medido em 2026-10-03</th><th>Exigido depois</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte</td><td><strong>118 aprovados, 15 erros de ambiente</strong></td><td>idêntico, sem teste removido, desabilitado ou afrouxado</td></tr>
+    <tr><td>Paridade diferencial</td><td><strong>100 por cento nas 6 fixtures</strong></td><td>100 por cento: é ela que prova que as quatro linhas dentro das strings foram alcançadas</td></tr>
+    <tr><td>Resolução de import por AST</td><td>instrumento da <code>GUE7</code>, estendido a esta árvore</td><td>todo import resolve, incluindo os que vivem dentro das strings dos coletores</td></tr>
+    <tr><td>AST dos cinco módulos movidos</td><td>cópia de <code>src/</code> congelada antes de tocar</td><td>idêntico ao da cópia, fora as linhas de import. Nos três que não importam o pacote, idêntico <strong>até</strong> nas linhas de import</td></tr>
+    <tr><td>Caminho do <code>_verify_fix_gives_parity.py</code></td><td>aponta para <code>gedcom_state.py</code> na raiz do stub</td><td>aponta para arquivo que existe, verificado estaticamente</td></tr>
+  </tbody>
+</table>
+
+<h2>7. Critério de pronto</h2>
+
+<ul>
+  <li>raiz de <code>reconstructed/</code> com só <code>__init__.py</code> e os quatro subpacotes;</li>
+  <li>cinco módulos movidos, <strong>nenhum renomeado</strong>;</li>
+  <li>nenhuma linha de lógica alterada, provado por AST contra a cópia congelada;</li>
+  <li>todo import do pacote, dos testes, do <code>app.py</code> e dos três scripts do harness resolvendo;</li>
+  <li>as duas fachadas com os mesmos 18 nomes alcançáveis, agora por <code>reconstructed.core.*</code>;</li>
+  <li>suíte na linha de base e paridade em 100 por cento;</li>
+  <li>árvore do README batendo com o disco;</li>
+  <li><code>transformation.md</code>, diffs por lote e evidência gravados.</li>
+</ul>
+
+<footer>
+  Gerado por <code>/reversa-modularize</code> em 2026-10-03. Nenhum arquivo do projeto foi tocado.
+</footer>
+
+</main>
+</body>
+</html>

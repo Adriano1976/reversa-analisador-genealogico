@@ -1,0 +1,148 @@
+--- a/src/core/path_search.py
++++ b/src/core/path_search.py
+@@ -20,7 +20,7 @@
+ ## Superficie de compatibilidade
+ 
+ O bloco de reexportacao no fim do arquivo existe porque consumidores externos
+-importam nomes daqui: `app.py`, `reconstructed/core/dna_analysis.py`,
++importam nomes daqui: `app.py`, `core/dna_analysis.py`,
+ `tests/test_path_search.py`, `tests/test_mermaid_escape.py`,
+ `tests/test_characterization_mermaid.py`, `_reversa_sdd/parity/harness.py` e as
+ sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
+--- a/tests/test_upload_seguranca.py
++++ b/tests/test_upload_seguranca.py
+@@ -41,7 +41,7 @@
+     return modulo.app
+ 
+ def _validate():
+-    """Import tardio de `reconstructed.validate`.
++    """Import tardio de `utils.validate`.
+ 
+     O módulo nasce no CHG-001. Importá-lo no topo faria a coleta inteira
+     abortar por ImportError, escondendo a falha real dos testes de rota. Com o
+--- a/_reversa_sdd/parity/_verify_fix_gives_parity.py
++++ b/_reversa_sdd/parity/_verify_fix_gives_parity.py
+@@ -5,9 +5,9 @@
+ um segundo problema escondido atras do primeiro — e o harness precisa ser
+ executado ate a paridade total para provar isso.
+ 
+-Metodo: copia `reconstructed/` para um diretorio temporario, substitui `get_name`
++Metodo: copia `src/` para um diretorio temporario, substitui `get_name`
+ pela versao do oraculo, aponta o coletor do candidato para a copia e roda o harness.
+-NAO toca em `src/reconstructed/` (artefato de trabalho anterior).
++NAO toca em `src/` (artefato de trabalho anterior).
+ """
+ from __future__ import annotations
+ 
+@@ -18,8 +18,8 @@
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ ROOT = os.path.dirname(os.path.dirname(HERE))
+-SRC = os.path.join(ROOT, "src", "reconstructed")
+-STUB = os.path.join(ROOT, ".parity-stub", "reconstructed")
++SRC = os.path.join(ROOT, "src")
++STUB = os.path.join(ROOT, ".parity-stub")
+ 
+ ORACLE_GET_NAME = '''def get_name(person):
+     """COMPORTAMENTO DO ORACULO — copia fiel de app_legacy_e43ca22.py:42-43."""
+@@ -51,9 +51,9 @@
+     #
+     # ARMADILHA (custou uma rodada inteira): o coletor faz `os.chdir(run_dir)` ANTES
+     # de importar. Com uma entrada '' (ou o proprio run_dir) no sys.path, o Python
+-    # resolve `reconstructed` como NAMESPACE PACKAGE do diretorio de trabalho — cria
++    # resolve `core` como NAMESPACE PACKAGE do diretorio de trabalho — cria
+     # um pacote VAZIO (`__file__ = None`) que tem precedencia sobre o pacote real, e o
+-    # erro que aparece e `cannot import name 'upload' from 'reconstructed'
++    # erro que aparece e `cannot import name 'gedcom_state' from 'core'
+     # (unknown location)`. A mensagem nao diz "namespace package", entao engana.
+     #
+     # Correcao: inserir o DIRETORIO QUE CONTEM o pacote, e nao depender do CWD.
+--- a/_reversa_sdd/parity/harness.py
++++ b/_reversa_sdd/parity/harness.py
+@@ -7,7 +7,7 @@
+ 
+ O oraculo e `_reversa_sdd/oracle/app_legacy_e43ca22.py` (monolito de 888 linhas,
+ extraido do commit e43ca22). NAO use `src/app.py`: ele virou um
+-wrapper de 86 linhas que importa `reconstructed/`, e usa-lo produz validacao
++wrapper de 86 linhas que importa `src/`, e usa-lo produz validacao
+ circular — comparar a reconstrucao com ela mesma.
+ 
+ ## Arquitetura
+@@ -386,7 +386,7 @@
+     print("HARNESS DIFERENCIAL — oraculo congelado x reconstrucao")
+     print("=" * 78)
+     print("oraculo   : %s" % os.path.relpath(ORACLE, ROOT))
+-    print("candidato : src/reconstructed/")
++    print("candidato : src/")
+     print("probes    : %d valores de cM + grafo completo + pares de caminho" % len(CM_PROBES))
+     print("amostra   : %dx%d = %d pares de caminho por lado" % (SAMPLE, SAMPLE, SAMPLE * SAMPLE))
+     print("timeout   : %ds por coletor" % TIMEOUT)
+--- a/pyrefly.toml
++++ b/pyrefly.toml
+@@ -1,5 +1,5 @@
+ # Configuração do Pyrefly (analisador estático de tipos)
+-# Adiciona o diretório onde o pacote `reconstructed` realmente reside,
++# Adiciona o diretório onde os pacotes do núcleo realmente residem,
+ # espelhando o sys.path.insert feito em tempo de execução nos testes.
+ # As opções ficam no topo do documento. Envolvê-las numa tabela `[pyrefly]` faz
+ # o pyrefly tratar `pyrefly` como chave desconhecida e descartar o arquivo
+--- a/README.md
++++ b/README.md
+@@ -64,24 +64,23 @@
+ ```text
+ src/                            # raiz de código da aplicação
+ ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
+-├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
+-│   ├── parsers/                # Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches
+-│   │   ├── gedcom_parser.py    # Leitura do GEDCOM e construção do grafo networkx
+-│   │   └── csv_ingest.py       # Leitura do CSV de matches e agregação de cM por segmento
+-│   ├── core/                   # Decisão sobre o que foi lido, sem saber de HTTP
+-│   │   ├── cm_estimator.py     # Tradução de cM em relações prováveis (faixas heurísticas)
+-│   │   ├── matching.py         # Índices do GEDCOM e decisão de aceitação de candidatos
+-│   │   ├── name_normalization.py  # Normalização e decomposição de nomes (norm_name, split_name_pt)
+-│   │   ├── path_finding.py     # Busca direta por ancestral comum (MRCA) e indireta por afinidade
+-│   │   ├── family_navigation.py   # Resolução de pessoa por nome e navegação de parentesco
+-│   │   ├── gedcom_state.py     # Estado do GEDCOM carregado: pessoas, famílias e grafo
+-│   │   ├── path_search.py      # Fachada da busca de caminhos, consumida pelo app.py
+-│   │   └── dna_analysis.py     # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
+-│   ├── reporting/              # Transformação de resultado em apresentação
+-│   │   └── mermaid_render.py   # Emissão do diagrama Mermaid e contrato de escape do rótulo
+-│   └── utils/                  # Ferramentas utilitárias, sem papel no núcleo
+-│       ├── text_cleaning.py    # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
+-│       └── validate.py         # Validação do upload: nome visível, chave de conteúdo e GEDCOM
++├── parsers/                    # Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches
++│   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
++│   └── csv_ingest.py           # Leitura do CSV de matches e agregação de cM por segmento
++├── core/                       # Decisão sobre o que foi lido, sem saber de HTTP
++│   ├── cm_estimator.py         # Tradução de cM em relações prováveis (faixas heurísticas)
++│   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
++│   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
++│   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
++│   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
++│   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
++│   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
++│   └── dna_analysis.py         # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
++├── reporting/                  # Transformação de resultado em apresentação
++│   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
++├── utils/                      # Ferramentas utilitárias, sem papel no núcleo
++│   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
++│   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e GEDCOM
+ ├── templates/
+ │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
+ └── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado
+@@ -133,13 +132,13 @@
+ 
+ ## Fluxo de Desenvolvimento
+ 
+-O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para o pacote `reconstructed/`, e o `app.py` passou a apenas orquestrar as rotas Flask (166 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY).
++O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (166 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY).
+ - **CI/CD:** Não há pipeline de build ou de testes automatizado. O único workflow é o `.github/workflows/deploy-pages.yml`, que publica o mini-site de `_reversa_docs/` no GitHub Pages e dispara em pushes para a branch `main` (a branch principal do repositório é `master`). Não há Dockerfile nem `docker-compose.yml`.
+ - **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
+ 
+ ## Padrões de Código
+ 
+-- A lógica de negócio está modularizada no pacote `reconstructed/`, separada da camada web (`app.py`).
++- A lógica de negócio está modularizada em `src/`, nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, separada da camada web (`app.py`).
+ - O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
+ - As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `text_cleaning.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
+ - Busca de caminhos em `path_finding.py`: direto por MRCA (teto de 20 iterações de profundidade) e indireto por afinidade (até 40 saltos). A emissão do diagrama e o contrato de escape do rótulo ficam em `mermaid_render.py`, e `path_search.py` é a fachada consumida pelo `app.py`.

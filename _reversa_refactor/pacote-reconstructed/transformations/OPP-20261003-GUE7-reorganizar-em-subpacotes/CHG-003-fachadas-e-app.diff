@@ -1,0 +1,66 @@
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/dna_analysis.py
+@@ -32,10 +32,10 @@
+ from __future__ import annotations
+ 
+ from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+-from .csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
++from .parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+ from .text_cleaning import demojibake, strip_bad_utf
+-from .matching import build_ged_indexes, match_candidates
+-from .name_normalization import (
++from .core.matching import build_ged_indexes, match_candidates
++from .core.name_normalization import (
+     drop_short_tokens,
+     norm_name,
+     soft_prefix_jaccard,
+@@ -45,8 +45,8 @@
+     token_prefixes,
+     top_given_tokens,
+ )
+-from .path_finding import find_ancestral_path
+-from .mermaid_render import generate_mermaid_graph
++from .core.path_finding import find_ancestral_path
++from .reporting.mermaid_render import generate_mermaid_graph
+ from .gedcom_state import get_name, people
+ 
+ 
+--- a/src/reconstructed/path_search.py
++++ b/src/reconstructed/path_search.py
+@@ -28,7 +28,7 @@
+ 
+ from __future__ import annotations
+ 
+-from .family_navigation import (
++from .core.family_navigation import (
+     are_spouses,
+     exclude_tail,
+     find_person_by_name,
+@@ -37,14 +37,14 @@
+     pick_spouse_for_couple,
+     split_path_by_marriage,
+ )
+-from .mermaid_render import (
++from .reporting.mermaid_render import (
+     _LABEL_SEGURO,
+     _mermaid_label,
+     _mermaid_sid,
+     generate_mermaid_graph,
+     generate_mermaid_graph_indirect_bridge,
+ )
+-from .path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
++from .core.path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
+ from .gedcom_state import get_name, people, ref_id
+ 
+ # `are_spouses`, `get_parents`, `get_spouses`, `pick_spouse_for_couple`,
+--- a/src/app.py
++++ b/src/app.py
+@@ -5,7 +5,7 @@
+ 
+ from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
+ from reconstructed.path_search import path_search as path_search_flow
+-from reconstructed.gedcom_parser import load_gedcom_and_build_graph
++from reconstructed.parsers.gedcom_parser import load_gedcom_and_build_graph
+ from reconstructed.validate import (
+     chave_de_armazenamento,
+     chave_recebida_e_valida,

@@ -6,15 +6,15 @@ context: pacote-reconstructed
 verb: standardize
 title: dois modulos tem nome que descreve o que ja nao fazem
 target:
-  files: [src/reconstructed/upload.py, src/reconstructed/domain.py]
-  symbol: nomes de modulo e os docstrings que os justificam
-smell: nomenclatura fora do padrao do proprio pacote. Os demais modulos se chamam pelo que fazem (`matching`, `path_finding`, `mermaid_render`, `validate`), e estes dois se chamam pelo que faziam
+  files: [src/reconstructed/text_cleaning.py]
+  symbol: nome do modulo e os docstrings que o justificam
+smell: nomenclatura fora do padrao do proprio pacote. Os demais modulos se chamam pelo que fazem (`matching`, `path_finding`, `mermaid_render`, `validate`), e este se chamava pelo que fazia
 roi:
   confidence: green
-  impact: clareza. `upload.py` nao faz upload: quem recebe e valida o arquivo HTTP e o `app.py`, com as decisoes em `validate.py`. `domain.py` nao tem dominio: depois da remocao das entidades mortas em 2026-09-30, contem apenas `strip_bad_utf` e `demojibake`. Os dois nomes custam uma leitura de docstring em cada uso
+  impact: clareza. O modulo nao faz dominio: depois da remocao das entidades mortas em 2026-09-30, contem apenas `strip_bad_utf` e `demojibake`. O nome custava uma leitura de docstring em cada uso
   cost: low
-  est_return: nomes alinhados ao papel real, incluindo os docstrings que hoje fariam um leitor novo procurar upload onde nao ha
-state: proposed
+  est_return: nome alinhado ao papel real, incluindo os docstrings que hoje fariam um leitor novo procurar dominio onde nao ha
+state: applied
 traceability:
   soul:
     - .reversa/soul.md#entidades-centrais
@@ -27,24 +27,30 @@ traceability:
 
 ## Antes observado
 
-| Modulo | Nome sugere | Faz de fato |
-|---|---|---|
-| `upload.py` | receber e gravar o arquivo enviado | le o GEDCOM ja gravado, constroi o grafo e mantem o estado global |
-| `domain.py` | camada de dominio | limpeza de mojibake, 84 linhas, duas funcoes |
+Registrada com dois nomes a corrigir. Um deles deixou de existir antes de a oportunidade ser executada:
 
-O caso de `upload.py` e o mais custoso. O docstring do proprio modulo ja registra a divergencia, e o historico do projeto mostra o preco: o defeito `BUG-20260929-QMLY` nasceu de um residuo de caminho de upload que vivia nesse arquivo e resolvia a pasta pelo diretorio corrente. Esse residuo foi removido em 2026-10-03, e com ele o modulo perdeu a ultima coisa que fazia jus ao nome.
+| Modulo | Nome sugere | Faz de fato | Situacao |
+|---|---|---|---|
+| `upload.py` | receber e gravar o arquivo enviado | le o GEDCOM ja gravado, constroi o grafo e mantem o estado global | **resolvido** pela `OPP-20261003-TWNT`: virou `gedcom_state.py` mais `gedcom_parser.py` |
+| `domain.py` | camada de dominio | limpeza de mojibake, 84 linhas, duas funcoes | alvo desta transformacao |
 
-O caso de `domain.py` vem da remocao das entidades `Family`, `GenealogyGraph` e `DNAGroup`, decidida pelo usuario em 2026-09-30. O modulo ficou com a parte que de fato era consumida, e o nome nao acompanhou.
+O caso de `domain.py` vem da remocao das entidades `Family`, `GenealogyGraph` e `DNAGroup`, decidida pelo usuario em 2026-09-30. O modulo ficou com a parte que de fato era consumida, e o nome nao acompanhou. O docstring do proprio modulo precisa de tres paragrafos para explicar que o dominio ja nao esta ali.
 
 ## Transformacao proposta
 
-Renomear os dois modulos para o papel real, mantendo os nomes publicos alcancaveis:
-
 | Antes | Depois |
 |---|---|
-| `upload.py` | `gedcom_parser.py`, ou o par `gedcom_state.py` mais `gedcom_parser.py` se a oportunidade `OPP-20261003-TWNT` vier antes |
 | `domain.py` | `text_cleaning.py` |
+| `upload.py` | `gedcom_state.py` mais `gedcom_parser.py`, entregue pela `OPP-20261003-TWNT` |
 
-**Dependencia de ordem.** Esta padronizacao e mais barata se executada **depois** de `OPP-20261003-TWNT`, porque o split de `upload.py` ja define os dois nomes finais. Feita antes, o nome escolhido aqui teria de ser revisto logo em seguida.
+**Dependencia de ordem, satisfeita.** A padronizacao era mais barata depois da `OPP-20261003-TWNT`, porque o split de `upload.py` ja definia os nomes finais. Foi o que aconteceu: a `TWNT` veio primeiro e resolveu metade do alvo.
 
-**Impacto fora do pacote.** Renomear `domain.py` toca `tests/test_domain.py` e o harness de paridade, que importa `reconstructed.domain` pelo nome. Renomear `upload.py` toca sete arquivos de teste e o mesmo harness. E o caso que exige atualizar tambem a string de busca de `_reversa_sdd/parity/_verify_fix_gives_parity.py`, a mesma armadilha do D-08.
+**Impacto fora do pacote, medido antes de aplicar.** Doze referencias vivas ao nome antigo, em seis arquivos: tres imports dentro do pacote, um no teste, um **dentro de uma string** no harness de paridade e sete citacoes em docstring, comentario e README. A armadilha e o import do harness: ele nao aparece em leitura de AST nem em `grep` por `import domain`, e se ficasse para tras o instrumento de paridade morreria com `ImportError`, sem medicao.
+
+## Estado em 2026-10-03
+
+**Aplicada.** O modulo virou `src/reconstructed/text_cleaning.py`, com o corpo identico provado por AST sem os docstrings, e as doze referencias foram atualizadas. O comentario do harness que descrevia duas implementacoes divergentes passou a registro historico, porque a `OPP-20260929-B5F2` unificou os corpos e as duas funcoes hoje sao **o mesmo objeto**. A arvore de `src/` no README, que estava desatualizada por tres transformacoes, passou a bater com o disco.
+
+Registro completo, diffs por lote e evidencia em `../transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/`.
+
+Exclusoes declaradas: renomear `tests/test_domain.py`, remover o import morto `DM` do harness (e `prune`, nao `standardize`) e atualizar `_reversa_sdd/` e `_reversa_docs/`, que sao de outros donos.

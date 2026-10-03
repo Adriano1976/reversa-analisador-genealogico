@@ -1,0 +1,4 @@
+--- /dev/null
++++ b/src/reconstructed/utils/__init__.py
+@@ -0,0 +1 @@
++"""Ferramentas utilitarias, sem papel no nucleo."""

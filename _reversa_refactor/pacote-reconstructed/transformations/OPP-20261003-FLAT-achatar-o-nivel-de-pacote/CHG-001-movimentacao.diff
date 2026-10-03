@@ -1,0 +1,137 @@
+rename from src/reconstructed/core/__init__.py
+rename to src/core/__init__.py
+rename from src/reconstructed/core/cm_estimator.py
+rename to src/core/cm_estimator.py
+rename from src/reconstructed/core/dna_analysis.py
+rename to src/core/dna_analysis.py
+--- a/src/reconstructed/core/dna_analysis.py
++++ b/src/core/dna_analysis.py
+@@ -32,8 +32,8 @@
+ from __future__ import annotations
+ 
+ from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+-from ..parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+-from ..utils.text_cleaning import demojibake, strip_bad_utf
++from parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
++from utils.text_cleaning import demojibake, strip_bad_utf
+ from .matching import build_ged_indexes, match_candidates
+ from .name_normalization import (
+     drop_short_tokens,
+@@ -46,7 +46,7 @@
+     top_given_tokens,
+ )
+ from .path_finding import find_ancestral_path
+-from ..reporting.mermaid_render import generate_mermaid_graph
++from reporting.mermaid_render import generate_mermaid_graph
+ from .gedcom_state import get_name, people
+ 
+ 
+rename from src/reconstructed/core/family_navigation.py
+rename to src/core/family_navigation.py
+rename from src/reconstructed/core/gedcom_state.py
+rename to src/core/gedcom_state.py
+rename from src/reconstructed/core/matching.py
+rename to src/core/matching.py
+rename from src/reconstructed/core/name_normalization.py
+rename to src/core/name_normalization.py
+--- a/src/reconstructed/core/name_normalization.py
++++ b/src/core/name_normalization.py
+@@ -16,7 +16,7 @@
+ import string
+ import unicodedata
+ 
+-from ..utils.text_cleaning import strip_bad_utf
++from utils.text_cleaning import strip_bad_utf
+ 
+ 
+ STOP_WORDS = {"de", "da", "do", "das", "dos", "e"}
+rename from src/reconstructed/core/path_finding.py
+rename to src/core/path_finding.py
+rename from src/reconstructed/core/path_search.py
+rename to src/core/path_search.py
+--- a/src/reconstructed/core/path_search.py
++++ b/src/core/path_search.py
+@@ -20,7 +20,7 @@
+ ## Superficie de compatibilidade
+ 
+ O bloco de reexportacao no fim do arquivo existe porque consumidores externos
+-importam nomes daqui: `app.py`, `reconstructed/core/dna_analysis.py`,
++importam nomes daqui: `app.py`, `core/dna_analysis.py`,
+ `tests/test_path_search.py`, `tests/test_mermaid_escape.py`,
+ `tests/test_characterization_mermaid.py`, `_reversa_sdd/parity/harness.py` e as
+ sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
+@@ -37,7 +37,7 @@
+     pick_spouse_for_couple,
+     split_path_by_marriage,
+ )
+-from ..reporting.mermaid_render import (
++from reporting.mermaid_render import (
+     _LABEL_SEGURO,
+     _mermaid_label,
+     _mermaid_sid,
+rename from src/reconstructed/parsers/__init__.py
+rename to src/parsers/__init__.py
+rename from src/reconstructed/parsers/csv_ingest.py
+rename to src/parsers/csv_ingest.py
+--- a/src/reconstructed/parsers/csv_ingest.py
++++ b/src/parsers/csv_ingest.py
+@@ -8,8 +8,8 @@
+ 
+ import pandas as pd
+ 
+-from ..utils.text_cleaning import demojibake
+-from ..core.name_normalization import norm_name
++from utils.text_cleaning import demojibake
++from core.name_normalization import norm_name
+ 
+ 
+ def read_csv_with_fallback(path):
+rename from src/reconstructed/parsers/gedcom_parser.py
+rename to src/parsers/gedcom_parser.py
+--- a/src/reconstructed/parsers/gedcom_parser.py
++++ b/src/parsers/gedcom_parser.py
+@@ -12,8 +12,8 @@
+ import networkx as nx
+ from ged4py.parser import GedcomReader
+ 
+-from ..core import gedcom_state
+-from ..core.gedcom_state import get_name, ref_id
++from core import gedcom_state
++from core.gedcom_state import get_name, ref_id
+ 
+ def build_graph_from_parser(people_dict: dict, parser):
+     """Constrói grafo bidirecional pessoa<->familia e índice filho->famílias."""
+rename from src/reconstructed/reporting/__init__.py
+rename to src/reporting/__init__.py
+rename from src/reconstructed/reporting/mermaid_render.py
+rename to src/reporting/mermaid_render.py
+--- a/src/reconstructed/reporting/mermaid_render.py
++++ b/src/reporting/mermaid_render.py
+@@ -13,14 +13,14 @@
+ import unicodedata
+ from contextlib import contextmanager
+ 
+-from ..core.family_navigation import (
++from core.family_navigation import (
+     exclude_tail,
+     get_spouses,
+     pick_spouse_for_couple,
+     split_path_by_marriage,
+ )
+-from ..core.path_finding import find_ancestral_path
+-from ..core.gedcom_state import get_name, people
++from core.path_finding import find_ancestral_path
++from core.gedcom_state import get_name, people
+ 
+ 
+ def _mermaid_sid(raw) -> str:
+rename from src/reconstructed/utils/__init__.py
+rename to src/utils/__init__.py
+rename from src/reconstructed/utils/text_cleaning.py
+rename to src/utils/text_cleaning.py
+rename from src/reconstructed/utils/validate.py
+rename to src/utils/validate.py
+--- a/src/reconstructed/__init__.py
++++ /dev/null
+@@ -1 +0,0 @@
+-"""Pacote reconstruído do analisador-genealogico (Reversa Reconstructor)."""

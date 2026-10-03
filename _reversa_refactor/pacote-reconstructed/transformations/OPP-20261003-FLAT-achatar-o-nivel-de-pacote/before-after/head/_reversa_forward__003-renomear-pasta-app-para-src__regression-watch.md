@@ -1,0 +1,38 @@
+# Regression Watch: renomear a raiz de código de `analisador-genealogico/` para `src/`
+
+> Identificador da feature: `003-renomear-pasta-app-para-src`
+> Data: `2026-10-03`
+> Base: `legacy-impact.md` desta feature
+> Peso: os itens abaixo são condições **estruturais** estabelecidas por esta feature, verificadas na execução. Uma extração futura deve encontrá-las verdadeiras.
+
+## Watch principal
+
+| ID | Origem (arquivo, seção) | Regra esperada após mudança | Tipo de verificação | Sinal de violação |
+|----|--------------------------|------------------------------|---------------------|-------------------|
+| W001 | `_reversa_sdd/inventory.md#2`, `#4` | A raiz de código se chama `src/` e o pacote do núcleo continua sendo importado pelo mesmo nome, `reconstructed.*` | presença | Reaparecimento de um diretório com o nome antigo contendo código, ou mudança do nome do pacote do núcleo |
+| W002 | `_reversa_sdd/dependencies.md#1` | O arquivo de dependências está na raiz do repositório | presença | Arquivo de dependências dentro de `src/`, ou ausente da raiz |
+| W003 | `_reversa_sdd/architecture.md#3.3`, `addenda/bug-BUG-20260929-QMLY-v001.md#2` | A pasta de upload é `src/uploads/` e é resolvida a partir do arquivo do aplicativo, nunca do diretório corrente | presença | Resolução por caminho relativo ao diretório corrente; divergência entre o caminho de escrita e o de leitura |
+| W004 | `_reversa_sdd/inventory.md#2` | O README herdado do módulo, o arquivo de ignore do módulo e o diretório vazio de artefatos estáticos **não existem** | ausência | Reaparecimento de `src/README.md`, `src/.gitignore.txt` ou `src/static/` |
+| W005 | `.reversa/principles.md#II`; `_reversa_sdd/parity/` | A paridade de comportamento com o oráculo congelado permanece em 100%, e a suíte mantém o mesmo conjunto de testes | presença | Divergência nova no comparador; teste removido, desabilitado ou com resultado diferente |
+
+## Observações
+
+Itens sem peso de regressão. Não eram regras confirmadas antes da mudança, ou são imprecisões conhecidas que esta feature não resolveu:
+
+- **O1** — A contagem de pontos de alteração no requisito de testes da feature fala em 9; a medição encontrou 16 inserções de caminho em 8 arquivos, das quais 9 linhas nomeiam o diretório. A decisão D-09 do roadmap registra a correção; o texto do requisito não foi alterado.
+- **O2** — `_reversa_sdd/architecture.md#3.3` aponta a pasta de upload para o símbolo `UPLOAD_FOLDER`, que não existe mais no módulo do núcleo: ele migrou para o arquivo de entrada, e a resolução passou a ser feita por função ancorada no próprio arquivo. O adendo desta feature registra a mudança de leitura.
+- **O3** — `_reversa_sdd/architecture.md#5` acumula dívidas desatualizadas por motivos alheios a esta feature: a dívida 9 perdeu o objeto com a remoção do README herdado; a dívida 4 deixou de valer quando o upload ganhou validação e teto; a dívida 6 afirma ausência de fluxo de publicação, e existe um no repositório.
+- **O4** — A regeneração do mini-site de documentação ficou pendente (`T021`). Enquanto ela não rodar, o site derivado continua citando o caminho antigo.
+- **O5** — A citação ao nome do projeto dentro de `src/reconstructed/__init__.py` é intencional e não é um caminho: o projeto continua se chamando `analisador-genealogico`, apenas a raiz de código mudou.
+
+## Histórico de re-extrações
+
+| Data | Extração | Veredito | Observação |
+|------|----------|----------|------------|
+| — | — | — | Nenhuma re-extração executada desde a publicação deste watch. |
+
+## Arquivadas
+
+| ID | Motivo do arquivamento | Data |
+|----|------------------------|------|
+| — | Nenhum item arquivado. | — |

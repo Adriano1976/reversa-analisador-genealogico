@@ -1,0 +1,23 @@
+====================================================================================================
+REFERENCIAS VIVAS AO MODULO `domain` (medido por varredura, nao estimado)
+====================================================================================================
+total: 12
+  citacao de arquivo             4
+  citacao de simbolo             3
+  import do pacote               1
+  import do pacote pelo nome     1
+  import relativo                3
+
+  README.md                                              68  citacao de arquivo         │   ├── domain.py               # Autoridade única de limpez
+  README.md                                             138  citacao de arquivo         - As rotinas de limpeza de caracteres corrompidos (`demojiba
+  _reversa_sdd/parity/harness.py                        163  import do pacote pelo nome from reconstructed import domain as DM
+  _reversa_sdd/parity/harness.py                        204  citacao de simbolo         #     - `domain.strip_bad_utf`    (L29-40) = outra coisa (so
+  _reversa_sdd/parity/harness.py                        205  citacao de simbolo         #     - `domain.demojibake`       (L43-57) = parte do trabal
+  _reversa_sdd/parity/harness.py                        206  citacao de simbolo         #   Comparar `domain.strip_bad_utf` com o oraculo gera FALSO
+  src/reconstructed/csv_ingest.py                        11  import relativo            from .domain import demojibake
+  src/reconstructed/dna_analysis.py                      36  import relativo            from .domain import demojibake, strip_bad_utf
+  src/reconstructed/name_normalization.py                10  citacao de arquivo         autoridade de `domain.py`, unificadas pela OPP-20260929-4LE3
+  src/reconstructed/name_normalization.py                18  import relativo            from .domain import strip_bad_utf
+  tests/test_domain.py                                   28  import do pacote           from reconstructed.domain import (
+  tests/test_domain.py                                   61  citacao de arquivo         que so a implementacao morta de domain.py fazia. O corpo viv
+====================================================================================================

@@ -1,0 +1,34 @@
+rename from src/reconstructed/domain.py
+rename to src/reconstructed/text_cleaning.py
+--- a/src/reconstructed/domain.py
++++ b/src/reconstructed/text_cleaning.py
+@@ -1,13 +1,15 @@
+ """Tarefa 01 — Rotinas de limpeza de nome.
+ 
+ Este modulo concentra a autoridade unica de limpeza de mojibake
+-(`strip_bad_utf`, `demojibake`) usada por `upload.py` e `dna_analysis.py`.
++(`strip_bad_utf`, `demojibake`), consumida por `csv_ingest`, `name_normalization`
++e `dna_analysis`, que a reexporta. O nome antigo deste arquivo descrevia uma
++camada de dominio que ele nunca foi; a renomeacao esta na OPP-20261003-LMAY.
+ 
+ DECISAO DO USUARIO (2026-09-30, _reversa_sdd/questions.md#pergunta-3):
+ `Family`, `GenealogyGraph` e `DNAGroup` foram REMOVIDAS daqui. Eram
+ arquitetura abandonada no meio do caminho: nenhuma das tres era instanciada em
+ qualquer caminho de producao, confirmado por varredura de referencias. O fluxo
+-real usa os dicionarios globais de upload.py e os registros do ged4py
++real usa os dicionarios globais de gedcom_state.py e os registros do ged4py
+ diretamente. Preservar as classes sem uso custaria a quem reimplementar a
+ obrigacao de decidir entre adotar ou descartar algo que o legado nunca adotou.
+ 
+@@ -74,9 +76,9 @@
+ #
+ #   - `Family`         aparecia apenas na propria definicao e na anotacao de
+ #                      `GenealogyGraph.register_family`. O fluxo real guarda os
+-#                      registros `FAM` do ged4py em `upload.families`.
++#                      registros `FAM` do ged4py em `gedcom_state.families`.
+ #   - `GenealogyGraph` nao era instanciada. O grafo real e a global
+-#                      `upload.graph` — um `nx.Graph`, nao `nx.MultiGraph` como
++#                      `gedcom_state.graph` — um `nx.Graph`, nao `nx.MultiGraph` como
+ #                      o docstring afirmava (havia contradicao interna aqui).
+ #   - `DNAGroup`       nao era instanciada. `dna_analysis` monta os resultados
+ #                      como `dict` simples.

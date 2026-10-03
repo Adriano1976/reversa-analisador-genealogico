@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Plano de modularização · OPP-20261003-GUE7</title>
+<style>
+  :root { --tinta:#1c1f23; --suave:#5b6570; --linha:#d8dee6; --fundo:#f7f9fb; --ok:#1f7a4d; --atencao:#9a6400; --risco:#a8261f; --realce:#eaf2fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:64rem; margin:0 auto; }
+  h1 { font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.01em; }
+  h2 { font-size:1.15rem; margin:2.25rem 0 .75rem; padding-bottom:.35rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:1rem; margin:1.5rem 0 .5rem; }
+  p,li { color:var(--tinta); }
+  .sub { color:var(--suave); font-size:.9rem; margin:0 0 1.5rem; }
+  code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em; background:#eef2f7; padding:.1rem .3rem; border-radius:3px; }
+  pre { background:#0f1720; color:#e6edf3; padding:.9rem 1rem; border-radius:6px; overflow-x:auto; font-size:.82rem; line-height:1.45; }
+  table { width:100%; border-collapse:collapse; margin:.75rem 0 1.25rem; background:#fff; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .7rem; border:1px solid var(--linha); vertical-align:top; }
+  th { background:#eef2f7; font-weight:600; }
+  .cartao { background:#fff; border:1px solid var(--linha); border-radius:8px; padding:1rem 1.15rem; margin:1rem 0; }
+  .selo { display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; text-transform:uppercase; letter-spacing:.03em; }
+  .verde { background:#e3f4ea; color:var(--ok); }
+  .amarelo { background:#fdf1d8; color:var(--atencao); }
+  .vermelho { background:#fbe6e4; color:var(--risco); }
+  .realce { background:var(--realce); }
+  .num { font-variant-numeric:tabular-nums; font-weight:600; }
+  .novo { background:#e3f4ea; }
+  .fica { background:#f4f6f8; }
+  footer { margin-top:3rem; color:var(--suave); font-size:.85rem; border-top:1px solid var(--linha); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Plano de modularização do pacote</h1>
+<p class="sub">
+  Oportunidade <code>OPP-20261003-GUE7</code> · contexto <code>pacote-reconstructed</code> ·
+  verbo <strong>modularize</strong> · <span class="selo verde">confiança green</span> ·
+  modo <strong>gated</strong> · rede <strong>require-characterization</strong> · custo <strong>high</strong>
+</p>
+
+<div class="cartao realce">
+  <strong>Nenhum arquivo do projeto foi tocado.</strong> A escrita até aqui alcançou apenas
+  <code>_reversa_refactor/</code>. Esta é a transformação de maior superfície da série: 7 módulos
+  movidos e 32 linhas de import reescritas em 18 arquivos.
+</div>
+
+<h2>1. O que a oportunidade pede, e o que mudou desde que ela foi registrada</h2>
+
+<p>
+  O registro da <code>GUE7</code> foi escrito <strong>antes</strong> de a <code>TWNT</code> ser
+  aplicada, e três transformações mudaram o terreno desde então. Duas coisas do registro já não
+  valem:
+</p>
+
+<table>
+  <thead><tr><th>O que o registro diz</th><th>Situação hoje</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>parsers/gedcom_parser.py</code> vem de <code>upload.py</code></td>
+      <td><span class="selo amarelo">resolvido</span> a <code>TWNT</code> já dividiu <code>upload.py</code>, e <code>gedcom_parser.py</code> já existe como módulo próprio</td>
+    </tr>
+    <tr>
+      <td><code>core/cm_estimator.py</code> é recorte de <code>dna_analysis.py</code></td>
+      <td><span class="selo verde">feito</span> pela <code>RGKA</code>, e o <code>core/</code> já existe</td>
+    </tr>
+    <tr>
+      <td>o harness importa <code>upload, path_search, dna_analysis, domain</code></td>
+      <td>importa <code>gedcom_parser, gedcom_state, path_search, dna_analysis, text_cleaning</code></td>
+    </tr>
+    <tr>
+      <td>o inventário: 12 arquivos e 1363 linhas</td>
+      <td>são <strong>15 arquivos e 1422 linhas</strong>, dos quais <code>gedcom_state.py</code> é novo</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Ou seja: metade do trabalho já foi feita por outras oportunidades, e o resto precisa ser
+  re-derivado contra os arquivos que existem hoje.
+</p>
+
+<h2>2. A árvore, antes e depois</h2>
+
+<pre>ANTES                                     DEPOIS
+src/reconstructed/                        src/reconstructed/
+├── __init__.py                           ├── __init__.py
+├── csv_ingest.py            ──────────►  ├── parsers/
+├── gedcom_parser.py         ──────────►  │   ├── __init__.py          (novo)
+├── matching.py              ──────────►  │   ├── csv_ingest.py
+├── name_normalization.py    ──────────►  │   └── gedcom_parser.py
+├── path_finding.py          ──────────►  ├── core/
+├── family_navigation.py     ──────────►  │   ├── __init__.py          (já existe)
+├── mermaid_render.py        ──────────►  │   ├── cm_estimator.py      (já está)
+├── gedcom_state.py                       │   ├── matching.py
+├── text_cleaning.py                      │   ├── name_normalization.py
+├── validate.py                           │   ├── path_finding.py
+├── path_search.py                        │   └── family_navigation.py
+├── dna_analysis.py                       ├── reporting/
+└── core/                                 │   ├── __init__.py          (novo)
+    ├── __init__.py                       │   └── mermaid_render.py
+    └── cm_estimator.py                   ├── gedcom_state.py
+                                          ├── text_cleaning.py
+                                          ├── validate.py
+                                          ├── path_search.py
+                                          └── dna_analysis.py</pre>
+
+<table>
+  <thead><tr><th>Subpacote</th><th>Papel que passa a expressar</th><th>Módulos</th></tr></thead>
+  <tbody>
+    <tr><td><code>parsers/</code></td><td>ler o mundo de fora: o arquivo GEDCOM e o CSV de matches</td><td><code>gedcom_parser</code>, <code>csv_ingest</code></td></tr>
+    <tr><td><code>core/</code></td><td>decidir sobre o que foi lido, sem saber de HTTP</td><td><code>cm_estimator</code>, <code>matching</code>, <code>name_normalization</code>, <code>path_finding</code>, <code>family_navigation</code></td></tr>
+    <tr><td><code>reporting/</code></td><td>transformar resultado em apresentação</td><td><code>mermaid_render</code></td></tr>
+  </tbody>
+</table>
+
+<p>
+  Antes, a única forma de saber que <code>matching</code> é núcleo e <code>csv_ingest</code> é
+  parsing era ler o docstring de cada um. Depois, a árvore do repositório diz isso.
+</p>
+
+<h2>3. O que fica na raiz, e por que</h2>
+
+<p>
+  Cinco módulos não entram em subpacote, e cada um tem uma razão declarada. Isso é decisão, não
+  esquecimento:
+</p>
+
+<table>
+  <thead><tr><th>Módulo</th><th>Por que fica na raiz</th></tr></thead>
+  <tbody>
+    <tr class="fica"><td><code>gedcom_state.py</code></td><td>É o estado do processo, e quase todo o pacote o consome. Enfiá-lo em <code>parsers/</code> faria o núcleo depender de um subpacote de parsing, e inverter a direção das dependências é o oposto de modularizar</td></tr>
+    <tr class="fica"><td><code>text_cleaning.py</code></td><td>Utilitário puro, com fan-out 0 e nenhuma dependência do pacote. Não pertence a nenhum dos três papéis, e criar um <code>utils/</code> para um arquivo seria um subpacote de conveniência</td></tr>
+    <tr class="fica"><td><code>validate.py</code></td><td>Validação da requisição HTTP, não do domínio. O próprio registro da <code>GUE7</code> recusou movê-lo para <code>utils/</code>, porque renomearia um módulo que carrega contrato vigente do <code>BUG-20260929-QMLY</code></td></tr>
+    <tr class="fica"><td><code>path_search.py</code></td><td>Fachada, e as duas precisam sobreviver: os testes importam <code>_mermaid_label</code> e <code>_LABEL_SEGURO</code> daqui</td></tr>
+    <tr class="fica"><td><code>dna_analysis.py</code></td><td>Fachada e orquestração do fluxo, consumida pelo <code>app.py</code> e reexportando 18 nomes</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Duas coisas do registro que eu recomendo NÃO fazer</h2>
+
+<div class="cartao">
+  <h3>4.1. Fundir <code>matching</code> com <code>name_normalization</code>, e <code>path_finding</code> com <code>family_navigation</code></h3>
+  <p>
+    O registro propõe <code>core/fuzzy_matcher.py</code> como fusão de <code>matching.py</code>
+    (162 linhas) com <code>name_normalization.py</code> (122), e <code>core/path_finder.py</code>
+    como fusão de <code>path_finding.py</code> (85) com <code>family_navigation.py</code> (106).
+  </p>
+  <p>
+    <strong>Isso desfaz duas transformações aplicadas.</strong> A <code>ZV52</code> separou
+    <code>name_normalization</code> de <code>matching</code> exatamente porque são ciclos de mudança
+    distintos: um é vocabulário e decomposição de nome, o outro é decisão de aceitação. A
+    <code>UXEF</code> separou <code>family_navigation</code> de <code>path_finding</code> pela mesma
+    razão. Fundir de volta cria dois módulos de quase 300 e quase 200 linhas com duas
+    responsabilidades cada, e a regra dura do verbo é não fundir o que o projeto separou por
+    propósito.
+  </p>
+  <p>
+    Modularizar é distribuir melhor o que existe, não desfazer separações registradas. Se a fusão for
+    desejada, ela merece transformação própria, com a decisão explícita de reverter a <code>ZV52</code>
+    e a <code>UXEF</code>.
+  </p>
+</div>
+
+<div class="cartao">
+  <h3>4.2. Renomear <code>csv_ingest</code> e <code>mermaid_render</code> na mesma transformação</h3>
+  <p>
+    O registro propõe <code>dna_match_parser.py</code> e <code>mermaid_generator.py</code>. Os nomes
+    atuais <strong>não mentem</strong>: a <code>LMAY</code>, aplicada ontem, concluiu que
+    <code>csv_ingest</code>, <code>matching</code>, <code>path_finding</code> e
+    <code>mermaid_render</code> já seguem a convenção do pacote, que é dizer o que o módulo faz.
+  </p>
+  <p>
+    Renomear junto com mover dobraria a superfície da transformação de maior risco da série sem a
+    justificativa que a <code>LMAY</code> tinha. Mover e renomear são verbos diferentes, e a ordem
+    certa é mover primeiro, com prova de comportamento, e padronizar depois, se ainda fizer sentido.
+  </p>
+</div>
+
+<h2>5. O que a transformação muda, em números</h2>
+
+<table>
+  <thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th></tr></thead>
+  <tbody>
+    <tr><td>Subpacotes</td><td class="num">1</td><td class="num">3</td></tr>
+    <tr><td>Módulos soltos na raiz do pacote</td><td class="num">12</td><td class="num">5</td></tr>
+    <tr><td>Arquivos do pacote</td><td class="num">15</td><td class="num">18</td></tr>
+    <tr><td>Linhas do pacote</td><td class="num">1422</td><td class="num">1425</td></tr>
+    <tr><td>Linhas de import reescritas</td><td class="num">0</td><td class="num">32, em 18 arquivos</td></tr>
+    <tr><td>Linhas de lógica alteradas</td><td class="num">0</td><td class="num"><strong>0</strong></td></tr>
+    <tr><td>Nomes públicos alcançáveis pela fachada</td><td class="num">18</td><td class="num">18, os mesmos</td></tr>
+  </tbody>
+</table>
+
+<p>As 32 linhas se distribuem assim:</p>
+
+<table>
+  <thead><tr><th>Onde</th><th>Linhas de import a reescrever</th></tr></thead>
+  <tbody>
+    <tr><td>Dentro dos 7 módulos que se movem</td><td class="num">14</td></tr>
+    <tr><td>Nas duas fachadas da raiz (<code>dna_analysis</code>, <code>path_search</code>)</td><td class="num">8</td></tr>
+    <tr><td><code>src/app.py</code></td><td class="num">1</td></tr>
+    <tr><td>Os 6 arquivos de teste</td><td class="num">7</td></tr>
+    <tr><td>O harness de paridade e o <code>_check_split_types.py</code></td><td class="num">2</td></tr>
+  </tbody>
+</table>
+
+<div class="cartao">
+  <strong>A armadilha, de novo.</strong> Uma dessas duas linhas do harness vive <strong>dentro de uma
+  string</strong>, no coletor embutido. Nenhuma leitura de AST a enxerga. É a terceira vez que esse
+  ponto aparece na série (<code>TWNT</code>, <code>DWJC</code>, <code>LMAY</code>), e a terceira vez
+  em que a prova de que ela foi alcançada é a paridade ter rodado.
+</div>
+
+<h2>6. As três restrições que o registro impõe, e como cada uma é respeitada</h2>
+
+<table>
+  <thead><tr><th>Restrição</th><th>Como é respeitada</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Não criar <code>src/__init__.py</code> (<strong>RN-01</strong>)</td>
+      <td>Não é criado. Os três subpacotes levam o <code>__init__.py</code> deles, dentro de <code>src/reconstructed/</code>, e é isso que os torna pacotes regulares e evita o duplo carregamento já medido nesta série</td>
+    </tr>
+    <tr>
+      <td>As fachadas <code>path_search.py</code> e <code>dna_analysis.py</code> sobrevivem</td>
+      <td>Nenhuma das duas se move, nenhuma muda de nome, e os 18 nomes de <code>__all__</code> continuam alcançáveis pelo mesmo caminho</td>
+    </tr>
+    <tr>
+      <td>O instrumento de paridade importa módulos por nome</td>
+      <td>As duas linhas são atualizadas na mesma transformação, e a paridade é remedida. O <code>_verify_fix_gives_parity.py</code> <strong>não</strong> precisa mudar: ele copia a árvore inteira e mexe em <code>gedcom_state.py</code>, que fica na raiz</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7. Rede de segurança</h2>
+
+<table>
+  <thead><tr><th>Instrumento</th><th>Antes, medido em 2026-10-03</th><th>Exigido depois</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte</td><td><strong>118 aprovados, 15 erros de ambiente</strong></td><td>idêntico, sem teste removido, desabilitado ou afrouxado</td></tr>
+    <tr><td>Paridade diferencial</td><td><strong>100 por cento nas 6 fixtures</strong></td><td>100 por cento de novo: é ela que prova que a linha dentro da string foi alcançada</td></tr>
+    <tr><td>Resolução de todos os imports</td><td>instrumento novo</td><td><strong>todo import do pacote tem de resolver a um arquivo que existe</strong>, conferido por AST, sem executar nada</td></tr>
+    <tr><td>Código dos módulos movidos</td><td>cópia integral de <code>src/</code> congelada antes de tocar</td><td><strong>AST idêntico ao da cópia, tirando as linhas de import</strong></td></tr>
+  </tbody>
+</table>
+
+<p>
+  O terceiro instrumento é o mais importante desta transformação, e é novo de propósito: mover arquivo
+  quebra import de um jeito que só aparece em tempo de execução. Uma conferência estática que resolve
+  cada import contra a árvore nova encontra o erro <em>antes</em> de rodar a suíte, e encontra também
+  os caminhos que a suíte não exercita, como o <code>validate.py</code> carregado tardiamente.
+</p>
+
+<h2>8. Critério de pronto</h2>
+
+<ul>
+  <li>três subpacotes na árvore, com um <code>__init__.py</code> cada, e nenhum <code>src/__init__.py</code>;</li>
+  <li>sete módulos movidos, com <strong>zero linha de lógica alterada</strong>, provado por AST contra a cópia;</li>
+  <li>todo import do pacote, dos testes, do <code>app.py</code> e do harness resolvendo para arquivo existente;</li>
+  <li>as duas fachadas intactas, com os mesmos 18 nomes alcançáveis;</li>
+  <li>suíte no mesmo resultado de antes e paridade em 100 por cento;</li>
+  <li>a árvore do README atualizada, como na <code>LMAY</code>;</li>
+  <li><code>transformation.md</code>, diffs por lote e evidência gravados.</li>
+</ul>
+
+<footer>
+  Gerado por <code>/reversa-modularize</code> em 2026-10-03. Nenhum arquivo do projeto foi tocado.
+</footer>
+
+</main>
+</body>
+</html>

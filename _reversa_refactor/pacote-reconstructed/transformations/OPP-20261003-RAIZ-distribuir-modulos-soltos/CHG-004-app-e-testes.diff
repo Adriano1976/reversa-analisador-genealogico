@@ -1,0 +1,115 @@
+--- a/src/app.py
++++ b/src/app.py
+@@ -3,10 +3,10 @@
+ from flask import Flask, render_template, request
+ from werkzeug.exceptions import RequestEntityTooLarge
+ 
+-from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
+-from reconstructed.path_search import path_search as path_search_flow
++from reconstructed.core.dna_analysis import dna_analysis as dna_analysis_flow
++from reconstructed.core.path_search import path_search as path_search_flow
+ from reconstructed.parsers.gedcom_parser import load_gedcom_and_build_graph
+-from reconstructed.validate import (
++from reconstructed.utils.validate import (
+     chave_de_armazenamento,
+     chave_recebida_e_valida,
+     nome_do_arquivo_armazenado,
+--- a/tests/test_upload.py
++++ b/tests/test_upload.py
+@@ -21,9 +21,9 @@
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed import gedcom_state
++from reconstructed.core import gedcom_state
+ from reconstructed.parsers.gedcom_parser import build_graph_from_parser
+-from reconstructed.gedcom_state import get_name, ref_id
++from reconstructed.core.gedcom_state import get_name, ref_id
+ 
+ 
+ def _write_g(content=SAMPLE_GED):
+--- a/tests/test_path_search.py
++++ b/tests/test_path_search.py
+@@ -16,8 +16,8 @@
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed import gedcom_state
+-from reconstructed.path_search import (
++from reconstructed.core import gedcom_state
++from reconstructed.core.path_search import (
+     find_ancestral_path,
+     find_indirect_path,
+     find_person_by_name,
+--- a/tests/test_dna_analysis.py
++++ b/tests/test_dna_analysis.py
+@@ -24,8 +24,8 @@
+ )
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed import gedcom_state
+-from reconstructed.dna_analysis import (
++from reconstructed.core import gedcom_state
++from reconstructed.core.dna_analysis import (
+     aggregate_matches,
+     detect_columns,
+     dna_analysis,
+--- a/tests/test_characterization_matching.py
++++ b/tests/test_characterization_matching.py
+@@ -32,8 +32,8 @@
+ )
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed import gedcom_state
+-from reconstructed.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
++from reconstructed.core import gedcom_state
++from reconstructed.core.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+ 
+ 
+ @pytest.fixture(scope="module")
+--- a/tests/test_characterization_mermaid.py
++++ b/tests/test_characterization_mermaid.py
+@@ -20,8 +20,8 @@
+ from tests.fixtures.sample_gedcom import SAMPLE_GED
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed import gedcom_state
+-from reconstructed.path_search import path_search
++from reconstructed.core import gedcom_state
++from reconstructed.core.path_search import path_search
+ 
+ # Saida congelada, linha por linha, para os tres caminhos de render.
+ GOLDEN = {
+--- a/tests/test_mermaid_escape.py
++++ b/tests/test_mermaid_escape.py
+@@ -25,7 +25,7 @@
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+ from reconstructed.parsers import gedcom_parser
+-from reconstructed.path_search import _mermaid_label, path_search
++from reconstructed.core.path_search import _mermaid_label, path_search
+ 
+ # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
+ LINHA_DE_NO = re.compile(r'^N_[A-Za-z0-9_]+\["[^"]*"\]$')
+--- a/tests/test_domain.py
++++ b/tests/test_domain.py
+@@ -25,7 +25,7 @@
+ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+ 
+-from reconstructed.text_cleaning import (
++from reconstructed.utils.text_cleaning import (
+     demojibake,
+     strip_bad_utf,
+ )
+--- a/tests/test_upload_seguranca.py
++++ b/tests/test_upload_seguranca.py
+@@ -47,7 +47,7 @@
+     abortar por ImportError, escondendo a falha real dos testes de rota. Com o
+     import aqui, cada teste falha pelo seu próprio motivo.
+     """
+-    from reconstructed import validate as modulo
++    from reconstructed.utils import validate as modulo
+ 
+     return modulo
+ 
