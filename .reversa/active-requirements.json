@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/002-integrar-rota-app-modulos",
-  "feature-id": "002",
-  "short-name": "integrar-rota-app-modulos",
-  "started-at": "2026-08-11T14:01:24Z",
+  "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
+  "feature-id": "003",
+  "short-name": "renomear-pasta-app-para-src",
+  "started-at": "2026-10-02T21:38:27Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": []
