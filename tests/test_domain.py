@@ -16,7 +16,7 @@ Removidos nesta data (9 testes):
                    test_get_person_missing_returns_none, test_register_family
   DNAGroup:        test_dna_group_fields, test_dna_group_defaults
 
-O que permanece — e que continua sendo consumido por `upload.py` e
+O que permanece — e que continua sendo consumido por `gedcom_state.py` e
 `dna_analysis.py` — sao as rotinas de limpeza de nome.
 """
 import os

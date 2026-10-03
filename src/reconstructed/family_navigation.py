@@ -4,7 +4,7 @@ Extraido de `path_search.py` pela OPP-20260929-UXEF. Responsabilidade unica:
 resolver uma pessoa pelo nome e navegar as ligacoes de familia (pais, conjuge,
 casamento, afinidade). Nao conhece caminho, nao conhece diagrama.
 
-## Contrato de import com `.upload`
+## Contrato de import com `.gedcom_state`
 
 `people`, `families` e `child_to_family` sao mutados in place por
 `load_gedcom_and_build_graph`, entao o binding do topo continua apontando para o
@@ -15,7 +15,7 @@ precisa dele e `path_finding`, que o importa dentro da funcao.
 """
 from __future__ import annotations
 
-from .upload import child_to_family, families, get_name, people, ref_id
+from .gedcom_state import child_to_family, families, get_name, people, ref_id
 
 
 def find_person_by_name(name_query):

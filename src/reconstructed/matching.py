@@ -21,7 +21,7 @@ from .name_normalization import (
     surnames_set,
     token_prefixes,
 )
-from .upload import get_name, people
+from .gedcom_state import get_name, people
 
 
 def build_ged_indexes():

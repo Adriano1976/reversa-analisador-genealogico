@@ -40,7 +40,7 @@ else:
     sys.path.insert(0, os.path.join(W, "src"))
     os.chdir(tmp)
     from reconstructed import dna_analysis as D
-    from reconstructed import upload as U
+    from reconstructed import gedcom_parser as U
     U.load_gedcom_and_build_graph(GED)
     fn = D.split_name_pt
 

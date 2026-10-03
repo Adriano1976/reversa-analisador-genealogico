@@ -5,7 +5,7 @@ busca direta por ancestral comum (BFS bidirecional) e a busca indireta por
 afinidade (`nx.shortest_path` com compressao de nos de familia), com os limites
 que a alma fixa: profundidade 20 e 40 hops.
 
-## Contrato de import com `.upload`
+## Contrato de import com `.gedcom_state`
 
 `people` e mutado in place, entao vem do topo. `graph` e a excecao: e
 reatribuido a cada parse (`graph = new_graph`), entao um import no topo ficaria
@@ -19,7 +19,7 @@ from collections import deque
 import networkx as nx
 
 from .family_navigation import get_parents
-from .upload import people
+from .gedcom_state import people
 
 
 MAX_DEPTH = 20
@@ -35,7 +35,7 @@ def find_indirect_path(start_id, end_id, max_hops=MAX_HOPS):
     """
     # `graph` é reatribuído por `load_gedcom_and_build_graph` (graph = new_graph),
     # então um import no topo ficaria preso ao grafo antigo. Ver o contrato no topo.
-    from .upload import graph
+    from .gedcom_state import graph
     if graph is None or start_id not in graph or end_id not in graph:
         return None
     try:

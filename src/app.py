@@ -5,7 +5,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 
 from reconstructed.dna_analysis import dna_analysis as dna_analysis_flow
 from reconstructed.path_search import path_search as path_search_flow
-from reconstructed.upload import load_gedcom_and_build_graph
+from reconstructed.gedcom_parser import load_gedcom_and_build_graph
 from reconstructed.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,

@@ -31,7 +31,8 @@ from tests.fixtures.sample_dna import (
     DNA_GED,
 )
 
-from reconstructed import upload
+from reconstructed import gedcom_parser
+from reconstructed import gedcom_state
 from reconstructed.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
 
 
@@ -42,10 +43,10 @@ def tree():
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_GED)
-        upload.load_gedcom_and_build_graph(path)
+        gedcom_parser.load_gedcom_and_build_graph(path)
     finally:
         os.remove(path)
-    return upload
+    return gedcom_state
 
 
 def _csv(texto):

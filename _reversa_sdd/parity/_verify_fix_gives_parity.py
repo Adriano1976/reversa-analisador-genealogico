@@ -30,7 +30,7 @@ ORACLE_GET_NAME = '''def get_name(person):
 def main() -> int:
     shutil.rmtree(os.path.dirname(STUB), ignore_errors=True)
     shutil.copytree(SRC, STUB)
-    alvo = os.path.join(STUB, "upload.py")
+    alvo = os.path.join(STUB, "gedcom_state.py")
     src = open(alvo, encoding="utf-8").read()
 
     # Substitui a funcao get_name inteira (da def ate a linha em branco dupla).

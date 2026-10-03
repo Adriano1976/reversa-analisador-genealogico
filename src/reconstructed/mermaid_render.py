@@ -20,7 +20,7 @@ from .family_navigation import (
     split_path_by_marriage,
 )
 from .path_finding import find_ancestral_path
-from .upload import get_name, people
+from .gedcom_state import get_name, people
 
 
 def _mermaid_sid(raw) -> str:

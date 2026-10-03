@@ -45,7 +45,7 @@ from .mermaid_render import (
     generate_mermaid_graph_indirect_bridge,
 )
 from .path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
-from .upload import get_name, people, ref_id
+from .gedcom_state import get_name, people, ref_id
 
 # `are_spouses`, `get_parents`, `get_spouses`, `pick_spouse_for_couple`,
 # `split_path_by_marriage`, `exclude_tail`, `MAX_DEPTH`, `_mermaid_sid`,

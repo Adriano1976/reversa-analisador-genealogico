@@ -24,7 +24,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
-from reconstructed import upload
+from reconstructed import gedcom_parser
 from reconstructed.path_search import _mermaid_label, path_search
 
 # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
@@ -71,7 +71,7 @@ def _carregar(conteudo: str):
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(conteudo)
-        return upload.load_gedcom_and_build_graph(path)
+        return gedcom_parser.load_gedcom_and_build_graph(path)
     finally:
         os.remove(path)
 

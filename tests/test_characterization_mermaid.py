@@ -19,7 +19,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
-from reconstructed import upload
+from reconstructed import gedcom_parser
+from reconstructed import gedcom_state
 from reconstructed.path_search import path_search
 
 # Saida congelada, linha por linha, para os tres caminhos de render.
@@ -109,10 +110,10 @@ def carregado():
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(SAMPLE_GED)
-        upload.load_gedcom_and_build_graph(path)
+        gedcom_parser.load_gedcom_and_build_graph(path)
     finally:
         os.remove(path)
-    return upload
+    return gedcom_state
 
 
 @pytest.mark.parametrize("caso", sorted(GOLDEN))
