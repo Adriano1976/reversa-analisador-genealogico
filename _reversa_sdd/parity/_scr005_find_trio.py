@@ -34,7 +34,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 ORACLE = os.path.join(ROOT, "_reversa_sdd", "oracle", "app_legacy_e43ca22.py")
-UPLOADS = os.path.join(ROOT, "analisador-genealogico", "uploads")
+UPLOADS = os.path.join(ROOT, "src", "uploads")
 
 
 def carregar_oraculo(tmp: str):

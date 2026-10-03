@@ -1,0 +1,31 @@
+Smoke test do comando documentado: python src/app.py
+Feature: 003-renomear-pasta-app-para-src | verificacao adicional do executor
+Fecha por medicao os achados A001 (execucao como script) e A003 (ciclo de upload) da auditoria.
+Data: 2026-10-03 12:57:28
+Comando: python src/app.py, a partir da raiz do repositorio
+
+processo iniciado; pid = 17980
+pasta de upload apontada para diretorio de trabalho (sem tocar em src/uploads/): _reversa_forward\003-renomear-pasta-app-para-src\evidence\smoke-uploads
+
+[1] GET / (pagina inicial, sem arvore carregada)
+    resposta HTTP: 200   bytes: 3602
+    formulario de upload presente (value="upload_gedcom"): True
+    biblioteca de diagrama presente (mermaid): True
+    abas condicionais ausentes, como esperado: value="path_search" = False, value="dna_analysis" = False
+    causa: o template renderiza as duas abas apenas quando ha arvore carregada
+
+[2] POST / com action=upload_gedcom (GEDCOM sintetico das fixtures)
+    resposta HTTP: 200   bytes: 8094
+    confirmacao de carga na tela: True
+    aba de busca de caminho presente (value="path_search"): True
+    aba de analise de DNA presente (value="dna_analysis"): True
+    texto visivel da resposta: Analisador de Conexões Genealógicas body { background-color: #f8f9fa; } .card { margin-top: 1.5rem; } .nav-tabs { margin-bottom: 1.5rem; } .spinner-border { width: 3rem; height: 3rem; } .graph-container { border: 1px solid #dee2e6; border-radius: .375rem; padding: 1rem; background-color: #fafafa; overflow-x: auto; } .mermaid { text-align: center; } Analisador Genealógico e de DNA Arquivo &#39;sintetico.ged&#39; carregado! Buscar Conexão no GEDCOM Analisador de DNA Escolha duas pessoas do arquivo
+
+encerramento: pids remanescentes = nenhum
+porta 5000 livre apos o encerramento: True
+pasta de dados reais intocada: src/uploads/ com 9 arquivos
+arquivos gravados na pasta de trabalho do teste: ['3edd4ec023a383f3__sintetico.ged']
+pasta de trabalho do teste removida: True
+
+
+VEREDITO: o comando documentado sobe a aplicacao, serve a tela e completa o ciclo de carga.

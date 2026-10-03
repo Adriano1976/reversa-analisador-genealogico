@@ -1,0 +1,23 @@
+Inventario da pasta de upload ANTES da movimentacao
+Data: 2026-10-03 12:41:13
+
+[codigo] analisador-genealogico/uploads/
+arquivos = 9
+bytes    = 16920784
+sha256 do conjunto ordenado (nome:tamanho):
+file-01.ged:5332198
+file-02.ged:606
+file-03.csv:36714
+file-05.csv:30968
+file-04.ged:30968
+file-06.ged:3063082
+file-07.ged:5332198
+file-08.ged:3063082
+file-09.csv:30968
+
+[raiz] uploads/  (permanece intocada por decisao do usuario)
+arquivos = 3
+bytes    = 3094394
+file-06.ged:3063082
+file-09.csv:30968
+root-file-03.ged:344

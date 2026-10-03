@@ -1,4 +1,4 @@
 { "version": 1,
 "allowLegacyEdits": true,
-  "allowedPaths": ["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml"]
+  "allowedPaths": ["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml", "src/**", ".vscode/**"]
 }

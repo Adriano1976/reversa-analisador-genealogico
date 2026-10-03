@@ -5,4 +5,4 @@
 # o pyrefly tratar `pyrefly` como chave desconhecida e descartar o arquivo
 # inteiro, com o aviso "Extra keys found in config: pyrefly", e o search path
 # deixa de valer sem nenhum erro visível.
-search-path = ["analisador-genealogico"]
+search-path = ["src"]

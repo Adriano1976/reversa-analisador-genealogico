@@ -1,0 +1,14 @@
+Estado do versionamento apos a renomeacao -- Acao T019
+Data: 2026-10-03 12:52:19
+
+Total de entradas no status = 46
+
+Entradas que mencionam uploads/.ged/.csv (deve ser vazio):
+  (nenhuma)
+
+Pasta de upload no disco:
+  src/uploads/ = 9 arquivos, 16920784 bytes
+  uploads/ (raiz, legado) = 3 arquivos
+
+Confirmacao de que a pasta de upload continua ignorada pelo versionador:
+  .gitignore:25:uploads/	src/uploads/<arquivo-gedcom>.ged

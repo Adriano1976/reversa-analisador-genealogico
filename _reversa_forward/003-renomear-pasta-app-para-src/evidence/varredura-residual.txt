@@ -1,0 +1,20 @@
+Varredura por referencia residual ao nome antigo -- conjunto vivo
+Feature: 003-renomear-pasta-app-para-src | Acao: T018
+Conjunto varrido (codigo, testes, configuracao): src, tests, .vscode, pyrefly.toml
+Conjunto varrido (instrumentacao executavel, apenas .py): _reversa_sdd/parity, _reversa_sdd/oracle
+Fora do conjunto, por decisao (RN-03): registro historico e documentacao de extracao.
+
+ocorrencias encontradas = 2
+
+[ESPERADA] src/reconstructed/__init__.py:1
+           """Pacote reconstruído do analisador-genealogico (Reversa Reconstructor)."""
+           motivo: Nome do PROJETO em docstring, nao caminho. O pacote foi reconstruido a partir do projeto analisador-genealogico, e o projeto nao foi renomeado -- apenas a raiz de codigo. Manter e correto.
+
+[ESPERADA] _reversa_sdd/oracle/run_oracle.py:65
+           "  git show e43ca22:analisador-genealogico/app.py > <destino>\n"
+           motivo: Comando contra o commit congelado e43ca22, onde o caminho ERA analisador-genealogico/app.py. Reescrever produziria um comando que falha, porque aquele commit nao tem src/. Excecao deliberada, registrada no transformador apply-path-updates.py.
+
+excecoes aceitas e declaradas = 2
+ocorrencias inesperadas     = 0
+
+VEREDITO: nenhuma referencia residual inesperada. RF-02 satisfeito.

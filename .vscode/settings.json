@@ -1,5 +1,5 @@
 {
     "python.analysis.extraPaths": [
-        "./analisador-genealogico"
+        "./src"
     ]
 }

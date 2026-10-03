@@ -44,7 +44,7 @@ def instrumentar(src: str) -> str:
 
 def main() -> int:
     ged = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
-        ROOT, "analisador-genealogico", "uploads", "Arvore_Unificada_Oficial_V1_2.ged")
+        ROOT, "src", "uploads", "Arvore_Unificada_Oficial_V1_2.ged")
     src = instrumentar(load_collector())
     runner = os.path.join(HERE, "_instrumented_oracle.py")
     with open(runner, "w", encoding="utf-8") as fh:

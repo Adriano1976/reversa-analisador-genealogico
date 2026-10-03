@@ -49,25 +49,21 @@ flowchart LR
 ### Instalação e Configuração
 
 1. Clone ou navegue até o diretório do repositório.
-2. Instale as dependências necessárias (o `requirements.txt` fica dentro de `analisador-genealogico/`):
+2. Instale as dependências necessárias (o `requirements.txt` fica na raiz do repositório):
    ```bash
-   cd analisador-genealogico
    pip install -r requirements.txt
    ```
-3. Execute a aplicação Flask (do diretório `analisador-genealogico/`, onde está o `app.py`):
+3. Execute a aplicação Flask (a partir da raiz do repositório):
    ```bash
-   python app.py
+   python src/app.py
    ```
 4. Acesse a interface web em `http://127.0.0.1:5000/`.
 
 ## Estrutura do Projeto
 
 ```text
-analisador-genealogico/
+src/                            # raiz de código da aplicação
 ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
-├── requirements.txt            # Dependências do Python
-├── README.md                   # Documentação original do projeto (em inglês), preservada do legado
-├── .gitignore.txt              # Regras de ignore do módulo (sufixo .txt; o Git não lê o arquivo)
 ├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
 │   ├── domain.py               # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
@@ -85,6 +81,8 @@ analisador-genealogico/
 └── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado
 ```
 
+Na raiz do repositório ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml` e este `README.md`. A documentação original do projeto, em inglês, e o arquivo de ignore do módulo foram removidos: o primeiro anunciava uma biblioteca que o projeto abandonou na migração para Mermaid, e o segundo só continha regra para um artefato que o projeto deixou de gerar.
+
 ### Pastas do Framework Reversa
 
 Os artefatos do Reversa ficam na raiz do repositório e não fazem parte do runtime da aplicação:
@@ -99,7 +97,7 @@ _reversa_refactor/   # Inventário de oportunidades de refatoração e suas tran
 _reversa_docs/       # Mini-site HTML de documentação (publicado no GitHub Pages)
 ```
 
-A política de escrita do Reversa é definida em `.reversa/reversa-config.json`. Neste projeto `allowLegacyEdits` é `true`, com `allowedPaths` cobrindo `analisador-genealogico/**`, `tests/**`, `README.md` e `pyrefly.toml`; escritas fora desses caminhos são recusadas pelo framework.
+A política de escrita do Reversa é definida em `.reversa/reversa-config.json`. Neste projeto `allowLegacyEdits` é `true`, com `allowedPaths` cobrindo `src/**`, `tests/**`, `README.md`, `pyrefly.toml` e `.vscode/**`; escritas fora desses caminhos são recusadas pelo framework.
 
 ### Testes
 
@@ -147,7 +145,7 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 - **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **87 funções de teste** — o total coletado é maior, por conta da parametrização — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM), caracterização de matching e de Mermaid, e segurança do upload.
 - **Como rodar (da raiz do repositório, onde está o `pytest.ini`):**
   ```bash
-  pip install -r analisador-genealogico/requirements.txt pytest
+  pip install -r requirements.txt pytest
   pytest
   ```
 

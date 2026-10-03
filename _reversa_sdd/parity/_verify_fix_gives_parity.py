@@ -7,7 +7,7 @@ executado ate a paridade total para provar isso.
 
 Metodo: copia `reconstructed/` para um diretorio temporario, substitui `get_name`
 pela versao do oraculo, aponta o coletor do candidato para a copia e roda o harness.
-NAO toca em `analisador-genealogico/reconstructed/` (artefato de trabalho anterior).
+NAO toca em `src/reconstructed/` (artefato de trabalho anterior).
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-SRC = os.path.join(ROOT, "analisador-genealogico", "reconstructed")
+SRC = os.path.join(ROOT, "src", "reconstructed")
 STUB = os.path.join(ROOT, ".parity-stub", "reconstructed")
 
 ORACLE_GET_NAME = '''def get_name(person):
@@ -59,7 +59,7 @@ def main() -> int:
     # Correcao: inserir o DIRETORIO QUE CONTEM o pacote, e nao depender do CWD.
     h = os.path.join(HERE, "harness.py")
     hs = open(h, encoding="utf-8").read()
-    antigo = 'sys.path.insert(0, os.path.join(W, "analisador-genealogico"))'
+    antigo = 'sys.path.insert(0, os.path.join(W, "src"))'
     assert antigo in hs, "o coletor do candidato mudou; ajuste este script"
     hs2 = hs.replace(antigo, 'sys.path.insert(0, os.path.join(W, ".parity-stub"))')
     h_stub = os.path.join(HERE, "_harness_stub.py")

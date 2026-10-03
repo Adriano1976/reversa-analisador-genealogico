@@ -6,7 +6,7 @@ Executa o monolito original (`app_legacy_e43ca22.py`, extraído do commit e43ca2
 em ISOLAMENTO e imprime um resumo verificável do comportamento.
 
 Por que este runner existe (e por que não executar o app.py do legado):
-    `analisador-genealogico/app.py` foi reduzido de 887 para 86 linhas pelo commit
+    `src/app.py` foi reduzido de 887 para 86 linhas pelo commit
     3ed0179 e HOJE é um wrapper que importa `reconstructed/`. Usá-lo como oráculo
     produziria VALIDAÇÃO CIRCULAR (RISK-002). Ver ORACLE_MANIFEST.md.
 
@@ -14,7 +14,7 @@ Duas armadilhas que este runner neutraliza:
     1. O import do oráculo executa os.makedirs("uploads") e os.makedirs("static")
        com caminhos RELATIVOS (L15-18). Por isso copiamos o oráculo para um
        diretório de execução e fazemos chdir ANTES de importar. Assim ele nunca
-       polui o repositório nem toca nos dados reais em analisador-genealogico/uploads/.
+       polui o repositório nem toca nos dados reais em src/uploads/.
     2. As saídas contêm '↔' (U+2194), que o console Windows (cp1252) não codifica.
        Por isso forçamos UTF-8 em stdout.
 
@@ -37,7 +37,7 @@ except Exception:
 
 ORACLE_NAME = "app_legacy_e43ca22.py"
 DEFAULT_RELATIVE_ORACLE = os.path.join("_reversa_sdd", "oracle", ORACLE_NAME)
-DEFAULT_RELATIVE_UPLOADS = os.path.join("analisador-genealogico", "uploads")
+DEFAULT_RELATIVE_UPLOADS = os.path.join("src", "uploads")
 RUN_DIR_NAME = ".oracle-run"
 
 
@@ -94,7 +94,7 @@ def main() -> int:
     parser.add_argument(
         "--gedcom",
         default=None,
-        help="Caminho do .ged a parsear. Padrão: o maior .ged em analisador-genealogico/uploads/.",
+        help="Caminho do .ged a parsear. Padrão: o maior .ged em src/uploads/.",
     )
     parser.add_argument(
         "--cm",

@@ -6,7 +6,7 @@ diferencial real, nao por inspecao.
 ## O que este harness resolve (RISK-002)
 
 O oraculo e `_reversa_sdd/oracle/app_legacy_e43ca22.py` (monolito de 888 linhas,
-extraido do commit e43ca22). NAO use `analisador-genealogico/app.py`: ele virou um
+extraido do commit e43ca22). NAO use `src/app.py`: ele virou um
 wrapper de 86 linhas que importa `reconstructed/`, e usa-lo produz validacao
 circular — comparar a reconstrucao com ela mesma.
 
@@ -38,7 +38,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 FIXTURES = os.path.join(HERE, "fixtures")
 ORACLE = os.path.join(ROOT, "_reversa_sdd", "oracle", "app_legacy_e43ca22.py")
-CANDIDATE_DIR = os.path.join(ROOT, "analisador-genealogico")
+CANDIDATE_DIR = os.path.join(ROOT, "src")
 
 # ---------------------------------------------------------------------------
 # Amostra de pares de caminho — CONFIGURAVEL por variavel de ambiente.
@@ -153,7 +153,7 @@ CANDIDATE_COLLECTOR = r'''
 import json, os, sys
 
 W = sys.argv[1]; GED = sys.argv[2]; OUT = sys.argv[3]
-sys.path.insert(0, os.path.join(W, "analisador-genealogico"))
+sys.path.insert(0, os.path.join(W, "src"))
 os.chdir(os.path.join(W, ".parity-run-cand"))
 
 from reconstructed import upload as U
@@ -380,7 +380,7 @@ def main() -> int:
     print("HARNESS DIFERENCIAL — oraculo congelado x reconstrucao")
     print("=" * 78)
     print("oraculo   : %s" % os.path.relpath(ORACLE, ROOT))
-    print("candidato : analisador-genealogico/reconstructed/")
+    print("candidato : src/reconstructed/")
     print("probes    : %d valores de cM + grafo completo + pares de caminho" % len(CM_PROBES))
     print("amostra   : %dx%d = %d pares de caminho por lado" % (SAMPLE, SAMPLE, SAMPLE * SAMPLE))
     print("timeout   : %ds por coletor" % TIMEOUT)

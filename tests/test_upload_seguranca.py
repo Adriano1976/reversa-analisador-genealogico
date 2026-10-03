@@ -18,9 +18,9 @@ import pytest
 
 PROJETO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJETO)
-sys.path.insert(0, os.path.join(PROJETO, "analisador-genealogico"))
+sys.path.insert(0, os.path.join(PROJETO, "src"))
 
-_PASTA_APP = os.path.join(PROJETO, "analisador-genealogico")
+_PASTA_APP = os.path.join(PROJETO, "src")
 _CAMINHO_APP = os.path.join(_PASTA_APP, "app.py")
 
 

@@ -10,7 +10,7 @@ e preenche o manifesto, eliminando a captura manual.
 ## Isolamento do legado (regra absoluta)
 
 O oraculo cria `uploads/` e `static/` no DIRETORIO DE TRABALHO e grava os arquivos
-enviados la. Para NAO escrever nada em `analisador-genealogico/`:
+enviados la. Para NAO escrever nada em `src/`:
 
 1. copia o projeto legado para `.golden-capture/app/` (area descartavel);
 2. copia o oraculo congelado para la como `legacy_oracle.py`;
@@ -48,7 +48,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-LEGACY = os.path.join(ROOT, "analisador-genealogico")
+LEGACY = os.path.join(ROOT, "src")
 ORACLE = os.path.join(ROOT, "_reversa_sdd", "oracle", "app_legacy_e43ca22.py")
 GOLDEN = os.path.join(ROOT, "_reversa_sdd", "screens", "golden")
 WORK = os.path.join(ROOT, ".golden-capture")
