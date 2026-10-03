@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Plano de modularização · OPP-20261003-RGKA</title>
+<style>
+  :root { --tinta:#1c1f23; --suave:#5b6570; --linha:#d8dee6; --fundo:#f7f9fb; --ok:#1f7a4d; --atencao:#9a6400; --risco:#a8261f; --realce:#eaf2fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:60rem; margin:0 auto; }
+  h1 { font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.01em; }
+  h2 { font-size:1.15rem; margin:2.25rem 0 .75rem; padding-bottom:.35rem; border-bottom:1px solid var(--linha); }
+  p,li { color:var(--tinta); }
+  .sub { color:var(--suave); font-size:.9rem; margin:0 0 1.5rem; }
+  code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em; background:#eef2f7; padding:.1rem .3rem; border-radius:3px; }
+  pre { background:#0f1720; color:#e6edf3; padding:.9rem 1rem; border-radius:6px; overflow-x:auto; font-size:.83rem; }
+  table { width:100%; border-collapse:collapse; margin:.75rem 0 1.25rem; background:#fff; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .7rem; border:1px solid var(--linha); vertical-align:top; }
+  th { background:#eef2f7; font-weight:600; }
+  .cartao { background:#fff; border:1px solid var(--linha); border-radius:8px; padding:1rem 1.15rem; margin:1rem 0; }
+  .selo { display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; text-transform:uppercase; letter-spacing:.03em; }
+  .verde { background:#e3f4ea; color:var(--ok); }
+  .amarelo { background:#fdf1d8; color:var(--atencao); }
+  .vermelho { background:#fbe6e4; color:var(--risco); }
+  .realce { background:var(--realce); }
+  .num { font-variant-numeric:tabular-nums; font-weight:600; }
+  .novo { background:#e3f4ea; }
+  .sai { background:#fbe6e4; }
+  footer { margin-top:3rem; color:var(--suave); font-size:.85rem; border-top:1px solid var(--linha); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Plano de modularização</h1>
+<p class="sub">
+  Oportunidade <code>OPP-20261003-RGKA</code> · contexto <code>pacote-reconstructed</code> ·
+  verbo <strong>modularize</strong> · <span class="selo verde">confiança green</span> ·
+  modo <strong>gated</strong> · rede <strong>require-characterization</strong>
+</p>
+
+<div class="cartao realce">
+  <strong>Nenhum arquivo de <code>src/</code> foi tocado.</strong> Até aqui a escrita alcançou apenas
+  <code>_reversa_refactor/</code>. O diff completo está na seção 5, e a aplicação espera aprovação.
+</div>
+
+<h2>1. Responsabilidades misturadas no alvo</h2>
+
+<p><code>dna_analysis.py</code> tem 137 linhas e concentra quatro coisas de naturezas diferentes:</p>
+
+<table>
+  <thead><tr><th>#</th><th>Responsabilidade</th><th>Natureza</th><th>Linhas</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>orquestração do cruzamento GEDCOM x CSV</td><td>fluxo, depende de quase todo o pacote</td><td>68 a 123</td></tr>
+    <tr class="sai"><td>2</td><td><code>SHARED_CM_DATA</code>, nove faixas de cM</td><td>dado de domínio puro, sem dependência alguma</td><td>48 a 58</td></tr>
+    <tr class="sai"><td>3</td><td><code>get_relationships_by_cm</code></td><td>regra de domínio pura, só lê a tabela</td><td>61 a 65</td></tr>
+    <tr><td>4</td><td>bloco de reexportação</td><td>compatibilidade com consumidores externos</td><td>126 a 137</td></tr>
+  </tbody>
+</table>
+
+<p>
+  As partes 2 e 3 são as únicas do arquivo que <strong>não dependem de nada</strong>. A parte 1 depende de
+  sete módulos. Hoje as três moram juntas, e por isso a heurística de cM só pode ser exercitada
+  carregando junto todo o fluxo de análise.
+</p>
+
+<h2>2. Fronteira proposta</h2>
+
+<table>
+  <thead><tr><th>Módulo</th><th>Responsabilidade única depois</th><th>Interfaces que expõe</th></tr></thead>
+  <tbody>
+    <tr class="novo">
+      <td><code>core/cm_estimator.py</code> <em>(novo)</em></td>
+      <td>traduzir um valor de cM nas relações prováveis daquela faixa</td>
+      <td><code>SHARED_CM_DATA</code>, <code>get_relationships_by_cm</code></td>
+    </tr>
+    <tr>
+      <td><code>dna_analysis.py</code></td>
+      <td>orquestrar o cruzamento, e continuar servindo de fachada para quem já importa daqui</td>
+      <td>os mesmos 18 nomes de <code>__all__</code>, sem exceção</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  A fronteira é a mesma que o registro da oportunidade fixou, e é a mesma que a oportunidade
+  <code>OPP-20261003-GUE7</code> já previa na linha 65 da própria tabela de destinos
+  (<code>core/cm_estimator.py</code>, "recorte de <code>dna_analysis.py</code>, ver a oportunidade
+  <code>OPP-20261003-RGKA</code>"). Esta transformação executa um pedaço já planejado daquela
+  reorganização, em vez de criar uma terceira estrutura que a GUE7 teria de reconciliar depois.
+</p>
+
+<div class="cartao">
+  <strong>Por que <code>core/</code> e não um arquivo plano.</strong> Manter o pacote uniforme era a
+  alternativa, e ela custaria uma segunda movimentação dentro da GUE7. Criar o subpacote agora é
+  seguro por uma razão específica: a regra <strong>RN-01</strong> proíbe <code>src/__init__.py</code>
+  porque <code>src</code> é raiz de caminho de importação, e subpacote dentro de
+  <code>src/reconstructed/</code> não é isso. Ele leva o próprio <code>__init__.py</code>, que é o que
+  torna <code>reconstructed.core</code> um pacote regular e evita o duplo carregamento medido nesta
+  sessão.
+</div>
+
+<h2>3. A origem da tabela, e o que a citação pode afirmar</h2>
+
+<p>
+  Esta é a parte da oportunidade que o princípio <strong>V</strong> exige, e ela precisa ser dita com
+  precisão, porque a resposta fácil seria inventar uma citação.
+</p>
+
+<table>
+  <thead><tr><th>O que se sabe</th><th>Fonte</th></tr></thead>
+  <tbody>
+    <tr><td>As nove faixas foram <strong>escritas à mão</strong>, e devem ser declaradas heurísticas</td><td>decisão humana de 2026-09-30, <code>_reversa_sdd/questions.md</code> pergunta 5</td></tr>
+    <tr><td>A sobreposição de até quatro faixas é consequência do método, <strong>não</strong> do Shared cM Project</td><td>mesma decisão</td></tr>
+    <tr><td>As faixas são heurísticas <strong>sem fonte verificável</strong>, tratáveis como parâmetro ajustável</td><td><code>_reversa_sdd/analise-dna/requirements.md</code> RF-10a</td></tr>
+    <tr><td>A lacuna está registrada</td><td><code>_reversa_sdd/domain.md</code> L-07</td></tr>
+    <tr><td>O README menciona o Shared cM Project, <strong>sem versão e sem os dados</strong></td><td><code>_reversa_sdd/domain.md</code> L-07</td></tr>
+  </tbody>
+</table>
+
+<div class="cartao">
+  <p>
+    <strong>O que a transformação entrega:</strong> o módulo passa a declarar, no próprio arquivo, que
+    as faixas são heurísticas escritas à mão, com a data da decisão humana e a lista dos registros que
+    a sustentam. Um auditor que abrir o arquivo para conferir os números encontra isso antes dos
+    números, e não depois de ler o README.
+  </p>
+  <p>
+    <strong>O que ela não entrega:</strong> uma referência externa com data de consulta, porque ela
+    <strong>não existe</strong>. O princípio V continua formalmente aberto, e o registro da
+    transformação vai dizer isso com essas palavras. Se a versão usada como inspiração for recuperada
+    algum dia, o comentário novo é o único lugar a atualizar.
+  </p>
+</div>
+
+<h2>4. Fronteira da alma</h2>
+
+<table>
+  <thead><tr><th>Fonte</th><th>O que diz</th><th>Situação</th></tr></thead>
+  <tbody>
+    <tr><td><code>.reversa/soul.md#decisoes-fundadoras</code> (3)</td><td>a predição de relação é feita por faixas de cM</td><td><span class="selo verde">preservada</span> a predição continua, pela mesma tabela, sem alterar um número</td></tr>
+    <tr><td><code>.reversa/soul.md#entidades-centrais</code></td><td><code>SHARED_CM_DATA</code> é a autoridade única das faixas</td><td><span class="selo verde">preservada</span> continua sendo <em>uma</em> tabela, em um só lugar; deixa de estar dentro do orquestrador</td></tr>
+    <tr><td>princípio II</td><td>refatoração não muda comportamento observável</td><td><span class="selo verde">preservado</span> mesmo objeto de lista, mesma função, mesma ordem de avaliação das nove faixas</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <strong>Nenhuma fronteira da alma é violada.</strong> A alma não define <code>dna_analysis.py</code>
+  como módulo coeso, e a separação não funde nada que ela separe: ela apenas tira do orquestrador o
+  que ele não orquestra.
+</p>
+
+<h2>5. Diff completo</h2>
+
+<h3>5.1. Arquivo novo: <code>src/reconstructed/core/__init__.py</code></h3>
+<pre>"""Núcleo de decisão do pacote reconstruído."""</pre>
+
+<h3>5.2. Arquivo novo: <code>src/reconstructed/core/cm_estimator.py</code></h3>
+<pre>"""Estimador de parentesco por faixas de cM.
+
+Responsabilidade única: traduzir um valor de cM (soma dos segmentos de um
+match) na lista das relações prováveis daquela faixa. Não conhece grafo,
+GEDCOM, CSV nem fluxo de análise.
+
+Extraído de `dna_analysis.py` pela transformação `OPP-20261003-RGKA`, para que
+a heurística possa ser exercitada e auditada sozinha. Nenhum valor de faixa e
+nenhuma ordem de avaliação foram alterados na extração.
+
+## Origem da tabela (princípio V)
+
+`SHARED_CM_DATA` **não tem fonte externa verificável**. As nove faixas foram
+escritas à mão, e a decisão humana de 2026-09-30 (`_reversa_sdd/questions.md`,
+pergunta 5) determina declará-las como heurística, não como tabela canônica:
+
+- `_reversa_sdd/analise-dna/requirements.md` RF-10a: as faixas são heurísticas
+  sem fonte verificável, e a reimplementação pode tratá-las como parâmetro
+  ajustável.
+- A sobreposição de até quatro faixas é consequência do método de escrita à
+  mão, e não do Shared cM Project.
+- O `README.md` menciona o Shared cM Project, mas não registra versão nem os
+  dados que teriam gerado estas faixas.
+- `_reversa_sdd/domain.md` registra a lacuna L-07.
+
+O princípio V pede referência e data de consulta. Não existe referência a
+citar: o que este comentário declara é a ausência dela, para que nenhum leitor
+tome as faixas por calibradas. Se a versão usada como inspiração for
+recuperada, este é o único lugar a atualizar.
+
+Declarado em 2026-10-03, sobre decisão humana de 2026-09-30.
+"""
+
+SHARED_CM_DATA = [
+    {"range": (3300, 3720), "relationship": "Pai/Mãe ↔ Filho(a)"},
+    {"range": (2200, 3400), "relationship": "Irmãos completos"},
+    {"range": (1317, 2312), "relationship": "Avós/Netos, Tios/Tias ↔ Sobrinhos(as), Meios-irmãos"},
+    {"range": (553, 1330), "relationship": "Primos de 1º grau"},
+    {"range": (200, 850), "relationship": "Primos de 1º grau (1× removido), Meios-primos, Tios-avós ↔ Sobrinhos-netos"},
+    {"range": (46, 515), "relationship": "Primos de 2º grau"},
+    {"range": (30, 350), "relationship": "Primos de 2º grau (1× removido), Primos de 3º grau"},
+    {"range": (10, 220), "relationship": "Primos de 3º grau (1× removido), Primos de 4º grau"},
+    {"range": (0, 110), "relationship": "Primos de 4º/5º grau ou mais distantes"},
+]
+
+
+def get_relationships_by_cm(cm_value):
+    """Devolve as relações prováveis da faixa em que `cm_value` cai.
+
+    Contrato (D-17 da extração): o retorno é **sempre uma lista**. `cM` menor ou
+    igual a zero, ou valor não numérico, devolvem lista **vazia**. O literal
+    "Relação distante ou indeterminada" só aparece para número positivo que não
+    cai em nenhuma das nove faixas. Como as faixas se sobrepõem, a lista pode
+    trazer mais de uma relação, e a ordem é a da tabela acima.
+    """
+    if not isinstance(cm_value, (int, float)) or cm_value &lt;= 0:
+        return []
+    poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] &lt;= cm_value &lt;= item["range"][1]]
+    return poss if poss else ["Relação distante ou indeterminada"]
+</pre>
+
+<p class="sub">
+  As duas únicas linhas que não são cópia literal do original são a assinatura e o corpo de
+  <code>get_relationships_by_cm</code>, que voltam idênticos, e o <code>docstring</code> novo, que é
+  documentação. A tabela é movida byte a byte, incluindo as setas e o sinal de vezes.
+</p>
+
+<h3>5.3. Arquivo editado: <code>src/reconstructed/dna_analysis.py</code></h3>
+
+<table>
+  <thead><tr><th></th><th>Trecho</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="sai">sai</td>
+      <td><code>SHARED_CM_DATA = [</code> até <code>]</code> (11 linhas) e
+          <code>def get_relationships_by_cm(cm_value):</code> até <code>return poss if poss else [...]</code>
+          (5 linhas), na íntegra</td>
+    </tr>
+    <tr>
+      <td class="novo">entra</td>
+      <td><code>from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm</code></td>
+    </tr>
+    <tr>
+      <td class="novo">entra</td>
+      <td>no docstring, seção <code>## Layout</code>: a frase que diz que a tabela de cM fica aqui passa
+          a dizer que ela mora em <code>core/cm_estimator.py</code>, citando a <code>OPP-20261003-RGKA</code></td>
+    </tr>
+    <tr>
+      <td>intacto</td>
+      <td>o fluxo <code>dna_analysis</code>, o bloco de reexportação e os 18 nomes de <code>__all__</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. Interfaces e consumidores</h2>
+
+<p>
+  Todos os consumidores passam pela fachada, então <strong>nenhum arquivo fora do pacote precisa mudar</strong>:
+</p>
+
+<table>
+  <thead><tr><th>Consumidor</th><th>Como chega hoje</th><th>Muda?</th></tr></thead>
+  <tbody>
+    <tr><td><code>dna_analysis.dna_analysis</code> (uso interno, linha 106)</td><td>nome local</td><td><span class="selo verde">não</span> o nome continua visível no módulo, via import</td></tr>
+    <tr><td><code>tests/test_dna_analysis.py:32</code></td><td><code>from reconstructed.dna_analysis import get_relationships_by_cm</code></td><td><span class="selo verde">não</span></td></tr>
+    <tr><td><code>_reversa_sdd/parity/harness.py:220</code></td><td><code>D.get_relationships_by_cm</code>, <strong>escrito dentro de uma string</strong> do coletor embutido</td><td><span class="selo verde">não</span> e é exatamente por isso que a reexportação fica: um leitor de AST não vê esta linha</td></tr>
+    <tr><td><code>_reversa_sdd/oracle/run_oracle.py:158</code></td><td>carrega o <strong>oráculo congelado</strong>, não o candidato</td><td><span class="selo verde">não</span> fora do alcance desta mudança</td></tr>
+  </tbody>
+</table>
+
+<p>
+  A fachada continua expondo os mesmos objetos, e não apenas nomes iguais:
+  <code>dna_analysis.SHARED_CM_DATA is core.cm_estimator.SHARED_CM_DATA</code>. Quem mutar a lista
+  pela fachada continua mutando a lista que a função lê.
+</p>
+
+<h2>7. Risco residual, declarado</h2>
+
+<div class="cartao">
+  <p>
+    Há <strong>uma</strong> diferença semântica que a extração introduz, e ela é do mesmo tipo que o
+    projeto já documentou para <code>graph</code>: a lista passa a ser lida de
+    <code>core.cm_estimator</code>.
+  </p>
+  <p>
+    Consequência: quem <strong>reatribuir</strong> <code>dna_analysis.SHARED_CM_DATA = outra_lista</code>
+    deixaria de influenciar <code>get_relationships_by_cm</code>, porque a função lê a global do módulo
+    novo. Antes, por estarem no mesmo arquivo, a reatribuição pegava. Mutar em lugar continua
+    funcionando igual.
+  </p>
+  <p>
+    <strong>Medido, não suposto:</strong> a varredura por <code>SHARED_CM_DATA =</code> em todo o
+    repositório encontra <em>uma</em> ocorrência, a definição. Nenhum teste faz monkeypatch da tabela.
+    O cenário é hipotético hoje, e vai para o registro como o preço conhecido da costura.
+  </p>
+</div>
+
+<h2>8. Rede de segurança, medida em 2026-10-03</h2>
+
+<table>
+  <thead><tr><th>Instrumento</th><th>Antes</th><th>Exigido depois</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte</td><td><strong>118 aprovados, 15 erros de ambiente</strong></td><td>idêntico, sem teste removido, desabilitado ou afrouxado</td></tr>
+    <tr><td>Paridade diferencial</td><td><strong>100 por cento, zero divergência nas 6 fixtures</strong></td><td>100 por cento de novo, com os 40 valores de cM remedidos (as faixas sobrepostas são o que os probes de cM exercitam)</td></tr>
+    <tr><td>Cobertura do alvo</td><td><code>test_dna_analysis</code> fixa 3 casos de cM (2500, 600, 0) e o caso 5000 do literal</td><td>mesmas asserções, sem alteração: elas continuam passando pela fachada</td></tr>
+  </tbody>
+</table>
+
+<h2>9. Critério de pronto</h2>
+
+<ul>
+  <li><code>core/cm_estimator.py</code> existindo com responsabilidade única declarada, e citando a origem real da tabela;</li>
+  <li>nove faixas e a ordem de avaliação idênticas, provadas pela paridade nos 40 valores de cM;</li>
+  <li><code>dna_analysis.py</code> sem a tabela e sem a função, ainda reexportando as duas;</li>
+  <li>nenhum arquivo fora de <code>src/reconstructed/</code> tocado;</li>
+  <li>suíte no mesmo resultado de antes;</li>
+  <li>medição de coesão antes e depois, <code>transformation.md</code>, diffs e evidência gravados.</li>
+</ul>
+
+<footer>
+  Gerado por <code>/reversa-modularize</code> em 2026-10-03. Nenhum arquivo do projeto foi tocado.
+</footer>
+
+</main>
+</body>
+</html>

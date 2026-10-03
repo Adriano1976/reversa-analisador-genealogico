@@ -1,0 +1,46 @@
+==============================================================================
+COESAO DO PACOTE reconstruido (medido por AST)
+==============================================================================
+modulos: 13 | linhas: 1376 | arestas internas: 23
+
+  src/reconstructed/__init__.py                      1 linhas  fan-out interno  0
+  src/reconstructed/csv_ingest.py                   62 linhas  fan-out interno  2
+  src/reconstructed/dna_analysis.py                137 linhas  fan-out interno  7
+  src/reconstructed/domain.py                       84 linhas  fan-out interno  0
+  src/reconstructed/family_navigation.py           106 linhas  fan-out interno  1
+  src/reconstructed/gedcom_parser.py                67 linhas  fan-out interno  1
+  src/reconstructed/gedcom_state.py                 45 linhas  fan-out interno  0
+  src/reconstructed/matching.py                    162 linhas  fan-out interno  2
+  src/reconstructed/mermaid_render.py              289 linhas  fan-out interno  3
+  src/reconstructed/name_normalization.py          121 linhas  fan-out interno  1
+  src/reconstructed/path_finding.py                 85 linhas  fan-out interno  2
+  src/reconstructed/path_search.py                 112 linhas  fan-out interno  4
+  src/reconstructed/validate.py                    105 linhas  fan-out interno  0
+
+------------------------------------------------------------------------------
+QUEM DEFINE O CONHECIMENTO DE cM
+------------------------------------------------------------------------------
+  SHARED_CM_DATA           src/reconstructed/dna_analysis.py
+  get_relationships_by_cm  src/reconstructed/dna_analysis.py
+  dna_analysis             src/reconstructed/dna_analysis.py
+
+------------------------------------------------------------------------------
+DEFINICOES DE TOPO DE src/reconstructed/dna_analysis.py
+------------------------------------------------------------------------------
+  total: 4
+    SHARED_CM_DATA
+    __all__
+    dna_analysis
+    get_relationships_by_cm
+
+------------------------------------------------------------------------------
+FAN-OUT INTERNO DE src/reconstructed/dna_analysis.py
+------------------------------------------------------------------------------
+    reconstructed.csv_ingest
+    reconstructed.domain
+    reconstructed.gedcom_state
+    reconstructed.matching
+    reconstructed.mermaid_render
+    reconstructed.name_normalization
+    reconstructed.path_finding
+==============================================================================

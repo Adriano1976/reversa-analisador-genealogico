@@ -1,0 +1,12 @@
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/dna_analysis.py
+@@ -40,7 +40,8 @@
+     token_prefixes,
+     top_given_tokens,
+ )
+-from .path_search import find_ancestral_path, generate_mermaid_graph
++from .path_finding import find_ancestral_path
++from .mermaid_render import generate_mermaid_graph
+ from .gedcom_state import get_name, people
+ 
+ 

@@ -1,0 +1,11 @@
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/dna_analysis.py
+@@ -41,7 +41,7 @@
+     top_given_tokens,
+ )
+ from .path_search import find_ancestral_path, generate_mermaid_graph
+-from .upload import get_name, people
++from .gedcom_state import get_name, people
+ 
+ 
+ SHARED_CM_DATA = [

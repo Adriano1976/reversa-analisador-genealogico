@@ -1,0 +1,67 @@
+==============================================================================
+PYREFLY: CONTAGEM ANTES E DEPOIS DA OPP-20261003-RGKA
+==============================================================================
+Comando, a partir da raiz do projeto:
+
+    py -3.14 -m pyrefly check
+
+O pyrefly NAO faz parte da rede de seguranca declarada deste registro (a suite e
+a paridade fazem). Esta contagem existe por um motivo especifico: a
+transformacao cria um arquivo novo, e arquivo novo passa a ser analisado pelo
+verificador de tipos.
+
+Saida integral desta rodada: safety-net/pyrefly-depois.txt
+
+------------------------------------------------------------------------------
+1. A LINHA DA COMPARACAO DE FAIXAS
+------------------------------------------------------------------------------
+A linha que compara o cM com os limites da faixa e a MESMA nos dois estados:
+
+    poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+
+Ela produz 4 diagnosticos `unsupported-operation`, porque o pyrefly infere o
+valor dos dicionarios de `SHARED_CM_DATA` como `str | tuple[int, int]` e recusa
+comparar `str` com numero.
+
+    antes  : .../before-after/dna_analysis.antes.py:64:64          ->  4
+    depois : src/reconstructed/core/cm_estimator.py:56:64          ->  4
+
+Mesma linha, mesma quantidade, arquivo diferente. Os 4 diagnosticos se moveram
+junto com o codigo. Nao aumentaram.
+
+------------------------------------------------------------------------------
+2. O DIAGNOSTICO DO str.join
+------------------------------------------------------------------------------
+    antes  : .../before-after/dna_analysis.antes.py:113:47         ->  1  (no-matching-overload)
+    depois : src/reconstructed/dna_analysis.py:98:47               ->  1  (no-matching-overload)
+
+Linha que a transformacao NAO tocou: ela apenas desceu de 113 para 98, porque a
+tabela e a funcao sairam do arquivo.
+
+------------------------------------------------------------------------------
+3. TOTAL DAS DUAS PARTES
+------------------------------------------------------------------------------
+    antes  : 4 + 1 = 5
+    depois : 4 + 1 = 5
+
+Total inalterado.
+
+------------------------------------------------------------------------------
+4. POR QUE A COPIA PRISTINA ACUSA 12 DIAGNOSTICOS E NAO 5
+------------------------------------------------------------------------------
+Os outros 7 sao artefato do lugar onde a copia esta, nao do codigo. A copia vive
+em _reversa_refactor/, fora do pacote, e por isso os imports relativos
+(`from .csv_ingest import ...` e companhia, linhas 30 a 33 e 43 a 45) nao
+resolvem. Ao ler a evidencia, os 7 nao contam.
+
+------------------------------------------------------------------------------
+5. O PYREFLY JA ESTAVA VERMELHO ANTES DESTA TRANSFORMACAO
+------------------------------------------------------------------------------
+Ele acusa tambem `gedcom_parser.py` (2, no trecho que veio de `upload.py` pela
+OPP-20261003-TWNT), `tests/`, o oraculo congelado `app_legacy_e43ca22.py` e
+scripts das pastas do Reversa, incluindo os desta propria transformacao e os
+`_collect_*.py` que o harness gera em tempo de execucao.
+
+Nenhum desses esta nos arquivos tocados por esta transformacao, e nenhum foi
+introduzido por ela. O pyrefly vem de antes, e continua como estava: vermelho.
+==============================================================================

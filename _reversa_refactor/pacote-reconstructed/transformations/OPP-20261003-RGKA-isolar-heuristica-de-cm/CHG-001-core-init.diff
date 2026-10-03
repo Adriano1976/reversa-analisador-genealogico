@@ -1,0 +1,4 @@
+--- /dev/null
++++ b/src/reconstructed/core/__init__.py
+@@ -0,0 +1 @@
++"""Núcleo de decisão do pacote reconstruído."""

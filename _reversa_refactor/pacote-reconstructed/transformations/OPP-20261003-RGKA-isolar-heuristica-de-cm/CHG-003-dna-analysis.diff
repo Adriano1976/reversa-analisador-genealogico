@@ -1,0 +1,56 @@
+--- a/src/reconstructed/dna_analysis.py
++++ b/src/reconstructed/dna_analysis.py
+@@ -11,11 +11,15 @@
+ - Relaxamento de Jaccard (0.5 -> 0.33) para cM>=150 e dado nao-generico.
+ - Regex de ID `[A-Z]{2}\\d{7}`.
+ 
+-## Layout (OPP-20260929-ZV52)
++## Layout (OPP-20260929-ZV52, OPP-20261003-RGKA)
+ 
+ Este modulo passou a orquestrar. As responsabilidades foram separadas em
+-`name_normalization`, `csv_ingest` e `matching`, e aqui ficam a tabela de cM, a
+-traducao de cM em parentesco e o fluxo principal.
++`name_normalization`, `csv_ingest` e `matching`, e aqui ficam o fluxo principal
++e o bloco de reexportacao.
++
++A tabela de faixas de cM e a traducao de cM em parentesco sairam daqui na
++`OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
++arquivo a origem da tabela. As duas continuam reexportadas abaixo.
+ 
+ ## Superficie de compatibilidade
+ 
+@@ -27,6 +31,7 @@
+ """
+ from __future__ import annotations
+ 
++from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+ from .csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+ from .domain import demojibake, strip_bad_utf
+ from .matching import build_ged_indexes, match_candidates
+@@ -43,26 +48,6 @@
+ from .path_finding import find_ancestral_path
+ from .mermaid_render import generate_mermaid_graph
+ from .gedcom_state import get_name, people
+-
+-
+-SHARED_CM_DATA = [
+-    {"range": (3300, 3720), "relationship": "Pai/Mãe ↔ Filho(a)"},
+-    {"range": (2200, 3400), "relationship": "Irmãos completos"},
+-    {"range": (1317, 2312), "relationship": "Avós/Netos, Tios/Tias ↔ Sobrinhos(as), Meios-irmãos"},
+-    {"range": (553, 1330), "relationship": "Primos de 1º grau"},
+-    {"range": (200, 850), "relationship": "Primos de 1º grau (1× removido), Meios-primos, Tios-avós ↔ Sobrinhos-netos"},
+-    {"range": (46, 515), "relationship": "Primos de 2º grau"},
+-    {"range": (30, 350), "relationship": "Primos de 2º grau (1× removido), Primos de 3º grau"},
+-    {"range": (10, 220), "relationship": "Primos de 3º grau (1× removido), Primos de 4º grau"},
+-    {"range": (0, 110), "relationship": "Primos de 4º/5º grau ou mais distantes"},
+-]
+-
+-
+-def get_relationships_by_cm(cm_value):
+-    if not isinstance(cm_value, (int, float)) or cm_value <= 0:
+-        return []
+-    poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+-    return poss if poss else ["Relação distante ou indeterminada"]
+ 
+ 
+ def dna_analysis(csv_path: str, root_name: str):

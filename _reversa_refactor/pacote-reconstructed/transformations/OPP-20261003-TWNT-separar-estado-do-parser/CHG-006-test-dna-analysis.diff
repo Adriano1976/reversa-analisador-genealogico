@@ -1,0 +1,127 @@
+--- a/tests/test_dna_analysis.py
++++ b/tests/test_dna_analysis.py
+@@ -23,7 +23,8 @@
+     DNA_GED,
+ )
+ 
+-from reconstructed import upload
++from reconstructed import gedcom_parser
++from reconstructed import gedcom_state
+ from reconstructed.dna_analysis import (
+     aggregate_matches,
+     detect_columns,
+@@ -38,20 +39,20 @@
+     """Carrega o GEDCOM sintético de DNA uma única vez para toda a suite.
+ 
+     Escreve ``DNA_GED`` em um arquivo temporário, invoca
+-    ``upload.load_gedcom_and_build_graph`` para popular o grafo em memória e
++    ``gedcom_parser.load_gedcom_and_build_graph`` para popular o grafo em memória e
+     remove o arquivo ao final, independentemente de erros.
+ 
+     Yields:
+-        module: O módulo ``upload`` com o grafo já carregado.
++        module: O módulo ``gedcom_state`` com o grafo já carregado.
+     """
+     fd, ged_path = tempfile.mkstemp(suffix=".ged")
+     try:
+         with os.fdopen(fd, "w", encoding="utf-8") as f:
+             f.write(DNA_GED)
+-        upload.load_gedcom_and_build_graph(ged_path)
++        gedcom_parser.load_gedcom_and_build_graph(ged_path)
+     finally:
+         os.remove(ged_path)
+-    return upload
++    return gedcom_state
+ 
+ 
+ # TT-03: encoding — CSV UTF-8 e Latin-1 são lidos.
+@@ -80,7 +81,7 @@
+     e retorna o DataFrame com o nome correto na coluna ``Name``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -99,7 +100,7 @@
+     confirma que os quatro valores retornados mapeiam para os nomes esperados.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     df = pd.DataFrame({"Name": ["A"], "cM": [1], "email": ["x"]})
+     name_col, cm_col, id_col, email_col = detect_columns(df)
+@@ -117,7 +118,7 @@
+     de cM (537).
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     df = pd.read_csv(io.StringIO(DNA_CSV_DUPLICATED))
+     name_col, cm_col, id_col, email_col = detect_columns(df)
+@@ -140,7 +141,7 @@
+     - A lista de relações não está vazia.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -167,7 +168,7 @@
+     - O match vai para ``skipped`` com motivo que contém ``não`` ou ``sem``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -190,7 +191,7 @@
+     contendo ``não foi encontrado``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -212,7 +213,7 @@
+     ``ValueError`` com a mensagem contendo ``não encontradas``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -235,7 +236,7 @@
+     - O indivíduo aparece na lista ``skipped`` com seu nome no campo ``csv_name``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     fd, path = tempfile.mkstemp(suffix=".csv")
+     try:
+@@ -258,7 +259,7 @@
+     - 0 cM    → deve retornar lista vazia (comportamento legado).
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+     assert "Primos" in ", ".join(get_relationships_by_cm(600))
+@@ -273,7 +274,7 @@
+     ``Relação distante ou indeterminada``.
+ 
+     Args:
+-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``upload``.
++        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+     """
+     # 5000 está acima de todas as faixas -> texto padrão do legado.
+     assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]

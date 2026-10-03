@@ -1,0 +1,36 @@
+--- a/_reversa_sdd/parity/harness.py
++++ b/_reversa_sdd/parity/harness.py
+@@ -156,7 +156,8 @@
+ sys.path.insert(0, os.path.join(W, "src"))
+ os.chdir(os.path.join(W, ".parity-run-cand"))
+ 
+-from reconstructed import upload as U
++from reconstructed import gedcom_parser as GP
++from reconstructed import gedcom_state as GS
+ from reconstructed import path_search as P
+ from reconstructed import dna_analysis as D
+ from reconstructed import domain as DM
+@@ -182,15 +183,15 @@
+     except Exception as e:
+         return {"ok": False, "e": type(e).__name__}
+ 
+-names = U.load_gedcom_and_build_graph(GED)
+-obs["person_count"] = len(U.people)
+-obs["family_count"] = len(U.families)
++names = GP.load_gedcom_and_build_graph(GED)
++obs["person_count"] = len(GS.people)
++obs["family_count"] = len(GS.families)
+ obs["names"] = names
+-obs["graph"] = {"nodes": U.graph.number_of_nodes(), "edges": U.graph.number_of_edges()}
+-obs["child_to_family"] = {k: sorted(v) for k, v in sorted(U.child_to_family.items())}
+-
+-ids = sorted(U.people.keys())
+-obs["get_name"] = {i: (U.get_name(U.people[i]) if U.get_name(U.people[i]) is not None else None) for i in ids}
++obs["graph"] = {"nodes": GS.graph.number_of_nodes(), "edges": GS.graph.number_of_edges()}
++obs["child_to_family"] = {k: sorted(v) for k, v in sorted(GS.child_to_family.items())}
++
++ids = sorted(GS.people.keys())
++obs["get_name"] = {i: (GS.get_name(GS.people[i]) if GS.get_name(GS.people[i]) is not None else None) for i in ids}
+ obs["get_parents"] = {i: sorted(P.get_parents(i) or []) for i in ids}
+ obs["get_spouses"] = {i: sorted(P.get_spouses(i) or []) for i in ids}
+ 

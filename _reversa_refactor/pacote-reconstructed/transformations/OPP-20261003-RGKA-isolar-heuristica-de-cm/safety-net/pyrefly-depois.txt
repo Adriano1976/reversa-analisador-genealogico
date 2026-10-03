@@ -1,0 +1,1237 @@
+﻿py :  INFO Checking project configured at 
+`D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`
+No linha:2 caractere:1
++ py -3.14 -m pyrefly check 2>&1 | Out-File "$d\pyrefly-depois.txt" -En ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( INFO Checking ...o\pyrefly.toml`:Str 
+   ing) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ERROR Cannot find module `reconstructed.upload` [missing-import]
+  --> _reversa_bugs\busca-caminho\bugs\BUG-20260929-J6PQ-escape-incompleto-mermaid\evidence\montar_diagrama.py:12:1
+   |
+12 | from reconstructed.upload import load_gedcom_and_build_graph  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_bugs\busca-caminho\bugs\BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes\evidence\probe_escape_sweep.py:47:47
+   |
+47 |         mod = importlib.util.module_from_spec(spec)
+   |                                               ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_bugs\busca-caminho\bugs\BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes\evidence\probe_escape_sweep.py:48:9
+   |
+48 |         spec.loader.exec_module(mod)
+   |         ^^^^^^^^^^^
+ERROR Object of class `ModuleType` has no attribute `people` [missing-attribute]
+  --> _reversa_bugs\busca-caminho\bugs\BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes\evidence\probe_escape_sweep.py:68:5
+   |
+68 |     mod.people = {"@I1@": Person(payload), "@I2@": Person("Alvo")}
+   |     ^^^^^^^^^^
+ERROR Cannot find module `tests.fixtures.sample_gedcom` [missing-import]
+  --> _reversa_forward\003-renomear-pasta-app-para-src\evidence\smoke-src-app.py:38:1
+   |
+38 | from tests.fixtures.sample_gedcom import SAMPLE_GED  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `nomes` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:125:32
+    |
+125 |         "matches_medidos": len(nomes),
+    |                                ^^^^^
+ERROR `metricas` may be uninitialized [unbound-name]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\before-after\profile_matching.py:128:39
+    |
+128 |         "norm_name_por_pessoa": round(metricas["norm_nome_por_pessoa"], 2),
+    |                                       ^^^^^^^^
+ERROR Cannot find module `tests.fixtures.sample_dna` [missing-import]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-AU76-cache-de-atributos\safety-net\equivalence_matching.py:29:1
+   |
+29 | / from tests.fixtures.sample_dna import (  # noqa: E402
+30 | |     DNA_CSV_DUPLICATED, DNA_CSV_NO_INTERSECTION, DNA_CSV_UTF8, DNA_GED,
+31 | | )
+   | |_^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Could not import `upload` from `reconstructed` [missing-module-attribute]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:134:31
+    |
+134 |     from reconstructed import upload as U
+    |                               ^^^^^^^^^^^
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:216:53
+    |
+216 |         print("%8d %14.5f %14.5f %14.5f" % (c["n"], c["t_det"][0], c["t_agg"][0], c["t_fluxo"][0]))
+    |                                                     ^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:216:68
+    |
+216 |         print("%8d %14.5f %14.5f %14.5f" % (c["n"], c["t_det"][0], c["t_agg"][0], c["t_fluxo"][0]))
+    |                                                                    ^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:216:83
+    |
+216 |         print("%8d %14.5f %14.5f %14.5f" % (c["n"], c["t_det"][0], c["t_agg"][0], c["t_fluxo"][0]))
+    |                                                                                   ^^^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             ^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR `/` is not supported between `Series` and `str` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             -------------^^^---------------
+    |             |               |
+    |             |               has type `str`
+    |             has type `Series`
+  No matching overload found for function `pandas.core.series.Series.__truediv__` called with arguments: (str)
+  Possible overloads:
+    (other: ndarray[tuple[Any, ...], dtype[datetime64]]) -> Never [closest match]
+    (other: ScalarArrayIndexSeriesComplex) -> Series
+    (other: ArrayIndexTimedeltaNoSeq) -> Never
+    (other: ndarray[tuple[Any, ...], dtype[timedelta64]]) -> Never
+    (other: ndarray[tuple[Any, ...], dtype[numpy.bool]]) -> Never
+    (other: Index[Never] | Series[Never]) -> Series
+    (other: ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[complexfloating]] | ndarray[tuple[Any, ...], dtype[datetime64]]) -> Never
+    (other: Sequence[_T_contra] | _T_contra) -> Series[S2]
+    (other: Index[builtins.bool] | Series[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]]) -> Series[float]
+    (other: ScalarArrayIndexSeriesIntNoBool) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[complex]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[float]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[T_COMPLEX]
+    (other: ScalarArrayIndexSeriesJustComplex) -> Series[complex]
+    (other: Index[float] | Index[int] | IntegerArray | Just[float] | Just[int] | Sequence[Just[float] | floating] | Sequence[Just[int] | integer] | Series[float] | Series[int] | floating | integer | ndarray[tuple[Any, ...], dtype[floating]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[Timedelta]
+    (other: ArrayIndexSeriesTimedeltaNoSeq) -> Series[float]
+    (other: Path) -> Series
+  Argument `str` is not assignable to parameter `other` with type `ndarray[tuple[Any, ...], dtype[datetime64]]` in function `pandas.core.series.Series.__truediv__`
+ERROR `/` is not supported between `str` and `Series` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             -------------^^^---------------
+    |             |               |
+    |             |               has type `Series`
+    |             has type `str`
+  No matching overload found for function `pandas.core.series.Series.__rtruediv__` called with arguments: (str)
+  Possible overloads:
+    (other: ndarray[tuple[Any, ...], dtype[datetime64]]) -> Never [closest match]
+    (other: ExtensionArray | Index[builtins.bool] | Index[complex] | Index[float] | Index[int] | Sequence[numpy.bool | complex | complexfloating | floating | integer] | Sequence[timedelta | timedelta64] | Series[Timedelta] | Series[builtins.bool] | Series[complex] | Series[float] | Series[int] | TimedeltaArray | TimedeltaIndex | numpy.bool | complex | complexfloating | floating | integer | ndarray[tuple[Any, ...], dtype[numpy.bool | complexfloating | floating | integer]] | ndarray[tuple[Any, ...], dtype[timedelta64]] | timedelta | timedelta64) -> Series
+    (other: Index[Never] | Series[Never]) -> Series
+    (other: Sequence[timedelta | timedelta64]) -> Series
+    (other: Sequence[_T_contra] | _T_contra) -> Series[S2]
+    (other: Index[builtins.bool] | Series[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]]) -> Series[float]
+    (other: ScalarArrayIndexSeriesIntNoBool) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[complex]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[float]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[T_COMPLEX]
+    (other: ScalarArrayIndexSeriesJustComplex) -> Series[complex]
+    (other: ArrayIndexSeriesTimedeltaNoSeq) -> Series[float]
+    (other: ScalarArrayIndexSeriesTimedelta) -> Series[Timedelta]
+    (other: Path) -> Series
+  Argument `str` is not assignable to parameter `other` with type `ndarray[tuple[Any, ...], dtype[datetime64]]` in function `pandas.core.series.Series.__rtruediv__`
+ERROR `/` is not supported between `str` and `str` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             -------------^^^---------------
+    |             |               |
+    |             |               has type `str`
+    |             has type `str`
+  Cannot find `__truediv__` or `__rtruediv__`
+ERROR `/` is not supported between `None` and `Series` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             -------------^^^---------------
+    |             |               |
+    |             |               has type `Series`
+    |             has type `None`
+  No matching overload found for function `pandas.core.series.Series.__rtruediv__` called with arguments: (None)
+  Possible overloads:
+    (other: ndarray[tuple[Any, ...], dtype[datetime64]]) -> Never [closest match]
+    (other: ExtensionArray | Index[builtins.bool] | Index[complex] | Index[float] | Index[int] | Sequence[numpy.bool | complex | complexfloating | floating | integer] | Sequence[timedelta | timedelta64] | Series[Timedelta] | Series[builtins.bool] | Series[complex] | Series[float] | Series[int] | TimedeltaArray | TimedeltaIndex | numpy.bool | complex | complexfloating | floating | integer | ndarray[tuple[Any, ...], dtype[numpy.bool | complexfloating | floating | integer]] | ndarray[tuple[Any, ...], dtype[timedelta64]] | timedelta | timedelta64) -> Series
+    (other: Index[Never] | Series[Never]) -> Series
+    (other: Sequence[timedelta | timedelta64]) -> Series
+    (other: Sequence[_T_contra] | _T_contra) -> Series[S2]
+    (other: Index[builtins.bool] | Series[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]]) -> Series[float]
+    (other: ScalarArrayIndexSeriesIntNoBool) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[float]
+    (other: Index[builtins.bool] | Index[int] | Series[builtins.bool] | Series[int] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | ndarray[tuple[Any, ...], dtype[integer]]) -> Series[complex]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[float]
+    (other: ScalarArrayIndexSeriesJustFloat) -> Series[T_COMPLEX]
+    (other: ScalarArrayIndexSeriesJustComplex) -> Series[complex]
+    (other: ArrayIndexSeriesTimedeltaNoSeq) -> Series[float]
+    (other: ScalarArrayIndexSeriesTimedelta) -> Series[Timedelta]
+    (other: Path) -> Series
+  Argument `None` is not assignable to parameter `other` with type `ndarray[tuple[Any, ...], dtype[datetime64]]` in function `pandas.core.series.Series.__rtruediv__`
+ERROR `/` is not supported between `None` and `str` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:13
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |             -------------^^^---------------
+    |             |               |
+    |             |               has type `str`
+    |             has type `None`
+  Cannot find `__truediv__` or `__rtruediv__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:221:48
+    |
+221 |         r = c["t_agg"][0] / c["t_magro"][0] if c["t_magro"][0] else 0
+    |                                                ^^^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\bench_ingest.py:222:53
+    |
+222 |         print("%8d %16.5f %16.5f %9.2fx" % (c["n"], c["t_agg"][0], c["t_magro"][0], r))
+    |                                                     ^^^^^^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\equivalencia-antes-depois.py:42:43
+   |
+42 |     mod = importlib.util.module_from_spec(spec)
+   |                                           ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\equivalencia-antes-depois.py:45:5
+   |
+45 |     spec.loader.exec_module(mod)
+   |     ^^^^^^^^^^^
+ERROR Object of class `str` has no attribute `get` [missing-attribute]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\equivalencia-antes-depois.py:67:24
+   |
+67 |                 cms = [r.get("cm") for r in a[1]]
+   |                        ^^^^^
+ERROR Could not import `upload` from `reconstructed` [missing-module-attribute]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\equivalencia-antes-depois.py:82:31
+   |
+82 |     from reconstructed import upload as U
+   |                               ^^^^^^^^^^^
+ERROR Cannot find module `sample_dna` [missing-import]
+  --> _reversa_refactor\analise-dna\transformations\OPP-20260929-NUMT-ingestao-vetorizada\before-after\equivalencia-antes-depois.py:93:12
+   |
+93 |     import sample_dna
+   |            ^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `+` is not supported between `None` and `Literal[1]` [unsupported-operation]
+   --> _reversa_refactor\analise-dna\transformations\OPP-20260929-ZV52-separar-por-responsabilidade\before-after\gerar_divisao.py:274:34
+    |
+274 |         usadas.update(range(ini, fim + 1))
+    |                                  ---^^^-
+    |                                  |     |
+    |                                  |     has type `Literal[1]`
+    |                                  has type `None`
+  Argument `None` is not assignable to parameter `value` with type `int` in function `int.__radd__`
+ERROR Could not import `upload` from `reconstructed` [missing-module-attribute]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-H2YY-encurtar-a-ponte\before-after\caracterizar.py:56:31
+   |
+56 |     from reconstructed import upload as U
+   |                               ^^^^^^^^^^^
+ERROR `-` is not supported between `None` and `int` [unsupported-operation]
+   --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-H2YY-encurtar-a-ponte\before-after\construir_e_ensaiar.py:238:33
+    |
+238 |           % (ALVO_FN, ini, fim, fim - ini + 1))
+    |                                 ---^^^---
+    |                                 |     |
+    |                                 |     has type `int`
+    |                                 has type `None`
+  Argument `None` is not assignable to parameter `value` with type `int` in function `int.__rsub__`
+ERROR `-` is not supported between `None` and `int` [unsupported-operation]
+   --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-H2YY-encurtar-a-ponte\before-after\construir_e_ensaiar.py:254:51
+    |
+254 |           % (len(nova.rstrip("\n").splitlines()), fim - ini + 1))
+    |                                                   ---^^^---
+    |                                                   |     |
+    |                                                   |     has type `int`
+    |                                                   has type `None`
+  Argument `None` is not assignable to parameter `value` with type `int` in function `int.__rsub__`
+ERROR Cannot find module `tests.fixtures.sample_gedcom` [missing-import]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:48:1
+   |
+48 | from tests.fixtures.sample_gedcom import SAMPLE_GED  # noqa: E402
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Could not import `upload` from `reconstructed` [missing-module-attribute]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:50:27
+   |
+50 | from reconstructed import upload  # noqa: E402
+   |                           ^^^^^^
+ERROR Object of class `bool` has no attribute `splitlines` [missing-attribute]
+  --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-TPSH-unificar-sid-lab\safety-net\characterize_mermaid.py:94:21
+   |
+94 |             n = len((v["mermaid_data"] or "").splitlines())
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `NoneType` has no attribute `startswith` [missing-attribute]
+   --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-UXEF-separar-busca-do-render\before-after\gerar_divisao.py:286:12
+    |
+286 |     if not final_doc.startswith(original_doc):
+    |            ^^^^^^^^^^^^^^^^^^^^
+ERROR `+` is not supported between `None` and `Literal[1]` [unsupported-operation]
+   --> _reversa_refactor\busca-caminho\transformations\OPP-20260929-UXEF-separar-busca-do-render\before-after\gerar_divisao.py:292:34
+    |
+292 |         usadas.update(range(ini, fim + 1))
+    |                                  ---^^^-
+    |                                  |     |
+    |                                  |     has type `Literal[1]`
+    |                                  has type `None`
+  Argument `None` is not assignable to parameter `value` with type `int` in function `int.__radd__`
+ERROR Cannot find module `csv_ingest` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:30:1
+   |
+30 | from .csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `domain` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:31:1
+   |
+31 | from .domain import demojibake, strip_bad_utf
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `matching` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:32:1
+   |
+32 | from .matching import build_ged_indexes, match_candidates
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `name_normalization` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:33:1
+   |
+33 | / from .name_normalization import (
+34 | |     drop_short_tokens,
+35 | |     norm_name,
+36 | |     soft_prefix_jaccard,
+...  |
+41 | |     top_given_tokens,
+42 | | )
+   | |_^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `path_finding` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:43:1
+   |
+43 | from .path_finding import find_ancestral_path
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `mermaid_render` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:44:1
+   |
+44 | from .mermaid_render import generate_mermaid_graph
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `gedcom_state` [missing-import]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:45:1
+   |
+45 | from .gedcom_state import get_name, people
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `<=` is not supported between `str` and `float` [unsupported-operation]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:64:64
+   |
+64 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `float`
+   |                                                                has type `str`
+  Argument `float` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `str` and `int` [unsupported-operation]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:64:64
+   |
+64 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `int`
+   |                                                                has type `str`
+  Argument `int` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `float` and `str` [unsupported-operation]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:64:64
+   |
+64 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `float`
+  Argument `str` is not assignable to parameter `value` with type `float` in function `float.__le__`
+ERROR `<=` is not supported between `int` and `str` [unsupported-operation]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:64:64
+   |
+64 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `int`
+  Argument `str` is not assignable to parameter `value` with type `int` in function `int.__le__`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\before-after\dna_analysis.antes.py:113:47
+    |
+113 |                     "relationships": ", ".join(probable_relationships),
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR Argument `str` is not assignable to parameter `object` with type `LiteralString` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\medir-coesao.py:118:20
+    |
+118 |         out.append("  %-24s %s" % (nome, ", ".join(onde) if onde else "(nao definido em lugar nenhum)"))
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `str` is not assignable to parameter `object` with type `LiteralString` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\medir-coesao.py:126:16
+    |
+126 |     out.append("  total: %d" % len(topos))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `expr` has no attribute `elts` [missing-attribute]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RGKA-isolar-heuristica-de-cm\verificar-costura.py:50:38
+   |
+50 |             return [e.value for e in no.value.elts]
+   |                                      ^^^^^^^^^^^^^
+ERROR Object of class `int` has no attribute `append` [missing-attribute]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:53:13
+   |
+53 |             atual[2].append(conteudo)
+   |             ^^^^^^^^^^^^^^^
+ERROR Object of class `int` has no attribute `append` [missing-attribute]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:55:13
+   |
+55 |             atual[3].append(conteudo)
+   |             ^^^^^^^^^^^^^^^
+ERROR Object of class `int` has no attribute `append` [missing-attribute]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:57:13
+   |
+57 |             atual[2].append(conteudo)
+   |             ^^^^^^^^^^^^^^^
+ERROR Object of class `int` has no attribute `append` [missing-attribute]
+  --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:58:13
+   |
+58 |             atual[3].append(conteudo)
+   |             ^^^^^^^^^^^^^^^
+ERROR `-` is not supported between `list[Unknown]` and `Literal[1]` [unsupported-operation]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:104:16
+    |
+104 |         alvo = c - 1  # posicao no arquivo ATUAL
+    |                -^^^-
+    |                |   |
+    |                |   has type `Literal[1]`
+    |                has type `list[Unknown]`
+  Argument `list[Unknown]` is not assignable to parameter `value` with type `int` in function `int.__rsub__`
+ERROR Argument `int | list[Unknown]` is not assignable to parameter `obj` with type `Sized` in function `len` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:108:44
+    |
+108 |         janela = atual[cursor:cursor + len(novo)]
+    |                                            ^^^^
+  Protocol `Sized` requires attribute `__len__`
+ERROR Cannot index into `int` [bad-index]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:114:68
+    |
+114 |                 "  esperado : %r\n  encontrado: %r" % (caminho, c, novo[:3], janela[:3])
+    |                                                                    ^^^^^^^^
+  Object of class `int` has no attribute `__getitem__`
+ERROR Argument `int | list[Unknown]` is not assignable to parameter `obj` with type `Sized` in function `len` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:116:23
+    |
+116 |         cursor += len(novo)
+    |                       ^^^^
+  Protocol `Sized` requires attribute `__len__`
+ERROR Argument `int | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[str]` in function `list.extend` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\aplicar-diff.py:117:22
+    |
+117 |         saida.extend(orig)
+    |                      ^^^^
+  Protocol `Iterable` requires attribute `__iter__`
+ERROR Argument `tuple[Literal['003'], Literal['src/reconstructed/upload.py'], str, None]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:329:21
+    |
+329 |     mudancas.append(("003", "src/reconstructed/upload.py", "\n".join(linhas), None))
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `tuple[Literal['004'], str, str, Unknown]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:334:25
+    |
+334 |         mudancas.append(("004", caminho, antes, transformar_interno(antes)))
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `tuple[Literal['005'], Literal['src/app.py'], str, Unknown]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:338:21
+    |
+338 |     mudancas.append(("005", "src/app.py", antes, transformar_app(antes)))
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `tuple[Literal['006'], str, str, str | Unknown]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:346:25
+    |
+346 |         mudancas.append(("006", caminho, antes, depois))
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `tuple[Literal['006'], Literal['tests/test_domain.py'], str, str]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:350:21
+    |
+350 |       mudancas.append(("006", "tests/test_domain.py", antes, antes.replace(
+    |  _____________________^
+351 | |         "consumido por `upload.py` e", "consumido por `gedcom_state.py` e")))
+    | |____________________________________________________________________________^
+ERROR Argument `tuple[Literal['007'], Literal['_reversa_sdd/parity/_check_split_types.py', '_reversa_sdd/parity/_verify_fix_gives_parity.py', '_reversa_sdd/parity/harness.py'], str, Unknown]` is not assignable to parameter `object` with type `tuple[str, str, None, Unknown]` in function `list.append` [bad-argument-type]
+   --> _reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-TWNT-separar-estado-do-parser\preparar-diff.py:360:25
+    |
+360 |         mudancas.append(("007", caminho, antes, fn(antes)))
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:33:43
+   |
+33 |     mod = importlib.util.module_from_spec(spec)
+   |                                           ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_refactor\upload-gedcom\transformations\OPP-20260929-SEQO-podar-residuos\safety-net\smoke_app_routes.py:35:5
+   |
+35 |     spec.loader.exec_module(mod)
+   |     ^^^^^^^^^^^
+ERROR `<=` is not supported between `str` and `float` [unsupported-operation]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:172:64
+    |
+172 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+    |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+    |                                                                |                   |
+    |                                                                |                   has type `float`
+    |                                                                has type `str`
+  Argument `float` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `str` and `int` [unsupported-operation]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:172:64
+    |
+172 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+    |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+    |                                                                |                   |
+    |                                                                |                   has type `int`
+    |                                                                has type `str`
+  Argument `int` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `float` and `str` [unsupported-operation]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:172:64
+    |
+172 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+    |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+    |                                                                                    |           |
+    |                                                                                    |           has type `str`
+    |                                                                                    has type `float`
+  Argument `str` is not assignable to parameter `value` with type `float` in function `float.__le__`
+ERROR `<=` is not supported between `int` and `str` [unsupported-operation]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:172:64
+    |
+172 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+    |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+    |                                                                                    |           |
+    |                                                                                    |           has type `str`
+    |                                                                                    has type `int`
+  Argument `str` is not assignable to parameter `value` with type `int` in function `int.__le__`
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:177:10
+    |
+177 |     with GedcomReader(file_path) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR `couple1_label` may be uninitialized [unbound-name]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:472:39
+    |
+472 |         lines.append(f'{couple1_id}["{couple1_label}"]')
+    |                                       ^^^^^^^^^^^^^
+ERROR Argument `Unknown | None` is not assignable to parameter `raw` with type `str` in function `sid` [bad-argument-type]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:477:72
+    |
+477 |         if left_col_r1: lines.append(f'{sid(left_col_r1[-1])} --> {sid(ca1)}')
+    |                                                                        ^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `Unknown | None` is not assignable to parameter `raw` with type `str` in function `sid` [bad-argument-type]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:478:74
+    |
+478 |         if right_col_r1: lines.append(f'{sid(right_col_r1[-1])} --> {sid(ca1)}')
+    |                                                                          ^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR `couple2_label` may be uninitialized [unbound-name]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:522:43
+    |
+522 |             lines.append(f'{couple2_id}["{couple2_label}"]')
+    |                                           ^^^^^^^^^^^^^
+ERROR Argument `Unknown | None` is not assignable to parameter `raw` with type `str` in function `sid` [bad-argument-type]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:527:76
+    |
+527 |             if left_col_r2: lines.append(f'{sid(left_col_r2[-1])} --> {sid(ca2)}')
+    |                                                                            ^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `Unknown | None` is not assignable to parameter `raw` with type `str` in function `sid` [bad-argument-type]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:528:78
+    |
+528 |             if right_col_r2: lines.append(f'{sid(right_col_r2[-1])} --> {sid(ca2)}')
+    |                                                                              ^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:569:43
+    |
+569 |                 gedcom_path = os.path.join(UPLOAD_FOLDER, gedcom_file.filename)
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR No matching overload found for function `ntpath.join` called with arguments: (Literal['uploads'], str | None) [no-matching-overload]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:589:44
+    |
+589 |                 matches_path = os.path.join(UPLOAD_FOLDER, matches_file.filename)
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (path: LiteralString, /, *paths: LiteralString) -> LiteralString [closest match]
+    (path: StrPath, /, *paths: StrPath) -> str
+    (path: BytesPath, /, *paths: BytesPath) -> bytes
+  Argument `str | None` is not assignable to parameter `*paths` with type `LiteralString` in function `ntpath.join`
+ERROR Cannot index into `Series` [bad-index]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:660:40
+    |
+660 |                     csv_name_raw = str(row[name_col]).strip()
+    |                                        ^^^^^^^^^^^^^
+  No matching overload found for function `pandas.core.series.Series.__getitem__` called with arguments: (str | None)
+  Possible overloads:
+    (idx: IndexingInt) -> Any [closest match]
+    (idx: Index | Series | ndarray[tuple[Any, ...], dtype[integer]] | slice[Any, Any, Any]) -> Series
+    (idx: Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]) -> Any
+    (idx: ((...) -> Unknown) | Index | Sequence[tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]] | SequenceNotStr[Timestamp | float | str] | Series[builtins.bool] | Series | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]) -> Series
+  Argument `str | None` is not assignable to parameter `idx` with type `int | integer | signedinteger[_NBitIntP] | signedinteger[_8Bit] | signedinteger | unsignedinteger` in function `pandas.core.series.Series.__getitem__`
+ERROR Cannot index into `Series` [bad-index]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:664:32
+    |
+664 |                     cm_value = row[cm_col]
+    |                                ^^^^^^^^^^^
+  No matching overload found for function `pandas.core.series.Series.__getitem__` called with arguments: (str | None)
+  Possible overloads:
+    (idx: IndexingInt) -> Any [closest match]
+    (idx: Index | Series | ndarray[tuple[Any, ...], dtype[integer]] | slice[Any, Any, Any]) -> Series
+    (idx: Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]) -> Any
+    (idx: ((...) -> Unknown) | Index | Sequence[tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]] | SequenceNotStr[Timestamp | float | str] | Series[builtins.bool] | Series | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]) -> Series
+  Argument `str | None` is not assignable to parameter `idx` with type `int | integer | signedinteger[_NBitIntP] | signedinteger[_8Bit] | signedinteger | unsignedinteger` in function `pandas.core.series.Series.__getitem__`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> _reversa_sdd\oracle\app_legacy_e43ca22.py:816:59
+    |
+816 | ...                   'relationships': ", ".join(probable_relationships),
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:33:5
+   |
+33 |     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `TextIO` has no attribute `reconfigure` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:34:5
+   |
+34 |     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\oracle\run_oracle.py:81:50
+   |
+81 |         module = importlib.util.module_from_spec(spec)
+   |                                                  ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\oracle\run_oracle.py:83:9
+   |
+83 |         spec.loader.exec_module(module)
+   |         ^^^^^^^^^^^
+ERROR `dict[Unknown, dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | list[dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to upper bound `SupportsDunderGT[Any] | SupportsDunderLT[Any]` of type variable `SupportsRichComparisonT` [bad-specialization]
+  --> _reversa_sdd\parity\_collect_cand.py:24:22
+   |
+24 |         return sorted(jsonable(x) for x in v)
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:38:16
+   |
+38 | obs["names"] = names
+   |                ^^^^^
+  Argument `list[str]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:39:16
+   |
+39 | obs["graph"] = {"nodes": GS.graph.number_of_nodes(), "edges": GS.graph.number_of_edges()}
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, Unknown]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Object of class `NoneType` has no attribute `number_of_nodes` [missing-attribute]
+  --> _reversa_sdd\parity\_collect_cand.py:39:26
+   |
+39 | obs["graph"] = {"nodes": GS.graph.number_of_nodes(), "edges": GS.graph.number_of_edges()}
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Object of class `NoneType` has no attribute `number_of_edges` [missing-attribute]
+  --> _reversa_sdd\parity\_collect_cand.py:39:63
+   |
+39 | obs["graph"] = {"nodes": GS.graph.number_of_nodes(), "edges": GS.graph.number_of_edges()}
+   |                                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:40:26
+   |
+40 | obs["child_to_family"] = {k: sorted(v) for k, v in sorted(GS.child_to_family.items())}
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, list[str]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:43:19
+   |
+43 | obs["get_name"] = {i: (GS.get_name(GS.people[i]) if GS.get_name(GS.people[i]) is not None else None) for i in ids}
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, str | None]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:44:22
+   |
+44 | obs["get_parents"] = {i: sorted(P.get_parents(i) or []) for i in ids}
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, list[Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:45:22
+   |
+45 | obs["get_spouses"] = {i: sorted(P.get_spouses(i) or []) for i in ids}
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, list[Any | Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:47:20
+   |
+47 | obs["norm_name"] = {n: safo(D.norm_name, n) for n in names}
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:58:24
+   |
+58 | obs["strip_bad_utf"] = {n: safo(D.strip_bad_utf, n) for n in names}
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:59:21
+   |
+59 | obs["demojibake"] = {n: safo(D.demojibake, n) for n in names}
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:60:24
+   |
+60 | obs["split_name_pt"] = {n: safo(lambda x: list(D.split_name_pt(x)), n) for n in names}
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:61:23
+   |
+61 | obs["surnames_set"] = {n: safo(lambda x: sorted(D.surnames_set(x)), n) for n in names}
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:62:27
+   |
+62 | obs["top_given_tokens"] = {n: safo(lambda x: D.top_given_tokens(x), n) for n in names}
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:63:25
+   |
+63 | obs["token_prefixes"] = {n: safo(lambda x: sorted(D.token_prefixes(x or [])), n) for n in names}
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:64:28
+   |
+64 | obs["drop_short_tokens"] = {n: safo(lambda x: sorted(D.drop_short_tokens(x or [])), n) for n in names}
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:65:30
+   |
+65 | obs["surname_core_tokens"] = {n: safo(lambda x: D.surname_core_tokens(x), n) for n in names}
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:67:13
+   |
+67 | obs["cm"] = {}
+   |             ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:71:20
+   |
+71 | obs["ancestral"] = {}
+   |                    ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_cand.py:72:19
+   |
+72 | obs["indirect"] = {}
+   |                   ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\parity\_collect_oracle.py:11:37
+   |
+11 | m = importlib.util.module_from_spec(spec); sys.modules["oracle"] = m
+   |                                     ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\parity\_collect_oracle.py:12:1
+   |
+12 | spec.loader.exec_module(m)
+   | ^^^^^^^^^^^
+ERROR `dict[Unknown, dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | list[dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to upper bound `SupportsDunderGT[Any] | SupportsDunderLT[Any]` of type variable `SupportsRichComparisonT` [bad-specialization]
+  --> _reversa_sdd\parity\_collect_oracle.py:30:22
+   |
+30 |         return sorted(jsonable(x) for x in v)
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:46:16
+   |
+46 | obs["graph"] = {"nodes": m.graph.number_of_nodes(), "edges": m.graph.number_of_edges()}
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[str, Unknown]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:47:26
+   |
+47 | obs["child_to_family"] = {k: sorted(v) for k, v in sorted(m.child_to_family.items())}
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, list[Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:50:19
+   |
+50 | obs["get_name"] = {i: safo(m.get_name, m.people[i])["v"] if m.get_name(m.people[i]) is not None else None for i in ids}
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, bool | str | Unknown | None]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:51:22
+   |
+51 | obs["get_parents"] = {i: sorted(m.get_parents(i) or []) for i in ids}
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, list[Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:52:22
+   |
+52 | obs["get_spouses"] = {i: sorted(m.get_spouses(i) or []) for i in ids}
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, list[Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:54:20
+   |
+54 | obs["norm_name"] = {n: safo(m.norm_name, n) for n in names}
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:55:24
+   |
+55 | obs["strip_bad_utf"] = {n: safo(m.strip_bad_utf, n) for n in names}
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:56:21
+   |
+56 | obs["demojibake"] = {n: safo(m.demojibake, n) for n in names}
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:57:24
+   |
+57 | obs["split_name_pt"] = {n: safo(lambda x: list(m.split_name_pt(x)), n) for n in names}
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:58:23
+   |
+58 | obs["surnames_set"] = {n: safo(lambda x: sorted(m.surnames_set(x)), n) for n in names}
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:59:27
+   |
+59 | obs["top_given_tokens"] = {n: safo(lambda x: m.top_given_tokens(x), n) for n in names}
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:60:25
+   |
+60 | obs["token_prefixes"] = {n: safo(lambda x: sorted(m.token_prefixes(x or [])), n) for n in names}
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:61:28
+   |
+61 | obs["drop_short_tokens"] = {n: safo(lambda x: sorted(m.drop_short_tokens(x or [])), n) for n in names}
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:62:30
+   |
+62 | obs["surname_core_tokens"] = {n: safo(lambda x: m.surname_core_tokens(x), n) for n in names}
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `dict[Unknown, dict[str, bool | str] | dict[str, Unknown]]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:64:13
+   |
+64 | obs["cm"] = {}
+   |             ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:68:20
+   |
+68 | obs["ancestral"] = {}
+   |                    ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot set item in `dict[str, int]` [unsupported-operation]
+  --> _reversa_sdd\parity\_collect_oracle.py:69:19
+   |
+69 | obs["indirect"] = {}
+   |                   ^^
+  Argument `dict[@_, @_]` is not assignable to parameter `value` with type `int` in function `dict.__setitem__`
+ERROR Cannot find module `harness` [missing-import]
+  --> _reversa_sdd\parity\_profile_collector_costs.py:24:12
+   |
+24 |     import harness  # noqa
+   |            ^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Argument `bytes | None` is not assignable to parameter `buffer` with type `Buffer` in function `_io.BufferedWriter.write` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:91:18
+   |
+91 |         fh.write(b)
+   |                  ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `bytes | None` is not assignable to parameter `data` with type `Buffer` in function `_hashlib.openssl_sha256` [bad-argument-type]
+  --> _reversa_sdd\parity\_recover_sergipanas.py:92:24
+   |
+92 |     h = hashlib.sha256(b).hexdigest()
+   |                        ^
+  Protocol `Buffer` requires attribute `__buffer__`
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:45:41
+   |
+45 |     m = importlib.util.module_from_spec(spec)
+   |                                         ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> _reversa_sdd\parity\_scr005_find_trio.py:47:5
+   |
+47 |     spec.loader.exec_module(m)
+   |     ^^^^^^^^^^^
+ERROR `dict[Unknown, dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | list[dict[Unknown, dict[Unknown, Unknown] | list[Unknown] | Unknown] | list[dict[Unknown, Unknown] | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to upper bound `SupportsDunderGT[Any] | SupportsDunderLT[Any]` of type variable `SupportsRichComparisonT` [bad-specialization]
+   --> _reversa_sdd\parity\harness.py:281:22
+    |
+281 |         return sorted(_canon(x) for x in v)
+    |                      ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_characterization_matching.py:22:8
+   |
+22 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `tests.fixtures.sample_dna` [missing-import]
+  --> tests\test_characterization_matching.py:27:1
+   |
+27 | / from tests.fixtures.sample_dna import (
+28 | |     DNA_CSV_DUPLICATED,
+29 | |     DNA_CSV_NO_INTERSECTION,
+30 | |     DNA_CSV_UTF8,
+31 | |     DNA_GED,
+32 | | )
+   | |_^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Missing argument `features` in function `reconstructed.matching.match_candidates` [missing-argument]
+  --> tests\test_characterization_matching.py:64:28
+   |
+64 |     return match_candidates(nome, cm, indices[0], indices[1])
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_characterization_mermaid.py:15:8
+   |
+15 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `tests.fixtures.sample_gedcom` [missing-import]
+  --> tests\test_characterization_mermaid.py:20:1
+   |
+20 | from tests.fixtures.sample_gedcom import SAMPLE_GED
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_characterization_mermaid.py:134:23
+    |
+134 |     assert "&amp;" in result["mermaid_data"]
+    |                       ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_dna_analysis.py:13:8
+   |
+13 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `tests.fixtures.sample_dna` [missing-import]
+  --> tests\test_dna_analysis.py:18:1
+   |
+18 | / from tests.fixtures.sample_dna import (
+19 | |     DNA_CSV_DUPLICATED,
+20 | |     DNA_CSV_LATIN1_RAW,
+21 | |     DNA_CSV_NO_INTERSECTION,
+22 | |     DNA_CSV_UTF8,
+23 | |     DNA_GED,
+24 | | )
+   | |_^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> tests\test_dna_analysis.py:264:43
+    |
+264 |     assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+   --> tests\test_dna_analysis.py:265:33
+    |
+265 |     assert "Primos" in ", ".join(get_relationships_by_cm(600))
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_mermaid_escape.py:22:8
+   |
+22 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_mermaid_escape.py:104:15
+    |
+104 |     mermaid = result["mermaid_data"]
+    |               ^^^^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_path_search.py:11:8
+   |
+11 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `tests.fixtures.sample_gedcom` [missing-import]
+  --> tests\test_path_search.py:16:1
+   |
+16 | from tests.fixtures.sample_gedcom import SAMPLE_GED
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:64:30
+   |
+64 |     assert "Carlos Silva" in result["text_path"]
+   |                              ^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:66:12
+   |
+66 |     assert result["mermaid_data"].startswith("flowchart BT")
+   |            ^^^^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+  --> tests\test_path_search.py:74:30
+   |
+74 |     assert "Bia Oliveira" in result["text_path"]
+   |                              ^^^^^^^^^^^^^^^^^^^
+ERROR `None` is not subscriptable [unsupported-operation]
+   --> tests\test_path_search.py:108:12
+    |
+108 |     assert result["text_path"] == "Carlos Silva"
+    |            ^^^^^^^^^^^^^^^^^^^
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_upload.py:16:8
+   |
+16 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot find module `tests.fixtures.sample_gedcom` [missing-import]
+  --> tests\test_upload.py:21:1
+   |
+21 | from tests.fixtures.sample_gedcom import SAMPLE_GED
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:188:10
+    |
+188 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Object of class `NoneType` has no attribute `nodes` [missing-attribute]
+ INFO 170 errors (12 warnings not shown)
+   --> tests\test_upload.py:206:12
+    |
+206 |     assert g.nodes["@I1@"]["type"] == "person"
+    |            ^^^^^^^
+ERROR Object of class `NoneType` has no attribute `nodes` [missing-attribute]
+   --> tests\test_upload.py:207:12
+    |
+207 |     assert g.nodes["@F1@"]["type"] == "family"
+    |            ^^^^^^^
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+   --> tests\test_upload.py:234:10
+    |
+234 |     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR Cannot find module `pytest` [missing-import]
+  --> tests\test_upload_seguranca.py:17:8
+   |
+17 | import pytest
+   |        ^^^^^^
+  Looked in these locations (from config in `D:\Projetos\reversa_analisador_gelealogico\pyrefly.toml`):
+  Search path (from config file): ["D:\\Projetos\\reversa_analisador_gelealogico\\src"]
+  Import root (inferred from project layout): "D:\\Projetos\\reversa_analisador_gelealogico\\src"
+  Site package path queried from interpreter: ["c:\\python314\\DLLs", "c:\\python314", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv", "D:\\Projetos\\reversa_analisador_gelealogico\\.venv\\Lib\\site-packages"]
+ERROR Argument `ModuleSpec | None` is not assignable to parameter `spec` with type `ModuleSpec` in function `_frozen_importlib.module_from_spec` [bad-argument-type]
+  --> tests\test_upload_seguranca.py:37:46
+   |
+37 |     modulo = importlib.util.module_from_spec(spec)
+   |                                              ^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR Object of class `NoneType` has no attribute `loader` [missing-attribute]
+  --> tests\test_upload_seguranca.py:39:5
+   |
+39 |     spec.loader.exec_module(modulo)
+   |     ^^^^^^^^^^^
+ERROR Argument `str | None` is not assignable to parameter `file_path` with type `str` in function `reconstructed.gedcom_parser.load_gedcom_and_build_graph` [bad-argument-type]
+   --> src\app.py:112:57
+    |
+112 |                 all_names = load_gedcom_and_build_graph(caminho_armazenado)
+    |                                                         ^^^^^^^^^^^^^^^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR No matching overload found for function `posixpath.basename` called with arguments: (str | None) [no-matching-overload]
+   --> src\app.py:113:86
+    |
+113 | ...   return render_template("index.html", gedcom_filename=os.path.basename(caminho_armazenado), all_names=all_names, message=f"Arq...
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (p: PathLike[AnyStr]) -> AnyStr [closest match]
+    (p: AnyOrLiteralStr) -> AnyOrLiteralStr
+  Argument `str | None` is not assignable to parameter `p` with type `PathLike[@_]` in function `posixpath.basename`
+ERROR Argument `str | None` is not assignable to parameter `csv_path` with type `str` in function `reconstructed.dna_analysis.dna_analysis` [bad-argument-type]
+   --> src\app.py:134:83
+    |
+134 |                 results_list_sorted, skipped_matches, message = dna_analysis_flow(matches_path, root_name)
+    |                                                                                   ^^^^^^^^^^^^
+  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.
+ERROR `<=` is not supported between `str` and `float` [unsupported-operation]
+  --> src\reconstructed\core\cm_estimator.py:56:64
+   |
+56 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `float`
+   |                                                                has type `str`
+  Argument `float` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `str` and `int` [unsupported-operation]
+  --> src\reconstructed\core\cm_estimator.py:56:64
+   |
+56 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ----------------^^^^--------^^^^^^^^^^^^^^^^^^^^
+   |                                                                |                   |
+   |                                                                |                   has type `int`
+   |                                                                has type `str`
+  Argument `int` is not assignable to parameter `value` with type `str` in function `str.__le__`
+ERROR `<=` is not supported between `float` and `str` [unsupported-operation]
+  --> src\reconstructed\core\cm_estimator.py:56:64
+   |
+56 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `float`
+  Argument `str` is not assignable to parameter `value` with type `float` in function `float.__le__`
+ERROR `<=` is not supported between `int` and `str` [unsupported-operation]
+  --> src\reconstructed\core\cm_estimator.py:56:64
+   |
+56 |     poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+   |                                                                ^^^^^^^^^^^^^^^^^^^^--------^^^^----------------
+   |                                                                                    |           |
+   |                                                                                    |           has type `str`
+   |                                                                                    has type `int`
+  Argument `str` is not assignable to parameter `value` with type `int` in function `int.__le__`
+ERROR No matching overload found for function `str.join` called with arguments: (list[str | tuple[int, int]] | list[str] | list[Unknown]) [no-matching-overload]
+  --> src\reconstructed\dna_analysis.py:98:47
+   |
+98 |                     "relationships": ", ".join(probable_relationships),
+   |                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+  Possible overloads:
+    (iterable: Iterable[LiteralString], /) -> LiteralString [closest match]
+    (iterable: Iterable[str], /) -> str
+  Argument `list[str | tuple[int, int]] | list[str] | list[Unknown]` is not assignable to parameter `iterable` with type `Iterable[LiteralString]` in function `str.join`
+ERROR Cannot use `GedcomReader` as a context manager [bad-context-manager]
+  --> src\reconstructed\gedcom_parser.py:55:10
+   |
+55 |     with GedcomReader(file_path) as parser:
+   |          ^^^^^^^^^^^^^^^^^^^^^^^
+  Argument `None` is not assignable to parameter `exc_type` with type `type[Any]` in function `ged4py.parser.GedcomReader.__exit__`
+ERROR `Graph[Unknown, dict[Unknown, Any], dict[Unknown, Any]]` is not assignable to attribute `graph` with type `None` [bad-assignment]
+  --> src\reconstructed\gedcom_parser.py:64:30
+   |
+64 |         gedcom_state.graph = new_graph
+   |                              ^^^^^^^^^

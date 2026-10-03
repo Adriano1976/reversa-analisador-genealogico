@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Plano de desacoplamento · OPP-20261003-DWJC</title>
+<style>
+  :root { --tinta:#1c1f23; --suave:#5b6570; --linha:#d8dee6; --fundo:#f7f9fb; --ok:#1f7a4d; --atencao:#9a6400; --risco:#a8261f; --realce:#eaf2fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:60rem; margin:0 auto; }
+  h1 { font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.01em; }
+  h2 { font-size:1.15rem; margin:2.25rem 0 .75rem; padding-bottom:.35rem; border-bottom:1px solid var(--linha); }
+  p,li { color:var(--tinta); }
+  .sub { color:var(--suave); font-size:.9rem; margin:0 0 1.5rem; }
+  code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em; background:#eef2f7; padding:.1rem .3rem; border-radius:3px; }
+  pre { background:#0f1720; color:#e6edf3; padding:.9rem 1rem; border-radius:6px; overflow-x:auto; font-size:.83rem; }
+  table { width:100%; border-collapse:collapse; margin:.75rem 0 1.25rem; background:#fff; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .7rem; border:1px solid var(--linha); vertical-align:top; }
+  th { background:#eef2f7; font-weight:600; }
+  .cartao { background:#fff; border:1px solid var(--linha); border-radius:8px; padding:1rem 1.15rem; margin:1rem 0; }
+  .selo { display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; text-transform:uppercase; letter-spacing:.03em; }
+  .verde { background:#e3f4ea; color:var(--ok); }
+  .amarelo { background:#fdf1d8; color:var(--atencao); }
+  .vermelho { background:#fbe6e4; color:var(--risco); }
+  .realce { background:var(--realce); }
+  .num { font-variant-numeric:tabular-nums; font-weight:600; }
+  footer { margin-top:3rem; color:var(--suave); font-size:.85rem; border-top:1px solid var(--linha); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Plano de desacoplamento</h1>
+<p class="sub">
+  Oportunidade <code>OPP-20261003-DWJC</code> · contexto <code>pacote-reconstructed</code> ·
+  verbo <strong>decouple</strong> · <span class="selo verde">confiança green</span> ·
+  modo <strong>gated</strong> · rede <strong>require-characterization</strong>
+</p>
+
+<div class="cartao realce">
+  <strong>Aprovação do plano e do diff estão comprimidas nesta apresentação.</strong> A mudança é
+  <strong>uma linha</strong>, e mostrar o plano e o diff em separado seria cerimônia sem ganho de controle.
+  Nenhum arquivo foi tocado: a escrita até aqui alcançou apenas <code>_reversa_refactor/</code>.
+</div>
+
+<h2>1. O acoplamento excessivo</h2>
+
+<p>
+  <code>dna_analysis.py</code> importa dois nomes <strong>da fachada</strong> <code>path_search.py</code>:
+</p>
+
+<pre>from .path_search import find_ancestral_path, generate_mermaid_graph</pre>
+
+<p>
+  A fachada existe para consumidores <strong>externos</strong>: ela reexporta o que era definido nela antes das
+  separações por responsabilidade. Mas os dois nomes que o <code>dna_analysis</code> consome
+  <strong>não são dela</strong>:
+</p>
+
+<table>
+  <thead><tr><th>Nome</th><th>Onde é realmente definido</th><th>A fachada só reexporta</th></tr></thead>
+  <tbody>
+    <tr><td><code>find_ancestral_path</code></td><td><code>path_finding.py:51</code></td><td>sim</td></tr>
+    <tr><td><code>generate_mermaid_graph</code></td><td><code>mermaid_render.py:63</code></td><td>sim</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Ou seja: um módulo do núcleo atravessa uma camada que existe para compatibilidade externa
+  para chegar a outros dois módulos do núcleo. Consequência concreta: se alguém enxugar a lista de
+  reexportação da fachada, quem quebra é o <code>dna_analysis</code>, com um erro de importação que
+  aponta para o lugar errado.
+</p>
+
+<h2>2. A costura proposta</h2>
+
+<table>
+  <thead><tr><th></th><th>Import</th></tr></thead>
+  <tbody>
+    <tr><td>Antes</td><td><code>from .path_search import find_ancestral_path, generate_mermaid_graph</code></td></tr>
+    <tr><td>Depois</td><td><code>from .path_finding import find_ancestral_path</code><br><code>from .mermaid_render import generate_mermaid_graph</code></td></tr>
+  </tbody>
+</table>
+
+<p>A fachada fica intacta, com a mesma lista de reexportação e os mesmos consumidores externos.</p>
+
+<h2>3. Acoplamento medido antes e depois</h2>
+
+<p>Medido por leitura de AST, não estimado. Todos os números são contagens de dependências internas ao pacote.</p>
+
+<table>
+  <thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th><th>Leitura</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Consumidores internos de <code>path_search</code></td>
+      <td class="num">1</td><td class="num">0</td>
+      <td><span class="selo verde">melhora</span> é o objetivo da oportunidade: a fachada passa a existir só para fora</td>
+    </tr>
+    <tr>
+      <td>Fan-out interno de <code>dna_analysis</code></td>
+      <td class="num">6</td><td class="num">7</td>
+      <td><span class="selo amarelo">piora</span> passa a nomear os dois provedores reais em vez de um intermediário</td>
+    </tr>
+    <tr>
+      <td>Arestas internas do pacote</td>
+      <td class="num">22</td><td class="num">23</td>
+      <td><span class="selo amarelo">piora</span> uma aresta a mais, e é honesto dizer isso</td>
+    </tr>
+    <tr>
+      <td>Superfície externa de <code>path_search</code></td>
+      <td class="num">5 arquivos</td><td class="num">5 arquivos</td>
+      <td><span class="selo verde">inalterada</span> aplicação, 3 testes e o harness</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="cartao">
+  <p><strong>O número não melhora em todas as dimensões, e o plano não esconde isso.</strong>
+  Esta transformação <em>aumenta</em> o total de arestas internas em uma unidade. O que ela entrega é
+  estrutural: remove a última dependência <em>interna</em> de um módulo que existe apenas para
+  compatibilidade externa, o que <strong>destrava a reorganização em subpacotes</strong>
+  (<code>OPP-20261003-GUE7</code>) e a aposentadoria futura da fachada.</p>
+  <p>Se o critério for redução estrita de acoplamento medida em arestas, a decisão correta é
+  <strong>não fazer</strong> esta transformação. Se o critério for destravar a reorganização, ela custa uma linha.</p>
+</div>
+
+<h2>4. O que a alma exige preservar</h2>
+
+<table>
+  <thead><tr><th>Fonte</th><th>O que diz</th><th>Situação</th></tr></thead>
+  <tbody>
+    <tr><td><code>.reversa/soul.md#decisoes-fundadoras</code> (5)</td><td>conexão direta primeiro, afinidade como alternativa</td><td><span class="selo verde">preservado</span> a origem do import muda, a ordem dos estágios não</td></tr>
+    <tr><td><code>.reversa/soul.md#entidades-centrais</code></td><td>o grafo é a estrutura sobre a qual rodam a busca e o menor caminho</td><td><span class="selo verde">preservado</span> nenhum grafo é tocado</td></tr>
+    <tr><td>princípio II</td><td>refatoração não muda comportamento observável</td><td><span class="selo verde">preservado</span> os dois nomes são os mesmos objetos, vindos do mesmo lugar</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Rede de segurança</h2>
+
+<table>
+  <thead><tr><th>Instrumento</th><th>Estado medido em 2026-10-03</th></tr></thead>
+  <tbody>
+    <tr><td>Suíte</td><td><strong>118 aprovados e 15 erros de ambiente</strong>. Os caminhos direto e indireto de <code>dna_analysis</code> são exercitados por <code>test_dna_analysis</code> e pela caracterização de matching</td></tr>
+    <tr><td>Paridade diferencial</td><td><strong>100 por cento</strong> nas 6 fixtures</td></tr>
+    <tr><td>Consistência dos diffs</td><td>mecanismo já provado na transformação anterior, 20 de 20</td></tr>
+  </tbody>
+</table>
+
+<h2>6. Critério de pronto</h2>
+
+<ul>
+  <li><code>path_search</code> sem nenhum consumidor interno, comprovado pela medição;</li>
+  <li><code>dna_analysis</code> importando os dois nomes dos módulos que os definem;</li>
+  <li>suíte com o mesmo resultado de antes, sem teste removido ou desabilitado;</li>
+  <li>paridade remedida em 100 por cento;</li>
+  <li><code>transformation.md</code>, diff e evidência gravados, com o acoplamento antes e depois.</li>
+</ul>
+
+<footer>
+  Gerado por <code>/reversa-decouple</code> em 2026-10-03. Nenhum arquivo do projeto foi tocado.
+</footer>
+
+</main>
+</body>
+</html>
