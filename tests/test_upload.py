@@ -1,8 +1,12 @@
-"""Testes da Tarefa 02 — Upload e Parsing de GEDCOM.
+"""Testes da Tarefa 02 — Parsing de GEDCOM e construção do grafo.
 
 Cobre ref_id, get_name, build_graph_from_parser e
 load_gedcom_and_build_graph, incluindo o comportamento do estado global
 em memória e o índice filho->família. Usa o GEDCOM sintético de testes.
+
+Removido em 2026-10-02: o teste de `ensure_dirs()`, junto com a função e a
+constante `UPLOAD_FOLDER` que ele exercitava. Eram resíduo do legado, sem
+consumidor de produção — o `app.py` resolve a pasta por `_pasta_uploads()`.
 """
 import os
 import sys
@@ -116,17 +120,6 @@ def test_get_name_indian_without_name_tag_returns_empty_string():
         assert get_name(upload.people["@I1@"]) == ""
     finally:
         os.remove(path)
-
-
-# ---------------------------------------------------------------------------
-# ensure_dirs
-# ---------------------------------------------------------------------------
-
-def test_ensure_dirs_creates_uploads(monkeypatch, tmp_path):
-    target = str(tmp_path / "upl")
-    monkeypatch.setattr(upload, "UPLOAD_FOLDER", target)
-    upload.ensure_dirs()
-    assert os.path.isdir(target)
 
 
 # ---------------------------------------------------------------------------

@@ -1,13 +1,32 @@
-"""Tarefa 02 — Upload e Parsing de GEDCOM.
+"""Tarefa 02 — Parsing de GEDCOM e construção do grafo.
 
-Salva o .ged em uploads/, faz o parsing de registros INDI/FAM via ged4py,
-constrói o grafo bidirecional pessoa<->família (networkx) e retorna a lista
-ordenada de nomes. Comportamento idêntico ao legado (inclui as limitações
-documentadas: sem validação de extensão/tamanho, colisão sobrescreve).
+O nome do módulo veio do legado, mas aqui **não há upload**: quem recebe o
+arquivo HTTP, valida e grava é o `app.py`, com as decisões concentradas em
+`validate.py`. Este módulo abre o arquivo já gravado com `ged4py`, converte os
+registros INDI/FAM no grafo bidirecional pessoa<->família (networkx) e devolve
+a lista ordenada de nomes.
+
+## Contrato de estado
+
+`people`, `families`, `graph` e `child_to_family` são estado global do processo
+(singleton, não persistente). `load_gedcom_and_build_graph` muta `people`,
+`families` e `child_to_family` **in place** (`clear()` + `update()`) para que o
+binding importado no topo pelos outros módulos continue apontando para o objeto
+vivo. `graph` é a exceção: é reatribuído, e por isso quem o consome o importa
+dentro da função (ver `path_finding.py`).
+
+O parsing abaixo é fiel ao oráculo, inclusive no que ele não trata — ver o
+aviso de `get_name` sobre formato vazio.
+
+## Removido em 2026-10-02
+
+`UPLOAD_FOLDER` e `ensure_dirs()`. Eram resíduo do legado, resolviam a pasta de
+upload por caminho relativo ao diretório corrente e não tinham consumidor de
+produção: o `app.py` resolve a mesma pasta por `_pasta_uploads()`, ancorada em
+`__file__`, que é exatamente a correção do BUG-20260929-QMLY. Manter as duas
+versões ensinava o padrão que aquele bug fix eliminou.
 """
 from __future__ import annotations
-
-import os
 
 import networkx as nx
 from ged4py.parser import GedcomReader
@@ -17,12 +36,6 @@ people = {}
 families = {}
 graph = None
 child_to_family: dict[str, list[str]] = {}
-
-UPLOAD_FOLDER = "uploads"
-
-
-def ensure_dirs() -> None:
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 def ref_id(val):
