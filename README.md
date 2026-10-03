@@ -64,17 +64,22 @@ flowchart LR
 ```text
 src/                            # raiz de código da aplicação
 ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
-├── reconstructed/              # Pacote com a lógica reconstruída e modularizada
-│   ├── domain.py               # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
-│   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
-│   ├── upload.py               # Upload e parsing de GEDCOM, construção do grafo networkx
-│   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
-│   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
-│   ├── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
-│   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
-│   ├── csv_ingest.py           # Leitura do CSV de matches e agregação de cM por segmento
+├── parsers/                    # Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches
+│   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
+│   └── csv_ingest.py           # Leitura do CSV de matches e agregação de cM por segmento
+├── core/                       # Decisão sobre o que foi lido, sem saber de HTTP
+│   ├── cm_estimator.py         # Tradução de cM em relações prováveis (faixas heurísticas)
 │   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
-│   ├── dna_analysis.py         # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
+│   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
+│   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
+│   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
+│   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
+│   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
+│   └── dna_analysis.py         # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
+├── reporting/                  # Transformação de resultado em apresentação
+│   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
+├── utils/                      # Ferramentas utilitárias, sem papel no núcleo
+│   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e GEDCOM
 ├── templates/
 │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
@@ -127,15 +132,15 @@ tests/
 
 ## Fluxo de Desenvolvimento
 
-O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para o pacote `reconstructed/`, e o `app.py` passou a apenas orquestrar as rotas Flask (166 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY).
+O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (166 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY).
 - **CI/CD:** Não há pipeline de build ou de testes automatizado. O único workflow é o `.github/workflows/deploy-pages.yml`, que publica o mini-site de `_reversa_docs/` no GitHub Pages e dispara em pushes para a branch `main` (a branch principal do repositório é `master`). Não há Dockerfile nem `docker-compose.yml`.
 - **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
 
 ## Padrões de Código
 
-- A lógica de negócio está modularizada no pacote `reconstructed/`, separada da camada web (`app.py`).
+- A lógica de negócio está modularizada em `src/`, nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, separada da camada web (`app.py`).
 - O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
-- As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `domain.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
+- As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `text_cleaning.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
 - Busca de caminhos em `path_finding.py`: direto por MRCA (teto de 20 iterações de profundidade) e indireto por afinidade (até 40 saltos). A emissão do diagrama e o contrato de escape do rótulo ficam em `mermaid_render.py`, e `path_search.py` é a fachada consumida pelo `app.py`.
 - Cruzamento GEDCOM × CSV, fuzzy matching e previsão de parentesco por faixas de cM em `dna_analysis.py` (fachada), com a leitura do CSV em `csv_ingest.py`, a decisão de aceitação de candidatos em `matching.py` e a normalização de nomes em `name_normalization.py`.
 - Validação do upload (teto de requisição, chave de armazenamento derivada do conteúdo e recusa de GEDCOM inválido) em `validate.py`.

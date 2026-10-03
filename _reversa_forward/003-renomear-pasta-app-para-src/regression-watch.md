@@ -9,11 +9,14 @@
 
 | ID | Origem (arquivo, seção) | Regra esperada após mudança | Tipo de verificação | Sinal de violação |
 |----|--------------------------|------------------------------|---------------------|-------------------|
-| W001 | `_reversa_sdd/inventory.md#2`, `#4` | A raiz de código se chama `src/` e o pacote do núcleo continua sendo importado pelo mesmo nome, `reconstructed.*` | presença | Reaparecimento de um diretório com o nome antigo contendo código, ou mudança do nome do pacote do núcleo |
+| W001 | `_reversa_sdd/inventory.md#2`, `#4` | A raiz de código se chama `src/` e o núcleo é importado direto dela, como os pacotes de primeiro nível `parsers.*`, `core.*`, `reporting.*` e `utils.*`, sem nível de pacote intermediário | presença | Reaparecimento de um diretório com o nome antigo contendo código, reaparecimento do nível `reconstructed`, ou mudança dos nomes dos pacotes do núcleo |
 | W002 | `_reversa_sdd/dependencies.md#1` | O arquivo de dependências está na raiz do repositório | presença | Arquivo de dependências dentro de `src/`, ou ausente da raiz |
 | W003 | `_reversa_sdd/architecture.md#3.3`, `addenda/bug-BUG-20260929-QMLY-v001.md#2` | A pasta de upload é `src/uploads/` e é resolvida a partir do arquivo do aplicativo, nunca do diretório corrente | presença | Resolução por caminho relativo ao diretório corrente; divergência entre o caminho de escrita e o de leitura |
 | W004 | `_reversa_sdd/inventory.md#2` | O README herdado do módulo, o arquivo de ignore do módulo e o diretório vazio de artefatos estáticos **não existem** | ausência | Reaparecimento de `src/README.md`, `src/.gitignore.txt` ou `src/static/` |
 | W005 | `.reversa/principles.md#II`; `_reversa_sdd/parity/` | A paridade de comportamento com o oráculo congelado permanece em 100%, e a suíte mantém o mesmo conjunto de testes | presença | Divergência nova no comparador; teste removido, desabilitado ou com resultado diferente |
+
+
+> **Atualização 2026-10-03, `OPP-20261003-FLAT`.** O `W001` vigiava `reconstructed.*`. A transformação `FLAT` apagou esse nível de pacote, e o núcleo passou a ser importado direto de `src/` como `core.*`, `parsers.*`, `reporting.*` e `utils.*`. A condição foi reescrita para a nova identidade. A avaliação está em `_reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/transformation.md`, e nenhuma regra de negócio mudou: a suíte e a paridade foram remedidas. A observação `O5` perde o objeto, porque o `__init__.py` que ela cita deixou de existir.
 
 ## Observações
 
