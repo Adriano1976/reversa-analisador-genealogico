@@ -9,6 +9,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from core.dna_analysis import dna_analysis as dna_analysis_flow
 from core.path_search import path_search as path_search_flow
 from parsers.gedcom_parser import load_gedcom_and_build_graph
+from utils.number_format import formatar_cm
 from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
@@ -24,6 +25,10 @@ app.secret_key = 'f@milyse@rch_dna_edition_v16'
 # inteiro ser gravado em disco antes de qualquer verificacao de negocio
 # (BUG-20260929-QMLY). Acima do teto o Flask aborta com 413 antes de ler o corpo.
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+
+# Formato dos numeros que o operador le (BUG-20261004-EWSJ). O template pede o
+# filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
+app.add_template_filter(formatar_cm, "cm_br")
 
 UPLOAD_FOLDER = "uploads"
 

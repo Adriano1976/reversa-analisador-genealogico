@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grafo de Bugs · analise-dna</title>
+<style>
+  :root{
+    --fundo:#0b1220; --cartao:#151f33; --borda:#2a3a55; --texto:#e6edf7;
+    --fraco:#93a4c0; --ok:#34d399; --aberto:#f87171; --medio:#fbbf24; --azul:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--fundo);color:var(--texto);line-height:1.55;
+       font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px}
+  .meta{color:var(--fraco);font-size:13px;margin:0 0 20px}
+  .meta code,code{color:var(--texto);background:#0f1a2e;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .cartoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:12px 18px;min-width:132px}
+  .cartao b{display:block;font-size:26px;line-height:1.2}
+  .cartao span{color:var(--fraco);font-size:12px}
+  section{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:18px;margin-bottom:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--borda);vertical-align:top}
+  th{color:var(--fraco);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .ok{color:var(--ok)} .aberto{color:var(--aberto)} .medio{color:var(--medio)}
+  .legenda{color:var(--fraco);font-size:13px;margin:14px 0 0}
+  .vazio{color:var(--fraco);font-size:13px;margin:0}
+  svg{width:100%;height:auto;display:block}
+  text{font-family:"Segoe UI",system-ui,sans-serif}
+</style>
+</head>
+<body>
+
+<h1>Grafo de Bugs · analise-dna</h1>
+<p class="meta">
+  Gerado por /reversa-debugger-graph em 2026-10-04T13:48:48-03:00 ·
+  1 bug neste contexto · 0 inconsistências ·
+  legenda: <b>arestas tracejadas = relação <code>proposed</code> (hipótese)</b>
+</p>
+
+<div class="cartoes">
+  <div class="cartao"><b>1</b><span>bugs no contexto</span></div>
+  <div class="cartao"><b class="ok">1</b><span>resolved · fixed</span></div>
+  <div class="cartao"><b>0</b><span>abertos / ativos</span></div>
+  <div class="cartao"><b>1</b><span>adendos de spec de bug</span></div>
+  <div class="cartao"><b class="ok">0</b><span>inconsistências</span></div>
+</div>
+
+<section>
+  <h2>Relações</h2>
+  <svg viewBox="0 0 880 230" role="img"
+       aria-label="Grafo de relações: o bug 5 aponta para o bug 4 do contexto busca-caminho">
+    <defs>
+      <marker id="seta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+        <path d="M0,0 L10,4 L0,8 z" fill="#93a4c0"></path>
+      </marker>
+    </defs>
+
+    <a href="../bugs/BUG-20261004-EWSJ-badge-de-cm-com-ruido-de-ponto-flutuante/bug.md">
+      <rect x="16" y="56" width="340" height="108" rx="10"
+            fill="#1b2740" stroke="#2a3a55" stroke-width="1.6"></rect>
+      <text x="34" y="84" fill="#e6edf7" font-size="15" font-weight="600">#5 · EWSJ</text>
+      <text x="34" y="108" fill="#e6edf7" font-size="12.5">Badge de cM exibe o valor com ruído</text>
+      <text x="34" y="125" fill="#e6edf7" font-size="12.5">de ponto flutuante</text>
+      <text x="34" y="148" fill="#34d399" font-size="12">resolved · fixed · low</text>
+    </a>
+
+    <line x1="360" y1="110" x2="518" y2="110" stroke="#93a4c0" stroke-width="1.6"
+          stroke-dasharray="6 5" marker-end="url(#seta)"></line>
+    <text x="372" y="100" fill="#93a4c0" font-size="11">related-to (proposed)</text>
+
+    <a href="../../busca-caminho/bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">
+      <rect x="524" y="56" width="340" height="108" rx="10"
+            fill="#1b2740" stroke="#2a3a55" stroke-width="1.6"></rect>
+      <text x="542" y="84" fill="#e6edf7" font-size="15" font-weight="600">#4 · T4ZM · busca-caminho</text>
+      <text x="542" y="108" fill="#e6edf7" font-size="12.5">Rotulo Mermaid descarta 14 caracteres</text>
+      <text x="542" y="125" fill="#e6edf7" font-size="12.5">inertes que o legado preservava</text>
+      <text x="542" y="148" fill="#34d399" font-size="12">resolved · fixed · low</text>
+    </a>
+  </svg>
+
+  <p class="legenda">
+    O nó central deste contexto é o
+    <a href="../bugs/BUG-20261004-EWSJ-badge-de-cm-com-ruido-de-ponto-flutuante/bug.md">#5 EWSJ</a>,
+    o único bug da área de análise de DNA, agora <b>encerrado</b>. Ele tem <b>uma</b> aresta, e ela
+    <b>atravessa contexto</b>: aponta para o #4 T4ZM, do contexto <code>busca-caminho</code>.
+    <b>Não há nenhuma relação confirmada neste contexto.</b> A única aresta é <code>related-to</code>
+    em estado <code>proposed</code>, hipótese de trabalho que a investigação não promoveu, porque não
+    achou nexo causal entre os dois defeitos. O que aproxima os dois é a intenção de contrato de não
+    deixar o dado do usuário degradar a apresentação.
+  </p>
+</section>
+
+<section>
+  <h2>Bugs abertos / ativos</h2>
+  <p class="vazio">Nenhum. O contexto <code>analise-dna</code> não tem bug aberto.</p>
+</section>
+
+<section>
+  <h2>Concluídos (travados)</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>ID</th><th>Título</th><th>Fecha em</th><th>resolution_kind</th><th>Veredito</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>5</td>
+        <td><a href="../bugs/BUG-20261004-EWSJ-badge-de-cm-com-ruido-de-ponto-flutuante/bug.md">BUG-20261004-EWSJ</a></td>
+        <td>Badge de cM exibe o valor com ruído de ponto flutuante</td>
+        <td>2026-10-04</td>
+        <td class="ok">fixed</td>
+        <td><code>spec-gap</code>, com adendo <a href="../../../_reversa_sdd/addenda/bug-BUG-20261004-EWSJ-v001.md">v001</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="vazio">
+    Este é o registro central de conclusão, derivado da trava <code>DONE.md</code>, nunca editado à
+    mão. A pasta do bug é somente leitura a partir de agora.
+  </p>
+</section>
+
+</body>
+</html>

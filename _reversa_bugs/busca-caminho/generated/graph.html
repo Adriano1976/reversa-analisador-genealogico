@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grafo de Bugs · busca-caminho</title>
+<style>
+  :root{
+    --fundo:#0b1220; --cartao:#151f33; --borda:#2a3a55; --texto:#e6edf7;
+    --fraco:#93a4c0; --ok:#34d399; --aberto:#f87171; --medio:#fbbf24; --azul:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--fundo);color:var(--texto);line-height:1.55;
+       font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px}
+  .meta{color:var(--fraco);font-size:13px;margin:0 0 20px}
+  .meta code,code{color:var(--texto);background:#0f1a2e;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .cartoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:12px 18px;min-width:132px}
+  .cartao b{display:block;font-size:26px;line-height:1.2}
+  .cartao span{color:var(--fraco);font-size:12px}
+  section{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:18px;margin-bottom:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--borda);vertical-align:top}
+  th{color:var(--fraco);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .ok{color:var(--ok)} .aberto{color:var(--aberto)} .medio{color:var(--medio)} .fraco{color:var(--fraco)}
+  .legenda{color:var(--fraco);font-size:13px;margin:14px 0 0}
+  .vazio{color:var(--fraco);font-size:13px;margin:0}
+  svg{width:100%;height:auto;display:block}
+  text{font-family:"Segoe UI",system-ui,sans-serif}
+</style>
+</head>
+<body>
+
+<h1>Grafo de Bugs · busca-caminho</h1>
+<p class="meta">
+  Gerado por /reversa-debugger-graph em 2026-10-04T13:55:34-03:00 ·
+  3 bugs neste contexto · 0 inconsistências · 2 bugs com visibilidade restrita, exibidos sem título ·
+  legenda: <b>arestas tracejadas = relação <code>proposed</code> (hipótese)</b>
+</p>
+
+<div class="cartoes">
+  <div class="cartao"><b>3</b><span>bugs no contexto</span></div>
+  <div class="cartao"><b class="ok">2</b><span>resolved · fixed</span></div>
+  <div class="cartao"><b class="medio">1</b><span>abertos / ativos</span></div>
+  <div class="cartao"><b>2</b><span>adendos de spec de bug</span></div>
+  <div class="cartao"><b class="ok">0</b><span>inconsistências</span></div>
+</div>
+
+<section>
+  <h2>Relações</h2>
+  <svg viewBox="0 0 900 320" role="img"
+       aria-label="Grafo de relações dos três bugs do contexto, mais dois nós de outros contextos">
+    <defs>
+      <marker id="seta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+        <path d="M0,0 L10,4 L0,8 z" fill="#93a4c0"></path>
+      </marker>
+    </defs>
+
+    <a href="../bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">
+      <rect x="20" y="28" width="230" height="88" rx="10" fill="#1b2740" stroke="#f87171" stroke-width="2.4"></rect>
+      <text x="36" y="56" fill="#e6edf7" font-size="14" font-weight="600">#1 · BJJH</text>
+      <text x="36" y="78" fill="#e6edf7" font-size="12">restrito</text>
+      <text x="36" y="100" fill="#fbbf24" font-size="12">active · mitigating · critical</text>
+    </a>
+    <line x1="252" y1="72" x2="646" y2="72" stroke="#93a4c0" stroke-width="1.6" marker-end="url(#seta)"></line>
+    <text x="392" y="63" fill="#93a4c0" font-size="11">related-to confirmed</text>
+
+    <a href="../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">
+      <rect x="650" y="28" width="230" height="88" rx="10" fill="#151f33" stroke="#5a5a7a"
+            stroke-width="1.6" stroke-dasharray="5 4"></rect>
+      <text x="666" y="56" fill="#c9c9c9" font-size="14" font-weight="600">#2 · QMLY</text>
+      <text x="666" y="78" fill="#c9c9c9" font-size="12">restrito · contexto upload-gedcom</text>
+      <text x="666" y="100" fill="#34d399" font-size="12">resolved · fixed · high</text>
+    </a>
+
+    <a href="../bugs/BUG-20260929-J6PQ-escape-incompleto-mermaid/bug.md">
+      <rect x="20" y="196" width="230" height="88" rx="10" fill="#1b2740" stroke="#fbbf24" stroke-width="2"></rect>
+      <text x="36" y="224" fill="#e6edf7" font-size="14" font-weight="600">#3 · J6PQ</text>
+      <text x="36" y="246" fill="#e6edf7" font-size="12">restrito</text>
+      <text x="36" y="268" fill="#34d399" font-size="12">resolved · fixed · medium</text>
+    </a>
+    <line x1="330" y1="240" x2="254" y2="240" stroke="#93a4c0" stroke-width="1.6" marker-end="url(#seta)"></line>
+    <text x="240" y="228" fill="#93a4c0" font-size="11">caused-by confirmed</text>
+
+    <a href="../bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">
+      <rect x="330" y="196" width="250" height="88" rx="10" fill="#1b2740" stroke="#2a3a55" stroke-width="1.6"></rect>
+      <text x="346" y="224" fill="#e6edf7" font-size="14" font-weight="600">#4 · T4ZM</text>
+      <text x="346" y="246" fill="#e6edf7" font-size="11.5">Rotulo Mermaid descarta 14 caracteres</text>
+      <text x="346" y="268" fill="#34d399" font-size="12">resolved · fixed · low</text>
+    </a>
+    <line x1="648" y1="240" x2="584" y2="240" stroke="#93a4c0" stroke-width="1.6"
+          stroke-dasharray="6 5" marker-end="url(#seta)"></line>
+    <text x="588" y="228" fill="#93a4c0" font-size="11">related-to proposed</text>
+
+    <a href="../../analise-dna/bugs/BUG-20261004-EWSJ-badge-de-cm-com-ruido-de-ponto-flutuante/bug.md">
+      <rect x="650" y="196" width="230" height="88" rx="10" fill="#151f33" stroke="#5a5a7a"
+            stroke-width="1.6" stroke-dasharray="5 4"></rect>
+      <text x="666" y="224" fill="#c9c9c9" font-size="14" font-weight="600">#5 · EWSJ</text>
+      <text x="666" y="246" fill="#c9c9c9" font-size="12">contexto analise-dna</text>
+      <text x="666" y="268" fill="#34d399" font-size="12">resolved · fixed · low</text>
+    </a>
+  </svg>
+
+  <p class="legenda">
+    O contexto tem <b>três</b> bugs, e as duas arestas confirmadas que saem daqui tratam de mecanismos
+    diferentes: a exposição de estado e pasta compartilhada, que liga o
+    <a href="../bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">#1 BJJH</a> ao
+    <a href="../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a>, de
+    <code>upload-gedcom</code>; e o escape do rótulo, que liga o
+    <a href="../bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">#4 T4ZM</a> ao
+    <a href="../bugs/BUG-20260929-J6PQ-escape-incompleto-mermaid/bug.md">#3 J6PQ</a> como
+    <code>caused-by</code>. <b>Não há cluster</b>: nenhum componente concentra múltiplos defeitos
+    abertos.
+  </p>
+  <p class="legenda">
+    A terceira aresta <b>entra de fora</b>: o
+    <a href="../../analise-dna/bugs/BUG-20261004-EWSJ-badge-de-cm-com-ruido-de-ponto-flutuante/bug.md">#5 EWSJ</a>,
+    do contexto <code>analise-dna</code>, tem <code>related-to</code> com o #4 T4ZM em estado
+    <code>proposed</code>. É hipótese conceitual, e a investigação daquele bug não achou nexo causal.
+  </p>
+</section>
+
+<section>
+  <h2>Bugs abertos / ativos</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>ID</th><th>Severidade</th><th>Prioridade</th><th>Título</th>
+          <th>area / module / feature</th><th>Status</th><th>Phase</th><th>Bloqueado</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><a href="../bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">BUG-20260929-BJJH</a></td>
+        <td class="aberto">critical</td>
+        <td>P0</td>
+        <td class="fraco">restrito</td>
+        <td>analisador-genealogico / upload / busca-caminho</td>
+        <td class="medio">active</td>
+        <td>mitigating</td>
+        <td class="medio">sim</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="vazio">
+    O bug passou de <code>open</code> para <code>active</code> em 2026-10-04, com
+    <code>phase: mitigating</code>, por uma <b>mitigação de aceite de risco</b>: o legado permanece
+    single-tenant por contingência prevista na spec. <b>Mitigado não é corrigido</b>, e ele segue
+    bloqueado por condição externa, porque o tratamento decidido depende de outra onda da migração.
+  </p>
+</section>
+
+<section>
+  <h2>Concluídos (travados)</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>ID</th><th>Título</th><th>Fecha em</th><th>resolution_kind</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>3</td>
+        <td><a href="../bugs/BUG-20260929-J6PQ-escape-incompleto-mermaid/bug.md">BUG-20260929-J6PQ</a></td>
+        <td class="fraco">restrito</td>
+        <td>2026-09-29</td>
+        <td class="ok">fixed</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><a href="../bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">BUG-20261002-T4ZM</a></td>
+        <td>Rotulo Mermaid descarta 14 caracteres inertes que o legado preservava</td>
+        <td>2026-10-02</td>
+        <td class="ok">fixed</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="vazio">
+    Registro central de conclusão, derivado das travas <code>DONE.md</code>, nunca editado à mão. As
+    pastas desses bugs são somente leitura.
+  </p>
+</section>
+
+</body>
+</html>

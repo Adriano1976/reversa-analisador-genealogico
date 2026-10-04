@@ -135,7 +135,9 @@ _reversa_refactor/   # Inventário de oportunidades de refatoração e suas tran
 _reversa_docs/       # Mini-site HTML de documentação (publicado no GitHub Pages)
 ```
 
-A política de escrita do Reversa é definida em `.reversa/reversa-config.json`. Neste projeto `allowLegacyEdits` é `true`, com `allowedPaths` cobrindo `src/**`, `tests/**`, `README.md`, `pyrefly.toml` e `.vscode/**`; escritas fora desses caminhos são recusadas pelo framework.
+A política de escrita do Reversa é definida em `.reversa/reversa-config.json`. Neste projeto `allowLegacyEdits` é `true`, com `allowedPaths` cobrindo `src/**`, `tests/**`, `README.md`, `pyrefly.toml`, `.vscode/**`, `requirements.txt` e `analisador-genealogico/**`; escritas fora desses caminhos são recusadas pelo framework.
+
+O último glob é herança da árvore anterior à feature `003-renomear-pasta-app-para-src`: a pasta `analisador-genealogico/` deixou de existir quando a raiz de código passou a ser `src/`, e o caminho segue liberado sem corresponder a nada. Ele é inofensivo, e a remoção é ato exclusivo do usuário, porque `reversa-config.json` não é editado por agente.
 
 ### Testes
 

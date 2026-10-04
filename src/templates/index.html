@@ -118,7 +118,7 @@
                         <h2 class="text-center mt-5">Resultados da Análise de DNA</h2>
                         {% for result in dna_results %}
                             <div class="card">
-                                <div class="card-header"><h5>Conexão com: <strong>{{ result.match_name }}</strong> <span class="badge bg-success">{{ result.cm }} cM</span></h5></div>
+                                <div class="card-header"><h5>Conexão com: <strong>{{ result.match_name }}</strong> <span class="badge bg-success">{{ result.cm | cm_br }} cM</span></h5></div>
                                 <div class="card-body">
                                     <p><strong>Caminho:</strong> {{ result.text_path }}</p>
                                     <p class="mb-2"><strong>Relacionamento Provável (DNA):</strong> <span class="text-primary">{{ result.relationships }}</span></p>

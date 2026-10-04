@@ -3,12 +3,12 @@ schema_version: 1
 id: BUG-20260929-BJJH
 display_number: 1
 title: Estado global e pasta de upload compartilhada expõem a árvore de um usuário a outro
-status: open
-phase: triaging
+status: active
+phase: mitigating
 severity: critical
 priority: P0
 created: 2026-09-29
-updated: 2026-10-02
+updated: 2026-10-04
 
 origin:
   type: manual-report
@@ -27,7 +27,23 @@ reproduction:
   rate: null
   suspected_triggers: []
 
-blocking: []
+blocking:
+  - kind: external
+    reason: >-
+      O tratamento decidido e a Rota 3 do `fix/plano-de-tratamento.md`: resolver na Onda 3 da
+      migracao, onde a spec manda, com `api/auth` resolvendo `owner_id`, repositorio com escopo
+      obrigatorio na assinatura e o teste negativo de 404 que o cutover exige como portao de go-live.
+      Nao ha trabalho de codigo deste bug a executar no legado.
+    since: 2026-10-02
+
+mitigation:
+  kind: risk-acceptance
+  applied_at: 2026-10-04
+  temporary: true
+  reason: >-
+    Registro do estado provisorio que o plano de tratamento ja recomendava: o legado permanece
+    single-tenant por contingencia prevista no RISK-005, e nao por descuido. Sem tocar em codigo.
+    Condicao que reabre: alguem alem do owner passar a ter acesso antes da Onda 3.
 
 relationships:
   - bug: BUG-20260929-QMLY
@@ -135,6 +151,12 @@ O vetor de "artefato HTML de grafo em caminho fixo", levantado no intake como Pr
 mais**: a `SEQO` removeu o `STATIC_FOLDER` e a pasta `static/` não está na árvore. O que resta, e
 sustenta este bug, é o estado global em memória mais a pasta `uploads/` compartilhada.
 
+> **Atualização de 2026-10-04: mitigado, e não corrigido.** O bug passa a `active`/`mitigating` pela
+> decisão do usuário no menu de mitigação do `/reversa-debugger-fix`. O estado provisório é o que o
+> `fix/plano-de-tratamento.md` já recomendava (Rota 3, com o registro da Rota 1): o legado permanece
+> **single-tenant por contingência prevista no `RISK-005`**, e não por descuido. Nenhuma linha de
+> código foi alterada nesta mitigação, e o bug **continua aberto**.
+
 ## Steps to Reproduce
 
 1. Suba a aplicação com `py -3.14 analisador-genealogico/app.py`.
@@ -180,15 +202,17 @@ aceita o nome do arquivo como identificador, e com a renderização de `all_name
 |------|-------|
 | Specs | `_reversa_sdd/migration/risk_register.md#risk-005`, `_reversa_sdd/migration/ambiguity_log.md#amb-009`, `_reversa_sdd/migration/target_business_rules.md#br-humana-004`, `_reversa_sdd/migration/parity_specs.md#2-isolamento-por-tenant`, `_reversa_sdd/migration/cutover_plan.md#criterios-de-go-no-go`, `_reversa_sdd/domain.md#4-lacunas-requerem-validação-humana`, `_reversa_sdd/architecture.md#5-dívidas-técnicas-identificadas`, `_reversa_sdd/migration/migration_brief.md#métricas-de-sucesso` |
 | Código afetado | `analisador-genealogico/reconstructed/upload.py`, `analisador-genealogico/app.py`, `analisador-genealogico/templates/index.html` |
-| Causa raiz | a preencher pelo `/reversa-debugger-fix` |
+| Causa raiz | a preencher pelo `/reversa-debugger-fix`, e só na Onda 3 |
 | Testes de reprodução | nenhum ainda |
 | Testes de regressão | nenhum ainda |
 | Veredito de spec | a decidir por humano (`spec_verdict` nulo) |
-| Tratamento decidido | Onda 3, conforme `fix/plano-de-tratamento.md`; legado permanece single-tenant |
+| Tratamento decidido | Onda 3, conforme `fix/plano-de-tratamento.md`; legado permanece single-tenant. **Mitigado em 2026-10-04** por aceite de risco registrado, sem código alterado |
 
 ## Resolution
 
-Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates de aprovação.
+Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates de aprovação, e a
+decisão vigente é que não há correção a fazer no legado. A mitigação de 2026-10-04 está registrada no
+bloco `mitigation` e nas Agent Notes, e **não substitui a Resolution**.
 
 ## Agent Notes
 
@@ -212,6 +236,8 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
   isolamento não puder ser garantido de forma estrutural, não liberar a onda seguinte. Corrigir este
   bug é pré-requisito de go-live, não melhoria.
 - **Taxonomia.** `area`, `module` e `feature` usam valores existentes em `_reversa_bugs/taxonomy.yaml`.
+  **O arquivo `taxonomy.yaml` não existe no repositório**, embora o `README.md` do registro o declare
+  como fonte do vocabulário. Registro a inconsistência aqui em vez de deixá-la implícita.
 - **Decisão de tratamento (2026-10-02, Adriano).** Perguntado se alguém além dele precisa usar a
   aplicação antes da Onda 3, respondeu: **"Só eu mesmo"**. Com o uso restrito a uma pessoa, a
   aplicação permanece **single-tenant**, que é exatamente a contingência que o
@@ -223,9 +249,22 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
 - **Por que o legado não é corrigido.** Não é adiamento por dificuldade. A correção no legado seria
   código descartado pela Onda 3 e, ainda assim, **não fecharia o segundo critério de aceite**, por
   não existir identidade. Detalhamento e comparação das três rotas no plano citado.
-- **Condição que reabre esta decisão.** Se qualquer pessoa além de Adriano passar a ter acesso à
-  aplicação antes da Onda 3, esta decisão perde validade e a Rota 2 volta à mesa. O portão de
-  go-live continua sendo o teste negativo de `404` do `cutover_plan.md`.
+- **Mitigação aplicada em 2026-10-04, por decisão do usuário, e ela NÃO é correção.** No menu de
+  mitigação que o `/reversa-debugger-fix` exige antes de investigar, o usuário escolheu registrar o
+  estado provisório que o plano de tratamento já recomendava. O bug passou a `active`/`mitigating`,
+  ganhou o bloco `mitigation` com `kind: risk-acceptance` e `temporary: true`, e ganhou uma condição
+  `blocking` de tipo `external` nomeando a dependência da Onda 3. **Nenhuma linha de código ou de
+  spec foi tocada**, o `spec_verdict` segue nulo e o `change_set` segue vazio. O bug continua aberto.
+- **Fato novo que fortalece o pré-requisito da mitigação.** O plano de tratamento exigia que a
+  aplicação não fosse exposta a mais de uma pessoa. Em 2026-10-02 isso dependia de disciplina, porque
+  a aplicação nascia escutando em `0.0.0.0` e atendia a rede inteira por omissão. A feature
+  `004-servidor-waitress`, entregue em **2026-10-04**, mudou o padrão para `127.0.0.1`, fez da
+  exposição um ato explícito de quem opera e passou a recusar uma segunda instância na mesma porta.
+  Medido na mitigação: a instância no ar escutava em `127.0.0.1:5000`. O pré-requisito deixou de ser
+  promessa de disciplina e ganhou garantia técnica no padrão.
+- **Condição que reabre esta mitigação.** Se qualquer pessoa além de Adriano passar a ter acesso à
+  aplicação antes da Onda 3, o pré-requisito cai, esta decisão perde validade e a Rota 2 volta à
+  mesa. O portão de go-live continua sendo o teste negativo de `404` do `cutover_plan.md`.
 - **Divergências de rastreabilidade declaradas, não corrigidas.** `evidence/verificacao-codigo.md`
   descreve um `STATIC_FOLDER` que a `OPP-20260929-SEQO` removeu, e o
   `risk_register.md#risk-005` localiza o estado global em `app.py:20-23`, quando ele vive em
@@ -233,4 +272,4 @@ Não preenchida. Corrigir é trabalho do `/reversa-debugger-fix`, em dois gates 
   porque alterar spec é ato humano; registrados para não se trabalhar sobre premissa morta.
 
 ---
-*Gerado pelo Reversa-Debugger em 2026-09-29.*
+*Gerado pelo Reversa-Debugger em 2026-09-29. Mitigado pelo Reversa-Debugger-Fix em 2026-10-04.*

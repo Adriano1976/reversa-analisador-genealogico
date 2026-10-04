@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-02T17:38:21-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-04T13:51:03-03:00 a partir de 1 bugs -->
 
 # Índice de bugs · upload-gedcom
 
-> Gerado em `2026-10-02T17:38:21-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-04T13:51:03-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
@@ -37,4 +37,4 @@ Total: 1.
 
 ## Inconsistências
 
-Nenhuma: as invariantes do schema foram validadas.
+Nenhuma: as invariantes do schema foram validadas nos 5 bugs do registro, cruzando contextos. Todos os `resolved` têm `resolution_kind` e `closure.satisfied: true`, todos os `fixed` têm `root_cause.state: confirmed`, `regression_tests` e `spec_verdict`, toda trava `DONE.md` corresponde a um bug fechado, e toda relação aponta para ID existente.

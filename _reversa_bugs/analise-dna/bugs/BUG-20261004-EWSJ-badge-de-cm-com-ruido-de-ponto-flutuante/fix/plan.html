@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de correção · BUG-20261004-EWSJ</title>
+<style>
+  :root{
+    --fundo:#0b1220; --cartao:#151f33; --borda:#2a3a55; --texto:#e6edf7;
+    --fraco:#93a4c0; --ok:#34d399; --aberto:#f87171; --medio:#fbbf24; --azul:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--fundo);color:var(--texto);line-height:1.55;
+       font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px}
+  h3{font-size:14px;margin:16px 0 8px;color:var(--fraco)}
+  .meta{color:var(--fraco);font-size:13px;margin:0 0 20px}
+  .meta code,code{color:var(--texto);background:#0f1a2e;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .cartoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:12px 18px;min-width:126px}
+  .cartao b{display:block;font-size:22px;line-height:1.25}
+  .cartao span{color:var(--fraco);font-size:12px}
+  section{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:18px;margin-bottom:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--borda);vertical-align:top}
+  th{color:var(--fraco);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ol,ul{margin:8px 0 0;padding-left:22px}
+  li{margin-bottom:5px}
+  .ok{color:var(--ok)} .aberto{color:var(--aberto)} .medio{color:var(--medio)}
+  .vazio{color:var(--fraco);font-size:13px;margin:0}
+  svg{width:100%;height:auto;display:block}
+  text{font-family:"Segoe UI",system-ui,sans-serif}
+  .antes{color:var(--aberto)} .depois{color:var(--ok)}
+</style>
+</head>
+<body>
+
+<h1>Plano de correção · #5 BUG-20261004-EWSJ</h1>
+<p class="meta">
+  Contexto <code>analise-dna</code> · plano gerado em 2026-10-04 · severidade <b>low</b> · prioridade <b>P3</b>
+  · commit base <code>aba650d</code> · <b>nada foi alterado no projeto ainda</b>
+</p>
+
+<div class="cartoes">
+  <div class="cartao"><b class="aberto">reproduzido</b><span>3/3 execuções</span></div>
+  <div class="cartao"><b class="ok">confirmed</b><span>causa raiz</span></div>
+  <div class="cartao"><b class="ok">baixa</b><span>risco da mudança</span></div>
+  <div class="cartao"><b>4</b><span>itens no change set</span></div>
+  <div class="cartao"><b>6</b><span>testes planejados</span></div>
+</div>
+
+<section>
+  <h2>1. O defeito, e onde ele nasce</h2>
+  <p>
+    O badge do cartão de resultado mostra <span class="antes">19.200000000000003 cM</span> onde deveria
+    mostrar <span class="depois">19,2 cM</span>. O valor <b>não está errado</b>: é a soma dos segmentos
+    do match em ponto flutuante, e é o <code>float</code> mais próximo de 19,2. O que falta é a etapa de
+    formatação entre a soma e a tela.
+  </p>
+  <h3>Causa raiz, estado <span class="ok">confirmed</span></h3>
+  <ol>
+    <li>três segmentos de 6,4 cM do mesmo match são agregados por soma, em <code>csv_ingest</code>;</li>
+    <li>a soma <code>6,4 + 6,4 + 6,4</code> vale <code>19.200000000000003</code>, e não 19,2;</li>
+    <li><code>core/dna_analysis.py:95</code> publica o valor cru em <code>result['cm']</code>, sem
+        arredondar, o que preserva o contrato de paridade exata;</li>
+    <li><code>templates/index.html:121</code> interpola <code>{{ result.cm }}</code> sem filtro;</li>
+    <li>o operador lê o resíduo da soma como se fosse o valor.</li>
+  </ol>
+  <p class="vazio">
+    Evidência que fecha o caminho: <a href="../evidence/reproduction.md">evidence/reproduction.md</a> e
+    <a href="../evidence/reproduction.txt">reproduction.txt</a>, com o HTML real renderizado pelo
+    template real. A relação <code>related-to</code> com o #4 permanece <code>proposed</code>: a
+    investigação não achou nexo causal.
+  </p>
+</section>
+
+<section>
+  <h2>2. Estratégia</h2>
+  <p>
+    <b>Correção direta.</b> A causa está confirmada por medição, existe uma única hipótese coerente, o
+    risco é baixo e a mudança é reversível em três arquivos. Debate multiagente só se justifica com
+    hipóteses concorrentes ou risco alto, e nenhum dos dois está presente.
+  </p>
+  <p class="vazio">
+    Regra que governa a escolha do lugar do fix: <b>o valor armazenado não pode ser arredondado</b>.
+    <code>_reversa_sdd/migration/parity_specs.md:113</code> exige comparação exata contra o oráculo
+    congelado, sem tolerância e sem arredondamento. Formatar é transformar na saída, nunca no estado.
+  </p>
+</section>
+
+<section>
+  <h2>3. Correction Change Set proposto</h2>
+  <table>
+    <thead>
+      <tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>CHG-001</code></td><td>code</td>
+        <td><code>src/utils/number_format.py</code></td>
+        <td>Novo. <code>formatar_cm(valor)</code> devolve o total no formato decidido: vírgula decimal,
+            até 2 casas, sem zeros à direita. Autoridade única da regra, no mesmo espírito de
+            <code>utils/text_cleaning.py</code> para mojibake.</td>
+      </tr>
+      <tr>
+        <td><code>CHG-002</code></td><td>code</td>
+        <td><code>src/app.py</code></td>
+        <td>Registra o filtro Jinja <code>cm_br</code> apontando para <code>formatar_cm</code>, para a
+            regra não morar dentro do HTML.</td>
+      </tr>
+      <tr>
+        <td><code>CHG-003</code></td><td>code</td>
+        <td><code>src/templates/index.html</code></td>
+        <td>Linha 121 passa a usar <code>{{ result.cm | cm_br }}</code>. O valor cru deixa de ir ao HTML.</td>
+      </tr>
+      <tr>
+        <td><code>CHG-004</code></td><td>specification</td>
+        <td><code>_reversa_sdd/addenda/bug-BUG-20261004-EWSJ-v001.md</code></td>
+        <td>Adendo <b>aditivo</b>: especifica pela primeira vez o formato exibido, que hoje é lacuna.
+            Depende do veredito humano da etapa 7. A spec original nunca é editada.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="vazio">
+    Nenhum item de <code>data-repair</code>: não há estado persistido. O app não tem banco, e o valor
+    exibido é recalculado a cada requisição.
+  </p>
+  <h3>Como fica a linha 121</h3>
+  <p class="vazio">
+    <span class="antes">antes</span>:
+    <code>&lt;span class="badge bg-success"&gt;{{ result.cm }} cM&lt;/span&gt;</code><br>
+    <span class="depois">depois</span>:
+    <code>&lt;span class="badge bg-success"&gt;{{ result.cm | cm_br }} cM&lt;/span&gt;</code>
+  </p>
+</section>
+
+<section>
+  <h2>4. Testes planejados</h2>
+  <table>
+    <thead>
+      <tr><th>Teste</th><th>Conceito</th><th>O que prova</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>tests/test_formatacao_cm.py::test_badge_nao_exibe_ruido_de_ponto_flutuante</code></td>
+        <td><b>reprodução</b></td>
+        <td>Renderiza o template real com um resultado de cM 19,2 e afirma que o HTML traz
+            <code>19,2 cM</code> e <b>não</b> traz <code>19.200000000000003</code>.
+            <b>Falha hoje</b>, e é a prova de que o defeito relatado existia.</td>
+      </tr>
+      <tr>
+        <td><code>test_formatacao_cm.py::test_cm_com_duas_casas_preserva_as_duas</code></td>
+        <td>regressão</td>
+        <td><code>19,25</code> continua saindo com duas casas: a correção não pode truncar precisão real.</td>
+      </tr>
+      <tr>
+        <td><code>test_formatacao_cm.py::test_cm_inteiro_nao_ganha_casa_decimal</code></td>
+        <td>regressão</td>
+        <td><code>20,0</code> sai como <code>20</code>, e não como <code>20,00</code>.</td>
+      </tr>
+      <tr>
+        <td><code>test_formatacao_cm.py::test_formatador_e_total</code></td>
+        <td>regressão</td>
+        <td>Valores de borda (zero e negativo) não levantam exceção: o formatador é total, mesmo que o
+            badge nunca receba cM não positivo.</td>
+      </tr>
+      <tr>
+        <td><code>test_formatacao_cm.py::test_valor_armazenado_permanece_exato</code></td>
+        <td>regressão de contrato</td>
+        <td>Depois do fluxo real, <code>result["cm"]</code> continua o <code>float</code> exato
+            <code>19.200000000000003</code>. Guarda o contrato que a paridade exata exige.</td>
+      </tr>
+      <tr>
+        <td><code>test_characterization_*</code> e suíte completa</td>
+        <td>integração</td>
+        <td>Suíte no mesmo resultado da linha de base (125 aprovados, 15 erros de ambiente) e paridade
+            diferencial em 100 por cento nas 6 fixtures.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5. Riscos</h2>
+  <p><b><code>change_risk</code>: baixa.</b> Motivos:</p>
+  <ul>
+    <li><b>Raio de alcance:</b> uma expressão de template, um módulo novo de uma função e duas linhas
+        de registro de filtro. Nada mais é tocado.</li>
+    <li><b>Contrato externo:</b> intacto. A rota, os campos de formulário e as mensagens não mudam, e o
+        valor armazenado permanece o mesmo <code>float</code>.</li>
+    <li><b>Dados:</b> nenhum. Não há estado persistido para reparar.</li>
+    <li><b>Concorrência:</b> não se aplica. Formatação é local à requisição.</li>
+    <li><b>Reversibilidade:</b> alta, por reversão dos três arquivos.</li>
+  </ul>
+  <h3>O que fica fora, por decisão</h3>
+  <ul>
+    <li><b>Não arredondar no núcleo</b>, por exigência da paridade exata. Se o produto quiser o valor
+        arredondado no estado, é mudança de contrato e exige outro adendo.</li>
+    <li><b>Não formatar nenhum outro número da tela.</b> O badge de cM é o único valor numérico
+        exibido hoje. Se aparecerem outros, cada um é decisão própria.</li>
+    <li><b>Não corrigir o <code>taxonomy.yaml</code> ausente</b> nem o campo <code>area</code> defasado
+        nos bugs: são dívidas do registro, não deste defeito.</li>
+    <li><b>Sem refatoração de acompanhamento.</b> O fix é cirúrgico, conforme os Agent Notes.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>6. Mini-grafo do bug</h2>
+  <svg viewBox="0 0 880 210" role="img" aria-label="O bug 5 no centro, com uma relação proposta para o bug 4">
+    <defs>
+      <marker id="seta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+        <path d="M0,0 L10,4 L0,8 z" fill="#93a4c0"></path>
+      </marker>
+    </defs>
+    <a href="../bug.md">
+      <rect x="270" y="50" width="340" height="110" rx="10" fill="#1b2740" stroke="#f87171" stroke-width="2.4"></rect>
+      <text x="288" y="78" fill="#e6edf7" font-size="15" font-weight="600">#5 · EWSJ · este bug</text>
+      <text x="288" y="102" fill="#e6edf7" font-size="12.5">Badge de cM exibe o valor com ruído</text>
+      <text x="288" y="119" fill="#e6edf7" font-size="12.5">de ponto flutuante</text>
+      <text x="288" y="142" fill="#f87171" font-size="12">open · diagnosing · low · P3</text>
+    </a>
+    <line x1="270" y1="105" x2="176" y2="105" stroke="#93a4c0" stroke-width="1.6"
+          stroke-dasharray="6 5" marker-end="url(#seta)"></line>
+    <text x="60" y="96" fill="#93a4c0" font-size="11">related-to (proposed)</text>
+    <a href="../../../../busca-caminho/bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">
+      <rect x="16" y="50" width="160" height="110" rx="10" fill="#1b2740" stroke="#2a3a55" stroke-width="1.6"></rect>
+      <text x="30" y="78" fill="#e6edf7" font-size="14" font-weight="600">#4 · T4ZM</text>
+      <text x="30" y="100" fill="#e6edf7" font-size="11.5">Rotulo Mermaid</text>
+      <text x="30" y="116" fill="#e6edf7" font-size="11.5">busca-caminho</text>
+      <text x="30" y="142" fill="#34d399" font-size="11.5">resolved · fixed</text>
+    </a>
+  </svg>
+  <p class="vazio">
+    O nó central é este bug. A única aresta é <code>related-to</code> em <code>proposed</code>, uma
+    hipótese que a investigação não confirmou. Não há outro nó a considerar nesta correção.
+  </p>
+</section>
+
+<section>
+  <h2>7. Matriz de relações</h2>
+  <table>
+    <thead>
+      <tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="../bug.md">#5 BUG-20261004-EWSJ</a></td>
+        <td>related-to</td>
+        <td><a href="../../../../busca-caminho/bugs/BUG-20261002-T4ZM-rotulo-descarta-caracteres-inertes/bug.md">#4 BUG-20261002-T4ZM</a></td>
+        <td>proposed</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="vazio">
+    Sem relação causal, sem bloqueio e sem regressão de bug anterior. Não há ordem de correção a
+    derivar: este é o único bug desta correção.
+  </p>
+</section>
+
+<section>
+  <h2>8. Próximos passos, se o plano for aprovado</h2>
+  <ol>
+    <li><b>Gate 1</b>: diff dos testes, aprovação, aplicação, e demonstração de que <b>falham</b>.</li>
+    <li><b>Gate 2</b>: diff do change set, aprovação, aplicação, e demonstração de que <b>passam</b>.</li>
+    <li><b>Veredito de spec</b>: decisão sua, com o adendo <code>CHG-004</code> se for <code>spec-gap</code>.</li>
+    <li><b>Fechamento</b>: Resolution, suíte e paridade remedidas, <code>DONE.md</code>, views atualizadas.</li>
+  </ol>
+  <p class="vazio">
+    Registro do bug: <a href="../bug.md">bug.md</a> · relato: <a href="../../../intake/relato-20261004-1325.md">intake/relato-20261004-1325.md</a>
+  </p>
+</section>
+
+</body>
+</html>

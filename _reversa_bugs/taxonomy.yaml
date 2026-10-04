@@ -1,0 +1,101 @@
+# Vocabulario controlado do registro de bugs.
+#
+# Este arquivo e a fonte dos valores de `area`, `module` e `feature` usados no
+# front matter de cada `bug.md`. O `README.md` deste registro o declara desde a
+# primeira versao, mas ele nunca havia sido criado, e tres bugs o citavam nas
+# Agent Notes. Criado em 2026-10-04 para fechar essa inconsistencia.
+#
+# PROCEDENCIA: os valores abaixo foram SEMEADOS a partir do que ja esta em uso nos
+# cinco bugs do registro, e nao inventados. A secao `ponte` de cada `module` foi
+# medida contra a arvore atual do repositorio, e nao deduzida.
+#
+# REVISAO HUMANA PENDENTE: veja `decisao-pendente` no fim do arquivo. Este arquivo
+# descreve o vocabulario COMO ELE E, e nao decide como ele DEVE SER.
+
+schema-version: 1
+gerado-em: 2026-10-04
+revisao-humana-pendente: true
+
+area:
+  - id: analisador-genealogico
+    nota: >-
+      Nome do sistema, conforme o titulo de `_reversa_sdd/architecture.md`. Foi
+      tambem o nome da pasta de codigo ate a feature `003-renomear-pasta-app-para-src`
+      renomear a raiz para `src/`. O valor e HISTORICO e continua valendo como
+      area: o sistema nao mudou de nome.
+
+feature:
+  - id: upload-gedcom
+    spec: _reversa_sdd/upload-gedcom/
+  - id: analise-dna
+    spec: _reversa_sdd/analise-dna/
+  - id: busca-caminho
+    spec: _reversa_sdd/busca-caminho/
+
+module:
+  - id: upload
+    em-uso-desde: 2026-09-29
+    ponte: >-
+      Escrito quando o nucleo vivia em `analisador-genealogico/reconstructed/upload.py`.
+      Depois do refactor, o assunto esta em `src/parsers/gedcom_parser.py` e
+      `src/core/gedcom_state.py`.
+  - id: path-search
+    em-uso-desde: 2026-09-29
+    ponte: >-
+      Escrito quando o nucleo vivia em `analisador-genealogico/reconstructed/path_search.py`.
+      Depois do refactor, o assunto esta em `src/core/path_finding.py` e
+      `src/reporting/mermaid_render.py`.
+  - id: dna-analysis
+    em-uso-desde: 2026-10-04
+    ponte: >-
+      Escrito quando o nucleo vivia em `analisador-genealogico/reconstructed/dna_analysis.py`.
+      Depois do refactor, o assunto esta em `src/core/dna_analysis.py` e
+      `src/core/matching.py`.
+
+# Valores que o schema do bug-schema preve e que este registro AINDA nao usou.
+# Ficam declarados para que o proximo bug saiba que existem, e nao para forcar uso.
+nunca-usados:
+  - componente-extinto
+  - delta-de-dados
+  - delta-de-contrato-externo
+
+# Como usar `module` enquanto a decisao abaixo nao for tomada:
+#
+#   Use os valores da lista `module` acima. Eles nomeiam o ASSUNTO do defeito, e
+#   nao o arquivo. Um bug novo sobre o parser de GEDCOM usa `module: upload`, mesmo
+#   que o codigo hoje esteja em `src/parsers/`. A coluna `ponte` existe justamente
+#   para quem precisa sair do vocabulario e chegar ao codigo.
+
+decisao-pendente:
+  pergunta: >-
+    O vocabulario de `module` deve continuar nomeando o assunto com os nomes
+    historicos, ou deve ser renomeado para os pacotes atuais (`parsers`, `core`,
+    `reporting`, `utils`)?
+  contexto: >-
+    Todos os valores de `module` em uso foram escritos quando o nucleo vivia em
+    `analisador-genealogico/reconstructed/`, pasta que a serie de refatoracao
+    dividiu e depois removeu. Nenhum arquivo daquele caminho existe hoje. O mesmo
+    vale para `area`, em relacao ao nome da pasta.
+  opcoes:
+    - id: manter-historico
+      descricao: >-
+        Manter os nomes historicos como vocabulario canonico do ASSUNTO, com a
+        `ponte` apontando para o codigo atual. Nada e reescrito nos cinco bugs.
+      recomendada: true
+      por-que: >-
+        E a mesma pratica que o projeto ja usa nos adendos: declarar a leitura
+        correta em vez de reescrever o registro. O nome do assunto nao muda quando
+        o arquivo muda de lugar.
+    - id: renomear-para-pacotes
+      descricao: >-
+        Passar a usar `parsers`, `core`, `reporting` e `utils` como valores de
+        `module`, e atualizar os cinco bugs.
+      recomendada: false
+      por-que: >-
+        Descreve o ARQUIVO, e nao o assunto. Um defeito de matching e de parser
+        cairiam os dois em `core`, e a taxonomia perde poder de filtro. Alem disso,
+        exige editar cinco registros para ganhar pouco.
+  quem-decide: o usuario
+  observacao: >-
+    Enquanto a decisao nao for registrada aqui, a lista `module` acima e a que vale,
+    e o valor novo `dna-analysis` segue o mesmo criterio dos antigos.
