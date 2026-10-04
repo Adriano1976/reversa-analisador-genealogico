@@ -1,7 +1,0 @@
-﻿GATE 2 - CHG-001 aplicado. Vermelho para verde.
-Aplicado: CHG-001 em mermaid_render.py, lista branca _LABEL_SEGURO
-Antes: 15 failed, 86 passed. Varredura contra o oraculo: 15 divergencias.
-
-........................................................................ [ 71%]
-.............................                                            [100%]
-101 passed in 4.46s
