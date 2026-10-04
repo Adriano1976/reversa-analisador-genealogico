@@ -63,5 +63,7 @@ def load_gedcom_and_build_graph(file_path: str) -> list[str]:
         gedcom_state.families.clear(); gedcom_state.families.update(new_families)
         gedcom_state.graph = new_graph
         gedcom_state.child_to_family.clear(); gedcom_state.child_to_family.update(new_child_to_family)
+        # Sinal de invalidacao para indices derivados (ver `gedcom_state.versao`).
+        gedcom_state.versao += 1
         all_names = sorted([get_name(p) for p in gedcom_state.people.values()])
         return all_names

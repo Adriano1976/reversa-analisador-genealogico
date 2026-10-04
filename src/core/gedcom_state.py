@@ -22,6 +22,13 @@ families = {}
 graph = None
 child_to_family: dict[str, list[str]] = {}
 
+# Contador de carregamentos. `people`/`families` sao mutados in place, entao o
+# `id()` deles nao muda quando outro GEDCOM entra; quem guarda indice derivado
+# (ex.: nome normalizado -> ids, em `documentary_relationship`) precisa de um
+# sinal de invalidacao que o rebind nao da. Este contador e esse sinal, e e
+# incrementado por `load_gedcom_and_build_graph`.
+versao = 0
+
 
 def ref_id(val):
     """Extrai o xref_id de um objeto ged4py; retorna o valor se já for str."""
