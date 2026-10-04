@@ -120,3 +120,81 @@ A `T011` segue aberta, e a razão está registrada na seção anterior: o cenár
 - `_reversa_forward/004-servidor-waitress/actions.md` (10 de 11 ações concluídas)
 - `_reversa_forward/004-servidor-waitress/regression-watch.md` (observação `O9`, e `W004` passando a satisfeito)
 - `_reversa_forward/004-servidor-waitress/progress.jsonl` (linhas de `T001` e `T002`)
+
+## Atualização 2026-10-04 (rodada 3)
+
+> **Quarta sincronização, na mesma data.** O conteúdo acima **não foi alterado**. Onde esta seção contradizer o que está escrito antes, esta seção é a leitura correta. Em especial: a `T011` **deixou de estar pendente**, e a decisão que a seção anterior pedia ao usuário **já foi tomada**, na sessão de esclarecimento de 2026-10-04.
+
+### A feature está completa
+
+**Vinte de vinte ações concluídas.** As nove ações da segunda rodada (`T012` a `T020`) mais a `T011`, que foi reescopada na mesma sessão.
+
+As três mudanças observáveis que a rodada entrega, com o requisito que as sustenta:
+
+| Mudança | Antes | Depois | Requisito |
+|---|---|---|---|
+| Endereço de escuta padrão | `0.0.0.0`, atendia todas as interfaces de rede | `127.0.0.1`, atende apenas a máquina local, e abrir para a rede exige `ANALISADOR_HOST` | `RN-03`, `RF-02`, `D-02` revista |
+| Instâncias simultâneas | coexistiam na mesma porta, cada uma com o seu próprio estado global | a segunda é recusada, com mensagem legível e código de saída 1, e a primeira segue atendendo | `RN-05`, `RF-08`, `D-10`, `D-11` |
+| Versões das dependências | em aberto | fixadas com `==`, nas versões validadas | `RN-06`, `RF-09`, `D-12` |
+
+Provas medidas nesta rodada: a suíte ficou em **125 aprovados e 15 erros de ambiente**, contra 121 aprovados e os mesmos 15 erros na medição anterior, o que dá exatamente as quatro afirmações acrescentadas ao teste do bloco de entrada. A paridade diferencial permanece em **100 por cento nas 6 fixtures**, com zero divergência. A recusa da segunda instância foi verificada com dois processos reais, e não por inspeção.
+
+O padrão do endereço também foi verificado ao vivo, nos dois lados do critério da `RF-02` e com controle positivo: sem a variável definida, a escuta ficou em `127.0.0.1` e a aplicação respondeu `HTTP 200` na máquina local e **não** respondeu no endereço de rede dela (`192.168.1.40`); com `ANALISADOR_HOST=0.0.0.0`, a escuta ficou em `0.0.0.0` e respondeu nos dois endereços. O controle positivo existe para que o resultado negativo não seja confundido com uma sondagem quebrada.
+
+### O cenário que a seção anterior pedia para decidir foi decidido
+
+A seção anterior encerrou pedindo decisão do usuário sobre o cenário de porta ocupada. A sessão de esclarecimento de 2026-10-04 tomou as quatro decisões, e elas estão implementadas:
+
+1. O cenário foi reescrito para o comportamento medido, e a exclusividade virou requisito novo, em vez de comportamento esperado da plataforma (`RN-05`, `RF-08`).
+2. A aplicação passou a impedir duas instâncias por conta própria, com mensagem legível e código de saída diferente de zero (`D-10`, `D-11`).
+3. O padrão do endereço passou a ser a máquina local (`D-02` revista).
+4. Todas as dependências passaram a ter versão fixada (`RN-06`, `RF-09`, `D-12`).
+
+### Como a exclusividade foi obtida
+
+O bloco de entrada cria o socket de escuta, marca-o com `SO_EXCLUSIVEADDRUSE` no Windows, liga-o com `bind` e `listen`, e o entrega pronto ao servidor. O socket fica aberto até o processo terminar, e é isso que fecha a janela entre ligar e servir.
+
+Dois achados restringem a implementação e ficam registrados:
+
+- O servidor **recusa** receber socket pronto junto de `host` ou `port`, com `ValueError` (`waitress/adjustments.py`, linhas 299 e 300). O endereço e a porta passaram a existir apenas no socket ligado, e a linha de inicialização impressa pela aplicação é a única observabilidade do endereço em uso.
+- A mensagem de recusa separa os dois motivos possíveis, porque eles pedem ações diferentes: `errno.EADDRINUSE`, que vale `10048` neste interpretador, para porta ocupada, e `10049` para endereço que não pertence à máquina. A separação foi medida, e não suposta.
+
+### Correções declaradas
+
+| O que foi corrigido | Onde | Por quê |
+|---|---|---|
+| A justificativa da `D-10` afirmava que o servidor não faz `bind` **nem** `listen` com socket pronto | `roadmap.md`, `onboarding.md`, observação `O12` do `regression-watch.md` | A leitura da fonte instalada mostra que ele pula o `bind`, mas chama `socket.listen(self.adj.backlog)` em `accept_connections` |
+| A mensagem de dependência ausente mandava instalar o pacote avulso | `src/app.py`, `onboarding.md` | Passou a contradizer a versão fixada, porque uma instalação avulsa traria versão diferente da validada. Passou a nomear o pacote, o interpretador e o arquivo de dependências |
+| O procedimento da dependência ausente mandava instalar o arquivo de dependências no ambiente descartável e rodar em seguida | `onboarding.md` | O arquivo inclui o servidor de produção, então o passo **não testava ausência alguma**. Passou a exigir a desinstalação no ambiente descartável |
+| A seção de deploy afirmava que o arquivo de dependências inclui o Gunicorn | `README.md` | A execução da `T001`, na rodada anterior, tornou a afirmação falsa |
+| A contagem de linhas do `app.py` e a árvore de testes do `README.md` | `README.md` | Desatualizadas, e a árvore não listava o teste do bloco de entrada |
+
+### Impacto por artefato da extração
+
+| Artefato | Seção | Tipo de impacto | Delta |
+|---|---|---|---|
+| `_reversa_sdd/inventory.md` | `#4` (Pontos de Entrada) | `contrato-alterado` | O ponto de entrada passa a criar e ligar o socket de escuta, a entregá-lo pronto ao servidor e a recusar a subida quando o endereço e a porta já estão em uso. O padrão do endereço passa a ser a máquina local |
+| `_reversa_sdd/inventory.md` | `#6` (Cobertura de Testes) | `regra-alterada` | O arquivo de teste do bloco de entrada passou de três para sete afirmações: guarda de exclusividade, entrega do socket, recusa com código diferente de zero e padrão do endereço |
+| `_reversa_sdd/architecture.md` | `#3.3` (Estruturas de runtime) | `regra-alterada` | A coexistência de instâncias, que a medição registrou, passa a ser impedida pela própria aplicação. O estado global por processo continua sendo a razão de impedir |
+| `_reversa_sdd/dependencies.md` | `#2` (Dependências Diretas) | `contrato-alterado` | Cada linha passa a declarar a versão com `==`, nas versões validadas nesta máquina em Python 3.14. As dependências transitivas continuam em aberto, e a razão está na `D-12` |
+| `_reversa_sdd/code-analysis.md` | seção do componente de camada de rota | `regra-alterada` | O bloco de entrada cresceu com o socket de escuta, a guarda de exclusividade e a recusa. O módulo ganhou as importações de `socket` e `errno` no topo, ao lado de `sys` |
+| `_reversa_sdd/domain.md` | `#4.1` e `#4.2` (Contrato de mensagens) | `presença` | Nenhuma mensagem de contrato do domínio muda, e a paridade em 100 por cento nas 6 fixtures sustenta a afirmação. A mensagem de operação que mudou, a de dependência ausente, não pertence ao contrato HTTP |
+
+### Regras sob vigilância acrescentadas
+
+`W006`, `W007` e `W008`, definidos em `_reversa_forward/004-servidor-waitress/regression-watch.md`: a guarda de exclusividade no bloco de entrada, o padrão fechado do endereço e a versão fixada em toda linha do arquivo de dependências.
+
+### Higiene
+
+Os processos dos experimentos foram encerrados, as portas usadas foram liberadas, os scripts de verificação foram removidos e o resíduo da paridade foi limpo pelo próprio utilitário do pipeline, sem falhas. Um resíduo de ambiente chegou a ficar na raiz do projeto, criado por uma tentativa de apontar o diretório temporário do pytest para dentro do projeto, e precisou de acesso ampliado para ser removido; a tentativa **já estava documentada como abandonada** no `_clean_residue.py`, e a repetição está registrada na observação `O16`.
+
+### Fontes desta atualização
+
+- `src/app.py` (bloco de entrada atual)
+- `requirements.txt` (conteúdo atual, com versões fixadas)
+- `tests/test_servidor_producao.py` (sete afirmações)
+- `README.md` (seções de execução, de abertura para a rede e de instância única)
+- `_reversa_forward/004-servidor-waitress/actions.md` (20 de 20 ações concluídas, e as Notas de execução da segunda rodada)
+- `_reversa_forward/004-servidor-waitress/onboarding.md` (seções 2, 8, 9 e 10)
+- `_reversa_forward/004-servidor-waitress/regression-watch.md` (observações `O10` a `O16`, e `W006` a `W008`)
+- `_reversa_forward/004-servidor-waitress/progress.jsonl` (linhas de `T011` a `T020`)
