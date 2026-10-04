@@ -13,6 +13,15 @@ Achado caracterizado, deliberadamente sem correcao: um nome cujo unico token
 nao-generico e o sobrenome, como "Joao Silva", tem o sobrenome interpretado como
 prenome por `split_name_pt`, e o pool de candidatos fica vazio. Ver a tabela de
 decisoes. Corrigir isso mudaria comportamento, logo e feature, nao refactor.
+
+## Mudanca deliberada de 2026-10 (regra final da analise)
+
+A forma do payload do fluxo mudou por ordem explicita: o campo `relationships`
+(cM -> "relacionamento provavel") foi removido do fluxo e da interface, e
+entraram `documentary`, `genetic_evidence`, `hypotheses` e `comparison`. Os
+valores congelados abaixo foram atualizados para o novo contrato; caminho,
+descartados e mensagem continuam iguais. Este e o registro de que a quebra foi
+intencional, e nao um efeito colateral.
 """
 import inspect
 import os
@@ -65,36 +74,46 @@ def _decidir(nome, cm):
 
 
 # --- saida completa do fluxo, por fixture -------------------------------------
+#
+# ATUALIZADO pela regra final da analise (GEDCOM / DNA / confronto separados).
+# O que mudou, deliberadamente, e a FORMA do payload: `relationships` (cM ->
+# "relacionamento provável") deixou de existir e entrou `documentary` (GEDCOM),
+# `genetic_evidence` (CSV), `hypotheses` (Shared cM 4.0) e `comparison`. O
+# caminho, os descartados e a mensagem continuam congelados.
+#
+# Ana Silva Souza e irma de Carlos Silva Souza na fixture, e a fixture declara
+# 200 cM para ela: irmaos completos têm faixa publicada de 1613–3488 cM, e
+# nenhuma relacao que admite 200 cM alcança essa faixa. Dai CONFLITANTE.
 
 PIPELINE = {
     "utf8": (
         DNA_CSV_UTF8,
-        [{
-            "match_name": "Ana Silva Souza",
-            "cm": 200,
-            "text_path": "Carlos Silva Souza → Joaquim Silva → Ana Silva Souza",
-            "relationships": "Primos de 1º grau (1× removido), Meios-primos, Tios-avós ↔ Sobrinhos-netos, Primos de 2º grau, Primos de 2º grau (1× removido), Primos de 3º grau, Primos de 3º grau (1× removido), Primos de 4º grau",
-            "csv_name": "Ana Silva Souza",
-        }],
+        {"match_name": "Ana Silva Souza", "cm": 200,
+         "text_path": "Carlos Silva Souza → Joaquim Silva → Ana Silva Souza",
+         "csv_name": "Ana Silva Souza"},
+        "found",
+        "CONFLITANTE",
         [],
         "1 conexões encontradas. 0 descartadas.",
     ),
     "duplicado": (
         DNA_CSV_DUPLICATED,
-        [{
-            "match_name": "Ana Silva Souza",
-            "cm": 537,
-            "text_path": "Carlos Silva Souza → Joaquim Silva → Ana Silva Souza",
-            "relationships": "Primos de 1º grau (1× removido), Meios-primos, Tios-avós ↔ Sobrinhos-netos",
-            "csv_name": "Ana Silva Souza",
-        }],
+        {"match_name": "Ana Silva Souza", "cm": 537,
+         "text_path": "Carlos Silva Souza → Joaquim Silva → Ana Silva Souza",
+         "csv_name": "Ana Silva Souza"},
+        "found",
+        "CONFLITANTE",
         [],
         "1 conexões encontradas. 0 descartadas.",
     ),
     "sem-intersecao": (
         DNA_CSV_NO_INTERSECTION,
-        [],
+        None,
+        None,
+        None,
         [{"csv_name": "Zzz Ninguem dos Santos",
+          "kit": None,
+          "cm": 150,
           "motivo": "sem candidatos por sobrenome (abreviação/corrupção?)"}],
         "0 conexões encontradas. 1 descartadas.",
     ),
@@ -104,17 +123,21 @@ PIPELINE = {
 @pytest.mark.parametrize("caso", sorted(PIPELINE))
 def test_pipeline_caracterizado(tree, caso):
     """Resultados, descartados e mensagem continuam exatamente iguais."""
-    csv, esperado_res, esperado_skipped, esperado_msg = PIPELINE[caso]
+    csv, esperado_res, esperado_doc, esperado_comparacao, esperado_skipped, esperado_msg = PIPELINE[caso]
     path = _csv(csv)
     try:
-        res, skipped, msg = dna_analysis(path, "Carlos Silva")
+        res, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
     finally:
         os.remove(path)
 
     assert msg == esperado_msg
     if esperado_res:
-        campos = list(esperado_res[0])
-        assert [{k: r[k] for k in campos} for r in res] == esperado_res
+        campos = list(esperado_res)
+        assert [{k: r[k] for k in campos} for r in res] == [esperado_res]
+        assert res[0]["documentary"]["label"] == "Irmãos"
+        assert res[0]["documentary"]["status"] == esperado_doc
+        assert res[0]["comparison"]["status"] == esperado_comparacao
+        assert res[0]["hypotheses"][0]["possible_relationships"]
     else:
         assert res == []
     assert skipped == esperado_skipped

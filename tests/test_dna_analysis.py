@@ -153,7 +153,18 @@ def test_dna_analysis_happy(dna_loaded):
         assert "Ana Silva Souza" in results[0]["match_name"]
         assert "Carlos Silva Souza" in results[0]["text_path"]
         assert results[0]["mermaid_data"].startswith("flowchart BT")
-        assert results[0]["relationships"]
+        # Regra final da analise: as tres evidencias viajam SEPARADAS, e o rotulo
+        # unico "Relacionamento Provável (DNA)" deixou de existir. O parentesco vem
+        # do GEDCOM; o cM so vira lista de possibilidades + confronto.
+        resultado = results[0]
+        assert resultado["documentary"]["source"] == "GEDCOM"
+        assert resultado["documentary"]["label"] == "Irmãos"
+        assert resultado["genetic_evidence"]["kits"][0]["total_cm"] == 200
+        assert resultado["hypotheses"][0]["possible_relationships"], "possibilidades não podem ficar vazias"
+        assert resultado["comparison"]["status"] in (
+            "COMPATIVEL", "POSSIVEL", "CONFLITANTE", "INCONCLUSIVO")
+        assert "relationships" not in resultado, (
+            "o campo legado 'relationships' apresentava o cM como parentesco provável")
     finally:
         os.remove(path)
 
@@ -226,25 +237,28 @@ def test_missing_columns(dna_loaded):
         os.remove(path)
 
 
-# TT-07: match sem caminho ancestral -> entra em skipped_matches.
+# TT-07 (revisto pela regra final): match COM identidade resolvida e SEM caminho.
 def test_match_without_path(dna_loaded):
-    """TT-07: match sem caminho ancestral calculável vai para ``skipped_matches``.
+    """TT-07: match sem caminho ancestral continua sendo analisado.
 
-    Usa um CSV com um indivíduo (``Lone Ranger``) que não possui caminho
-    genealógico até a raiz e confirma que:
-    - Nenhum resultado válido é retornado.
-    - O indivíduo aparece na lista ``skipped`` com seu nome no campo ``csv_name``.
-
-    Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+    Antes da regra final, este caso ia para ``skipped_matches`` e a evidência
+    genética desaparecia da tela. Agora ele vira resultado com
+    ``documentary.status == "not_found"``: o DNA é apresentado, o parentesco
+    documental é declarado não encontrado e **nenhum caminho é inventado**.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("Name,cM\nLone Ranger,120\n")
         results, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
-        assert len(results) == 0
-        assert any("Lone" in s["csv_name"] for s in skipped)
+        assert len(results) == 1
+        assert results[0]["documentary"]["status"] == "not_found"
+        assert results[0]["documentary"]["path"] is None
+        assert results[0]["text_path"] == ""
+        assert results[0]["genetic_evidence"]["available"] is True
+        assert results[0]["genetic_evidence"]["kits"][0]["total_cm"] == 120
+        assert results[0]["comparison"]["status"] == "INCONCLUSIVO"
+        assert skipped == []
     finally:
         os.remove(path)
 

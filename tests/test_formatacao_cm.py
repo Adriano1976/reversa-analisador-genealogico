@@ -38,7 +38,6 @@ def _html_do_badge(cm):
         "match_name": "Ana Silva Souza",
         "cm": cm,
         "text_path": "Carlos Silva Souza -> Ana Silva Souza",
-        "relationships": "Primos de 3 grau",
         "mermaid_data": "graph LR",
     }
     with app.test_request_context("/"):
