@@ -1,4 +1,6 @@
+import errno
 import os
+import socket
 import sys
 
 from flask import Flask, render_template, request
@@ -166,7 +168,11 @@ def index():
 if __name__ == "__main__":
     # Configuracao de execucao lida do ambiente, com os padroes declarados aqui.
     # Mesmo padrao ja praticado pelo projeto em `ANALISADOR_UPLOAD_FOLDER`.
-    endereco_de_escuta = os.environ.get("ANALISADOR_HOST", "0.0.0.0")
+    #
+    # O padrao do endereco e a maquina local (RF-02). A aplicacao nao tem
+    # autenticacao alguma, entao atender a rede passa a ser ato explicito de quem
+    # opera, e nao o comportamento que acontece por omissao.
+    endereco_de_escuta = os.environ.get("ANALISADOR_HOST", "127.0.0.1")
     porta_de_escuta = int(os.environ.get("ANALISADOR_PORT", "5000"))
     concorrencia = int(os.environ.get("ANALISADOR_THREADS", "4"))
 
@@ -176,14 +182,75 @@ if __name__ == "__main__":
     try:
         from waitress import serve
     except ImportError:
+        # A mensagem nomeia o pacote e o interpretador exato (D-08) e aponta para o
+        # arquivo de dependencias, e nao para o pacote solto: desde a fixacao das
+        # versoes, instalar o pacote avulso traria uma versao diferente da validada.
         raise SystemExit(
-            "Servidor de producao ausente neste interpretador. Instale com: "
-            f"{sys.executable} -m pip install waitress"
+            "Servidor de producao ausente neste interpretador: o pacote waitress nao "
+            "esta instalado. Instale a partir do arquivo de dependencias, com: "
+            f"{sys.executable} -m pip install -r requirements.txt"
         )
+
+    # --- Guarda de exclusividade (RN-05, RF-08) ---
+    #
+    # A medicao de 2026-10-04 mostrou que a plataforma NAO impede a coexistencia:
+    # o servidor pede SO_REUSEADDR, e no Windows duas instancias escutam na mesma
+    # porta ao mesmo tempo. Como cada processo tem o SEU proprio estado global da
+    # arvore (core/gedcom_state.py), duas instancias atendendo fazem requisicoes do
+    # mesmo operador cairem em estados diferentes. A exclusividade e, portanto,
+    # responsabilidade daqui.
+    #
+    # O socket e criado, marcado e LIGADO aqui, e entregue ja pronto ao servidor.
+    # Com socket pronto o servidor nao faz bind (bind_socket=False), entao quem liga
+    # e este bloco. O socket fica aberto ate o processo terminar: fechar para so
+    # entao servir abriria uma janela entre fechar e servir, que e exatamente o que
+    # a marca de uso exclusivo existe para nao ter.
+    socket_de_escuta = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+        # Windows: a porta fica exclusiva deste processo, e outra instancia recebe
+        # erro no bind mesmo pedindo SO_REUSEADDR.
+        socket_de_escuta.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+    else:
+        # Fora do Windows a marca nao existe, e o padrao da plataforma ja recusa a
+        # segunda ligacao. Reintroduzir SO_REUSEADDR aqui traria de volta a
+        # coexistencia que esta guarda existe para impedir.
+        socket_de_escuta.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+    # O servidor deixa o socket que ele mesmo cria em modo nao bloqueante; o socket
+    # entra no lugar dele, e entra com a mesma postura.
+    socket_de_escuta.setblocking(False)
+
+    try:
+        socket_de_escuta.bind((endereco_de_escuta, porta_de_escuta))
+        socket_de_escuta.listen(socket.SOMAXCONN)
+    except OSError as erro:
+        socket_de_escuta.close()
+        # O diagnostico separa os dois motivos porque eles pedem acoes diferentes:
+        # porta ocupada se resolve encerrando quem esta no ar ou trocando de porta,
+        # e endereco indisponivel se resolve corrigindo ANALISADOR_HOST. Medido em
+        # 2026-10-04: porta ocupada chega com errno.EADDRINUSE, e endereco que nao
+        # existe nesta maquina chega com 10049, que nao e EADDRINUSE.
+        if erro.errno == errno.EADDRINUSE:
+            motivo = f"{endereco_de_escuta}:{porta_de_escuta} ja esta em uso"
+            saida = (
+                "Encerre o processo que ja esta no ar, ou suba esta instancia em "
+                "outra porta com ANALISADOR_PORT."
+            )
+        else:
+            motivo = f"nao foi possivel escutar em {endereco_de_escuta}:{porta_de_escuta}"
+            saida = (
+                "Confira se ANALISADOR_HOST aponta para um endereco desta maquina e "
+                "se ANALISADOR_PORT e uma porta valida."
+            )
+        # A mensagem nao afirma quem ocupa a porta: pode ser uma instancia anterior
+        # desta aplicacao ou qualquer outro processo.
+        raise SystemExit(f"Recusando subir: {motivo} ({erro.strerror or erro}). {saida}")
 
     print(
         f"Servindo com waitress em http://{endereco_de_escuta}:{porta_de_escuta} "
         f"com {concorrencia} threads",
         flush=True,
     )
-    serve(app, host=endereco_de_escuta, port=porta_de_escuta, threads=concorrencia)
+    # `sockets` e mutuamente exclusivo de `host` e `port`: o servidor levanta
+    # ValueError se receber `sockets` junto de qualquer um dos dois. Endereco e
+    # porta ja estao no socket ligado.
+    serve(app, sockets=[socket_de_escuta], threads=concorrencia)
