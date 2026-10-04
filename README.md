@@ -8,6 +8,27 @@
 
 **analisador-genealogico** é uma aplicação web desenvolvida para genealogistas genéticos. Seu objetivo principal é identificar, calcular e visualizar conexões genealógicas entre uma pessoa raiz e suas correspondências de DNA, cruzando árvores GEDCOM (`.ged`) com listas de segmentos de DNA (`.csv`).
 
+## Regra de análise (GEDCOM, DNA e confronto)
+
+A aplicação separa rigorosamente três coisas, e nunca deixa uma contaminar a outra:
+
+1. **Parentesco documental** — o que o GEDCOM afirma: caminho, ancestral comum, distância geracional, homônimos, caminhos múltiplos, colapso de pedigree e a evidência de cada salto (registro de família e datas).
+2. **Evidência genética** — o que o arquivo de DNA informa: kit, fonte, cM total, segmentos, maior segmento, SNPs, cromossomo e posições.
+3. **Possibilidades e confronto** — o cM vira uma **lista** de relacionamentos compatíveis pela tabela publicada do Shared cM Project 4.0, e o confronto devolve um dos quatro estados:
+
+| Estado | Significado |
+|---|---|
+| **COMPATÍVEL** | o parentesco documental não entra em conflito evidente com o cM observado |
+| **POSSÍVEL** | a evidência permite o relacionamento, mas não confirma o caminho documental |
+| **CONFLITANTE** | a incompatibilidade é significativa; verifique as causas listadas |
+| **INCONCLUSIVO** | os dados não permitem avaliar (sem DNA, sem caminho, homônimo ou sem faixa publicada) |
+
+Três invariantes que o código e a interface respeitam:
+
+- **O GEDCOM determina o parentesco documental.** O DNA não altera, não corrige e não cria caminho genealógico.
+- **O cM não é usado sozinho para afirmar parentesco.** `cM → conjunto de possibilidades`, nunca `cM → parentesco único`.
+- **DNA compartilhado não confirma o caminho.** O máximo que a tela afirma é que existe compartilhamento; o parentesco documental é apresentado em seção própria, com fonte declarada.
+
 ## Stack Tecnológica
 
 O projeto conta com uma stack web moderna em Python, sem a necessidade de um banco de dados persistente:
@@ -101,14 +122,18 @@ src/                            # raiz de código da aplicação
 │   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
 │   └── csv_ingest.py           # Leitura do CSV de matches e agregação de cM por segmento
 ├── core/                       # Decisão sobre o que foi lido, sem saber de HTTP
-│   ├── cm_estimator.py         # Tradução de cM em relações prováveis (faixas heurísticas)
+│   ├── documentary_relationship.py  # Parentesco DOCUMENTAL: caminho, MRCA, homônimos, caminhos múltiplos, colapso de pedigree, datas
+│   ├── genetic_evidence.py     # Evidência GENÉTICA: kits, cM, segmentos, SNPs, cromossomo, posições (nunca soma kits diferentes)
+│   ├── relationship_hypotheses.py   # cM → possibilidades, pela tabela publicada do Shared cM Project 4.0
+│   ├── evidence_comparison.py  # Confronto GEDCOM × DNA: COMPATÍVEL / POSSÍVEL / CONFLITANTE / INCONCLUSIVO
+│   ├── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, mantidas só como superfície de compatibilidade
 │   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
 │   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
 │   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
 │   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
 │   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
 │   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
-│   └── dna_analysis.py         # Fachada do cruzamento GEDCOM × CSV, consumida pelo app.py
+│   └── dna_analysis.py         # Orquestra as três etapas do cruzamento, consumida pelo app.py
 ├── reporting/                  # Transformação de resultado em apresentação
 │   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
 ├── utils/                      # Ferramentas utilitárias, sem papel no núcleo
@@ -150,8 +175,9 @@ tests/
 ├── test_upload.py                      # Parsing de GEDCOM e construção do grafo
 ├── test_path_search.py                 # Busca de ancestrais diretos e caminhos por afinidade
 ├── test_dna_analysis.py                # Agregação de segmentos, fuzzy matching e previsões por cM
-├── test_characterization_matching.py   # Caracterização: congela a decisão de matching
+├── test_characterization_matching.py   # Caracterização: congela a decisão de matching e a forma do payload
 ├── test_characterization_mermaid.py    # Caracterização: congela a saída do diagrama Mermaid
+├── test_confrontacao_gedcom_dna.py     # Regra final: os 10 cenários exigidos (GEDCOM, DNA, confronto, homônimos, múltiplos kits)
 ├── test_mermaid_escape.py              # Contrato de escape do rótulo Mermaid
 ├── test_servidor_producao.py           # Bloco de entrada: servidor de produção, guarda de instância única e padrão do endereço
 └── test_upload_seguranca.py            # Teto de requisição, chave derivada do conteúdo e recusa de GEDCOM inválido
@@ -159,9 +185,11 @@ tests/
 
 ## Principais Funcionalidades
 
-- **Integração de GEDCOM & CSV:** Mescla a topologia da árvore (GEDCOM) com os dados genéticos (CSV).
+- **Integração de GEDCOM & CSV:** Cruza a topologia da árvore (GEDCOM) com os dados genéticos (CSV) **sem misturar as duas evidências**, que aparecem em seções separadas do resultado.
 - **Busca Aproximada de Nomes:** Algoritmo avançado para contornar "mojibake" (corrupção de codificação) e combinar nomes apesar de variações de grafia ou abreviações.
-- **Previsões baseadas em cM:** Mapeia DNA compartilhado (centiMorgans) para prováveis graus de parentesco biológico.
+- **Possibilidades pelo DNA (Shared cM Project 4.0):** Traduz o cM compartilhado em uma **lista** de relacionamentos compatíveis, com faixa e média da fonte. Nunca devolve um parentesco único e nunca apresenta o cM como confirmação.
+- **Confrontação GEDCOM × DNA:** Compara o parentesco documental com a evidência genética e devolve COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO, com a explicação e a lista de causas a verificar quando há conflito.
+- **Alertas de plausibilidade documental:** Sinaliza vínculo cronologicamente impossível (genitor nascido depois do filho), homônimos com ficha comparável (ID, datas, locais, pais, cônjuges, filhos), caminhos genealógicos múltiplos e colapso de pedigree/endogamia.
 - **Busca de Ancestrais Diretos:** Encontra o Ancestral Comum Mais Recente (MRCA - *Most Recent Common Ancestor*) e o caminho direto, com teto de 20 iterações de profundidade no BFS bidirecional.
 - **Busca de Caminhos Indiretos (Afinidade):** Utiliza uma Busca em Largura (BFS - *Breadth-First Search*) como alternativa para encontrar conexões por casamento e outras pontes de afinidade (até 40 saltos).
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
@@ -175,6 +203,8 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 ## Padrões de Código
 
 - A lógica de negócio está modularizada em `src/`, nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, separada da camada web (`app.py`).
+- A regra final da análise vive em quatro módulos de responsabilidade única, sem ciclo entre eles: `documentary_relationship` (GEDCOM), `genetic_evidence` (CSV), `relationship_hypotheses` (Shared cM Project 4.0) e `evidence_comparison` (confronto). Nenhum deles conhece HTTP, e **nenhum deles deixa o DNA alterar o parentesco documental**.
+- Números exibidos passam por `utils/number_format.py`, autoridade única do formato (`cm_br` para cM e `inteiro_br` para SNPs e posições). O arredondamento é só de apresentação: o `float` somado permanece exato no estado.
 - O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
 - As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `text_cleaning.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
 - Busca de caminhos em `path_finding.py`: direto por MRCA (teto de 20 iterações de profundidade) e indireto por afinidade (até 40 saltos). A emissão do diagrama e o contrato de escape do rótulo ficam em `mermaid_render.py`, e `path_search.py` é a fachada consumida pelo `app.py`.
@@ -183,7 +213,7 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 
 ## Testes
 
-- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **93 funções de teste** — o total coletado é **140** — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM), caracterização de matching e de Mermaid, segurança do upload e o bloco de entrada do `app.py` (qual servidor sobe, a guarda de instância única e o padrão do endereço de escuta).
+- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **119 funções de teste** — o total coletado é **166** — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e possibilidades por cM), a regra final da análise (parentesco documental, evidência genética, possibilidades, confronto e os dez cenários de `test_confrontacao_gedcom_dna.py`), caracterização de matching e de Mermaid, segurança do upload e o bloco de entrada do `app.py` (qual servidor sobe, a guarda de instância única e o padrão do endereço de escuta).
 - **Como rodar (da raiz do repositório, onde está o `pytest.ini`):**
   ```bash
   pip install -r requirements.txt pytest
