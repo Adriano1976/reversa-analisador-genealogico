@@ -57,7 +57,7 @@ flowchart LR
    ```bash
    python src/app.py
    ```
-4. Acesse a interface web em `http://127.0.0.1:5000/` na própria máquina. O endereço padrão atende todas as interfaces de rede, então a aplicação também responde em `http://<ip-da-máquina>:5000/` a partir de outro equipamento da mesma rede.
+4. Acesse a interface web em `http://127.0.0.1:5000/`. O endereço padrão atende **apenas a máquina local**; abrir para a rede é um ato explícito, descrito a seguir.
 
 ### Configuração de execução
 
@@ -65,18 +65,32 @@ O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarad
 
 | Variável | Padrão | Para que serve |
 |---|---|---|
-| `ANALISADOR_HOST` | `0.0.0.0` | endereço de escuta. Use `127.0.0.1` para atender apenas a máquina local |
+| `ANALISADOR_HOST` | `127.0.0.1` | endereço de escuta. O padrão atende apenas a máquina local; use `0.0.0.0` para atender a rede |
 | `ANALISADOR_PORT` | `5000` | porta de escuta |
 | `ANALISADOR_THREADS` | `4` | número de threads do servidor |
 
-Exemplo, restringindo a escuta à máquina local no PowerShell:
+#### Abrir a aplicação para a rede
+
+> **A aplicação não tem autenticação.** Qualquer equipamento que alcance a porta vê a interface e pode enviar arquivos. É por isso que o padrão é fechado, e é por isso que abrir tem de ser decisão de quem opera, e não o que acontece por omissão.
+
+No PowerShell, a partir da raiz do repositório:
 
 ```powershell
-$env:ANALISADOR_HOST = "127.0.0.1"
+$env:ANALISADOR_HOST = "0.0.0.0"
 python src/app.py
 ```
 
-> **A aplicação não tem autenticação.** Com o endereço padrão, qualquer equipamento que alcance a porta vê a interface e pode enviar arquivos. Em rede compartilhada, defina `ANALISADOR_HOST` como `127.0.0.1`.
+A inicialização informa o endereço em uso (`Servindo com waitress em http://0.0.0.0:5000 ...`). De outro equipamento da mesma rede, acesse `http://<ip-da-máquina>:5000/`. Em rede compartilhada, mantenha o padrão e não defina a variável.
+
+#### Uma instância por vez
+
+A aplicação **recusa subir** se já houver uma instância atendendo no endereço e na porta configurados. A segunda execução termina com código de saída diferente de zero e uma mensagem que nomeia o endereço e a porta:
+
+```text
+Recusando subir: 127.0.0.1:5000 ja esta em uso (...). Encerre o processo que ja esta no ar, ou suba esta instancia em outra porta com ANALISADOR_PORT.
+```
+
+O trecho entre parênteses é o diagnóstico do sistema operacional, no idioma dele, e por isso não aparece aqui literalmente. O motivo da recusa é o modelo de estado: a árvore enviada vive na memória de cada processo, então duas instâncias seriam dois estados independentes, e a mesma pessoa poderia receber "nenhuma árvore carregada" logo depois de enviar um GEDCOM. Encerre a instância anterior (Ctrl+C na janela dela) antes de subir outra, ou suba a nova em outra porta com `ANALISADOR_PORT`.
 
 ## Estrutura do Projeto
 
@@ -137,6 +151,7 @@ tests/
 ├── test_characterization_matching.py   # Caracterização: congela a decisão de matching
 ├── test_characterization_mermaid.py    # Caracterização: congela a saída do diagrama Mermaid
 ├── test_mermaid_escape.py              # Contrato de escape do rótulo Mermaid
+├── test_servidor_producao.py           # Bloco de entrada: servidor de produção, guarda de instância única e padrão do endereço
 └── test_upload_seguranca.py            # Teto de requisição, chave derivada do conteúdo e recusa de GEDCOM inválido
 ```
 
@@ -151,9 +166,9 @@ tests/
 
 ## Fluxo de Desenvolvimento
 
-O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (166 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY).
+O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (251 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY e do bloco de entrada que sobe o servidor de produção).
 - **CI/CD:** Não há pipeline de build ou de testes automatizado. O único workflow é o `.github/workflows/deploy-pages.yml`, que publica o mini-site de `_reversa_docs/` no GitHub Pages e dispara em pushes para a branch `main` (a branch principal do repositório é `master`). Não há Dockerfile nem `docker-compose.yml`.
-- **Deploy:** O `requirements.txt` inclui o Gunicorn, indicando um setup comum de implantação em produção padrão WSGI (ex: Heroku, AWS).
+- **Deploy:** O servidor de produção é o `waitress`, que roda em Windows sem compilação, e o `requirements.txt` fixa cada dependência com `==`, nas versões validadas nesta máquina em Python 3.14. A execução é o próprio `python src/app.py`, com as variáveis de ambiente documentadas acima; não há passo de build nem arquivo de configuração de servidor.
 
 ## Padrões de Código
 
@@ -166,7 +181,7 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 
 ## Testes
 
-- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **87 funções de teste** — o total coletado é maior, por conta da parametrização — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM), caracterização de matching e de Mermaid, e segurança do upload.
+- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **93 funções de teste** — o total coletado é **140** — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e previsões por cM), caracterização de matching e de Mermaid, segurança do upload e o bloco de entrada do `app.py` (qual servidor sobe, a guarda de instância única e o padrão do endereço de escuta).
 - **Como rodar (da raiz do repositório, onde está o `pytest.ini`):**
   ```bash
   pip install -r requirements.txt pytest
