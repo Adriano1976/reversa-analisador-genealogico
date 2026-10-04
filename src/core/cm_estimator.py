@@ -1,4 +1,12 @@
-"""Estimador de parentesco por faixas de cM.
+"""Estimador de parentesco por faixas de cM — LEGADO, fora do fluxo.
+
+> **Nao usar em codigo novo.** Desde a regra final da analise (2026-10), a
+> traducao de cM em relacionamento mora em `core.relationship_hypotheses`, que
+> usa a tabela publicada do Shared cM Project 4.0 e devolve **possibilidades**,
+> nunca um parentesco unico. Este modulo continua existindo apenas como
+> superficie de compatibilidade (`core.dna_analysis.__all__`,
+> `_reversa_sdd/parity/harness.py` e `tests/test_dna_analysis.py`); nem o fluxo
+> de analise nem a interface o consultam mais.
 
 Extraido de `dna_analysis.py` pela OPP-20261003-RGKA. Responsabilidade unica:
 traduzir um valor de cM (soma dos segmentos de um match) na lista das relacoes
