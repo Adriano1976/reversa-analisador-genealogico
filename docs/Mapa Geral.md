@@ -1,0 +1,1 @@
+[[00 - Dashboard.md]]![[Mapa _reversa_bugs.canvas]]![[Mapa _reversa_docs.canvas]]![[Mapa _reversa_refactor.canvas]]![[Mapa _reversa_forward.canvas]]![[Mapa _reversa_sdd.canvas]]
