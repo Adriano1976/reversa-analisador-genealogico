@@ -3,4 +3,4 @@ ged4py
 networkx
 pandas
 thefuzz
-gunicorn 
+waitress

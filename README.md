@@ -53,11 +53,30 @@ flowchart LR
    ```bash
    pip install -r requirements.txt
    ```
-3. Execute a aplicação Flask (a partir da raiz do repositório):
+3. Execute a aplicação (a partir da raiz do repositório). O ponto de entrada sobe a aplicação por um servidor WSGI de produção, e não pelo servidor de desenvolvimento do Flask:
    ```bash
    python src/app.py
    ```
-4. Acesse a interface web em `http://127.0.0.1:5000/`.
+4. Acesse a interface web em `http://127.0.0.1:5000/` na própria máquina. O endereço padrão atende todas as interfaces de rede, então a aplicação também responde em `http://<ip-da-máquina>:5000/` a partir de outro equipamento da mesma rede.
+
+### Configuração de execução
+
+O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarado no código, então nada precisa ser definido para subir a aplicação:
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `ANALISADOR_HOST` | `0.0.0.0` | endereço de escuta. Use `127.0.0.1` para atender apenas a máquina local |
+| `ANALISADOR_PORT` | `5000` | porta de escuta |
+| `ANALISADOR_THREADS` | `4` | número de threads do servidor |
+
+Exemplo, restringindo a escuta à máquina local no PowerShell:
+
+```powershell
+$env:ANALISADOR_HOST = "127.0.0.1"
+python src/app.py
+```
+
+> **A aplicação não tem autenticação.** Com o endereço padrão, qualquer equipamento que alcance a porta vê a interface e pode enviar arquivos. Em rede compartilhada, defina `ANALISADOR_HOST` como `127.0.0.1`.
 
 ## Estrutura do Projeto
 

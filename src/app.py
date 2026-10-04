@@ -1,4 +1,5 @@
 import os
+import sys
 
 from flask import Flask, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -163,4 +164,26 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Configuracao de execucao lida do ambiente, com os padroes declarados aqui.
+    # Mesmo padrao ja praticado pelo projeto em `ANALISADOR_UPLOAD_FOLDER`.
+    endereco_de_escuta = os.environ.get("ANALISADOR_HOST", "0.0.0.0")
+    porta_de_escuta = int(os.environ.get("ANALISADOR_PORT", "5000"))
+    concorrencia = int(os.environ.get("ANALISADOR_THREADS", "4"))
+
+    # O import fica aqui dentro de proposito. Este modulo e importado pela suite de
+    # testes e pela instrumentacao de paridade, e um import no topo obrigaria o
+    # servidor de producao instalado em quem so quer a aplicacao como objeto.
+    try:
+        from waitress import serve
+    except ImportError:
+        raise SystemExit(
+            "Servidor de producao ausente neste interpretador. Instale com: "
+            f"{sys.executable} -m pip install waitress"
+        )
+
+    print(
+        f"Servindo com waitress em http://{endereco_de_escuta}:{porta_de_escuta} "
+        f"com {concorrencia} threads",
+        flush=True,
+    )
+    serve(app, host=endereco_de_escuta, port=porta_de_escuta, threads=concorrencia)
