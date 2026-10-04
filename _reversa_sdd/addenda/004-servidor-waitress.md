@@ -198,3 +198,65 @@ Os processos dos experimentos foram encerrados, as portas usadas foram liberadas
 - `_reversa_forward/004-servidor-waitress/onboarding.md` (seções 2, 8, 9 e 10)
 - `_reversa_forward/004-servidor-waitress/regression-watch.md` (observações `O10` a `O16`, e `W006` a `W008`)
 - `_reversa_forward/004-servidor-waitress/progress.jsonl` (linhas de `T011` a `T020`)
+
+## Atualização 2026-10-04 (sincronização)
+
+> **Quinta sincronização, na mesma data.** O conteúdo acima **não foi alterado**. Onde esta seção contradizer o que está escrito antes, **esta seção é a leitura correta**. Esta seção é o registro do `/reversa-sync` sobre a feature `004-servidor-waitress`, com as vinte ações fechadas.
+>
+> **Desvio declarado no título.** As três seções anteriores já usam a data de hoje, e o padrão do skill é `## Atualização YYYY-MM-DD`. Um quarto título idêntico tornaria ambíguo o apontador de qualquer leitura futura, então esta seção recebe o sufixo `(sincronização)`. O corpo segue o padrão do skill.
+
+### Estado da sincronização
+
+| Item | Valor |
+|---|---|
+| Feature ativa | `004-servidor-waitress` |
+| Cenário detectado | **legado** (`_reversa_sdd/architecture.md` e `domain.md` presentes) |
+| Ações | **20 de 20** concluídas, nenhuma `[ ]` aberta em `actions.md` |
+| Tipo de sincronização | **total**, e não parcial: não há entrega pendente para complementar depois |
+| Ganchos | `before-sync` e `after-sync` estão **vazios** em `.reversa/hooks.yml`, então nenhum comando foi executado |
+| Impactos novos nesta seção | **nenhum**. O delta por artefato já está itemizado na seção `(rodada 3)`, e não é repetido aqui |
+
+### Alerta: a fonte principal que o skill indica está congelada na primeira rodada
+
+O `/reversa-sync` designa `_reversa_forward/<feature>/legacy-impact.md` como **fonte principal do delta**. Nesta feature, essa fonte **não pode ser usada sozinha**: ela é de `2026-10-03`, descreve a entrega antes da segunda rodada, e contradiz o sistema atual em pontos que mudam a leitura. As contradições, uma por uma:
+
+| O que o `legacy-impact.md` afirma | O que o sistema faz hoje | Onde está a verdade |
+|---|---|---|
+| "o endereço padrão passa a atender todas as interfaces de rede", com severidade **HIGH** (linha 12) | o padrão é `127.0.0.1`, e atender a rede exige `ANALISADOR_HOST` explícita | `requirements.md#4` (`RN-03`), `roadmap.md` (`D-02` revista), `src/app.py` |
+| `ANALISADOR_HOST` "com `0.0.0.0`" (linha 28) | o padrão declarado é `127.0.0.1` | `src/app.py`, bloco de entrada |
+| "O endereço padrão passa de `127.0.0.1` para `0.0.0.0`. Isso é intencional" (linha 33) | é o inverso: passou de `0.0.0.0` para `127.0.0.1`, e é intencional | `requirements.md#9`, sessão de 2026-10-04 |
+| `requirements.txt` "pendente, não aplicado" (linhas 15 e 82) | aplicado, e além disso com versão fixada nas seis linhas | `requirements.txt`, e `actions.md` (`T001`, `T002`, `T012`) |
+| "três testes" no arquivo novo (linha 40) | sete afirmações | `tests/test_servidor_producao.py` |
+| "o endereço de acesso deixou de ser apenas `127.0.0.1`" (linha 46) | o endereço de acesso **voltou** a ser apenas `127.0.0.1` | `README.md`, seção de configuração de execução |
+| `T001`, `T002` e `T011` pendentes, com a seção 3 inteira dedicada a isso (linhas 48 a 54) | as três fecharam, e a `T011` foi medida com dois processos reais | `actions.md`, Notas de execução |
+| "os mesmos 118 testes aprovados da linha de base" (linha 66) | **125 aprovados** e 15 erros de ambiente | `actions.md` (`T018`), `regression-watch.md` (`O15`) |
+| nenhuma menção à guarda de instância única, ao diagnóstico por código de erro ou ao socket entregue pronto | os três existem | `actions.md` (`T015`, `T016`), `roadmap.md` (`D-10`, `D-11`) |
+
+**Consequência prática para quem lê a extração:** para esta feature, a leitura correta é este adendo, seguido dos artefatos da feature em `_reversa_forward/004-servidor-waitress/` na ordem `requirements.md`, `roadmap.md`, `actions.md`, `regression-watch.md`. O `legacy-impact.md` vale apenas como registro do que a **primeira** rodada entregou.
+
+**Por que o arquivo não foi corrigido aqui:** o `/reversa-sync` escreve apenas em `_reversa_sdd/addenda/`, e os artefatos da feature são somente leitura para ele. A correção do `legacy-impact.md` cabe a uma passagem por `/reversa-to-do` ou `/reversa-coding`, que têm esse arquivo como alvo.
+
+### Linhas das tabelas anteriores que ficaram superadas
+
+O adendo é cumulativo, e três linhas de tabelas mais antigas descrevem um estado que não vale mais. Elas **não foram reescritas**, por esta seção ser de registro. Quem lê a extração deve aplicar estas substituições:
+
+| Linha superada | O que ela afirma | O que vale agora |
+|---|---|---|
+| `## Impacto por artefato da extração`, `architecture.md#3.3` | "O endereço de escuta padrão passou a atender todas as interfaces de rede" | O padrão passou a ser `127.0.0.1`. A linha da rodada 3 para o **mesmo artefato e a mesma seção** é a que vale |
+| `## Impacto por artefato da extração`, `dependencies.md#2` | "**Pendente.** ... Leia o arquivo como ainda contendo o servidor que não sobe no Windows" | O arquivo lista `waitress` e fixa as seis versões. As linhas das rodadas 2 e 3 para o mesmo artefato são as que valem |
+| `## Atualização 2026-10-04`, `requirements.md#7` | "O cenário precisa ser reescrito ou retirado, e isso é decisão do usuário" | A decisão foi tomada na sessão de esclarecimento de 2026-10-04: o cenário foi reescrito para o comportamento medido, e nasceram a `RN-05` e a `RF-08`, implementadas e verificadas |
+
+As demais linhas continuam valendo como estão.
+
+### Regras sob vigilância
+
+`W001` a `W008`, em `_reversa_forward/004-servidor-waitress/regression-watch.md`. Os itens `W006`, `W007` e `W008` são desta rodada: a guarda de exclusividade no bloco de entrada, o padrão fechado do endereço de escuta e a versão fixada em toda linha do arquivo de dependências.
+
+### Fontes desta atualização
+
+- `.reversa/state.json` (`output_folder` e `forward_folder` resolvidos)
+- `.reversa/active-requirements.json` (feature ativa e feature pausada)
+- `.reversa/hooks.yml` (ganchos vazios)
+- `_reversa_forward/004-servidor-waitress/legacy-impact.md` (fonte principal indicada pelo skill, usada como contraste)
+- `_reversa_forward/004-servidor-waitress/requirements.md`, `roadmap.md`, `actions.md`, `regression-watch.md`, `progress.jsonl`
+- `src/app.py`, `tests/test_servidor_producao.py`, `requirements.txt`, `README.md` (conferência do estado real)
