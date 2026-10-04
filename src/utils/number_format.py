@@ -36,3 +36,19 @@ def formatar_cm(valor) -> str:
     if "." in texto:
         texto = texto.rstrip("0").rstrip(".")
     return texto.replace(".", ",")
+
+
+def formatar_inteiro(valor) -> str:
+    """Inteiro no formato que o operador le: `1134` vira `1.134`.
+
+    Nasceu com a evidencia genetica: SNPs e posicoes sao numeros grandes e
+    contados, e a leitura sem separador de milhar convida a erro. Valor ausente
+    sai como travessao, e nao como zero: ausencia de dado nao e dado zero.
+    """
+    if valor is None or valor == "":
+        return "—"
+    try:
+        numero = int(valor)
+    except (TypeError, ValueError):
+        return "—"
+    return f"{numero:,}".replace(",", ".")

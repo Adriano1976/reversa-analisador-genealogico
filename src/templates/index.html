@@ -18,9 +18,18 @@
             background-color: #fafafa;
             overflow-x: auto;
         }
-        .mermaid {
-            text-align: center;
-        }
+        .mermaid { text-align: center; }
+        .secao { margin-top: 1.75rem; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+        .secao h5 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+        .secao h5 .numero { color: #6c757d; }
+        .rotulo-fonte { font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .04em; }
+        .tabela-evidencia { font-size: .85rem; }
+        .alerta-aviso { border-left: 4px solid #ffc107; background: #fffdf5; padding: .6rem .8rem; margin-bottom: .5rem; border-radius: .25rem; font-size: .9rem; }
+        .estado-COMPATIVEL { background-color: #198754; }
+        .estado-POSSIVEL { background-color: #fd7e14; }
+        .estado-CONFLITANTE { background-color: #dc3545; }
+        .estado-INCONCLUSIVO { background-color: #6c757d; }
+        .documental-ambiguo { color: #b02a37; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -62,7 +71,7 @@
 
                             <div class="tab-content" id="analysisTabsContent">
                                 <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
-                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas.</p>
+                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
                                     <form method="POST" id="path-form">
                                         <input type="hidden" name="action" value="path_search">
                                         <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
@@ -81,7 +90,7 @@
                                 </div>
 
                                 <div class="tab-pane fade" id="dna-panel" role="tabpanel">
-                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para encontrar as conexões confirmadas por DNA.</p>
+                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
                                     <form method="POST" enctype="multipart/form-data" id="dna-form">
                                         <input type="hidden" name="action" value="dna_analysis">
                                         <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
@@ -115,59 +124,375 @@
 
                 <div id="results-area">
                     {% if dna_results %}
-                        <h2 class="text-center mt-5">Resultados da Análise de DNA</h2>
+                        <h2 class="text-center mt-5">Resultado da Análise</h2>
+                        {% set ns = namespace(com_caminho=0, ambiguos=0) %}
+                        {% for r in dna_results %}
+                            {% if r.documentary and r.documentary.path %}{% set ns.com_caminho = ns.com_caminho + 1 %}{% endif %}
+                            {% if r.documentary and r.documentary.ambiguous_identity %}{% set ns.ambiguos = ns.ambiguos + 1 %}{% endif %}
+                        {% endfor %}
+                        <p class="text-center text-muted">
+                            {{ dna_results | length }} conexões analisadas:
+                            <strong>{{ ns.com_caminho }}</strong> com caminho genealógico no GEDCOM
+                            ({{ ns.ambiguos }} com identidade ambígua) e
+                            <strong>{{ dna_results | length - ns.com_caminho }}</strong> apenas com evidência genética
+                            (sem caminho no GEDCOM).
+                        </p>
                         {% for result in dna_results %}
                             <div class="card">
-                                <div class="card-header"><h5>Conexão com: <strong>{{ result.match_name }}</strong> <span class="badge bg-success">{{ result.cm | cm_br }} cM</span></h5></div>
+                                <div class="card-header">
+                                    <h5 class="mb-0">Análise de conexão com <strong>{{ result.match_name }}</strong>
+                                        {% if result.cm is not none %}
+                                            <span class="badge bg-secondary">DNA: {{ result.cm | cm_br }} cM</span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
                                 <div class="card-body">
-                                    <p><strong>Caminho:</strong> {{ result.text_path }}</p>
-                                    <p class="mb-2"><strong>Relacionamento Provável (DNA):</strong> <span class="text-primary">{{ result.relationships }}</span></p>
-                                    <div class="graph-container"><div class="mermaid">{{ result.mermaid_data | safe }}</div></div>
+
+                                    {# ---------------- 1. PARENTESCO DOCUMENTAL ---------------- #}
+                                    {# O `if` externo mantem o template renderizavel por payload
+                                       antigo (so nome + cM), como o usado em tests/test_formatacao_cm.py. #}
+                                    {% if result.documentary %}
+                                    <div class="secao" style="margin-top:0; border-top:0; padding-top:0;">
+                                        <h5><span class="numero">1.</span> Parentesco documental</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
+
+                                        <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                            {% if result.documentary.status == 'found' %}
+                                                <span class="badge bg-primary">{{ result.documentary.label }}</span>
+                                            {% elif result.documentary.status == 'ambiguous' %}
+                                                <span class="badge bg-warning text-dark">{{ result.documentary.label }}</span>
+                                                <span class="documental-ambiguo">— identidade ambígua</span>
+                                            {% elif result.documentary.status == 'affinity' %}
+                                                <span class="badge bg-info text-dark">{{ result.documentary.label }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ result.documentary.label }}</span>
+                                            {% endif %}
+                                        </p>
+
+                                        {% if result.documentary.degrees and result.documentary.meioses %}
+                                            <p class="mb-1 small text-muted">
+                                                Distância geracional: {{ result.documentary.degrees.a_up }} gerações acima do ancestral comum no lado de
+                                                <strong>{{ result.documentary.person_a.name }}</strong> e
+                                                {{ result.documentary.degrees.b_up }} no lado de
+                                                <strong>{{ result.documentary.person_b.name }}</strong>
+                                                ({{ result.documentary.meioses }} saltos pai-filho entre as duas pessoas).
+                                            </p>
+                                        {% endif %}
+
+                                        <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong>
+                                            {% if result.text_path %}{{ result.text_path }}{% else %}<em>nenhum caminho encontrado</em>{% endif %}
+                                        </p>
+
+                                        {% if result.documentary.common_ancestor %}
+                                            <p class="mb-1"><strong>Ancestral comum (MRCA) do caminho exibido:</strong>
+                                                {{ result.documentary.common_ancestor.name }}
+                                                {% if result.documentary.common_ancestor.birth %}({{ result.documentary.common_ancestor.birth }}){% endif %}
+                                            </p>
+                                        {% endif %}
+
+                                        {% if result.documentary.common_ancestors and result.documentary.common_ancestors | length > 1 %}
+                                            <details class="mb-2">
+                                                <summary><strong>Ancestrais comuns encontrados ({{ result.documentary.common_ancestors | length }})</strong></summary>
+                                                <ul class="mb-0">
+                                                    {% for ancestral in result.documentary.common_ancestors %}
+                                                        <li>{{ ancestral.name }} — {{ ancestral.distance_a }} + {{ ancestral.distance_b }} gerações ({{ ancestral.total_meioses }} meioses)</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.additional_paths %}
+                                            <details class="mb-2">
+                                                <summary><strong>Mais de um caminho genealógico encontrado ({{ result.documentary.additional_paths | length }} adicional(is))</strong></summary>
+                                                <ul class="mb-0">
+                                                    {% for caminho in result.documentary.additional_paths %}
+                                                        <li>Caminho via <strong>{{ caminho.ancestor_name }}</strong> ({{ caminho.total_meioses }} meioses):
+                                                            {{ caminho.names | join(' → ') }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.evidence %}
+                                            <details class="mb-2">
+                                                <summary><strong>Evidências usadas em cada salto (registro do GEDCOM)</strong></summary>
+                                                <div class="table-responsive mt-2">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Filho(a)</th>
+                                                                <th>Genitor declarado</th>
+                                                                <th>Família</th>
+                                                                <th>Nascimento do filho</th>
+                                                                <th>Nascimento do genitor</th>
+                                                                <th>Idade</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for linha in result.documentary.evidence %}
+                                                                <tr {% if linha.plausible is sameas false %}class="table-danger"{% endif %}>
+                                                                    <td>{{ linha.child_name }}<br><small class="text-muted">{{ linha.child_id }}</small></td>
+                                                                    <td>{{ linha.parent_name }}<br><small class="text-muted">{{ linha.parent_id }}</small></td>
+                                                                    <td>{{ linha.family_id or '—' }}</td>
+                                                                    <td>{{ linha.child_birth or '—' }}</td>
+                                                                    <td>{{ linha.parent_birth or '—' }}</td>
+                                                                    <td>
+                                                                        {% if linha.age_at_birth is none %}
+                                                                            sem data
+                                                                        {% else %}
+                                                                            {{ linha.age_at_birth }} anos
+                                                                            {% if linha.plausible is sameas false %}
+                                                                                <span class="badge bg-danger">incompatível</span>
+                                                                            {% endif %}
+                                                                        {% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.homonyms and result.documentary.homonyms.exact_count > 1 %}
+                                            <div class="alerta-aviso">
+                                                <strong>Homônimos no GEDCOM ({{ result.documentary.homonyms.exact_count }} registros).</strong>
+                                                A escolha do registro não foi silenciosa: compare as fichas abaixo.
+                                                <div class="table-responsive mt-2">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle mb-0">
+                                                        <thead class="table-light">
+                                                            <tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Local</th><th>Falecimento</th><th>Pais</th><th>Filhos</th></tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for ficha in result.documentary.homonyms.exact_matches %}
+                                                                <tr>
+                                                                    <td>{{ ficha.id }}</td>
+                                                                    <td>{{ ficha.name }}</td>
+                                                                    <td>{{ ficha.birth or '—' }}</td>
+                                                                    <td>{{ ficha.birth_place or '—' }}</td>
+                                                                    <td>{{ ficha.death or '—' }}</td>
+                                                                    <td>{{ ficha.parent_names | join(', ') if ficha.parent_names else '—' }}</td>
+                                                                    <td>{{ ficha.children | length }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if result.mermaid_data %}
+                                            <div class="graph-container mt-2"><div class="mermaid">{{ result.mermaid_data | safe }}</div></div>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {# ---------------- 2. EVIDÊNCIA GENÉTICA ---------------- #}
+                                    {% if result.genetic_evidence %}
+                                    <div class="secao">
+                                        <h5><span class="numero">2.</span> Evidência genética</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: {{ result.genetic_evidence.source or 'não identificada no CSV' }}</p>
+                                        {% if result.genetic_evidence.available %}
+                                            {% for kit in result.genetic_evidence.kits %}
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle">
+                                                        <tbody>
+                                                            <tr><th class="table-light" style="width:32%">Pessoa (como está no CSV)</th><td>{{ kit.person_name_csv }}</td></tr>
+                                                            <tr><th class="table-light">Kit</th><td>{{ kit.kit or 'não informado no CSV' }}</td></tr>
+                                                            <tr><th class="table-light">DNA compartilhado</th><td><strong>{{ kit.total_cm | cm_br }} cM</strong></td></tr>
+                                                            <tr><th class="table-light">Segmentos</th><td>{{ kit.segment_count }}</td></tr>
+                                                            <tr><th class="table-light">Maior segmento</th><td>{{ kit.largest_segment_cm | cm_br }} cM</td></tr>
+                                                            <tr><th class="table-light">SNPs</th><td>{{ kit.snps_total | inteiro_br }}</td></tr>
+                                                            <tr><th class="table-light">Cromossomo(s)</th><td>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</td></tr>
+                                                            <tr><th class="table-light">Método do valor</th><td>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</td></tr>
+                                                            <tr>
+                                                                <th class="table-light">Posições</th>
+                                                                <td>
+                                                                    {% for segmento in kit.segments %}
+                                                                        {% if segmento.chromosome or segmento.start %}
+                                                                            chr{{ segmento.chromosome or '?' }}:
+                                                                            {{ segmento.start | inteiro_br }}–{{ segmento.end | inteiro_br }}
+                                                                            ({{ segmento.cm | cm_br }} cM{% if segmento.snps %}, {{ segmento.snps | inteiro_br }} SNPs{% endif %})<br>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted">Sem evidência genética disponível para esta pessoa.</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {# ---------------- 3. POSSIBILIDADES PELO DNA ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+                                        {% if result.hypotheses %}
+                                            <p class="mb-2">Com base na quantidade de DNA compartilhada, existem diferentes possibilidades de relacionamento.</p>
+                                            {% for bloco in result.hypotheses %}
+                                                <p class="mb-1">
+                                                    <strong>Kit {{ bloco.kit or 'não informado' }}</strong> — {{ bloco.total_cm | cm_br }} cM
+                                                    {% if bloco.confidence %}<span class="badge bg-light text-dark">confiança: {{ bloco.confidence }}</span>{% endif %}
+                                                </p>
+                                                {% if bloco.possible_relationships %}
+                                                    <ul>
+                                                        {% for possibilidade in bloco.possible_relationships %}
+                                                            <li>{{ possibilidade.name_pt }}
+                                                                <small class="text-muted">({{ possibilidade.range_low }}–{{ possibilidade.range_high }} cM na fonte; média {{ possibilidade.average }} cM)</small>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <p class="text-muted">Nenhuma relação publicada cobre exatamente este valor.</p>
+                                                {% endif %}
+                                                <p class="small text-muted">{{ bloco.interpretation }} {{ bloco.confidence_note }}</p>
+                                            {% endfor %}
+                                            <div class="alert alert-warning py-2 mb-0">
+                                                <strong>Atenção:</strong> essas possibilidades são estatísticas, vêm das faixas publicadas do
+                                                Shared cM Project 4.0 ({{ result.hypotheses[0].reference.version }}) e <b>não</b> representam confirmação
+                                                do parentesco documental. As distribuições das relações se sobrepõem: o mesmo valor de cM cabe em
+                                                várias delas. Endogamia e colapso de pedigree aumentam o cM esperado e alargam ainda mais essas faixas.
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted">Sem evidência genética, não há possibilidades de parentesco pelo DNA a listar.</p>
+                                        {% endif %}
+                                    </div>
+
+                                    {# ---------------- 4. CONFRONTAÇÃO ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">4.</span> Confrontação GEDCOM × DNA</h5>
+                                        {% if result.comparison %}
+                                            <p class="mb-2">Status:
+                                                <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
+                                            </p>
+                                            <p class="mb-2">{{ result.comparison.message }}</p>
+                                            {% if result.comparison.detail %}
+                                                <p class="small text-muted mb-2">{{ result.comparison.detail }}</p>
+                                            {% endif %}
+                                            {% if result.comparison.expected_range %}
+                                                <p class="small mb-2">
+                                                    Faixa esperada para o parentesco documental:
+                                                    <strong>{{ result.comparison.expected_range.low }}–{{ result.comparison.expected_range.high }} cM</strong>
+                                                    ({{ result.comparison.expected_range.label }})
+                                                </p>
+                                            {% endif %}
+                                            {% if result.comparison.per_kit %}
+                                                <ul class="small mb-2">
+                                                    {% for avaliacao in result.comparison.per_kit %}
+                                                        <li>Kit {{ avaliacao.kit or 'não informado' }}:
+                                                            <strong>{{ avaliacao.status }}</strong> — {{ avaliacao.note }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                            {% if result.comparison.causes %}
+                                                <details>
+                                                    <summary><strong>Possível conflito entre evidências — causas a verificar</strong></summary>
+                                                    <ul class="mt-2">
+                                                        {% for causa in result.comparison.causes %}
+                                                            <li>{{ causa }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </details>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+
+                                    {# ---------------- 5. OBSERVAÇÕES ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">5.</span> Observações</h5>
+                                        {% if result.observations %}
+                                            {% for observacao in result.observations %}
+                                                <div class="alerta-aviso">{{ observacao }}</div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted small mb-0">Nenhum alerta para esta conexão.</p>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
                     {% endif %}
-					
-					{% if skipped_matches %}
-					  <h2 class="text-center mt-5">Matches descartados ({{ skipped_matches | length }})</h2>
 
-					  <div class="card">
-						<div class="card-body">
-						  <p class="text-muted">
-							Estes nomes estavam no CSV, mas foram rejeitados pelas regras de validação. O motivo aparece abaixo.
-						  </p>
+                    {% if skipped_matches %}
+                      <h2 class="text-center mt-5">Matches descartados ({{ skipped_matches | length }})</h2>
 
-						  <div class="table-responsive">
-							<table class="table table-sm align-middle">
-							  <thead>
-								<tr>
-								  <th style="width:45%">Nome no CSV</th>
-								  <th>Motivo</th>
-								</tr>
-							  </thead>
-							  <tbody>
-								{% for item in skipped_matches %}
-								  <tr>
-									<td><strong>{{ item.csv_name }}</strong></td>
-									<td>{{ item.motivo }}</td>
-								  </tr>
-								{% endfor %}
-							  </tbody>
-							</table>
-						  </div>
-						 
-						</div>
-					  </div>
-					{% endif %}
+                      <div class="card">
+                        <div class="card-body">
+                          <p class="text-muted">
+                            Estes nomes estavam no CSV, mas não foi possível ligá-los a nenhum registro do GEDCOM.
+                            Nada foi inferido a partir do DNA: o motivo da rejeição aparece abaixo.
+                          </p>
+
+                          <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                              <thead>
+                                <tr>
+                                  <th style="width:32%">Nome no CSV</th>
+                                  <th style="width:14%">Kit</th>
+                                  <th style="width:12%">cM</th>
+                                  <th>Motivo</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for item in skipped_matches %}
+                                  <tr>
+                                    <td><strong>{{ item.csv_name }}</strong></td>
+                                    <td>{{ item.kit or '—' }}</td>
+                                    <td>{{ item.cm | cm_br if item.cm is not none else '—' }}</td>
+                                    <td>{{ item.motivo }}</td>
+                                  </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+
+                        </div>
+                      </div>
+                    {% endif %}
 
 
                     {% if path_result %}
-                        <h2 class="text-center mt-5">Resultado da Busca de Conexão</h2>
+                        <h2 class="text-center mt-5">Parentesco documental encontrado no GEDCOM</h2>
                         <div class="card">
                             <div class="card-header"><h5>Conexão entre: <strong>{{ path_result.person1_name }}</strong> e <strong>{{ path_result.person2_name }}</strong></h5></div>
                             <div class="card-body">
-                                <p><strong>Caminho:</strong> {{ path_result.text_path }}</p>
-                                <div class="graph-container"><div class="mermaid">{{ path_result.mermaid_data | safe }}</div></div>
+                                <p class="rotulo-fonte mb-2">Fonte: GEDCOM — análise sem DNA</p>
+                                <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                    <span class="badge {% if path_result.documentary.status == 'found' %}bg-primary{% elif path_result.documentary.status == 'ambiguous' %}bg-warning text-dark{% elif path_result.documentary.status == 'affinity' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                                        {{ path_result.documentary.label }}
+                                    </span>
+                                </p>
+                                {% if path_result.documentary.degrees and path_result.documentary.meioses %}
+                                    <p class="mb-1 small text-muted">
+                                        Distância geracional: {{ path_result.documentary.degrees.a_up }} + {{ path_result.documentary.degrees.b_up }} gerações
+                                        ({{ path_result.documentary.meioses }} saltos pai-filho).
+                                    </p>
+                                {% endif %}
+                                <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong> {{ path_result.text_path }}</p>
+                                {% if path_result.documentary.common_ancestor %}
+                                    <p class="mb-2"><strong>Ancestral comum (MRCA):</strong> {{ path_result.documentary.common_ancestor.name }}</p>
+                                {% endif %}
+
+                                {% if path_result.documentary.homonyms and path_result.documentary.homonyms.exact_count > 1 %}
+                                    <div class="alerta-aviso">
+                                        <strong>Homônimos no GEDCOM ({{ path_result.documentary.homonyms.exact_count }} registros).</strong>
+                                        A escolha do registro não foi silenciosa: confira os IDs e as datas antes de aceitar o resultado.
+                                    </div>
+                                {% endif %}
+
+                                {% if path_result.mermaid_data %}
+                                    <div class="graph-container"><div class="mermaid">{{ path_result.mermaid_data | safe }}</div></div>
+                                {% endif %}
+
+                                {% if path_result.observations %}
+                                    <h5 class="mt-4"><span class="numero">Observações</span></h5>
+                                    {% for observacao in path_result.observations %}
+                                        <div class="alerta-aviso">{{ observacao }}</div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                     {% endif %}
@@ -195,6 +520,6 @@
             });
         });
     </script>
-	
+
 </body>
 </html>
