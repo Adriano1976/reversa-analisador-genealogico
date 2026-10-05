@@ -17,7 +17,7 @@ A aplicação separa rigorosamente três coisas, e nunca deixa uma contaminar a 
 3. **Possibilidades e confronto** — o cM vira uma **lista** de relacionamentos compatíveis pela tabela publicada do Shared cM Project 4.0, e o confronto devolve um dos quatro estados:
 
 | Estado | Significado |
-|---|---|
+| --- | --- |
 | **COMPATÍVEL** | o parentesco documental não entra em conflito evidente com o cM observado |
 | **POSSÍVEL** | a evidência permite o relacionamento, mas não confirma o caminho documental |
 | **CONFLITANTE** | a incompatibilidade é significativa; verifique as causas listadas |
@@ -64,6 +64,7 @@ flowchart LR
 ## Começando (Getting Started)
 
 ### Pré-requisitos
+
 - Python 3.x
 - pip (gerenciador de pacotes do Python)
 
@@ -71,13 +72,17 @@ flowchart LR
 
 1. Clone ou navegue até o diretório do repositório.
 2. Instale as dependências necessárias (o `requirements.txt` fica na raiz do repositório):
+
    ```bash
    pip install -r requirements.txt
    ```
+
 3. Execute a aplicação (a partir da raiz do repositório). O ponto de entrada sobe a aplicação por um servidor WSGI de produção, e não pelo servidor de desenvolvimento do Flask:
+
    ```bash
    python src/app.py
    ```
+
 4. Acesse a interface web em `http://127.0.0.1:5000/`. O endereço padrão atende **apenas a máquina local**; abrir para a rede é um ato explícito, descrito a seguir.
 
 ### Configuração de execução
@@ -85,7 +90,7 @@ flowchart LR
 O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarado no código, então nada precisa ser definido para subir a aplicação:
 
 | Variável | Padrão | Para que serve |
-|---|---|---|
+| --- | --- | --- |
 | `ANALISADOR_HOST` | `127.0.0.1` | endereço de escuta. O padrão atende apenas a máquina local; use `0.0.0.0` para atender a rede |
 | `ANALISADOR_PORT` | `5000` | porta de escuta |
 | `ANALISADOR_THREADS` | `4` | número de threads do servidor |
@@ -120,7 +125,7 @@ src/                            # raiz de código da aplicação
 ├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
 ├── parsers/                    # Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches
 │   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
-│   └── csv_ingest.py           # Leitura do CSV de matches e agregação de cM por segmento
+│   └── csv_ingest.py           # Leitura do CSV de matches: encoding, separador, preâmbulo e linha torta — com agregação de cM por segmento
 ├── core/                       # Decisão sobre o que foi lido, sem saber de HTTP
 │   ├── documentary_relationship.py  # Parentesco DOCUMENTAL: caminho, MRCA, homônimos, caminhos múltiplos, colapso de pedigree, datas
 │   ├── genetic_evidence.py     # Evidência GENÉTICA: kits, cM, segmentos, SNPs, cromossomo, posições (nunca soma kits diferentes)
@@ -186,6 +191,7 @@ tests/
 ## Principais Funcionalidades
 
 - **Integração de GEDCOM & CSV:** Cruza a topologia da árvore (GEDCOM) com os dados genéticos (CSV) **sem misturar as duas evidências**, que aparecem em seções separadas do resultado.
+- **Leitura tolerante do CSV:** aceita `,`, `;`, TAB e `|`, encontra o cabeçalho mesmo quando o export traz linhas de título antes dele, e **reporta** (em vez de abortar) as linhas com número de campos diferente do cabeçalho. Arquivo que não é lista de matches — como o GEDCOM enviado por engano — recebe erro explicativo em português, com o separador usado, as colunas encontradas e a linha divergente.
 - **Busca Aproximada de Nomes:** Algoritmo avançado para contornar "mojibake" (corrupção de codificação) e combinar nomes apesar de variações de grafia ou abreviações.
 - **Possibilidades pelo DNA (Shared cM Project 4.0):** Traduz o cM compartilhado em uma **lista** de relacionamentos compatíveis, com faixa e média da fonte. Nunca devolve um parentesco único e nunca apresenta o cM como confirmação.
 - **Confrontação GEDCOM × DNA:** Compara o parentesco documental com a evidência genética e devolve COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO, com a explicação e a lista de causas a verificar quando há conflito.
@@ -197,6 +203,7 @@ tests/
 ## Fluxo de Desenvolvimento
 
 O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (251 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY e do bloco de entrada que sobe o servidor de produção).
+
 - **CI/CD:** Não há pipeline de build ou de testes automatizado. O único workflow é o `.github/workflows/deploy-pages.yml`, que publica o mini-site de `_reversa_docs/` no GitHub Pages e dispara em pushes para a branch `main` (a branch principal do repositório é `master`). Não há Dockerfile nem `docker-compose.yml`.
 - **Deploy:** O servidor de produção é o `waitress`, que roda em Windows sem compilação, e o `requirements.txt` fixa cada dependência com `==`, nas versões validadas nesta máquina em Python 3.14. A execução é o próprio `python src/app.py`, com as variáveis de ambiente documentadas acima; não há passo de build nem arquivo de configuração de servidor.
 
@@ -215,6 +222,7 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 
 - **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **119 funções de teste** — o total coletado é **166** — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e possibilidades por cM), a regra final da análise (parentesco documental, evidência genética, possibilidades, confronto e os dez cenários de `test_confrontacao_gedcom_dna.py`), caracterização de matching e de Mermaid, segurança do upload e o bloco de entrada do `app.py` (qual servidor sobe, a guarda de instância única e o padrão do endereço de escuta).
 - **Como rodar (da raiz do repositório, onde está o `pytest.ini`):**
+
   ```bash
   pip install -r requirements.txt pytest
   pytest
@@ -223,12 +231,14 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 ## Contribuindo
 
 Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
+
 1. Garanta que ajustes na lógica de *fuzzy matching* não aumentem os falsos positivos.
 2. Se modificar os caminhos dos grafos (`networkx`), esteja ciente da sobrecarga de memória, uma vez que o estado é recalculado a cada requisição `POST`.
 3. Evite adicionar requisitos de banco de dados persistente sem uma refatoração estrutural.
 4. Adicione testes básicos para novas funcionalidades algorítmicas (como `find_ancestral_path` ou `find_indirect_path`) para melhorar a robustez do sistema.
 
 ## Autoria e Créditos
+
 - Autor do Código Legado: [Sandro Azevedo](https://github.com/sssazevedo/analisador-genealogico)
 - Autor do projeto Reversa: [Adriano Santos](https://github.com/Adriano1976)
 - Autor do Framework Reversa: [Sandeco](https://github.com/sandeco/reversa)
@@ -241,7 +251,7 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 Este repositório inclui um arquivo LICENSE com os termos de licenciamento. Consulte `LICENSE` para detalhes.
 
 ##
- 
+
 <br><br>
 
 <div align="center">
