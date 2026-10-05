@@ -1,4 +1,5 @@
 { "version": 1,
 "allowLegacyEdits": true,
-  "allowedPaths": ["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml", "src/**", ".vscode/**", "requirements.txt"]
+  "allowedPaths": ["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml",
+                 "src/**", ".vscode/**", "requirements.txt", ".markdownlint-cli2.jsonc"]
 }

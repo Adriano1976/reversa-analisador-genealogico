@@ -1,0 +1,19 @@
+{
+  // Regras de lint do Markdown deste repositorio (markdownlint-cli2).
+  //
+  // Por que os padroes nao servem aqui: o README e um documento em portugues,
+  // com tabelas e blocos de codigo (arvore do projeto, Mermaid, PowerShell). Com
+  // as regras padrao ele acusava 91 problemas, 79 deles apenas por comprimento de
+  // linha — incluindo linhas de tabela e de bloco de codigo, que nao se quebram
+  // sem estragar o conteudo.
+  //
+  // O que fica valendo: prosa ate 120 colunas; titulos IRMAOS sem repeticao (o
+  // "## Testes" e o "### Testes" deixam de conflitar); e os badges/rodape em HTML
+  // declarados um a um, em vez de desligar MD033 — desligar esconderia HTML
+  // indevido em qualquer outro arquivo do projeto.
+  "config": {
+    "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
+    "MD024": { "siblings_only": true },
+    "MD033": { "allowed_elements": ["div", "p", "b", "h3", "img", "br"] }
+  }
+}
