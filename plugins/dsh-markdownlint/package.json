@@ -1,0 +1,28 @@
+{
+  "name": "dsh-markdownlint",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plugin host do DeepSeek Harness que expõe a ferramenta markdown_lint sobre o markdownlint-cli2",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./lint": "./lib/lint.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "smoke": "node smoke.mjs",
+    "lint": "node cli.mjs",
+    "link-host": "node link-host.mjs"
+  },
+  "dependencies": {
+    "markdownlint-cli2": "^0.23.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/lint.js"
+  ]
+}
