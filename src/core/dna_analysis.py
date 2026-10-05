@@ -93,9 +93,52 @@ def dna_analysis(csv_path: str, root_name: str):
     root_id = root_person_ids[0]
 
     df = read_csv_with_fallback(csv_path)
+    linhas_ignoradas = df.attrs.get("linhas_ignoradas") or []
+    linhas_de_preambulo = df.attrs.get("linhas_antes_do_cabecalho") or 0
+    detalhe_linhas = ""
+    if linhas_ignoradas:
+        numeros = ", ".join(str(numero) for numero in linhas_ignoradas[:10])
+        if len(linhas_ignoradas) > 10:
+            numeros += "…"
+        detalhe_linhas += (f" Há {len(linhas_ignoradas)} linha(s) com número de campos diferente do "
+                           f"cabeçalho (linha(s) {numeros}), o que costuma indicar separador diferente "
+                           "do esperado, aspas desbalanceadas ou arquivo de outro tipo.")
+    if linhas_de_preambulo:
+        detalhe_linhas += (f" O cabeçalho foi localizado na linha {linhas_de_preambulo + 1}: "
+                           f"{linhas_de_preambulo} linha(s) antes dele foram ignoradas.")
+
     name_col, cm_col, match_id_col, match_email_col = detect_columns(df)
     if not name_col or not cm_col:
-        raise ValueError("Colunas de Nome e cM não encontradas no CSV.")
+        # Erro acionavel: diz o separador usado, as colunas encontradas e o que
+        # havia de estranho no arquivo. Antes o operador via "Colunas de Nome e cM
+        # não encontradas" — ou, quando o arquivo era torto, o erro cru do pandas
+        # em ingles ("Error tokenizing data. C error: Expected 1 fields in line
+        # 4, saw 2") — sem saber o que conferir.
+        raise ValueError(
+            "Colunas de Nome e cM não encontradas no CSV. "
+            f"O arquivo foi lido com o separador {df.attrs.get('separador')!r} e as colunas "
+            f"encontradas foram: {list(df.columns)[:8]}." + detalhe_linhas
+            + " Confira se o arquivo enviado é a lista de matches de DNA (exportação do "
+              "GEDmatch/MyHeritage/FamilyTreeDNA) e não o GEDCOM ou outro CSV."
+        )
+
+    avisos_do_arquivo = []
+    if linhas_de_preambulo:
+        avisos_do_arquivo.append(
+            f"O arquivo CSV tem {linhas_de_preambulo} linha(s) antes do cabeçalho "
+            f"(título do export): a leitura começou na linha {linhas_de_preambulo + 1}, onde estão "
+            "as colunas."
+        )
+    if linhas_ignoradas:
+        avisos_do_arquivo.append(
+            "O arquivo CSV tem "
+            f"{len(linhas_ignoradas)} linha(s) com número de campos diferente do cabeçalho"
+            + (f" (linha(s) {', '.join(str(numero) for numero in linhas_ignoradas[:10])}"
+               + ("…" if len(linhas_ignoradas) > 10 else "") + ")")
+            + ". Elas foram descartadas para que a análise prosseguisse com o separador "
+              f"{df.attrs.get('separador')!r}. Se o número de matches parecer menor do que o "
+              "esperado, confira o arquivo de origem."
+        )
 
     evidencias, avisos_da_evidencia = build_genetic_evidence(df)
     ged_index, surname_index, features = build_ged_indexes()
@@ -169,7 +212,8 @@ def dna_analysis(csv_path: str, root_name: str):
                 "genetic_evidence": evidence,
                 "hypotheses": hypotheses,
                 "comparison": comparison,
-                "observations": _observacoes(documentary, evidence, comparison, avisos_da_raiz),
+                "observations": _observacoes(documentary, evidence, comparison,
+                                             avisos_da_raiz + avisos_do_arquivo),
                 "warnings": (documentary.get("warnings") or []) + (evidence.get("warnings") or []),
             })
 
@@ -185,6 +229,10 @@ def dna_analysis(csv_path: str, root_name: str):
 
     results_sorted = sorted(results_list, key=_ordem)
     message = f"{len(results_sorted)} conexões encontradas. {len(skipped_matches)} descartadas."
+    if avisos_do_arquivo and not results_sorted:
+        # Sem cartao na tela, o alerta da mensagem e o unico lugar onde o aviso do
+        # arquivo pode aparecer — e ele nao pode se perder.
+        message += " " + " ".join(avisos_do_arquivo)
     return results_sorted, skipped_matches, message
 
 

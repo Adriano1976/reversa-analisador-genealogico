@@ -777,6 +777,132 @@ def test_afinidade_nao_e_apresentada_como_parentesco():
 
 
 # ---------------------------------------------------------------------------
+# Leitura do CSV: separador, linha torta e arquivo trocado
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("separador", [",", ";", "\t"])
+def test_csv_com_outro_separador_e_lido_e_analisado(separador):
+    """Export com ponto e vírgula ou TAB não pode virar uma coluna só."""
+    from parsers.csv_ingest import read_csv_with_fallback
+
+    texto = (separador.join(["Name", "cM"]) + "\n"
+             + separador.join(["Soraia Vieira Souza", "2600"]) + "\n")
+    caminho = _csv(texto)
+    try:
+        df = read_csv_with_fallback(caminho)
+    finally:
+        os.remove(caminho)
+
+    assert df.attrs["separador"] == separador
+    assert list(df.columns) == ["Name", "cM"]
+
+    resultados, _, mensagem = _analisar(texto)
+    assert mensagem.startswith("1 conexões encontradas")
+    assert resultados[0]["cm"] == 2600
+    assert resultados[0]["comparison"]["status"] == "COMPATIVEL"
+
+
+def test_leitura_tolera_linha_torta_e_reporta_a_linha():
+    """O erro cru do pandas ('Expected 1 fields in line 4, saw 2') não pode subir."""
+    from parsers.csv_ingest import read_csv_with_fallback
+
+    texto = "Name,cM\nSoraia Vieira Souza,100\nSoraia Vieira Souza,100,CAMPO-A-MAIS\n"
+    caminho = _csv(texto)
+    try:
+        df = read_csv_with_fallback(caminho)
+    finally:
+        os.remove(caminho)
+
+    assert len(df) == 1, "a linha boa continua no DataFrame; só a torta sai"
+    assert df.attrs["linhas_ignoradas"] == [3]
+    assert df.attrs["erro_de_leitura"], "o erro original do pandas fica registrado"
+
+
+def test_linha_torta_nao_derruba_a_analise_e_aparece_nas_observacoes():
+    texto = ("Kit number,Name,Chromosome,Start,End,cM,SNPs\n"
+             "A1111111,Soraia Vieira Souza,1,10,20,2600,500\n"
+             "A1111111,Soraia Vieira Souza,1,10,20,2600,500,CAMPO-A-MAIS\n")
+    resultados, descartados, mensagem = _analisar(texto)
+
+    assert mensagem.startswith("1 conexões encontradas")
+    assert descartados == []
+    assert resultados[0]["cm"] == 2600
+    assert any("número de campos diferente do cabeçalho" in o for o in resultados[0]["observations"])
+    assert any("linha(s) 3" in o for o in resultados[0]["observations"])
+
+
+def test_csv_com_preambulo_de_export_e_lido_a_partir_do_cabecalho():
+    """Export que traz linhas de título antes das colunas não pode virar erro."""
+    from parsers.csv_ingest import localizar_cabecalho, read_csv_with_fallback
+
+    texto = ("Relatório de matches - GEDmatch\n"
+             "Gerado em 2026-10-05\n"
+             "Kit number,Name,Chromosome,Start,End,cM,SNPs\n"
+             "A1111111,Soraia Vieira Souza,1,10,20,2600,500\n")
+    caminho = _csv(texto)
+    try:
+        assert localizar_cabecalho(caminho, ",") == 2
+        df = read_csv_with_fallback(caminho)
+    finally:
+        os.remove(caminho)
+
+    assert df.attrs["linhas_antes_do_cabecalho"] == 2
+    assert list(df.columns)[:3] == ["Kit number", "Name", "Chromosome"]
+    assert len(df) == 1
+
+    resultados, _, mensagem = _analisar(texto)
+    assert mensagem.startswith("1 conexões encontradas")
+    assert resultados[0]["cm"] == 2600
+    assert any("antes do cabeçalho" in o for o in resultados[0]["observations"])
+
+
+def test_arquivo_sem_cabecalho_nao_ganha_cabecalho_inventado():
+    """Guarda do detector: tabela sem cabeçalho não pode ter a 1ª linha pulada."""
+    from parsers.csv_ingest import localizar_cabecalho
+
+    caminho = _csv("Soraia Vieira Souza,2600\nJoao Vieira Souza,100\n")
+    try:
+        assert localizar_cabecalho(caminho, ",") == 0
+    finally:
+        os.remove(caminho)
+
+
+def test_arquivo_que_nao_e_lista_de_matches_explica_o_problema_em_portugues():
+    """Reprodução do relato: GEDCOM enviado no campo do CSV.
+
+    Antes, a tela mostrava `Ocorreu um erro: Error tokenizing data. C error:
+    Expected 1 fields in line 4, saw 2`. Agora o erro nomeia o separador usado,
+    as colunas encontradas e a linha divergente, e diz o que conferir.
+    """
+    ged_como_csv = "0 HEAD\n1 SOUR TESTE\n1 GEDC\n2 DATE 1 JAN 1900, Sao Paulo\n0 TRLR\n"
+    _carregar(GED_FAMILIA)
+    caminho = _csv(ged_como_csv)
+    try:
+        with pytest.raises(ValueError) as excinfo:
+            dna_analysis(caminho, "Adriano Vieira Souza")
+    finally:
+        os.remove(caminho)
+
+    mensagem = str(excinfo.value)
+    assert "Error tokenizing" not in mensagem, "o texto cru do pandas não pode chegar ao operador"
+    assert "separador" in mensagem
+    assert "GEDCOM" in mensagem
+    assert "linha(s) 4" in mensagem, "a linha que o pandas apontava tem de aparecer"
+
+
+def test_csv_vazio_ou_sem_colunas_nao_estoura_erro_cru():
+    _carregar(GED_FAMILIA)
+    caminho = _csv("X,Y\n1,2\n")
+    try:
+        with pytest.raises(ValueError) as excinfo:
+            dna_analysis(caminho, "Adriano Vieira Souza")
+    finally:
+        os.remove(caminho)
+    assert "não encontradas" in str(excinfo.value)
+    assert "separador" in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
 # Texto da interface: o rotulo antigo nao pode reaparecer
 # ---------------------------------------------------------------------------
 
