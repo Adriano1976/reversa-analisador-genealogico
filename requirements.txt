@@ -1,6 +1,27 @@
+# Dependencias do analisador-genealogico.
+#
+# DECISAO DE 2026-10-05 (questions.md#pergunta-11): o interpretador OFICIAL do
+# projeto e o .venv/, e nao o global. Este arquivo foi realinhado as versoes
+# verificadas executando o pip DENTRO do .venv, encerrando a divergencia que
+# estava registrada como L-19.
+#
+# Divergencia encerrada (global -> .venv):
+#   ged4py  0.5.2  -> 0.5.5
+#   networkx 3.6.1 -> 3.7
+#   pandas  3.0.3  -> 3.0.6
+#
+# Flask 3.1.3, thefuzz 0.22.1 e waitress 3.0.2 ja coincidiam nos dois.
+#
+# As DUAS ULTIMAS linhas sao transitivas do thefuzz, promovidas a dependencia
+# declarada de proposito. O RapidFuzz e o BACKEND REAL do matching difuso
+# (RISK-006): deixa-lo livre permitiria que uma instalacao nova trouxesse outra
+# versao e mudasse o resultado da analise sem uma linha de codigo mudar. Era
+# exatamente o risco que sobrevivia ao pin das diretas.
 Flask==3.1.3
-ged4py==0.5.2
-networkx==3.6.1
-pandas==3.0.3
+ged4py==0.5.5
+networkx==3.7
+pandas==3.0.6
 thefuzz==0.22.1
 waitress==3.0.2
+rapidfuzz==3.14.6
+python-Levenshtein==0.27.5
