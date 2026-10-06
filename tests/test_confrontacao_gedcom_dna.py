@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.join(RAIZ, "src"))
 from core.dna_analysis import dna_analysis
 from core.documentary_relationship import documentary_relationship, homonym_dossier
 from core.evidence_comparison import compare
-from core.genetic_evidence import build_genetic_evidence, evidence_for
+from core.genetic_evidence import SEM_KIT, build_genetic_evidence, evidence_for
 from core.path_search import path_search
 from core.relationship_hypotheses import hypotheses_for_evidence, possible_relationships
 from parsers import gedcom_parser
@@ -654,11 +654,46 @@ def test_8b_sem_coluna_de_kit_a_evidencia_avisa():
     evidencias, avisos = build_genetic_evidence(df)
     assert any(aviso["code"] == "kit_ausente" for aviso in avisos)
     dossie = evidencias["soraia vieira souza"]
-    assert list(dossie) == ["SEM-KIT"]
+    assert list(dossie) == [SEM_KIT]
     evidencia = evidence_for(dossie, avisos=avisos)
     # Sem kit identificado, a soma so e legitima se for mesmo a mesma pessoa.
     assert evidencia["totals"]["cm"] == 150
     assert any(aviso["code"] == "kit_ausente" for aviso in evidencia["warnings"])
+
+
+def test_8c_kit_chamado_SEM_KIT_nao_colide_com_a_ausencia_de_kit():
+    """A sentinela do agrupamento nao pode colidir com um kit real.
+
+    Risco E-03, fechado em 2026-10-05: antes a sentinela era o literal
+    "SEM-KIT", e um CSV que trouxesse um kit com esse texto exato fazia as
+    linhas SEM kit caírem no mesmo grupo das linhas COM ele - somando cM de
+    origens diferentes. A sentinela passou a levar um espaco a esquerda, que
+    `_clean` remove de todo valor real do CSV.
+    """
+    import pandas as pd
+
+    caminho = _csv(
+        "Name,cM,Kit\n"
+        "Soraia Vieira Souza,100,ZL6373425\n"
+        "Soraia Vieira Souza,50,ZL6373425\n"
+        "Soraia Vieira Souza,25,\n"
+        "Soraia Vieira Souza,10,SEM-KIT\n"
+    )
+    try:
+        df = pd.read_csv(caminho)
+    finally:
+        os.remove(caminho)
+
+    evidencias, _avisos = build_genetic_evidence(df)
+    dossie = evidencias["soraia vieira souza"]
+
+    assert len(dossie) == 3, (
+        "os tres casos precisam ficar separados: kit real, ausencia de kit e "
+        "um kit literalmente chamado SEM-KIT"
+    )
+    assert dossie["ZL6373425"]["total_cm"] == 150
+    assert dossie[SEM_KIT]["total_cm"] == 25, "ausencia de kit nao pode somar com o kit homonimo"
+    assert dossie["SEM-KIT"]["total_cm"] == 10, "o kit real de nome SEM-KIT preserva o proprio total"
 
 
 # ---------------------------------------------------------------------------

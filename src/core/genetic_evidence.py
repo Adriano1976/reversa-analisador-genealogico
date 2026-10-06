@@ -30,6 +30,11 @@ from utils.text_cleaning import demojibake
 # aparecem com frequencia em pares sem relacao genealogica recente.
 LIMITE_SEGMENTO_FRACO = 15.0
 
+# Sentinela do agrupamento sem kit. O ESPACO A ESQUERDA nao e decorativo: `_clean`
+# faz strip em todo valor do CSV, entao nenhum kit real pode comecar com espaco -
+# era assim que o literal "SEM-KIT" colidia com um kit de verdade (risco E-03).
+SEM_KIT = " SEM-KIT"
+
 # Aceita ZL6373425 (GEDmatch), A123456, M123456 e afins. O regex largo so vale
 # para coluna cujo NOME fala de kit; para as demais colunas fica a regra estreita
 # do legado (duas letras + sete digitos), que e a que o CSV do GEDmatch usa.
@@ -137,7 +142,7 @@ def build_genetic_evidence(df):
             kit = _clean(linha[colunas["email"]])
         else:
             kit = ""
-        chave_kit = kit or "SEM-KIT"
+        chave_kit = kit or SEM_KIT
 
         cm = _to_float(linha[colunas["cm"]]) or 0.0
         snps = _to_int(linha[colunas["snps"]]) if colunas["snps"] else None
@@ -177,11 +182,11 @@ def build_genetic_evidence(df):
             avisos.append({
                 "code": "multiplos_kits",
                 "message": ("O mesmo nome aparece associado a mais de um kit "
-                            f"({', '.join(k for k in kits if k != 'SEM-KIT') or 'kit não informado'}). "
+                            f"({', '.join(k for k in kits if k != SEM_KIT) or 'kit não informado'}). "
                             "Cada combinação pessoa + kit foi mantida separada; os segmentos nunca "
                             "foram somados entre kits diferentes."),
             })
-        if kits == ["SEM-KIT"] and ("kit_ausente", chave_nome) not in vistos:
+        if kits == [SEM_KIT] and ("kit_ausente", chave_nome) not in vistos:
             vistos.add(("kit_ausente", chave_nome))
             avisos.append({
                 "code": "kit_ausente",
@@ -250,7 +255,7 @@ def evidence_for(dossie: dict, avisos=None, kit_key: str = None) -> dict:
         "kits": kits,
         "totals": {
             "cm": total,
-            "cm_por_kit": {k["kit"] or "SEM-KIT": k["total_cm"] for k in kits},
+            "cm_por_kit": {k["kit"] or SEM_KIT: k["total_cm"] for k in kits},
             "segments": sum(k["segment_count"] for k in kits),
             "largest_segment_cm": max((k["largest_segment_cm"] or 0) for k in kits) or None,
             "chromosomes": sorted({c for k in kits for c in k["chromosomes"]}, key=lambda c: (len(c), c)),
@@ -261,4 +266,4 @@ def evidence_for(dossie: dict, avisos=None, kit_key: str = None) -> dict:
 
 
 __all__ = ["build_genetic_evidence", "evidence_for", "detect_segment_columns",
-           "LIMITE_SEGMENTO_FRACO"]
+           "LIMITE_SEGMENTO_FRACO", "SEM_KIT"]
