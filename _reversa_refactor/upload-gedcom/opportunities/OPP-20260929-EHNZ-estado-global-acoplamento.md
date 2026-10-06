@@ -14,7 +14,9 @@ roi:
   impact: acoplamento estrutural. É a raiz do BUG-20260929-BJJH (exposição entre usuários)
   cost: high
   est_return: nenhum ganho como refactor. Ver a nota de escopo abaixo antes de rotear
-state: proposed
+state: declined
+superseded_by: OPP-20261006-3WR5
+declined_reason: Caminhos do alvo nao existem mais e o conteudo esta duplicado por OPP-20261006-3WR5, que registra o mesmo acoplamento sobre os arquivos atuais. Ver a reconciliacao de 2026-10-06 no fim do arquivo.
 traceability:
   soul: [.reversa/soul.md#decisões-fundadoras, .reversa/soul.md#lacunas-🔴-validação-humana]
   specs: [_reversa_sdd/migration/target_business_rules.md#br-humana-004, _reversa_sdd/migration/ambiguity_log.md#amb-009, _reversa_sdd/migration/discard_log.md#br-descartar-002]
@@ -69,5 +71,33 @@ comportamento não é demonstrável, e o gate deve barrar.
 Alto se executado como refactor. É exatamente o caso que o princípio II prevê: uma mudança que parece
 estrutural mas muda comportamento observável em cenário multiusuário.
 
+## Reconciliação de 2026-10-06
+
+Esta oportunidade foi marcada `declined` na auditoria das quatro configurações pedidas pelo usuário,
+por dois motivos independentes.
+
+**1. Os caminhos do alvo estão mortos.** O bloco `target` aponta para
+`analisador-genealogico/reconstructed/{upload,path_search,dna_analysis}.py`. Essa raiz deixou de
+existir em 2026-10-03, quando a `OPP-20261003-FLAT` moveu o pacote para `src/` com quatro
+subpacotes. Nenhum dos três caminhos resolve hoje.
+
+**2. O conteúdo está duplicado pela `OPP-20261006-3WR5`.** A oportunidade nova registra o mesmo
+acoplamento por variável global de módulo, com medição atualizada (nove módulos importando as
+globais, `parsers/gedcom_parser.py:62-67` escrevendo o estado do domínio, o import tardio de
+`graph` em `path_finding.py:38`) e sobre os arquivos que existem: `src/core/gedcom_state.py` e seus
+consumidores.
+
+**O que NÃO foi descartado com esta decisão**, e continua valendo integralmente:
+
+| Conteúdo original | Onde vive agora |
+|---|---|
+| A conclusão de que trocar o estado global **não é refactor** e pertence ao Forward (princípio II) | `OPP-20261006-3WR5`, seção "Aviso de escopo" |
+| O encaminhamento ao Forward, com `BR-HUMANA-004`, `AMB-009` e `BR-DESCARTAR-002` | `OPP-20261006-3WR5`, bloco `traceability.specs` |
+| O vínculo com o `BUG-20260929-BJJH` como mecanismo de exposição entre usuários | `.reversa/soul.md` §4 L2 e `_reversa_sdd/architecture.md` §7 |
+| A exigência de caracterização de concorrência como rede de segurança | `OPP-20261006-3WR5`, seção "Aviso de escopo" |
+
+A decisão é de auditoria, não de produto: nenhum código foi tocado, e o histórico fica preservado
+porque `declined` nunca apaga o registro.
+
 ---
-*Gerado pelo Reversa-Refactor em 2026-09-29.*
+*Gerado pelo Reversa-Refactor em 2026-09-29. Reconciliado em 2026-10-06.*

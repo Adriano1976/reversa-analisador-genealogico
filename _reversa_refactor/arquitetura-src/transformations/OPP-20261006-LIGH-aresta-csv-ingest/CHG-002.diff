@@ -1,0 +1,43 @@
+diff --git a/src/utils/name_keys.py b/src/utils/name_keys.py
+new file mode 100644
+index 0000000..ba12809
+--- /dev/null
++++ b/src/utils/name_keys.py
+@@ -0,0 +1,37 @@
++"""Normalizacao de um nome para forma comparavel. Modulo puro, sem dominio.
++
++Nasceu da OPP-20261006-LIGH. `norm_name` vivia em `core.name_normalization`, e
++`parsers/csv_ingest.py` o importava de la para montar a chave de agrupamento dos
++matches. Esse import era uma das duas arestas do ciclo `core/` <-> `parsers/`.
++
++## Por que esta funcao e de `utils/`, e nao de `core/`
++
++Ela nao sabe nada de genealogia: recebe um texto e devolve o mesmo texto em forma
++comparavel (sem acento, sem pontuacao, minusculo, espacos colapsados). A unica
++dependencia e `strip_bad_utf`, do proprio `utils/`. Quem sabe de dominio e o
++vocabulario que ficou em `core.name_normalization`: particulas, prenomes
++genericos, sufixos de sobrenome e as equivalencias.
++
++`core.name_normalization` reexporta este nome, de modo que `norm_name` continua
++importavel do endereco antigo: `core.dna_analysis.__all__` e o harness de paridade
++o alcancam por la.
++"""
++from __future__ import annotations
++
++import string
++import unicodedata
++
++from .text_cleaning import strip_bad_utf
++
++
++def norm_name(s):
++    s = strip_bad_utf(str(s))
++    s = unicodedata.normalize("NFKD", s)
++    s = "".join(ch for ch in s if not unicodedata.combining(ch))
++    s = s.replace("/", " ")
++    s = "".join(ch if ch not in set(string.punctuation) else " " for ch in s)
++    s = " ".join(s.lower().split())
++    return s
++
++
++__all__ = ["norm_name"]

@@ -1,0 +1,61 @@
+﻿diff --git a/src/app.py b/src/app.py
+index be0f5ad..472adba 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -108,6 +108,37 @@ def _resolver_caminho_armazenado(nome_recebido):
+     return caminho if os.path.exists(caminho) else None
+ 
+ 
++def _gedcom_do_formulario() -> tuple[str | None, str | None, str | None]:
++    """Arvore pedida pelo formulario: devolve `(nome, caminho, mensagem)`.
++
++    Fonte unica das duas guardas de entrada dos fluxos pos-upload (analise de
++    DNA e busca de caminho). Antes da OPP-20261006-4KMB o mesmo par de guardas
++    estava escrito em `index()` com as duas mensagens duplicadas.
++
++    O `nome` volta junto porque e ele que o template devolve no campo oculto
++    `gedcom_filename`, para a requisicao seguinte. E o valor RECEBIDO do
++    formulario, e nao uma forma derivada do caminho: e assim que o contrato de
++    continuidade entre requisicoes sempre funcionou.
++
++    A uniao e explicita de proposito, e o chamador repete a guarda de `None`.
++    O checador nao estreita o segundo elemento da tupla por `erro is not None`,
++    entao sem as duas a chamada de `load_gedcom_and_build_graph` recebe
++    `str | None`. Medido com pyrefly 1.3.2: sem a guarda, os erros de `src/`
++    sobem de 27 para 28.
++
++    O parse NAO acontece aqui de proposito: `load_gedcom_and_build_graph`
++    substitui o estado global do processo, e cada ramo o chama no ponto exato em
++    que chamava antes. Devolver a arvore pronta mudaria esse instante.
++    """
++    nome_recebido = request.form.get("gedcom_filename")
++    if not nome_recebido:
++        return None, None, "Erro: Arquivo GEDCOM não encontrado."
++    caminho: str | None = _resolver_caminho_armazenado(nome_recebido)
++    if caminho is None:
++        return None, None, f"Erro: Arquivo '{nome_recebido}' não existe mais."
++    return nome_recebido, caminho, None
++
++
+ # --- Rota Principal ---
+ @app.route("/", methods=["GET", "POST"])
+ def index():
+@@ -128,12 +159,13 @@ def index():
+             except Exception as e:
+                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
+ 
+-        gedcom_filename = request.form.get("gedcom_filename")
+-        if not gedcom_filename:
+-            return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
+-        gedcom_path = _resolver_caminho_armazenado(gedcom_filename)
++        gedcom_filename, gedcom_path, erro = _gedcom_do_formulario()
++        if erro is not None:
++            return render_template("index.html", message=erro, success=False)
+         if gedcom_path is None:
+-            return render_template("index.html", message=f"Erro: Arquivo '{gedcom_filename}' não existe mais.", success=False)
++            # Inalcancavel em execucao: `erro` e `caminho` sao preenchidos juntos.
++            # Existe para o checador de tipos estreitar a uniao do retorno.
++            return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
+         all_names = load_gedcom_and_build_graph(gedcom_path)
+ 
+         if action == "dna_analysis":

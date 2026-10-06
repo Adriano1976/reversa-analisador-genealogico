@@ -18,7 +18,7 @@ Ordenadas por retorno estimado, não pela ordem da árvore proposta.
 | #18 | `OPP-20261003-GUE7` | modularize | green | clareza: módulos planos, cinco papéis, nenhuma fronteira visível | high | **applied** | fronteiras explícitas entre parsing, núcleo, apresentação e validação |
 | #23 | `OPP-20261003-FLAT` | modularize | green | clareza: um nível de pacote que expressa proveniência, não responsabilidade | medium | **applied** | o núcleo pendurado direto em `src/`, sem o nível `reconstructed` |
 | #24 | `OPP-20261003-RAIZ` | modularize | green | risco de nome global: cinco módulos soltos na raiz viram nomes de primeiro nível | medium | **applied** | raiz do pacote limpa, com só `__init__.py` e os subpacotes |
-| #25 | `OPP-20261003-PAST` | standardize | green | nomes de duas pastas e de dois módulos divergem do exemplo do usuário | low | proposed | `parser/`, `generator/`, `state.py` e `analyzer.py`, se o usuário preferir |
+| #25 | `OPP-20261003-PAST` | standardize | green | nomes de duas pastas e de dois módulos divergem do exemplo do usuário | low | **declined** | nenhum: a medição de 2026-10-06 mostrou 89 ocorrências em 18 arquivos, perda de precisão nos nomes de módulo, e quebra de uma sonda de bug congelada |
 | #26 | `OPP-20261003-INIT` | modularize | red | **contradiz a RN-01 e reintroduz risco de duplo carregamento já medido** | low | proposed | nenhum ganho: a intenção do exemplo já é atendida sem o arquivo |
 
 ## Transformações
@@ -180,6 +180,10 @@ Observados durante as cinco transformações, e nenhum deles é código morto po
 | `README.md` deste registro | diz que o harness de paridade "não pode mais rodar" e que a suíte tem 76 testes. Ele roda, dá 100 por cento, e a suíte tem 118 aprovados |
 | `_reversa_sdd/` e `_reversa_docs/` | ainda citam `analisador-genealogico/`, componentes na raiz do pacote e `domain.py`. São artefatos de extração e de documentação publicada, de outros donos |
 | `.reversa/soul.md` | a linha 39 chama a tabela de cM de "padrão do Shared cM Project", e a decisão humana de 2026-09-30 diz o contrário |
+
+> Corrigido em 2026-10-06: os alvos da `OPP-20261003-PAST` (`src/reconstructed/...`) foram
+> reescritos para `src/parsers/`, `src/reporting/`, `src/core/gedcom_state.py` e
+> `src/core/dna_analysis.py`. A linha que registrava isso nesta tabela saiu.
 
 ## Legenda
 

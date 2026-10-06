@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de desacoplamento · OPP-20261006-ULVW</title>
+<style>
+  :root {
+    --bg: #0f1115; --pnl: #161a21; --bd: #262c36; --tx: #e6e9ef; --dim: #98a2b3;
+    --ok: #3fb950; --warn: #d29922; --bad: #f85149; --cy: #58a6ff; --vi: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--tx);
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -.02em; }
+  h2 { font-size: 18px; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--bd); }
+  .sub { color: var(--dim); margin: 0 0 28px; }
+  .pnl { background: var(--pnl); border: 1px solid var(--bd); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--bd); vertical-align: top; }
+  th { color: var(--dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+    background: #0b0d11; padding: 1px 5px; border-radius: 4px; color: #ffd8a8; }
+  pre { background: #0b0d11; border: 1px solid var(--bd); border-radius: 8px; padding: 14px 16px;
+    overflow-x: auto; font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; line-height: 1.55; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  .cy { color: var(--cy); } .vi { color: var(--vi); }
+  .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .kpi div { background: var(--pnl); border: 1px solid var(--bd); border-radius: 10px; padding: 14px 16px; }
+  .kpi b { display: block; font-size: 24px; font-weight: 700; }
+  .kpi span { color: var(--dim); font-size: 12px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 999px; border: 1px solid currentColor; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .arrow { color: var(--bad); font-weight: 700; }
+  .arrow.ok { color: var(--ok); }
+  ul { padding-left: 22px; } li { margin: 5px 0; }
+  .foot { color: var(--dim); font-size: 12.5px; margin-top: 40px; border-top: 1px solid var(--bd); padding-top: 14px; }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>Desacoplar o ciclo <code>core/</code> ↔ <code>reporting/</code></h1>
+  <p class="sub">
+    Oportunidade <code>OPP-20261006-ULVW</code> · contexto <code>arquitetura-src</code> · verbo <code>decouple</code> ·
+    plano de 2026-10-06. <span class="badge warn">AGUARDA APROVAÇÃO</span>
+  </p>
+
+  <div class="kpi">
+    <div><b class="bad">2 → 0</b><span>arestas de import no ciclo</span></div>
+    <div><b>3 → 0</b><span>imports de <code>core</code> dentro de <code>reporting</code></span></div>
+    <div><b>21</b><span>pontos de acoplamento a neutralizar</span></div>
+    <div><b>39</b><span>testes na rede de segurança, já verdes</span></div>
+  </div>
+
+  <h2>1. O acoplamento hoje, medido por AST</h2>
+
+  <p>O ciclo é exatamente entre dois pacotes, e nenhum outro par de pacotes de <code>src/</code> o forma:</p>
+
+<pre>core       <span class="arrow">──────▶</span> reporting   2 arestas
+core       <span class="arrow">◀──────</span> reporting   3 arestas   <span class="bad">← o ciclo</span>
+
+<span class="dim">para comparação, o outro ciclo (alvo da OPP-20261006-LIGH, fora deste escopo):</span>
+core       ──────▶ parsers     1 aresta
+core       ◀────── parsers     3 arestas</pre>
+
+  <div class="grid2">
+    <div class="pnl">
+      <h3 style="margin-top:0;font-size:14px">Fan-out de <code>reporting/</code> para <code>core/</code></h3>
+      <table>
+        <tr><th>Linha</th><th>Módulo</th><th>Símbolos</th></tr>
+        <tr><td>16</td><td><code>core.family_navigation</code></td><td><code>exclude_tail</code>, <code>get_spouses</code>, <code>pick_spouse_for_couple</code>, <code>split_path_by_marriage</code></td></tr>
+        <tr><td>22</td><td><code>core.path_finding</code></td><td><code>find_ancestral_path</code></td></tr>
+        <tr><td>23</td><td><code>core.gedcom_state</code></td><td><code>get_name</code>, <code>people</code></td></tr>
+      </table>
+    </div>
+    <div class="pnl">
+      <h3 style="margin-top:0;font-size:14px">Fan-in de <code>core/</code> para <code>reporting/</code></h3>
+      <table>
+        <tr><th>Arquivo</th><th>Linha</th><th>Símbolos</th></tr>
+        <tr><td><code>core/path_search.py</code></td><td>51</td><td>5 nomes, incluindo <code>_LABEL_SEGURO</code> e <code>_mermaid_label</code></td></tr>
+        <tr><td><code>core/dna_analysis.py</code></td><td>51</td><td><code>generate_mermaid_graph</code></td></tr>
+      </table>
+      <p style="font-size:13px;color:var(--dim);margin:10px 0 0">
+        Parte deste fan-in é <b>superfície de compatibilidade de teste</b>, não dependência de produção:
+        <code>test_mermaid_escape.py</code> importa <code>_mermaid_label</code> de
+        <code>core.path_search</code>. Isso é matéria-prima da <code>OPP-20261006-ESKO</code> (#30)
+        e <b>não</b> será mexido aqui.
+      </p>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px">Os 21 pontos de chamada dentro do renderizador</h3>
+  <table>
+    <tr><th>Função</th><th>Linhas</th><th>Símbolo de <code>core</code> usado</th></tr>
+    <tr><td rowspan="2"><code>generate_mermaid_graph</code></td><td>78</td><td><code>get_spouses</code></td></tr>
+    <tr><td>83, 84, 92</td><td><code>get_name</code> + <code>people[...]</code></td></tr>
+    <tr><td rowspan="7"><code>generate_mermaid_graph_indirect_bridge</code></td><td>126</td><td><code>split_path_by_marriage</code></td></tr>
+    <tr><td>135, 231</td><td><code>find_ancestral_path</code></td></tr>
+    <tr><td>139, 235</td><td><code>pick_spouse_for_couple</code></td></tr>
+    <tr><td>213, 214, 246, 247</td><td><code>exclude_tail</code></td></tr>
+    <tr><td>155, 242</td><td><code>get_name</code> (duas por linha)</td></tr>
+    <tr><td><code>add_node</code> (aninhada, 177)</td><td>181</td><td><code>get_name</code> + <code>people.get</code></td></tr>
+    <tr><td colspan="2"><b>Total: 19 chamadas de função + 2 acessos a <code>people</code> = 21</b></td></tr>
+  </table>
+
+  <h2>2. A restrição que define a costura</h2>
+
+  <div class="pnl" style="border-color:var(--warn)">
+    <p style="margin:0 0 10px"><b class="warn">A rota óbvia está proibida pelo próprio projeto.</b></p>
+    <p style="margin:0 0 10px">
+      A saída natural seria <i>mover</i> o layout para o núcleo: se o <code>core</code> montasse a
+      estrutura do diagrama e entregasse pronta, o renderizador viraria um serializador burro sem
+      nenhum import de <code>core</code>, e o ciclo morreria.
+    </p>
+    <p style="margin:0">
+      <code>_reversa_sdd/architecture.md:73</code> recusa exatamente isso, com todas as letras:
+      <i>"<code>reporting/</code> não é folha, e não pode ser"</i>, porque as decisões de layout são
+      <b>decisão de negócio</b> (o casal do ancestral comum, a escolha de qual ancestral ancora o
+      ramo, o ponto de corte por casamento). <code>ADR-11</code> mantém essas regras em
+      <code>reporting/</code> de propósito. <b>O escopo do verbo <code>decouple</code> proíbe
+      redistribuir responsabilidade</b>, e a oportunidade registra isso como premissa.
+    </p>
+  </div>
+
+  <h2>3. A costura proposta: inversão sem mover lógica</h2>
+
+  <p>
+    O ciclo existe porque o renderizador <b>busca</b> os dados de que precisa. A costura inverte a
+    direção da <i>dependência de código</i> sem mudar de lugar a <i>decisão</i>: o chamador passa um
+    resolvedor de domínio como argumento, e <code>reporting/</code> deixa de importar <code>core/</code>
+    por completo.
+  </p>
+
+  <div class="grid2">
+    <div class="pnl" style="border-color:var(--bad)">
+      <h3 style="margin-top:0;font-size:14px" class="bad">Antes</h3>
+<pre>reporting/mermaid_render.py
+  from core.family_navigation import (...)
+  from core.path_finding import find_ancestral_path
+  from core.gedcom_state import get_name, people
+        │
+        │ <span class="bad">import direto: ciclo</span>
+        ▼
+core/path_search.py
+  from reporting.mermaid_render import (...)</pre>
+    </div>
+    <div class="pnl" style="border-color:var(--ok)">
+      <h3 style="margin-top:0;font-size:14px" class="ok">Depois</h3>
+<pre>reporting/mermaid_render.py
+  <span class="ok"># nenhum import de core</span>
+  def generate_mermaid_graph(
+      path, p1_id, p2_id, common_ancestor_id, <b>dominio</b>): ...
+        ▲
+        │ <span class="ok">injetado como parâmetro</span>
+        │
+core/path_search.py
+  from reporting.mermaid_render import (...)
+  from .diagram_domain import resolvedor_de_diagrama
+  ...
+  generate_mermaid_graph(..., <b>resolvedor_de_diagrama()</b>)</pre>
+    </div>
+  </div>
+
+  <p>
+    O <b>resolvedor</b> é uma única costura explícita: um mapeamento nomeado das cinco consultas de
+    domínio que o desenho precisa. Ele fica no <code>core</code>, onde essas funções já vivem, e não
+    acrescenta lógica: só dá nome ao contrato que hoje está implícito nos imports.
+  </p>
+
+<pre>src/core/diagram_domain.py   <span class="dim">(novo, cerca de 25 linhas)</span>
+
+def resolvedor_de_diagrama() -> dict:
+    """As consultas de dominio que o desenho do diagrama precisa."""
+    from .family_navigation import (
+        exclude_tail, get_spouses, pick_spouse_for_couple, split_path_by_marriage,
+    )
+    from .path_finding import find_ancestral_path
+    from .gedcom_state import get_name, people
+    return {
+        "get_name": get_name, "people": people,
+        "get_spouses": get_spouses, "split_path_by_marriage": split_path_by_marriage,
+        "pick_spouse_for_couple": pick_spouse_for_couple, "exclude_tail": exclude_tail,
+        "find_ancestral_path": find_ancestral_path,
+    }</pre>
+
+  <p style="color:var(--dim);font-size:13.5px">
+    Nota de forma: o resolvedor é um <code>dict</code>, e não uma classe ou <code>Protocol</code>, para
+    respeitar <code>paradigm_decision.md</code>, que manda o núcleo permanecer em funções puras e
+    <b>não</b> introduzir objetos com estado nos cálculos.
+  </p>
+
+  <h2>4. Por que isto não muda comportamento</h2>
+
+  <table>
+    <tr><th>Dimensão</th><th>Antes</th><th>Depois</th></tr>
+    <tr><td>Fluxo de execução</td><td>renderizador resolve o domínio internamente</td><td>idêntico; o chamador resolve e injeta</td></tr>
+    <tr><td>String Mermaid</td><td>goldens de 3 caminhos + caso sem conexão</td><td><b>byte a byte igual</b>, travado por 39 testes</td></tr>
+    <tr><td>Valor de <code>_LABEL_SEGURO</code></td><td>lista branca fechada</td><td><b>inalterado</b></td></tr>
+    <tr><td>Quem decide o layout</td><td><code>reporting/</code></td><td><b><code>reporting/</code></b> (nada migra)</td></tr>
+    <tr><td>Assinaturas públicas</td><td>4 funções</td><td>4 funções, com <code>dominio</code> a mais na 2ª e na 4ª</td></tr>
+  </table>
+
+  <h3 style="font-size:14px">Superfície de chamada, completa</h3>
+  <table>
+    <tr><th>Arquivo</th><th>Linha</th><th>Ação</th></tr>
+    <tr><td><code>src/core/dna_analysis.py</code></td><td>62</td><td>passa <code>resolvedor_de_diagrama()</code></td></tr>
+    <tr><td><code>src/core/path_search.py</code></td><td>174</td><td>passa <code>resolvedor_de_diagrama()</code></td></tr>
+    <tr><td><code>src/core/path_search.py</code></td><td>184</td><td>passa <code>resolvedor_de_diagrama()</code></td></tr>
+    <tr><td><code>src/reporting/mermaid_render.py</code></td><td>128, 137, 233</td><td>repassam o <code>dominio</code> recebido</td></tr>
+  </table>
+  <p style="color:var(--dim);font-size:13px">
+    São <b>3 call sites de produção</b>, e nenhum teste chama o renderizador diretamente: a suíte
+    exercita o render por <code>path_search</code>, como confirma a varredura em <code>tests/</code>.
+  </p>
+
+  <h2>5. Acoplamento esperado depois, com o número que vou medir</h2>
+
+  <table>
+    <tr><th>Métrica</th><th>Antes</th><th>Esperado</th><th>Como provo</th></tr>
+    <tr><td>Arestas <code>reporting → core</code></td><td class="bad">3</td><td class="ok">0</td><td>AST dos imports do pacote</td></tr>
+    <tr><td>Ciclo <code>core ↔ reporting</code></td><td class="bad">existe</td><td class="ok">extinto</td><td>grafo de pacotes recalculado</td></tr>
+    <tr><td>Imports de <code>core</code> em <code>reporting/</code></td><td class="bad">3 linhas</td><td class="ok">0 linhas</td><td><code>grep</code> por <code>^from core</code></td></tr>
+    <tr><td>Ciclo <code>core ↔ parsers</code></td><td class="bad">existe</td><td class="bad">existe</td><td>fora do escopo: é a #29</td></tr>
+    <tr><td>Suíte</td><td>164 passam</td><td>164 passam</td><td><code>pytest -q</code></td></tr>
+    <tr><td>Tipos</td><td>27 erros</td><td>≤ 27</td><td><code>pyrefly check src</code></td></tr>
+  </table>
+
+  <h2>6. Risco e reversão</h2>
+  <ul>
+    <li><b>Risco declarado:</b> o renderizador é o componente com mais defeitos registrados (2 de 5) e o único cuja correção precisou ser refeita. Por isso a transformação <b>não toca</b> <code>_LABEL_SEGURO</code>, <code>_mermaid_label</code> nem <code>_mermaid_sid</code>.</li>
+    <li><b>Vermelho, reverte:</b> qualquer falha nos 39 testes de caracterização, ou a string Mermaid divergindo em um caractere, e o diff é revertido integralmente.</li>
+    <li><b>Reversível por:</b> <code>CHG-NNN.diff</code> guardado na pasta da transformação.</li>
+    <li><b>Gate de edição do legado:</b> liberado. <code>allowLegacyEdits: true</code> com <code>allowedPaths</code> cobrindo <code>src/**</code>.</li>
+  </ul>
+
+  <h2>7. O que esta transformação não faz</h2>
+  <ul>
+    <li>Não resolve a <b>inversão de camada</b> em si: o <code>reporting/</code> continua contendo decisão de negócio de apresentação, como <code>architecture.md:73</code> exige que continue. O ciclo acionável por importação morre; a decisão de fronteira segue registrada como 🔴 no <code>soul.md</code> §3 D2.</li>
+    <li>Não mexe em <code>parsers/</code> (é a <code>OPP-20261006-LIGH</code>).</li>
+    <li>Não reduz o <code>__all__</code> de <code>path_search</code> (é a <code>OPP-20261006-ESKO</code>), preservando <code>test_mermaid_escape.py</code> intacto.</li>
+    <li>Não toca o estado global (é a <code>OPP-20261006-3WR5</code>).</li>
+  </ul>
+
+  <div class="pnl" style="border-color:var(--cy)">
+    <p style="margin:0">
+      <b class="cy">Aprovação pedida:</b> aplicar o change set descrito na seção 3, com a rede de
+      segurança da seção 1 verde antes e depois. Nenhum arquivo será tocado antes desta aprovação.
+    </p>
+  </div>
+
+  <p class="foot">
+    Gerado pelo Reversa-Decouple em 2026-10-06 · <code>_reversa_refactor/arquitetura-src/transformations/OPP-20261006-ULVW-ciclo-core-reporting/plan.html</code>
+  </p>
+
+</main>
+</body>
+</html>

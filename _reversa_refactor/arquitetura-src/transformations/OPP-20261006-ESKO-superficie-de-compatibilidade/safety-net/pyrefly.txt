@@ -1,0 +1,8 @@
+﻿py :  INFO 27 errors (5 warnings not shown)
+No linha:13 caractere:497
++ ... ety-net\rede-mermaid.txt"; py -3.14 -m pyrefly check src 2>&1 | Selec ...
++                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( INFO 27 errors (5 warnings not shown):String) [] 
+   , RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

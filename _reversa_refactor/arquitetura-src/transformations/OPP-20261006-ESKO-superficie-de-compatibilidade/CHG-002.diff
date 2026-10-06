@@ -1,0 +1,123 @@
+diff --git a/src/core/path_search.py b/src/core/path_search.py
+index 3c3f7bc..4ea381c 100644
+--- a/src/core/path_search.py
++++ b/src/core/path_search.py
+@@ -27,41 +27,39 @@ Este modulo passou a compor o fluxo. As responsabilidades foram separadas em
+ `mermaid_render` (o diagrama e o escape do rotulo). A direcao das dependencias e
+ estritamente descendente, sem ciclo e sem import tardio novo.
+ 
+-## Superficie de compatibilidade
+-
+-O bloco de reexportacao no fim do arquivo existe porque consumidores externos
+-importam nomes daqui: `app.py`, `core/dna_analysis.py`,
+-`tests/test_path_search.py`, `tests/test_mermaid_escape.py`,
+-`tests/test_characterization_mermaid.py`, `_reversa_sdd/parity/harness.py` e as
+-sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
++## Superficie publica (OPP-20261006-ESKO, 2026-10-06)
++
++Este modulo define `path_search` e declara so ele em `__all__`. Ate 2026-10-06 havia
++aqui um bloco que reexportava 17 nomes de `family_navigation`, `path_finding`,
++`reporting.mermaid_render` e `gedcom_state`, justificado por uma lista de
++consumidores que a varredura desmentiu: `app.py` importa apenas `path_search`, e
++`core/dna_analysis.py` nao importa nada deste modulo. Os consumidores reais eram
++`tests/test_path_search.py`, `tests/test_mermaid_escape.py` e
++`_reversa_sdd/parity/harness.py`, todos migrados para o modulo canonico.
+ """
+ 
+ from __future__ import annotations
+ 
++from .diagram_domain import resolvedor_de_diagrama
+ from .documentary_relationship import documentary_relationship, homonym_dossier, person_summary
+-from .family_navigation import (
+-    are_spouses,
+-    exclude_tail,
+-    find_person_by_name,
+-    get_parents,
+-    get_spouses,
+-    pick_spouse_for_couple,
+-    split_path_by_marriage,
+-)
++from .family_navigation import find_person_by_name
+ from reporting.mermaid_render import (
+-    _LABEL_SEGURO,
+-    _mermaid_label,
+-    _mermaid_sid,
+     generate_mermaid_graph,
+     generate_mermaid_graph_indirect_bridge,
+ )
+-from .path_finding import MAX_DEPTH, MAX_HOPS, find_ancestral_path, find_indirect_path
+-from .gedcom_state import get_name, people, ref_id
+-
+-# `are_spouses`, `get_parents`, `get_spouses`, `pick_spouse_for_couple`,
+-# `split_path_by_marriage`, `exclude_tail`, `MAX_DEPTH`, `_mermaid_sid`,
+-# `_LABEL_SEGURO`, `_mermaid_label` e `ref_id` nao sao usados por `path_search`.
+-# Eles estao aqui pela superficie de compatibilidade declarada em `__all__`.
++from .path_finding import MAX_HOPS, find_indirect_path
++from .gedcom_state import get_name, people
++
++# Bloco de reexportacao removido pela OPP-20261006-ESKO. Os 13 nomes que ficavam
++# aqui nao eram usados por `path_search` e existiam so pela superficie de
++# compatibilidade; os consumidores passaram a importar do modulo canonico:
++#
++#   tests/test_path_search.py      -> family_navigation e path_finding
++#   tests/test_mermaid_escape.py   -> reporting.mermaid_render
++#   _reversa_sdd/parity/harness.py -> family_navigation e path_finding
++#   app.py, core/dna_analysis.py   -> nunca consumiram esta superficie
++#
++# `__all__` passa a declarar so o que o modulo define.
+ 
+ AVISO_AFINIDADE = ("O caminho exibido passa por casamento/afinidade, e não por ancestral comum: "
+                    "ele NÃO representa parentesco consanguíneo.")
+@@ -169,10 +167,16 @@ def path_search(person1_name: str, person2_name: str):
+     caminho = (documental.get("path") or {}).get("ids")
+     observacoes = [aviso["message"] for aviso in documental.get("warnings") or []]
+ 
++    # A costura da OPP-20261006-ULVW: quem busca o dado de dominio e este lado,
++    # e o renderizador recebe o resolvedor por parametro. Ver
++    # `core/diagram_domain.py`.
++    dominio = resolvedor_de_diagrama()
++
+     if caminho:
+         nomes = (documental.get("path") or {}).get("names") or []
+         mermaid_data = generate_mermaid_graph(caminho, p1_id, p2_id,
+-                                             (documental.get("common_ancestor") or {}).get("id"))
++                                             (documental.get("common_ancestor") or {}).get("id"),
++                                             dominio)
+         msg = "Conexão direta encontrada (ancestral comum)."
+     else:
+         person_path = find_indirect_path(p1_id, p2_id, max_hops=MAX_HOPS)
+@@ -181,7 +185,7 @@ def path_search(person1_name: str, person2_name: str):
+                     f"Nenhuma conexão encontrada entre '{person1_name}' e '{person2_name}'.",
+                     True)
+         nomes = [get_name(people[n]) for n in person_path]
+-        mermaid_data = generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path)
++        mermaid_data = generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio)
+         msg = "Conexão indireta encontrada (via casamento/afinidade)."
+         documental = dict(documental)
+         documental["status"] = "affinity"
+@@ -203,17 +207,12 @@ def path_search(person1_name: str, person2_name: str):
+ 
+ 
+ # ---------------------------------------------------------------------------
+-# Superficie de compatibilidade (ver a nota no docstring do modulo).
+-# Reexporta o que era definido aqui antes da OPP-20260929-UXEF. Os nomes
+-# privados do render entram porque `tests/test_mermaid_escape.py` e as sondas do
+-# BUG-20260929-J6PQ os importam deste modulo.
++# Superficie publica (OPP-20261006-ESKO).
++#
++# Ate 2026-10-06 este bloco reexportava 17 nomes que o modulo nao usa, e o
++# docstring os justificava com consumidores que nao existiam. Varredura mostrou
++# que `app.py` importa apenas `path_search` e que `core/dna_analysis.py` nao
++# importa nada daqui. Os consumidores reais eram tres arquivos de teste e o
++# harness de paridade, todos migrados para o modulo canonico.
+ # ---------------------------------------------------------------------------
+-__all__ = [
+-    "path_search",
+-    "find_person_by_name", "get_parents", "get_spouses", "are_spouses",
+-    "split_path_by_marriage", "pick_spouse_for_couple", "exclude_tail",
+-    "MAX_DEPTH", "MAX_HOPS", "find_indirect_path", "find_ancestral_path",
+-    "_mermaid_sid", "_LABEL_SEGURO", "_mermaid_label",
+-    "generate_mermaid_graph", "generate_mermaid_graph_indirect_bridge",
+-    "ref_id",
+-]
++__all__ = ["path_search"]

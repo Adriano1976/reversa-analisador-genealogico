@@ -1,0 +1,192 @@
+diff --git a/src/core/dna_analysis.py b/src/core/dna_analysis.py
+index f572a5a..e9f470d 100644
+--- a/src/core/dna_analysis.py
++++ b/src/core/dna_analysis.py
+@@ -32,6 +32,7 @@ verificavel, e estao marcadas como legado.
+ from __future__ import annotations
+ 
+ from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
++from .diagram_domain import resolvedor_de_diagrama
+ from .documentary_relationship import documentary_relationship, homonym_dossier
+ from .evidence_comparison import compare
+ from .genetic_evidence import build_genetic_evidence, evidence_for
+@@ -53,13 +54,13 @@ from utils.text_cleaning import demojibake, strip_bad_utf
+ from .gedcom_state import get_name, people
+ 
+ 
+-def _montar_diagrama(documentary: dict, root_id: str, pid: str):
++def _montar_diagrama(documentary: dict, root_id: str, pid: str, dominio: dict):
+     """Mermaid do caminho DOCUMENTAL (ou None quando nao ha caminho)."""
+     caminho = (documentary or {}).get("path") or {}
+     if not caminho.get("ids"):
+         return None
+     ancestral = (documentary.get("common_ancestor") or {}).get("id")
+-    return generate_mermaid_graph(caminho["ids"], root_id, pid, ancestral)
++    return generate_mermaid_graph(caminho["ids"], root_id, pid, ancestral, dominio)
+ 
+ 
+ def _observacoes(documentary, evidence, comparison, extra=None):
+@@ -163,6 +164,10 @@ def dna_analysis(csv_path: str, root_name: str):
+             dossie_por_nome[nome] = homonym_dossier(nome, similar_ids=candidatos)
+         return dossie_por_nome[nome]
+ 
++    # A costura da OPP-20261006-ULVW: resolvido UMA vez por analise, e nao dentro
++    # do laco, porque o mapeamento so aponta para funcoes do proprio pacote.
++    dominio = resolvedor_de_diagrama()
++
+     for chave_nome, por_kit in evidencias.items():
+         for chave_kit, kit in por_kit.items():
+             # O matching continua recebendo o cM DO KIT (nunca a soma de kits
+@@ -207,7 +212,7 @@ def dna_analysis(csv_path: str, root_name: str):
+                 "cm": kit["total_cm"],
+                 "kit": kit["kit"],
+                 "text_path": " → ".join(nomes_do_caminho),
+-                "mermaid_data": _montar_diagrama(documentary, root_id, pid),
++                "mermaid_data": _montar_diagrama(documentary, root_id, pid, dominio),
+                 "documentary": documentary,
+                 "genetic_evidence": evidence,
+                 "hypotheses": hypotheses,
+diff --git a/src/core/path_search.py b/src/core/path_search.py
+index 3c3f7bc..e38c5ed 100644
+--- a/src/core/path_search.py
++++ b/src/core/path_search.py
+@@ -38,6 +38,7 @@ sondas do BUG-20260929-J6PQ. Enquanto eles nao forem migrados, o bloco fica.
+ 
+ from __future__ import annotations
+ 
++from .diagram_domain import resolvedor_de_diagrama
+ from .documentary_relationship import documentary_relationship, homonym_dossier, person_summary
+ from .family_navigation import (
+     are_spouses,
+@@ -169,10 +170,16 @@ def path_search(person1_name: str, person2_name: str):
+     caminho = (documental.get("path") or {}).get("ids")
+     observacoes = [aviso["message"] for aviso in documental.get("warnings") or []]
+ 
++    # A costura da OPP-20261006-ULVW: quem busca o dado de dominio e este lado,
++    # e o renderizador recebe o resolvedor por parametro. Ver
++    # `core/diagram_domain.py`.
++    dominio = resolvedor_de_diagrama()
++
+     if caminho:
+         nomes = (documental.get("path") or {}).get("names") or []
+         mermaid_data = generate_mermaid_graph(caminho, p1_id, p2_id,
+-                                             (documental.get("common_ancestor") or {}).get("id"))
++                                             (documental.get("common_ancestor") or {}).get("id"),
++                                             dominio)
+         msg = "Conexão direta encontrada (ancestral comum)."
+     else:
+         person_path = find_indirect_path(p1_id, p2_id, max_hops=MAX_HOPS)
+@@ -181,7 +188,7 @@ def path_search(person1_name: str, person2_name: str):
+                     f"Nenhuma conexão encontrada entre '{person1_name}' e '{person2_name}'.",
+                     True)
+         nomes = [get_name(people[n]) for n in person_path]
+-        mermaid_data = generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path)
++        mermaid_data = generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio)
+         msg = "Conexão indireta encontrada (via casamento/afinidade)."
+         documental = dict(documental)
+         documental["status"] = "affinity"
+diff --git a/src/reporting/mermaid_render.py b/src/reporting/mermaid_render.py
+index 4124abc..9d07d41 100644
+--- a/src/reporting/mermaid_render.py
++++ b/src/reporting/mermaid_render.py
+@@ -6,6 +6,20 @@ transformar um caminho de parentesco no texto do diagrama.
+ Este e o modulo onde o contrato de escape vive. `_LABEL_SEGURO` e a lista branca
+ que substituiu a lista negra furada pela crase, e o comentario que a documenta
+ veio junto com ela. Ver BUG-20260929-J6PQ.
++
++## Contrato de dominio (OPP-20261006-ULVW)
++
++Este modulo NAO importa `core`. Ele recebe `dominio`, o mapeamento devolvido por
++`core.diagram_domain.resolvedor_de_diagrama`, no qual faz as consultas de que o
++desenho precisa. Antes desta costura o renderizador importava
++`core.family_navigation`, `core.path_finding` e `core.gedcom_state`, o que fechava
++o ciclo `core/` <-> `reporting/`.
++
++As decisoes de LAYOUT continuam aqui, e isso e deliberado: `reporting/` nao e
++folha e nao pode ser, porque decidir o casal do ancestral comum, o ancestral que
++ancora o ramo e o ponto de corte por casamento e decisao de negocio
++(`_reversa_sdd/architecture.md` secao 3 e ADR-11). O que mudou foi apenas quem
++busca o dado.
+ """
+ from __future__ import annotations
+ 
+@@ -13,15 +27,6 @@ import re
+ import unicodedata
+ from contextlib import contextmanager
+ 
+-from core.family_navigation import (
+-    exclude_tail,
+-    get_spouses,
+-    pick_spouse_for_couple,
+-    split_path_by_marriage,
+-)
+-from core.path_finding import find_ancestral_path
+-from core.gedcom_state import get_name, people
+-
+ 
+ def _mermaid_sid(raw) -> str:
+     """Identificador de no Mermaid: apenas [A-Za-z0-9_], prefixado com N_."""
+@@ -60,8 +65,10 @@ def _mermaid_label(txt) -> str:
+     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+ 
+ 
+-def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
++def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio):
+     sid, lab = _mermaid_sid, _mermaid_label
++    get_name = dominio["get_name"]
++    people = dominio["people"]
+ 
+     lines = ["flowchart BT"]
+     seen_nodes = set()
+@@ -75,7 +82,7 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+     couple_members_to_skip = set()
+     ancestor_id_for_arrows = sid(common_ancestor_id)
+     if not is_direct_ancestry:
+-        spouses = get_spouses(common_ancestor_id)
++        spouses = dominio["get_spouses"](common_ancestor_id)
+         if spouses:
+             couple_members_to_skip.update({common_ancestor_id, spouses[0]})
+             couple_id_str = "+".join(sorted(list(couple_members_to_skip)))
+@@ -109,8 +116,14 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+     return "\n".join(lines)
+ 
+ 
+-def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
++def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
+     sid, lab = _mermaid_sid, _mermaid_label
++    get_name = dominio["get_name"]
++    people = dominio["people"]
++    exclude_tail = dominio["exclude_tail"]
++    split_path_by_marriage = dominio["split_path_by_marriage"]
++    find_ancestral_path = dominio["find_ancestral_path"]
++    pick_spouse_for_couple = dominio["pick_spouse_for_couple"]
+ 
+     def norm_ids(seq):
+         out = []
+@@ -125,7 +138,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
+ 
+     left, right, spouses = split_path_by_marriage(person_path)
+     if not spouses:
+-        return generate_mermaid_graph(person_path, p1_id, p2_id, None)
++        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+ 
+     A, B = map(str, spouses)
+     p1_id, p2_id = str(p1_id), str(p2_id)
+@@ -134,7 +147,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
+ 
+     path_p1_A, ca1 = find_ancestral_path(p1_id, A)
+     if not path_p1_A:
+-        return generate_mermaid_graph(person_path, p1_id, p2_id, None)
++        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+ 
+     spouse_ca1 = pick_spouse_for_couple(ca1, candidate_path=path_p1_A)
+ 
+@@ -230,7 +243,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
+         else:
+             path_p2_B, ca2 = find_ancestral_path(p2_id, B)
+             if not path_p2_B:
+-                return generate_mermaid_graph(person_path, p1_id, p2_id, None)
++                return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+ 
+             spouse_ca2 = pick_spouse_for_couple(ca2, candidate_path=path_p2_B)
+             r2_down, r2_up_from_B = split_at(path_p2_B, ca2)

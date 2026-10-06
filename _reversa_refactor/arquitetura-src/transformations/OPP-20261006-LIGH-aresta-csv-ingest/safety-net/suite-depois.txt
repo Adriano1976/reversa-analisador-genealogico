@@ -1,0 +1,2 @@
+﻿ERROR tests/test_upload_seguranca.py::TestExtensaoPreservada::test_csv_fica_gravado_com_a_extensao_original
+164 passed, 15 errors in 16.24s
