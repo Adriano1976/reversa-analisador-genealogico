@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "startedAt": "2026-10-06T03:43:10Z",
-  "lastCheckpoint": "2026-10-06T05:08:44Z",
+  "lastCheckpoint": "2026-10-06T05:27:12Z",
   "pipelineDurationMs": 5119324,
   "completedAgents": [
     "mapper",
@@ -14,32 +14,32 @@
     "index.html": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:b7c9711cd7af408101a3dcd557c1c0f71441324ebe65a90168eb3c5d43ff2d06"
+      "hash": "sha256:ef1f090deaae0827443dd004ae0b7729d0bac152e8af53ee807dfcb369d7d8a3"
     },
     "arquitetura.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:cb9be9c59a4a6cddf0383b52352c2be6b707107417675fee6769d514515ef8f8"
+      "hash": "sha256:4dae234881892436a8c25afe075cceac793bc3396483970968cea317ddc032fe"
     },
     "modulos.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:619d416321945f7fe7b0bdd76c8280e92e6587605282e8e490c2d1b43afce269"
+      "hash": "sha256:3b318a6846a382a254e634652a1207875cd40280e6fbe03cef9d4912a188301a"
     },
     "metricas.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:fd6201294194eac57a27d3e33240738fee11c4cedf6f3c79af66e399252e414e"
+      "hash": "sha256:deaf272914e98df4d49e71e00ba5f50a5eb2358811b994380207359760c5e2fa"
     },
     "deck.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:eee0aa01c7f07711cc64e8ede2e647f143d82bb5ad47727e1afaed219374fa33"
+      "hash": "sha256:f8c08cab1221ba9325801a8bd0bec51f2dcaa3d1419a969d54f1791246d5aed6"
     },
     "glossario.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:c3b978c31be97c64254fa4bb31b8d2f280697a3ce2ea6dc7c753d07802134423"
+      "hash": "sha256:45c2e659c3b4615c69f1f3abd4e4846bca3ca59824ff439b8195ec4eaac53c17"
     },
     "assets/data/soul.json": {
       "status": "created",
@@ -49,17 +49,17 @@
     "features/upload-gedcom.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:36ffe7940d83cc0142cef6f7b6230b6880fb954424102ed5394b0a5ac88a150d"
+      "hash": "sha256:6af1578652357513cb861a88de063cd5bbed6789940e277b8c41225006f3072c"
     },
     "features/busca-caminho.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:6cb532de41a46c7784f5967bc11ff2849c478328e981fb367323b61bfc40778d"
+      "hash": "sha256:8c326cd4db0f5ef02d9adf841b92cdfbdc58168d5a8aca29580bf537916bc29c"
     },
     "features/analise-dna.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:927af37d5a2fc2204317742c05e5339f545bd9d14896cc6f2fd7da24e0729437"
+      "hash": "sha256:67881009db9bdb6e4a7dcaf10c8f6266134fc695ec63fdcc0ea5acdff8101055"
     },
     "assets/data/modules.json": {
       "status": "created",
@@ -84,22 +84,22 @@
     "assets/js/data.js": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:042e560c8674459e4356d0f10b92daa0bfcb897babfc065df7040d404e5f3b4b"
+      "hash": "sha256:88cbab87daa04fc71aa0160043311366e129c3510722d120bc816267874b7c40"
     },
     "assets/img/seal.svg": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:44c7bd884a352741297df3d05b57a1d6b22423f1cda47a59ca0c319e5e06f4b2"
+      "hash": "sha256:d8708da25cec9b45716b3b0c78e37f0fb4accbb7485b040607379f00c7691c7a"
     },
     "assets/img/seal-mini.svg": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:9da364496ccec26e076b626b7bb0d4ff70e68fd44edd04a783b09d3631e68268"
+      "hash": "sha256:824634d6f3fd2e7e4b86215af80e914e12ba66e221b4a05e9d4e5fadf173baa4"
     },
     "timeline.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:00eb6e821174c0fa333ae6a850d7dcd18daef7e87cb451574e2d2c1299b14053"
+      "hash": "sha256:2e49ea1135606a2d010942260681cff88828d5bcd609d24b3f3a97fa26a88771"
     },
     "assets/data/timeline.json": {
       "status": "created",
@@ -159,15 +159,16 @@
       "storyteller: soul.json derivado do soul.md regenerado (24 conceitos, 4 lacunas, era de 2026-08-12 com 8 conceitos); deck de 10 slides com o numero real de 179 itens (antes afirmava 47); 3 features reescritas com 19/24/26 requisitos; NAV_LINKS reposto nas 3 features, que nao o tinham",
       "publisher: index.html regenerado com 6 cards, hero novo e as 3 features com contagem de requisitos",
       "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
-      "correcao pos-publisher: o index.html guardava DOIS espacos de selo (o marcador MINI_SEAL_SVG e um selo azul antigo de 2026-10-01 embutido logo abaixo, com #4f8cff/#23262c). O selo antigo foi removido; agora as 10 paginas tem exatamente um mini-selo, o novo."
+      "correcao pos-publisher: o index.html guardava DOIS espacos de selo (o marcador MINI_SEAL_SVG e um selo azul antigo de 2026-10-01 embutido logo abaixo, com #4f8cff/#23262c). O selo antigo foi removido; agora as 10 paginas tem exatamente um mini-selo, o novo.",
+      "reexecucao isolada do Publisher (passos 0 a 11): selos regerados pela skill reversa-selo-generativo a partir da mesma seed, padrao crystal-lattice, agora na variante dark prevista pela paleta sober para header escuro, com descarte de #3d4a5c por contraste abaixo de 2,5:1; o selo do hero deixou de ser <img> e virou SVG inline no index.html; data.js reembutido; mini-selo e nav reinjetados nas 10 paginas; auto-discovery com 0 auxiliares; placeholder de topologia omitido porque a pagina nao esta no nav"
     ],
     "tooling": "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, extract_modules.py, extract_deps.py, convert_chronicle.py ou convert_soul.py. A extracao de dados foi feita por scripts deterministicos proprios, guardados em .reversa/: _docs_extract_modules.py, _docs_extract_metrics.py, _docs_extract_features.py, _docs_nav.py, _docs_build_datajs.py, _docs_inject_pages.py, _docs_smoke_test.py, _docs_render_check.js e _docs_state.py.",
     "verifiedBy": "Tres verificacoes independentes: (1) node .reversa/_docs_render_check.js carrega o data.js num window falso e confere o inventario das 6 chaves de dados, os 10 itens do nav e a sintaxe do script inline das 10 paginas via vm.Script; (2) .reversa/_docs_smoke_test.py sobe http.server efemero, faz GET nas 10 paginas e nos 29 assets locais e valida os links relativos contra o disco; (3) markdownlint nos artefatos de texto do SDD.",
     "seal": {
       "seedSource": ".reversa/soul.md",
       "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
-      "sealSvgBytes": 1080,
-      "sealMiniSvgBytes": 663
+      "sealSvgBytes": 1387,
+      "sealMiniSvgBytes": 677
     },
     "soul": {
       "regeneratedAt": "2026-10-06",
@@ -175,7 +176,30 @@
       "previousPreservedAt": ".reversa/soul.20260928-1537.md",
       "previousBytes": 4585,
       "currentBytes": 15559
-    }
+    },
+    "sealRerun": {
+      "antes": {
+        "seal.svg": "sha256:44c7bd884a352741",
+        "seal-mini.svg": "sha256:9da364496ccec26e",
+        "bytes": [
+          1080,
+          663
+        ],
+        "variante": "clara"
+      },
+      "depois": {
+        "seal.svg": "sha256:cd3b180b663cbda4",
+        "seal-mini.svg": "sha256:eee0fefb9bb35c9b",
+        "bytes": [
+          1387,
+          677
+        ],
+        "variante": "dark"
+      },
+      "backup": ".backup-20261006-022411/",
+      "determinismo": "duas geracoes em memoria produziram bytes identicos"
+    },
+    "notaInterna": "uma gravacao minha colapsou whatChanged em um objeto; a lista foi restaurada do backup desta execucao"
   },
   "vendorFiles": [
     "OrbitControls.js",
@@ -202,5 +226,21 @@
     "seedShort",
     "nav",
     "config"
-  ]
+  ],
+  "publisherIsolatedRun": {
+    "startedAt": "2026-10-06T05:24:11Z",
+    "lastCheckpoint": "2026-10-06T05:26:49Z",
+    "durationMs": 158986,
+    "reason": "reexecucao isolada do Publisher a pedido do usuario, sem Mapper, Analyst nem Storyteller. Selos regerados pela skill reversa-selo-generativo a partir da mesma seed, na variante dark prevista pela paleta sober para header escuro, com descarte das cores abaixo de 2,5:1 de contraste; selo grande do hero passou de <img> para SVG inline.",
+    "preservedPipelineDurationMs": 5119324
+  },
+  "seal": {
+    "seedSource": ".reversa/soul.md",
+    "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+    "pattern": "crystal-lattice",
+    "variant": "dark (paleta sober espelhada para header escuro)",
+    "sealSvgBytes": 1387,
+    "sealMiniSvgBytes": 677,
+    "deterministic": true
+  }
 }
