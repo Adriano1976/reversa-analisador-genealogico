@@ -100,9 +100,15 @@ def match_candidates(match_name, cm_value, ged_index, surname_index, features):
                 inter_bonus = 8.0 * inter_cnt_local - 4.0 * common_penalty
                 score = round(0.55 * s_token + 0.25 * s_part + 0.20 * s_given + inter_bonus, 2)
 
+                # 4o criterio de desempate: menor `xref_id` no empate triplo.
+                # Decisao de 2026-10-05 (_reversa_sdd/questions.md#pergunta-1 e
+                # adrs/23): sem ele, empate exato nos tres criterios caia na
+                # ordem de iteracao de `pool`, que e um `set`.
                 if (inter_cnt_local > best_inter or
                         (inter_cnt_local == best_inter and s_given > best_g) or
-                        (inter_cnt_local == best_inter and s_given == best_g and score > best_score)):
+                        (inter_cnt_local == best_inter and s_given == best_g and score > best_score) or
+                        (inter_cnt_local == best_inter and s_given == best_g and score == best_score
+                         and best_pid is not None and pid < best_pid)):
                     best_pid, best_score, best_g, best_inter = pid, score, s_given, inter_cnt_local
 
             if best_pid is not None:

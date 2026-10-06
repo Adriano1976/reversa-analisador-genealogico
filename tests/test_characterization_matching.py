@@ -173,3 +173,71 @@ def test_decisao_de_matching(tree, nome, pids, motivo):
 def test_limiar_de_cm_nao_muda_a_decisao(tree, cm):
     """O nome valido e aceito independentemente do cM, como hoje."""
     assert _decidir("Ana Silva Souza", cm) == (["@I13@"], None)
+
+
+# --- desempate deterministico -------------------------------------------------
+#
+# DECISAO DO USUARIO, 2026-09-30, retomada e executada em 2026-10-05.
+#
+# O legado resolvia empate exato nos tres criterios pela ORDEM DE ITERACAO do
+# `set` de candidatos (`pool`), que muda a cada processo por causa do
+# PYTHONHASHSEED. O vencedor, portanto, variava entre execucoes identicas - e a
+# escolha propaga para o caminho documental, o rotulo, a janela de cM e o estado
+# do confronto.
+#
+# O criterio final decidido foi o MENOR `xref_id` entre os empatados.
+#
+# Este teste NAO usa subprocesso nem semente de hash: monta dois candidatos
+# IDENTICOS, que empatam nos tres criterios por construcao, e afirma o vencedor
+# com o pool inserido nas DUAS ordens. E prova mais direta do que comparar duas
+# execucoes - e nao depende de o empate acontecer por acaso no dado real.
+
+
+def _feature(norm, givens, surnames, tokens):
+    """Atributos normalizados no mesmo formato que `build_ged_indexes` produz."""
+    return {
+        "norm": norm,
+        "given_tokens": list(givens),
+        "surnames": set(surnames),
+        "surnames_list": list(surnames),
+        "tokens": set(tokens),
+    }
+
+
+def _pool_empatado(ordem):
+    """Indices sinteticos com dois candidatos identicos, na ordem pedida.
+
+    O nome do CSV e "Mariana Silva Souza" de proposito: `split_name_pt` escolhe
+    como prenome o primeiro token que nao seja stop word nem GENERICO. Com o
+    prenome "Ana" (que esta em GENERIC_GIVENS), o prenome escolhido passa a ser
+    "silva" e o cM do pool nao e aceito. "Mariana" nao esta na lista, entao a
+    decomposicao sai como esperado - o mesmo cuidado que o teste de decisoes
+    documenta para "Joao Silva".
+    """
+    surnames = ("silva", "souza")
+    tokens = ("mariana", "silva", "souza")
+    features = {pid: _feature("mariana silva souza", ["mariana"], surnames, tokens)
+                for pid in ("@I1@", "@I2@")}
+    surname_index = {"silva": list(ordem), "souza": list(ordem)}
+    return {}, surname_index, features
+
+
+@pytest.mark.parametrize("ordem", [("@I1@", "@I2@"), ("@I2@", "@I1@")])
+def test_desempate_escolhe_o_menor_xref_id(ordem):
+    """Empate exato nos tres criterios e resolvido pelo menor `xref_id`."""
+    ged_index, surname_index, features = _pool_empatado(ordem)
+    vencedores, motivo = match_candidates("Mariana Silva Souza", 200, ged_index, surname_index, features)
+    assert vencedores == ["@I1@"], (
+        "o menor xref_id deve vencer o empate, qualquer que seja a ordem de "
+        "insercao dos candidatos no pool"
+    )
+    assert motivo is None
+
+
+def test_desempate_nao_depende_da_ordem_do_pool():
+    """A decisao e a mesma com o pool inserido em ordem direta e inversa."""
+    resultados = []
+    for ordem in (("@I1@", "@I2@"), ("@I2@", "@I1@")):
+        ged_index, surname_index, features = _pool_empatado(ordem)
+        resultados.append(match_candidates("Mariana Silva Souza", 200, ged_index, surname_index, features))
+    assert resultados[0] == resultados[1]
