@@ -25,7 +25,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 from parsers import gedcom_parser
-from core.path_search import _mermaid_label, path_search
+from reporting.mermaid_render import _mermaid_label
+from core.path_search import path_search
 
 # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
 LINHA_DE_NO = re.compile(r'^N_[A-Za-z0-9_]+\["[^"]*"\]$')

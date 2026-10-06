@@ -158,7 +158,8 @@ os.chdir(os.path.join(W, ".parity-run-cand"))
 
 from parsers import gedcom_parser as GP
 from core import gedcom_state as GS
-from core import path_search as P
+from core import family_navigation as FN
+from core import path_finding as PF
 from core import dna_analysis as D
 from utils import text_cleaning as DM
 
@@ -192,8 +193,8 @@ obs["child_to_family"] = {k: sorted(v) for k, v in sorted(GS.child_to_family.ite
 
 ids = sorted(GS.people.keys())
 obs["get_name"] = {i: (GS.get_name(GS.people[i]) if GS.get_name(GS.people[i]) is not None else None) for i in ids}
-obs["get_parents"] = {i: sorted(P.get_parents(i) or []) for i in ids}
-obs["get_spouses"] = {i: sorted(P.get_spouses(i) or []) for i in ids}
+obs["get_parents"] = {i: sorted(FN.get_parents(i) or []) for i in ids}
+obs["get_spouses"] = {i: sorted(FN.get_spouses(i) or []) for i in ids}
 
 obs["norm_name"] = {n: safo(D.norm_name, n) for n in names}
 # ATENCAO — equivalente correto de `strip_bad_utf`:
@@ -229,9 +230,9 @@ obs["indirect"] = {}
 sample = ids[:int(os.environ.get("PARITY_SAMPLE", "40"))]
 for a in sample:
     for b in sample:
-        r = P.find_ancestral_path(a, b)
+        r = PF.find_ancestral_path(a, b)
         obs["ancestral"][a + "|" + b] = [list(r[0]) if r[0] else None, r[1]]
-        q = P.find_indirect_path(a, b)
+        q = PF.find_indirect_path(a, b)
         obs["indirect"][a + "|" + b] = list(q) if q else None
 
 with open(OUT, "w", encoding="utf-8") as fh:

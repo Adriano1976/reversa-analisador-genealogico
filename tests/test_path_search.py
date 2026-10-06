@@ -17,12 +17,9 @@ from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from parsers import gedcom_parser
 from core import gedcom_state
-from core.path_search import (
-    find_ancestral_path,
-    find_indirect_path,
-    find_person_by_name,
-    path_search,
-)
+from core.family_navigation import find_person_by_name
+from core.path_finding import find_ancestral_path, find_indirect_path
+from core.path_search import path_search
 
 
 @pytest.fixture(scope="module")
