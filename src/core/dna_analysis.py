@@ -32,6 +32,7 @@ verificavel, e estao marcadas como legado.
 from __future__ import annotations
 
 from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+from .diagram_domain import resolvedor_de_diagrama
 from .documentary_relationship import documentary_relationship, homonym_dossier
 from .evidence_comparison import compare
 from .genetic_evidence import build_genetic_evidence, evidence_for
@@ -53,13 +54,13 @@ from utils.text_cleaning import demojibake, strip_bad_utf
 from .gedcom_state import get_name, people
 
 
-def _montar_diagrama(documentary: dict, root_id: str, pid: str):
+def _montar_diagrama(documentary: dict, root_id: str, pid: str, dominio: dict):
     """Mermaid do caminho DOCUMENTAL (ou None quando nao ha caminho)."""
     caminho = (documentary or {}).get("path") or {}
     if not caminho.get("ids"):
         return None
     ancestral = (documentary.get("common_ancestor") or {}).get("id")
-    return generate_mermaid_graph(caminho["ids"], root_id, pid, ancestral)
+    return generate_mermaid_graph(caminho["ids"], root_id, pid, ancestral, dominio)
 
 
 def _observacoes(documentary, evidence, comparison, extra=None):
@@ -163,6 +164,10 @@ def dna_analysis(csv_path: str, root_name: str):
             dossie_por_nome[nome] = homonym_dossier(nome, similar_ids=candidatos)
         return dossie_por_nome[nome]
 
+    # A costura da OPP-20261006-ULVW: resolvido UMA vez por analise, e nao dentro
+    # do laco, porque o mapeamento so aponta para funcoes do proprio pacote.
+    dominio = resolvedor_de_diagrama()
+
     for chave_nome, por_kit in evidencias.items():
         for chave_kit, kit in por_kit.items():
             # O matching continua recebendo o cM DO KIT (nunca a soma de kits
@@ -207,7 +212,7 @@ def dna_analysis(csv_path: str, root_name: str):
                 "cm": kit["total_cm"],
                 "kit": kit["kit"],
                 "text_path": " → ".join(nomes_do_caminho),
-                "mermaid_data": _montar_diagrama(documentary, root_id, pid),
+                "mermaid_data": _montar_diagrama(documentary, root_id, pid, dominio),
                 "documentary": documentary,
                 "genetic_evidence": evidence,
                 "hypotheses": hypotheses,

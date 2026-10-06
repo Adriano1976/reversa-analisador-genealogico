@@ -6,21 +6,26 @@ transformar um caminho de parentesco no texto do diagrama.
 Este e o modulo onde o contrato de escape vive. `_LABEL_SEGURO` e a lista branca
 que substituiu a lista negra furada pela crase, e o comentario que a documenta
 veio junto com ela. Ver BUG-20260929-J6PQ.
+
+## Contrato de dominio (OPP-20261006-ULVW)
+
+Este modulo NAO importa `core`. Ele recebe `dominio`, o mapeamento devolvido por
+`core.diagram_domain.resolvedor_de_diagrama`, no qual faz as consultas de que o
+desenho precisa. Antes desta costura o renderizador importava
+`core.family_navigation`, `core.path_finding` e `core.gedcom_state`, o que fechava
+o ciclo `core/` <-> `reporting/`.
+
+As decisoes de LAYOUT continuam aqui, e isso e deliberado: `reporting/` nao e
+folha e nao pode ser, porque decidir o casal do ancestral comum, o ancestral que
+ancora o ramo e o ponto de corte por casamento e decisao de negocio
+(`_reversa_sdd/architecture.md` secao 3 e ADR-11). O que mudou foi apenas quem
+busca o dado.
 """
 from __future__ import annotations
 
 import re
 import unicodedata
 from contextlib import contextmanager
-
-from core.family_navigation import (
-    exclude_tail,
-    get_spouses,
-    pick_spouse_for_couple,
-    split_path_by_marriage,
-)
-from core.path_finding import find_ancestral_path
-from core.gedcom_state import get_name, people
 
 
 def _mermaid_sid(raw) -> str:
@@ -60,8 +65,10 @@ def _mermaid_label(txt) -> str:
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 
-def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
+def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio):
     sid, lab = _mermaid_sid, _mermaid_label
+    get_name = dominio["get_name"]
+    people = dominio["people"]
 
     lines = ["flowchart BT"]
     seen_nodes = set()
@@ -75,7 +82,7 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
     couple_members_to_skip = set()
     ancestor_id_for_arrows = sid(common_ancestor_id)
     if not is_direct_ancestry:
-        spouses = get_spouses(common_ancestor_id)
+        spouses = dominio["get_spouses"](common_ancestor_id)
         if spouses:
             couple_members_to_skip.update({common_ancestor_id, spouses[0]})
             couple_id_str = "+".join(sorted(list(couple_members_to_skip)))
@@ -109,8 +116,14 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id):
     return "\n".join(lines)
 
 
-def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
+def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
     sid, lab = _mermaid_sid, _mermaid_label
+    get_name = dominio["get_name"]
+    people = dominio["people"]
+    exclude_tail = dominio["exclude_tail"]
+    split_path_by_marriage = dominio["split_path_by_marriage"]
+    find_ancestral_path = dominio["find_ancestral_path"]
+    pick_spouse_for_couple = dominio["pick_spouse_for_couple"]
 
     def norm_ids(seq):
         out = []
@@ -125,7 +138,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
 
     left, right, spouses = split_path_by_marriage(person_path)
     if not spouses:
-        return generate_mermaid_graph(person_path, p1_id, p2_id, None)
+        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
 
     A, B = map(str, spouses)
     p1_id, p2_id = str(p1_id), str(p2_id)
@@ -134,7 +147,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
 
     path_p1_A, ca1 = find_ancestral_path(p1_id, A)
     if not path_p1_A:
-        return generate_mermaid_graph(person_path, p1_id, p2_id, None)
+        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
 
     spouse_ca1 = pick_spouse_for_couple(ca1, candidate_path=path_p1_A)
 
@@ -230,7 +243,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path):
         else:
             path_p2_B, ca2 = find_ancestral_path(p2_id, B)
             if not path_p2_B:
-                return generate_mermaid_graph(person_path, p1_id, p2_id, None)
+                return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
 
             spouse_ca2 = pick_spouse_for_couple(ca2, candidate_path=path_p2_B)
             r2_down, r2_up_from_B = split_at(path_p2_B, ca2)
