@@ -19,6 +19,7 @@ DOCS = ROOT / "_reversa_docs"
 STATE = DOCS / ".state.json"
 
 INICIO = "2026-10-06T03:43:10Z"
+ISOLADO_INICIO = "2026-10-06T05:24:11Z"
 
 
 def ler(p, padrao):
@@ -29,6 +30,7 @@ def ler(p, padrao):
 
 
 def main():
+    isolado = "--isolated" in sys.argv
     s = json.loads(STATE.read_text(encoding="utf-8"))
     smoke = ler(DOCS / ".smoke-result.json", {"smokeTestFailed": True, "smokeTestErrors": []})
     links = ler(DOCS / ".links-result.json", [])
@@ -36,9 +38,25 @@ def main():
     agora = datetime.now(timezone.utc)
     t0 = datetime.strptime(INICIO, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
-    s["startedAt"] = INICIO
+    if isolado:
+        # reexecucao isolada do Publisher: preserva a telemetria do pipeline
+        # completo e registra esta execucao em separado
+        s["publisherIsolatedRun"] = {
+            "startedAt": ISOLADO_INICIO,
+            "lastCheckpoint": agora.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "durationMs": int((agora - datetime.strptime(
+                ISOLADO_INICIO, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)).total_seconds() * 1000),
+            "reason": ("reexecucao isolada do Publisher a pedido do usuario, sem Mapper, Analyst nem Storyteller. "
+                       "Selos regerados pela skill reversa-selo-generativo a partir da mesma seed, na variante "
+                       "dark prevista pela paleta sober para header escuro, com descarte das cores abaixo de "
+                       "2,5:1 de contraste; selo grande do hero passou de <img> para SVG inline."),
+            "preservedPipelineDurationMs": s.get("pipelineDurationMs"),
+        }
+    else:
+        s["startedAt"] = INICIO
+        s["pipelineDurationMs"] = int((agora - t0).total_seconds() * 1000)
+
     s["lastCheckpoint"] = agora.strftime("%Y-%m-%dT%H:%M:%SZ")
-    s["pipelineDurationMs"] = int((agora - t0).total_seconds() * 1000)
     s["completedAgents"] = ["mapper", "analyst", "storyteller", "publisher"]
     s["pendingAgents"] = []
     s["pagesOmitted"] = [{
@@ -61,6 +79,15 @@ def main():
     s["brokenLinks"] = links
     s["dataJsKeys"] = ["modules", "deps", "metrics", "timeline", "glossary", "featuresIndex",
                        "sealSvg", "sealMiniSvg", "seedShort", "nav", "config"]
+    s["seal"] = {
+        "seedSource": ".reversa/soul.md",
+        "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+        "pattern": "crystal-lattice",
+        "variant": "dark (paleta sober espelhada para header escuro)",
+        "sealSvgBytes": (DOCS / "assets" / "img" / "seal.svg").stat().st_size,
+        "sealMiniSvgBytes": (DOCS / "assets" / "img" / "seal-mini.svg").stat().st_size,
+        "deterministic": True,
+    }
     s["regeneration"]["tooling"] = (
         "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, "
         "extract_modules.py, extract_deps.py, convert_chronicle.py ou convert_soul.py. A extracao de dados "
