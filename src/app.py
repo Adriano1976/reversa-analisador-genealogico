@@ -19,7 +19,12 @@ from utils.validate import (
 
 # --- Configuração ---
 app = Flask(__name__)
-app.secret_key = 'f@milyse@rch_dna_edition_v16'
+# `app.secret_key` foi REMOVIDO em 2026-10-05 por decisao do usuario
+# (_reversa_sdd/questions.md#pergunta-2). Ele nao tinha consumidor: `flask.session`
+# nunca foi importado e nenhum cookie era emitido. O literal estava versionado no
+# repositorio e seria a chave de forja de sessao no instante em que alguem
+# introduzisse sessao para tratar isolamento entre usuarios - exatamente a Rota 2
+# descartada do BUG-20260929-BJJH. Ver _reversa_sdd/permissions.md (P-04).
 
 # Teto de corpo de requisicao. Ausente no legado, e a ausencia fazia o multipart
 # inteiro ser gravado em disco antes de qualquer verificacao de negocio
