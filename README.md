@@ -1,20 +1,23 @@
-# analisador-genealogico (Analisador de Caminhos em Genealogia Genética)
+# Analisador Genealógico
 
-![Version](https://img.shields.io/badge/version-1.0-blue.svg)
-![Python](https://img.shields.io/badge/python-3.x-blue.svg)
-![Flask](https://img.shields.io/badge/flask-app-green.svg)
+![Python 3.14](https://img.shields.io/badge/Python-3.14-blue)
+![Flask 3.1.3](https://img.shields.io/badge/Flask-3.1.3-green)
+![Testes: pytest](https://img.shields.io/badge/testes-pytest-blue)
 
-## Nome e Descrição do Projeto
-
-**analisador-genealogico** é uma aplicação web desenvolvida para genealogistas genéticos. Seu objetivo principal é identificar, calcular e visualizar conexões genealógicas entre uma pessoa raiz e suas correspondências de DNA, cruzando árvores GEDCOM (`.ged`) com listas de segmentos de DNA (`.csv`).
+Aplicação web para genealogia genética. Cruza uma árvore GEDCOM (`.ged`) com uma lista de matches de DNA
+(`.csv`) e apresenta caminhos documentais, evidências genéticas e possibilidades de parentesco sem tratar o
+cM como confirmação genealógica.
 
 ## Regra de análise (GEDCOM, DNA e confronto)
 
 A aplicação separa rigorosamente três coisas, e nunca deixa uma contaminar a outra:
 
-1. **Parentesco documental** — o que o GEDCOM afirma: caminho, ancestral comum, distância geracional, homônimos, caminhos múltiplos, colapso de pedigree e a evidência de cada salto (registro de família e datas).
-2. **Evidência genética** — o que o arquivo de DNA informa: kit, fonte, cM total, segmentos, maior segmento, SNPs, cromossomo e posições.
-3. **Possibilidades e confronto** — o cM vira uma **lista** de relacionamentos compatíveis pela tabela publicada do Shared cM Project 4.0, e o confronto devolve um dos quatro estados:
+1. **Parentesco documental** — o que o GEDCOM afirma: caminho, ancestral comum, distância geracional,
+   homônimos, caminhos múltiplos, colapso de pedigree e a evidência de cada salto (registro de família e datas).
+2. **Evidência genética** — o que o arquivo de DNA informa: kit, fonte, cM total, segmentos, maior segmento,
+   SNPs, cromossomo e posições.
+3. **Possibilidades e confronto** — o cM vira uma **lista** de relacionamentos compatíveis pela tabela
+   publicada do Shared cM Project 4.0, e o confronto devolve um dos quatro estados:
 
 | Estado | Significado |
 | --- | --- |
@@ -25,69 +28,89 @@ A aplicação separa rigorosamente três coisas, e nunca deixa uma contaminar a 
 
 Três invariantes que o código e a interface respeitam:
 
-- **O GEDCOM determina o parentesco documental.** O DNA não altera, não corrige e não cria caminho genealógico.
+- **O GEDCOM determina o parentesco documental.** O DNA não altera, não corrige e não cria caminho
+  genealógico.
 - **O cM não é usado sozinho para afirmar parentesco.** `cM → conjunto de possibilidades`, nunca `cM → parentesco único`.
-- **DNA compartilhado não confirma o caminho.** O máximo que a tela afirma é que existe compartilhamento; o parentesco documental é apresentado em seção própria, com fonte declarada.
+- **DNA compartilhado não confirma o caminho.** O máximo que a tela afirma é que existe compartilhamento; o
+  parentesco documental é apresentado em seção própria, com fonte declarada.
 
 ## Stack Tecnológica
 
-O projeto conta com uma stack web moderna em Python, sem a necessidade de um banco de dados persistente:
+O projeto usa Python 3.14. O interpretador oficial é o ambiente virtual `.venv`; as dependências de runtime
+estão fixadas em [`requirements.txt`](./requirements.txt).
 
-- **Linguagem Principal:** Python 3
-- **Framework Web:** Flask
-- **Processamento de Dados:** Pandas (manipulação de CSV)
-- **Grafos & Algoritmos:** NetworkX (busca de caminhos, BFS)
-- **Leitura de GEDCOM:** Ged4py
-- **Busca Aproximada (Fuzzy Matching):** TheFuzz
-- **Frontend & UI:** HTML5, Jinja2, Bootstrap 5, Mermaid.js
+| Tecnologia | Versão | Uso |
+| --- | --- | --- |
+| Flask | 3.1.3 | Aplicação web e renderização Jinja2 |
+| waitress | 3.0.2 | Servidor WSGI |
+| ged4py | 0.5.5 | Leitura de arquivos GEDCOM |
+| NetworkX | 3.7 | Grafo e busca de caminhos |
+| pandas | 3.0.6 | Ingestão e processamento de CSV |
+| thefuzz | 0.22.1 | Comparação aproximada de nomes |
+| RapidFuzz | 3.14.6 | Backend de matching, fixado para manter resultados reprodutíveis |
+| python-Levenshtein | 0.27.5 | Backend de distância de edição |
+| Bootstrap | 5.3.3 | Componentes da interface |
+| Mermaid | 10 | Diagramas de caminhos |
 
 ## Arquitetura do Projeto
 
-O sistema opera como um **Servidor Web Monolítico** com renderização do lado do servidor (SSR). Ele funciona puramente como uma ferramenta de análise sob demanda:
+O Flask recebe os arquivos e renderiza HTML no servidor. Os módulos em `src/core/`, `src/parsers/`,
+`src/reporting/` e `src/utils/` implementam o domínio e a apresentação dos resultados.
 
-- **Gerenciamento de Estado:** Totalmente em memória (dicionários e grafos `networkx`). Não há banco de dados persistente. O estado é calculado por sessão/requisição.
-- **Armazenamento de Arquivos:** Os arquivos enviados (`.ged` e `.csv`) são armazenados temporariamente em um diretório `uploads/` durante o processamento.
-- **Fluxo de Processamento:** Ao receber uma requisição `POST`, o arquivo GEDCOM é processado e convertido em um grafo, as correspondências de DNA são agregadas a partir do CSV, e um algoritmo de busca de nomes por aproximação (*fuzzy matching*) é usado para encontrar caminhos até a pessoa raiz.
+- Os arquivos enviados são gravados em `src/uploads/` sob nomes derivados do conteúdo. Esse diretório é
+  armazenamento local persistente; não é um diretório temporário de processamento.
+- Não há banco de dados nem histórico persistido de análises. O GEDCOM é reprocessado em cada `POST` que usa a árvore.
+- O estado do GEDCOM fica em estruturas globais em memória, compartilhadas entre as threads de um mesmo
+  processo. A aplicação impede outra instância na mesma porta, mas isso não isola requisições concorrentes
+  dentro do processo.
+- A lista completa de nomes da árvore, inclusive nomes de pessoas vivas, é incluída no HTML para preencher
+  campos de sugestão. A aplicação não tem autenticação; não a exponha a uma rede compartilhada sem controles
+  adicionais.
 
 ```mermaid
 flowchart LR
-    U["Genealogista Genético"]
-    S(["analisador-genealogico"])
-    C1[".ged (GEDCOM)"]:::ext
-    C2[".csv (Matches de DNA)"]:::ext
-
-    U -->|"upload GEDCOM + CSV"| S
-    S -->|"parsing (análise)"| C1
-    S -->|"agregando cM"| C2
+    U["Pessoa usuária"] -->|"GEDCOM"| W["Aplicação Flask"]
+    U -->|"CSV de matches"| W
+    W --> P["Parser GEDCOM + grafo"]
+    W --> D["Análise documental e genética"]
+    P --> D
+    D --> H["HTML com resultados e diagrama"]
+    H --> U
 ```
 
 ## Começando (Getting Started)
 
 ### Pré-requisitos
 
-- Python 3.x
-- pip (gerenciador de pacotes do Python)
+- Python 3.14
+- Git
 
 ### Instalação e Configuração
 
-1. Clone ou navegue até o diretório do repositório.
-2. Instale as dependências necessárias (o `requirements.txt` fica na raiz do repositório):
+1. Clone o repositório e entre na pasta do projeto.
+2. Crie e configure o ambiente oficial (PowerShell, na raiz do repositório):
 
-   ```bash
-   pip install -r requirements.txt
+   ```powershell
+   py -3.14 -m venv .venv
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
    ```
 
-3. Execute a aplicação (a partir da raiz do repositório). O ponto de entrada sobe a aplicação por um servidor WSGI de produção, e não pelo servidor de desenvolvimento do Flask:
+3. Execute a aplicação:
 
-   ```bash
-   python src/app.py
+   ```powershell
+   .\.venv\Scripts\python.exe src\app.py
    ```
 
-4. Acesse a interface web em `http://127.0.0.1:5000/`. O endereço padrão atende **apenas a máquina local**; abrir para a rede é um ato explícito, descrito a seguir.
+4. Acesse `http://127.0.0.1:5000/`. Por padrão, o servidor atende apenas a máquina local.
+
+Para configurar outro ambiente, instale Python 3.14 e recrie `.venv`. Não use o Python global para executar
+ou testar: o backend RapidFuzz participa da decisão de matching, e as versões instaladas estão pinadas para
+reprodutibilidade.
 
 ### Configuração de execução
 
-O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarado no código, então nada precisa ser definido para subir a aplicação:
+O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarado no código, então nada precisa
+ser definido para subir a aplicação:
 
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
@@ -97,26 +120,33 @@ O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarad
 
 #### Abrir a aplicação para a rede
 
-> **A aplicação não tem autenticação.** Qualquer equipamento que alcance a porta vê a interface e pode enviar arquivos. É por isso que o padrão é fechado, e é por isso que abrir tem de ser decisão de quem opera, e não o que acontece por omissão.
+> **A aplicação não tem autenticação.** Qualquer equipamento que alcance a porta pode acessar a interface e
+> enviar arquivos. O padrão é fechado; abrir a rede é uma decisão de quem opera.
 
 No PowerShell, a partir da raiz do repositório:
 
 ```powershell
 $env:ANALISADOR_HOST = "0.0.0.0"
-python src/app.py
+.\.venv\Scripts\python.exe src\app.py
 ```
 
-A inicialização informa o endereço em uso (`Servindo com waitress em http://0.0.0.0:5000 ...`). De outro equipamento da mesma rede, acesse `http://<ip-da-máquina>:5000/`. Em rede compartilhada, mantenha o padrão e não defina a variável.
+A inicialização informa o endereço em uso (`Servindo com waitress em http://0.0.0.0:5000 ...`). De outro
+equipamento da mesma rede, acesse `http://<ip-da-máquina>:5000/`. Em rede compartilhada, mantenha o padrão e
+não defina a variável.
 
 #### Uma instância por vez
 
-A aplicação **recusa subir** se já houver uma instância atendendo no endereço e na porta configurados. A segunda execução termina com código de saída diferente de zero e uma mensagem que nomeia o endereço e a porta:
+A aplicação **recusa subir** se já houver uma instância atendendo no endereço e na porta configurados. A
+segunda execução termina com código de saída diferente de zero e uma mensagem que nomeia o endereço e a
+porta:
 
 ```text
 Recusando subir: 127.0.0.1:5000 ja esta em uso (...). Encerre o processo que ja esta no ar, ou suba esta instancia em outra porta com ANALISADOR_PORT.
 ```
 
-O trecho entre parênteses é o diagnóstico do sistema operacional, no idioma dele, e por isso não aparece aqui literalmente. O motivo da recusa é o modelo de estado: a árvore enviada vive na memória de cada processo, então duas instâncias seriam dois estados independentes, e a mesma pessoa poderia receber "nenhuma árvore carregada" logo depois de enviar um GEDCOM. Encerre a instância anterior (Ctrl+C na janela dela) antes de subir outra, ou suba a nova em outra porta com `ANALISADOR_PORT`.
+O trecho entre parênteses é o diagnóstico do sistema operacional. A árvore vive na memória de cada processo;
+duas instâncias teriam estados independentes. Encerre a instância anterior (Ctrl+C) antes de subir outra, ou
+use outra porta com `ANALISADOR_PORT`.
 
 ## Estrutura do Projeto
 
@@ -141,15 +171,16 @@ src/                            # raiz de código da aplicação
 │   └── dna_analysis.py         # Orquestra as três etapas do cruzamento, consumida pelo app.py
 ├── reporting/                  # Transformação de resultado em apresentação
 │   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
-├── utils/                      # Ferramentas utilitárias, sem papel no núcleo
+├── utils/                      # Utilitários transversais
 │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
+│   ├── number_format.py        # Formatação de cM, SNPs e posições
 │   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e GEDCOM
 ├── templates/
 │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
 └── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado
 ```
 
-Na raiz do repositório ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml` e este `README.md`. A documentação original do projeto, em inglês, e o arquivo de ignore do módulo foram removidos: o primeiro anunciava uma biblioteca que o projeto abandonou na migração para Mermaid, e o segundo só continha regra para um artefato que o projeto deixou de gerar.
+Na raiz ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml` e este README.
 
 ### Pastas do Framework Reversa
 
@@ -164,10 +195,6 @@ _reversa_bugs/       # Intake, triagem e rastreabilidade de bugs
 _reversa_refactor/   # Inventário de oportunidades de refatoração e suas transformações
 _reversa_docs/       # Mini-site HTML de documentação (publicado no GitHub Pages)
 ```
-
-A política de escrita do Reversa é definida em `.reversa/reversa-config.json`. Neste projeto `allowLegacyEdits` é `true`, com `allowedPaths` cobrindo `src/**`, `tests/**`, `README.md`, `pyrefly.toml`, `.vscode/**`, `requirements.txt` e `analisador-genealogico/**`; escritas fora desses caminhos são recusadas pelo framework.
-
-O último glob é herança da árvore anterior à feature `003-renomear-pasta-app-para-src`: a pasta `analisador-genealogico/` deixou de existir quando a raiz de código passou a ser `src/`, e o caminho segue liberado sem corresponder a nada. Ele é inofensivo, e a remoção é ato exclusivo do usuário, porque `reversa-config.json` não é editado por agente.
 
 ### Testes
 
@@ -190,42 +217,56 @@ tests/
 
 ## Principais Funcionalidades
 
-- **Integração de GEDCOM & CSV:** Cruza a topologia da árvore (GEDCOM) com os dados genéticos (CSV) **sem misturar as duas evidências**, que aparecem em seções separadas do resultado.
-- **Leitura tolerante do CSV:** aceita `,`, `;`, TAB e `|`, encontra o cabeçalho mesmo quando o export traz linhas de título antes dele, e **reporta** (em vez de abortar) as linhas com número de campos diferente do cabeçalho. Arquivo que não é lista de matches — como o GEDCOM enviado por engano — recebe erro explicativo em português, com o separador usado, as colunas encontradas e a linha divergente.
-- **Busca Aproximada de Nomes:** Algoritmo avançado para contornar "mojibake" (corrupção de codificação) e combinar nomes apesar de variações de grafia ou abreviações.
-- **Possibilidades pelo DNA (Shared cM Project 4.0):** Traduz o cM compartilhado em uma **lista** de relacionamentos compatíveis, com faixa e média da fonte. Nunca devolve um parentesco único e nunca apresenta o cM como confirmação.
-- **Confrontação GEDCOM × DNA:** Compara o parentesco documental com a evidência genética e devolve COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO, com a explicação e a lista de causas a verificar quando há conflito.
-- **Alertas de plausibilidade documental:** Sinaliza vínculo cronologicamente impossível (genitor nascido depois do filho), homônimos com ficha comparável (ID, datas, locais, pais, cônjuges, filhos), caminhos genealógicos múltiplos e colapso de pedigree/endogamia.
-- **Busca de Ancestrais Diretos:** Encontra o Ancestral Comum Mais Recente (MRCA - *Most Recent Common Ancestor*) e o caminho direto, com teto de 20 iterações de profundidade no BFS bidirecional.
-- **Busca de Caminhos Indiretos (Afinidade):** Utiliza uma Busca em Largura (BFS - *Breadth-First Search*) como alternativa para encontrar conexões por casamento e outras pontes de afinidade (até 40 saltos).
+- **Integração de GEDCOM e CSV:** cruza a topologia da árvore com os dados genéticos sem misturar as
+  evidências; elas aparecem em seções separadas.
+- **Leitura tolerante de CSV:** reconhece `,`, `;`, TAB e `|`, localiza cabeçalhos após preâmbulos e informa
+  linhas irregulares em vez de abortar a leitura.
+- **Busca aproximada de nomes:** combina variações de grafia e abreviações.
+- **Possibilidades pelo DNA:** apresenta relações compatíveis segundo o Shared cM Project 4.0, sem afirmar
+  um parentesco único.
+- **Confronto GEDCOM × DNA:** retorna COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO e explica as causas
+  relevantes.
+- **Alertas documentais:** sinaliza datas impossíveis, homônimos, caminhos múltiplos e colapso de pedigree.
+- **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
 
 ## Fluxo de Desenvolvimento
 
-O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 linhas) foi **reconstruído e modularizado** com o framework [Reversa](https://github.com/sandeco/reversa): a lógica foi extraída para `src/`, organizada nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, e o `app.py` passou a apenas orquestrar as rotas Flask (251 linhas — o crescimento sobre as 84 originais vem da validação de upload introduzida pela correção do BUG-20260929-QMLY e do bloco de entrada que sobe o servidor de produção).
+O código está organizado em `src/`, separando rotas Flask, parsing, domínio, apresentação e utilitários. O
+framework [Reversa](https://github.com/sandeco/reversa) mantém especificações e documentação em pastas próprias.
 
-- **CI/CD:** Não há pipeline de build ou de testes automatizado. O único workflow é o `.github/workflows/deploy-pages.yml`, que publica o mini-site de `_reversa_docs/` no GitHub Pages e dispara em pushes para a branch `main` (a branch principal do repositório é `master`). Não há Dockerfile nem `docker-compose.yml`.
-- **Deploy:** O servidor de produção é o `waitress`, que roda em Windows sem compilação, e o `requirements.txt` fixa cada dependência com `==`, nas versões validadas nesta máquina em Python 3.14. A execução é o próprio `python src/app.py`, com as variáveis de ambiente documentadas acima; não há passo de build nem arquivo de configuração de servidor.
+- **CI/CD:** O workflow disponível publica `_reversa_docs/` no GitHub Pages; não executa a suíte de testes.
+- **Execução:** `waitress` atende a aplicação; não há etapa de build. Use o Python do `.venv` e as
+  dependências fixadas em `requirements.txt`.
 
 ## Padrões de Código
 
-- A lógica de negócio está modularizada em `src/`, nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`, separada da camada web (`app.py`).
-- A regra final da análise vive em quatro módulos de responsabilidade única, sem ciclo entre eles: `documentary_relationship` (GEDCOM), `genetic_evidence` (CSV), `relationship_hypotheses` (Shared cM Project 4.0) e `evidence_comparison` (confronto). Nenhum deles conhece HTTP, e **nenhum deles deixa o DNA alterar o parentesco documental**.
-- Números exibidos passam por `utils/number_format.py`, autoridade única do formato (`cm_br` para cM e `inteiro_br` para SNPs e posições). O arredondamento é só de apresentação: o `float` somado permanece exato no estado.
-- O estado é mantido **em memória** (dicionários `people`, `families` e grafos `networkx`), não persistente, recalculado por sessão/requisição.
-- As rotinas de limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) ficam em `text_cleaning.py`, como autoridade única. As entidades `Family`, `GenealogyGraph` e `DNAGroup` viviam ali como arquitetura abandonada — nenhuma era instanciada em produção — e foram removidas em 2026-09-30.
-- Busca de caminhos em `path_finding.py`: direto por MRCA (teto de 20 iterações de profundidade) e indireto por afinidade (até 40 saltos). A emissão do diagrama e o contrato de escape do rótulo ficam em `mermaid_render.py`, e `path_search.py` é a fachada consumida pelo `app.py`.
-- Cruzamento GEDCOM × CSV, fuzzy matching e previsão de parentesco por faixas de cM em `dna_analysis.py` (fachada), com a leitura do CSV em `csv_ingest.py`, a decisão de aceitação de candidatos em `matching.py` e a normalização de nomes em `name_normalization.py`.
-- Validação do upload (teto de requisição, chave de armazenamento derivada do conteúdo e recusa de GEDCOM inválido) em `validate.py`.
+- A lógica de negócio está modularizada em `src/` nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`,
+  separada da camada web (`app.py`).
+- A regra final da análise fica em módulos separados: `documentary_relationship` (GEDCOM),
+  `genetic_evidence` (CSV), `relationship_hypotheses` (Shared cM Project 4.0) e `evidence_comparison`
+  (confronto). O DNA não altera o parentesco documental.
+- `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
+  apresentação.
+- O estado da árvore fica em memória, compartilhado entre as threads de cada processo. Os arquivos enviados
+  ficam em `src/uploads/`; análises e vereditos não são persistidos.
+- A limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) é centralizada em `text_cleaning.py`.
+- `path_finding.py` busca caminhos; `mermaid_render.py` emite diagramas com rótulos escapados.
+- `dna_analysis.py` coordena o cruzamento; `csv_ingest.py`, `matching.py` e `name_normalization.py`
+  cuidam da leitura e da correspondência de nomes.
+- `validate.py` valida uploads, aplica o limite da requisição e deriva chaves de armazenamento do conteúdo.
 
 ## Testes
 
-- **Abordagem de Testes:** A suíte automatizada usa **pytest** (`pytest.ini` aponta para `tests/`) e conta com **119 funções de teste** — o total coletado é **166** — cobrindo limpeza de mojibake, parsing de GEDCOM, construção de grafo, busca de caminhos, análise de DNA (agregação de segmentos, fuzzy matching e possibilidades por cM), a regra final da análise (parentesco documental, evidência genética, possibilidades, confronto e os dez cenários de `test_confrontacao_gedcom_dna.py`), caracterização de matching e de Mermaid, segurança do upload e o bloco de entrada do `app.py` (qual servidor sobe, a guarda de instância única e o padrão do endereço de escuta).
-- **Como rodar (da raiz do repositório, onde está o `pytest.ini`):**
+- A suíte usa **pytest**; `pytest.ini` configura `tests/` como diretório de testes. A medição com
+  `pytest-cov` registrou **83% de cobertura em `src/`**. O resultado varia conforme as alterações; as
+  specs em [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
+- Instale as dependências de teste no ambiente oficial e execute os testes:
 
-  ```bash
-  pip install -r requirements.txt pytest
-  pytest
+  ```powershell
+  .\.venv\Scripts\python.exe -m pip install pytest pytest-cov
+  .\.venv\Scripts\python.exe -m pytest
+  .\.venv\Scripts\python.exe -m pytest --cov=src --cov-report=term-missing
   ```
 
 ## Contribuindo
@@ -233,9 +274,9 @@ O projeto originalmente monolítico (o `app.py` legado possuía cerca de 888 lin
 Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 
 1. Garanta que ajustes na lógica de *fuzzy matching* não aumentem os falsos positivos.
-2. Se modificar os caminhos dos grafos (`networkx`), esteja ciente da sobrecarga de memória, uma vez que o estado é recalculado a cada requisição `POST`.
-3. Evite adicionar requisitos de banco de dados persistente sem uma refatoração estrutural.
-4. Adicione testes básicos para novas funcionalidades algorítmicas (como `find_ancestral_path` ou `find_indirect_path`) para melhorar a robustez do sistema.
+2. Ao modificar os grafos (`networkx`), preserve os testes de caracterização e considere o estado global
+   compartilhado entre threads.
+3. Novas regras algorítmicas devem vir acompanhadas de testes; verifique também a cobertura dos módulos afetados.
 
 ## Autoria e Créditos
 
@@ -248,15 +289,4 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 
 ## Licença
 
-Este repositório inclui um arquivo LICENSE com os termos de licenciamento. Consulte `LICENSE` para detalhes.
-
-##
-
-<br><br>
-
-<div align="center">
-  <p><b><h3> Contagem de visitantes </h3></b></p>  
-  <img src="https://vbr.nathanchung.dev/badge?page_id=Adriano1976/reversa-analisador-genealogico" style="height: 30px;" />
-   <br>
-  <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=87CEFA&height=120&section=footer"/>
-</div>
+Este repositório inclui um arquivo [LICENSE](./LICENSE) com os termos de licenciamento.
