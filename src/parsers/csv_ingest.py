@@ -38,8 +38,8 @@ from collections import Counter
 
 import pandas as pd
 
+from utils.name_keys import norm_name
 from utils.text_cleaning import demojibake
-from core.name_normalization import norm_name
 
 # Ordem importa no empate: a virgula e o formato padrao do GEDmatch e o que o
 # fluxo sempre aceitou.

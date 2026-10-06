@@ -1,10 +1,15 @@
 """Normalizacao e decomposicao de nomes, e o vocabulario que isso usa.
 
 Extraido de `dna_analysis.py` pela OPP-20260929-ZV52. Responsabilidade unica:
-transformar um nome em forma comparavel (`norm_name`), decompo-lo em prenome,
-sobrenomes e sufixos (`split_name_pt`), e derivar os conjuntos e prefixos que o
-matching consome. O vocabulario de particulas e sufixos vive aqui porque e um
-conceito unico, mesmo sendo consumido tambem pelo matching.
+decompor um nome em prenome, sobrenomes e sufixos (`split_name_pt`), e derivar os
+conjuntos e prefixos que o matching consome. O vocabulario de particulas e
+sufixos vive aqui porque e um conceito unico, mesmo sendo consumido tambem pelo
+matching.
+
+`norm_name` foi MOVIDA para `utils/name_keys.py` pela OPP-20261006-LIGH: ela e
+normalizacao de texto pura, sem dominio, e era a importacao que `csv_ingest`
+fazia de `core`, fechando o ciclo `core/` <-> `parsers/`. O nome continua
+importavel daqui por reexportacao.
 
 Este modulo NAO define limpeza de mojibake: `strip_bad_utf` e `demojibake` sao
 autoridade de `text_cleaning.py`, unificadas pela OPP-20260929-4LE3. Ter duas
@@ -13,9 +18,7 @@ paridade.
 """
 from __future__ import annotations
 
-import string
-import unicodedata
-
+from utils.name_keys import norm_name
 from utils.text_cleaning import strip_bad_utf
 
 
@@ -47,16 +50,6 @@ SURNAME_EQUIV = {
 
 
 SHORT_KEEP = {"sa", "sá"}
-
-
-def norm_name(s):
-    s = strip_bad_utf(str(s))
-    s = unicodedata.normalize("NFKD", s)
-    s = "".join(ch for ch in s if not unicodedata.combining(ch))
-    s = s.replace("/", " ")
-    s = "".join(ch if ch not in set(string.punctuation) else " " for ch in s)
-    s = " ".join(s.lower().split())
-    return s
 
 
 def drop_short_tokens(S, n=3):
