@@ -20,6 +20,20 @@ Itens sem peso de regressão (mudanças estruturais/refactor que uma futura extr
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-05 03:05
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| —  | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item foi criado, portanto não há regra sob vigilância a conferir. |
+
+**Verificações de contexto (itens de `## Observações`, sem peso de regressão):**
+
+- `OBS-01` (`app.py` como camada de rota fina, presença) — ✅ **RESOLVIDO nesta re-extração.** O `architecture.md` regenerado descreve a rota como **camada fina de 267 linhas com zero regra de negócio**, e a dívida do monolito saiu da tabela de dívidas vivas (está na tabela de dívidas **fechadas**). O SDD anterior, congelado em 2026-08-03, é que ainda dizia "monolítico (~887 linhas)".
+- `OBS-02` (módulos em `reconstructed/`, presença) — ✅ **RESOLVIDO nesta re-extração.** O nível `reconstructed/` **não existe mais**: o núcleo é `core/` + `parsers/` + `reporting/` + `utils/`, importados direto de `src/` (ver `adrs/11` e o `W001` da feature 003). Nenhum artefato regenerado cita `reconstructed/` como estrutura atual.
+- `OBS-03` (`HARD_MIN`/`GIVEN_MIN` preservados, confidência) — ✅ **RESOLVIDO nesta re-extração.** O próprio OBS-03 estava errado (o código nunca os teve), e o adendo `003-refactor-code-quality` já o corrigia. Agora os artefatos principais também o corrigem: `adrs/08` e a nota de `analise-dna/tasks.md`.
+
+> **Esta é a primeira re-extração REAL desde a publicação deste watch** — a passagem de 2026-09-30 conferiu o SDD de 2026-08-03, ainda congelado.
+
 ### Re-extração 2026-09-30 18:15
 
 | ID | Veredito | Observação |

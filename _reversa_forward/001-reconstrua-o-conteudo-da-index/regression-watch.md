@@ -21,6 +21,19 @@ Itens sem peso de regressão (originalmente 🟡/🔴 ou não derivados de regra
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-05 03:05
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| —  | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item foi criado, portanto não há regra sob vigilância a conferir. |
+
+**Verificações de contexto (itens de `## Observações`, sem peso de regressão):**
+
+- `OBS-01` (`HARD_MIN`/`GIVEN_MIN`, confidência) — ✅ **RESOLVIDO nesta re-extração.** Os dois continuam **inexistentes** no código (zero ocorrências em `src/`), e agora isso está documentado nos artefatos **principais**: `analise-dna/requirements.md` (MoSCoW, `Won't`), `analise-dna/tasks.md` (aviso de não criar constantes nomeadas) e `adrs/08`. A reclassificação 🟢→🟡 que originou este OBS perdeu o objeto.
+- `OBS-02` (`securityLevel: 'strict'`, presença) — ✅ **RESOLVIDO nesta re-extração.** A extração anterior não o registrava em artefato ancorado; esta registra em `inventory.md` §4 (configurações internas), `c4-context.md` (elemento "CDN web") e `c4-containers.md` (container 2). O código segue com `securityLevel: 'strict'` em `templates/index.html`.
+
+> **Esta é a primeira re-extração REAL desde a publicação deste watch.** A passagem de 2026-09-30 conferiu o SDD de 2026-08-03, ainda congelado — a própria nota de cronologia dizia isso. Agora o `_reversa_sdd/` foi regenerado a partir do código de 2026-10-05.
+
 ### Re-extração 2026-09-30 18:15
 
 | ID | Veredito | Observação |

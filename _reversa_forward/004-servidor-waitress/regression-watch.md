@@ -58,6 +58,25 @@ Observações novas, acrescentadas sem reescrever as anteriores. A `O15` **corri
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-05 03:05
+
+**Primeira verificação real destes watch items** (publicados em 2026-10-03, depois do congelamento do SDD anterior). Verificados contra o código, contra o `_reversa_sdd/` regenerado em 2026-10-05 e por execução da suíte e do harness de paridade.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | O bloco de entrada usa `from waitress import serve`; **não há** `app.run(`, `debug=True` nem `flask run` em `src/`. Registrado em `architecture.md` (bloco de entrada), `c4-containers.md` e `adrs/12`. |
+| W002 | 🟢 verde | `ANALISADOR_HOST` (padrão `127.0.0.1`), `ANALISADOR_PORT` (`5000`) e `ANALISADOR_THREADS` (`4`) lidos do ambiente com padrões declarados no código (`app.py:186-188`). Documentados em `inventory.md` §4, `data-dictionary.md` §9.1 e `c4-containers.md`. |
+| W003 | 🟢 verde | Superfície HTTP idêntica: **1 rota, 3 valores de `action`**, mesmos campos de formulário e mesmas mensagens literais. As 21 mensagens de contrato estão tabeladas em `domain.md` §5 e em `upload-gedcom/contracts.md` §5. A remoção do `app.secret_key` (2026-10-05) **não** alterou mensagem alguma. |
+| W004 | 🟢 verde | `requirements.txt` registra `waitress==3.0.2` e **não** lista `gunicorn`. |
+| W005 | 🟢 verde | **Paridade remedida: 100 % (zero divergência) em 6/6 fixtures.** A suíte tem **179 itens** e **164 passam**; os 15 erros são de ambiente e da mesma natureza dos já registrados. Os testes do bloco de entrada (`test_servidor_producao.py`) estão presentes, com **7 afirmações**. **Nenhum teste removido ou desabilitado.** |
+| W006 | 🟢 verde | Guarda de instância única intacta: `SO_EXCLUSIVEADDRUSE` no Windows, `bind`, `listen` e `serve(app, sockets=[...], threads=...)` — **sem `host` nem `port`** na mesma chamada. Registrado em `adrs/12` e `permissions.md` §5. |
+| W007 | 🟢 verde | O padrão é `127.0.0.1`; abrir para a rede exige `ANALISADOR_HOST`. Registrado em `adrs/12`, `permissions.md` §5 (item 3) e `architecture.md`. |
+| W008 | 🟡 amarelo | **Toda linha declara versão com `==`** — a essência da regra está satisfeita, com **8 linhas**, não 6. Mas as versões **mudaram em relação à lista validada neste watch**: `ged4py` 0.5.2 → **0.5.5**, `networkx` 3.6.1 → **3.7**, `pandas` 3.0.3 → **3.0.6** — e entraram `rapidfuzz==3.14.6` e `python-Levenshtein==0.27.5`, as duas transitivas que decidem o matching. **A mudança é deliberada e tem decisão humana registrada** (`questions.md#pergunta-11`, `adrs/13`): o `.venv` passou a ser o interpretador **oficial** e o pin foi realinhado a ele. **A lista de versões desta linha está superada por decisão** — o watch não a previa. |
+
+> **Sobre o `W008`, para julgamento humano:** a regra tem duas metades — "toda linha fixada" (satisfeita) e "nas versões validadas" (contraditada **de propósito**). Não é regressão: é mudança de referência autorizada. Como a tabela principal **não pode** ser reescrita, fica o registro de que a lista de versões citada no `W008` está **desatualizada por decisão** e deve ser lida com a ressalva do `adrs/13`.
+
+## Histórico de re-extrações (formato anterior)
+
 | Data | Extração | Veredito | Observação |
 |------|----------|----------|------------|
 
