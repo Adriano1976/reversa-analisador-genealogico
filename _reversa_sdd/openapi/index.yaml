@@ -1,0 +1,219 @@
+# Contrato HTTP do analisador-genealogico
+#
+# AVISO DE NATUREZA — leia antes de usar.
+#
+# Esta aplicação NAO e uma API JSON. Ela tem UMA rota (`/`, GET+POST) que recebe
+# formularios e devolve HTML renderizado no servidor (Jinja2). Este documento
+# descreve esse contrato de formulario em OpenAPI 3.0 porque a granularidade das
+# specs escolhida para o projeto e `endpoint` — o contrato HTTP E a unidade.
+#
+# Consequencias praticas de ser um contrato de formulario e nao uma API:
+#   1. Nao ha corpo JSON em nenhuma requisicao ou resposta.
+#   2. Erro de negocio NAO vira status 4xx: vira HTML com `success=false` e status 200.
+#      A UNICA excecao e o teto de corpo (16 MB), que responde 413 antes da rota executar.
+#   3. Nao ha autenticacao, sessao, cookie ou cabecalho de autorizacao.
+#   4. Os dois `action` pos-upload exigem `gedcom_filename`: e a CHAVE DE CONTEUDO
+#      que substitui a sessao. O servidor re-parseia o arquivo a partir dela antes
+#      de ramificar.
+#
+# Gerado pelo Reversa-Writer em 2026-10-05 (re-extracao, nivel completo).
+# Fonte: src/app.py, src/utils/validate.py, src/core/*, tests/test_upload_seguranca.py
+# Escala de confianca: CONFIRMADO no codigo.
+
+openapi: 3.0.3
+
+info:
+  title: analisador-genealogico — contrato HTTP
+  version: 1.0.0
+  description: |
+    Aplicacao web Flask de rota unica para analise de genealogia genetica.
+
+    Cruza uma arvore GEDCOM com uma lista de matches de DNA e responde tres
+    perguntas separadas: o que o GEDCOM afirma (parentesco documental), o que o
+    arquivo de DNA informa (evidencia genetica) e se as duas coisas sao
+    compativeis entre si (confronto, em quatro estados).
+
+    **Nao ha banco de dados.** O estado vive na memoria do processo e e
+    reconstruido a cada requisicao; o unico dado persistente sao os arquivos
+    enviados, gravados sob chave derivada do conteudo.
+
+    **Nao ha autenticacao.** Nao ha usuario, sessao, papel ou permissao. A chave
+    de conteudo identifica o arquivo, nao o dono.
+  license:
+    name: MIT
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: |
+      Padrao de escuta local. Alteravel por ANALISADOR_HOST e ANALISADOR_PORT.
+      Abrir para a rede e ato explicito do operador; uma segunda instancia na
+      mesma porta e recusada.
+
+tags:
+  - name: rota
+    description: A unica rota da aplicacao, com despacho pelo campo `action`.
+  - name: upload-gedcom
+    description: Unit `upload-gedcom` — acao `upload_gedcom`.
+  - name: busca-caminho
+    description: Unit `busca-caminho` — acao `path_search`.
+  - name: analise-dna
+    description: Unit `analise-dna` — acao `dna_analysis`.
+
+paths:
+  /:
+    get:
+      tags: [rota]
+      summary: Formulario inicial
+      description: |
+        Renderiza a unica tela da aplicacao, no estado inicial: sem arvore
+        carregada, sem resultado e sem mensagem.
+      operationId: formularioInicial
+      responses:
+        '200':
+          description: HTML da tela inicial.
+          content:
+            text/html:
+              schema:
+                type: string
+                description: Documento HTML renderizado por Jinja2.
+
+    post:
+      tags: [rota]
+      summary: Despacho por `action`
+      description: |
+        Toda a interacao pos-carga passa por aqui. O campo `action` decide o ramo:
+
+        - `upload_gedcom` — valida, grava e carrega a arvore (nao exige `gedcom_filename`).
+        - `path_search`   — busca a conexao entre duas pessoas (exige `gedcom_filename`).
+        - `dna_analysis`  — cruza a arvore com um CSV de matches (exige `gedcom_filename`).
+
+        Nos dois ramos pos-upload o servidor **re-parseia o GEDCOM a partir da
+        chave recebida** antes de executar o fluxo. Nao ha arvore sobrevivendo
+        entre requisicoes.
+      operationId: despachar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RequisicaoUploadGedcom'
+                - $ref: '#/components/schemas/RequisicaoBuscaCaminho'
+                - $ref: '#/components/schemas/RequisicaoAnaliseDna'
+      responses:
+        '200':
+          description: |
+            HTML da tela com `message`, `success` e, conforme o caso,
+            `gedcom_filename`, `all_names`, `path_result`, `dna_results` e
+            `skipped_matches`.
+
+            **Erro de negocio nao altera o status**: a resposta e 200 com
+            `success=false` e a mensagem dentro do HTML.
+          content:
+            text/html:
+              schema:
+                type: string
+        '413':
+          description: |
+            Corpo da requisicao acima de 16 MB (MAX_CONTENT_LENGTH). Recusado
+            pelo Flask **antes** de a rota executar; nenhum byte e lido nem
+            gravado.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: '<div class="alert alert-danger">Arquivo maior que o limite de 16 MB.</div>'
+
+components:
+  schemas:
+    RequisicaoUploadGedcom:
+      type: object
+      description: Acao `upload_gedcom` — unit `upload-gedcom`.
+      required: [action, gedcom]
+      properties:
+        action:
+          type: string
+          enum: [upload_gedcom]
+        gedcom:
+          type: string
+          format: binary
+          description: |
+            Arquivo GEDCOM. A validacao e de **conteudo**, nao de extensao:
+            apos remover um BOM UTF-8 e os espacos a esquerda, precisa comecar
+            com `0 HEAD`. Conteudo vazio, com byte NUL ou sem o cabecalho e
+            recusado com motivo nomeado.
+
+    RequisicaoBuscaCaminho:
+      type: object
+      description: |-
+        Acao `path_search` — unit `busca-caminho`. Busca **documental**: nao usa DNA.
+      required: [action, gedcom_filename, person1_name, person2_name]
+      properties:
+        action:
+          type: string
+          enum: [path_search]
+        gedcom_filename:
+          $ref: '#/components/schemas/ChaveDeConteudo'
+        person1_name:
+          type: string
+          description: Nome da primeira pessoa. Recebe `strip`. Resolvido por igualdade sem diferenciar maiusculas e, na falta, por substring.
+        person2_name:
+          type: string
+          description: Nome da segunda pessoa. Mesmo tratamento.
+
+    RequisicaoAnaliseDna:
+      type: object
+      description: Acao `dna_analysis` — unit `analise-dna`.
+      required: [action, gedcom_filename, root_name, matches_csv]
+      properties:
+        action:
+          type: string
+          enum: [dna_analysis]
+        gedcom_filename:
+          $ref: '#/components/schemas/ChaveDeConteudo'
+        root_name:
+          type: string
+          description: |
+            Nome da pessoa raiz. Resolvido por substring sem diferenciar
+            maiusculas; usa o primeiro registro e **avisa** quando ha homonimos.
+        matches_csv:
+          type: string
+          format: binary
+          description: |
+            CSV de matches de DNA. Leitura tolerante: encoding `utf-8` com recuo
+            para `latin-1`, separador detectado, cabecalho localizado sob
+            preambulo e linhas irregulares descartadas **com aviso**.
+            Nao passa por validacao de conteudo — so a forma do nome e validada.
+
+    ChaveDeConteudo:
+      type: string
+      pattern: '^[0-9a-f]{16}__[A-Za-z0-9._-]+$'
+      description: |
+        Chave de armazenamento do GEDCOM, devolvida ao navegador em campo oculto
+        no `POST` de upload e reenviada em todo `POST` seguinte.
+
+        E o `sha256` do conteudo truncado em 16 hexadecimais, seguido de `__` e
+        do nome visivel original (com a extensao preservada).
+
+        A validacao e **por forma fechada**, e nao por lista negra: a expressao
+        exclui `/`, `\` e `..`, de modo que um valor manipulado nao tem como
+        escapar da pasta de upload.
+
+        **Nao e segredo nem tem verificacao de propriedade** — quem a conhece
+        carrega a arvore correspondente.
+      example: 9f2c1a7b4e6d8b03__exemplo_familia.ged
+
+    Mensagem:
+      type: object
+      description: |
+        Texto ao operador. Sao **literais de contrato**: goldens de tela e o
+        harness de paridade dependem deles.
+      properties:
+        message:
+          type: string
+          example: Arquivo 'exemplo_familia.ged' carregado!
+        success:
+          type: boolean
+          description: |
+            `true` em sucesso **e em "sem conexao"** na busca de caminho.
+            `false` apenas em erro de entrada.
