@@ -8,6 +8,10 @@
 
 Vigente desde 2026-10-03.
 
+Superado pela re-extração de 2026-10-05.
+
+> O delta deste adendo está **absorvido**: as specs regeneradas descrevem o servidor de produção, as três variáveis de ambiente, o padrão local, a guarda de instância única e as dependências como estado atual — não como pendência. Os oito watch items desta feature foram verificados nesta re-extração: **7 🟢 e 1 🟡** (o `W008`, porque o pin mudou por decisão de 2026-10-05).
+
 ## Resumo da entrega
 
 A aplicação deixou de subir pelo servidor de desenvolvimento com o modo de depuração ligado. O bloco de entrada do `src/app.py` passa a iniciar a aplicação por um servidor WSGI de produção, com endereço de escuta, porta e concorrência lidos de variáveis de ambiente e padrões declarados no código. O servidor de desenvolvimento e a depuração deixam de existir, e o aviso de servidor de desenvolvimento desaparece junto. Nenhuma rota, campo de formulário ou mensagem de contrato foi alterada.

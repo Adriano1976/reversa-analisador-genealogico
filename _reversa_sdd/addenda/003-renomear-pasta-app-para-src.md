@@ -10,6 +10,10 @@
 
 Vigente desde 2026-10-03. **Não edita nenhuma spec original.** Declara que a raiz de código do sistema mudou de nome e que, por isso, toda citação de caminho nas specs da extração deve ser lida com o novo prefixo.
 
+Superado pela re-extração de 2026-10-05.
+
+> O delta deste adendo está **absorvido**: as specs regeneradas em 2026-10-05 citam `src/` em todos os pontos, e não há mais caminho antigo a traduzir. O `W001` do `regression-watch.md` desta feature foi verificado 🟢 nesta re-extração.
+
 ## Por que as specs estão desatualizadas
 
 As specs foram escritas entre 2026-08-03 e 2026-09-30, quando a raiz de código se chamava `analisador-genealogico/`. A feature 003 renomeou essa raiz para `src/` por decisão do usuário, registrada em `_reversa_forward/003-renomear-pasta-app-para-src/requirements.md`, sessão de esclarecimentos de 2026-10-02.
