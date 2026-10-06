@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-mapper">
 <meta name="reversa-template" content="arquitetura">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <!-- TITLE -->
 <title>Arquitetura 3D — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -53,32 +53,37 @@
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Arquitetura 3D</span>
-  <!-- NAV_LINKS -->
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 
 <div id="loader">Carregando cena 3D...</div>
@@ -97,39 +102,90 @@
   <button id="reset">Reset</button>
   <button id="export-png">Exportar PNG</button>
   <div class="stats" id="stats"></div>
+  <div class="stats" id="note">
+    <b>Como ler a cidade</b><br>
+    Cada bloco é um dos <b>37</b> módulos inventariados: 36 arquivos Python e o template HTML da única tela.
+    A altura é proporcional às linhas não vazias do módulo e a cor indica a pasta de origem.
+    São <b>5.966</b> linhas não vazias em 8 pastas de código e de teste.<br><br>
+    <b>Arquitetura real</b><br>
+    Monólito web de um único processo, com rota fina em <code>src/app.py</code> e o domínio distribuído em
+    <code>core/</code>, <code>parsers/</code>, <code>reporting/</code> e <code>utils/</code>.
+    Não há banco de dados: o estado vive na memória do processo.<br><br>
+    <b>Achado confirmado</b><br>
+    Os pacotes <b>não</b> formam camadas acíclicas. Há <b>2</b> ciclos no nível de pacote:
+    <code>core/</code> com <code>parsers/</code> e <code>core/</code> com <code>reporting/</code>.
+    O <code>reporting/</code> navega o domínio para decidir como desenhar, e o <code>parsers/</code> escreve
+    o estado do domínio em vez de devolver um valor. O <code>architecture.md</code> marca esse achado em vermelho.
+  </div>
 </aside>
 
 <div id="tooltip"></div>
 <div class="legend">
-  <div class="item"><span class="sw" style="background:#4f8cff"></span> app.py</div>
-  <div class="item"><span class="sw" style="background:#6fbf73"></span> reconstructed/</div>
-  <div class="item"><span class="sw" style="background:#e0a458"></span> tests/</div>
-  <div class="item"><span class="sw" style="background:#b587e6"></span> templates / static</div>
+  <div class="item"><span class="sw" style="background:#4f8cff"></span> src/</div>
+  <div class="item"><span class="sw" style="background:#6fbf73"></span> core/</div>
+  <div class="item"><span class="sw" style="background:#e0a458"></span> parsers/</div>
+  <div class="item"><span class="sw" style="background:#d98cc8"></span> reporting/</div>
+  <div class="item"><span class="sw" style="background:#4fd1c5"></span> utils/</div>
+  <div class="item"><span class="sw" style="background:#b587e6"></span> templates/</div>
+  <div class="item"><span class="sw" style="background:#8b909a"></span> tests/</div>
+  <div class="item"><span class="sw" style="background:#b8c0cc"></span> tests/fixtures/</div>
 </div>
 
 <!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"modules":{"schemaVersion":1,"generatedAt":"2026-10-06T03:44:27Z","project":"analisador-genealogico","modules":[{"id":"confrontacao-gedcom-dna","name":"test_confrontacao_gedcom_dna.py","path":"tests/test_confrontacao_gedcom_dna.py","type":"test","language":"python","folder":"tests/","loc":824,"complexity":204},{"id":"frontend","name":"index.html","path":"src/templates/index.html","type":"frontend","language":"html","folder":"templates/","loc":493,"complexity":0},{"id":"documentary-relationship","name":"documentary_relationship.py","path":"src/core/documentary_relationship.py","type":"domain","language":"python","folder":"core/","loc":490,"complexity":117},{"id":"upload-seguranca","name":"test_upload_seguranca.py","path":"tests/test_upload_seguranca.py","type":"test","language":"python","folder":"tests/","loc":345,"complexity":80},{"id":"dna-analysis","name":"test_dna_analysis.py","path":"tests/test_dna_analysis.py","type":"test","language":"python","folder":"tests/","loc":243,"complexity":44},{"id":"mermaid-render","name":"mermaid_render.py","path":"src/reporting/mermaid_render.py","type":"reporting","language":"python","folder":"reporting/","loc":241,"complexity":45},{"id":"app","name":"app.py","path":"src/app.py","type":"entrypoint","language":"python","folder":"src/","loc":232,"complexity":34},{"id":"genetic-evidence","name":"genetic_evidence.py","path":"src/core/genetic_evidence.py","type":"domain","language":"python","folder":"core/","loc":228,"complexity":71},{"id":"dna-analysis","name":"dna_analysis.py","path":"src/core/dna_analysis.py","type":"domain","language":"python","folder":"core/","loc":220,"complexity":52},{"id":"evidence-comparison","name":"evidence_comparison.py","path":"src/core/evidence_comparison.py","type":"domain","language":"python","folder":"core/","loc":209,"complexity":41},{"id":"characterization-matching","name":"test_characterization_matching.py","path":"tests/test_characterization_matching.py","type":"test","language":"python","folder":"tests/","loc":204,"complexity":21},{"id":"relationship-hypotheses","name":"relationship_hypotheses.py","path":"src/core/relationship_hypotheses.py","type":"domain","language":"python","folder":"core/","loc":198,"complexity":21},{"id":"csv-ingest","name":"csv_ingest.py","path":"src/parsers/csv_ingest.py","type":"parser","language":"python","folder":"parsers/","loc":191,"complexity":39},{"id":"path-search","name":"path_search.py","path":"src/core/path_search.py","type":"domain","language":"python","folder":"core/","loc":186,"complexity":33},{"id":"upload","name":"test_upload.py","path":"tests/test_upload.py","type":"test","language":"python","folder":"tests/","loc":181,"complexity":44},{"id":"mermaid-escape","name":"test_mermaid_escape.py","path":"tests/test_mermaid_escape.py","type":"test","language":"python","folder":"tests/","loc":163,"complexity":19},{"id":"matching","name":"matching.py","path":"src/core/matching.py","type":"domain","language":"python","folder":"core/","loc":145,"complexity":51},{"id":"servidor-producao","name":"test_servidor_producao.py","path":"tests/test_servidor_producao.py","type":"test","language":"python","folder":"tests/","loc":129,"complexity":26},{"id":"characterization-mermaid","name":"test_characterization_mermaid.py","path":"tests/test_characterization_mermaid.py","type":"test","language":"python","folder":"tests/","loc":121,"complexity":9},{"id":"formatacao-cm","name":"test_formatacao_cm.py","path":"tests/test_formatacao_cm.py","type":"test","language":"python","folder":"tests/","loc":91,"complexity":13},{"id":"name-normalization","name":"name_normalization.py","path":"src/core/name_normalization.py","type":"domain","language":"python","folder":"core/","loc":90,"complexity":35},{"id":"family-navigation","name":"family_navigation.py","path":"src/core/family_navigation.py","type":"domain","language":"python","folder":"core/","loc":87,"complexity":37},{"id":"validate","name":"validate.py","path":"src/utils/validate.py","type":"utility","language":"python","folder":"utils/","loc":83,"complexity":11},{"id":"path-search","name":"test_path_search.py","path":"tests/test_path_search.py","type":"test","language":"python","folder":"tests/","loc":82,"complexity":29},{"id":"text-cleaning","name":"text_cleaning.py","path":"src/utils/text_cleaning.py","type":"utility","language":"python","folder":"utils/","loc":73,"complexity":9},{"id":"path-finding","name":"path_finding.py","path":"src/core/path_finding.py","type":"domain","language":"python","folder":"core/","loc":69,"complexity":19},{"id":"gedcom-parser","name":"gedcom_parser.py","path":"src/parsers/gedcom_parser.py","type":"parser","language":"python","folder":"parsers/","loc":61,"complexity":16},{"id":"sample-gedcom","name":"sample_gedcom.py","path":"tests/fixtures/sample_gedcom.py","type":"fixture","language":"python","folder":"tests/fixtures/","loc":55,"complexity":0},{"id":"cm-estimator","name":"cm_estimator.py","path":"src/core/cm_estimator.py","type":"domain","language":"python","folder":"core/","loc":53,"complexity":4},{"id":"domain","name":"test_domain.py","path":"tests/test_domain.py","type":"test","language":"python","folder":"tests/","loc":50,"complexity":10},{"id":"sample-dna","name":"sample_dna.py","path":"tests/fixtures/sample_dna.py","type":"fixture","language":"python","folder":"tests/fixtures/","loc":44,"complexity":0},{"id":"number-format","name":"number_format.py","path":"src/utils/number_format.py","type":"utility","language":"python","folder":"utils/","loc":42,"complexity":5},{"id":"gedcom-state","name":"gedcom_state.py","path":"src/core/gedcom_state.py","type":"domain","language":"python","folder":"core/","loc":39,"complexity":2},{"id":"pkg-core","name":"__init__.py","path":"src/core/__init__.py","type":"config","language":"python","folder":"core/","loc":1,"complexity":0},{"id":"pkg-parsers","name":"__init__.py","path":"src/parsers/__init__.py","type":"config","language":"python","folder":"parsers/","loc":1,"complexity":0},{"id":"pkg-reporting","name":"__init__.py","path":"src/reporting/__init__.py","type":"config","language":"python","folder":"reporting/","loc":1,"complexity":0},{"id":"pkg-utils","name":"__init__.py","path":"src/utils/__init__.py","type":"config","language":"python","folder":"utils/","loc":1,"complexity":0}]},"deps":{"schemaVersion":1,"generatedAt":"2026-10-06T03:44:27Z","project":"analisador-genealogico","nodes":["app","core","parsers","reporting","tests","utils"],"edges":[{"source":"app","target":"core"},{"source":"app","target":"parsers"},{"source":"app","target":"utils"},{"source":"core","target":"parsers"},{"source":"core","target":"reporting"},{"source":"core","target":"utils"},{"source":"parsers","target":"core"},{"source":"parsers","target":"utils"},{"source":"reporting","target":"core"},{"source":"tests","target":"app"},{"source":"tests","target":"core"},{"source":"tests","target":"parsers"},{"source":"tests","target":"utils"}],"cycles":[["core","parsers"],["core","reporting"]]}}</script>
 <script>
 (function(){
   "use strict";
-  var DATA = (window.RV_DATA && window.RV_DATA.modules) || {};
-  var modules = (DATA.modules) || [];
   var loader = document.getElementById("loader");
-  if(!modules.length || typeof THREE === "undefined"){
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado apenas quando o data.js injetado esta mais antigo que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var snap = parseSnapshot();
+  var modSrc = pickData(window.RV_DATA && window.RV_DATA.modules, snap.modules);
+  var depSrc = pickData(window.RV_DATA && window.RV_DATA.deps, snap.deps);
+  var modules = (modSrc && modSrc.modules) || [];
+  var deps = depSrc || {};
+  var cycles = (deps.cycles) || [];
+
+  if(!modules.length || typeof THREE === "undefined" || !THREE.OrbitControls){
     loader.style.display = "flex";
-    loader.textContent = typeof THREE === "undefined"
-      ? "Esta visualização requer carregar a biblioteca Three.js. Conecte-se à internet e recarregue."
-      : "Nenhum dado de módulos disponível.";
+    loader.textContent = (typeof THREE === "undefined" || !THREE.OrbitControls)
+      ? "Three.js nao carregou: verifique assets/vendor/three.min.js e assets/vendor/OrbitControls.js."
+      : "Nenhum dado de modulos disponivel.";
     return;
   }
 
-  // Paleta por pasta
+  // Paleta por pasta: as 8 pastas reais do projeto
   var folderColor = {
-    "analisador-genealogico": 0x4f8cff,
-    "reconstructed": 0x6fbf73,
-    "tests": 0xe0a458,
-    "tests/fixtures": 0xe0a458,
-    "analisador-genealogico/templates": 0xb587e6,
-    "analisador-genealogico/static": 0xb587e6
+    "src/": 0x4f8cff,
+    "core/": 0x6fbf73,
+    "parsers/": 0xe0a458,
+    "reporting/": 0xd98cc8,
+    "utils/": 0x4fd1c5,
+    "templates/": 0xb587e6,
+    "tests/": 0x8b909a,
+    "tests/fixtures/": 0xb8c0cc
   };
 
   var scene = new THREE.Scene();
@@ -172,6 +228,8 @@
   var labels = [];
   var boxes = [];
 
+  function alturaBase(m){ return Math.max(1.2, Number(m.loc)/maxLoc * 34); }
+
   folders.forEach(function(f, ci){
     var mods = folderGroups[f];
     mods.sort(function(a,b){ return Number(b.loc) - Number(a.loc); });
@@ -180,7 +238,7 @@
       var z = (mi - (mods.length-1)/2) * cellZ;
       var w = Math.max(4, 8 + Number(m.loc)/maxLoc * 14);
       var d = w * 0.8;
-      var h = Math.max(1.2, Number(m.loc)/maxLoc * 34);
+      var h = alturaBase(m);
       var geo = new THREE.BoxGeometry(w, h, d);
       var col = folderColor[m.folder] || 0x8b909a;
       var mat = new THREE.MeshStandardMaterial({ color: col, roughness:0.55, metalness:0.12 });
@@ -209,6 +267,7 @@
       spr.position.set(x, baseY + h + 2.4, z);
       scene.add(spr);
       labels.push(spr);
+      mesh.userData.rotulo = spr;
     });
     // Folder marker
     var cm = document.createElement("canvas");
@@ -247,7 +306,7 @@
     if(hits.length){
       var d = hits[0].object.userData;
       tooltip.style.display = "block";
-      tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.type+'</span> · '+d.language+
+      tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.type+' · '+d.language+' · '+d.folder+'</span>'+
         '<br>'+(Number(d.loc)||0)+' linhas · complexidade '+(Number(d.complexity)||0)+
         '<br><span class="muted">'+d.path+'</span>';
       tooltip.style.left = (ev.clientX+16)+"px";
@@ -261,10 +320,10 @@
     var s = parseFloat(document.getElementById("scaleY").value);
     boxes.forEach(function(b){
       var m = b.userData;
-      var h = Math.max(1.2, Number(m.loc)/maxLoc * 34) * s;
+      var h = alturaBase(m) * s;
       b.scale.y = s;
       b.position.y = baseY + h/2;
-      labels.forEach(function(l){ if(l.position.x === b.position.x && Math.abs(l.position.z - b.position.z) < 0.5){ l.position.y = baseY + h + 2.4; }});
+      if(m.rotulo){ m.rotulo.position.y = baseY + h + 2.4; }
     });
   }
   document.getElementById("scaleY").addEventListener("input", function(){
@@ -294,9 +353,7 @@
 
   var stats = document.getElementById("stats");
   var totalLoc = modules.reduce(function(a,m){ return a + Number(m.loc); }, 0);
-  var byFolder = {};
-  modules.forEach(function(m){ byFolder[m.folder] = (byFolder[m.folder]||0) + 1; });
-  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+totalLoc+'</b> linhas de código<br><b>'+folders.length+'</b> pastas';
+  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+totalLoc+'</b> linhas não vazias<br><b>'+folders.length+'</b> pastas<br><b>'+cycles.length+'</b> ciclos de pacote';
 
   window.addEventListener("resize", function(){
     camera.aspect = (window.innerWidth - 250) / (window.innerHeight - 52);
@@ -313,7 +370,7 @@
   animate();
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Mapper em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Mapper em 2026-10-01.</div>
+<!-- Gerado pelo Reversa-Docs-Mapper em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Mapper em 2026-10-06.</div>
 </body>
 </html>

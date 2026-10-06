@@ -1,86 +1,103 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:52:00Z",
+  "generatedAt": "2026-10-06T04:45:00Z",
   "project": "analisador-genealogico",
+  "source": ".reversa/soul.md",
+  "sourceStamp": "soul.md regenerado em 2026-10-06, sobre o SDD re-extraido de 2026-10-05 (nivel completo)",
   "sections": {
-    "Proposito": "analisador-genealogico e uma aplicacao web monolitica em Python + Flask para genealogistas geneticos. Responde a pergunta: como eu me conecto geneticamente a essa outra pessoa? Cruza uma arvore genealogica GEDCOM (.ged) com um relatorio de DNA (CSV de cM) e calcula/visualiza o caminho de parentesco entre a pessoa raiz e cada DNA match, subindo ate o ancestral comum (MRCA) pelas ligacoes de pai/mae e descendo ate o match - ou recorrendo a conexao indireta por afinidade (casamentos/cunhados) quando nao ha ligacao sanguinea direta. Para nomes corrompidos ou grafias divergentes, aplica matching difuso que ignora entradas nao confiaveis em vez de forcar falsos positivos.",
+    "Proposito": "analisador-genealogico (Genetic Genealogy Path Analyzer) e uma aplicacao web Flask monolitica, de um unico processo, para genealogistas geneticos. Ela recebe duas entradas do proprio usuario, uma arvore GEDCOM (.ged) e um relatorio de DNA em CSV de correspondentes (formato GEDmatch), e responde a pergunta central: \"como eu me conecto a essa pessoa?\" O produto NAO afirma parentesco a partir de DNA. Ele separa tres eixos que nao se contaminam (o que o GEDCOM afirma, o que o CSV informa e o confronto entre os dois) e publica o confronto como um de quatro estados, sempre dizendo por que. A persona e uma so, o proprio operador, sem login, sem sessao e sem papeis; o uso e single-tenant por aceite de risco declarado, e a exposicao de rede exige ato explicito porque o padrao de escuta e 127.0.0.1. A dor resolvida e a armadilha conhecida da genealogia genetica: cM compativel nao prova um caminho, e caminho documental plausivel nao e confirmado por DNA. O sistema troca a afirmacao unica e silenciosa por tres leituras declaradas e um veredito auditavel.",
     "Entidades centrais": [
-      {
-        "term": "GEDCOM",
-        "definition": "Formato padronizado (.ged) de troca de arvores genealogicas; define registros INDI (pessoa) e FAM (familia). Fonte de verdade da genealogia."
-      },
-      {
-        "term": "INDI",
-        "definition": "Registro de individuo, identificado por xref_id (ex.: @I0001@). FAMC = familia onde e filho/a; FAMS = familias onde e conjuge."
-      },
-      {
-        "term": "FAM",
-        "definition": "Registro de familia (@F1@), com HUSB (marido), WIFE (esposa) e CHIL (filhos)."
-      },
-      {
-        "term": "DNA Match",
-        "definition": "Pessoa do CSV de correspondentes com valor de cM compartilhado. Entidade de entrada para a predicao de relacao."
-      },
-      {
-        "term": "cM (centiMorgan)",
-        "definition": "Unidade de medida de recombinacao genetica; quanto maior, mais proximo o parentesco. E a moeda que traduz genetica em grau de relacao."
-      },
-      {
-        "term": "Ancestral comum / MRCA",
-        "definition": "Ascendente mais recente compartilhado entre duas pessoas; base da conexao direta."
-      },
-      {
-        "term": "Grafo pessoa x familia",
-        "definition": "Estrutura em memoria (networkx.Graph/DiGraph) sobre a qual rodam BFS e menor caminho para achar conexoes diretas e indiretas."
-      }
+      { "term": "GEDCOM (E1)", "definition": "A arvore enviada, com registros INDI e FAM. Validada por conteudo (0 HEAD) e re-parseada a cada POST. Relacao 1:N com PESSOA e FAMILIA.", "confidence": "CONFIRMADO" },
+      { "term": "PESSOA / INDI (E2)", "definition": "Individuo identificado por xref_id (ex.: @I0001@); FAMC e FAMS sao seus vinculos. Relacao N:M com FAMILIA, como filho, conjuge ou genitor.", "confidence": "CONFIRMADO" },
+      { "term": "FAMILIA / FAM (E3)", "definition": "Unidade com HUSB, WIFE e CHIL, chave da navegacao por pais e do grafo pessoa-familia. Relacao N:M com PESSOA.", "confidence": "CONFIRMADO" },
+      { "term": "MATCH_DNA (E4)", "definition": "Linha do CSV: nome e cM compartilhado. A chave e o par (nome, kit), nunca so o nome. Uma evidencia por kit; casa com PESSOA por matching difuso.", "confidence": "CONFIRMADO" },
+      { "term": "PARENTESCO_DOCUMENTAL (E5)", "definition": "O que a arvore sustenta: caminho, MRCA, distancia geracional e status (not_found, found, ambiguous, affinity). Nunca le cM. Relacao 1:1 com PAR (pessoa raiz mais match).", "confidence": "CONFIRMADO" },
+      { "term": "EVIDENCIA_GENETICA (E6)", "definition": "O que o CSV informa: kit, cM total, segmentos, maior segmento, SNPs. Nao conhece o GEDCOM e nunca soma kits diferentes. Relacao 1:N com PAR (um por kit).", "confidence": "CONFIRMADO" },
+      { "term": "POSSIBILIDADES / SCP 4.0 (E7)", "definition": "O cM traduzido em lista de relacoes compativeis pela tabela do Shared cM Project 4.0, com 27 relacoes publicadas. Alimenta a janela do CONFRONTO.", "confidence": "CONFIRMADO" },
+      { "term": "CONFRONTO (E8)", "definition": "O veredito: COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO, por kit e com juncao conservadora. Relacao 1:1 com PAR (um veredito por conexao).", "confidence": "CONFIRMADO" },
+      { "term": "Chave de armazenamento", "definition": "Entidade de apoio que faz o papel de identificador de continuidade: <sha256 do conteudo truncado>__<nome visivel>. Nao e segredo e nao tem dono.", "confidence": "CONFIRMADO" },
+      { "term": "Aviso (warning)", "definition": "Entidade de apoio: par {code, message} que carrega a granularidade fina que o status perde de proposito.", "confidence": "CONFIRMADO" }
     ],
     "Decisoes fundadoras": [
-      "Toda a analise roda em memoria, sem banco de dados: o GEDCOM vira dicionarios people/families e grafos NetworkX por sessao; a persistencia e so a pasta uploads/ com os arquivos enviados.",
-      "Monolito server-side com Flask + Jinja2, tudo centralizado em um unico app.py com tres fluxos (process_dna, path_search e renderizacao inicial).",
-      "Predicao de relacao baseada em faixas de cM (tabela SHARED_CM_DATA, padrao do Shared cM Project).",
-      "Matching de nomes e viral e defensivo: score difuso com bonus por intersecao de sobrenomes e rejeicao de candidatos suspeitos para nao fabricar parentescos falsos.",
-      "Conexao direta primeiro, afinidade como fallback: ancestral comum ate profundidade 20; se nao acha, conexao indireta por afinidade em ate 40 hops.",
-      "Tratamento de mojibake embutido (strip_bad_utf, demojibake): nomes portugueses com encoding corrompido sao saneados antes do matching."
+      {
+        "id": "D1",
+        "title": "Separar parentesco documental, evidencia genetica e confronto, com quatro estados",
+        "evidence": "src/core/dna_analysis.py:1-31 (as duas proibicoes declaradas no codigo), src/core/evidence_comparison.py:8-29, src/core/documentary_relationship.py:10-16, tests/test_confrontacao_gedcom_dna.py (922 linhas, 27 funcoes, dez cenarios) e _reversa_sdd/adrs/14-separar-documental-genetica-e-confronto.md",
+        "implication": "O DNA nao altera o parentesco documental; conflito vira aviso e rol de causas, nunca reescrita de vinculo. O cM nunca e usado sozinho para afirmar parentesco, e o rotulo antigo \"Relacionamento Provavel (DNA)\" foi removido em favor de \"Possibilidades de parentesco pelo DNA\". O veredito e decidido por sobreposicao de faixas (ADR-15), e nao por distancia em meioses, com o contraexemplo medido no proprio codigo; com varios kits vence sempre o mais conservador. INCONCLUSIVO e o estado inicial e o caminho de falha padrao, de modo que nenhum estado e afirmado por omissao.",
+        "confidence": "CONFIRMADO",
+        "gap": "Nada disso tem requisito, roadmap ou adendo registrado."
+      },
+      {
+        "id": "D2",
+        "title": "Nucleo de dominio em pacotes por responsabilidade, sob uma camada de rota fina",
+        "evidence": "src/app.py (267 linhas, zero regra de negocio), src/core/ (12 modulos), src/parsers/, src/reporting/, src/utils/, _reversa_sdd/adrs/02-camada-de-rota-fina.md, adrs/10-mover-raiz-para-src.md e adrs/11-reorganizar-em-pacotes-por-responsabilidade.md",
+        "implication": "Uma so autoridade por regra, e a fronteira que permite testar decisao sem HTTP. O app.py cresceu de cerca de 70 para 267 linhas sem violar a decisao: as linhas acrescentadas sao infraestrutura de entrada (teto de corpo com 413, filtros de template, ancoragem do caminho de upload, guarda de instancia unica e bloco waitress), e nenhuma das 118 regras catalogadas vive ali. O custo declarado e a superficie de compatibilidade (__all__ reexportando nomes historicos) e o cm_estimator, legado mantido fora do fluxo apenas porque a suite e o harness o exercitam.",
+        "confidence": "CONFIRMADO",
+        "gap": "Os quatro pacotes nao formam camadas aciclicas: existem dois ciclos no nivel de pacote, core/ com reporting/ e core/ com parsers/. utils/ e o unico pacote folha real, e reporting/ contem decisao de negocio de apresentacao. A fronteira nao e acionavel por importacao e nao tem decisao humana registrada sobre manter ou desfazer."
+      },
+      {
+        "id": "D3",
+        "title": "Persistir o upload por chave derivada do conteudo, nao por sessao",
+        "evidence": "src/utils/validate.py (modulo puro, sem Flask e sem disco), src/app.py:32, :65-72, :90-108, tests/test_upload_seguranca.py (425 linhas, 33 funcoes) e _reversa_sdd/adrs/17-upload-por-chave-de-conteudo.md",
+        "implication": "A chave e sha256 do conteudo truncado em 16 hexadecimais, com a extensao original preservada, e e ela que circula entre requisicoes no campo gedcom_filename. Como o formulario devolve o valor no POST seguinte, um UUID aleatorio quebraria a continuidade e duplicaria o arquivo. A validacao e por forma fechada (^[0-9a-f]{16}__[A-Za-z0-9._-]+$), nao por lista negra, e e essa forma que impede escape de caminho. O teto de corpo e de 16 MB, com HTTP 413 antes de ler o corpo, e arquivo de mesma chave nao e reescrito. A decisao substitui a persistencia por sessao: nao existe sessao em lugar algum.",
+        "confidence": "CONFIRMADO",
+        "gap": "A chave e identificador, nao segredo, e nao ha verificacao de propriedade: quem conhece a chave carrega a arvore."
+      },
+      {
+        "id": "D4",
+        "title": "Single-tenant por aceite de risco, com waitress, instancia unica e escuta local por padrao",
+        "evidence": "_reversa_sdd/adrs/12-servidor-waitress-instancia-unica.md, adrs/18-single-tenant-por-aceite-de-risco.md, src/app.py:179-267, tests/test_servidor_producao.py e _reversa_sdd/permissions.md",
+        "implication": "waitress==3.0.2 substituiu o servidor de desenvolvimento e o gunicorn; o socket e criado, marcado e ligado antes de servir, de modo que uma segunda instancia na mesma porta e recusada com diagnostico que separa porta ocupada de endereco indisponivel. O padrao passou de 0.0.0.0 para 127.0.0.1, e abrir para a rede virou ato explicito por ANALISADOR_HOST. Como nao ha identidade, a correcao de isolamento no legado seria codigo descartado pela Onda 3 e ainda assim inverificavel: a decisao foi nao corrigir e aceitar o risco, com condicao de reabertura nomeada.",
+        "confidence": "CONFIRMADO",
+        "gap": "A guarda de instancia unica e de processo, nao de thread: o servidor atende com 4 threads (ANALISADOR_THREADS) e o estado do GEDCOM e global de processo, o que deixa aberta a corrida da lacuna L2. Zero autenticacao, zero papeis e zero owner_id, confirmado por varredura."
+      },
+      {
+        "id": "D5",
+        "title": "Matching difuso defensivo, com desempate deterministico",
+        "evidence": "src/core/matching.py (indices e cinco ramos de aceitacao), src/core/name_normalization.py, tests/test_characterization_matching.py (24 testes, incluindo 2 de determinismo) e _reversa_sdd/adrs/23-desempate-deterministico.md",
+        "implication": "O score combina token_sort, partial e similaridade de prenome com bonus por intersecao de sobrenomes; o filtro anti-falso-positivo rejeita o candidato sem sobrenome em comum e sem acerto de sufixo, registrando o motivo, e o descartado e exibido, nunca escondido. O cM influencia apenas o limiar de Jaccard (0,50, caindo para 0,33 so com cM maior ou igual a 150 e prenome nao generico), o que um teste de caracterizacao confirma. O desempate ganhou um quarto criterio, o menor xref_id, porque a ordem de iteracao de um set muda a cada PYTHONHASHSEED e a escolha do candidato se propaga ate o veredito do confronto.",
+        "confidence": "CONFIRMADO",
+        "gap": "Essa correcao e a unica divergencia deliberada do legado que muda comportamento em toda a extracao; fora do empate triplo, nada muda."
+      }
     ],
     "Lacunas": [
-      "Sem autenticacao/RBAC - qualquer acesso web usa todas as funcionalidades.",
-      "Sem testes automatizados - nenhum framework detectado; regras criticas de matching sem cobertura.",
-      "Sem historico Git - decisoes reconstruidas por inferencia de codigo, nao por commits.",
-      "Tabela de cM sem fonte citada no codigo - faixas implicitas ao Shared cM Project do README."
-    ]
+      { "id": "L1", "text": "Sem autenticacao, sem RBAC e sem owner_id. Confirmado por varredura: nenhum session, login, auth, role ou permission em src/. A chave de conteudo e identificador, nao segredo, e a lista completa de nomes (all_names) e embutida em toda resposta. Dado genealogico de pessoas vivas fica acessivel a quem alcanca a porta e conhece a chave. A correcao esta especificada para a Onda 3 da migracao (teste negativo de 404 como portao de go-live) e nao foi aplicada ao legado por ser inverificavel sem identidade.", "confidence": "CONFIRMADO" },
+      { "id": "L2", "text": "Corrida entre requisicoes concorrentes (L-16 / M-03 / P-02, o mesmo mecanismo com tres identificadores). O estado do GEDCOM e global de processo e reescrito a cada requisicao, com 4 threads por padrao: A parseia a arvore A, B parseia a arvore B, e A segue lendo o estado de B. Mecanismo confirmado por leitura de codigo; alcance nao medido. Nunca foi observado resultado cruzado em uso real.", "confidence": "INFERIDO" },
+      { "id": "L3", "text": "O CSV e apenas do GEDmatch. A cobertura de exportadores deixou de ser incerteza e passou a ser declarada: so o GEDmatch e usado. O CSV tambem nao passa por validacao de conteudo, so a forma do nome e validada.", "confidence": "CONFIRMADO" },
+      { "id": "L4", "text": "Nada e persistido entre execucoes. A arvore e re-parseada a cada POST e nenhum resultado e gravado: nao ha historico de analises, nem registro do veredito do operador sobre uma conexao. Nao existe estado de ciclo de vida em entidade alguma do sistema. Persistir virou requisito encaminhado ao sistema alvo, nao correcao do legado.", "confidence": "CONFIRMADO" }
+    ],
+    "Como ler": "Este soul.md e uma sintese, nao substitui: _reversa_sdd/inventory.md para o mapeamento de superficie, rotas, contagens e dependencias; _reversa_sdd/code-analysis.md e flowcharts/ para o detalhe modulo a modulo (118 regras, 77 funcoes); _reversa_sdd/domain.md para as regras de negocio, o glossario e as 21 mensagens de contrato; _reversa_sdd/state-machines.md e permissions.md para as duas maquinas de decisao e a ausencia de RBAC; _reversa_sdd/architecture.md, c4-context.md, c4-containers.md, c4-components.md e erd-complete.md para os diagramas C4 e as 27 estruturas de dados; _reversa_sdd/adrs/ para as 23 decisoes reconstruidas, com contexto, alternativas e consequencias; _reversa_sdd/confidence-report.md e gaps.md para os numeros medidos e o passivo da extracao. Numeros medidos desta extracao: 37 arquivos de codigo, 5.966 linhas nao vazias em src/ e tests/, 179 itens de teste coletados com 164 passando (os 15 erros sao de ambiente, PermissionError do sandbox ao criar diretorio temporario, e nao regressao), 83 % de cobertura de src/ e confianca global de 92,8 % sobre 1.922 afirmacoes."
   },
   "concepts": [
-    {
-      "term": "GEDCOM",
-      "definition": "Formato padronizado (.ged) de troca de arvores genealogicas; define registros INDI (pessoa) e FAM (familia). Fonte de verdade da genealogia."
-    },
-    {
-      "term": "INDI",
-      "definition": "Registro de individuo de um GEDCOM, identificado por xref_id (ex.: @I0001@)."
-    },
-    {
-      "term": "FAM",
-      "definition": "Registro de familia de um GEDCOM, com HUSB (marido), WIFE (esposa) e CHIL (filhos)."
-    },
-    {
-      "term": "DNA Match",
-      "definition": "Pessoa do CSV de correspondentes de DNA com valor de cM compartilhado."
-    },
-    {
-      "term": "cM (centiMorgan)",
-      "definition": "Unidade de medida de recombinacao genetica; quanto maior, mais proximo o parentesco."
-    },
-    {
-      "term": "Ancestral comum (MRCA)",
-      "definition": "Ascendente mais recente compartilhado entre duas pessoas; base da conexao direta."
-    },
-    {
-      "term": "Mojibake",
-      "definition": "Caracteres corrompidos por encoding incorreto (ex.: Latin-1 lido como UTF-8), comum em nomes portugueses; saneado por demojibake antes do matching."
-    },
-    {
-      "term": "Matching difuso",
-      "definition": "Score de similaridade de nomes (0.55xtoken_sort + 0.25xpartial + 0.20xgiven + InterBonus) com filtro anti-falso-positivo por intersecao de sobrenomes."
-    }
+    { "term": "GEDCOM", "definition": "Formato padronizado de troca de arvores genealogicas (.ged): a arvore enviada, com registros INDI (pessoa) e FAM (familia). Validada por conteudo (precisa comecar com 0 HEAD) e re-parseada a cada POST; e a porta de entrada das outras duas unidades.", "confidence": "CONFIRMADO" },
+    { "term": "PESSOA (INDI)", "definition": "Registro de individuo de um GEDCOM, identificado por xref_id (ex.: @I0001@). FAMC aponta a familia onde e filho e FAMS as familias onde e conjuge.", "confidence": "CONFIRMADO" },
+    { "term": "FAMILIA (FAM)", "definition": "Registro de familia de um GEDCOM, com HUSB (marido), WIFE (esposa) e CHIL (filhos). E a chave da navegacao por pais e do grafo pessoa-familia.", "confidence": "CONFIRMADO" },
+    { "term": "MATCH_DNA", "definition": "Linha do CSV de correspondentes de DNA: nome e cM compartilhado. A chave e o par (nome, kit), nunca so o nome; duas linhas com o mesmo nome e kits diferentes sao duas evidencias.", "confidence": "CONFIRMADO" },
+    { "term": "PARENTESCO_DOCUMENTAL", "definition": "O que a arvore sustenta: caminho, MRCA, distancia geracional e status (not_found, found, ambiguous, affinity). Nunca le cM, e um conflito com o DNA vira aviso, nunca reescrita de vinculo.", "confidence": "CONFIRMADO" },
+    { "term": "EVIDENCIA_GENETICA", "definition": "O que o CSV informa: kit, cM total, segmentos, maior segmento e SNPs. Nao conhece o GEDCOM e nunca soma kits diferentes: com mais de um kit, totals.cm e None.", "confidence": "CONFIRMADO" },
+    { "term": "POSSIBILIDADES (Shared cM Project 4.0)", "definition": "O cM traduzido em lista de relacoes compativeis pela tabela publicada do SCP 4.0, com 27 relacoes. Sempre lista, inclusive vazia, e nunca um parentesco unico.", "confidence": "CONFIRMADO" },
+    { "term": "CONFRONTO", "definition": "O veredito do sistema: COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO, por kit e com juncao conservadora (CONFLITANTE > POSSIVEL > COMPATIVEL > INCONCLUSIVO). INCONCLUSIVO e o estado inicial e o caminho de falha padrao.", "confidence": "CONFIRMADO" },
+    { "term": "PAR (par em analise)", "definition": "A pessoa raiz e o correspondente. Os tres eixos (documental, genetico e confronto) aparecem como tres caminhos independentes ate o CONFRONTO, que e o unico ponto onde eles se encontram.", "confidence": "CONFIRMADO" },
+    { "term": "cM (centiMorgan)", "definition": "Unidade de medida de recombinacao genetica usada pelo CSV de correspondentes; quanto maior, mais proximo o parentesco. E a moeda que traduz genetica em grau de relacao, e no sistema ela NUNCA e usada sozinha para afirmar parentesco.", "confidence": "CONFIRMADO" },
+    { "term": "MRCA (ancestral comum mais recente)", "definition": "Ascendente mais recente compartilhado entre duas pessoas, base da conexao direta. A busca direta sobe ate ele exclusivamente por linhas parentais.", "confidence": "CONFIRMADO" },
+    { "term": "Meioses", "definition": "Os saltos pai-filho entre duas pessoas. E a grandeza que o cM mede, e e o que liga o rotulo do parentesco a tabela do Shared cM Project. Distancia em meioses NAO e criterio do veredito: o confronto decide por sobreposicao de faixas.", "confidence": "CONFIRMADO" },
+    { "term": "Chave de armazenamento de conteudo", "definition": "<sha256 do conteudo truncado em 16 hexadecimais>__<nome visivel>, com a extensao original preservada. Mesmo conteudo gera a mesma chave, e e ela que circula entre requisicoes no campo gedcom_filename. Nao e segredo e nao tem verificacao de propriedade.", "confidence": "CONFIRMADO" },
+    { "term": "Mojibake", "definition": "Nome corrompido por encoding incorreto (ex.: Latin-1 lido como UTF-8), comum em nomes portugueses. A limpeza (strip_bad_utf e demojibake) tem autoridade unica no projeto (ADR-07).", "confidence": "CONFIRMADO" },
+    { "term": "Matching difuso defensivo", "definition": "Casamento de nomes por score (0,55 token_sort + 0,25 partial + 0,20 prenome + bonus de intersecao de sobrenomes), com filtro anti-falso-positivo e cinco ramos de aceitacao. O cM nao decide a aceitacao: ele so influencia o limiar de Jaccard.", "confidence": "CONFIRMADO" },
+    { "term": "Desempate deterministico", "definition": "Quarto criterio do desempate de candidatos: em empate exato nos tres criterios (sobrenomes em comum, prenome e score), vence o menor xref_id. Existe porque a ordem de iteracao de um set muda a cada PYTHONHASHSEED.", "confidence": "CONFIRMADO" },
+    { "term": "Grafo pessoa-familia", "definition": "Grafo bipartido nao direcionado (networkx) com nos tipados person e family, construido no upload. Sobre ele rodam o BFS bidirecional da conexao direta e o caminho mais curto da conexao indireta.", "confidence": "CONFIRMADO" },
+    { "term": "Conexao direta", "definition": "Caminho pelo ancestral comum, por BFS bidirecional que sobe apenas por pais, com teto de MAX_DEPTH = 20 iteracoes de profundidade (nao geracoes). O corte no teto e silencioso, por decisao humana.", "confidence": "CONFIRMADO" },
+    { "term": "Afinidade (conexao indireta)", "definition": "Fallback por casamento quando nao ha ancestral comum: caminho mais curto no grafo pessoa-familia, com teto de MAX_HOPS = 40 arestas. E marcada como afinidade em tres lugares, porque NAO representa parentesco consanguineo.", "confidence": "CONFIRMADO" },
+    { "term": "Homônimo (dossie de ambiguidade)", "definition": "Mais de um registro com o mesmo nome normalizado. O dossie compara nomes sem acento e corrige mojibake; a busca de caminho testa ate 5 x 5 combinacoes e vence a primeira com caminho, avisando a ambiguidade em vez de escolher em silencio.", "confidence": "CONFIRMADO" },
+    { "term": "Colapso de pedigree", "definition": "Mesmo ancestral alcancado por mais de uma cadeia de pais, assinatura de endogamia. Detectado por contagem de cadeias com teto de 8 e apenas avisado: o sistema nao corrige nem altera o veredito.", "confidence": "CONFIRMADO" },
+    { "term": "Contrato de escape do rotulo Mermaid", "definition": "Rotulo de no sanitizado por lista branca, com &, < e > convertidos em entidades HTML somente DEPOIS do filtro. A ordem e invariante: a aspa dupla seguida de crase derruba o diagrama inteiro se escapar da gramatica.", "confidence": "CONFIRMADO" },
+    { "term": "Single-tenant por aceite de risco", "definition": "Uma so persona, o proprio operador, sem login, sessao ou papeis. A escuta padrao e 127.0.0.1 e abrir para a rede e ato explicito por ANALISADOR_HOST. A ausencia de isolamento e risco declarado, com correcao prevista para a Onda 3.", "confidence": "CONFIRMADO" },
+    { "term": "Aviso (warning)", "definition": "Par {code, message} que carrega a granularidade fina que o status perde de proposito. Exemplos contratados: sem_caminho, homonimo, data_impossivel, colapso_de_pedigree, caminhos_multiplos, afinidade, kit_ausente, multiplos_kits, segmento_fraco.", "confidence": "CONFIRMADO" }
+  ],
+  "gaps": [
+    { "id": "L1", "text": "Sem autenticacao, sem RBAC e sem owner_id. Confirmado por varredura: nenhum session, login, auth, role ou permission em src/. A chave de conteudo e identificador, nao segredo, e a lista completa de nomes (all_names) e embutida em toda resposta. Dado genealogico de pessoas vivas fica acessivel a quem alcanca a porta e conhece a chave. A correcao esta especificada para a Onda 3 da migracao (teste negativo de 404 como portao de go-live) e nao foi aplicada ao legado por ser inverificavel sem identidade.", "confidence": "CONFIRMADO" },
+    { "id": "L2", "text": "Corrida entre requisicoes concorrentes (L-16 / M-03 / P-02, o mesmo mecanismo com tres identificadores). O estado do GEDCOM e global de processo e reescrito a cada requisicao, com 4 threads por padrao: A parseia a arvore A, B parseia a arvore B, e A segue lendo o estado de B. Mecanismo confirmado por leitura de codigo; alcance nao medido. Nunca foi observado resultado cruzado em uso real.", "confidence": "INFERIDO" },
+    { "id": "L3", "text": "O CSV e apenas do GEDmatch. A cobertura de exportadores deixou de ser incerteza e passou a ser declarada: so o GEDmatch e usado. O CSV tambem nao passa por validacao de conteudo, so a forma do nome e validada.", "confidence": "CONFIRMADO" },
+    { "id": "L4", "text": "Nada e persistido entre execucoes. A arvore e re-parseada a cada POST e nenhum resultado e gravado: nao ha historico de analises, nem registro do veredito do operador sobre uma conexao. Nao existe estado de ciclo de vida em entidade alguma do sistema. Persistir virou requisito encaminhado ao sistema alvo, nao correcao do legado.", "confidence": "CONFIRMADO" }
   ]
 }

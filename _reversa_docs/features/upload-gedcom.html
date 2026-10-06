@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <title>upload-gedcom — analisador-genealogico</title>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
@@ -39,124 +39,299 @@
   code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
   pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
   .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0;}
+  .tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:inherit;}
+  .tabs button.on{color:#fff;border-color:rgba(79,140,255,.5);background:rgba(79,140,255,.14);}
+  .panel{display:none;margin-top:12px;}
+  .panel.on{display:block;}
+  .acc{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel);}
+  .acc details{border-bottom:1px solid var(--line);}
+  .acc details:last-child{border-bottom:none;}
+  .acc summary{cursor:pointer;padding:12px 14px;font-size:13px;color:var(--txt);list-style:none;display:flex;gap:10px;align-items:baseline;}
+  .acc summary::-webkit-details-marker{display:none;}
+  .acc summary .id{color:var(--accent);font-family:Consolas,monospace;font-size:12px;min-width:58px;}
+  .acc summary .pri{margin-left:auto;color:var(--muted);font-size:11px;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .acc .body{padding:0 14px 14px 14px;color:var(--muted);font-size:13px;line-height:1.6;}
+  .acc details[open] summary{background:rgba(79,140,255,.08);}
+  .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:16px;}
 </style>
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Feature</span>
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="../index.html" data-page-id="index">Visão geral</a>
+  <a href="../arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="../modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="../metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="../timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="../glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="../deck.html" data-page-id="deck">Deck</a>
+  <a href="../features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="../features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="../features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
   <h1>upload-gedcom</h1>
-  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>upload_gedcom</code></span><span class="pill">12 requisitos</span><span class="pill">14 tarefas</span><span class="pill">Spec: upload-gedcom</span></div>
-  <p class="summary">Porta de entrada do sistema. Recebe o arquivo GEDCOM (.ged), parseia os registros <code>INDI</code> e <code>FAM</code>, constrói o grafo não-direcionado pessoa↔família em memória e publica esse grafo como estado global do processo. As outras duas features consomem esse estado. Sem um GEDCOM carregado com sucesso, nada mais opera.</p>
+  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>upload_gedcom</code></span><span class="pill" id="pillRf">19 requisitos funcionais</span><span class="pill" id="pillGh">6 cenários Gherkin</span><span class="pill" id="pillTk">20 tarefas</span><span class="pill">Spec: upload-gedcom</span></div>
+  <p class="summary" id="tldr">Recebe um arquivo GEDCOM enviado pelo navegador, decide se ele pode ser gravado, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo). É a porta de entrada de todas as outras unidades: sem upload-gedcom, não há analise-dna nem busca-caminho.</p>
 
-  <h2>Responsabilidades</h2>
-  <table><tbody>
-    <tr><td><b>Receber o upload</b></td><td>Validar presença e nome do arquivo; persistir em <code>uploads/</code> com o nome original</td></tr>
-    <tr><td><b>Parsear registros</b></td><td><code>INDI</code> (pessoas) e <code>FAM</code> (famílias) via <code>ged4py</code>, indexados por <code>xref_id</code></td></tr>
-    <tr><td><b>Construir o grafo</b></td><td><code>nx.Graph</code> não-direcionado, com nós tipados <code>person</code> e <code>family</code>, mais o índice <code>child_to_family</code></td></tr>
-    <tr><td><b>Publicar o estado</b></td><td>Substituir as globais anteriores in-place; devolver a lista de nomes ordenada</td></tr>
-    <tr><td><b>Corrigir mojibake</b></td><td>Recuperar nomes Latin-1 lidos como UTF-8 (<code>strip_bad_utf</code>, <code>demojibake</code>)</td></tr>
-  </tbody></table>
+  <h2>Como a Feature Funciona</h2>
+  <div class="tabs" id="tabs">
+    <button data-panel="p-fluxo" class="on">Fluxo</button>
+    <button data-panel="p-regras">Regras de negócio</button>
+    <button data-panel="p-contratos">Contratos</button>
+    <button data-panel="p-tarefas">Tarefas</button>
+  </div>
 
-  <h2>Regras de Negócio</h2>
-  <table><tbody>
-    <tr><td><b>Nome formatado</b></td><td><code>person.name.format()</code>; o literal <code>"Sem Nome"</code> só aparece se <code>person</code> ou <code>person.name</code> estiver ausente</td></tr>
-    <tr><td><b>Formato vazio</b></td><td>Devolve <b>string vazia</b>. Comportamento canônico, medido em dado real: 296 de 35.460 pessoas numa árvore e 17 de 3.056 em outra</td></tr>
-    <tr><td><b>Grafo</b></td><td>Não-direcionado. A direção parental não é armazenada; é derivada depois por <code>get_parents</code></td></tr>
-    <tr><td><b>Aresta órfã</b></td><td>Só é criada se a pessoa já existir como nó. Referências para id inexistente são descartadas em silêncio</td></tr>
-    <tr><td><b><code>FAM</code> sem <code>xref_id</code></b></td><td>Ignorada por completo</td></tr>
-    <tr><td><b><code>child_to_family</code></b></td><td>Acumula <b>todas</b> as famílias em que a pessoa aparece como <code>CHIL</code></td></tr>
-    <tr><td><b>Recarga</b></td><td><b>Substitui</b> o estado anterior, não acumula</td></tr>
-    <tr><td><b>Sem validação</b></td><td>Nenhuma checagem de extensão, tipo ou tamanho; nome do cliente vira caminho, então colisão sobrescreve</td></tr>
-    <tr><td><b>Erro no parsing</b></td><td>Mensagem amigável, sem crash. As globais anteriores não são tocadas, porque a mutação só ocorre após o parse bem-sucedido</td></tr>
-  </tbody></table>
+  <div class="panel on" id="p-fluxo">
+    <table><tbody>
+      <tr><td><b>1. Decidir antes de gravar</b></td><td>Lê o conteúdo inteiro e valida por conteúdo, não por extensão. Nenhum byte chega ao disco quando o conteúdo é recusado</td></tr>
+      <tr><td><b>2. Derivar a chave</b></td><td><code>sha256(conteudo).hexdigest()[:16]</code>, o mesmo conteúdo gera sempre a mesma chave</td></tr>
+      <tr><td><b>3. Compor o nome em disco</b></td><td><code>&lt;chave&gt;__&lt;nome visível&gt;</code>, com a extensão original preservada e gravação idempotente</td></tr>
+      <tr><td><b>4. Publicar o estado</b></td><td>Parseia <code>INDI</code> e <code>FAM</code> e substitui <code>people</code>, <code>families</code>, <code>child_to_family</code> e o grafo, incrementando <code>versao</code></td></tr>
+      <tr><td><b>5. Devolver a lista de nomes</b></td><td>Lista ordenada, com um item por pessoa carregada, que alimenta os formulários das outras duas unidades</td></tr>
+    </tbody></table>
+    <p class="note">Fonte: <code>_reversa_sdd/upload-gedcom/design.md</code> (seção Fluxo Principal) e <code>requirements.md</code> (seção Visão Geral), re-extração de 2026-10-05.</p>
+  </div>
 
-  <div class="warn">
-    <b>Ponto que já causou um bug real.</b> O caso comum de nome é <b>formato vazio</b>, que devolve <code>''</code> — e isso é correto. Uma versão anterior tratava formato vazio como <code>"Sem Nome"</code> e quebrava a paridade com o oráculo congelado (<code>DIV-001</code>). O literal <code>"Sem Nome"</code> é inalcançável a partir de registros <code>INDI</code> reais: tem <b>0 ocorrências</b> medidas em 55.523 nomes.
+  <div class="panel" id="p-regras">
+    <table><tbody>
+      <tr><td><b>Validação por conteúdo</b></td><td>Um GEDCOM legítimo sem <code>.ged</code> é aceito; aceitável = após remover um BOM UTF-8 e os espaços à esquerda, o conteúdo começa com <code>0 HEAD</code></td></tr>
+      <tr><td><b>Recusas nomeadas</b></td><td>Conteúdo vazio devolve <code>arquivo vazio</code>; byte NUL devolve <code>conteudo binario</code>; sem cabeçalho devolve <code>não começa com a declaração 0 HEAD</code></td></tr>
+      <tr><td><b>Chave do conteúdo</b></td><td><code>sha256</code> truncado em 16 hexadecimais, e não um UUID aleatório, porque o formulário devolve o valor no <code>POST</code> seguinte</td></tr>
+      <tr><td><b>Nome visível</b></td><td><code>/</code>, <code>\</code> e NUL viram <code>_</code>; acentos, espaços e a extensão original são preservados; vazio ou só pontos vira <code>arvore.ged</code>; sem extensão recebe <code>.ged</code></td></tr>
+      <tr><td><b>Forma fechada da chave</b></td><td><code>^[0-9a-f]{16}__[A-Za-z0-9._-]+$</code>, validação por forma e não por lista negra: como a expressão exclui <code>/</code>, <code>\</code> e <code>..</code>, um valor manipulado não escapa da pasta</td></tr>
+      <tr><td><b>Teto de corpo</b></td><td>16 MB, com <code>HTTP 413</code> aplicado antes de ler o corpo</td></tr>
+      <tr><td><b>Idempotência</b></td><td>Arquivo já existente com a mesma chave não é reescrito; o sistema nunca apaga um arquivo enviado</td></tr>
+      <tr><td><b>Pasta de upload</b></td><td>Ancorada no arquivo do app, nunca no diretório corrente, com sobreposição por <code>ANALISADOR_UPLOAD_FOLDER</code></td></tr>
+      <tr><td><b>Substituição assimétrica</b></td><td><code>people</code>, <code>families</code> e <code>child_to_family</code> são mutados in place; <code>graph</code> é reatribuído. <code>versao</code> é incrementado a cada carga e é o sinal de invalidação dos índices derivados</td></tr>
+      <tr><td><b>get_name</b></td><td>Devolve string vazia quando o registro tem <code>Name</code> e o formato resulta vazio; o literal <code>Sem Nome</code> só aparece quando não há <code>name</code>. Ocorre em dado real e é contrato de paridade com o oráculo congelado</td></tr>
+      <tr><td><b>Família e arestas</b></td><td>Família sem <code>xref_id</code> é ignorada por completo; arestas só são criadas para nós existentes no grafo</td></tr>
+      <tr><td><b>Lista de nomes</b></td><td>Ordenada e com exatamente um item por pessoa carregada</td></tr>
+    </tbody></table>
+    <div class="warn"><b>Ponto que já causou bug real.</b> Fixar a extensão em <code>.ged</code> renomeou o CSV de DNA para <code>&lt;chave&gt;__nome.csv.ged</code> e quebrou a unidade <code>analise-dna</code> (regressão do <code>BUG-20260929-QMLY</code>, corrigida em 2026-10-02). A extensão original precisa ser preservada.</div>
+  </div>
+
+  <div class="panel" id="p-contratos">
+    <table><tbody>
+      <tr><th>Contrato</th><th>O que fixa</th></tr>
+      <tr><td><b>HTTP</b></td><td><code>GET /</code> devolve o formulário sem estado; <code>POST /</code> com <code>action=upload_gedcom</code> devolve HTML com <code>message</code>, <code>success</code> e, no sucesso, <code>gedcom_filename</code> e <code>all_names</code>. Não há contrato JSON, redirect, <code>201</code>, <code>400</code> ou <code>409</code>: toda recusa de negócio é HTML com status <code>200</code> e <code>success=false</code>, e a única recusa de transporte é o <code>413</code></td></tr>
+      <tr><td><b>Disco</b></td><td><code>&lt;16 hex&gt;__&lt;nome visível&gt;</code>, mesmo conteúdo gera a mesma chave entre requisições e entre processos; o sistema nunca apaga um arquivo enviado</td></tr>
+      <tr><td><b>Estado</b></td><td><code>people</code>, <code>families</code> e <code>child_to_family</code> preservam identidade de objeto para manter válidos os bindings importados no topo; <code>graph</code> é reatribuído e por isso quem o consome o importa dentro da função</td></tr>
+      <tr><td><b>Conteúdo aceito</b></td><td>Só três verificações: vazio, byte NUL e cabeçalho <code>0 HEAD</code>. Extensão, tipo MIME, gramática GEDCOM e o conteúdo do CSV ficam deliberadamente fora</td></tr>
+      <tr><td><b>Mensagens</b></td><td>Textos de contrato, não prosa: goldens de tela e o harness de paridade dependem dos literais</td></tr>
+      <tr><td><b>Ausência de sessão</b></td><td>O estado vive no processo. O que faz o papel de identificador de continuidade é a chave de conteúdo, que não é segredo nem tem verificação de propriedade</td></tr>
+    </tbody></table>
+    <pre>Forma do nome em disco
+&lt;16 hexadecimais&gt;__&lt;nome visivel&gt;
+
+Chave         sha256(conteudo).hexdigest()[:16]
+Separador     "__" (literal fixo)
+Nome visivel  nome do cliente saneado, extensao original preservada
+Forma         ^[0-9a-f]{16}__[A-Za-z0-9._-]+$
+
+Mensagens de contrato
+"Nenhum arquivo GEDCOM enviado."          (erro de entrada)
+"Nenhum arquivo selecionado."             (erro de entrada)
+"Arquivo '{nome original}' carregado!"    (sucesso)
+"Arquivo nao reconhecido como GEDCOM: {motivo}."   (erro de conteudo)
+"Erro ao processar GEDCOM: {e}"           (erro de parse)
+"Erro: Arquivo GEDCOM nao encontrado."    (erro de entrada)
+"Erro: Arquivo '{chave}' nao existe mais." (erro de estado)
+"Arquivo maior que o limite de {n} MB."   (recusa por tamanho, HTTP 413)</pre>
+    <p class="note">Fonte: <code>_reversa_sdd/upload-gedcom/contracts.md</code>, seções 1 a 7.</p>
+  </div>
+
+  <div class="panel" id="p-tarefas">
+    <table><tbody>
+      <tr><th>Ordem</th><th>Bloco</th><th>Tarefas</th></tr>
+      <tr><td>1</td><td><b>Núcleo puro</b>, não depende de framework e concentra a decisão de negócio</td><td>T-05 a T-08 (validação, chave, nome visível, forma fechada) e T-12 a T-16 (ref_id, get_name, mojibake, parsing, grafo)</td></tr>
+      <tr><td>2</td><td><b>Rota e guardas</b></td><td>T-01, T-02, T-09 a T-11 e T-20</td></tr>
+      <tr><td>3</td><td><b>Fronteira de recusa</b>, erro e limite</td><td>T-03, T-04 e T-19</td></tr>
+      <tr><td>4</td><td><b>Contrato de estado e de saída</b></td><td>T-17 e T-18</td></tr>
+    </tbody></table>
+    <p class="note">Total: 20 tarefas de produção e 13 tarefas de teste. Bloqueio entre units: nenhuma outra unit pode ser implementada antes desta, porque analise-dna e busca-caminho leem o estado que ela publica.</p>
   </div>
 
   <h2>Requisitos Funcionais</h2>
-  <table><tbody>
-    <tr><th>ID</th><th>Requisito</th><th>Priori.</th></tr>
-    <tr><td>RF-01</td><td>Persistir o arquivo em <code>uploads/</code> com o nome recebido</td><td>Must</td></tr>
-    <tr><td>RF-02</td><td>Rejeitar envio sem arquivo: <code>"Nenhum arquivo GEDCOM enviado."</code></td><td>Must</td></tr>
-    <tr><td>RF-03</td><td>Rejeitar arquivo com nome vazio: <code>"Nenhum arquivo selecionado."</code></td><td>Should</td></tr>
-    <tr><td>RF-04</td><td>Parsear <code>INDI</code> e <code>FAM</code> e indexar por <code>xref_id</code></td><td>Must</td></tr>
-    <tr><td>RF-05</td><td>Construir grafo com nós tipados, arestas só para ids resolvíveis</td><td>Must</td></tr>
-    <tr><td>RF-06</td><td>Construir o índice <code>child_to_family</code></td><td>Must</td></tr>
-    <tr><td>RF-07</td><td>Substituir integralmente o estado global anterior a cada carga</td><td>Must</td></tr>
-    <tr><td>RF-08</td><td>Devolver a lista de nomes ordenada alfabeticamente</td><td>Must</td></tr>
-    <tr><td>RF-09</td><td>Corrigir mojibake de nomes nos pontos de entrada</td><td>Should</td></tr>
-    <tr><td>RF-10</td><td>Reportar falha de parsing sem derrubar a aplicação</td><td>Must</td></tr>
-    <tr><td>RF-11</td><td>Recusar operação quando o arquivo não existe mais no disco</td><td>Should</td></tr>
-    <tr><td>RF-12</td><td>Devolver exatamente um nome por pessoa, sem entradas vazias indevidas</td><td>Should</td></tr>
-  </tbody></table>
+  <div class="acc" id="rfAcc"></div>
 
   <h2>Critérios de Aceitação</h2>
-  <pre>Dado que o usuário está na tela inicial sem GEDCOM carregado
-Quando ele envia um arquivo .ged válido com nome "familia.ged"
-Então o arquivo é salvo em uploads/familia.ged
-E o grafo é construído com nós de pessoa e de família
-E a tela exibe "Arquivo 'familia.ged' carregado!"
-E a lista de nomes aparece ordenada alfabeticamente
+  <pre>Dado que o operador esta na tela inicial
+Quando envia um arquivo GEDCOM valido chamado exemplo_familia.ged
+Entao o arquivo e gravado em src/uploads sob a chave &lt;sha256 truncado&gt;__exemplo_familia.ged
+E a tela mostra "Arquivo 'exemplo_familia.ged' carregado!" com success=True
+E a lista completa de nomes da arvore e devolvida ao formulario
 
-Dado que o usuário está na tela inicial
-Quando ele submete o formulário sem selecionar arquivo
-Então a tela exibe "Nenhum arquivo GEDCOM enviado."
-E nenhum arquivo é gravado em uploads/
+Dado que o operador envia o mesmo GEDCOM uma segunda vez
+Quando a gravacao e executada
+Entao o arquivo existente NAO e reescrito
+E a chave derivada e exatamente a mesma
 
-Dado que o usuário envia um arquivo .ged sintaticamente inválido
-Quando o parse falha
-Então a aplicação não quebra
-E a tela exibe "Erro ao processar GEDCOM: {mensagem}"
+Dado um conteudo que nao comeca com a declaracao 0 HEAD
+Quando o upload e executado
+Entao a resposta e "Arquivo nao reconhecido como GEDCOM: nao comeca com a declaracao 0 HEAD."
+E nenhum byte e gravado em disco
+E success=False
 
-Dado que uma árvore com 1.000 pessoas já está carregada
-Quando o usuário carrega uma árvore diferente com 10 pessoas
-Então o estado global contém exatamente as 10 pessoas da nova árvore
-E nenhuma pessoa da árvore anterior permanece consultável
+Dado um arquivo de 20 MB
+Quando o upload e executado
+Entao a resposta tem status HTTP 413
+E a mensagem e "Arquivo maior que o limite de 16 MB."
+E nenhum byte e gravado em disco
 
-Dado um registro INDI cujo nome existe mas cujo formato resulta em string vazia
-Quando a lista de nomes é montada
-Então essa pessoa NÃO aparece como "Sem Nome"
-E a contagem de nomes continua igual à contagem de pessoas</pre>
+Dado um POST de analise com gedcom_filename igual a ../../etc/passwd
+Quando a chave e validada
+Entao o valor e recusado por forma
+E a resposta e "Erro: Arquivo '../../etc/passwd' nao existe mais."
+E nenhum arquivo fora de src/uploads e aberto
+
+Dado um GEDCOM em que uma pessoa tem Name cujo formato resulta vazio
+Quando a arvore e carregada e o nome e lido
+Entao get_name devolve string vazia
+E NAO devolve o literal "Sem Nome"
+E a contagem de nomes continua igual a contagem de pessoas</pre>
 
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
-    <tr><td><b>app.py</b></td><td><code>index()</code> — ramo <code>upload_gedcom</code> (:22-34)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td><code>load_gedcom_and_build_graph</code> (:82)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td><code>build_graph_from_parser</code> (:50)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/upload.py</b></td><td><code>get_name</code> (:33), <code>ref_id</code> (:28), <code>ensure_dirs</code> (:24)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/domain.py</b></td><td><code>strip_bad_utf</code> (:25), <code>demojibake</code> (:44)</td><td>🟢</td></tr>
-    <tr><td><b>tests/test_upload.py</b></td><td>16 testes, incl. <code>test_reload_replaces_globals</code></td><td>🟢</td></tr>
+    <tr><td><b>src/app.py</b></td><td>ramo <code>upload_gedcom</code> (:111-124); <code>_guardar_upload</code> (:70-91); <code>_resolver_caminho_armazenado</code> (:94-103); <code>_pasta_uploads</code> (:37-52); <code>_requisicao_grande</code> (:60-67)</td><td>🟢</td></tr>
+    <tr><td><b>src/utils/validate.py</b></td><td><code>validar_conteudo_gedcom</code> (:90-105); <code>chave_de_armazenamento</code> (:68-70); <code>nome_do_arquivo_armazenado</code> (:73-75); <code>nome_visivel_seguro</code> (:40-65); <code>chave_recebida_e_valida</code> (:78-87)</td><td>🟢</td></tr>
+    <tr><td><b>src/parsers/gedcom_parser.py</b></td><td><code>load_gedcom_and_build_graph</code> (:50-69); <code>build_graph_from_parser</code> (:18-48)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/gedcom_state.py</b></td><td><code>people</code>, <code>families</code>, <code>graph</code>, <code>child_to_family</code>, <code>versao</code> (:20-30); <code>ref_id</code> (:33-36); <code>get_name</code> (:38-52)</td><td>🟢</td></tr>
+    <tr><td><b>src/utils/text_cleaning.py</b></td><td><code>strip_bad_utf</code> (:37); <code>demojibake</code> (:56), autoridade única de limpeza</td><td>🟢</td></tr>
+    <tr><td><b>tests/</b></td><td><code>test_upload.py</code>, <code>test_upload_seguranca.py</code> (425 linhas, 33 funções) e <code>test_domain.py</code></td><td>🟢</td></tr>
   </tbody></table>
+
+  <h2>Lacunas Declaradas</h2>
+  <table><tbody>
+    <tr><td><b>L-12 / P-04</b></td><td>O <code>app.secret_key</code> embutido deve ser preservado por fidelidade, removido ou movido para configuração por ambiente? Irrelevante em comportamento hoje, decisivo antes de qualquer introdução de <code>session</code></td><td>🔴</td></tr>
+    <tr><td><b>L-16</b></td><td>O estado global reescrito a cada requisição, com 4 threads, permite contaminação entre requisições concorrentes. Não medido</td><td>🔴</td></tr>
+    <tr><td><b>P-05</b></td><td>O CSV não passa por validação de conteúdo. A assimetria em relação ao GEDCOM é deliberada ou herdada? Não há registro</td><td>🔴</td></tr>
+    <tr><td><b>L-21</b></td><td>Não há decisão de negócio sobre não persistir resultados de análise</td><td>🔴</td></tr>
+  </tbody></table>
+  <p class="note">Já decididas, e portanto não são pendências: upload sem validação de extensão (RISK-007, deliberada); preservação da extensão original (correção do QMLY); <code>get_name</code> devolvendo string vazia (paridade DIV-001).</p>
 </main>
-<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"generatedAt":"2026-10-06T04:45:00Z","spec":{"id":"upload-gedcom","slug":"upload-gedcom","title":"Upload e parsing de GEDCOM","endpoint":"action=upload_gedcom","counts":{"requisitosFuncionais":19,"criteriosGherkin":6,"tarefas":20}},"tldr":"Recebe um arquivo GEDCOM enviado pelo navegador, decide se ele pode ser gravado, grava-o sob uma chave derivada do proprio conteudo e o traduz em estado de dominio consultavel (pessoas, familias e grafo). E a porta de entrada de TODAS as outras unidades: sem upload-gedcom, nao ha analise-dna nem busca-caminho.","requirements":[{"id":"RF-01","text":"Receber POST com action=upload_gedcom, exigindo o campo gedcom em request.files e filename nao vazio","pri":"Must","crit":"Sem o campo devolve \"Nenhum arquivo GEDCOM enviado.\"; filename vazio devolve \"Nenhum arquivo selecionado.\"; ambos com success=False"},{"id":"RF-02","text":"Ler o conteudo inteiro e valida-lo antes de qualquer gravacao","pri":"Must","crit":"Nenhum byte chega ao disco quando o conteudo e recusado"},{"id":"RF-03","text":"Recusar conteudo vazio, com byte NUL, ou que nao comece com 0 HEAD apos BOM e espacos","pri":"Must","crit":"Motivo nomeado em cada caso; mensagem \"Arquivo nao reconhecido como GEDCOM: {motivo}.\""},{"id":"RF-04","text":"Derivar a chave de armazenamento do conteudo: sha256(conteudo).hexdigest()[:16]","pri":"Must","crit":"Mesmo conteudo reenviado produz exatamente a mesma chave"},{"id":"RF-05","text":"Compor o nome em disco como <chave>__<nome visivel>, preservando a extensao original","pri":"Must","crit":"Enviar matches.csv gera <chave>__matches.csv, nunca <chave>__matches.csv.ged"},{"id":"RF-06","text":"Sanear o nome visivel: /, \\ e NUL viram _; acentos e espacos preservados; vazio ou so pontos vira arvore.ged; sem extensao recebe .ged","pri":"Must","crit":"../../etc/passwd nao produz separador algum no nome resultante"},{"id":"RF-07","text":"Gravar de forma idempotente: nao reescrever arquivo existente com a mesma chave","pri":"Should","crit":"Segundo envio do mesmo conteudo nao altera o arquivo em disco"},{"id":"RF-08","text":"Devolver o caminho completo do arquivo gravado, e nao o nome","pri":"Must","crit":"A leitura seguinte usa exatamente o que foi escrito, sem remontar caminho"},{"id":"RF-09","text":"Resolver, em POST de analise, o arquivo a partir da chave recebida, aceitando apenas a forma fechada","pri":"Must","crit":"Chave fora da forma devolve \"Erro: Arquivo '{valor}' nao existe mais.\"; chave ausente devolve \"Erro: Arquivo GEDCOM nao encontrado.\""},{"id":"RF-10","text":"Recusar corpo de requisicao acima de 16 MB com HTTP 413 e mensagem em portugues","pri":"Must","crit":"Resposta 413 com \"Arquivo maior que o limite de 16 MB.\" e nenhum byte gravado"},{"id":"RF-11","text":"Parsear os registros INDI e FAM e indexa-los por xref_id em people e families","pri":"Must","crit":"Cada xref_id do arquivo aparece no dicionario correspondente"},{"id":"RF-12","text":"Construir o grafo bipartido pessoa-familia, com aresta para HUSB, WIFE e cada CHIL existente","pri":"Must","crit":"No de pessoa com type=person, de familia com type=family; nenhuma aresta para id inexistente"},{"id":"RF-13","text":"Manter child_to_family como lista de familias por filho","pri":"Must","crit":"Pessoa filha em duas familias aparece com as duas entradas"},{"id":"RF-14","text":"Substituir o estado de forma assimetrica e incrementar versao","pri":"Must","crit":"people mantem identidade de objeto; graph muda de objeto; versao cresce a cada carga"},{"id":"RF-15","text":"Devolver a lista de nomes ordenada, com um item por pessoa carregada","pri":"Must","crit":"A lista e igual a sua propria versao ordenada, e a contagem igual a de people"},{"id":"RF-16","text":"Ser a autoridade unica da limpeza de mojibake: strip_bad_utf e demojibake","pri":"Must","crit":"Nenhum outro modulo do projeto define limpeza propria"},{"id":"RF-17","text":"Devolver string vazia, e nao Sem Nome, quando o registro tem Name com formato vazio","pri":"Must","crit":"Paridade com o oraculo congelado preservada (DIV-001)"},{"id":"RF-18","text":"Converter falha de parse em \"Erro ao processar GEDCOM: {e}\", sem persistir estado parcial","pri":"Should","crit":"A excecao nao derruba a requisicao, e o estado anterior permanece integro"},{"id":"RF-19","text":"Ancorar a pasta de upload no arquivo do app, com sobreposicao por variavel de ambiente","pri":"Should","crit":"ANALISADOR_UPLOAD_FOLDER redireciona a pasta; escrita e leitura usam o mesmo caminho"}]}</script>
+<script>
+(function(){
+  "use strict";
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var SLUG = "upload-gedcom";
+  var snap = parseSnapshot();
+
+  var idx = (window.RV_DATA && window.RV_DATA.featuresIndex) || null;
+  var specIdx = null;
+  if(idx && idx.specs){
+    idx.specs.forEach(function(s){ if(s.slug === SLUG || s.id === SLUG) specIdx = s; });
+  }
+  var spec = pickData(specIdx, snap.spec) || snap.spec || {};
+  // O TL;DR vem do snapshot, extraido da secao "Visao Geral" da spec de 2026-10-05.
+  // O resumo do features-index e mais curto e nao substitui o texto da secao.
+  var list = (snap.requirements) || [];
+
+  function set(id, v){ var el = document.getElementById(id); if(el && v !== undefined && v !== null) el.textContent = v; }
+  function br(n){ return (Number(n) || 0).toLocaleString("pt-BR"); }
+
+  var c = (spec && spec.counts) || {};
+  if(c.requisitosFuncionais !== undefined){
+    set("pillRf", c.requisitosFuncionais + " requisitos funcionais");
+    set("pillGh", c.criteriosGherkin + " cenarios Gherkin");
+    set("pillTk", c.tarefas + " tarefas");
+  }
+  if(snap.tldr) set("tldr", snap.tldr);
+
+  // Requisitos funcionais como accordion
+  var acc = document.getElementById("rfAcc");
+  if(acc){
+    if(!list.length){
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "Requisitos nao disponiveis.";
+      acc.appendChild(p);
+    }
+    list.forEach(function(r, i){
+      var d = document.createElement("details");
+      if(i === 0) d.open = true;
+      var s = document.createElement("summary");
+      var id = document.createElement("span");
+      id.className = "id";
+      id.textContent = r.id || "";
+      s.appendChild(id);
+      s.appendChild(document.createTextNode(r.text || ""));
+      var pr = document.createElement("span");
+      pr.className = "pri";
+      pr.textContent = r.pri || "";
+      s.appendChild(pr);
+      d.appendChild(s);
+      var body = document.createElement("div");
+      body.className = "body";
+      body.textContent = "Criterio de aceite: " + (r.crit || "nao declarado");
+      d.appendChild(body);
+      acc.appendChild(d);
+    });
+  }
+
+  // Abas
+  var tabs = document.getElementById("tabs");
+  if(tabs){
+    tabs.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-panel]") : null;
+      if(!b) return;
+      Array.prototype.forEach.call(tabs.querySelectorAll("button"), function(x){ x.classList.toggle("on", x === b); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function(p){ p.classList.remove("on"); });
+      var alvo = document.getElementById(b.getAttribute("data-panel"));
+      if(alvo) alvo.classList.add("on");
+    });
+  }
+})();
+</script>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-06.</div>
 </body>
 </html>

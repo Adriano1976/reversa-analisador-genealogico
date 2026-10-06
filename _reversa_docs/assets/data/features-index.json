@@ -1,28 +1,65 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:25:00Z",
+  "generatedAt": "2026-10-06T04:42:56Z",
   "project": "analisador-genealogico",
+  "sourceStamp": "SDD re-extraido em 2026-10-05 (nivel completo)",
   "specs": [
     {
-      "id": "upload-gedcom",
-      "slug": "upload-gedcom",
-      "title": "Upload e Parsing de GEDCOM",
-      "summary": "Recebe um arquivo GEDCOM (.ged), faz o parsing da árvore genealógica via ged4py e constrói o grafo NetworkX de pessoas e famílias.",
-      "hasRequirements": true
+      "id": "analise-dna",
+      "slug": "analise-dna",
+      "title": "Analise de DNA e confronto",
+      "endpoint": "action=dna_analysis",
+      "summary": "Cruza a árvore GEDCOM carregada com um CSV de matches de DNA e responde **três perguntas separadas**, sem nunca misturá-las: *o que o GEDCOM afirma sobre o parentesco*, *o que o arquivo de DNA informa* e *as duas coisas são compatíveis entre si*.",
+      "hasRequirements": true,
+      "counts": {
+        "requisitosFuncionais": 26,
+        "criteriosGherkin": 10,
+        "tarefas": 32,
+        "arquivos": {
+          "requirements.md": 247,
+          "design.md": 214,
+          "tasks.md": 267,
+          "contracts.md": 271
+        }
+      }
     },
     {
       "id": "busca-caminho",
       "slug": "busca-caminho",
-      "title": "Busca de Caminho (Path Search)",
-      "summary": "Busca a conexão genealógica entre duas pessoas: direta por ancestral comum (BFS bidirecional) ou indireta por afinidade via caminho no grafo.",
-      "hasRequirements": true
+      "title": "Busca de caminho genealogico",
+      "endpoint": "action=path_search",
+      "summary": "Busca a conexão genealógica entre duas pessoas de uma árvore GEDCOM carregada.",
+      "hasRequirements": true,
+      "counts": {
+        "requisitosFuncionais": 24,
+        "criteriosGherkin": 9,
+        "tarefas": 29,
+        "arquivos": {
+          "requirements.md": 217,
+          "design.md": 228,
+          "tasks.md": 242,
+          "contracts.md": 217
+        }
+      }
     },
     {
-      "id": "analise-dna",
-      "slug": "analise-dna",
-      "title": "Análise de DNA (DNA Analysis)",
-      "summary": "Cruza a árvore GEDCOM com um CSV de matches de DNA: agrega cM, faz matching difuso de nomes, prevê parentesco e ordena por cM.",
-      "hasRequirements": true
+      "id": "upload-gedcom",
+      "slug": "upload-gedcom",
+      "title": "Upload e parsing de GEDCOM",
+      "endpoint": "action=upload_gedcom",
+      "summary": "Recebe um arquivo GEDCOM enviado pelo navegador, **decide se ele pode ser gravado**, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo).",
+      "hasRequirements": true,
+      "counts": {
+        "requisitosFuncionais": 19,
+        "criteriosGherkin": 6,
+        "tarefas": 20,
+        "arquivos": {
+          "requirements.md": 156,
+          "design.md": 154,
+          "tasks.md": 164,
+          "contracts.md": 158
+        }
+      }
     }
   ]
 }

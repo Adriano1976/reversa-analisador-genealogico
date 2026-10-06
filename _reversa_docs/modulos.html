@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-mapper">
 <meta name="reversa-template" content="modulos">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <!-- TITLE -->
 <title>Módulos — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -53,32 +53,37 @@
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Mapa de módulos</span>
-  <!-- NAV_LINKS -->
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 
 <div id="main"><svg id="graph"></svg></div>
@@ -112,26 +117,73 @@
     <input type="range" id="linkDist" min="30" max="260" step="5" value="90">
   </div>
   <div class="stats" id="stats"></div>
+  <div class="stats" id="note">
+    <b>O que o grafo mostra</b><br>
+    Os <b>37</b> módulos inventariados, coloridos pela pasta de origem e dimensionados pelas linhas não vazias.
+    Os <b>6</b> pacotes de primeiro nível aparecem como nós maiores, ligados aos seus módulos e entre si pelas
+    <b>13</b> arestas de importação de <code>deps.json</code>. O template da única tela é atribuído ao pacote
+    <code>app</code>, que é quem o renderiza.<br><br>
+    <b>Ciclos em vermelho</b><br>
+    Os pacotes <b>não</b> formam camadas acíclicas. Existem <b>2</b> ciclos, <code>core/</code> com
+    <code>parsers/</code> e <code>core/</code> com <code>reporting/</code>. Os módulos desses pacotes e as
+    ligações entre eles ficam em vermelho. Não existe ciclo no nível de módulo: o sistema importa e a suíte passa.<br><br>
+    <b>Origem dos dados</b><br>
+    <code>modules.json</code> com 37 módulos e <b>5.966</b> linhas não vazias, e <code>deps.json</code> com 6 nós,
+    13 arestas e 2 ciclos, da re-extração de 2026-10-05.
+  </div>
 </aside>
 
 <div id="tooltip"></div>
 <div class="legend">
-  <div class="item"><span class="sw" style="background:#4f8cff"></span> app.py</div>
-  <div class="item"><span class="sw" style="background:#6fbf73"></span> reconstructed/</div>
-  <div class="item"><span class="sw" style="background:#e0a458"></span> tests/</div>
+  <div class="item"><span class="sw" style="background:#4f8cff"></span> src/</div>
+  <div class="item"><span class="sw" style="background:#6fbf73"></span> core/</div>
+  <div class="item"><span class="sw" style="background:#e0a458"></span> parsers/</div>
+  <div class="item"><span class="sw" style="background:#d98cc8"></span> reporting/</div>
+  <div class="item"><span class="sw" style="background:#4fd1c5"></span> utils/</div>
   <div class="item"><span class="sw" style="background:#b587e6"></span> templates/</div>
+  <div class="item"><span class="sw" style="background:#8b909a"></span> tests/</div>
+  <div class="item"><span class="sw" style="background:#b8c0cc"></span> tests/fixtures/</div>
+  <div class="item"><span class="sw" style="background:#e57373"></span> em ciclo</div>
 </div>
 <div class="cycle-tag" id="cycleTag"></div>
 
 <!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"modules":{"schemaVersion":1,"generatedAt":"2026-10-06T03:44:27Z","project":"analisador-genealogico","modules":[{"id":"confrontacao-gedcom-dna","name":"test_confrontacao_gedcom_dna.py","path":"tests/test_confrontacao_gedcom_dna.py","type":"test","language":"python","folder":"tests/","loc":824,"complexity":204},{"id":"frontend","name":"index.html","path":"src/templates/index.html","type":"frontend","language":"html","folder":"templates/","loc":493,"complexity":0},{"id":"documentary-relationship","name":"documentary_relationship.py","path":"src/core/documentary_relationship.py","type":"domain","language":"python","folder":"core/","loc":490,"complexity":117},{"id":"upload-seguranca","name":"test_upload_seguranca.py","path":"tests/test_upload_seguranca.py","type":"test","language":"python","folder":"tests/","loc":345,"complexity":80},{"id":"dna-analysis","name":"test_dna_analysis.py","path":"tests/test_dna_analysis.py","type":"test","language":"python","folder":"tests/","loc":243,"complexity":44},{"id":"mermaid-render","name":"mermaid_render.py","path":"src/reporting/mermaid_render.py","type":"reporting","language":"python","folder":"reporting/","loc":241,"complexity":45},{"id":"app","name":"app.py","path":"src/app.py","type":"entrypoint","language":"python","folder":"src/","loc":232,"complexity":34},{"id":"genetic-evidence","name":"genetic_evidence.py","path":"src/core/genetic_evidence.py","type":"domain","language":"python","folder":"core/","loc":228,"complexity":71},{"id":"dna-analysis","name":"dna_analysis.py","path":"src/core/dna_analysis.py","type":"domain","language":"python","folder":"core/","loc":220,"complexity":52},{"id":"evidence-comparison","name":"evidence_comparison.py","path":"src/core/evidence_comparison.py","type":"domain","language":"python","folder":"core/","loc":209,"complexity":41},{"id":"characterization-matching","name":"test_characterization_matching.py","path":"tests/test_characterization_matching.py","type":"test","language":"python","folder":"tests/","loc":204,"complexity":21},{"id":"relationship-hypotheses","name":"relationship_hypotheses.py","path":"src/core/relationship_hypotheses.py","type":"domain","language":"python","folder":"core/","loc":198,"complexity":21},{"id":"csv-ingest","name":"csv_ingest.py","path":"src/parsers/csv_ingest.py","type":"parser","language":"python","folder":"parsers/","loc":191,"complexity":39},{"id":"path-search","name":"path_search.py","path":"src/core/path_search.py","type":"domain","language":"python","folder":"core/","loc":186,"complexity":33},{"id":"upload","name":"test_upload.py","path":"tests/test_upload.py","type":"test","language":"python","folder":"tests/","loc":181,"complexity":44},{"id":"mermaid-escape","name":"test_mermaid_escape.py","path":"tests/test_mermaid_escape.py","type":"test","language":"python","folder":"tests/","loc":163,"complexity":19},{"id":"matching","name":"matching.py","path":"src/core/matching.py","type":"domain","language":"python","folder":"core/","loc":145,"complexity":51},{"id":"servidor-producao","name":"test_servidor_producao.py","path":"tests/test_servidor_producao.py","type":"test","language":"python","folder":"tests/","loc":129,"complexity":26},{"id":"characterization-mermaid","name":"test_characterization_mermaid.py","path":"tests/test_characterization_mermaid.py","type":"test","language":"python","folder":"tests/","loc":121,"complexity":9},{"id":"formatacao-cm","name":"test_formatacao_cm.py","path":"tests/test_formatacao_cm.py","type":"test","language":"python","folder":"tests/","loc":91,"complexity":13},{"id":"name-normalization","name":"name_normalization.py","path":"src/core/name_normalization.py","type":"domain","language":"python","folder":"core/","loc":90,"complexity":35},{"id":"family-navigation","name":"family_navigation.py","path":"src/core/family_navigation.py","type":"domain","language":"python","folder":"core/","loc":87,"complexity":37},{"id":"validate","name":"validate.py","path":"src/utils/validate.py","type":"utility","language":"python","folder":"utils/","loc":83,"complexity":11},{"id":"path-search","name":"test_path_search.py","path":"tests/test_path_search.py","type":"test","language":"python","folder":"tests/","loc":82,"complexity":29},{"id":"text-cleaning","name":"text_cleaning.py","path":"src/utils/text_cleaning.py","type":"utility","language":"python","folder":"utils/","loc":73,"complexity":9},{"id":"path-finding","name":"path_finding.py","path":"src/core/path_finding.py","type":"domain","language":"python","folder":"core/","loc":69,"complexity":19},{"id":"gedcom-parser","name":"gedcom_parser.py","path":"src/parsers/gedcom_parser.py","type":"parser","language":"python","folder":"parsers/","loc":61,"complexity":16},{"id":"sample-gedcom","name":"sample_gedcom.py","path":"tests/fixtures/sample_gedcom.py","type":"fixture","language":"python","folder":"tests/fixtures/","loc":55,"complexity":0},{"id":"cm-estimator","name":"cm_estimator.py","path":"src/core/cm_estimator.py","type":"domain","language":"python","folder":"core/","loc":53,"complexity":4},{"id":"domain","name":"test_domain.py","path":"tests/test_domain.py","type":"test","language":"python","folder":"tests/","loc":50,"complexity":10},{"id":"sample-dna","name":"sample_dna.py","path":"tests/fixtures/sample_dna.py","type":"fixture","language":"python","folder":"tests/fixtures/","loc":44,"complexity":0},{"id":"number-format","name":"number_format.py","path":"src/utils/number_format.py","type":"utility","language":"python","folder":"utils/","loc":42,"complexity":5},{"id":"gedcom-state","name":"gedcom_state.py","path":"src/core/gedcom_state.py","type":"domain","language":"python","folder":"core/","loc":39,"complexity":2},{"id":"pkg-core","name":"__init__.py","path":"src/core/__init__.py","type":"config","language":"python","folder":"core/","loc":1,"complexity":0},{"id":"pkg-parsers","name":"__init__.py","path":"src/parsers/__init__.py","type":"config","language":"python","folder":"parsers/","loc":1,"complexity":0},{"id":"pkg-reporting","name":"__init__.py","path":"src/reporting/__init__.py","type":"config","language":"python","folder":"reporting/","loc":1,"complexity":0},{"id":"pkg-utils","name":"__init__.py","path":"src/utils/__init__.py","type":"config","language":"python","folder":"utils/","loc":1,"complexity":0}]},"deps":{"schemaVersion":1,"generatedAt":"2026-10-06T03:44:27Z","project":"analisador-genealogico","nodes":["app","core","parsers","reporting","tests","utils"],"edges":[{"source":"app","target":"core"},{"source":"app","target":"parsers"},{"source":"app","target":"utils"},{"source":"core","target":"parsers"},{"source":"core","target":"reporting"},{"source":"core","target":"utils"},{"source":"parsers","target":"core"},{"source":"parsers","target":"utils"},{"source":"reporting","target":"core"},{"source":"tests","target":"app"},{"source":"tests","target":"core"},{"source":"tests","target":"parsers"},{"source":"tests","target":"utils"}],"cycles":[["core","parsers"],["core","reporting"]]}}</script>
 <script>
 (function(){
   "use strict";
-  var DATA = (window.RV_DATA && window.RV_DATA.modules) || {};
-  var modules = (DATA && DATA.modules) || [];
-  var deps = (window.RV_DATA && window.RV_DATA.deps) || {};
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado apenas quando o data.js injetado esta mais antigo que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var snap = parseSnapshot();
+  var modSrc = pickData(window.RV_DATA && window.RV_DATA.modules, snap.modules);
+  var depSrc = pickData(window.RV_DATA && window.RV_DATA.deps, snap.deps);
+  var modules = (modSrc && modSrc.modules) || [];
+  var deps = depSrc || {};
   var edges = (deps.edges) || [];
   var cycles = (deps.cycles) || [];
+  var pacotes = (deps.nodes) || [];
   if(!modules.length){
     document.getElementById("graph").innerHTML = '<text style="fill:#8b909a" x="40" y="80">Nenhum dado de módulos disponível.</text>';
     return;
@@ -148,98 +200,199 @@
   d3.select("#fType").selectAll("option").data(types).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
   d3.select("#fFolder").selectAll("option").data(folders).join("option").attr("value", function(d){return d;}).text(function(d){return d;});
 
+  // Paleta por pasta: as 8 pastas reais do projeto
   var folderColor = {
-    "analisador-genealogico/": "#4f8cff",
-    "reconstructed/": "#6fbf73",
-    "tests/": "#e0a458",
-    "tests/fixtures/": "#e0a458",
-    "templates/": "#b587e6"
+    "src/": "#4f8cff",
+    "core/": "#6fbf73",
+    "parsers/": "#e0a458",
+    "reporting/": "#d98cc8",
+    "utils/": "#4fd1c5",
+    "templates/": "#b587e6",
+    "tests/": "#8b909a",
+    "tests/fixtures/": "#b8c0cc"
   };
-  var colorOf = function(m){ return folderColor[m.folder] || "#8b909a"; };
+  var CICLO = "#e57373";
 
-  var byId = {};
-  modules.forEach(function(m){ byId[m.id] = m; });
-  var cycleIds = {};
+  // O grafo de dependencias agrega pacotes de primeiro nivel. Cada modulo entra no
+  // pacote derivado do proprio caminho, e o template HTML entra em app, que o serve.
+  function pacoteDe(m){
+    var p = m.path || "";
+    if(p.indexOf("src/core/") === 0) return "core";
+    if(p.indexOf("src/parsers/") === 0) return "parsers";
+    if(p.indexOf("src/reporting/") === 0) return "reporting";
+    if(p.indexOf("src/utils/") === 0) return "utils";
+    if(p.indexOf("src/templates/") === 0) return "app";
+    if(p.indexOf("src/app.py") === 0) return "app";
+    if(p.indexOf("tests/") === 0) return "tests";
+    return null;
+  }
+
+  var cicloPkgs = {}, cicloPares = {};
   cycles.forEach(function(cyc){
-    cyc.forEach(function(id){ cycleIds[id] = true; });
+    for(var i=0;i<cyc.length;i++){
+      cicloPkgs[cyc[i]] = true;
+      cicloPares[cyc[i] + "|" + cyc[(i+1)%cyc.length]] = true;
+    }
   });
 
-  var visibleEdges = edges;
-  var link = svg.append("g").selectAll("line").data(visibleEdges).join("line")
-    .attr("stroke", function(d){ return cycleIds[d.source]||cycleIds[d.target] ? "#e57373" : "#3a3d45"; })
-    .attr("stroke-opacity", 0.55)
-    .attr("stroke-width", 1.4);
+  var nos = modules.map(function(m, i){
+    var pac = pacoteDe(m);
+    return {
+      chave: m.path || (m.id + "#" + i),
+      tipo: "modulo",
+      pacote: pac,
+      emCiclo: !!(pac && cicloPkgs[pac]),
+      nome: m.name,
+      m: m,
+      r: 6 + Math.sqrt(Number(m.loc)||0)/5
+    };
+  });
 
-  var node = svg.append("g").selectAll("circle").data(modules).join("circle")
-    .attr("r", function(d){ return 9 + Math.sqrt(Number(d.loc)||0)/4; })
-    .attr("fill", function(d){ return cycleIds[d.id] ? "#e57373" : colorOf(d); })
-    .attr("stroke", function(d){ return cycleIds[d.id] ? "#b71c1c" : "#1e2024"; })
-    .attr("stroke-width", 2)
+  var porPacote = {};
+  nos.forEach(function(n){ if(n.pacote) porPacote[n.pacote] = (porPacote[n.pacote] || 0) + 1; });
+
+  var noDoPacote = {};
+  pacotes.forEach(function(p){
+    var no = { chave:"pkg:"+p, tipo:"pacote", pacote:p, emCiclo: !!cicloPkgs[p], nome:p, r:24 };
+    noDoPacote[p] = no;
+    nos.push(no);
+  });
+
+  var ligacoes = [];
+  nos.forEach(function(n){
+    if(n.tipo === "modulo" && n.pacote && noDoPacote[n.pacote]){
+      ligacoes.push({ source:n, target:noDoPacote[n.pacote], tipo:"contem" });
+    }
+  });
+  edges.forEach(function(e){
+    var s = noDoPacote[e.source], t = noDoPacote[e.target];
+    if(!s || !t) return;
+    ligacoes.push({ source:s, target:t, tipo:"deps", emCiclo: !!cicloPares[e.source + "|" + e.target] });
+  });
+
+  var defs = svg.append("defs");
+  [["seta", "#6b7d99"], ["seta-ciclo", CICLO]].forEach(function(par){
+    defs.append("marker")
+      .attr("id", par[0])
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 26).attr("refY", 0)
+      .attr("markerWidth", 7).attr("markerHeight", 7)
+      .attr("markerUnits", "userSpaceOnUse")
+      .attr("orient", "auto")
+      .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", par[1]);
+  });
+
+  var lig = svg.append("g").selectAll("line").data(ligacoes).join("line")
+    .attr("stroke", function(d){ return d.tipo === "deps" ? (d.emCiclo ? CICLO : "#6b7d99") : "#3a3d45"; })
+    .attr("stroke-opacity", function(d){ return d.tipo === "deps" ? (d.emCiclo ? 0.95 : 0.65) : 0.35; })
+    .attr("stroke-width", function(d){ return d.tipo === "deps" ? (d.emCiclo ? 2.4 : 1.4) : 1; })
+    .attr("marker-end", function(d){ return d.tipo === "deps" ? (d.emCiclo ? "url(#seta-ciclo)" : "url(#seta)") : null; });
+
+  var no = svg.append("g").selectAll("circle").data(nos).join("circle")
+    .attr("r", function(d){ return d.r; })
+    .attr("fill", function(d){
+      if(d.tipo === "pacote") return "#26282e";
+      return d.emCiclo ? CICLO : (folderColor[d.m.folder] || "#8b909a");
+    })
+    .attr("stroke", function(d){
+      if(d.tipo === "pacote") return d.emCiclo ? CICLO : "#6b7d99";
+      return d.emCiclo ? "#b71c1c" : "#1e2024";
+    })
+    .attr("stroke-width", function(d){ return d.tipo === "pacote" ? 3 : 2; })
     .style("cursor","pointer");
 
-  var label = svg.append("g").selectAll("text").data(modules).join("text")
-    .attr("text-anchor","middle").attr("dy", "-10")
-    .attr("font-size", "11").attr("fill", "#d7dae0")
-    .text(function(d){ return d.name; });
+  var rotulo = svg.append("g").selectAll("text").data(nos).join("text")
+    .attr("text-anchor","middle")
+    .attr("dy", function(d){ return d.tipo === "pacote" ? 5 : -12; })
+    .attr("font-size", function(d){ return d.tipo === "pacote" ? "14" : "10"; })
+    .attr("font-weight", function(d){ return d.tipo === "pacote" ? "700" : "400"; })
+    .attr("fill", function(d){ return d.tipo === "pacote" ? (d.emCiclo ? CICLO : "#d7dae0") : "#b6bcc8"; })
+    .text(function(d){ return d.nome; });
 
-  var sim = d3.forceSimulation(modules)
-    .force("link", d3.forceLink(visibleEdges).id(function(d){return d.id;}).distance(function(){ return parseFloat(document.getElementById("linkDist").value); }))
-    .force("charge", d3.forceManyBody().strength(function(){ return parseFloat(document.getElementById("charge").value); }))
+  function distanciaLigacao(){ return parseFloat(document.getElementById("linkDist").value); }
+
+  var sim = d3.forceSimulation(nos)
+    .force("link", d3.forceLink(ligacoes).id(function(d){return d.chave;})
+      .distance(function(d){ return d.tipo === "deps" ? distanciaLigacao()*2.2 : distanciaLigacao(); })
+      .strength(function(d){ return d.tipo === "deps" ? 0.12 : 0.9; }))
+    .force("charge", d3.forceManyBody().strength(function(d){
+      var v = parseFloat(document.getElementById("charge").value);
+      return d.tipo === "pacote" ? v*3.2 : v;
+    }))
     .force("center", d3.forceCenter(W/2, H/2))
-    .force("collide", d3.forceCollide().radius(34));
+    .force("collide", d3.forceCollide().radius(function(d){ return d.r + 14; }));
 
   function ticked(){
-    link.attr("x1", function(d){return d.source.x;}).attr("y1", function(d){return d.source.y;})
+    lig.attr("x1", function(d){return d.source.x;}).attr("y1", function(d){return d.source.y;})
         .attr("x2", function(d){return d.target.x;}).attr("y2", function(d){return d.target.y;});
-    node.attr("cx", function(d){return d.x;}).attr("cy", function(d){return d.y;});
-    label.attr("x", function(d){return d.x;}).attr("y", function(d){return d.y;});
+    no.attr("cx", function(d){return d.x;}).attr("cy", function(d){return d.y;});
+    rotulo.attr("x", function(d){return d.x;}).attr("y", function(d){return d.y;});
   }
   sim.on("tick", ticked);
 
+  no.call(d3.drag()
+    .on("start", function(ev, d){ if(!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+    .on("drag", function(ev, d){ d.fx = ev.x; d.fy = ev.y; })
+    .on("end", function(ev, d){ if(!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+
   var tooltip = document.getElementById("tooltip");
-  function filter(){
-    var l = document.getElementById("fLang").value;
-    var t = document.getElementById("fType").value;
-    var fo = document.getElementById("fFolder").value;
-    var show = modules.filter(function(m){ return (l==="all"||m.language===l) && (t==="all"||m.type===t) && (fo==="all"||m.folder===fo); });
-    var ids = new Set(show.map(function(m){return m.id;}));
-    node.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
-    label.attr("display", function(d){ return ids.has(d.id) ? null : "none"; });
-    link.attr("display", function(d){ return ids.has(d.source.id) && ids.has(d.target.id) ? null : "none"; });
-  }
-  document.getElementById("fLang").addEventListener("change", filter);
-  document.getElementById("fType").addEventListener("change", filter);
-  document.getElementById("fFolder").addEventListener("change", filter);
-
-  document.getElementById("charge").addEventListener("input", function(){
-    document.getElementById("chargeVal").textContent = document.getElementById("charge").value;
-    sim.force("charge").strength(parseFloat(document.getElementById("charge").value));
-    sim.alpha(0.4).restart();
-  });
-  document.getElementById("linkDist").addEventListener("input", function(){
-    document.getElementById("linkDistVal").textContent = document.getElementById("linkDist").value;
-    sim.force("link").distance(parseFloat(document.getElementById("linkDist").value));
-    sim.alpha(0.4).restart();
-  });
-
-  node.on("mouseover", function(ev, d){
+  no.on("mouseover", function(ev, d){
     tooltip.style.display = "block";
-    tooltip.innerHTML = '<b>'+d.name+'</b><br><span class="muted">'+d.folder+'</span><br>'+d.type+' · '+d.language+
-      '<br>'+(Number(d.loc)||0)+' linhas · complexidade '+(Number(d.complexity)||0)+
-      (cycleIds[d.id] ? '<br><b style="color:#e57373">Participa de ciclo</b>' : '')+
-      '<br><span class="muted">'+d.path+'</span>';
-  }).on("mousemove", function(ev){
+    if(d.tipo === "pacote"){
+      tooltip.innerHTML = '<b>'+d.nome+'</b><br><span class="muted">pacote de primeiro nível · '+
+        (porPacote[d.nome]||0)+' módulos</span>'+
+        (d.emCiclo ? '<br><b style="color:'+CICLO+'">participa de ciclo de pacote</b>' : '');
+    } else {
+      var m = d.m;
+      tooltip.innerHTML = '<b>'+m.name+'</b><br><span class="muted">'+m.folder+'</span><br>'+m.type+' · '+m.language+
+        '<br>'+(Number(m.loc)||0)+' linhas · complexidade '+(Number(m.complexity)||0)+
+        (d.emCiclo ? '<br><b style="color:'+CICLO+'">pacote '+d.pacote+' participa de ciclo</b>' : '')+
+        '<br><span class="muted">'+m.path+'</span>';
+    }
     tooltip.style.left = (ev.clientX+16)+"px";
     tooltip.style.top = (ev.clientY+16)+"px";
   }).on("mouseout", function(){ tooltip.style.display = "none"; });
 
+  function filtro(){
+    var l = document.getElementById("fLang").value;
+    var t = document.getElementById("fType").value;
+    var fo = document.getElementById("fFolder").value;
+    var visivel = {};
+    nos.forEach(function(n){
+      if(n.tipo !== "modulo") return;
+      var m = n.m;
+      visivel[n.chave] = (l === "all" || m.language === l) && (t === "all" || m.type === t) && (fo === "all" || m.folder === fo);
+    });
+    no.attr("display", function(d){ return (d.tipo === "pacote" || visivel[d.chave]) ? null : "none"; });
+    rotulo.attr("display", function(d){ return (d.tipo === "pacote" || visivel[d.chave]) ? null : "none"; });
+    lig.attr("display", function(d){ return (d.tipo === "deps" || visivel[d.source.chave]) ? null : "none"; });
+  }
+  document.getElementById("fLang").addEventListener("change", filtro);
+  document.getElementById("fType").addEventListener("change", filtro);
+  document.getElementById("fFolder").addEventListener("change", filtro);
+
+  document.getElementById("charge").addEventListener("input", function(){
+    var v = parseFloat(document.getElementById("charge").value);
+    document.getElementById("chargeVal").textContent = v;
+    sim.force("charge").strength(function(d){ return d.tipo === "pacote" ? v*3.2 : v; });
+    sim.alpha(0.4).restart();
+  });
+  document.getElementById("linkDist").addEventListener("input", function(){
+    var v = parseFloat(document.getElementById("linkDist").value);
+    document.getElementById("linkDistVal").textContent = v;
+    sim.force("link").distance(function(d){ return d.tipo === "deps" ? v*2.2 : v; });
+    sim.alpha(0.4).restart();
+  });
+
   var stats = document.getElementById("stats");
   var totalLoc = modules.reduce(function(a,m){ return a + Number(m.loc); }, 0);
-  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+edges.length+'</b> arestas<br><b>'+totalLoc+'</b> linhas totais<br><b>'+cycles.length+'</b> ciclos detectados';
+  stats.innerHTML = '<b>'+modules.length+'</b> módulos<br><b>'+pacotes.length+'</b> pacotes (nós)<br><b>'+edges.length+
+    '</b> arestas entre pacotes<br><b>'+totalLoc+'</b> linhas não vazias<br><b>'+cycles.length+'</b> ciclos detectados';
   if(cycles.length){
     var tag = document.getElementById("cycleTag");
     tag.style.display = "block";
-    tag.textContent = cycles.length + " ciclo(s) destacado(s) em vermelho";
+    tag.textContent = cycles.length + " ciclos de pacote em vermelho: " +
+      cycles.map(function(c){ return c.join(" > ") + " > " + c[0]; }).join(" | ");
   }
 
   window.addEventListener("resize", function(){
@@ -249,7 +402,7 @@
   });
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Mapper em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Mapper em 2026-10-01.</div>
+<!-- Gerado pelo Reversa-Docs-Mapper em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Mapper em 2026-10-06.</div>
 </body>
 </html>

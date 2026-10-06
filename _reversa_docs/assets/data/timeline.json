@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-01T03:39:48Z",
-  "sourceName": "chronicle",
+  "generatedAt": "2026-10-06T00:43:10Z",
+  "sourceName": "chronicle até 2026-09-30 + .reversa/state.json a partir de 2026-10-05",
   "project": "analisador-genealogico",
   "events": [
     {
       "id": "e01",
+"source": "chronicle",
       "date": "2026-08-03T11:48:40Z",
       "agent": "reversa-scout",
       "category": "extracao",
@@ -14,6 +15,7 @@
     },
     {
       "id": "e02",
+"source": "chronicle",
       "date": "2026-08-03T12:22:00Z",
       "agent": "reversa-archaeologist",
       "category": "extracao",
@@ -22,6 +24,7 @@
     },
     {
       "id": "e03",
+"source": "chronicle",
       "date": "2026-08-03T12:31:00Z",
       "agent": "reversa-detective",
       "category": "extracao",
@@ -30,6 +33,7 @@
     },
     {
       "id": "e04",
+"source": "chronicle",
       "date": "2026-08-03T12:35:00Z",
       "agent": "reversa-architect",
       "category": "extracao",
@@ -38,6 +42,7 @@
     },
     {
       "id": "e05",
+"source": "chronicle",
       "date": "2026-08-03T12:50:00Z",
       "agent": "reversa-writer",
       "category": "extracao",
@@ -46,6 +51,7 @@
     },
     {
       "id": "e06",
+"source": "chronicle",
       "date": "2026-08-03T12:50:00Z",
       "agent": "reversa-reviewer",
       "category": "extracao",
@@ -54,6 +60,7 @@
     },
     {
       "id": "e07",
+"source": "chronicle",
       "date": "2026-08-03T12:52:00Z",
       "agent": "reversa",
       "category": "extracao",
@@ -62,6 +69,7 @@
     },
     {
       "id": "e08",
+"source": "chronicle",
       "date": "2026-08-03T16:15:11-03:00",
       "agent": "reversa",
       "category": "extracao",
@@ -70,6 +78,7 @@
     },
     {
       "id": "e09",
+"source": "chronicle",
       "date": "2026-08-06T14:35:38-03:00",
       "agent": "commit",
       "category": "framework",
@@ -78,6 +87,7 @@
     },
     {
       "id": "e10",
+"source": "chronicle",
       "date": "2026-08-06T14:41:29-03:00",
       "agent": "commit",
       "category": "framework",
@@ -86,6 +96,7 @@
     },
     {
       "id": "e11",
+"source": "chronicle",
       "date": "2026-08-07T10:32:56-03:00",
       "agent": "reversa-reconstructor",
       "category": "reconstrucao",
@@ -94,6 +105,7 @@
     },
     {
       "id": "e12",
+"source": "chronicle",
       "date": "2026-08-07T12:00:29-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -102,6 +114,7 @@
     },
     {
       "id": "e13",
+"source": "chronicle",
       "date": "2026-08-07T12:43:35-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -110,6 +123,7 @@
     },
     {
       "id": "e14",
+"source": "chronicle",
       "date": "2026-08-07T12:52:39-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -118,6 +132,7 @@
     },
     {
       "id": "e15",
+"source": "chronicle",
       "date": "2026-08-07T13:00:32-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -126,6 +141,7 @@
     },
     {
       "id": "e16",
+"source": "chronicle",
       "date": "2026-08-07T13:06:05-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -134,6 +150,7 @@
     },
     {
       "id": "e17",
+"source": "chronicle",
       "date": "2026-08-07T13:10:07-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -142,6 +159,7 @@
     },
     {
       "id": "e18",
+"source": "chronicle",
       "date": "2026-08-11T13:36:03-03:00",
       "agent": "commit",
       "category": "forward",
@@ -150,6 +168,7 @@
     },
     {
       "id": "e19",
+"source": "chronicle",
       "date": "2026-08-11T13:45:55Z",
       "agent": "reversa-coding",
       "category": "forward",
@@ -158,6 +177,7 @@
     },
     {
       "id": "e20",
+"source": "chronicle",
       "date": "2026-08-11T14:11:08-03:00",
       "agent": "commit",
       "category": "forward",
@@ -166,6 +186,7 @@
     },
     {
       "id": "e21",
+"source": "chronicle",
       "date": "2026-08-11T14:21:24-03:00",
       "agent": "commit",
       "category": "forward",
@@ -174,6 +195,7 @@
     },
     {
       "id": "e22",
+"source": "chronicle",
       "date": "2026-08-11T14:30:22-03:00",
       "agent": "commit",
       "category": "forward",
@@ -182,6 +204,7 @@
     },
     {
       "id": "e23",
+"source": "chronicle",
       "date": "2026-08-11T14:32:10Z",
       "agent": "reversa-coding",
       "category": "forward",
@@ -190,6 +213,7 @@
     },
     {
       "id": "e24",
+"source": "chronicle",
       "date": "2026-08-11T14:33:34Z",
       "agent": "reversa",
       "category": "forward",
@@ -198,6 +222,7 @@
     },
     {
       "id": "e25",
+"source": "chronicle",
       "date": "2026-08-11T14:42:37Z",
       "agent": "reversa",
       "category": "forward",
@@ -206,6 +231,7 @@
     },
     {
       "id": "e26",
+"source": "chronicle",
       "date": "2026-08-11T14:43:52Z",
       "agent": "reversa",
       "category": "forward",
@@ -214,6 +240,7 @@
     },
     {
       "id": "e27",
+"source": "chronicle",
       "date": "2026-08-11T16:13:47-03:00",
       "agent": "commit",
       "category": "forward",
@@ -222,6 +249,7 @@
     },
     {
       "id": "e28",
+"source": "chronicle",
       "date": "2026-08-12T13:41:00-03:00",
       "agent": "commit",
       "category": "docs",
@@ -230,6 +258,7 @@
     },
     {
       "id": "e29",
+"source": "chronicle",
       "date": "2026-08-12T14:00:00Z",
       "agent": "reversa-docs",
       "category": "docs",
@@ -238,6 +267,7 @@
     },
     {
       "id": "e30",
+"source": "chronicle",
       "date": "2026-08-12T14:16:28-03:00",
       "agent": "commit",
       "category": "docs",
@@ -246,6 +276,7 @@
     },
     {
       "id": "e31",
+"source": "chronicle",
       "date": "2026-08-12T16:16:48-03:00",
       "agent": "reversa-docs-storyteller",
       "category": "docs",
@@ -254,6 +285,7 @@
     },
     {
       "id": "e32",
+"source": "chronicle",
       "date": "2026-08-12T18:41:35Z",
       "agent": "reversa",
       "category": "docs",
@@ -262,6 +294,7 @@
     },
     {
       "id": "e33",
+"source": "chronicle",
       "date": "2026-08-13T01:30:56-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -270,6 +303,7 @@
     },
     {
       "id": "e34",
+"source": "chronicle",
       "date": "2026-08-13T01:42:33-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -278,6 +312,7 @@
     },
     {
       "id": "e35",
+"source": "chronicle",
       "date": "2026-08-13T01:47:42-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -286,6 +321,7 @@
     },
     {
       "id": "e36",
+"source": "chronicle",
       "date": "2026-08-13T10:30:26-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -294,6 +330,7 @@
     },
     {
       "id": "e37",
+"source": "chronicle",
       "date": "2026-08-13T10:47:31-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -302,6 +339,7 @@
     },
     {
       "id": "e38",
+"source": "chronicle",
       "date": "2026-08-16T16:48:38-03:00",
       "agent": "reversa",
       "category": "docs",
@@ -310,6 +348,7 @@
     },
     {
       "id": "e39",
+"source": "chronicle",
       "date": "2026-09-28T02:14:23-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -318,6 +357,7 @@
     },
     {
       "id": "e40",
+"source": "chronicle",
       "date": "2026-09-28T13:02:20-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -326,6 +366,7 @@
     },
     {
       "id": "e41",
+"source": "chronicle",
       "date": "2026-09-28T13:02:39-03:00",
       "agent": "reversa",
       "category": "migracao",
@@ -334,6 +375,7 @@
     },
     {
       "id": "e42",
+"source": "chronicle",
       "date": "2026-09-28T13:02:48-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -342,6 +384,7 @@
     },
     {
       "id": "e43",
+"source": "chronicle",
       "date": "2026-09-28T15:17:17-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -350,6 +393,7 @@
     },
     {
       "id": "e76",
+"source": "chronicle",
       "date": "2026-09-28T23:59:00-03:00",
       "agent": "reversa",
       "category": "migracao",
@@ -358,6 +402,7 @@
     },
     {
       "id": "e44",
+"source": "chronicle",
       "date": "2026-09-29T03:20:41-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -366,6 +411,7 @@
     },
     {
       "id": "e45",
+"source": "chronicle",
       "date": "2026-09-29T03:20:49-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -374,6 +420,7 @@
     },
     {
       "id": "e46",
+"source": "chronicle",
       "date": "2026-09-29T03:20:55-03:00",
       "agent": "reversa-refactor",
       "category": "refactor",
@@ -382,6 +429,7 @@
     },
     {
       "id": "e47",
+"source": "chronicle",
       "date": "2026-09-29T03:21:00-03:00",
       "agent": "reversa-principles",
       "category": "refactor",
@@ -390,6 +438,7 @@
     },
     {
       "id": "e48",
+"source": "chronicle",
       "date": "2026-09-29T14:22:16-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -398,6 +447,7 @@
     },
     {
       "id": "e49",
+"source": "chronicle",
       "date": "2026-09-29T14:22:21-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -406,6 +456,7 @@
     },
     {
       "id": "e50",
+"source": "chronicle",
       "date": "2026-09-29T14:33:51-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -414,6 +465,7 @@
     },
     {
       "id": "e51",
+"source": "chronicle",
       "date": "2026-09-29T14:41:43-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -422,6 +474,7 @@
     },
     {
       "id": "e52",
+"source": "chronicle",
       "date": "2026-09-29T14:41:48-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -430,6 +483,7 @@
     },
     {
       "id": "e53",
+"source": "chronicle",
       "date": "2026-09-29T14:41:54-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -438,6 +492,7 @@
     },
     {
       "id": "e54",
+"source": "chronicle",
       "date": "2026-09-29T14:55:52-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -446,6 +501,7 @@
     },
     {
       "id": "e55",
+"source": "chronicle",
       "date": "2026-09-29T14:55:58-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -454,6 +510,7 @@
     },
     {
       "id": "e56",
+"source": "chronicle",
       "date": "2026-09-29T15:07:46-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -462,6 +519,7 @@
     },
     {
       "id": "e57",
+"source": "chronicle",
       "date": "2026-09-29T15:07:56-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -470,6 +528,7 @@
     },
     {
       "id": "e58",
+"source": "chronicle",
       "date": "2026-09-29T15:08:03-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -478,6 +537,7 @@
     },
     {
       "id": "e59",
+"source": "chronicle",
       "date": "2026-09-29T15:13:47-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -486,6 +546,7 @@
     },
     {
       "id": "e60",
+"source": "chronicle",
       "date": "2026-09-29T15:13:59-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -494,6 +555,7 @@
     },
     {
       "id": "e61",
+"source": "chronicle",
       "date": "2026-09-29T16:08:47-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -502,6 +564,7 @@
     },
     {
       "id": "e62",
+"source": "chronicle",
       "date": "2026-09-29T16:08:56-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -510,6 +573,7 @@
     },
     {
       "id": "e63",
+"source": "chronicle",
       "date": "2026-09-29T16:09:03-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -518,6 +582,7 @@
     },
     {
       "id": "e64",
+"source": "chronicle",
       "date": "2026-09-29T16:09:09-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -526,6 +591,7 @@
     },
     {
       "id": "e65",
+"source": "chronicle",
       "date": "2026-09-29T16:09:15-03:00",
       "agent": "reversa-debugger",
       "category": "refactor",
@@ -534,6 +600,7 @@
     },
     {
       "id": "e77",
+"source": "chronicle",
       "date": "2026-09-29T23:59:00-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -542,6 +609,7 @@
     },
     {
       "id": "e66",
+"source": "chronicle",
       "date": "2026-09-30T11:16:52-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -550,6 +618,7 @@
     },
     {
       "id": "e67",
+"source": "chronicle",
       "date": "2026-09-30T11:17:02-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -558,6 +627,7 @@
     },
     {
       "id": "e68",
+"source": "chronicle",
       "date": "2026-09-30T11:17:07-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -566,6 +636,7 @@
     },
     {
       "id": "e69",
+"source": "chronicle",
       "date": "2026-09-30T13:20:04-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -574,6 +645,7 @@
     },
     {
       "id": "e70",
+"source": "chronicle",
       "date": "2026-09-30T13:20:11-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -582,6 +654,7 @@
     },
     {
       "id": "e71",
+"source": "chronicle",
       "date": "2026-09-30T15:11:57-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -590,6 +663,7 @@
     },
     {
       "id": "e72",
+"source": "chronicle",
       "date": "2026-09-30T15:47:24-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -598,6 +672,7 @@
     },
     {
       "id": "e73",
+"source": "chronicle",
       "date": "2026-09-30T15:47:29-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -606,6 +681,7 @@
     },
     {
       "id": "e74",
+"source": "chronicle",
       "date": "2026-09-30T16:36:42-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -614,6 +690,7 @@
     },
     {
       "id": "e75",
+"source": "chronicle",
       "date": "2026-09-30T16:36:48-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -622,11 +699,92 @@
     },
     {
       "id": "e78",
+"source": "chronicle",
       "date": "2026-09-30T23:59:00-03:00",
       "agent": "reversa-reviewer",
       "category": "reextracao",
       "title": "Resultado da re-extração",
       "detail": "819 afirmações catalogadas, 90,5% de confiança geral. Correções contra a extração anterior: HARD_MIN/GIVEN_MIN não existem na reconstrução; cM ≤ 0 devolve lista vazia; a action de DNA é dna_analysis e não process_dna; 8 "
+    },
+    {
+      "id": "e79",
+      "source": "state.json",
+      "date": "2026-10-05T15:42:15Z",
+      "agent": "reversa-scout",
+      "category": "reextracao",
+      "title": "inventário da superfície na re-extração de 2026-10-05",
+      "detail": "reversa-scout. Re-extraiu _reversa_sdd/inventory.md, _reversa_sdd/dependencies.md e .reversa/context/surface.json, com snapshot do conjunto anterior em .reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo no _MANIFEST.txt). Correções contra a extração anterior: raiz de código de analisador-genealogico/ para src/; pacote reconstructed/ (4 módulos, 1086 linhas) substituído por core/ (13) mais parsers/ (3) mais reporting/ (2) mais utils/ (4), 3473 linhas com o app.py; app.py de 84 para 262 linhas; tests de 7 arquivos e 1134 linhas para 11 arquivos e 2957 linhas; CI/CD passou a existir com .github/workflows/deploy-pages.yml. Os 3 módulos identificados (upload-gedcom, analise-dna e busca-caminho) e a superfície de rotas seguem iguais aos da extração anterior.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e80",
+      "source": "state.json",
+      "date": "2026-10-05T17:00:00Z",
+      "agent": "reversa-archaeologist",
+      "category": "reextracao",
+      "title": "escavação do código de src/ com 118 regras de negócio",
+      "detail": "reversa-archaeologist. Gerou _reversa_sdd/code-analysis.md (seções 1 a 6, 118 regras catalogadas), _reversa_sdd/data-dictionary.md, os 3 flowcharts por unit e .reversa/context/modules.json (4 módulos, 77 funções, 118 regras). Totais: 3473 linhas lidas em 22 arquivos, 27 entidades documentadas, 19 algoritmos e 16 dívidas técnicas. Achado central do módulo analise-dna: a separação entre parentesco documental, evidência genética e confronto é capacidade nova, sem spec na extração anterior.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e81",
+      "source": "state.json",
+      "date": "2026-10-05T19:30:00Z",
+      "agent": "reversa-detective",
+      "category": "reextracao",
+      "title": "domínio, máquinas de decisão, permissões e 23 ADRs",
+      "detail": "reversa-detective. Reescreveu _reversa_sdd/domain.md (8 seções, 21 mensagens de contrato, lacunas L-15 a L-23) e criou state-machines.md (2 máquinas de decisão, 11 códigos de aviso, lacunas M-01 a M-04) e permissions.md (zero autenticação, zero sessão e zero papéis, lacunas P-01 a P-05), além de 23 ADRs a partir de 125 commits (8 herdadas revalidadas e 15 novas). Achado principal: a regra final da análise entrou por commits diretos, sem ciclo forward, e é a lacuna de rastreabilidade que motivou esta re-rotação.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e82",
+      "source": "state.json",
+      "date": "2026-10-05T21:10:00Z",
+      "agent": "reversa-architect",
+      "category": "reextracao",
+      "title": "arquitetura, C4 e ERD completos, com 2 ciclos de pacote",
+      "detail": "reversa-architect. Reescreveu _reversa_sdd/architecture.md (9 seções, 20 dívidas consolidadas) e c4-context.md, e criou c4-containers.md, c4-components.md, erd-complete.md e traceability/spec-impact-matrix.md. Sumário: 3 containers, 19 componentes, 27 estruturas de dados, 20 dívidas técnicas (4 de alta gravidade) e 7 dívidas fechadas desde 2026-09-30. Achado novo: os quatro pacotes do núcleo não formam camadas acíclicas, há 2 ciclos em nível de pacote (core/ com reporting/ e core/ com parsers/), ainda que não exista ciclo em nível de módulo. utils/ é o único pacote folha real.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e83",
+      "source": "state.json",
+      "date": "2026-10-06T01:20:00Z",
+      "agent": "reversa-writer",
+      "category": "reextracao",
+      "title": "as 3 specs SDD e os artefatos globais regenerados",
+      "detail": "reversa-writer. Gerou 17 arquivos: as 3 units (upload-gedcom, analise-dna e busca-caminho, cada uma com requirements, design, tasks e contracts), openapi/index.yaml, as 3 user stories e traceability/code-spec-matrix.md. Totais declarados: 69 requisitos funcionais, 34 não funcionais, 81 tarefas (49 de teste), 23 critérios Gherkin e 11 códigos de aviso contratados. As 9 specs canônicas de 2026-09-30 foram sobrescritas por decisão explícita do usuário, com snapshot integral em .reversa/snapshots/2026-10-05-pre-reextracao/.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e84",
+      "source": "state.json",
+      "date": "2026-10-06T02:40:00Z",
+      "agent": "reversa-reviewer",
+      "category": "reextracao",
+      "title": "revisão com 92,8% de confiança e a lacuna crítica ainda aberta",
+      "detail": "reversa-reviewer. Reescreveu _reversa_sdd/confidence-report.md e questions.md (16 perguntas, todas respondidas) e criou gaps.md. 1.922 afirmações catalogadas e 92,8% de confiança geral, contra 91,5% antes das 16 decisões humanas. Suíte com 164 acertos e 15 erros de ambiente em setup (PermissionError de tmp_path no Windows), idênticos no interpretador global e no .venv, e cobertura de 83% de src/ (1520 instruções, 253 descobertas). Seis arquivos do legado foram editados por decisão explícita do usuário: src/core/matching.py, src/app.py, src/core/genetic_evidence.py, requirements.txt e 2 arquivos de teste. A única lacuna crítica restante é a corrida entre threads (L-16, M-03 e P-02).",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e85",
+      "source": "state.json",
+      "date": "2026-10-06T03:20:00Z",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "Passo 4: verificação de regressão semântica",
+      "detail": "Verificação de regressão contra as 4 features com regression-watch.md: 13 watch items em tabela principal, 12 vereditos verdes, 1 amarelo e zero vermelhos, sem block on red. O amarelo é o W008 da feature 004-servidor-waitress: as versões fixadas mudaram em relação à lista do watch por decisão humana registrada (o .venv passou a ser o interpretador oficial), sem regressão. A paridade contra o oráculo congelado deu 100% em 6 de 6 fixtures, o que prova que as 3 mudanças de código de 2026-10-05 não alteraram o comportamento observável. 6 adendos foram reconciliados nesta passada.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e86",
+      "source": "state.json",
+      "date": "2026-10-06T03:20:00Z",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "re-extração de 2026-10-05 concluída",
+      "detail": "Re-extração integral do _reversa_sdd/ a partir do código de 2026-10-05: 6 agentes (scout, archaeologist, detective, architect, writer e reviewer) e 5 fases concluídas, com cerca de 60 artefatos gerados ou reescritos (15 transversais, 3 flowcharts, 12 specs de unit, 23 ADRs, 3 user stories, 1 openapi e 2 de rastreabilidade). Confiança final de 92,8% em 1.922 afirmações (1737 verdes, 95 amarelas e 90 vermelhas) e 14 lacunas abertas, 1 delas crítica (corrida entre threads). Suíte com 164 acertos e 15 erros de ambiente, paridade de 100% em 6 de 6 fixtures e cobertura de 83% de src/. As 16 perguntas de validação humana foram respondidas e nenhuma segue aberta. migration/, oracle/, parity/, screens/, addenda/, design-system/ e traceability/bugs.md foram preservados sem regeneração.",
+      "foraDaCronica": true
     }
   ]
 }

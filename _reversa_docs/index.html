@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="index">
 <meta name="reversa-page-id" content="index">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <title>analisador-genealogico — Documentação</title>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/nav.js"></script>
@@ -45,56 +45,55 @@
 </head>
 <body>
 <header class="site">
-  <!-- MINI_SEAL_SVG -->
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+    
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Documentação</span>
-  <!-- NAV_LINKS -->
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 
 <section class="hero">
-  <!-- SEAL_HERO -->
   <img class="seal" src="assets/img/seal.svg" alt="Selo do projeto">
   <div class="tag">Genetic Genealogy Path Analyzer</div>
   <h1>analisador-genealogico</h1>
-  <p>Encontra, mapeia e visualiza a conexão genealógica entre uma pessoa-raiz e seus DNA matches, cruzando uma árvore GEDCOM com um relatório de segmentos de DNA. O monolito original foi reconstruído em módulos com suíte de testes.</p>
+  <p>Aplicação web Flask para genealogistas genéticos. Cruza uma árvore GEDCOM com um relatório de DNA em CSV e responde como duas pessoas se conectam, separando três eixos que não se contaminam: o parentesco que o GEDCOM afirma, a evidência que o arquivo de DNA traz e o confronto entre os dois. Re-extraída por completo em 2026-10-05.</p>
 </section>
 
 <div class="section-title">Arquitetura e estrutura</div>
 <div class="grid">
-  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 14 módulos — app.py, pacote reconstructed/ e suíte de testes.</p></a>
-  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com dependências entre app, módulos reconstruídos e testes.</p></a>
-  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: LOC por pasta, complexidade, histograma, sankey e linguagens.</p></a>
-  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>Linha do tempo dos agentes Reversa e artefatos desde o início do projeto.</p></a>
-  <a class="card" href="deck.html"><div class="ico">🎞️</div><h3>Deck</h3><p>Apresentação navegável com a história e os números da reconstrução.</p></a>
+  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 37 módulos em 8 pastas: rota fina em src/app.py sobre core, parsers, reporting e utils.</p></a>
+  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com 6 pacotes, 13 arestas e os 2 ciclos reais entre core, parsers e reporting.</p></a>
+  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: LOC por pasta, complexidade, histograma, sankey de dependências e linguagens.</p></a>
+  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>86 eventos, da primeira extração até a re-extração de 2026-10-05 e a verificação de regressão.</p></a>
+  <a class="card" href="glossario.html"><div class="ico">📖</div><h3>Glossário</h3><p>24 conceitos do domínio, de GEDCOM e cM a meioses, colapso de pedigree e contrato de escape do Mermaid.</p></a>
+  <a class="card" href="deck.html"><div class="ico">🎞️</div><h3>Deck</h3><p>Apresentação navegável em 10 slides com a história, os números e as 5 decisões fundadoras.</p></a>
 </div>
 
 <div class="section-title">Features documentadas</div>
 <div class="features-grid" id="featuresGrid"></div>
 
-<footer>Mini-site do Time Reversa Docs · seed b1467bf8 · offline-first</footer>
+<footer>Mini-site do Time Reversa Docs · seed 57d09b0c · offline-first</footer>
 
 <!-- PAYLOAD -->
 <script>
@@ -104,21 +103,22 @@
   var specs = (fi && fi.specs) || [];
   var grid = document.getElementById("featuresGrid");
   var links = {
-    "upload-gedcom": ["📤", "Upload e Parsing de GEDCOM", "Recebe o .ged, faz o parsing e constrói o grafo de famílias."],
-    "busca-caminho": ["🔎", "Busca de Caminho", "Conexão direta (MRCA) ou indireta por afinidade entre duas pessoas."],
-    "analise-dna": ["🧬", "Análise de DNA", "Cruza GEDCOM com CSV de matches, agrega cM e prevê parentesco."]
+    "upload-gedcom": ["📤", "Upload e parsing de GEDCOM", "Recebe o .ged, decide se pode gravar, guarda sob chave derivada do conteúdo e monta o grafo de pessoas e famílias."],
+    "busca-caminho": ["🔎", "Busca de caminho genealógico", "Conexão direta pelo ancestral comum ou indireta por afinidade, com o parentesco documental completo e diagrama Mermaid."],
+    "analise-dna": ["🧬", "Análise de DNA e confronto", "Separa o que o GEDCOM afirma, o que o arquivo de DNA informa e se os dois são compatíveis entre si."]
   };
   specs.forEach(function(s){
     var meta = links[s.slug] || [s.slug, s.title, s.summary];
+    var n = (s.counts && s.counts.requisitosFuncionais) ? " · " + s.counts.requisitosFuncionais + " requisitos" : "";
     var a = document.createElement("a");
     a.className = "feat";
     a.href = "features/" + s.slug + ".html";
-    a.innerHTML = '<h4>' + meta[0] + ' ' + (meta[1] || s.title) + '</h4><p>' + (meta[2] || s.summary) + '</p>';
+    a.innerHTML = '<h4>' + meta[0] + ' ' + (meta[1] || s.title) + '</h4><p>' + (meta[2] || s.summary) + n + '</p>';
     grid.appendChild(a);
   });
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Publisher em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-01.</div>
+<!-- Gerado pelo Reversa-Docs-Publisher em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-06, a partir da re-extração do SDD de 2026-10-05.</div>
 </body>
 </html>

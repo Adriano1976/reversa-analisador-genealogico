@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "startedAt": "2026-10-01T03:30:00Z",
-  "lastCheckpoint": "2026-10-01T03:47:11Z",
-  "pipelineDurationMs": 900000,
+  "startedAt": "2026-10-06T03:43:10Z",
+  "lastCheckpoint": "2026-10-06T05:08:44Z",
+  "pipelineDurationMs": 5119324,
   "completedAgents": [
     "mapper",
     "analyst",
@@ -14,97 +14,97 @@
     "index.html": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:D170D38A9FB0D4EA"
+      "hash": "sha256:b7c9711cd7af408101a3dcd557c1c0f71441324ebe65a90168eb3c5d43ff2d06"
     },
     "arquitetura.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:c42bbe09c00c864a"
+      "hash": "sha256:cb9be9c59a4a6cddf0383b52352c2be6b707107417675fee6769d514515ef8f8"
     },
     "modulos.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:bd85a97f341360e9"
+      "hash": "sha256:619d416321945f7fe7b0bdd76c8280e92e6587605282e8e490c2d1b43afce269"
     },
     "metricas.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:0feb9a10fdf6b7e6"
+      "hash": "sha256:fd6201294194eac57a27d3e33240738fee11c4cedf6f3c79af66e399252e414e"
     },
     "deck.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:da67c5191e1cb942"
+      "hash": "sha256:eee0aa01c7f07711cc64e8ede2e647f143d82bb5ad47727e1afaed219374fa33"
     },
     "glossario.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:90c287684657a9ec"
+      "hash": "sha256:c3b978c31be97c64254fa4bb31b8d2f280697a3ce2ea6dc7c753d07802134423"
     },
     "assets/data/soul.json": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:ee645043955d4e9c"
+      "hash": "sha256:7b51afb0ef06eb78c3e2b5ccbd3258d116f22e48e6bedfe20ff4c37085aefaff"
     },
     "features/upload-gedcom.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:3ff0d806a5dcc250"
+      "hash": "sha256:36ffe7940d83cc0142cef6f7b6230b6880fb954424102ed5394b0a5ac88a150d"
     },
     "features/busca-caminho.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:86e116248ba3c293"
+      "hash": "sha256:6cb532de41a46c7784f5967bc11ff2849c478328e981fb367323b61bfc40778d"
     },
     "features/analise-dna.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:afa5e2d99429f431"
+      "hash": "sha256:927af37d5a2fc2204317742c05e5339f545bd9d14896cc6f2fd7da24e0729437"
     },
     "assets/data/modules.json": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:0f15575056177dc3"
+      "hash": "sha256:964660e163c9882c67c121e505a95b8f8c4956e75832dfb657c006caf1c9b81f"
     },
     "assets/data/deps.json": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:a3f0b0672f8fa249"
+      "hash": "sha256:835ffbbc72eb789014c2b53e551312b62695937d84316eaaac42ee52fc75a416"
     },
     "assets/data/metrics.json": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:57282715d2959e45"
+      "hash": "sha256:e6b19aee1037207300dbf93af574d2c9c86a4fe950d8298688a2b20de12a3764"
     },
     "assets/data/features-index.json": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:ab636f2f9fed1a6b"
+      "hash": "sha256:38a343d8c539b74ca7b7923ac78d9dc78cc1195f504ba5814cadd67c4fa7a7c9"
     },
     "assets/js/data.js": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:E87E7C44BCB658E4"
+      "hash": "sha256:042e560c8674459e4356d0f10b92daa0bfcb897babfc065df7040d404e5f3b4b"
     },
     "assets/img/seal.svg": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:e9498fe5b6bf0f85"
+      "hash": "sha256:44c7bd884a352741297df3d05b57a1d6b22423f1cda47a59ca0c319e5e06f4b2"
     },
     "assets/img/seal-mini.svg": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:70442156f65a3b61"
+      "hash": "sha256:9da364496ccec26e076b626b7bb0d4ff70e68fd44edd04a783b09d3631e68268"
     },
     "timeline.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:05284ACF51EF3390F65AA84014B9448739D55FD132EADD2B8D29CC2AE4134CCB"
+      "hash": "sha256:00eb6e821174c0fa333ae6a850d7dcd18daef7e87cb451574e2d2c1299b14053"
     },
     "assets/data/timeline.json": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:210DAD3A6FD7AC84"
+      "hash": "sha256:eb333587fcdab310b355bc04a43491c776054a81a1fc5d590455694f731174a4"
     }
   },
   "pagesGenerated": [
@@ -122,7 +122,7 @@
   "pagesOmitted": [
     {
       "page": "topologia.html",
-      "reason": "architecture.md nao declara secao Topologia / variantes de topologia"
+      "reason": "architecture.md de 2026-10-05 nao declara secao de Topologia nem variantes de topologia (secoes 1 a 9: visao geral, containers, componentes, modelo de dados, fluxo, integracoes, dividas, decisoes, resumo)"
     }
   ],
   "auxiliaryHtmls": [],
@@ -140,23 +140,67 @@
       "lastCheckpoint": "2026-08-16T19:42:11Z",
       "pipelineDurationMs": 2100000,
       "note": "Execucao original do pipeline, com os 4 agentes instalados."
+    },
+    {
+      "startedAt": "2026-10-01T03:30:00Z",
+      "lastCheckpoint": "2026-10-01T03:47:11Z",
+      "pipelineDurationMs": 900000,
+      "note": "Regeneracao anterior. O mini-site estava gerado de 2026-08-16 e descrevia o sistema anterior a migracao, ao refactor de 2026-09-29 e a re-extracao de 2026-09-30. As metricas divergiam em todas as pastas e a timeline terminava em 2026-08-13."
     }
   ],
   "regeneration": {
-    "kind": "atualizacao da camada de dados e das paginas de features",
-    "reason": "O mini-site estava gerado de 2026-08-16 e descrevia o sistema anterior a migracao, ao refactor de 2026-09-29 e a re-extracao de 2026-09-30. As metricas divergiam em todas as pastas e a timeline terminava em 2026-08-13.",
-    "infrastructureGap": "templates/documentation/ NAO existe nesta instalacao: nem viewer.html, nem os .tpl das paginas, nem extract_modules.py/extract_deps.py, nem sidebar.js. A extracao de dados foi feita inline, como o proprio agente preve para quando o script falta, e o data.js foi reconstruido a mao a partir do Passo 3 do Publisher.",
+    "kind": "re-extração completa do mini-site",
+    "reason": "O mini-site havia sido gerado em 2026-10-01 e descrevia o código anterior ao refactor que achatou `analisador-genealogico/reconstructed/` para `src/`, e o SDD anterior à re-extração de 2026-10-05. Todos os caminhos de módulo, as contagens, as métricas e as 3 features estavam defasados.",
+    "backup": ".backup-20261006-004310/",
+    "sourceStamp": "re-extração do SDD de 2026-10-05",
     "whatChanged": [
-      "modules.json: 14 -> 16 modulos (entram os 3 testes novos; sai graph_path_search.html)",
-      "deps.json: regerado, 7 nos e 6 arestas, 0 ciclos",
-      "metrics.json: 5 pastas; static/ removido; LOC alinhado com o _reversa_sdd/",
-      "timeline.json: 27 -> 78 eventos, de 2026-08-03 a 2026-09-30",
-      "data.js: reconstruido, passa a embedar os dados novos",
-      "features/*.html: as 3 paginas reescritas a partir das specs novas (12/15/15 requisitos)",
-      "modulos.html: folderColor corrigido (as chaves nao casavam com as pastas) e legenda sem 'static'",
-      "10 paginas: carimbo de geracao atualizado, meta e assinatura visual"
+      "mapper: 37 modulos (era 16), 5966 linhas nao-vazias, 8 pastas reais (saem reconstructed/ e static), deps.json agora agregado por pacote com 6 nos, 13 arestas e 2 ciclos reais",
+      "analyst: metrics.json derivado por script (6 graficos, 8 pastas, 2 ciclos, numeros do SDD); timeline.json de 78 para 86 eventos, com os 8 posteriores a cronica marcados como fora da cronica (fonte .reversa/state.json)",
+      "storyteller: soul.json derivado do soul.md regenerado (24 conceitos, 4 lacunas, era de 2026-08-12 com 8 conceitos); deck de 10 slides com o numero real de 179 itens (antes afirmava 47); 3 features reescritas com 19/24/26 requisitos; NAV_LINKS reposto nas 3 features, que nao o tinham",
+      "publisher: index.html regenerado com 6 cards, hero novo e as 3 features com contagem de requisitos",
+      "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
+      "correcao pos-publisher: o index.html guardava DOIS espacos de selo (o marcador MINI_SEAL_SVG e um selo azul antigo de 2026-10-01 embutido logo abaixo, com #4f8cff/#23262c). O selo antigo foi removido; agora as 10 paginas tem exatamente um mini-selo, o novo."
     ],
-    "verifiedBy": "Smoke test proprio: data.js parseavel, 10/10 paginas sem fetch() local, 8/8 referencias de vendor resolvendo no disco, integridade do grafo (nenhuma aresta orfa) e cobertura completa dos requisitos nas 3 features.",
-    "backup": ".backup-20261001-003512/ (31 arquivos, 1,5 MB)"
-  }
+    "tooling": "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, extract_modules.py, extract_deps.py, convert_chronicle.py ou convert_soul.py. A extracao de dados foi feita por scripts deterministicos proprios, guardados em .reversa/: _docs_extract_modules.py, _docs_extract_metrics.py, _docs_extract_features.py, _docs_nav.py, _docs_build_datajs.py, _docs_inject_pages.py, _docs_smoke_test.py, _docs_render_check.js e _docs_state.py.",
+    "verifiedBy": "Tres verificacoes independentes: (1) node .reversa/_docs_render_check.js carrega o data.js num window falso e confere o inventario das 6 chaves de dados, os 10 itens do nav e a sintaxe do script inline das 10 paginas via vm.Script; (2) .reversa/_docs_smoke_test.py sobe http.server efemero, faz GET nas 10 paginas e nos 29 assets locais e valida os links relativos contra o disco; (3) markdownlint nos artefatos de texto do SDD.",
+    "seal": {
+      "seedSource": ".reversa/soul.md",
+      "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+      "sealSvgBytes": 1080,
+      "sealMiniSvgBytes": 663
+    },
+    "soul": {
+      "regeneratedAt": "2026-10-06",
+      "by": "reversa-extract-soul (autorizado pelo usuario nesta sessao)",
+      "previousPreservedAt": ".reversa/soul.20260928-1537.md",
+      "previousBytes": 4585,
+      "currentBytes": 15559
+    }
+  },
+  "vendorFiles": [
+    "OrbitControls.js",
+    "d3.v7.min.js",
+    "highcharts-accessibility.js",
+    "highcharts-exporting.js",
+    "highcharts-sankey.js",
+    "highcharts-timeline.js",
+    "highcharts-treemap.js",
+    "highcharts.js",
+    "three.min.js"
+  ],
+  "smokeTestCheckedPages": 10,
+  "smokeTestCheckedAssets": 29,
+  "dataJsKeys": [
+    "modules",
+    "deps",
+    "metrics",
+    "timeline",
+    "glossary",
+    "featuresIndex",
+    "sealSvg",
+    "sealMiniSvg",
+    "seedShort",
+    "nav",
+    "config"
+  ]
 }

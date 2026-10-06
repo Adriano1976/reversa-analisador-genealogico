@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="glossario">
 <meta name="reversa-page-id" content="glossario">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <title>Glossário — analisador-genealogico</title>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/nav.js"></script>
@@ -32,59 +32,119 @@
   #search{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;color:var(--txt);font-size:14px;margin-bottom:24px;outline:none;}
   #search:focus{border-color:var(--accent);}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;position:relative;}
   .card h2{font-size:15px;color:#fff;margin-bottom:6px;}
   .card p{color:var(--muted);font-size:13px;line-height:1.55;}
+  .card .conf{display:inline-block;margin-top:10px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .card.conf-confirmado{border-left:3px solid #4f8cff;}
+  .card.conf-inferido{border-left:3px solid #d18a5a;}
+  .card.conf-lacuna{border-left:3px solid #e57373;}
+  .card:target{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,140,255,.25);}
   .empty{color:var(--muted);text-align:center;padding:30px;font-size:14px;display:none;}
+  .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:28px;}
 </style>
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Glossário</span>
-  <!-- NAV_LINKS -->
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 <main>
   <div class="crumb"><a href="index.html">Início</a> / Glossário</div>
   <h1>Glossário de conceitos</h1>
-  <p class="summary">Termos e entidades centrais que estruturam o domínio do analisador-genealogico, destilados em um mapa mental do sistema.</p>
-  <input id="search" type="search" placeholder="Buscar termo ou definição... (ex.: GEDCOM, cM, MRCA)">
+  <p class="summary">As oito entidades centrais, os termos de domínio e o vocabulário de decisão do analisador-genealogico, derivados do <code>.reversa/soul.md</code> regenerado em 2026-10-06. A confiança de cada verbete segue a escala do soul: confirmado, inferido ou lacuna.</p>
+  <input id="search" type="search" placeholder="Buscar termo ou definição... (ex.: GEDCOM, cM, MRCA, meioses)">
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty">Nenhum conceito encontrado para a busca.</div>
+  <p class="note" id="note"></p>
 </main>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"glossary":{"schemaVersion":1,"generatedAt":"2026-10-06T04:45:00Z","project":"analisador-genealogico","source":".reversa/soul.md","sourceStamp":"soul.md regenerado em 2026-10-06, sobre o SDD re-extraido de 2026-10-05 (nivel completo)","concepts":[{"term":"GEDCOM","definition":"Formato padronizado de troca de arvores genealogicas (.ged): a arvore enviada, com registros INDI (pessoa) e FAM (familia). Validada por conteudo (precisa comecar com 0 HEAD) e re-parseada a cada POST; e a porta de entrada das outras duas unidades.","confidence":"CONFIRMADO"},{"term":"PESSOA (INDI)","definition":"Registro de individuo de um GEDCOM, identificado por xref_id (ex.: @I0001@). FAMC aponta a familia onde e filho e FAMS as familias onde e conjuge.","confidence":"CONFIRMADO"},{"term":"FAMILIA (FAM)","definition":"Registro de familia de um GEDCOM, com HUSB (marido), WIFE (esposa) e CHIL (filhos). E a chave da navegacao por pais e do grafo pessoa-familia.","confidence":"CONFIRMADO"},{"term":"MATCH_DNA","definition":"Linha do CSV de correspondentes de DNA: nome e cM compartilhado. A chave e o par (nome, kit), nunca so o nome; duas linhas com o mesmo nome e kits diferentes sao duas evidencias.","confidence":"CONFIRMADO"},{"term":"PARENTESCO_DOCUMENTAL","definition":"O que a arvore sustenta: caminho, MRCA, distancia geracional e status (not_found, found, ambiguous, affinity). Nunca le cM, e um conflito com o DNA vira aviso, nunca reescrita de vinculo.","confidence":"CONFIRMADO"},{"term":"EVIDENCIA_GENETICA","definition":"O que o CSV informa: kit, cM total, segmentos, maior segmento e SNPs. Nao conhece o GEDCOM e nunca soma kits diferentes: com mais de um kit, totals.cm e None.","confidence":"CONFIRMADO"},{"term":"POSSIBILIDADES (Shared cM Project 4.0)","definition":"O cM traduzido em lista de relacoes compativeis pela tabela publicada do SCP 4.0, com 27 relacoes. Sempre lista, inclusive vazia, e nunca um parentesco unico.","confidence":"CONFIRMADO"},{"term":"CONFRONTO","definition":"O veredito do sistema: COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO, por kit e com juncao conservadora (CONFLITANTE > POSSIVEL > COMPATIVEL > INCONCLUSIVO). INCONCLUSIVO e o estado inicial e o caminho de falha padrao.","confidence":"CONFIRMADO"},{"term":"PAR (par em analise)","definition":"A pessoa raiz e o correspondente. Os tres eixos (documental, genetico e confronto) aparecem como tres caminhos independentes ate o CONFRONTO, que e o unico ponto onde eles se encontram.","confidence":"CONFIRMADO"},{"term":"cM (centiMorgan)","definition":"Unidade de medida de recombinacao genetica usada pelo CSV de correspondentes; quanto maior, mais proximo o parentesco. E a moeda que traduz genetica em grau de relacao, e no sistema ela NUNCA e usada sozinha para afirmar parentesco.","confidence":"CONFIRMADO"},{"term":"MRCA (ancestral comum mais recente)","definition":"Ascendente mais recente compartilhado entre duas pessoas, base da conexao direta. A busca direta sobe ate ele exclusivamente por linhas parentais.","confidence":"CONFIRMADO"},{"term":"Meioses","definition":"Os saltos pai-filho entre duas pessoas. E a grandeza que o cM mede, e e o que liga o rotulo do parentesco a tabela do Shared cM Project. Distancia em meioses NAO e criterio do veredito: o confronto decide por sobreposicao de faixas.","confidence":"CONFIRMADO"},{"term":"Chave de armazenamento de conteudo","definition":"<sha256 do conteudo truncado em 16 hexadecimais>__<nome visivel>, com a extensao original preservada. Mesmo conteudo gera a mesma chave, e e ela que circula entre requisicoes no campo gedcom_filename. Nao e segredo e nao tem verificacao de propriedade.","confidence":"CONFIRMADO"},{"term":"Mojibake","definition":"Nome corrompido por encoding incorreto (ex.: Latin-1 lido como UTF-8), comum em nomes portugueses. A limpeza (strip_bad_utf e demojibake) tem autoridade unica no projeto (ADR-07).","confidence":"CONFIRMADO"},{"term":"Matching difuso defensivo","definition":"Casamento de nomes por score (0,55 token_sort + 0,25 partial + 0,20 prenome + bonus de intersecao de sobrenomes), com filtro anti-falso-positivo e cinco ramos de aceitacao. O cM nao decide a aceitacao: ele so influencia o limiar de Jaccard.","confidence":"CONFIRMADO"},{"term":"Desempate deterministico","definition":"Quarto criterio do desempate de candidatos: em empate exato nos tres criterios (sobrenomes em comum, prenome e score), vence o menor xref_id. Existe porque a ordem de iteracao de um set muda a cada PYTHONHASHSEED.","confidence":"CONFIRMADO"},{"term":"Grafo pessoa-familia","definition":"Grafo bipartido nao direcionado (networkx) com nos tipados person e family, construido no upload. Sobre ele rodam o BFS bidirecional da conexao direta e o caminho mais curto da conexao indireta.","confidence":"CONFIRMADO"},{"term":"Conexao direta","definition":"Caminho pelo ancestral comum, por BFS bidirecional que sobe apenas por pais, com teto de MAX_DEPTH = 20 iteracoes de profundidade (nao geracoes). O corte no teto e silencioso, por decisao humana.","confidence":"CONFIRMADO"},{"term":"Afinidade (conexao indireta)","definition":"Fallback por casamento quando nao ha ancestral comum: caminho mais curto no grafo pessoa-familia, com teto de MAX_HOPS = 40 arestas. E marcada como afinidade em tres lugares, porque NAO representa parentesco consanguineo.","confidence":"CONFIRMADO"},{"term":"Homônimo (dossie de ambiguidade)","definition":"Mais de um registro com o mesmo nome normalizado. O dossie compara nomes sem acento e corrige mojibake; a busca de caminho testa ate 5 x 5 combinacoes e vence a primeira com caminho, avisando a ambiguidade em vez de escolher em silencio.","confidence":"CONFIRMADO"},{"term":"Colapso de pedigree","definition":"Mesmo ancestral alcancado por mais de uma cadeia de pais, assinatura de endogamia. Detectado por contagem de cadeias com teto de 8 e apenas avisado: o sistema nao corrige nem altera o veredito.","confidence":"CONFIRMADO"},{"term":"Contrato de escape do rotulo Mermaid","definition":"Rotulo de no sanitizado por lista branca, com &, < e > convertidos em entidades HTML somente DEPOIS do filtro. A ordem e invariante: a aspa dupla seguida de crase derruba o diagrama inteiro se escapar da gramatica.","confidence":"CONFIRMADO"},{"term":"Single-tenant por aceite de risco","definition":"Uma so persona, o proprio operador, sem login, sessao ou papeis. A escuta padrao e 127.0.0.1 e abrir para a rede e ato explicito por ANALISADOR_HOST. A ausencia de isolamento e risco declarado, com correcao prevista para a Onda 3.","confidence":"CONFIRMADO"},{"term":"Aviso (warning)","definition":"Par {code, message} que carrega a granularidade fina que o status perde de proposito. Exemplos contratados: sem_caminho, homonimo, data_impossivel, colapso_de_pedigree, caminhos_multiplos, afinidade, kit_ausente, multiplos_kits, segmento_fraco.","confidence":"CONFIRMADO"}]}}</script>
 <script>
 (function(){
   "use strict";
-  var g = (window.RV_DATA && window.RV_DATA.glossary) || {};
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var snap = parseSnapshot();
+  var g = pickData(window.RV_DATA && window.RV_DATA.glossary, snap.glossary) || {};
   var concepts = g.concepts || [];
   var grid = document.getElementById("grid");
-  function slug(t){ return (t||"").toLowerCase().replace(/\W+/g,"-").replace(/^-|-$/g,"") || "conceito"; }
+
+  function slug(t){
+    var s = (t||"").toLowerCase();
+    if(s.normalize){ s = s.normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+    return s.replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "conceito";
+  }
+  function confClass(c){
+    var v = (c||"").toUpperCase();
+    if(v === "CONFIRMADO" || v.indexOf("\uD83D\uDFE2") !== -1) return "conf-confirmado";
+    if(v === "INFERIDO" || v.indexOf("\uD83D\uDFE1") !== -1) return "conf-inferido";
+    if(v === "LACUNA" || v.indexOf("\uD83D\uDD34") !== -1) return "conf-lacuna";
+    return "";
+  }
+  function confLabel(c){
+    var v = (c||"").toUpperCase();
+    if(v.indexOf("CONFIRMADO") !== -1) return "confirmado";
+    if(v.indexOf("INFERIDO") !== -1) return "inferido";
+    if(v.indexOf("LACUNA") !== -1) return "lacuna";
+    return v ? v.toLowerCase() : "nao declarada";
+  }
+
   concepts.forEach(function(c){
     var card = document.createElement("article");
-    card.className = "card";
+    card.className = "card " + confClass(c.confidence);
     var id = slug(c.term);
     card.id = "concept-" + id;
     var h = document.createElement("h2");
@@ -93,16 +153,30 @@
     var p = document.createElement("p");
     p.textContent = c.definition;
     card.appendChild(p);
+    if(c.confidence){
+      var badge = document.createElement("span");
+      badge.className = "conf";
+      badge.textContent = confLabel(c.confidence);
+      card.appendChild(badge);
+    }
     grid.appendChild(card);
   });
+
   var cards = Array.prototype.slice.call(grid.children);
   var empty = document.getElementById("empty");
   var search = document.getElementById("search");
+  var note = document.getElementById("note");
+  note.textContent = concepts.length + " conceitos derivados de " + (g.source || ".reversa/soul.md") +
+    ". Âncoras estáveis no formato #concept-<slug>, para deep-link. Busca textual cliente-side sobre termo e definição.";
+
   function apply(){
     var q = search.value.trim().toLowerCase();
     var shown = 0;
     cards.forEach(function(card){
-      var hit = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
+      var extra = "";
+      var b = card.querySelector(".conf");
+      if(b) extra = " " + b.textContent;
+      var hit = !q || (card.textContent + extra).toLowerCase().indexOf(q) !== -1;
       card.style.display = hit ? "" : "none";
       if(hit) shown++;
     });
@@ -111,7 +185,7 @@
   search.addEventListener("input", apply);
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-06.</div>
 </body>
 </html>

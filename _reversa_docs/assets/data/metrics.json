@@ -1,104 +1,208 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-01T03:37:54Z",
-  "project": "analisador-genealogico",
+  "generatedAt": "2026-10-06T03:53:11Z",
+  "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
+  "code": {
+    "modules": 37,
+    "locNaoVazio": 5966,
+    "locSrcPython": 2941,
+    "locTests": 2532,
+    "complexityTotal": 1141,
+    "pastas": 8,
+    "pacotes": 6,
+    "arestasDePacote": 13,
+    "ciclos": 2
+  },
   "treemap_loc_by_folder": [
     {
       "folder": "tests/",
-      "loc": 1134,
-      "modules": 7
+      "loc": 2433,
+      "modules": 11,
+      "complexity": 499
     },
     {
-      "folder": "reconstructed/",
-      "loc": 1086,
-      "modules": 5
+      "folder": "core/",
+      "loc": 2015,
+      "modules": 13,
+      "complexity": 483
     },
     {
       "folder": "templates/",
-      "loc": 200,
-      "modules": 1
+      "loc": 493,
+      "modules": 1,
+      "complexity": 0
+    },
+    {
+      "folder": "parsers/",
+      "loc": 253,
+      "modules": 3,
+      "complexity": 55
+    },
+    {
+      "folder": "reporting/",
+      "loc": 242,
+      "modules": 2,
+      "complexity": 45
+    },
+    {
+      "folder": "src/",
+      "loc": 232,
+      "modules": 1,
+      "complexity": 34
+    },
+    {
+      "folder": "utils/",
+      "loc": 199,
+      "modules": 4,
+      "complexity": 25
     },
     {
       "folder": "tests/fixtures/",
-      "loc": 105,
-      "modules": 2
-    },
-    {
-      "folder": "analisador-genealogico/",
-      "loc": 84,
-      "modules": 1
+      "loc": 99,
+      "modules": 2,
+      "complexity": 0
     }
   ],
   "top_complexity": [
     {
-      "id": "path_search.py",
-      "complexity": 8,
-      "loc": 506
+      "id": "tests/test_confrontacao_gedcom_dna.py",
+      "name": "test_confrontacao_gedcom_dna.py",
+      "folder": "tests/",
+      "complexity": 204,
+      "loc": 824
     },
     {
-      "id": "dna_analysis.py",
-      "complexity": 8,
-      "loc": 395
+      "id": "src/core/documentary_relationship.py",
+      "name": "documentary_relationship.py",
+      "folder": "core/",
+      "complexity": 117,
+      "loc": 490
     },
     {
-      "id": "test_dna_analysis.py",
-      "complexity": 7,
-      "loc": 279
+      "id": "tests/test_upload_seguranca.py",
+      "name": "test_upload_seguranca.py",
+      "folder": "tests/",
+      "complexity": 80,
+      "loc": 345
     },
     {
-      "id": "test_upload.py",
-      "complexity": 7,
-      "loc": 242
+      "id": "src/core/genetic_evidence.py",
+      "name": "genetic_evidence.py",
+      "folder": "core/",
+      "complexity": 71,
+      "loc": 228
     },
     {
-      "id": "test_path_search.py",
-      "complexity": 6,
-      "loc": 107
+      "id": "src/core/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "core/",
+      "complexity": 52,
+      "loc": 220
     },
     {
-      "id": "upload.py",
-      "complexity": 6,
-      "loc": 100
+      "id": "src/core/matching.py",
+      "name": "matching.py",
+      "folder": "core/",
+      "complexity": 51,
+      "loc": 145
     },
     {
-      "id": "test_mermaid_escape.py",
-      "complexity": 5,
-      "loc": 154
+      "id": "src/reporting/mermaid_render.py",
+      "name": "mermaid_render.py",
+      "folder": "reporting/",
+      "complexity": 45,
+      "loc": 241
     },
     {
-      "id": "app.py",
-      "complexity": 5,
-      "loc": 84
+      "id": "tests/test_dna_analysis.py",
+      "name": "test_dna_analysis.py",
+      "folder": "tests/",
+      "complexity": 44,
+      "loc": 243
     },
     {
-      "id": "test_characterization_matching.py",
-      "complexity": 4,
-      "loc": 151
+      "id": "tests/test_upload.py",
+      "name": "test_upload.py",
+      "folder": "tests/",
+      "complexity": 44,
+      "loc": 181
     },
     {
-      "id": "test_domain.py",
-      "complexity": 4,
-      "loc": 67
+      "id": "src/core/evidence_comparison.py",
+      "name": "evidence_comparison.py",
+      "folder": "core/",
+      "complexity": 41,
+      "loc": 209
     },
     {
-      "id": "test_characterization_mermaid.py",
-      "complexity": 3,
-      "loc": 134
+      "id": "src/parsers/csv_ingest.py",
+      "name": "csv_ingest.py",
+      "folder": "parsers/",
+      "complexity": 39,
+      "loc": 191
     },
     {
-      "id": "domain.py",
-      "complexity": 3,
-      "loc": 84
+      "id": "src/core/family_navigation.py",
+      "name": "family_navigation.py",
+      "folder": "core/",
+      "complexity": 37,
+      "loc": 87
     },
     {
-      "id": "index.html",
-      "complexity": 2,
-      "loc": 200
+      "id": "src/core/name_normalization.py",
+      "name": "name_normalization.py",
+      "folder": "core/",
+      "complexity": 35,
+      "loc": 90
     },
     {
-      "id": "__init__.py",
-      "complexity": 2,
-      "loc": 1
+      "id": "src/app.py",
+      "name": "app.py",
+      "folder": "src/",
+      "complexity": 34,
+      "loc": 232
+    },
+    {
+      "id": "src/core/path_search.py",
+      "name": "path_search.py",
+      "folder": "core/",
+      "complexity": 33,
+      "loc": 186
+    },
+    {
+      "id": "tests/test_path_search.py",
+      "name": "test_path_search.py",
+      "folder": "tests/",
+      "complexity": 29,
+      "loc": 82
+    },
+    {
+      "id": "tests/test_servidor_producao.py",
+      "name": "test_servidor_producao.py",
+      "folder": "tests/",
+      "complexity": 26,
+      "loc": 129
+    },
+    {
+      "id": "tests/test_characterization_matching.py",
+      "name": "test_characterization_matching.py",
+      "folder": "tests/",
+      "complexity": 21,
+      "loc": 204
+    },
+    {
+      "id": "src/core/relationship_hypotheses.py",
+      "name": "relationship_hypotheses.py",
+      "folder": "core/",
+      "complexity": 21,
+      "loc": 198
+    },
+    {
+      "id": "tests/test_mermaid_escape.py",
+      "name": "test_mermaid_escape.py",
+      "folder": "tests/",
+      "complexity": 19,
+      "loc": 163
     }
   ],
   "loc_histogram": {
@@ -108,72 +212,206 @@
       100,
       200,
       500,
-      1000
+      1000,
+      5000
     ],
     "counts": [
-      2,
-      4,
-      5,
-      4,
+      7,
+      11,
+      8,
+      10,
       1,
+      0,
       0
+    ],
+    "labels": [
+      "<50",
+      "50-99",
+      "100-199",
+      "200-499",
+      "500-999",
+      "1000-4999",
+      ">=5000"
     ]
   },
   "dependency_sankey": {
     "nodes": [
       {
-        "name": "analisador-genealogico/"
+        "id": "app"
       },
       {
-        "name": "reconstructed/"
+        "id": "core"
       },
       {
-        "name": "tests/"
+        "id": "parsers"
+      },
+      {
+        "id": "reporting"
+      },
+      {
+        "id": "tests"
+      },
+      {
+        "id": "utils"
       }
     ],
     "links": [
       {
-        "source": 0,
-        "target": 1,
+        "source": "app",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "app",
+        "target": "parsers",
         "value": 1
       },
       {
-        "source": 0,
-        "target": 1,
+        "source": "app",
+        "target": "utils",
+        "value": 2
+      },
+      {
+        "source": "core",
+        "target": "parsers",
         "value": 1
       },
       {
-        "source": 0,
-        "target": 1,
+        "source": "core",
+        "target": "reporting",
+        "value": 2
+      },
+      {
+        "source": "core",
+        "target": "utils",
+        "value": 4
+      },
+      {
+        "source": "parsers",
+        "target": "core",
+        "value": 3
+      },
+      {
+        "source": "parsers",
+        "target": "utils",
         "value": 1
       },
       {
-        "source": 2,
-        "target": 1,
+        "source": "reporting",
+        "target": "core",
+        "value": 3
+      },
+      {
+        "source": "tests",
+        "target": "app",
         "value": 1
       },
       {
-        "source": 2,
-        "target": 1,
-        "value": 1
+        "source": "tests",
+        "target": "core",
+        "value": 20
       },
       {
-        "source": 2,
-        "target": 1,
-        "value": 1
+        "source": "tests",
+        "target": "parsers",
+        "value": 13
+      },
+      {
+        "source": "tests",
+        "target": "utils",
+        "value": 5
       }
     ]
   },
   "language_distribution": [
     {
       "language": "python",
-      "modules": 15,
-      "loc": 2409
+      "modules": 36,
+      "loc": 5473
     },
     {
       "language": "html",
       "modules": 1,
-      "loc": 200
+      "loc": 493
     }
-  ]
+  ],
+  "sdd": {
+    "tasks": {
+      "upload-gedcom": 20,
+      "analise-dna": 32,
+      "busca-caminho": 29
+    },
+    "gherkin": {
+      "upload-gedcom": 6,
+      "analise-dna": 10,
+      "busca-caminho": 9
+    },
+    "rfTotal": 69,
+    "rfPorFeature": {
+      "upload-gedcom": 19,
+      "analise-dna": 26,
+      "busca-caminho": 24
+    },
+    "adrs": 23,
+    "adrIds": [
+      "01-reconstruir-em-modulos",
+      "02-camada-de-rota-fina",
+      "03-mermaid-no-cliente",
+      "04-oraculo-congelado-por-commit",
+      "05-escape-de-rotulo-mermaid",
+      "06-politica-de-edicao-do-legado",
+      "07-autoridade-unica-de-limpeza-de-nome",
+      "08-nao-implementar-hard-min-given-min",
+      "09-remover-entidades-decorativas",
+      "10-mover-raiz-para-src",
+      "11-reorganizar-em-pacotes-por-responsabilidade",
+      "12-servidor-waitress-instancia-unica",
+      "13-fixar-dependencias-diretas",
+      "14-separar-documental-genetica-e-confronto",
+      "15-confronto-por-sobreposicao-de-faixas",
+      "16-leitura-tolerante-do-csv",
+      "17-upload-por-chave-de-conteudo",
+      "18-single-tenant-por-aceite-de-risco",
+      "19-heuristicas-declaradas-como-heuristicas",
+      "20-formatacao-numerica-so-na-apresentacao",
+      "21-endogamia-avisar-nao-corrigir",
+      "22-ordem-de-apresentacao-documental-primeiro",
+      "23-desempate-deterministico"
+    ],
+    "gapsAbertasLinhas": 14,
+    "gapsAbertasIds": 12,
+    "gapsCriticas": 1,
+    "gapsFechadasNaRodada": 16,
+    "confidenceMd": "_reversa_sdd/confidence-report.md",
+    "percentuaisCitados": [
+      "100,0",
+      "63,6",
+      "66,7",
+      "69,9",
+      "70,0",
+      "72,7",
+      "76,0",
+      "85,2",
+      "87,0",
+      "88,6",
+      "89,3",
+      "89,8",
+      "90,5",
+      "91,4",
+      "91,5",
+      "92,0",
+      "92,4",
+      "92,8",
+      "94,1",
+      "94,8",
+      "94,9",
+      "95,2",
+      "95,5",
+      "95,7",
+      "96,2",
+      "96,8",
+      "97,1",
+      "98,5"
+    ]
+  }
 }

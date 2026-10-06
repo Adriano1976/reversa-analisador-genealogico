@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="deck">
 <meta name="reversa-page-id" content="deck">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <title>Deck — analisador-genealogico</title>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/nav.js"></script>
@@ -30,10 +30,11 @@
   .slide h1{font-size:44px;margin-bottom:14px;}
   .slide h2{font-size:30px;margin-bottom:16px;}
   .slide p{font-size:17px;color:var(--muted);max-width:760px;line-height:1.6;}
+  .slide p.small{font-size:14px;margin-top:14px;}
   .slide .tag{color:var(--accent);font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
-  .kpis{display:flex;gap:40px;margin-top:24px;}
-  .kpi .num{font-size:44px;font-weight:700;color:#fff;}
-  .kpi .lbl{font-size:13px;color:var(--muted);}
+  .kpis{display:flex;gap:36px;margin-top:24px;flex-wrap:wrap;justify-content:center;}
+  .kpi .num{font-size:40px;font-weight:700;color:#fff;}
+  .kpi .lbl{font-size:13px;color:var(--muted);max-width:150px;}
   .links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;justify-content:center;}
   .links a{color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:10px 18px;border-radius:8px;font-size:14px;}
   .links a:hover{background:#26282e;}
@@ -42,75 +43,90 @@
   .controls button{background:#26282e;border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:8px;font-size:18px;cursor:pointer;}
   .controls button:hover{background:#32353d;}
   .counter{position:fixed;bottom:24px;left:24px;color:var(--muted);font-size:13px;z-index:30;}
-  ul.feat{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left;}
-  ul.feat li{color:var(--muted);font-size:14px;}
+  ul.feat{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left;max-width:820px;}
+  ul.feat li{color:var(--muted);font-size:14px;line-height:1.5;}
   ul.feat li b{color:var(--txt);}
+  ul.tl{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left;max-width:820px;}
+  ul.tl li{color:var(--muted);font-size:13px;line-height:1.5;}
+  ul.tl li b{color:var(--txt);}
+  ul.tl li span.d{color:var(--accent);font-family:Consolas,monospace;font-size:12px;}
 </style>
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Apresentação</span>
-  <!-- NAV_LINKS -->
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 
 <div id="deck">
   <section class="slide active">
     <div class="tag">Reversa Docs</div>
     <h1>analisador-genealogico</h1>
-    <p>Genetic Genealogy Path Analyzer — encontra, mapeia e visualiza a conexão genealógica entre uma pessoa-raiz e seus DNA matches.</p>
+    <p>Genetic Genealogy Path Analyzer. Aplicação web Flask monolítica que cruza uma árvore GEDCOM com um relatório de DNA e responde a uma pergunta por vez, sem misturar as evidências.</p>
+    <p class="small">Extraído em 2026-10-05, com confiança global de 92,8 % sobre 1.922 afirmações.</p>
   </section>
 
   <section class="slide">
     <div class="tag">Propósito</div>
-    <h1 id="sProposito">Cruzar GEDCOM e DNA</h1>
-    <p id="sPropositoTxt">Como eu me conecto geneticamente a essa outra pessoa? A plataforma cruza árvore GEDCOM com relatório de DNA (cM) e calcula o caminho de parentesco até o ancestral comum — ou pela afinidade quando não há laço sanguíneo direto.</p>
+    <h2>Responder "como eu me conecto a essa pessoa?"</h2>
+    <p id="sPropositoTxt">Aplicação web Flask monolítica para genealogistas genéticos: recebe uma árvore GEDCOM e um CSV de correspondentes de DNA e separa três eixos que não se contaminam (o que o GEDCOM afirma, o que o CSV informa e o confronto entre os dois), publicando o confronto como um de quatro estados, sempre dizendo por quê.</p>
   </section>
 
   <section class="slide">
     <div class="tag">Entidades centrais</div>
     <h1 id="sEntidades">A anatomia do domínio</h1>
     <ul class="feat" id="sEntidadesList">
-      <li>🧬 <b>GEDCOM / INDI / FAM</b> — a árvore genealógica padronizada</li>
-      <li>🧪 <b>DNA Match + cM</b> — o correspondente e sua medida de parentesco</li>
-      <li>🕸️ <b>MRCA</b> — o ancestral comum mais recente, base da conexão direta</li>
+      <li><b>GEDCOM (E1)</b>: a árvore enviada, com registros INDI e FAM</li>
+      <li><b>PESSOA (E2)</b> e <b>FAMILIA (E3)</b>: o grafo pessoa↔família</li>
+      <li><b>MATCH_DNA (E4)</b>: nome e cM compartilhado, com chave no par (nome, kit)</li>
+      <li><b>PARENTESCO_DOCUMENTAL (E5)</b>: o que a árvore sustenta, sem ler cM</li>
+      <li><b>EVIDENCIA_GENETICA (E6)</b>: o que o CSV informa, sem conhecer o GEDCOM</li>
+      <li><b>POSSIBILIDADES (E7)</b>: o cM traduzido pela tabela do Shared cM Project 4.0</li>
+      <li><b>CONFRONTO (E8)</b>: o veredito em quatro estados</li>
     </ul>
   </section>
 
   <section class="slide">
     <div class="tag">Arquitetura</div>
-    <h1>Monolito reconstruído em módulos</h1>
-    <p>O app.py de 887 linhas foi decomposto no pacote <b>reconstructed/</b> (upload, path_search, dna_analysis, domain) com camada web enxuta de 86 linhas. Estado em memória, sem banco de dados.</p>
+    <h1>Rota fina sobre pacotes por responsabilidade</h1>
+    <p>app.py com 267 linhas e zero regra de negócio, sobre src/core/ (12 módulos), src/parsers/, src/reporting/ e src/utils/. Nenhuma das 118 regras catalogadas vive na camada de rota.</p>
+    <p class="small" id="arqKpis">Os quatro pacotes não formam camadas acíclicas: há dois ciclos no nível de pacote.</p>
     <div class="links"><a href="arquitetura.html">Ver arquitetura 3D</a></div>
   </section>
 
   <section class="slide">
     <div class="tag">Módulos</div>
-    <h1>14 unidades funcionais</h1>
-    <p>4 módulos de aplicação em reconstructed/, app.py como entrypoint e a suíte de testes cobrindo cada unidade. Parsing GEDCOM, matching difuso e busca de caminho separados em responsabilidades.</p>
+    <h1 id="modTitulo">37 arquivos de código</h1>
+    <p>O núcleo de domínio, a leitura tolerante, a renderização e a suíte de testes, medidos em linhas não vazias.</p>
     <div class="kpis" id="modStats"></div>
     <div class="links"><a href="modulos.html">Ver mapa de módulos</a></div>
   </section>
@@ -119,81 +135,115 @@
     <div class="tag">Métricas</div>
     <h1>Números do projeto</h1>
     <div class="kpis">
-      <div class="kpi"><div class="num" id="kLoc">–</div><div class="lbl">Linhas de código</div></div>
-      <div class="kpi"><div class="num" id="kMod">–</div><div class="lbl">Módulos</div></div>
-      <div class="kpi"><div class="num" id="kDeps">–</div><div class="lbl">Dependências internas</div></div>
-      <div class="kpi"><div class="num">47</div><div class="lbl">Testes pytest</div></div>
+      <div class="kpi"><div class="num" id="kLoc">–</div><div class="lbl">linhas não vazias</div></div>
+      <div class="kpi"><div class="num" id="kMod">–</div><div class="lbl">arquivos</div></div>
+      <div class="kpi"><div class="num" id="kArestas">–</div><div class="lbl">arestas de pacote</div></div>
+      <div class="kpi"><div class="num" id="kCiclos">–</div><div class="lbl">ciclos de pacote</div></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="num" id="kTestes">–</div><div class="lbl">itens de teste coletados</div></div>
+      <div class="kpi"><div class="num" id="kPassam">–</div><div class="lbl">passam</div></div>
+      <div class="kpi"><div class="num" id="kErros">–</div><div class="lbl">erros de ambiente</div></div>
+      <div class="kpi"><div class="num" id="kCobertura">–</div><div class="lbl">cobertura de src/</div></div>
     </div>
     <div class="links"><a href="metricas.html">Ver dashboard</a></div>
   </section>
 
   <section class="slide">
+    <div class="tag">Timeline</div>
+    <h1>Últimos cinco eventos</h1>
+    <ul class="tl" id="tlList"><li><span class="d">–</span> carregando…</li></ul>
+    <div class="links"><a href="timeline.html">Ver timeline completa</a></div>
+  </section>
+
+  <section class="slide">
     <div class="tag">Features</div>
-    <h1>Fluxo completo</h1>
+    <h1>Três unidades encadeadas</h1>
     <ul class="feat">
-      <li>📤 <b>Upload e parsing de GEDCOM</b> — grafo NetworkX em memória</li>
-      <li>🔎 <b>Busca de caminho</b> — MRCA direta e afinidade indireta</li>
-      <li>🧬 <b>Análise de DNA</b> — agrega cM, matching difuso e parentesco</li>
+      <li><b>Upload e parsing de GEDCOM</b> (19 requisitos, 6 cenários, 20 tarefas): decide se o arquivo pode ser gravado, grava sob chave derivada do conteúdo, com teto de 16 MB e sem sessão. É a porta de entrada das outras duas.</li>
+      <li><b>Busca de caminho</b> (24 requisitos, 9 cenários, 29 tarefas): caminho direto pelo ancestral comum subindo só por linhas parentais e, como fallback, conexão indireta por afinidade, com parentesco documental completo.</li>
+      <li><b>Análise de DNA e confronto</b> (26 requisitos, 10 cenários, 32 tarefas): responde três perguntas separadas, com o eixo de confronto em quatro estados.</li>
     </ul>
     <div class="links"><a href="features/upload-gedcom.html">Upload GEDCOM</a><a href="features/busca-caminho.html">Busca de caminho</a><a href="features/analise-dna.html">Análise de DNA</a></div>
   </section>
 
   <section class="slide">
-    <div class="tag">Qualidade</div>
-    <h1>47 testes automatizados</h1>
-    <p>A reconstrução trouxe uma suíte pytest cobrindo domínio, upload, busca de caminho e análise de DNA com GEDCOMs e CSVs sintéticos.</p>
-    <div class="links"><a href="modulos.html">Ver módulos de teste</a><a href="metricas.html">Ver métricas</a></div>
-  </section>
-
-  <section class="slide">
     <div class="tag">Decisões fundadoras</div>
-    <h1>Princípios que moldaram o sistema</h1>
+    <h1>Cinco escolhas que sustentam o esqueleto</h1>
     <ul class="feat" id="sDecisoes">
-      <li>💾 Tudo em <b>memória, sem banco</b> — GEDCOM vira grafos NetworkX por sessão</li>
-      <li>🍮 <b>Monolito Flask</b> — um único app.py com três fluxos</li>
-      <li>🧬 Relação prevista por <b>faixas de cM</b> (Shared cM Project)</li>
-      <li>🛡️ <b>Matching defensivo</b> — anti-falso-positivo e mojibake saneado</li>
+      <li><b>D1</b>: separar documental, genética e confronto, com quatro estados</li>
+      <li><b>D2</b>: núcleo de domínio em pacotes por responsabilidade, sob rota fina</li>
+      <li><b>D3</b>: persistir o upload por chave derivada do conteúdo, não por sessão</li>
+      <li><b>D4</b>: single-tenant por aceite de risco, com waitress e escuta local</li>
+      <li><b>D5</b>: matching difuso defensivo, com desempate determinístico</li>
     </ul>
-  </section>
-
-  <section class="slide">
-    <div class="tag">Destaque</div>
-    <h1>Análise de DNA</h1>
-    <p>O núcleo do produto: agrega segmentos de cM, faz matching difuso de nomes com regras anti-falso-positivo e prevê o parentesco, tudo em dna_analysis.py.</p>
-    <div class="links"><a href="features/analise-dna.html">Ver feature</a></div>
   </section>
 
   <section class="slide">
     <div class="tag">Próximos passos</div>
     <h1>Explorar a documentação</h1>
-    <p>Mini-site autocontido gerado pelo Time Reversa Docs.</p>
-    <div class="links"><a href="index.html">Visão geral</a><a href="arquitetura.html">Arquitetura</a><a href="modulos.html">Módulos</a><a href="metricas.html">Métricas</a></div>
+    <p>Mini-site autocontido gerado pelo Time Reversa Docs. Quatro lacunas seguem abertas e estão declaradas no glossário e no soul.</p>
+    <div class="links"><a href="index.html">Visão geral</a><a href="arquitetura.html">Arquitetura</a><a href="modulos.html">Módulos</a><a href="metricas.html">Métricas</a><a href="timeline.html">Timeline</a><a href="glossario.html">Glossário</a><a href="features/analise-dna.html">Feature destaque</a></div>
   </section>
 </div>
 
 <div class="progress" id="progress"></div>
-<div class="counter" id="counter">1 / 8</div>
+<div class="counter" id="counter">1 / 10</div>
 <div class="controls"><button id="prev" title="Anterior">‹</button><button id="next" title="Próximo">›</button></div>
 
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"soul":{"schemaVersion":1,"generatedAt":"2026-10-06T04:45:00Z","project":"analisador-genealogico","source":".reversa/soul.md","sections":{"Proposito":"analisador-genealogico (Genetic Genealogy Path Analyzer) e uma aplicacao web Flask monolitica, de um unico processo, para genealogistas geneticos. Ela recebe duas entradas do proprio usuario, uma arvore GEDCOM (.ged) e um relatorio de DNA em CSV de correspondentes (formato GEDmatch), e responde a pergunta central: \"como eu me conecto a essa pessoa?\" O produto NAO afirma parentesco a partir de DNA. Ele separa tres eixos que nao se contaminam (o que o GEDCOM afirma, o que o CSV informa e o confronto entre os dois) e publica o confronto como um de quatro estados, sempre dizendo por que. A persona e uma so, o proprio operador, sem login, sem sessao e sem papeis; o uso e single-tenant por aceite de risco declarado, e a exposicao de rede exige ato explicito porque o padrao de escuta e 127.0.0.1. A dor resolvida e a armadilha conhecida da genealogia genetica: cM compativel nao prova um caminho, e caminho documental plausivel nao e confirmado por DNA. O sistema troca a afirmacao unica e silenciosa por tres leituras declaradas e um veredito auditavel.","Entidades centrais":[{"term":"GEDCOM (E1)","definition":"A arvore enviada, com registros INDI e FAM. Validada por conteudo (0 HEAD) e re-parseada a cada POST. Relacao 1:N com PESSOA e FAMILIA.","confidence":"CONFIRMADO"},{"term":"PESSOA / INDI (E2)","definition":"Individuo identificado por xref_id (ex.: @I0001@); FAMC e FAMS sao seus vinculos. Relacao N:M com FAMILIA, como filho, conjuge ou genitor.","confidence":"CONFIRMADO"},{"term":"FAMILIA / FAM (E3)","definition":"Unidade com HUSB, WIFE e CHIL, chave da navegacao por pais e do grafo pessoa-familia. Relacao N:M com PESSOA.","confidence":"CONFIRMADO"},{"term":"MATCH_DNA (E4)","definition":"Linha do CSV: nome e cM compartilhado. A chave e o par (nome, kit), nunca so o nome. Uma evidencia por kit; casa com PESSOA por matching difuso.","confidence":"CONFIRMADO"},{"term":"PARENTESCO_DOCUMENTAL (E5)","definition":"O que a arvore sustenta: caminho, MRCA, distancia geracional e status (not_found, found, ambiguous, affinity). Nunca le cM. Relacao 1:1 com PAR (pessoa raiz mais match).","confidence":"CONFIRMADO"},{"term":"EVIDENCIA_GENETICA (E6)","definition":"O que o CSV informa: kit, cM total, segmentos, maior segmento, SNPs. Nao conhece o GEDCOM e nunca soma kits diferentes. Relacao 1:N com PAR (um por kit).","confidence":"CONFIRMADO"},{"term":"POSSIBILIDADES / SCP 4.0 (E7)","definition":"O cM traduzido em lista de relacoes compativeis pela tabela do Shared cM Project 4.0, com 27 relacoes publicadas. Alimenta a janela do CONFRONTO.","confidence":"CONFIRMADO"},{"term":"CONFRONTO (E8)","definition":"O veredito: COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO, por kit e com juncao conservadora. Relacao 1:1 com PAR (um veredito por conexao).","confidence":"CONFIRMADO"},{"term":"Chave de armazenamento","definition":"Entidade de apoio que faz o papel de identificador de continuidade: <sha256 do conteudo truncado>__<nome visivel>. Nao e segredo e nao tem dono.","confidence":"CONFIRMADO"},{"term":"Aviso (warning)","definition":"Entidade de apoio: par {code, message} que carrega a granularidade fina que o status perde de proposito.","confidence":"CONFIRMADO"}],"Decisoes fundadoras":[{"id":"D1","title":"Separar parentesco documental, evidencia genetica e confronto, com quatro estados"},{"id":"D2","title":"Nucleo de dominio em pacotes por responsabilidade, sob uma camada de rota fina"},{"id":"D3","title":"Persistir o upload por chave derivada do conteudo, nao por sessao"},{"id":"D4","title":"Single-tenant por aceite de risco, com waitress, instancia unica e escuta local por padrao"},{"id":"D5","title":"Matching difuso defensivo, com desempate deterministico"}],"Lacunas":[{"id":"L1","text":"Sem autenticacao, sem RBAC e sem owner_id.","confidence":"CONFIRMADO"},{"id":"L2","text":"Corrida entre requisicoes concorrentes com estado global e 4 threads.","confidence":"INFERIDO"},{"id":"L3","text":"O CSV e apenas do GEDmatch e nao passa por validacao de conteudo.","confidence":"CONFIRMADO"},{"id":"L4","text":"Nada e persistido entre execucoes.","confidence":"CONFIRMADO"}]}},"metrics":{"schemaVersion":1,"generatedAt":"2026-10-06T03:53:11Z","source":"modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05","code":{"modules":37,"locNaoVazio":5966,"locSrcPython":2941,"locTests":2532,"complexityTotal":1141,"pastas":8,"pacotes":6,"arestasDePacote":13,"ciclos":2},"sdd":{"rfTotal":69,"tasks":{"upload-gedcom":20,"analise-dna":32,"busca-caminho":29},"gherkin":{"upload-gedcom":6,"analise-dna":10,"busca-caminho":9},"adrs":23}},"modules":{"schemaVersion":1,"generatedAt":"2026-10-06T03:44:27Z","project":"analisador-genealogico","modules":[{"id":"confrontacao-gedcom-dna","name":"test_confrontacao_gedcom_dna.py","path":"tests/test_confrontacao_gedcom_dna.py","type":"test","language":"python","folder":"tests/","loc":824,"complexity":204},{"id":"frontend","name":"index.html","path":"src/templates/index.html","type":"frontend","language":"html","folder":"templates/","loc":493,"complexity":0},{"id":"documentary-relationship","name":"documentary_relationship.py","path":"src/core/documentary_relationship.py","type":"domain","language":"python","folder":"core/","loc":490,"complexity":117},{"id":"upload-seguranca","name":"test_upload_seguranca.py","path":"tests/test_upload_seguranca.py","type":"test","language":"python","folder":"tests/","loc":345,"complexity":80},{"id":"dna-analysis-test","name":"test_dna_analysis.py","path":"tests/test_dna_analysis.py","type":"test","language":"python","folder":"tests/","loc":243,"complexity":44},{"id":"mermaid-render","name":"mermaid_render.py","path":"src/reporting/mermaid_render.py","type":"reporting","language":"python","folder":"reporting/","loc":241,"complexity":45},{"id":"app","name":"app.py","path":"src/app.py","type":"entrypoint","language":"python","folder":"src/","loc":232,"complexity":34},{"id":"genetic-evidence","name":"genetic_evidence.py","path":"src/core/genetic_evidence.py","type":"domain","language":"python","folder":"core/","loc":228,"complexity":71},{"id":"dna-analysis","name":"dna_analysis.py","path":"src/core/dna_analysis.py","type":"domain","language":"python","folder":"core/","loc":220,"complexity":52},{"id":"evidence-comparison","name":"evidence_comparison.py","path":"src/core/evidence_comparison.py","type":"domain","language":"python","folder":"core/","loc":209,"complexity":41},{"id":"characterization-matching","name":"test_characterization_matching.py","path":"tests/test_characterization_matching.py","type":"test","language":"python","folder":"tests/","loc":204,"complexity":21},{"id":"relationship-hypotheses","name":"relationship_hypotheses.py","path":"src/core/relationship_hypotheses.py","type":"domain","language":"python","folder":"core/","loc":198,"complexity":21},{"id":"csv-ingest","name":"csv_ingest.py","path":"src/parsers/csv_ingest.py","type":"parser","language":"python","folder":"parsers/","loc":191,"complexity":39},{"id":"path-search-core","name":"path_search.py","path":"src/core/path_search.py","type":"algorithm","language":"python","folder":"core/","loc":186,"complexity":33},{"id":"upload","name":"test_upload.py","path":"tests/test_upload.py","type":"test","language":"python","folder":"tests/","loc":181,"complexity":44},{"id":"mermaid-escape","name":"test_mermaid_escape.py","path":"tests/test_mermaid_escape.py","type":"test","language":"python","folder":"tests/","loc":163,"complexity":19},{"id":"matching","name":"matching.py","path":"src/core/matching.py","type":"algorithm","language":"python","folder":"core/","loc":145,"complexity":51}]},"timeline":{"schemaVersion":1,"generatedAt":"2026-10-06T00:43:10Z","sourceName":"chronicle ate 2026-09-30 + .reversa/state.json a partir de 2026-10-05","project":"analisador-genealogico","events":[{"id":"e82","source":"state.json","date":"2026-10-05T21:10:00Z","agent":"reversa-architect","category":"reextracao","title":"arquitetura, C4 e ERD completos, com 2 ciclos de pacote","detail":"reversa-architect. Reescreveu _reversa_sdd/architecture.md (9 secoes, 20 dividas consolidadas) e c4-context.md, e criou c4-containers.md, c4-components.md, erd-complete.md e traceability/spec-impact-matrix.md. Sumario: 3 containers, 19 componentes, 27 estruturas de dados e 20 dividas tecnicas."},{"id":"e83","source":"state.json","date":"2026-10-06T01:20:00Z","agent":"reversa-writer","category":"reextracao","title":"as 3 specs SDD e os artefatos globais regenerados","detail":"reversa-writer. Gerou 17 arquivos: as 3 units (upload-gedcom, analise-dna e busca-caminho, cada uma com requirements, design, tasks e contracts), openapi/index.yaml, as 3 user stories e traceability/code-spec-matrix.md. Totais declarados: 69 requisitos funcionais, 34 nao funcionais, 81 tarefas (49 de teste), 23 criterios Gherkin e 11 codigos de aviso contratados."},{"id":"e84","source":"state.json","date":"2026-10-06T02:40:00Z","agent":"reversa-reviewer","category":"reextracao","title":"revisao com 92,8% de confianca e a lacuna critica ainda aberta","detail":"reversa-reviewer. 1.922 afirmacoes catalogadas e 92,8% de confianca geral. Suite com 164 acertos e 15 erros de ambiente em setup (PermissionError de tmp_path no Windows), e cobertura de 83% de src/ (1520 instrucoes, 253 descobertas). A unica lacuna critica restante e a corrida entre threads (L-16, M-03 e P-02)."},{"id":"e85","source":"state.json","date":"2026-10-06T03:20:00Z","agent":"reversa","category":"reextracao","title":"Passo 4: verificacao de regressao semantica","detail":"Verificacao de regressao contra as 4 features com regression-watch.md: 13 watch items na tabela principal, 12 vereditos verdes, 1 amarelo e zero vermelhos. A paridade contra o oraculo congelado deu 100% em 6 de 6 fixtures."},{"id":"e86","source":"state.json","date":"2026-10-06T03:20:00Z","agent":"reversa","category":"reextracao","title":"re-extração de 2026-10-05 concluída","detail":"Re-extração integral do _reversa_sdd/ a partir do codigo de 2026-10-05: 6 agentes e 5 fases concluidas, com cerca de 60 artefatos gerados ou reescritos. Confianca final de 92,8% em 1.922 afirmacoes e 14 lacunas abertas, 1 delas critica. Suite com 164 acertos e 15 erros de ambiente, paridade de 100% em 6 de 6 fixtures e cobertura de 83% de src/."}]}}</script>
 <script>
 (function(){
   "use strict";
-  var M = (window.RV_DATA && window.RV_DATA.metrics) || {};
-  var modules = ((window.RV_DATA && window.RV_DATA.modules) || {}).modules || [];
-  var deps = (window.RV_DATA && window.RV_DATA.deps) || {};
-  document.getElementById("kLoc").textContent = modules.reduce(function(s,m){return s+(Number(m.loc)||0);},0).toLocaleString("pt-BR");
-  document.getElementById("kMod").textContent = modules.length;
-  document.getElementById("kDeps").textContent = (deps.edges||[]).length;
 
-  var soul = ((window.RV_DATA && window.RV_DATA.glossary) || {}).sections || {};
-  if(soul.Proposito){
-    var pt = document.getElementById("sPropositoTxt");
-    if(pt) pt.textContent = soul.Proposito;
-    var ph = document.getElementById("sProposito");
-    if(ph && soul.Proposito.length > 48) ph.textContent = "Cruzar GEDCOM e DNA";
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
   }
-  var ents = soul["Entidades centrais"];
-  if(ents && document.getElementById("sEntidadesList")){
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var snap = parseSnapshot();
+  var soul = pickData(window.RV_DATA && window.RV_DATA.glossary, snap.soul) || {};
+  var M = pickData(window.RV_DATA && window.RV_DATA.metrics, snap.metrics) || {};
+  var modSrc = pickData(window.RV_DATA && window.RV_DATA.modules, snap.modules) || {};
+  var tlSrc = pickData(window.RV_DATA && window.RV_DATA.timeline, snap.timeline) || {};
+  var sections = soul.sections || {};
+  var modules = (modSrc.modules) || [];
+  var events = (tlSrc.events) || [];
+
+  function txt(id, value){
+    var el = document.getElementById(id);
+    if(el && value) el.textContent = value;
+  }
+
+  // Slide 2 - Proposito
+  var prop = sections.Proposito;
+  if(prop){
+    var pt = document.getElementById("sPropositoTxt");
+    if(pt) pt.textContent = prop;
+  }
+
+  // Slide 3 - Entidades centrais
+  var ents = sections["Entidades centrais"];
+  if(ents && ents.length && document.getElementById("sEntidadesList")){
     var el = document.getElementById("sEntidadesList");
     el.innerHTML = "";
     ents.forEach(function(e){
@@ -201,17 +251,94 @@
       var b = document.createElement("b");
       b.textContent = e.term;
       li.appendChild(b);
-      li.appendChild(document.createTextNode(" — " + e.definition));
+      li.appendChild(document.createTextNode(": " + e.definition));
       el.appendChild(li);
     });
+    txt("sEntidades", "As oito entidades centrais, mais duas de apoio");
   }
-  var dec = soul["Decisoes fundadoras"];
-  if(dec && document.getElementById("sDecisoes")){
+
+  // Slide 4 - Arquitetura (metricas de estrutura)
+  var C = M.code || {};
+  if(C.ciclos !== undefined){
+    txt("arqKpis", "Estrutura medida: " + C.pastas + " pastas, " + C.pacotes + " pacotes, " +
+      C.arestasDePacote + " arestas de pacote e " + C.ciclos +
+      " ciclos (core/ com reporting/ e core/ com parsers/). utils/ e o unico pacote folha real.");
+  }
+
+  // Slide 5 - Modulos
+  var locTotal = modules.reduce(function(s,m){ return s + (Number(m.loc) || 0); }, 0);
+  var nMod = C.modules || modules.length || 37;
+  txt("modTitulo", nMod + " arquivos de codigo");
+  var modStats = document.getElementById("modStats");
+  if(modStats){
+    var pares = [
+      [nMod, "arquivos"],
+      [(C.locNaoVazio || locTotal).toLocaleString("pt-BR"), "linhas nao vazias"],
+      [(C.locSrcPython || 0).toLocaleString("pt-BR"), "linhas em src/"],
+      [(C.locTests || 0).toLocaleString("pt-BR"), "linhas em tests/"]
+    ];
+    modStats.innerHTML = "";
+    pares.forEach(function(p){
+      var d = document.createElement("div");
+      d.className = "kpi";
+      var n = document.createElement("div");
+      n.className = "num";
+      n.textContent = p[0];
+      var l = document.createElement("div");
+      l.className = "lbl";
+      l.textContent = p[1];
+      d.appendChild(n);
+      d.appendChild(l);
+      modStats.appendChild(d);
+    });
+  }
+
+  // Slide 6 - Metricas (numeros medidos de 2026-10-05/06)
+  txt("kLoc", (C.locNaoVazio || 5966).toLocaleString("pt-BR"));
+  txt("kMod", String(C.modules || 37));
+  txt("kArestas", String(C.arestasDePacote !== undefined ? C.arestasDePacote : 13));
+  txt("kCiclos", String(C.ciclos !== undefined ? C.ciclos : 2));
+  txt("kTestes", "179");
+  txt("kPassam", "164");
+  txt("kErros", "15");
+  txt("kCobertura", "83 %");
+
+  // Slide 7 - Timeline (ultimos cinco eventos)
+  var tl = document.getElementById("tlList");
+  if(tl){
+    tl.innerHTML = "";
+    var ultimos = events.slice(-5);
+    if(!ultimos.length){
+      var vazio = document.createElement("li");
+      vazio.textContent = "Nenhum evento disponivel.";
+      tl.appendChild(vazio);
+    }
+    ultimos.forEach(function(ev){
+      var li = document.createElement("li");
+      var d = document.createElement("span");
+      d.className = "d";
+      d.textContent = (ev.date || "").slice(0,10);
+      li.appendChild(d);
+      li.appendChild(document.createTextNode(" "));
+      var b = document.createElement("b");
+      b.textContent = ev.agent || "";
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(": " + (ev.title || "")));
+      tl.appendChild(li);
+    });
+  }
+
+  // Slide 9 - Decisoes fundadoras
+  var dec = sections["Decisoes fundadoras"];
+  if(dec && dec.length && document.getElementById("sDecisoes")){
     var dl = document.getElementById("sDecisoes");
     dl.innerHTML = "";
     dec.forEach(function(t){
       var li = document.createElement("li");
-      li.textContent = t;
+      var b = document.createElement("b");
+      b.textContent = t.id || "";
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(": " + (t.title || t)));
       dl.appendChild(li);
     });
   }
@@ -234,7 +361,7 @@
   go(0);
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-06.</div>
 </body>
 </html>

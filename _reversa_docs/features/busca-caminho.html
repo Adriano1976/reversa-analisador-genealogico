@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-busca-caminho">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-01T03:41:35Z">
+<meta name="reversa-generated-at" content="2026-10-06T05:06:51Z">
 <title>busca-caminho — analisador-genealogico</title>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
@@ -39,136 +39,319 @@
   code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
   pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
   .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0;}
+  .tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:inherit;}
+  .tabs button.on{color:#fff;border-color:rgba(79,140,255,.5);background:rgba(79,140,255,.14);}
+  .panel{display:none;margin-top:12px;}
+  .panel.on{display:block;}
+  .acc{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel);}
+  .acc details{border-bottom:1px solid var(--line);}
+  .acc details:last-child{border-bottom:none;}
+  .acc summary{cursor:pointer;padding:12px 14px;font-size:13px;color:var(--txt);list-style:none;display:flex;gap:10px;align-items:baseline;}
+  .acc summary::-webkit-details-marker{display:none;}
+  .acc summary .id{color:var(--accent);font-family:Consolas,monospace;font-size:12px;min-width:58px;}
+  .acc summary .pri{margin-left:auto;color:var(--muted);font-size:11px;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .acc .body{padding:0 14px 14px 14px;color:var(--muted);font-size:13px;line-height:1.6;}
+  .acc details[open] summary{background:rgba(79,140,255,.08);}
+  .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:16px;}
 </style>
 </head>
 <body>
 <header class="site">
-  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#23262c"/>
-  <g stroke="#3a3d45" stroke-width="1" fill="none">
-    <circle cx="32" cy="32" r="27"/>
-    <circle cx="32" cy="32" r="20"/>
-    <circle cx="32" cy="32" r="13"/>
-  </g>
-  <g stroke="#4f8cff" stroke-opacity="0.3" stroke-width="1">
-    <line x1="32" y1="4" x2="32" y2="60"/>
-    <line x1="4" y1="32" x2="60" y2="32"/>
-    <line x1="12" y1="12" x2="52" y2="52"/>
-    <line x1="12" y1="52" x2="52" y2="12"/>
-  </g>
-  <polygon points="32,16 46,32 32,48 18,32" fill="#4f8cff"/>
-  <polygon points="32,24 40,32 32,40 24,32" fill="#d18a5a" opacity="0.9"/>
-  <g fill="#6b7d99">
-    <circle cx="32" cy="5.5" r="1.6"/>
-    <circle cx="58.5" cy="32" r="1.6"/>
-    <circle cx="32" cy="58.5" r="1.6"/>
-    <circle cx="5.5" cy="32" r="1.6"/>
-  </g>
-</svg>
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="14" fill="#f5f3ee"/>
+    <g stroke="#f5f3ee" stroke-width="1.79">
+      <polygon points="52.68,40.6 34.9,54.21 14.21,45.61 11.32,23.4 29.1,9.79 49.79,18.39" fill="#7c8a99"/>
+      <polygon points="41.08,43.86 26.27,45.79 17.19,33.93 22.92,20.14 37.73,18.21 46.81,30.07" fill="#a06b4a"/>
+      <polygon points="32.97,39.4 26.07,36.54 25.11,29.13 31.03,24.6 37.93,27.46 38.89,34.87" fill="#3d4a5c"/>
+    </g>
+    <polygon points="36.55,33.89 32.64,36.89 28.09,35 27.45,30.11 31.36,27.11 35.91,29" fill="#1e2937" stroke="#f5f3ee" stroke-width="1.79"/>
+  </svg>
+
+
+
+
   <span class="brand">analisador-genealogico</span>
   <span class="sub">Feature</span>
-  <nav class="reversa-doc-nav"></nav>
+    <nav class="reversa-doc-nav">
+  <a href="../index.html" data-page-id="index">Visão geral</a>
+  <a href="../arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="../modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="../metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="../timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="../glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="../deck.html" data-page-id="deck">Deck</a>
+  <a href="../features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="../features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="../features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
   <h1>busca-caminho</h1>
-  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>path_search</code></span><span class="pill">15 requisitos</span><span class="pill">20 tarefas</span><span class="pill">Spec: busca-caminho</span></div>
-  <p class="summary">Busca a conexão genealógica entre duas pessoas de uma árvore já carregada. Tenta primeiro a conexão <b>direta</b> pelo ancestral comum mais próximo, subindo exclusivamente por linhas parentais; se não existir, cai no <b>fallback indireto</b> por afinidade. Renderiza caminho textual e um diagrama Mermaid cuja forma muda conforme o tipo de conexão.</p>
+  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>path_search</code></span><span class="pill" id="pillRf">24 requisitos funcionais</span><span class="pill" id="pillGh">9 cenários Gherkin</span><span class="pill" id="pillTk">29 tarefas</span><span class="pill">Spec: busca-caminho</span></div>
+  <p class="summary" id="tldr">Busca a conexão genealógica entre duas pessoas de uma árvore GEDCOM carregada. Tenta primeiro a conexão direta pelo ancestral comum, subindo exclusivamente por linhas parentais; se não existir, cai no fallback indireto por afinidade, navegando o grafo pessoa↔família. Devolve o parentesco documental completo (rótulo, graus, meioses, evidência de cada salto, homônimos, caminhos alternativos) e um diagrama Mermaid renderizado no cliente.</p>
 
-  <h2>Responsabilidades</h2>
-  <table><tbody>
-    <tr><td><b>Resolver pessoas</b></td><td>Duas passadas: igualdade case-insensitive, depois substring</td></tr>
-    <tr><td><b>Navegar a família</b></td><td>Pais via <code>FAMC</code> com fallback no índice; cônjuges via <code>FAMS</code></td></tr>
-    <tr><td><b>Conexão direta</b></td><td>BFS bidirecional subindo por pais, com teto de profundidade</td></tr>
-    <tr><td><b>Conexão indireta</b></td><td>Caminho mais curto no grafo pessoa↔família, com compressão de nós de família</td></tr>
-    <tr><td><b>Ponte matrimonial</b></td><td>Decomposição do caminho no primeiro par de cônjuges adjacentes</td></tr>
-    <tr><td><b>Emitir o diagrama</b></td><td>Sanitizar rótulos por lista branca e emitir Mermaid válido</td></tr>
-  </tbody></table>
+  <h2>Como a Feature Funciona</h2>
+  <div class="tabs" id="tabs">
+    <button data-panel="p-fluxo" class="on">Fluxo</button>
+    <button data-panel="p-regras">Regras de negócio</button>
+    <button data-panel="p-contratos">Contratos</button>
+    <button data-panel="p-tarefas">Tarefas</button>
+  </div>
 
-  <h2>Regras de Negócio</h2>
-  <table><tbody>
-    <tr><td><b>Resolução de nome</b></td><td>Duas passadas: igualdade <code>case-insensitive</code> primeiro; substring só se a igualdade falhar</td></tr>
-    <tr><td><b>Homônimos</b></td><td>Usa o <b>primeiro ID</b>, sem desempate e sem aviso. Decisão do usuário, comportamento aceito</td></tr>
-    <tr><td><b>Não encontrada</b></td><td><code>"Pessoa 1 '{nome}' não encontrada."</code>, distinguindo Pessoa 1 de Pessoa 2</td></tr>
-    <tr><td><b>BFS bidirecional</b></td><td>Duas filas alternando um nível de cada lado; sobe <b>apenas por pais</b></td></tr>
-    <tr><td><b>Teto da direta</b></td><td><code>MAX_DEPTH = 20</code> <b>iterações de profundidade</b>, não gerações</td></tr>
-    <tr><td><b>Pessoas idênticas</b></td><td>Caminho trivial <code>[id]</code>, com o próprio id como ancestral</td></tr>
-    <tr><td><b>Indireta</b></td><td>Só roda se a direta falhar. Caminho mais curto não ponderado no grafo</td></tr>
-    <tr><td><b>Teto da indireta</b></td><td><code>MAX_HOPS = 40</code> arestas; exige ao menos 2 pessoas no caminho comprimido</td></tr>
-    <tr><td><b>Composição da família</b></td><td>Os nós de família são <b>comprimidos</b>: o caminho devolvido contém só pessoas</td></tr>
-    <tr><td><b>Ponte</b></td><td><code>split_path_by_marriage</code> acha o <b>primeiro</b> par adjacente de cônjuges</td></tr>
-    <tr><td><b>Escape do rótulo</b></td><td><code>_mermaid_label</code> aplica NFC e depois uma <b>lista branca</b> de caracteres seguros</td></tr>
-    <tr><td><b>Entidades HTML</b></td><td><code>&</code>, <code>&lt;</code> e <code>&gt;</code> viram entidades <b>depois</b> do filtro, nunca antes</td></tr>
-    <tr><td><b>Sem conexão</b></td><td><code>"Nenhuma conexão encontrada entre '{p1}' e '{p2}'."</code> com <code>success=True</code></td></tr>
-  </tbody></table>
+  <div class="panel on" id="p-fluxo">
+    <table><tbody>
+      <tr><td><b>1. Resolver as duas pessoas</b></td><td>Duas passadas por igualdade e depois substring, montando o dossiê de homônimos dos dois lados</td></tr>
+      <tr><td><b>2. Escolher o par entre homônimos</b></td><td>Até 5 x 5 combinações em cache, e vence a primeira que tiver caminho. A ambiguidade nunca é silenciosa</td></tr>
+      <tr><td><b>3. Conexão direta</b></td><td>BFS bidirecional que sobe apenas por pais, com teto de <code>MAX_DEPTH = 20</code> iterações de profundidade</td></tr>
+      <tr><td><b>4. Fallback indireto</b></td><td>Só se a direta falhar: caminho mais curto no grafo pessoa↔família, com teto de <code>MAX_HOPS = 40</code> arestas e compressão dos nós de família</td></tr>
+      <tr><td><b>5. Parentesco documental completo</b></td><td>Rótulo, chave canônica, graus, meioses, evidência de cada salto, ancestrais comuns, caminhos alternativos e avisos</td></tr>
+      <tr><td><b>6. Emitir o diagrama</b></td><td>Mermaid sanitizado por lista branca, na forma direta ou em ponte, renderizado no cliente</td></tr>
+    </tbody></table>
+    <p class="note">Fonte: <code>_reversa_sdd/busca-caminho/design.md</code> (seção Fluxo Principal) e <code>requirements.md</code> (seção Visão Geral), re-extração de 2026-10-05.</p>
+  </div>
 
-  <div class="warn">
-    <b>O contrato de escape é regra de primeira classe.</b> A lista é <b>branca, não negra</b>. O gatilho do bug corrigido (<code>BUG-20260929-J6PQ</code>) é <b>aspa dupla seguida de crase</b> num nome vindo do GEDCOM: o lexer do Mermaid desvia para <i>markdown-string</i> e o fecha-colchete nunca vira o token que a gramática exige, derrubando o diagrama inteiro. A lista negra anterior era furada justamente pela crase. A ordem <b>filtro → entidades</b> é invariante: invertê-la reintroduz o defeito.
+  <div class="panel" id="p-regras">
+    <table><tbody>
+      <tr><td><b>Resolução de nome</b></td><td>Igualdade case-insensitive primeiro; substring só se a igualdade não devolver nada</td></tr>
+      <tr><td><b>Dossiê de homônimos</b></td><td>Compara nomes sem acento, corrigindo mojibake antes de comparar, porque <code>find_person_by_name</code> compara com acento</td></tr>
+      <tr><td><b>Homônimos</b></td><td>Até 5 x 5 combinações em cache; vence a primeira com caminho; sem nenhuma, usa o primeiro id de cada lado e o resultado sai com <code>status = ambiguous</code> e aviso <code>homonimo</code></td></tr>
+      <tr><td><b>Pessoa não resolvida</b></td><td><code>"Pessoa 1 '{nome}' não encontrada."</code>, distinguindo Pessoa 1 de Pessoa 2, com <code>success = False</code></td></tr>
+      <tr><td><b>BFS bidirecional</b></td><td>Duas fronteiras alternando um nível de um lado por iteração; sobe apenas por pais, com pais duplicados removidos</td></tr>
+      <tr><td><b>Teto da direta</b></td><td><code>MAX_DEPTH = 20</code> iterações de profundidade, não gerações. O corte é silencioso, por decisão humana de 2026-09-30</td></tr>
+      <tr><td><b>Pessoas idênticas</b></td><td>Caminho trivial, com a própria pessoa como ancestral</td></tr>
+      <tr><td><b>Indireta</b></td><td>Executada somente se a direta falhar; <code>NetworkXNoPath</code> e <code>NodeNotFound</code> são tratados como ausência de caminho</td></tr>
+      <tr><td><b>Afinidade em três lugares</b></td><td><code>status = affinity</code>, rótulo "Sem ancestral comum: conexão por afinidade (casamento)" e aviso em maiúsculas de que não há parentesco consanguíneo</td></tr>
+      <tr><td><b>Rótulo e meioses</b></td><td>Linha direta usa prefixo <code>bis</code> repetido <code>n−2</code> vezes; colateral com menor grau 1 vira irmãos, tio/tia ou tio/tia-avô; o resto vira primos de <code>g</code> grau com <code>r</code> remoções</td></tr>
+      <tr><td><b>Evidência por salto</b></td><td>Cada salto carrega família, casal declarado, datas e a idade implícita do genitor</td></tr>
+      <tr><td><b>Data impossível</b></td><td>Idade de genitor fora de 12 a 70 anos marca <code>plausible: False</code> e gera o aviso <code>data_impossivel</code>, sem invalidar o vínculo. Sem data para julgar, <code>plausible</code> é <code>None</code>, e <code>None</code> não é falso</td></tr>
+      <tr><td><b>Ancestrais comuns</b></td><td>Todos enumerados até 12 níveis, limitados a 12, ordenados por meioses totais</td></tr>
+      <tr><td><b>Caminhos alternativos</b></td><td>Listados e nenhum descartado; a existência gera o aviso <code>caminhos_multiplos</code></td></tr>
+      <tr><td><b>Colapso de pedigree</b></td><td>Mais de uma cadeia até o mesmo ancestral, com teto de 8, gera aviso com o ancestral e o número de cadeias</td></tr>
+      <tr><td><b>Sem conexão</b></td><td><code>"Nenhuma conexão encontrada entre '{p1}' e '{p2}'."</code> com <code>success = True</code>: não achei não é erro</td></tr>
+    </tbody></table>
+    <div class="warn"><b>O contrato de escape é regra de primeira classe e é a única defesa da gramática do Mermaid.</b> A lista é branca, não negra, e a ordem filtro, depois entidades, é invariante. O gatilho do bug corrigido (<code>BUG-20260929-J6PQ</code>) é aspa dupla seguida de crase num nome vindo do GEDCOM: o lexer desvia para markdown-string e o diagrama inteiro cai, sem erro que o servidor perceba. A versão seguinte da lista era estreita demais e descartava 14 caracteres sem intenção (<code>BUG-20261002-T4ZM</code>). <code>securityLevel: 'strict'</code> cobre XSS, não a gramática.</div>
+  </div>
+
+  <div class="panel" id="p-contratos">
+    <table><tbody>
+      <tr><th>Contrato</th><th>O que fixa</th></tr>
+      <tr><td><b>HTTP</b></td><td><code>POST /</code> com <code>action=path_search</code>, <code>gedcom_filename</code>, <code>person1_name</code> e <code>person2_name</code>, sem arquivo na requisição. A busca opera só sobre a árvore já armazenada, endereçada pela chave</td></tr>
+      <tr><td><b>Três desfechos, duas formas de payload</b></td><td>Conexão encontrada chega como <code>success=True</code> mais <code>path_result</code>; nenhuma conexão como <code>success=True</code> sem <code>path_result</code>; pessoa não encontrada como <code>success=False</code>. A tela distingue os três por cor do alerta e pela presença do cartão</td></tr>
+      <tr><td><b>Parentesco documental</b></td><td>Estados <code>not_found</code>, <code>found</code>, <code>ambiguous</code> e <code>affinity</code>. <code>affinity</code> é o único estado definido fora do módulo que o calcula, e o status é mais grosseiro que a causa: com identidade ambígua e sem caminho, a ambiguidade aparece apenas como aviso</td></tr>
+      <tr><td><b>Avisos</b></td><td><code>pessoa_ausente</code>, <code>sem_caminho</code>, <code>homonimo</code>, <code>data_impossivel</code>, <code>caminhos_multiplos</code>, <code>colapso_de_pedigree</code> e <code>afinidade</code>. Só os três primeiros alteram o resultado</td></tr>
+      <tr><td><b>Afinidade</b></td><td>Três marcas simultâneas, redundância deliberada; <code>relationship_key</code> permanece <code>None</code> e o diagrama passa a ser o de ponte. Nenhum caminho é inventado: a afinidade é um caminho real no grafo, apenas não consanguíneo</td></tr>
+      <tr><td><b>Escape</b></td><td>Id do nó mantém apenas <code>[A-Za-z0-9_]</code>, com prefixo <code>N_</code>; rótulo passa por NFC, normalizações, lista branca e só então entidades HTML</td></tr>
+      <tr><td><b>Diagramas</b></td><td>Direta em <code>flowchart BT</code> com nó de casal quando o ancestral não é extremidade; indireta em subgrafos com aresta de casamento, cada <code>subgraph</code> fechado por context manager</td></tr>
+      <tr><td><b>Falha</b></td><td>Corte silencioso no <code>MAX_DEPTH</code> e rejeição acima do <code>MAX_HOPS</code> são indistinguíveis de "sem caminho"; data impossível não é corrigida; colapso além do teto não é detectado</td></tr>
+    </tbody></table>
+    <pre>Contrato de escape do rotulo, na ordem (invariante)
+1  Normalizacao NFC
+2  Espaco inquebravel vira espaco; travessoes viram hifen; aspas curvas viram apostrofo
+3  Aspa dupla vira apostrofo
+4  Quebras de linha achatadas
+5  Lista branca: remove tudo que nao consta
+6  So entao: & vira &amp;, &lt;, &gt;
+
+Mensagens de contrato
+"Conexao direta encontrada (ancestral comum)."        (sucesso)
+"Conexao indireta encontrada (via casamento/afinidade)." (sucesso)
+"Nenhuma conexao encontrada entre '{p1}' e '{p2}'."    (sem resultado, success=True)
+"Pessoa 1 '{nome}' nao encontrada." / "Pessoa 2 ..."    (erro de entrada, success=False)
+"Ocorreu um erro: {e}"                                  (erro inesperado)
+"Sem ancestral comum: conexao por afinidade (casamento)" (rotulo)</pre>
+    <p class="note">Fonte: <code>_reversa_sdd/busca-caminho/contracts.md</code>, seções 1 a 8.</p>
+  </div>
+
+  <div class="panel" id="p-tarefas">
+    <table><tbody>
+      <tr><th>Ordem</th><th>Bloco</th><th>Tarefas</th></tr>
+      <tr><td>1</td><td><b>Navegação familiar</b>, base do BFS e das pontes</td><td>T-07, T-08 e T-09</td></tr>
+      <tr><td>2</td><td><b>Resolução de pessoas e homônimos</b></td><td>T-02 a T-06</td></tr>
+      <tr><td>3</td><td><b>Parentesco documental</b>, o bloco que dá conteúdo ao resultado</td><td>T-15 a T-21</td></tr>
+      <tr><td>4</td><td><b>Conexão direta</b></td><td>T-10 e T-11</td></tr>
+      <tr><td>5</td><td><b>Conexão indireta</b></td><td>T-12 e T-13</td></tr>
+      <tr><td>6</td><td><b>Escape</b>, funções puras, antes dos diagramas</td><td>T-22 e T-23</td></tr>
+      <tr><td>7</td><td><b>Diagramas</b></td><td>T-24 e T-25</td></tr>
+      <tr><td>8</td><td><b>Fluxo e rota</b></td><td>T-26 a T-29</td></tr>
+    </tbody></table>
+    <p class="note">Total: 29 tarefas de produção e 18 tarefas de teste. Bloqueios: nada aqui funciona sem upload-gedcom, e a unit analise-dna depende de T-10, T-15 e T-24 desta unit.</p>
   </div>
 
   <h2>Requisitos Funcionais</h2>
-  <table><tbody>
-    <tr><th>ID</th><th>Requisito</th><th>Priori.</th></tr>
-    <tr><td>RF-01</td><td>Resolver pessoa em duas passadas (exato, depois substring)</td><td>Must</td></tr>
-    <tr><td>RF-02</td><td>Usar o primeiro ID quando houver homônimos</td><td>Must</td></tr>
-    <tr><td>RF-03</td><td>Reportar por pessoa quando o nome não resolve</td><td>Must</td></tr>
-    <tr><td>RF-04</td><td>Buscar conexão direta por BFS bidirecional subindo por pais</td><td>Must</td></tr>
-    <tr><td>RF-05</td><td>Respeitar o teto de 20 iterações de profundidade</td><td>Must</td></tr>
-    <tr><td>RF-06</td><td>Tratar pessoas idênticas com caminho trivial</td><td>Should</td></tr>
-    <tr><td>RF-07</td><td>Cair para a indireta somente quando a direta falhar</td><td>Must</td></tr>
-    <tr><td>RF-08</td><td>Buscar indireta por caminho mais curto, teto de 40 arestas</td><td>Must</td></tr>
-    <tr><td>RF-09</td><td>Comprimir nós de família do caminho indireto</td><td>Must</td></tr>
-    <tr><td>RF-10</td><td>Decompor o caminho pela primeira ponte matrimonial</td><td>Should</td></tr>
-    <tr><td>RF-11</td><td>Sanitizar o rótulo do nó por lista branca</td><td>Must</td></tr>
-    <tr><td>RF-12</td><td>Converter &amp;, &lt; e &gt; em entidades <b>após</b> o filtro</td><td>Must</td></tr>
-    <tr><td>RF-13</td><td>Emitir diagrama adequado ao tipo de conexão</td><td>Must</td></tr>
-    <tr><td>RF-14</td><td>Distinguir "sem conexão" de erro de entrada</td><td>Should</td></tr>
-    <tr><td>RF-15</td><td>Reportar erro amigável em exceções</td><td>Must</td></tr>
-  </tbody></table>
+  <div class="acc" id="rfAcc"></div>
 
   <h2>Critérios de Aceitação</h2>
-  <pre>Dado um GEDCOM carregado e duas pessoas com ancestral comum
-Quando o usuário busca o caminho
-Então a tela exibe "Conexão direta encontrada (ancestral comum)."
-E o caminho textual mostra a sequência do ancestral até as duas pessoas
+  <pre>Dado um GEDCOM carregado e duas pessoas existentes com ancestral comum
+Quando o operador busca o caminho entre elas
+Entao a tela exibe "Conexao direta encontrada (ancestral comum)."
+E o resultado traz rotulo, graus e meioses
+E cada salto do caminho traz a evidencia do registro que o sustenta
+E o diagrama Mermaid e emitido na forma direta
 
-Dado que a busca direta falha mas existe vínculo por casamento
-Quando o usuário busca o caminho
-Então a tela exibe "Conexão indireta encontrada (via casamento/afinidade)."
-E o diagrama é emitido na forma de ponte, com a aresta rotulada "Casamento"
+Dado que a busca direta falha mas existe vinculo por casamento
+Quando o operador busca o caminho
+Entao a tela exibe "Conexao indireta encontrada (via casamento/afinidade)."
+E o status do parentesco e "affinity"
+E o rotulo e "Sem ancestral comum: conexao por afinidade (casamento)"
+E um aviso afirma em maiusculas que NAO ha parentesco consanguineo
 
-Dado um nome que não existe na árvore
-Quando o usuário busca o caminho
-Então a tela exibe "Pessoa 1 'X' não encontrada." (ou Pessoa 2)
+Dado um nome com tres registros no GEDCOM, dos quais so um tem pais
+Quando o operador busca o caminho
+Entao as combinacoes sao testadas e a conexao e encontrada pelo registro com pais
+E o resultado sai com status "ambiguous"
+E um aviso informa quantos registros existem e pede conferencia das fichas
 
-Dado duas pessoas existentes sem nenhum caminho no grafo
-Quando o usuário busca o caminho
-Então a tela exibe "Nenhuma conexão encontrada entre 'X' e 'Y'."
-E a resposta não é tratada como erro
+Dado um caminho em que o genitor declarado nasceu 11 anos depois do filho
+Quando o parentesco documental e calculado
+Entao o aviso "data_impossivel" e emitido com as datas e a diferenca
+E o vinculo NAO e invalidado
 
-Dado um nome vindo do GEDCOM que contém aspa dupla seguida de crase
-Quando o diagrama é emitido
-Então o rótulo do nó é neutralizado
-E nenhuma aspa dupla crua ou crase sobrevive no rótulo
+Dado um par que compartilha um ancestral alcancado por mais de uma cadeia de pais
+Quando o parentesco documental e calculado
+Entao o aviso "colapso_de_pedigree" nomeia o ancestral e o numero de cadeias
 
-Dado um nome com "&", "<" ou ">"
-Quando o diagrama é emitido
-Então esses caracteres aparecem como &amp;, &lt; e &gt;
-E os caracteres legítimos (acentos, pontos, parênteses) sobrevivem intactos</pre>
+Dado um nome vindo do GEDCOM que contem aspa dupla seguida de crase
+Quando o diagrama e emitido
+Entao o rotulo do no e neutralizado
+E o diagrama continua sendo um flowchart valido
+E nenhuma aspa dupla crua ou crase sobrevive no rotulo
+
+Dado duas pessoas existentes e nenhum caminho entre elas em nenhum dos dois estagios
+Quando o operador busca o caminho
+Entao a tela exibe "Nenhuma conexao encontrada entre 'X' e 'Y'."
+E a resposta NAO e tratada como erro (success = True)
+
+Dado um nome que nao existe na arvore
+Quando o operador busca o caminho
+Entao a tela exibe "Pessoa 1 'X' nao encontrada." (ou Pessoa 2, conforme o caso)
+E success = False</pre>
 
   <h2>Rastreabilidade de Código</h2>
   <table><tbody>
-    <tr><td><b>app.py</b></td><td><code>index()</code> — ramo <code>path_search</code> (:65-78)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td><code>path_search</code> (:463)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td><code>find_ancestral_path</code> (:144), <code>find_indirect_path</code> (:126)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td><code>get_parents</code> (:42), <code>get_spouses</code> (:64), <code>are_spouses</code> (:91)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td><code>split_path_by_marriage</code> (:95), <code>pick_spouse_for_couple</code> (:106)</td><td>🟢</td></tr>
-    <tr><td><b>reconstructed/path_search.py</b></td><td><code>_mermaid_sid</code> (:185), <code>_mermaid_label</code> (:204)</td><td>🟢</td></tr>
-    <tr><td><b>tests/test_path_search.py</b></td><td>9 testes, incl. <code>test_indirect_connection_via_marriage</code></td><td>🟢</td></tr>
-    <tr><td><b>tests/test_mermaid_escape.py</b></td><td>6 testes do contrato de escape</td><td>🟢</td></tr>
+    <tr><td><b>src/app.py</b></td><td>ramo <code>path_search</code> (:156-169); re-parse (:132)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/path_search.py</b></td><td><code>path_search</code> (:126-202); <code>_candidatos</code> (:74); <code>_homonimos</code> (:92); <code>AVISO_AFINIDADE</code> (:66-67); <code>LIMITE_DE_CANDIDATOS</code> (:71)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/path_finding.py</b></td><td><code>find_ancestral_path</code> (:51); <code>find_indirect_path</code> (:31); <code>MAX_DEPTH</code> (:25); <code>MAX_HOPS</code> (:28)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/family_navigation.py</b></td><td><code>find_person_by_name</code> (:21); <code>get_parents</code> (:29); <code>get_spouses</code> (:51); <code>are_spouses</code> (:78); <code>split_path_by_marriage</code> (:82); <code>pick_spouse_for_couple</code> (:93); <code>exclude_tail</code> (:104)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/documentary_relationship.py</b></td><td><code>documentary_relationship</code> (:436-568); <code>documentary_label</code> (:290); <code>person_summary</code> (:127); <code>homonym_dossier</code> (:205); <code>hop_evidence</code> (:233); <code>find_all_common_ancestors</code> (:408)</td><td>🟢</td></tr>
+    <tr><td><b>src/reporting/mermaid_render.py</b></td><td><code>_mermaid_sid</code> (:26); <code>_mermaid_label</code> (:50); <code>_LABEL_SEGURO</code> (:47); <code>generate_mermaid_graph</code> (:63); <code>generate_mermaid_graph_indirect_bridge</code> (:112)</td><td>🟢</td></tr>
+    <tr><td><b>tests/</b></td><td><code>test_path_search.py</code>, <code>test_mermaid_escape.py</code>, <code>test_characterization_mermaid.py</code> e <code>test_confrontacao_gedcom_dna.py</code></td><td>🟢</td></tr>
   </tbody></table>
+
+  <h2>Lacunas Declaradas</h2>
+  <table><tbody>
+    <tr><td><b>M-01</b></td><td>O estado <code>affinity</code> é atribuído a uma cópia do dicionário; o original segue <code>not_found</code>. Nenhum consumidor atual usa o original, mas a divergência é armadilha para reimplementação</td><td>🔴</td></tr>
+    <tr><td><b>M-02</b></td><td>A ambiguidade de identidade rebaixa <code>found</code> para <code>ambiguous</code>, mas não rebaixa <code>not_found</code>. Não há indicação de que a assimetria seja intencional</td><td>🔴</td></tr>
+    <tr><td><b>L-20</b></td><td><code>get_children</code> varre todas as famílias sem índice, e as fichas completas somam 142 montagens nos 71 casos reais. Custo real, sem limite medido</td><td>🔴</td></tr>
+    <tr><td><b>L-17</b></td><td>O colapso além do teto de 12 níveis e 8 cadeias não é detectado, e o aviso não distingue "sem colapso" de "fora do alcance"</td><td>🔴</td></tr>
+    <tr><td><b>Inversão de camada</b></td><td><code>reporting/</code> importa <code>core/</code> e contém decisão de apresentação com efeito de negócio. Não há decisão humana registrada sobre manter essa fronteira</td><td>🔴</td></tr>
+  </tbody></table>
+  <p class="note">Já decididas, e portanto não são pendências: corte silencioso do <code>MAX_DEPTH</code> (2026-09-30, aceito); varredura condicional de <code>get_spouses</code> (2026-09-30, contrato); afinidade nunca é consanguinidade; escape por lista branca com entidades depois do filtro. A lacuna <code>L-06</code> foi resolvida em 2026-10-05 por verificação no template.</p>
 </main>
-<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-01. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-01.</div>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"generatedAt":"2026-10-06T04:45:00Z","spec":{"id":"busca-caminho","slug":"busca-caminho","title":"Busca de caminho genealogico","endpoint":"action=path_search","counts":{"requisitosFuncionais":24,"criteriosGherkin":9,"tarefas":29}},"tldr":"Busca a conexao genealogica entre duas pessoas de uma arvore GEDCOM carregada. Tenta primeiro a conexao DIRETA pelo ancestral comum, subindo exclusivamente por linhas parentais; se nao existir, cai no fallback INDIRETO por afinidade (casamentos), navegando o grafo pessoa-familia. Devolve o parentesco documental completo (rotulo, graus, meioses, evidencia de cada salto, homonimos, caminhos alternativos) e um diagrama Mermaid.","requirements":[{"id":"RF-01","text":"Resolver pessoa por nome em duas passadas (igualdade, depois substring), sem diferenciar maiusculas","pri":"Must","crit":"Nome exato tem precedencia sobre substring"},{"id":"RF-02","text":"Montar o dossie de homonimos dos dois lados, comparando sem acento e corrigindo mojibake","pri":"Must","crit":"Um nome sem acento encontra o registro com acento"},{"id":"RF-03","text":"Testar ate 5 x 5 combinacoes de homonimos e vencer a primeira com caminho","pri":"Must","crit":"Tres registros de mesmo nome, so um com pais: a conexao e encontrada"},{"id":"RF-04","text":"Marcar identidade ambigua no resultado, com o aviso homonimo","pri":"Must","crit":"Resultado com status = ambiguous e a contagem de registros"},{"id":"RF-05","text":"Reportar por pessoa quando o nome nao resolve","pri":"Must","crit":"\"Pessoa 1 '{nome}' nao encontrada.\" distingue de Pessoa 2; success = False"},{"id":"RF-06","text":"Buscar conexao direta por BFS bidirecional subindo apenas por pais","pri":"Must","crit":"Caminho com ancestral comum, rotulo e meioses completos"},{"id":"RF-07","text":"Respeitar o teto de 20 iteracoes de profundidade, com corte silencioso","pri":"Must","crit":"Caminho mais fundo que o teto devolve ausencia de caminho, sem aviso de limite atingido"},{"id":"RF-08","text":"Tratar pessoas identicas com caminho trivial","pri":"Should","crit":"O caminho e a propria pessoa, e ela e o ancestral"},{"id":"RF-09","text":"Cair para a busca indireta somente quando a direta falhar","pri":"Must","crit":"Conexao com ancestral comum nunca e reportada como indireta"},{"id":"RF-10","text":"Buscar a indireta por caminho mais curto no grafo de familias, com teto de 40 arestas","pri":"Must","crit":"Caminho mais longo que o teto e rejeitado"},{"id":"RF-11","text":"Comprimir nos de familia e exigir 2 ou mais pessoas","pri":"Must","crit":"O caminho devolvido contem apenas ids de pessoa"},{"id":"RF-12","text":"Marcar a conexao indireta como afinidade nos tres lugares (status, rotulo e aviso em maiusculas)","pri":"Must","crit":"O aviso afirma explicitamente que nao ha parentesco consanguineo"},{"id":"RF-13","text":"Distinguir \"sem conexao\" de erro de entrada via success","pri":"Must","crit":"Sem conexao devolve success = True; entrada invalida devolve success = False"},{"id":"RF-14","text":"Produzir rotulo legivel, chave canonica e meioses a partir dos graus","pri":"Must","crit":"Linha direta, colateral e primos seguem as formulas de grau e remocao"},{"id":"RF-15","text":"Anexar a evidencia de cada salto, com familia, casal declarado, datas e idade implicita","pri":"Must","crit":"Um item de evidencia por aresta do caminho"},{"id":"RF-16","text":"Avisar data_impossivel fora de 12 a 70 anos sem invalidar o vinculo","pri":"Must","crit":"O caminho e mantido como o GEDCOM o declara; o aviso convida a conferir"},{"id":"RF-17","text":"Enumerar todos os ancestrais comuns ate 12 niveis, ordenados por meioses totais","pri":"Should","crit":"A cardinalidade respeita o teto configurado"},{"id":"RF-18","text":"Listar caminhos alternativos sem descartar nenhum, com o aviso caminhos_multiplos","pri":"Must","crit":"O caminho exibido e o de menor distancia total; os demais estao listados"},{"id":"RF-19","text":"Detectar colapso de pedigree por contagem de cadeias (teto 8) e avisar","pri":"Should","crit":"Aviso colapso_de_pedigree nomeia o ancestral e o numero de cadeias"},{"id":"RF-20","text":"Sanitizar o id do no Mermaid","pri":"Must","crit":"Apenas [A-Za-z0-9_] sobrevive, com prefixo N_"},{"id":"RF-21","text":"Sanitizar o rotulo por lista branca, com as entidades HTML aplicadas depois do filtro","pri":"Must","crit":"Aspa dupla e crase neutralizadas; &, < e > viram entidades; acentos e pontuacao legitima sobrevivem"},{"id":"RF-22","text":"Emitir o diagrama da conexao direta, fundindo o casal do ancestral comum em um no","pri":"Must","crit":"flowchart BT; no de casal presente quando o ancestral nao e extremidade do caminho"},{"id":"RF-23","text":"Emitir o diagrama da conexao indireta em subgrafos, com a aresta de casamento","pri":"Must","crit":"Cada subgraph e fechado por context manager; a aresta e rotulada como casamento"},{"id":"RF-24","text":"Tratar excecoes com erro amigavel na rota","pri":"Must","crit":"\"Ocorreu um erro: {e}\" com success = False, sem derrubar a aplicacao"}]}</script>
+<script>
+(function(){
+  "use strict";
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var SLUG = "busca-caminho";
+  var snap = parseSnapshot();
+
+  var idx = (window.RV_DATA && window.RV_DATA.featuresIndex) || null;
+  var specIdx = null;
+  if(idx && idx.specs){
+    idx.specs.forEach(function(s){ if(s.slug === SLUG || s.id === SLUG) specIdx = s; });
+  }
+  var spec = pickData(specIdx, snap.spec) || snap.spec || {};
+  // O TL;DR vem do snapshot, extraido da secao "Visao Geral" da spec de 2026-10-05.
+  // O resumo do features-index e mais curto e nao substitui o texto da secao.
+  var list = (snap.requirements) || [];
+
+  function set(id, v){ var el = document.getElementById(id); if(el && v !== undefined && v !== null) el.textContent = v; }
+
+  var c = (spec && spec.counts) || {};
+  if(c.requisitosFuncionais !== undefined){
+    set("pillRf", c.requisitosFuncionais + " requisitos funcionais");
+    set("pillGh", c.criteriosGherkin + " cenarios Gherkin");
+    set("pillTk", c.tarefas + " tarefas");
+  }
+  if(snap.tldr) set("tldr", snap.tldr);
+
+  // Requisitos funcionais como accordion
+  var acc = document.getElementById("rfAcc");
+  if(acc){
+    if(!list.length){
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "Requisitos nao disponiveis.";
+      acc.appendChild(p);
+    }
+    list.forEach(function(r, i){
+      var d = document.createElement("details");
+      if(i === 0) d.open = true;
+      var s = document.createElement("summary");
+      var id = document.createElement("span");
+      id.className = "id";
+      id.textContent = r.id || "";
+      s.appendChild(id);
+      s.appendChild(document.createTextNode(r.text || ""));
+      var pr = document.createElement("span");
+      pr.className = "pri";
+      pr.textContent = r.pri || "";
+      s.appendChild(pr);
+      d.appendChild(s);
+      var body = document.createElement("div");
+      body.className = "body";
+      body.textContent = "Criterio de aceite: " + (r.crit || "nao declarado");
+      d.appendChild(body);
+      acc.appendChild(d);
+    });
+  }
+
+  // Abas
+  var tabs = document.getElementById("tabs");
+  if(tabs){
+    tabs.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-panel]") : null;
+      if(!b) return;
+      Array.prototype.forEach.call(tabs.querySelectorAll("button"), function(x){ x.classList.toggle("on", x === b); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function(p){ p.classList.remove("on"); });
+      var alvo = document.getElementById(b.getAttribute("data-panel"));
+      if(alvo) alvo.classList.add("on");
+    });
+  }
+})();
+</script>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-06.</div>
 </body>
 </html>
