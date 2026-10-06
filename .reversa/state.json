@@ -5,7 +5,7 @@
   "chat_language": "pt-br",
   "doc_language": "Português",
   "answer_mode": "chat",
-  "doc_level": "essencial",
+  "doc_level": "completo",
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
   "phase": "revisao",
@@ -19,9 +19,30 @@
     "escavacao (re-extracao 2026-09-30)",
     "interpretacao (re-extracao 2026-09-30)",
     "geracao (re-extracao 2026-09-30)",
-    "revisao (re-extracao 2026-09-30)"
+    "revisao (re-extracao 2026-09-30)",
+    "reconhecimento (re-extracao 2026-10-05)",
+    "escavacao (re-extracao 2026-10-05)",
+    "interpretacao (re-extracao 2026-10-05)",
+    "geracao (re-extracao 2026-10-05)",
+    "revisao (re-extracao 2026-10-05)"
   ],
   "pending": [],
+  "reextraction_2026_10_05": {
+    "started_at": "2026-10-05T15:42:15Z",
+    "authorized_by": "Adriano (escolha explicita do caminho 'A - Re-extracao integral + mini-site' e confirmacao CONTINUAR nesta sessao)",
+    "trigger": "o _reversa_sdd/ estava congelado em 2026-09-30; desde entao a raiz de codigo virou src/, reconstructed/ foi substituido por core/ + parsers/ + reporting/ + utils/, o app.py passou de 84 para 227 linhas, e a capacidade de confronto GEDCOM x DNA (quatro estados) nasceu sem nenhuma spec. Nenhuma feature 005+ existe em _reversa_forward/, entao nao ha adendo que registre esse trabalho.",
+    "doc_level": "completo (decidido pelo usuario no checkpoint bloqueante pos-Scout em 2026-10-05; nesta rodada NAO ha conflito com config.toml [analysis], que tambem diz completo)",
+    "snapshot": ".reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo em _MANIFEST.txt)",
+    "specs_organization": "secao [specs] de config.toml ja decidida (feature-folder / endpoint, decidida em 2026-08-03); passo-03 pulado automaticamente conforme a regra",
+    "preserved_not_regenerated": [
+      "_reversa_sdd/migration/ (35 arquivos, pipeline de migracao concluido em 2026-09-28)",
+      "_reversa_sdd/oracle/ (oraculo congelado, somente leitura)",
+      "_reversa_sdd/parity/ (harness diferencial)",
+      "_reversa_sdd/screens/ (goldens e inventario)",
+      "_reversa_sdd/addenda/ (serao marcados como superados, nunca apagados)"
+    ],
+    "post_extraction": "regenerar _reversa_docs/ (fecha T021/O4 da feature 003) e revisar as matrizes SPEC<->CODE<->TEST<->BUG em _reversa_bugs/*/generated/"
+  },
   "reextraction": {
     "started_at": "2026-09-30T18:30:00Z",
     "authorized_by": "Adriano (pedido explicito: 'Sim' apos relatorio do Passo 4 apontar que o _reversa_sdd/ estava congelado em 2026-08-03 e contradizia o codigo)",
@@ -107,37 +128,65 @@
     },
     "redator_progress": {
       "phase": "geracao",
+      "reextraction": "2026-10-05",
+      "doc_level": "completo",
+      "granularity": "endpoint",
+      "layout": "feature-folder",
+      "units_total": 3,
+      "files_planned": 17,
+      "files_done": 17,
+      "rhythm": "geracao continua com pausa por unit (escolha do usuario nesta sessao), em vez de parada por arquivo",
       "units": [
         {
           "unit": "upload-gedcom",
           "status": "concluida",
-          "files": [
-            "requirements.md",
-            "design.md",
-            "tasks.md"
-          ]
+          "completed_at": "2026-10-05T22:05:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 19,
+          "tarefas": 20,
+          "testes": 13
         },
         {
           "unit": "analise-dna",
           "status": "concluida",
-          "files": [
-            "requirements.md",
-            "design.md",
-            "tasks.md"
-          ]
+          "completed_at": "2026-10-05T23:20:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 26,
+          "tarefas": 32,
+          "testes": 18,
+          "divergencia_viva": "RF-26/T-31 (determinismo do desempate) decidido em 2026-09-30 e NAO implementado; herda o RF-14 daquela spec, renumerado nesta rodada"
         },
         {
           "unit": "busca-caminho",
           "status": "concluida",
-          "files": [
-            "requirements.md",
-            "design.md",
-            "tasks.md"
-          ]
+          "completed_at": "2026-10-06T00:35:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 24,
+          "tarefas": 29,
+          "testes": 18,
+          "mudanca_de_comportamento": "a escolha entre homonimos deixou de ser o 1o ID e passou a testar ate 5x5 combinacoes (vence a primeira com caminho), com a ambiguidade avisada em vez de silenciosa - amplia a decisao humana 2 de 2026-08-03"
         }
       ],
+      "globais_gerados": [
+        "openapi/index.yaml (OpenAPI 3.0.3 do contrato de FORMULARIO, nao de API JSON)",
+        "user-stories/upload-gedcom.md",
+        "user-stories/analise-dna.md",
+        "user-stories/busca-caminho.md",
+        "traceability/code-spec-matrix.md"
+      ],
+      "opcionais_descartados": {
+        "edge-cases.md": "exige nivel detalhado",
+        "flows.md": "os fluxos ja estao em flowcharts/ do Arqueologo",
+        "decisions.md": "as 23 decisoes ja estao em adrs/ desta rodada",
+        "legacy-mapping.md": "escopo do Arqueologo",
+        "questions.md por unit": "o Revisor consolida as lacunas na Fase 5",
+        "tests.md por unit": "mapeamento teste-componente ja esta na Matriz C de traceability/spec-impact-matrix.md",
+        "traceability/spec-impact-matrix.md": "ja gerado pelo Arquiteto nesta rodada - nao duplicado"
+      },
+      "nomes_de_pasta": "mantidos (upload-gedcom, analise-dna, busca-caminho): coincidem com surface.json.modules e sao referenciados por todos os artefatos das fases anteriores; renomear criaria orfaos",
       "next_file": null,
-      "gracao_completa": true
+      "geracao_completa": true,
+      "note": "Progresso da re-extracao de 2026-10-05. O progresso da rodada de 2026-09-30 continua registrado em checkpoints.redator_reextracao."
     },
     "reviewer": {
       "completed_at": "2026-08-03T12:50:00Z",
@@ -460,6 +509,515 @@
       "regression_check": "concluido na mesma sessao em 2026-09-30T18:15Z (ver checkpoint regression_check_2026_09_30). Nenhuma re-verificacao necessaria: os watch items das duas features sao OBS-*, sem peso de regressao, e a comparacao ja foi feita contra estes mesmos artefatos regenerados.",
       "pending": "6 perguntas de validacao humana em _reversa_sdd/questions.md (3 bloqueantes)",
       "legacy_untouched": true
+    },
+    "scout_reextracao_2026_10_05": {
+      "completed_at": "2026-10-05T15:42:15Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/dependencies.md",
+        ".reversa/context/surface.json"
+      ],
+      "snapshot_of_previous": ".reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo em _MANIFEST.txt)",
+      "summary": {
+        "primary_language": "Python 3.14.6",
+        "main_framework": "Flask 3.1.3 servido por waitress 3.0.2",
+        "modules_identified": ["upload-gedcom", "analise-dna", "busca-caminho"],
+        "surface_unchanged": "3 valores de action e rota unica, iguais aos da extracao anterior",
+        "database": "ausente",
+        "ci_cd": "PASSou a existir: .github/workflows/deploy-pages.yml publica _reversa_docs/ no GitHub Pages",
+        "docker": "ausente",
+        "test_files": 11,
+        "test_functions": 126,
+        "test_items_collected": 175,
+        "project_files": 47,
+        "python_lines_src": 3473,
+        "python_lines_tests": 2957,
+        "template_lines": 525,
+        "app_py_lines": 262,
+        "dependencies_pinned": true,
+        "external_integrations": "nenhuma API externa; apenas CDN (Bootstrap 5.3.3, Mermaid 10) no navegador"
+      },
+      "corrections_vs_previous_extraction": [
+        "raiz de codigo: analisador-genealogico/ -> src/",
+        "pacote reconstructed/ (4 modulos, 1086 linhas) -> core/ (13) + parsers/ (3) + reporting/ (2) + utils/ (4) = 3473 linhas com o app.py",
+        "app.py: 84 -> 262 linhas",
+        "tests: 7 arquivos / 52 funcoes / 86 itens / 1134 linhas -> 11 arquivos / 126 funcoes / 175 itens / 2957 linhas",
+        "index.html: 200 -> 525 linhas (quatro secoes de resultado + confronto)",
+        "gunicorn saiu do requirements.txt; waitress entrou; as 6 diretas passaram a ter versao fixada",
+        "CI/CD: ausente -> presente (deploy do mini-site no GitHub Pages)",
+        "novo sub-projeto Node fora do escopo do runtime: plugins/dsh-markdownlint/",
+        "metodo de contagem corrigido: Get-Content | Measure-Object -Line ignora linhas em branco e reportava app.py com 227 linhas"
+      ],
+      "notable_findings": [
+        "A regra final da analise (parentesco documental, evidencia genetica e confronto com quatro estados) nao existe em NENHUM artefato da extracao anterior: e capacidade nova, com 8 modulos em core/ e um arquivo de teste de 922 linhas.",
+        "cm_estimator.py esta declarado no proprio modulo como LEGADO fora do fluxo, mantido so como superficie de compatibilidade.",
+        "DIVERGENCIA DE AMBIENTE: o .venv/ existe e NAO reproduz o pin - ged4py 0.5.5 (pin 0.5.2), networkx 3.7 (3.6.1), pandas 3.0.6 (3.0.3), RapidFuzz 3.14.6 (3.14.5 global), python-Levenshtein 0.27.5 (0.27.3). O RapidFuzz decide o matching difuso (RISK-006). Lacuna registrada, nao corrigida por agente.",
+        "gunicorn 26.0.0, matplotlib 3.11.1 e pyvis 0.3.2 continuam INSTALADOS no global, sem constar do requirements.txt e sem nenhum import no codigo: residuo de ambiente, nao divida de codigo.",
+        "O README.md da raiz esta em dia (2026-10-05) e descreve o sistema atual - e a unica superficie de documentacao do repositorio sem defasagem."
+      ],
+      "doc_level": "completo (respondido pelo usuario no checkpoint bloqueante pos-Scout)",
+      "organization_suggestion": "endpoint (confirma a decisao ja persistida em config.toml [specs]; scout_suggestion NAO foi reescrito, regra de imutabilidade do surface-schema.md; passo 3 pulado automaticamente)",
+      "legacy_untouched": true
+    },
+    "archaeologist_reextracao_2026_10_05": {
+      "reextraction": true,
+      "doc_level": "completo",
+      "modules_analyzed": ["upload-gedcom", "analise-dna", "busca-caminho"],
+      "modules_pending": [],
+      "last_module_completed_at": "2026-10-05T17:00:00Z",
+      "phase_completed": true,
+      "files_generated": [
+        "_reversa_sdd/code-analysis.md (§1 a §6, 118 regras catalogadas)",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/flowcharts/upload-gedcom.md",
+        "_reversa_sdd/flowcharts/analise-dna.md",
+        "_reversa_sdd/flowcharts/busca-caminho.md",
+        ".reversa/context/modules.json (4 modulos, 77 funcoes, 118 regras)"
+      ],
+      "totals": {
+        "lines_read": 3473,
+        "files_read": 22,
+        "business_rules": 118,
+        "functions_documented": 77,
+        "entities_documented": 27,
+        "algorithms": 19,
+        "technical_debts": 16
+      },
+      "per_module": {
+        "upload-gedcom": {
+          "files_read": [
+            "src/parsers/gedcom_parser.py",
+            "src/core/gedcom_state.py",
+            "src/utils/validate.py",
+            "src/utils/text_cleaning.py",
+            "src/utils/number_format.py",
+            "src/app.py (ramo upload_gedcom)"
+          ],
+          "lines_read": 574,
+          "business_rules": 20,
+          "functions_documented": 18,
+          "entities": 2,
+          "algorithms": 6,
+          "notable_findings": [
+            "A validacao e de CONTEUDO (0 HEAD), nao de extensao; o RISK-007 autoriza o relaxamento para nao quebrar paridade de parsing.",
+            "A chave de armazenamento e derivada do conteudo (sha256 truncado) porque o formulario devolve o valor no POST seguinte - um UUID aleatorio quebraria a continuidade entre requisicoes.",
+            "A forma fechada ^[0-9a-f]{16}__[A-Za-z0-9._-]+$ e a defesa contra escape de caminho, sem lista negra.",
+            "Mapa de mojibake: 18 entradas, 17 chaves efetivas (A(U+FFFD) duplicada) e um mapeamento identidade (U+00C3 -> U+00C3), medido por AST.",
+            "A faixa A-acentuado..u na expressao de limpeza e REDUNDANTE: \\w e Unicode-aware, entao n-til, y-agudo, y-dieresis e o-umlaut sobrevivem por \\w (verificado por execucao).",
+            "O CSV de DNA nao passa por validacao de conteudo (apenas o GEDCOM passa): so a forma do nome e validada."
+          ]
+        },
+        "analise-dna": {
+          "files_read": [
+            "src/parsers/csv_ingest.py",
+            "src/core/genetic_evidence.py",
+            "src/core/relationship_hypotheses.py",
+            "src/core/evidence_comparison.py",
+            "src/core/dna_analysis.py",
+            "src/core/matching.py",
+            "src/core/name_normalization.py",
+            "src/core/cm_estimator.py"
+          ],
+          "lines_read": 1566,
+          "business_rules": 62,
+          "functions_documented": 27,
+          "entities": 13,
+          "notable_findings": [
+            "CAPACIDADE NOVA SEM SPEC: a separacao em tres etapas (parentesco documental, evidencia genetica e confronto) nao existe em nenhum artefato da extracao anterior. E o motivo principal desta re-rotacao.",
+            "A chave de evidencia e (nome, kit), nunca so o nome: dois kits com o mesmo nome sao duas evidencias, e totals.cm fica None quando nao se sabe qual kit e a pessoa do GEDCOM.",
+            "O cM acumulado NAO e arredondado em nenhum ponto; o contrato esta congelado em tests/test_formatacao_cm.py e o arredondamento e so de apresentacao.",
+            "A fonte (Shared cM Project 4.0) nao publica mediana e sua faixa exclui 1% dos envios; o codigo declara as duas limitacoes.",
+            "Seis relacoes nao publicadas na 4.0 (1C4R, 1C5R, 1C6R, 3C2R, 2o e 3o bisavos) sao tratadas por envoltoria de meioses -- nenhum numero e inventado.",
+            "A confianca da lista (indeterminada/baixa/muito baixa) e heuristica DO PROJETO, declarada como tal; a fonte nao define grau de confianca.",
+            "O confronto usa sobreposicao de faixas, e nao distancia em meioses, para decidir POSSIVEL: irmaos e primos de 1o grau com 1 remocao estao a uma meioses e nao se sobrepoem.",
+            "cm_estimator continua no repositorio como LEGADO fora do fluxo, com faixas sem fonte verificavel (decisao humana de 2026-09-30)."
+          ]
+        },
+        "busca-caminho": {
+          "files_read": [
+            "src/core/documentary_relationship.py",
+            "src/reporting/mermaid_render.py",
+            "src/core/path_search.py",
+            "src/core/family_navigation.py",
+            "src/core/path_finding.py"
+          ],
+          "lines_read": 1275,
+          "business_rules": 36,
+          "functions_documented": 26,
+          "entities": 7,
+          "notable_findings": [
+            "O teto MAX_DEPTH=20 conta ITERACOES do BFS bidirecional, nao geracoes; a extracao anterior descrevia como '20 niveis'.",
+            "A varredura global de get_spouses so roda quando a busca por FAMS fica vazia -- contrato aceito, documentado em 2026-09-30, que faz o conjuge de uma segunda familia desaparecer.",
+            "Nenhuma data invalida vinculo: idade de genitor fora de 12-70 gera aviso data_impossivel e a evidencia fica registrada. O caso medido no proprio codigo e mae nascida 11 anos depois do filho (@F6@).",
+            "A conexao indireta e marcada como afinidade em tres lugares (status, rotulo e aviso em maiusculas) e nunca como parentesco consanguineo.",
+            "O contrato de escape do rotulo Mermaid e lista BRANCA; a negra anterior era furada pela crase (BUG-20260929-J6PQ) e a seguinte era estreita demais, descartando 14 caracteres (BUG-20261002-T4ZM).",
+            "O fechamento de cada subgraph do diagrama indireto e garantido por context manager: um 'end' a mais ou a menos muda a arvore sem levantar erro (OPP-20260929-H2YY).",
+            "A escolha entre homonimos na busca testa ate 5x5 combinacoes e vence a primeira com caminho; no fluxo de DNA mantem-se o primeiro candidato do legado. Em ambos a ambiguidade e avisada.",
+            "Divida de custo medida: person_a e person_b sao fichas completas em cada resultado (142 fichas no caso real de 71 conexoes), e get_children varre todas as familias sem indice."
+          ]
+        }
+      }
+    },
+    "detective_reextracao_2026_10_05": {
+      "completed_at": "2026-10-05T19:30:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "files_generated": [
+        "_reversa_sdd/domain.md (reescrito: 8 secoes, 21 mensagens de contrato, 9 lacunas L-15..L-23)",
+        "_reversa_sdd/state-machines.md (NOVO: 2 maquinas de decisao, 11 codigos de aviso, 4 lacunas M-01..M-04)",
+        "_reversa_sdd/permissions.md (NOVO: varredura RBAC, matriz degenerada, 5 lacunas P-01..P-05)",
+        "_reversa_sdd/adrs/ (NOVO: 23 decisoes, 01 a 23)"
+      ],
+      "summary": {
+        "commits_analisados": 125,
+        "adrs_totais": 23,
+        "adrs_herdadas_revalidadas": 8,
+        "adrs_novas": 15,
+        "maquinas_de_decisao": 2,
+        "maquinas_de_ciclo_de_vida_de_entidade": 0,
+        "papeis_rbac": 0,
+        "codigos_de_aviso_catalogados": 11,
+        "mensagens_de_contrato": 21,
+        "decisoes_humanas_verificadas": 13,
+        "decisoes_humanas_nao_honradas": 1,
+        "lacunas_novas": "domain.md L-15..L-23 (9), state-machines.md M-01..M-04 (4), permissions.md P-01..P-05 (5)"
+      },
+      "notable_findings": [
+        "DECISAO HUMANA NAO IMPLEMENTADA (L-15): a pergunta 4 de 2026-09-30 mandou tornar o desempate de candidatos deterministico (RF-14/T-19/TT-13), e o codigo de 2026-10-05 ainda viola o requisito. O laco percorre um set (matching.py:73, :91) e o desempate usa comparacao estrita (> em :103-105), de modo que empate exato nos tres criterios mantem o primeiro candidato da iteracao do conjunto. Medido: a ordem de iteracao de um set de xref_id muda em cada PYTHONHASHSEED (tres sementes, nenhuma posicao em comum). E a UNICA das 13 decisoes humanas verificadas que o codigo nao honra.",
+        "A regra final da analise (documental x genetica x confronto) foi implementada em commits diretos (7bf2676, cd8d7f3, a4d24df, 2c0ba40) SEM ciclo forward: nenhuma feature 005+ existe em _reversa_forward/, portanto sem requisito, roadmap ou adendo. E a lacuna de rastreabilidade que motivou a re-rotacao.",
+        "Existem DUAS maquinas de decisao reais (nao de ciclo de vida): o veredito do confronto (4 estados, por kit, com juncao conservadora) e o status do parentesco documental (4 valores). O estado 'affinity' e atribuido PELO CHAMADOR (path_search.py:186-192) a uma COPIA do dicionario (dict(documental)); quem ler so documentary_relationship nao descobre que ele existe.",
+        "O status do parentesco e mais GROSSO que a causa: com identidade ambigua E sem caminho o status permanece 'not_found' e a ambiguidade so aparece em warnings[].code. Um reimplementador que mapear apenas os 8 valores de status e descartar os avisos perde a maior parte das regras de negocio.",
+        "PERMISSOES: zero autenticacao, zero sessao, zero papeis. app.secret_key esta definido (app.py:22) e NUNCA e usado - flask.session nunca e importado (o import e 'Flask, render_template, request'). E configuracao sem consumidor, herdada; passa a ser chave de forja de sessao no instante em que alguem introduzir session (Rota 2 descartada do BJJH).",
+        "DIVERGENCIA CONTRA O REGISTRO DO BUG-20260929-BJJH: o passo 4 dos Steps to Reproduce ('volte a sessao A: o resultado e calculado sobre a arvore da segunda sessao') NAO se reproduz no codigo atual, porque todo POST traz a sua propria chave e o servidor re-parseia o arquivo antes de ramificar (app.py:126-132). O bug nao esta invalidado: o vetor 'ultima carga vence' foi substituido por 'quem conhece a chave carrega' e por CORRIDA ENTRE THREADS (estado global reescrito por requisicao + ANALISADOR_THREADS=4). Mecanismo por leitura de codigo; alcance nao medido (L-16).",
+        "A guarda de instancia unica (feature 004) impede dois PROCESSOS, nao duas THREADS - sao problemas diferentes, resolvidos em camadas diferentes.",
+        "O teto de corpo de 16 MB, a chave derivada do conteudo e a preservacao da extensao formam um unico movimento (BUG QMLY). A correcao da extensao foi uma REGRESSAO do proprio QMLY: fixar .ged renomeava o CSV para <...>.csv.ged.",
+        "Zero marcadores TODO/FIXME/XXX/HACK em src/: nao ha intencao nao implementada declarada no codigo. As declaracoes de legado vivem em docstring e comentario."
+      ],
+      "corrections_vs_previous_extraction": [
+        "domain.md §4 (contrato de mensagens) listava 'Relacao distante ou indeterminada' como mensagem do nucleo em dna_analysis.py:66. No codigo atual esse literal existe APENAS em core/cm_estimator.py, que esta fora do fluxo e nao e consultado pela interface.",
+        "domain.md §5/§6 dizia 'nao se aplica' para maquinas de estado e permissoes. Sobre permissoes a conclusao permanece (nao ha RBAC); sobre maquinas de estado deixou de valer: existem duas maquinas de decisao reais, e state-machines.md passa a ser gerado (nivel completo).",
+        "Todas as referencias de caminho do domain.md anterior (reconstructed/*.py, analisador-genealogico/app.py) foram substituidas pelos caminhos atuais em src/.",
+        "A decisao humana 2 de 2026-08-03 ('homonimos usam o 1o ID') foi AMPLIADA pelo codigo: hoje testa-se ate 5x5 combinacoes e vence a primeira com caminho; o 1o ID e apenas o recuo.",
+        "A decisao humana 3 de 2026-08-03 ('upload sem validacao de extensao/tamanho e limitacao aceita') esta SUPERADA pelo BUG-20260929-QMLY: ha teto de 16 MB, validacao de conteudo e chave derivada do conteudo."
+      ],
+      "verification_against_code": {
+        "src_python_total_lines": 3473,
+        "commits": 125,
+        "head": "d845ef8 2026-10-05",
+        "session_login_auth_role_permission_in_src": "zero (os 44 casamentos de termo-chave sao atributos HTML role= e funcoes *_tokens)",
+        "flask_session_imported": false,
+        "campos_status_encontrados": ["documentary.status", "comparison.status", "comparison.per_kit[].status"],
+        "campos_flag_enabled_active_state": "nenhum",
+        "probe_pythonhashseed": "set de 7 xref_id iterado em 3 sementes: nenhuma posicao em comum",
+        "lint_artefatos_novos": "0 problemas fora de MD013; 363 MD013 (condicao PRE-EXISTENTE de todo o _reversa_sdd/: so o code-analysis.md tem 61)"
+      },
+      "legacy_untouched": true,
+      "notes": "O Arquiteto (Fase 3, mesma fase do Detetive) segue pendente; por isso 'interpretacao' permanece em pending. Mermaid dos diagramas de state-machines.md NAO foi validado por renderizacao: a biblioteca nao esta instalada no repositorio."
+    },
+    "architect_reextracao_2026_10_05": {
+      "completed_at": "2026-10-05T21:10:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "phase_completed": "interpretacao",
+      "files": [
+        "_reversa_sdd/architecture.md (reescrito: 9 secoes, 20 dividas consolidadas)",
+        "_reversa_sdd/c4-context.md (reescrito)",
+        "_reversa_sdd/c4-containers.md (NOVO)",
+        "_reversa_sdd/c4-components.md (NOVO)",
+        "_reversa_sdd/erd-complete.md (NOVO)",
+        "_reversa_sdd/traceability/spec-impact-matrix.md (NOVO)"
+      ],
+      "summary": {
+        "containers": 3,
+        "componentes": 19,
+        "estruturas_de_dados": 27,
+        "integracoes_de_rede": 0,
+        "dividas_tecnicas_consolidadas": 20,
+        "dividas_alta_gravidade": 4,
+        "dividas_fechadas_desde_2026_09_30": 7,
+        "pacotes_com_ciclo_de_importacao": 2,
+        "unidades_funcionais_na_matriz": 4,
+        "constantes_mapeadas_na_matriz_D": 20
+      },
+      "not_generated_reason": "deployment.md NAO e gerado: exige nivel detalhado E a existencia de Dockerfile, docker-compose ou config de cloud - nenhum dos tres existe, e ja ha CI/CD apenas para publicar o mini-site.",
+      "notable_findings": [
+        "ACHADO NOVO - os quatro pacotes do nucleo NAO formam camadas aciclicas: ha dois ciclos em nivel de PACOTE. core/ <-> reporting/: path_search.py:51 e dna_analysis.py:51 importam reporting.mermaid_render, e mermaid_render.py:16-23 importa core.family_navigation, core.path_finding e core.gedcom_state. core/ <-> parsers/: dna_analysis.py:50 importa parsers.csv_ingest, e gedcom_parser.py:15-16 e csv_ingest.py:41-42 importam core.gedcom_state, core.name_normalization e utils.text_cleaning. NAO ha ciclo em nivel de MODULO - o sistema importa e a suite passa - mas a intencao declarada na reorganizacao (ADR-11) de parsers -> core -> reporting NAO e o grafo real.",
+        "CONSEQUENCIA 1: reporting/ nao e folha e nao pode ser. O renderizador navega o dominio para decidir COMO desenhar (get_spouses, pick_spouse_for_couple, split_path_by_marriage, exclude_tail, find_ancestral_path). Ha decisao de negocio de apresentacao dentro de reporting/.",
+        "CONSEQUENCIA 2: parsers/ nao devolve valor - ele ESCREVE o estado do dominio (gedcom_parser substitui as quatro estruturas globais). E a origem do contador 'versao' e do import dentro de funcao em path_finding.py:38.",
+        "utils/ e o UNICO pacote folha real: nenhum de seus tres modulos importa outro modulo do projeto.",
+        "DUAS CONSTANTES ESTAO EMBUTIDAS EM MENSAGENS DE CONTRATO que o operador le: MAX_DEPTH aparece interpolado no aviso sem_caminho (documentary_relationship.py:455-457) e MAX_CONTENT_LENGTH aparece interpolado na mensagem 413 (app.py:65). Mudar o numero nao e mudanca de parametro - e mudanca de texto de contrato.",
+        "Os limiares de aceitacao do matching NAO sao constantes nomeadas: sao literais dentro de cinco ramos condicionais (matching.py:134-149 e :155). E consequencia direta do ADR-08, mas com um custo que o ADR nao registrou: NAO EXISTE ponto unico de mudanca para a regra mais sensivel do sistema.",
+        "reporting/mermaid_render.py e o componente com mais defeitos registrados (2 de 5: J6PQ e T4ZM) e o unico cuja correcao precisou ser REFEITA - a primeira lista branca era estreita demais.",
+        "COBERTURA DESIGUAL: csv_ingest, family_navigation e path_finding nao tem teste de unidade dedicado (sao exercitados de passagem); test_servidor_producao.py analisa app.py por AST, entao a ROTA em si so e exercitada de passagem em 5 arquivos.",
+        "O BUG-20260929-BJJH e o unico defeito critico sem teste de regressao, e nao por descuido: o criterio de aceite dele e inaplicavel ao legado por nao existir identidade (ADR-18).",
+        "O cm_estimator e o unico componente cuja cobertura de teste e deliberadamente de COMPATIBILIDADE - ele existe porque o teste o exercita (ADR-19)."
+      ],
+      "corrections_vs_previous_extraction": [
+        "architecture.md de 2026-09-30 dizia 'Codigo monolitico (app.py ~887 linhas)' na versao de 2026-08-03 e, na de 2026-09-30, descrevia app.py com 84 linhas e reconstructed/ com 1117. Hoje sao 262 e 3473 em quatro pacotes.",
+        "As dividas 2, 3, 4 e 7 da extracao anterior (dependencias sem pin, secret_key, upload sem validacao, entidades nao usadas) estao FECHADAS ou reclassificadas; a tabela de dividas fechadas foi refeita com 7 itens.",
+        "A divida 'Ausencia de CI/CD e Docker' foi parcialmente fechada: existe deploy do mini-site no GitHub Pages, mas NAO ha pipeline de teste, build ou analise estatica.",
+        "O ERD deixa de ser resumido e embutido: erd-complete.md cobre as 27 estruturas em 4 diagramas com cardinalidades e PK/FK LOGICOS, com o aviso explicito de que NAO existe constraint alguma.",
+        "c4-containers.md e c4-components.md passam a existir (nivel completo) e o C4 de Contexto foi reescrito: a chave de conteudo substitui a sessao, e o container 'navegador' deixou de ser cliente burro."
+      ],
+      "verification_against_code": {
+        "imports_lidos": "87 declaracoes de import em src/",
+        "imports_de_teste_lidos": "98 declaracoes em tests/",
+        "pacote_folha_real": "utils/ (unico)",
+        "hub_de_dependencia": "core/gedcom_state.py (8 dependentes diretos)",
+        "lint_artefatos": "0 problemas fora de MD013 nos 6 artefatos; 71 MD013 (condicao pre-existente do _reversa_sdd/)",
+        "mermaid_validado_por_renderizacao": false,
+        "mermaid_nota": "Os diagramas foram escritos evitando aspas, crases e delimitadores dentro dos rotulos, seguindo a mesma disciplina do contrato de escape do ADR-05, mas NAO foram validados por renderizacao: a biblioteca Mermaid nao esta instalada no repositorio."
+      },
+      "legacy_untouched": true,
+      "next_phase": "geracao (Redator): escrever as specs SDD por unit - upload-gedcom, analise-dna e busca-caminho - e os artefatos globais do nivel completo. As specs atuais de _reversa_sdd/<unit>/ sao de 2026-09-30 e descrevem o codigo anterior ao refactor; a matriz de impacto deve ser relida contra as specs novas quando o Redator concluir (lacuna X-01)."
+    },
+    "redator_reextracao_2026_10_05": {
+      "completed_at": "2026-10-06T01:20:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "layout": "feature-folder",
+      "granularity": "endpoint",
+      "phase_completed": "geracao",
+      "units": 3,
+      "files_canonicos": 9,
+      "arquivos_de_contrato": 3,
+      "globais": 5,
+      "files_total": 17,
+      "files": [
+        "upload-gedcom/{requirements,design,tasks,contracts}.md",
+        "analise-dna/{requirements,design,tasks,contracts}.md",
+        "busca-caminho/{requirements,design,tasks,contracts}.md",
+        "openapi/index.yaml",
+        "user-stories/{upload-gedcom,analise-dna,busca-caminho}.md",
+        "traceability/code-spec-matrix.md"
+      ],
+      "totais": {
+        "requisitos_funcionais": 69,
+        "requisitos_nao_funcionais": 34,
+        "tarefas": 81,
+        "tarefas_de_teste": 49,
+        "criterios_gherkin": 23,
+        "codigos_de_aviso_contratados": 11
+      },
+      "non_destructive_note": "As 9 specs canonicas ja existiam (2026-09-30) e foram sobrescritas por decisao explicita do usuario nesta sessao ('A - Gerar direto, com pausa por unit', apos plano aprovado). Snapshot integral dos anteriores em .reversa/snapshots/2026-10-05-pre-reextracao/.",
+      "nao_sobrescritos": [
+        "_reversa_sdd/traceability/bugs.md (preservado - nao pertence ao Redator)",
+        "_reversa_sdd/traceability/spec-impact-matrix.md (gerado pelo Arquiteto nesta rodada - nao duplicado)",
+        "_reversa_sdd/migration/, oracle/, parity/, screens/, addenda/, design-system/, adrs/"
+      ],
+      "decisoes_de_escrita": {
+        "nomes_de_pasta": "mantidos (upload-gedcom, analise-dna, busca-caminho): coincidem com surface.json.modules e sao referenciados por todas as fases anteriores; renomear criaria orfaos",
+        "openapi": "gerado como contrato de FORMULARIO (multipart/x-www-form-urlencoded, resposta text/html), e nao de API JSON - porque a granularidade escolhida e 'endpoint' e a aplicacao nao tem API. O cabecalho do arquivo declara isso explicitamente.",
+        "spec_impact_matrix": "NAO regerado pelo Redator: o Arquiteto ja o produz nesta rodada"
+      },
+      "correcoes_vs_specs_de_2026_09_30": [
+        "upload-gedcom: a spec anterior registrava 'sem validacao de extensao, tipo ou tamanho' como DECISAO VIGENTE do usuario. Esta SUPERADA pelo BUG-20260929-QMLY: hoje ha teto de 16 MB, validacao de conteudo e chave derivada do conteudo. A regra antiga virou fluxo alternativo documentado.",
+        "upload-gedcom: ensure_dirs deixou de existir - a pasta e ancorada no arquivo do app e criada no import, pela mesma funcao que a resolve.",
+        "analise-dna: a spec anterior descrevia um pipeline UNICO com previsao de parentesco pelas 9 faixas escritas a mao. Hoje sao tres eixos separados (documental, evidencia genetica, possibilidades) mais o confronto em quatro estados, e o cm_estimator esta FORA do fluxo.",
+        "analise-dna: o RF-14 da spec anterior ('tornar o desempate deterministico') foi RENUMERADO para RF-26 nesta rodada porque o identificador RF-14 passou a designar outro requisito. O conteudo e o mesmo e continua NAO IMPLEMENTADO; a heranca de numeracao esta declarada na spec.",
+        "analise-dna: a spec anterior previa 6 ramos de aceitacao; o codigo atual tem 5 ramos mais o de prefixo de sobrenome e o rebaixamento por conflito de nome do meio.",
+        "busca-caminho: a spec anterior afirmava que 'homonimos usam o 1o ID, sem desempate e sem aviso' (decisao humana 2 de 2026-08-03). Hoje sao testadas ate 5x5 combinacoes (vence a primeira com caminho) e a ambiguidade e AVISADA. A decisao continua acolhida apenas como recuo.",
+        "busca-caminho: a spec anterior descrevia um nucleo unico de ~500 linhas; hoje sao 5 modulos, com o parentesco documental completo (evidencia por salto, colapso de pedigree, caminhos multiplos, dossie de homonimos).",
+        "busca-caminho: o contrato de escape do rotulo ganhou um segundo bug documentado (BUG-20261002-T4ZM - lista branca estreita demais) alem do J6PQ."
+      ],
+      "verificacao": {
+        "lint_todos_os_artefatos": "0 problemas fora de MD013 nos 17 arquivos; 4 defeitos reais corrigidos durante a geracao (1 tabela com pipe faltando, 16 pseudo-titulos em negrito, 3 blocos sem linguagem)",
+        "yaml_validado": "openapi/index.yaml validado com js-yaml: 1 path, 5 schemas, 3 acoes, status 200 e 413. Uma falha real corrigida (escalar simples com ': ' no meio)",
+        "nota_md013": "MD013 (linha > 120 colunas) e condicao PRE-EXISTENTE de todo o _reversa_sdd/: so o code-analysis.md tem 61 ocorrencias"
+      },
+      "legacy_untouched": true
+    },
+    "reviewer_reextracao_2026_10_05": {
+      "completed_at": "2026-10-06T02:40:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "phase": "revisao",
+      "cross_review": false,
+      "cross_review_reason": "nenhuma ferramenta com prefixo 'codex:' esta ativa nesta sessao; o Passo 0 do agente manda pular a revisao cruzada sem menciona-la",
+      "specs_reviewed": 3,
+      "arquivos_de_unit_revisados": 12,
+      "transversais_revisados": 18,
+      "adrs_revisados": 23,
+      "files_generated_or_rewritten": [
+        "_reversa_sdd/confidence-report.md (reescrito)",
+        "_reversa_sdd/questions.md (reescrito: 16 perguntas)",
+        "_reversa_sdd/gaps.md (NOVO: lacunas remanescentes por severidade)"
+      ],
+      "verificacoes_executadas": 10,
+      "confidence_final": {
+        "units": { "verde": 941, "amarelo": 35, "vermelho": 34, "total": 1010, "pct": 94.9 },
+        "transversais": { "verde": 751, "amarelo": 54, "vermelho": 41, "total": 846, "pct": 92.0 },
+        "adrs": { "verde": 45, "amarelo": 6, "vermelho": 15, "total": 66, "pct": 72.7 },
+        "extracao_completa": { "verde": 1737, "amarelo": 95, "vermelho": 90, "total": 1922, "confianca_geral_pct": 92.8 },
+        "antes_das_decisoes": { "total": 1923, "confianca_geral_pct": 91.5, "vermelho": 109 },
+        "metodo": "ocorrencia dos marcadores por arquivo, excluindo as linhas de legenda"
+      },
+      "reclassificacoes": {
+        "total": 5,
+        "detalhe": [
+          "L-06: VERMELHO -> VERDE, fechada por verificacao no template (index.html:43-45 usa success na cor do alerta; :457 usa path_result no cartao)",
+          "L-15: VERMELHO -> VERDE, fechada por EXECUCAO no codigo (determinismo do desempate)",
+          "P-04: AMARELO -> VERDE, fechada por EXECUCAO no codigo (app.secret_key removido)",
+          "P-01: VERMELHO -> VERDE, fechada por DECISAO (omissao; correcao pertence a Onda 3 da migracao)",
+          "L-14: VERMELHO -> AMARELO, fechada por DECISAO (o 0,33 e chute que funcionou; numero passa a ajustavel)"
+        ]
+      },
+      "questions": {
+        "geradas": 16,
+        "grupos": 4,
+        "respondidas": 16,
+        "abertas": 0,
+        "arquivo": "_reversa_sdd/questions.md (todas com resposta, o que foi aplicado e a verificacao)",
+        "decisoes_que_mudaram_CAPITAL": [
+          "P1 determinismo: corrigir o legado -> matching.py + 2 testes novos",
+          "P2 app.secret_key: remover -> app.py",
+          "P11 interpretador: o .venv e o oficial -> requirements.txt realinhado + rapidfuzz e python-Levenshtein declarados + pytest instalado no .venv",
+          "P15 sentinela de kit: trocar -> genetic_evidence.py (SEM_KIT com espaco a esquerda) + 1 teste novo",
+          "P12 cobertura: medir -> pytest-cov, 83% de src/"
+        ],
+        "decisoes_que_geraram_requisito_do_alvo": [
+          "P4 persistir resultados e historico de analises",
+          "P8 registrar o veredito do operador por conexao",
+          "P6 restringir a exposicao da lista completa de nomes (busca no servidor, Onda 4)",
+          "P14 validar o conteudo do CSV na entrada"
+        ],
+        "decisao_que_NAO_fechou_lacuna": "P16: o usuario nunca observou resultado cruzado entre analises simultaneas; a probabilidade percebida cai, mas o mecanismo da corrida entre threads segue confirmado e o alcance nao medido (L-16 / M-03 / P-02 permanece a UNICA lacuna critica restante)"
+      },
+      "code_changes_authorized": {
+        "authorization": "reversa-config.json allowLegacyEdits=true, allowedPaths cobre 'src/**' e 'tests/**'; autorizacao explicita do usuario nas respostas 1 e 2",
+        "files": {
+          "src/core/matching.py": "quarto criterio de desempate: em empate triplo vence o menor xref_id lexicografico (P1). DELIBERADAMENTE diverge do legado",
+          "src/app.py": "linha 'app.secret_key = ...' removida; comentario registra a decisao (P2)",
+          "src/core/genetic_evidence.py": "constante SEM_KIT = ' SEM-KIT' (espaco a esquerda torna a colisao impossivel, porque _clean faz strip em todo valor do CSV) e os 4 usos do literal passaram a usar a constante; entrou no __all__ (P15)",
+          "requirements.txt": "realinhado ao .venv: ged4py==0.5.5, networkx==3.7, pandas==3.0.6; rapidfuzz==3.14.6 e python-Levenshtein==0.27.5 promovidos a dependencia declarada, porque decidem o matching (P11)",
+          "tests/test_characterization_matching.py": "2 testes novos de determinismo do desempate + helper _feature e _pool_empatado (P1)",
+          "tests/test_confrontacao_gedcom_dna.py": "teste existente atualizado para SEM_KIT + teste novo test_8c_kit_chamado_SEM_KIT_nao_colide_com_a_ausencia_de_kit, que prova 3 grupos separados (P15)"
+        },
+        "ambiente": "pytest 9.1.1, pytest-cov 7.1.0 e coverage 7.16.2 instalados DENTRO do .venv, que passou a ser o interpretador oficial e nao tinha pytest (P11 e P12)",
+        "verification": {
+          "testes_do_matching": "24 passam (incluindo os 2 novos)",
+          "testes_do_confronto": "30 passam (incluindo o de nao-colisao da sentinela)",
+          "testes_sem_tmp_path": "121 passam em 9 arquivos",
+          "suite_completa_global": "164 passam + 15 erros",
+          "suite_completa_venv": "164 passam + 15 erros - IDENTICO ao global, o que prova que a divergencia de versoes nao alterava o comportamento coberto",
+          "total_de_itens": "179 (eram 175 antes desta rodada)",
+          "erros_da_suite": "todos em tests/test_upload_seguranca.py, EM SETUP, por PermissionError [WinError 5] do sandbox ao criar/limpar o diretorio temporario. Reproduzem com QUALQUER --basetemp, inclusive dentro do workspace, e ja haviam sido registrados em 2026-09-30 como restricao de ambiente",
+          "cobertura": "83% de src/ (1520 instrucoes, 253 descobertas). Piores: number_format 53%, relationship_hypotheses 76%, mermaid_render 78%, evidence_comparison 83%. Melhores: validate 98%, dna_analysis 97%, gedcom_parser 98%",
+          "app_importa": "sim; app.secret_key deixou de ter valor",
+          "legacy_symbols_check": "nenhuma afirmacao funcional sobre HARD_MIN, GIVEN_MIN, process_dna, given_index, Pyvis, STATIC_FOLDER ou ensure_dirs nos artefatos novos"
+        }
+      },
+      "notable_findings": [
+        "ACHADO NOVO durante a escrita do teste: `split_name_pt` escolhe como PRENOME o primeiro token que nao seja stop word nem GENERICO. Com o prenome 'Ana' (que esta em GENERIC_GIVENS), o prenome escolhido passa a ser 'silva' e o cM do pool NAO e aceito - o fuzzy compara 'silva' contra o prenome do candidato. E a mesma familia de quirk que o proprio tests/test_characterization_matching.py documenta para 'Joao Silva'. Nao e bug novo: e comportamento caracterizado, agora com um segundo caso medido.",
+        "REVISAO DO L-06: a lacuna NAO se confirma. index.html:43-45 usa `success` para a cor do alerta e :457 usa `path_result` para o cartao, de modo que 'conexao', 'sem conexao' e 'erro' produzem telas distintas. Fechada por verificacao.",
+        "A contagem de RFs por regex da 39 nas units analise-dna e busca-caminho porque as tabelas MoSCoW tambem comecam com '| RF-'. A contagem exata por linha de tabela e 19/26/24 = 69. Registrado para que ninguem repita o erro do contador de 2026-09-30.",
+        "Os ADRs tem a menor confianca do conjunto (71,6%), e isso e esperado: sao reconstrucao de decisao a partir de commit, codigo e registro de bug, e onde nao ha prosa de decisao eles DECLARAM a ausencia em vez de preencher.",
+        "DUAS divergencias deliberadas do legado agora existem, e so esta muda comportamento: a declaracao das faixas de cM como heuristica (ADR-19, mudanca de spec) e o desempate deterministico (ADR-23, mudanca de comportamento).",
+        "O diretorio .pytest-verify-20261005, criado por mim ao rodar a suite com basetemp novo, NAO estava no .gitignore e nao podia ser removido sob workspace-write. Removido com escalonamento pontual autorizado pelo usuario.",
+        "EFEITO COLATERAL DAS MUDANCAS DE CODIGO, corrigido: inserir linhas em app.py (+5), matching.py (+6) e genetic_evidence.py (+5) deslocou TODAS as citacoes de linha posteriores ao ponto de insercao. Foram reescritas 221 citacoes em 28 arquivos, por script com offsets explicitos, protegendo as referencias historicas (analisador-genealogico/, reconstructed/, oracle/, snapshots/) e as da linha 653 do monolito. Verificado por amostragem contra o codigo real: app.py:32 = MAX_CONTENT_LENGTH, matching.py:107-111 = o criterio novo, genetic_evidence.py:145 = chave_kit = kit or SEM_KIT. Licao registrada: citar numero de linha em spec e fragil a qualquer edicao subsequente do codigo.",
+        "CONTAGENS tambem atualizadas apos a revisao: src/**.py 3473 -> 3489, tests/**.py 2957 -> 3060, app.py 262 -> 267, core/ 2378 -> 2389, funcoes de teste 126 -> 129, itens coletados 175 -> 179. Atualizados em inventory.md, code-analysis.md, architecture.md, c4-containers.md, adrs/02, adrs/11 e .reversa/context/surface.json. A contagem de 262 marcadores verdes em confidence-report.md NAO foi tocada - e contagem de afirmacoes, nao de linhas."
+      ],
+      "gaps": {
+        "abertas_linhas": 14,
+        "ids_distintos": 17,
+        "criticas": 1,
+        "moderadas": 8,
+        "cosmeticas": 5,
+        "fechadas_nesta_rodada": ["L-06", "L-08", "L-14", "L-15", "L-17", "L-19", "L-21", "L-22", "L-23", "M-02", "M-04", "P-01", "P-03", "P-04", "P-05", "E-03"],
+        "fechadas_total": 16,
+        "critica_restante": "L-16 / M-03 / P-02 - corrida entre requisicoes concorrentes (estado global reescrito por requisicao com 4 threads). O usuario NUNCA observou resultado cruzado; a probabilidade percebida cai, mas o mecanismo segue confirmado e o alcance nao medido",
+        "nenhuma_depende_de_decisao_do_usuario": true,
+        "requisitos_encaminhados_ao_alvo": 4,
+        "pendencia_de_documentacao": "o README.md da raiz documenta o fluxo pelo interpretador GLOBAL e agora contradiz o pin, que aponta para o .venv. Nao editado por ser documento do usuario"
+      },
+      "legacy_untouched": "NAO - ver code_changes_authorized. Seis arquivos do legado foram editados, todos por decisao explicita do usuario registrada em questions.md, e todos cobertos por reversa-config.json (src/**, tests/**, requirements.txt)",
+      "next_phase": "revisao concluida para os artefatos do Revisor. Falta, para fechar a re-extracao de 2026-10-05: (1) gravar o checkpoint extraction_complete da rodada; (2) executar o Passo 4 - verificacao de regressao semantica contra _reversa_forward/*/regression-watch.md; (3) reconciliar os adendos. Depois: /reversa-docs (regenerar o mini-site), regenerar as matrizes de _reversa_bugs/*/generated/ e levar os 4 requisitos encaminhados ao proximo ciclo forward"
+    },
+    "passo4_regressao_2026_10_05": {
+      "completed_at": "2026-10-06T03:20:00Z",
+      "kind": "passo-04-verificacao-de-regressao-semantica",
+      "features_com_regression_watch": 4,
+      "watch_items_em_tabela_principal": 13,
+      "features_sem_watch_item": ["001-reconstrua-o-conteudo-da-index", "002-integrar-rota-app-modulos"],
+      "verdictos": { "verde": 12, "amarelo": 1, "vermelho": 0 },
+      "block_on_red": false,
+      "arquivos_atualizados": [
+        "_reversa_forward/001-reconstrua-o-conteudo-da-index/regression-watch.md (bloco datado + 2 verificacoes de contexto)",
+        "_reversa_forward/002-integrar-rota-app-modulos/regression-watch.md (bloco datado + 3 verificacoes de contexto)",
+        "_reversa_forward/003-renomear-pasta-app-para-src/regression-watch.md (bloco datado com W001..W005)",
+        "_reversa_forward/004-servidor-waitress/regression-watch.md (bloco datado com W001..W008)"
+      ],
+      "tabelas_principais_intocadas": true,
+      "watch_items_arquivados": 0,
+      "watch_archive_after": 3,
+      "watch_archive_reason": "nenhum item acumulou tres vereditos verdes consecutivos: esta e a PRIMEIRA verificacao real dos watch items das features 003 e 004, publicados em 2026-10-03, depois do congelamento do SDD anterior",
+      "veredito_amarelo": {
+        "id": "W008",
+        "feature": "004-servidor-waitress",
+        "regra": "toda linha de dependencia declara a versao com ==, nas versoes validadas",
+        "motivo": "as versoes mudaram EM RELACAO A LISTA DO WATCH: ged4py 0.5.2 -> 0.5.5, networkx 3.6.1 -> 3.7, pandas 3.0.3 -> 3.0.6, e entraram rapidfuzz==3.14.6 e python-Levenshtein==0.27.5. A mudanca e DELIBERADA, com decisao humana registrada em questions.md#pergunta-11 e adrs/13: o .venv passou a ser o interpretador oficial. A primeira metade da regra (toda linha fixada) esta satisfeita; a segunda (versao igual as validadas) foi contradita de proposito. NAO e regressao; a lista de versoes citada no watch esta superada por decisao. A tabela principal nao foi reescrita, conforme a regra do passo."
+      },
+      "evidencia_de_paridade": {
+        "comando": ".venv/Scripts/python.exe _reversa_sdd/parity/harness.py --timeout 600",
+        "resultado": "PARIDADE 100% (zero divergencia) em 6/6 fixtures, contra o oraculo congelado",
+        "nota": "esta e a evidencia que sustenta o W005 das features 003 e 004. PROVA que as tres mudancas de codigo de 2026-10-05 (desempate deterministico, remocao do secret_key, sentinela SEM_KIT) NAO alteraram o comportamento observavel contra o oraculo",
+        "arvore_real_nao_medida": "a execucao sobre Arvore_Unificada_Oficial_V1_2.ged (35.460 pessoas) estourou o teto de 600s do harness. O resultado de 2026-09-28 (5/5 arvores reais) segue como referencia HISTORICA, nao como verificacao desta rodada",
+        "nota_operacional": "o --gedcom do harness exige CAMINHO ABSOLUTO: o oraculo roda em diretorio isolado e um caminho relativo resolve contra la, produzindo FileNotFoundError no lado do oraculo e uma 'divergencia' que e artefato do probe"
+      },
+      "reconciliacao_de_adendos": {
+        "total": 9,
+        "marcados_nesta_rodada": 6,
+        "nomes": [
+          "003-renomear-pasta-app-para-src.md",
+          "004-servidor-waitress.md",
+          "bug-BUG-20260929-J6PQ-v001.md",
+          "bug-BUG-20260929-J6PQ-v002.md",
+          "bug-BUG-20260929-QMLY-v001.md",
+          "bug-BUG-20261004-EWSJ-v001.md"
+        ],
+        "ja_superados_em_rodada_anterior": ["001-reconstrua-o-conteudo-da-index.md", "002-integrar-rota-app-modulos.md", "003-refactor-code-quality.md"],
+        "mudanca_de_decisao_declarada": "o bug-J6PQ-v001 havia sido PRESERVADO de proposito em 2026-09-30, com a justificativa de que nenhum artefato principal cobria o contrato de escape. Essa premissa deixou de valer nesta rodada: busca-caminho/contracts.md secao 5 e adrs/05 passaram a cobrir o assunto por inteiro. A mudanca de situacao esta declarada no proprio adendo."
+      },
+      "legacy_untouched": "NAO - ja registrado em code_changes_authorized do checkpoint do Revisor; nenhuma edicao adicional nesta passada"
+    },
+    "extraction_complete_reextracao_2026_10_05": {
+      "completed_at": "2026-10-06T03:20:00Z",
+      "kind": "re-extracao integral do _reversa_sdd/ a partir do codigo de 2026-10-05",
+      "agents_run": ["scout", "archaeologist", "detective", "architect", "writer", "reviewer"],
+      "agents_run_count": 6,
+      "doc_level": "completo",
+      "fases_concluidas": ["reconhecimento", "escavacao", "interpretacao", "geracao", "revisao"],
+      "snapshot_da_extracao_anterior": ".reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo)",
+      "artefatos_gerados_ou_reescritos": {
+        "transversais": ["inventory.md", "dependencies.md", "code-analysis.md", "data-dictionary.md", "domain.md", "state-machines.md", "permissions.md", "architecture.md", "c4-context.md", "c4-containers.md", "c4-components.md", "erd-complete.md", "confidence-report.md", "questions.md", "gaps.md"],
+        "flowcharts": 3,
+        "specs_de_unit": 12,
+        "adrs": 23,
+        "user_stories": 3,
+        "openapi": 1,
+        "traceability": 2,
+        "total_aproximado": 60
+      },
+      "preservados_sem_regeneracao": ["_reversa_sdd/migration/", "_reversa_sdd/oracle/", "_reversa_sdd/parity/", "_reversa_sdd/screens/", "_reversa_sdd/addenda/", "_reversa_sdd/design-system/", "_reversa_sdd/traceability/bugs.md"],
+      "confianca_final": { "afirmacoes": 1922, "verde": 1737, "amarelo": 95, "vermelho": 90, "confianca_geral_pct": 92.8 },
+      "lacunas": { "abertas_linhas": 14, "ids_distintos": 17, "criticas": 1, "fechadas_nesta_rodada": 16 },
+      "regression_check": "concluido nesta sessao em 2026-10-06T03:20Z (ver checkpoint passo4_regressao_2026_10_05): 4 features, 13 watch items, 12 verdes e 1 amarelo, ZERO vermelhos",
+      "adendos_superados": 6,
+      "codigo_do_legado_alterado": "SIM - 6 arquivos, todos por decisao explicita do usuario registrada em _reversa_sdd/questions.md e cobertos por reversa-config.json: src/core/matching.py, src/app.py, src/core/genetic_evidence.py, requirements.txt, tests/test_characterization_matching.py, tests/test_confrontacao_gedcom_dna.py",
+      "verificacao_por_execucao": {
+        "suite": "179 itens, 164 passam, 15 erros de ambiente (PermissionError do sandbox no diretorio temporario, identico nos dois interpretadores e ja registrado em 2026-09-30)",
+        "paridade": "100% em 6/6 fixtures contra o oraculo congelado",
+        "cobertura": "83% de src/ (medida com pytest-cov no .venv)"
+      },
+      "pending": "Nenhuma pergunta de validacao humana em aberto: as 16 foram respondidas. A UNICA lacuna critica restante e a corrida entre threads (L-16/M-03/P-02), que nao depende de decisao humana.",
+      "proximos_passos": [
+        "/reversa-docs para regenerar o mini-site (fecha T021/O4 da feature 003) - o site atual descreve a raiz analisador-genealogico/ e o pacote reconstructed/",
+        "regenerar as matrizes de _reversa_bugs/*/generated/, que derivam das specs de 2026-09-30",
+        "levar os 4 requisitos encaminhados ao alvo para o proximo ciclo /reversa-requirements: persistir historico, registrar o veredito do operador, restringir a lista de nomes e validar o conteudo do CSV",
+        "atualizar o README.md, que ainda documenta o interpretador global e agora contradiz o pin",
+        "tratar a lacuna critica L-16/M-03 (corrida entre threads) na Onda 3 da migracao, junto com P-01"
+      ]
     }
   },
   "engines": [

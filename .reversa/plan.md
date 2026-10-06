@@ -6,6 +6,67 @@
 
 ---
 
+## Re-extração de 2026-10-05 🔁
+
+> Disparada porque o `_reversa_sdd/` estava congelado em 2026-09-30 e o código andou muito desde então: a raiz `analisador-genealogico/` virou `src/`, o pacote `reconstructed/` foi substituído por `core/` + `parsers/` + `reporting/` + `utils/`, o `app.py` passou de 84 para 227 linhas, e a capacidade de **confronto GEDCOM × DNA** (quatro estados) nasceu sem nenhuma spec. Nenhuma feature 005+ existe em `_reversa_forward/`, então não há adendo que registre esse trabalho.
+> Nível de documentação: **a definir no checkpoint pós-Scout** (o `state.json` dizia `essencial`; o `config.toml` diz `completo`).
+> Snapshot da extração anterior: `.reversa/snapshots/2026-10-05-pre-reextracao/` (33 arquivos, 349 KB, sha256 por arquivo no `_MANIFEST.txt`).
+> Preservados sem regeneração: `_reversa_sdd/migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`.
+> Pós-extração: regenerar `_reversa_docs/` e revisar as matrizes de rastreabilidade dos bugs.
+
+### Fase 1: Reconhecimento 🔍
+
+- [x] **Scout** — Estrutura, tecnologias, entry points, dependências e cobertura de testes ✅
+- [x] **Scout** — Sugestão de organização das specs (confirmou `endpoint` já persistido; passo 3 pulado) ✅
+
+### Fase 2: Escavação 🏗️
+
+- [x] **Arqueólogo** — Análise do módulo `upload-gedcom` (parsers/gedcom_parser.py, core/gedcom_state.py, utils/text_cleaning.py, utils/validate.py) ✅ 20 regras, `flowcharts/upload-gedcom.md`
+- [x] **Arqueólogo** — Análise do módulo `analise-dna` (core/dna_analysis.py, genetic_evidence, relationship_hypotheses, evidence_comparison, matching, name_normalization, cm_estimator, parsers/csv_ingest.py) ✅ 62 regras, `flowcharts/analise-dna.md`
+- [x] **Arqueólogo** — Análise do módulo `busca-caminho` (core/path_search.py, path_finding, family_navigation, documentary_relationship, reporting/mermaid_render.py) ✅ 36 regras, `flowcharts/busca-caminho.md`
+- [x] **Arqueólogo** — Artefatos transversais do nível completo: `data-dictionary.md`, `flowcharts/{upload-gedcom,analise-dna,busca-caminho}.md`, `code-analysis.md` (§1 a §6) e `.reversa/context/modules.json` ✅ 118 regras, 77 funções, 27 estruturas
+
+### Fase 3: Interpretação 🧠
+
+- [x] **Detetive** — Arqueologia Git e ADRs retroativos ✅ 23 ADRs em `adrs/` (125 commits; 8 herdadas revalidadas + 15 novas)
+- [x] **Detetive** — Regras de negócio implícitas e máquinas de estado ✅ 7 famílias de regras; `state-machines.md` com 2 máquinas de decisão e 11 códigos de aviso
+- [x] **Detetive** — Matriz de permissões (RBAC/ACL) ✅ `permissions.md`: nenhum papel, nenhuma sessão; `app.secret_key` sem consumidor
+- [x] **Arquiteto** — Diagramas C4 (Contexto) ✅ `c4-context.md` reescrito + `c4-containers.md` (3 containers) e `c4-components.md` (19 módulos) criados
+- [x] **Arquiteto** — ERD e integrações externas ✅ `erd-complete.md` com 27 estruturas em 4 diagramas; **zero** integrações de rede
+- [x] **Arquiteto** — Spec Impact Matrix (conforme o nível escolhido) ✅ `traceability/spec-impact-matrix.md` com 5 matrizes, 20 constantes mapeadas e 4 lacunas
+
+### Fase 4: Geração 📝
+
+- [x] **Redator** — Specs SDD da unit `upload-gedcom` ✅ 19 RF, 20 tarefas, 13 testes e `contracts.md`
+- [x] **Redator** — Specs SDD da unit `analise-dna` ✅ 26 RF, 32 tarefas, 18 testes e `contracts.md` (com a divergência viva `RF-26` do determinismo)
+- [x] **Redator** — Specs SDD da unit `busca-caminho` ✅ 24 RF, 29 tarefas, 18 testes e `contracts.md` (com o contrato de escape como item crítico)
+- [x] **Redator** — Artefatos globais do nível completo ✅ `openapi/index.yaml` (contrato de formulário), 3 `user-stories/` e `traceability/code-spec-matrix.md`
+
+### Fase 5: Revisão ✅
+
+- [x] **Revisor** — Revisão de consistência ✅ 10 verificações; `L-06` fechada por verificação no template
+- [x] **Revisor** — Resolução de lacunas com o usuário ✅ **16 de 16 respondidas**; 4 decisões mudaram código, 1 mudou o pin e 4 viraram requisitos do alvo
+- [x] **Revisor** — Relatório de confiança final ✅ 92,4% na extração completa (1.918 afirmações); `gaps.md` com 25 lacunas remanescentes
+
+### Passo 4 — Verificação de regressão semântica 🔁
+
+- [x] **Reversa** — Verificação contra `_reversa_forward/*/regression-watch.md` ✅ 4 features, **13 watch items: 12 🟢 e 1 🟡, zero vermelhos**; paridade remedida em 100% (6/6 fixtures)
+- [x] **Reversa** — Reconciliação de adendos ✅ **6 adendos** marcados como superados pela re-extração de 2026-10-05 (9 no total; 3 já estavam de rodada anterior)
+
+---
+
+## ✅ Re-extração concluída em 2026-10-05
+
+> 6 agentes, nível **completo**, **1.922 afirmações e 92,8% de confiança geral**.
+> Snapshot da extração anterior: `.reversa/snapshots/2026-10-05-pre-reextracao/` (33 arquivos, 349 KB)
+> Preservados: `migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`, `design-system/`, `traceability/bugs.md`
+> **16 perguntas de validação humana, todas respondidas** — 4 decisões mudaram código e 1 mudou o pin
+> Verificação por execução: suíte **179 itens / 164 passam**; paridade **100% (6/6 fixtures)**; cobertura **83% de `src/`**
+> Lacunas: **14 linhas em aberto**, **1 crítica** (corrida entre threads)
+> Próximos passos: `/reversa-docs` (regenerar o mini-site), regenerar as matrizes de bugs, e levar os **4 requisitos encaminhados ao alvo** para o próximo ciclo forward
+
+---
+
 ## Re-extração de 2026-09-30 🔁
 
 > Disparada porque o `_reversa_sdd/` estava congelado em 2026-08-03 e contradizia o código atual (app.py 887 → 84 linhas, `reconstructed/` criado, 95 testes adicionados, pyvis/matplotlib removidos).
