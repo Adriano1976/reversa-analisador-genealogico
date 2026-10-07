@@ -1,6 +1,6 @@
-"""Testes da porta de armazenamento (acoes T027 e T028).
+"""Testes da porta de armazenamento (acoes T027, T028 e T010).
 
-Dois blocos, e os dois medem algo que nenhum outro teste da suite mede.
+Tres blocos, e cada um mede algo que nenhum outro teste da suite mede.
 
 - `TestValidacaoAntesDaGravacao` (`T027`) mede a ORDEM da regra do `RF-10`: a
   validacao de conteudo acontece ANTES de qualquer escrita, e uma recusa nao
@@ -20,14 +20,33 @@ Dois blocos, e os dois medem algo que nenhum outro teste da suite mede.
   medir, e um teste de comportamento aqui so poderia passar se alguem tivesse
   escrito a implementacao que a decisao proibe.
 
-## Por que este arquivo nao usa `tmp_path`
+- `TestContratoDoArmazenamento` (`T010`, feature `007-dono-no-port-e-baseline`)
+  prova, tambem por introspeccao, a **forma** do contrato de armazenamento: o dono
+  existe nos dois metodos da porta e no metodo do carregador, nao tem valor padrao,
+  e a chamada sem ele e recusada pelo proprio contrato. O bloco mede ainda o que o
+  comportamento **nao** distingue — que dois donos com o mesmo conteudo chegam a UM
+  arquivo, que o arquivo ja gravado nao e reescrito e que a resolucao nao e
+  filtrada por dono. Ver o docstring da classe para o que cada prova cobre.
 
-`tmp_path` e `tmp_path_factory` criam a pasta-base com `mode=0o700`, e nesta
-maquina um diretorio `0o700` nao pode ser listado nem apagado. E a causa dos 15
-erros de ambiente de `tests/test_upload_seguranca.py`. A fixture
-`pasta_temporaria` de `tests/conftest.py` cria o diretorio em modo padrao e o
-remove no fim; e ela que este arquivo usa, e o import de `src/` fica no cabecalho
-padrao logo abaixo.
+## Por que este arquivo CONTINUA usando `pasta_temporaria`
+
+**Este paragrafo foi corrigido em 2026-10-07, e a versao anterior dele era falsa.**
+Ele dizia que `tmp_path` nao funciona nesta maquina e que era por isso que o
+arquivo usava `pasta_temporaria`. A feature `007-dono-no-port-e-baseline` declarou
+o fixture `tmp_path` em `tests/conftest.py` — **delegando a `pasta_temporaria`** —,
+e a partir dela `tmp_path` funciona: os 15 testes de `tests/test_upload_seguranca.py`
+passaram a executar por causa disso.
+
+O que continua verdadeiro, e o motivo de o arquivo nao ter sido reescrito:
+
+- `pasta_temporaria` e `tmp_path` sao hoje **a mesma politica**. O pytest cacheia a
+  instancia do fixture por teste, entao os dois nomes apontam para o MESMO
+  diretorio, e usa-los ou nao e escolha de leitura, nao de comportamento.
+- As assercoes deste arquivo sao **entregues** e continuam valendo ao caractere.
+  Trocar o nome do fixture seria churn sem ganho — e a `D-10` da 007 decidiu
+  corrigir o **comentario**, nao o codigo.
+
+O import de `src/` fica no cabecalho padrao logo abaixo.
 """
 import os
 import sys
@@ -40,10 +59,11 @@ import inspect
 
 import pytest
 
+from application import nomes_de_exibicao
 from application.upload_gedcom import upload_gedcom
 from core.erros import GedcomNaoSuportado
 from ports import adaptadores
-from ports import RepositorioDeArvores
+from ports import ArmazenamentoDeArquivos, CarregadorDeArvores, RepositorioDeArvores
 from ports.adaptadores import ArmazenamentoEmDisco, CarregadorDeArvoresGedcom
 
 
@@ -331,3 +351,220 @@ class TestContratoDoRepositorio:
             if assinatura.parameters["dono"].default is not inspect.Parameter.empty:
                 return False
         return True
+
+
+class TestContratoDoArmazenamento:
+    """T010 — o dono entra no contrato do armazenamento, e NAO no comportamento.
+
+    Tres provas, e cada uma responde a uma clausula que nenhuma outra mede:
+
+    - a **forma**: o dono existe nos dois metodos da porta de armazenamento e no
+      metodo do carregador, nao tem valor padrao, e a chamada sem ele e recusada
+      pelo proprio contrato — `RF-01`, no mesmo padrao estrutural do `T028` acima;
+    - a **ausencia de superficie de compatibilidade**: nao ha assinatura variavel
+      capaz de absorver a chamada antiga, o adaptador declara exatamente a mesma
+      forma do `Protocol`, e a chamada como ela era antes do `T005` nao compila —
+      `RF-12`;
+    - o **comportamento preservado**: dois donos diferentes com o mesmo conteudo
+      chegam a UM arquivo, o arquivo ja gravado nao e reescrito, e a resolucao nao
+      e filtrada por dono — `RF-02`, que e a `RN-02` levada a serio.
+    """
+
+    @pytest.mark.parametrize(
+        ("classe", "nome_metodo", "demais_argumentos"),
+        [
+            (ArmazenamentoDeArquivos, "guardar", (b"conteudo", "a.ged", "gedcom", DONO)),
+            (ArmazenamentoDeArquivos, "resolver", ("referencia", DONO)),
+            (CarregadorDeArvores, "carregar", ("referencia", DONO)),
+        ],
+        ids=["guardar", "resolver", "carregar"],
+    )
+    def test_dono_e_obrigatorio_e_sem_valor_padrao(
+            self, classe, nome_metodo, demais_argumentos):
+        """`dono` na assinatura, sem padrao, por ULTIMO, e a chamada sem ele recusada.
+
+        Os `demais_argumentos` incluem um valor para o dono de proposito: e assim
+        que `demais_argumentos[:-1]` deixa faltando **so** o dono. Sem isso, o
+        `bind` acusaria a falta de outro parametro e o teste passaria medindo a
+        aridade em vez da obrigatoriedade do dono — o mesmo cuidado que o `T028`
+        documenta.
+
+        `self` CONTA na assinatura: `inspect.signature` sobre o atributo de classe
+        de um `Protocol` devolve a funcao crua.
+        """
+        assinatura = inspect.signature(getattr(classe, nome_metodo))
+
+        assert "dono" in assinatura.parameters, (
+            f"{classe.__name__}.{nome_metodo} perdeu o dono: a Onda 3 precisaria "
+            "reabrir a assinatura e todos os chamadores (RF-01)"
+        )
+        assert assinatura.parameters["dono"].default is inspect.Parameter.empty, (
+            f"{classe.__name__}.{nome_metodo} deu valor padrao ao dono: a chamada "
+            "sem identidade volta a compilar e a costura perde onde ancorar "
+            "(RF-01, RF-12)"
+        )
+        assert list(assinatura.parameters)[-1] == "dono", (
+            f"{classe.__name__}.{nome_metodo} deixou de declarar o dono por "
+            "ULTIMO. A simetria com `RepositorioDeArvores` — onde o dono tambem e "
+            "o ultimo — e o que faz a leitura da Onda 3 nao consultar porta a "
+            "porta (RNF de Manutenibilidade)"
+        )
+
+        objeto_falso = object()
+        assinatura.bind(objeto_falso, *demais_argumentos)
+        with pytest.raises(TypeError):
+            assinatura.bind(objeto_falso, *demais_argumentos[:-1])
+
+    @pytest.mark.parametrize(
+        ("classe", "nome_metodo", "chamada_sem_dono"),
+        [
+            (ArmazenamentoDeArquivos, "guardar", (b"conteudo", "a.ged", "gedcom")),
+            (ArmazenamentoDeArquivos, "resolver", ("referencia",)),
+            (CarregadorDeArvores, "carregar", ("referencia",)),
+        ],
+        ids=["guardar", "resolver", "carregar"],
+    )
+    def test_nao_existe_forma_alternativa_de_chamada(
+            self, classe, nome_metodo, chamada_sem_dono):
+        """Nenhuma superficie de compatibilidade: a chamada antiga nao compila.
+
+        A `RF-12` proibe duas coisas, e as duas sao medidas:
+
+        - **assinatura variavel** (`*args`/`**kwargs`). Um `**extras` absorveria a
+          chamada sem o dono e a obrigatoriedade viraria decorativa — o parametro
+          continuaria "obrigatorio" no papel e opcional na pratica.
+        - **a chamada antiga aceita.** `bind` monta a chamada EXATAMENTE como ela
+          era antes do `T005`, sem o dono, e o contrato tem de recusa-la.
+        """
+        assinatura = inspect.signature(getattr(classe, nome_metodo))
+        for parametro in assinatura.parameters.values():
+            assert parametro.kind not in (
+                inspect.Parameter.VAR_POSITIONAL,
+                inspect.Parameter.VAR_KEYWORD,
+            ), (
+                f"{classe.__name__}.{nome_metodo} declara `{parametro.name}` "
+                f"({parametro.kind.name}): uma assinatura variavel absorve a "
+                "chamada antiga sem o dono e a RF-12 deixa de valer"
+            )
+
+        with pytest.raises(TypeError):
+            assinatura.bind(object(), *chamada_sem_dono)
+
+    @pytest.mark.parametrize(
+        ("contrato", "adaptador", "nome_metodo"),
+        [
+            (ArmazenamentoDeArquivos, ArmazenamentoEmDisco, "guardar"),
+            (ArmazenamentoDeArquivos, ArmazenamentoEmDisco, "resolver"),
+            (CarregadorDeArvores, CarregadorDeArvoresGedcom, "carregar"),
+        ],
+        ids=["guardar", "resolver", "carregar"],
+    )
+    def test_adaptador_declara_a_mesma_forma_do_contrato(
+            self, contrato, adaptador, nome_metodo):
+        """O adaptador nao pode divergir do `Protocol` que ele satisfaz.
+
+        Divergir aqui e o defeito mais silencioso desta feature. `Protocol` nao
+        aparece em `__mro__` de quem o satisfaz, e a conformidade estrutural nao e
+        conferida em execucao: um adaptador sem o dono so quebraria no primeiro
+        chamador que passasse a identidade de verdade — na Onda 3, depois de a
+        costura ter sido declarada pronta.
+        """
+        parametros_do_contrato = list(
+            inspect.signature(getattr(contrato, nome_metodo)).parameters)
+        parametros_do_adaptador = list(
+            inspect.signature(getattr(adaptador, nome_metodo)).parameters)
+
+        assert parametros_do_adaptador == parametros_do_contrato, (
+            f"{adaptador.__name__}.{nome_metodo} declara "
+            f"{parametros_do_adaptador}, e {contrato.__name__}.{nome_metodo} "
+            f"declara {parametros_do_contrato}. Os nomes e a ordem fazem parte do "
+            "contrato: a chamada por palavra-chave e a simetria entre as portas "
+            "dependem deles"
+        )
+
+    def test_dois_donos_um_arquivo_so(self, pasta_temporaria):
+        """`RF-02`: o dono NAO vira escopo de armazenamento.
+
+        A segunda metade e a que interessa, e ela existe para separar duas coisas
+        que devolveriam o mesmo resultado visivel: **reusar** o caminho e
+        **regravar por cima**. Marcar o arquivo com conteudo arbitrario depois da
+        primeira gravacao e conferir que a marca sobrevive e o que distingue as
+        duas — se o adaptador regravasse, a referencia devolvida seria identica e a
+        regra "conteudo ja armazenado nao e regravado" estaria quebrada sem que
+        nenhuma assercao de caminho percebesse.
+        """
+        armazenamento, _ = _portas(pasta_temporaria)
+        conteudo = GEDCOM_VALIDO.encode("utf-8")
+
+        caminho_a, motivo_a = armazenamento.guardar(
+            conteudo, "arvore.ged", "gedcom", "dono-a")
+        assert motivo_a is None
+
+        with open(caminho_a, "wb") as destino:
+            destino.write(b"MARCA")
+
+        caminho_b, motivo_b = armazenamento.guardar(
+            conteudo, "arvore.ged", "gedcom", "dono-b")
+        assert motivo_b is None
+
+        assert caminho_a == caminho_b, (
+            "dois donos com o mesmo conteudo passaram a produzir referencias "
+            "diferentes: o dono entrou na chave ou no caminho, e isso e mudanca de "
+            "comportamento observavel (RN-02)"
+        )
+        assert os.listdir(pasta_temporaria) == [os.path.basename(caminho_a)], (
+            f"a pasta ficou com {os.listdir(pasta_temporaria)}: o mesmo conteudo "
+            "passou a gerar mais de um arquivo"
+        )
+        with open(caminho_a, "rb") as origem:
+            assert origem.read() == b"MARCA", (
+                "o arquivo ja gravado foi REESCRITO por um envio com outro dono: a "
+                "regra e reusar a chave de conteudo, nao regravar (RF-02)"
+            )
+
+    def test_resolucao_nao_e_filtrada_por_dono(self, pasta_temporaria):
+        """`RF-02`: o dono tambem nao filtra o `resolver`, em nenhum sentido.
+
+        As tres assercoes cobrem os tres casos que um filtro por dono mudaria:
+        o dono que gravou, um dono **diferente**, e uma referencia com forma
+        invalida. A ultima importa porque prova que o dono nao cria um caminho
+        alternativo que escape da validacao de forma — a validacao que impede um
+        `gedcom_filename` manipulado de apontar para fora da pasta.
+        """
+        armazenamento, _ = _portas(pasta_temporaria)
+        caminho, _ = armazenamento.guardar(
+            GEDCOM_VALIDO.encode("utf-8"), "arvore.ged", "gedcom", "dono-a")
+        referencia = os.path.basename(caminho)
+
+        assert armazenamento.resolver(referencia, "dono-a") == caminho
+        assert armazenamento.resolver(referencia, "dono-b") == caminho, (
+            "um dono diferente deixou de resolver a referencia: algum filtro por "
+            "dono entrou no resolver, e o armazenamento deixou de ser unico por "
+            "processo (RN-02)"
+        )
+        assert armazenamento.resolver("nao-e-uma-chave-valida", "dono-a") is None
+        assert armazenamento.resolver(referencia, "dono-a") is not None
+
+    def test_carregador_recebe_o_dono_por_chamada(self, pasta_temporaria):
+        """`D-06`: o dono chega por chamada e nao muda o que o carregador devolve.
+
+        O dono vai **por chamada**, e nao pelo construtor do adaptador, porque os
+        adaptadores sao singletons de processo montados no import de `src/app.py`.
+        A prova de que ele nao e interpretado: os dois donos devolvem a **mesma**
+        arvore, e a referencia invalida continua devolvendo `None` — o dono nao
+        abre caminho para fora da validacao de forma.
+        """
+        armazenamento, carregador = _portas(pasta_temporaria)
+        caminho, _ = armazenamento.guardar(
+            GEDCOM_VALIDO.encode("utf-8"), "arvore.ged", "gedcom", "dono-a")
+        referencia = os.path.basename(caminho)
+
+        for dono in ("dono-a", "dono-b"):
+            arvore = carregador.carregar(referencia, dono)
+            assert arvore is not None, (
+                f"o carregador deixou de resolver a referencia para o dono "
+                f"'{dono}': o dono passou a participar da resolucao (D-06)"
+            )
+            assert nomes_de_exibicao(arvore) == NOMES_ESPERADOS
+
+        assert carregador.carregar("nao-e-uma-chave-valida", "dono-a") is None
