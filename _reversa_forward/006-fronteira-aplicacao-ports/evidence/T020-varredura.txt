@@ -1,0 +1,13 @@
+﻿=== T020 varredura de passos de dominio em index() ===
+data: 2026-10-07 13:45:34 -03:00
+
+$ python _reversa_forward/006-fronteira-aplicacao-ports/evidence/_t020_varredura.py
+arquivo varrido: D:\Projetos\reversa_analisador_gelealogico\src\app.py
+funcao varrida : index()
+chamadas em index(): 32
+simbolos proibidos encontrados: 0
+funcoes de dependencia citadas na montagem da borda: aggregate_matches, detectar_colunas, generate_mermaid_graph, generate_mermaid_graph_indirect_bridge, read_csv_with_fallback
+pontos de montagem de `Dependencias` no modulo: 1
+
+RESULTADO: APROVADO — nenhum passo de dominio em index()
+exit code: 0

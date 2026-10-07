@@ -109,6 +109,12 @@ Start-Process -NoNewWindow python -ArgumentList "src/app.py"
 Start-Sleep -Seconds 3
 ```
 
+> **Alternativa medida no `T025`:** apontar `ANALISADOR_UPLOAD_FOLDER` para uma
+> pasta descartável em vez de `src\uploads`. O valor da variável é só uma escolha —
+> o mecanismo é o mesmo —, e a consequência é que o passo 7 deixa de ter resíduo
+> para limpar. A execução de 2026-10-07 usou `evidence/_tmp_e2e/uploads` e
+> confirmou, por contagem, que `src/uploads/` ficou intacto.
+
 ### 6.1 A raiz responde
 
 ```powershell
@@ -145,10 +151,21 @@ curl.exe -s -o $env:TEMP\dna.html -w "status=%{http_code}`n" `
   -F "root_name=Ana Silva" `
   -F "matches_csv=@_reversa_sdd/parity/fixtures/dna/cm_boundaries.csv" `
   http://127.0.0.1:58041/
-Select-String -Path $env:TEMP\dna.html -Pattern 'Resultados da Análise de DNA|Matches descartados|Relacionamento Provável' | Select-Object -First 3
+Select-String -Path $env:TEMP\dna.html -Pattern 'Resultado da Análise|Matches descartados' | Select-Object -First 3
 ```
 
-Esperado: `status=200` e os três cabeçalhos presentes. **Não** pode aparecer `Ocorreu um erro`.
+Esperado: `status=200` e os cabeçalhos presentes. **Não** pode aparecer `Ocorreu um erro`.
+
+> ⚠️ **Correção de 2026-10-07, medida no `T025`.** Este passo pedia o padrão
+> `Resultados da Análise de DNA`, que **não existe no template**: o que
+> `src/templates/index.html` renderiza é `Resultado da Análise` — singular, e sem
+> "de DNA". O padrão anterior foi copiado de
+> `_reversa_sdd/migration/parity_tests/12-paridade-telas.feature:71`, que diz
+> "Entao o cabecalho e exatamente `Resultados da Análise de DNA`". **O Gherkin
+> congelado e o template divergem**, e a divergência é anterior a esta feature. O
+> template **não** foi alterado: mudar literal visível é o que a `RN-04` proíbe. O
+> achado está em `evidence/T025-verificacao-manual.md` §1.1 e em
+> `regression-watch.md`.
 
 ### 6.4 Busca de caminho — direto e por afinidade
 
@@ -190,10 +207,21 @@ curl.exe -s -o $env:TEMP\naoencontrada.html -w "status=%{http_code}`n" `
   -F "action=path_search" -F "gedcom_filename=$chave" `
   -F "person1_name=Zzz Ninguem" -F "person2_name=Ana Silva" `
   http://127.0.0.1:58041/
-Select-String -Path $env:TEMP\naoencontrada.html -Pattern "Pessoa 1 'Zzz Ninguem' não encontrada" | Select-Object -First 1
+Select-String -Path $env:TEMP\naoencontrada.html -Pattern 'Pessoa 1' | Select-Object -First 1
 ```
 
 Esperado: os três retornam `status=200` — **o status não distingue os casos**. O que distingue é o **modo de renderização**, e ele vem do campo de desfecho do resultado, nunca do texto da mensagem. Se você trocar o texto de uma das mensagens e o modo não mudar, o `A003` está de fato fechado; se o modo mudar junto com o texto, o adaptador está inferindo do texto e a `RF-20` foi violada.
+
+> ⚠️ **Correção de 2026-10-07, medida no `T025`.** O padrão deste passo era
+> `Pessoa 1 'Zzz Ninguem' não encontrada`, com apóstrofo literal, e **não casa**:
+> o Jinja escapa apóstrofo no HTML, e o que está na página é
+> `Pessoa 1 &#39;Zzz Ninguem&#39; não encontrada.` O texto do código está certo; o
+> padrão é que era inalcançável. O padrão passou a ser `Pessoa 1`, que confere a
+> mensagem sem depender do escape.
+>
+> Para conferir o **modo** de renderização, e não só o texto, use a classe do
+> alerta: `Select-String -Path $env:TEMP\semconexao.html -Pattern 'alert alert-success'`
+> e `Select-String -Path $env:TEMP\naoencontrada.html -Pattern 'alert alert-danger'`.
 
 ### 6.6 As três mensagens negativas de upload
 

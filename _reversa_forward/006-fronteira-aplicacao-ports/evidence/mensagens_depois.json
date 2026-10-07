@@ -1,0 +1,135 @@
+[
+  {
+    "caso": "upload_sem_arquivo",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Nenhum arquivo GEDCOM enviado.",
+    "obs": ""
+  },
+  {
+    "caso": "upload_nome_vazio",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Nenhum arquivo selecionado.",
+    "obs": ""
+  },
+  {
+    "caso": "upload_conteudo_invalido",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Arquivo não reconhecido como GEDCOM: não começa com a declaração 0 HEAD.",
+    "obs": ""
+  },
+  {
+    "caso": "upload_conteudo_vazio",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Arquivo não reconhecido como GEDCOM: arquivo vazio.",
+    "obs": ""
+  },
+  {
+    "caso": "upload_ok",
+    "status": 200,
+    "alerta": "success",
+    "mensagem": "Arquivo &#39;arvore.ged&#39; carregado!",
+    "obs": ""
+  },
+  {
+    "caso": "upload_acima_do_teto",
+    "status": 413,
+    "alerta": "danger",
+    "mensagem": "Arquivo maior que o limite de 16 MB.",
+    "obs": ""
+  },
+  {
+    "caso": "ref_ausente",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Erro: Arquivo GEDCOM não encontrado.",
+    "obs": ""
+  },
+  {
+    "caso": "ref_inexistente",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Erro: Arquivo &#39;0000000000000000__nao_existe.ged&#39; não existe mais.",
+    "obs": ""
+  },
+  {
+    "caso": "ref_forma_invalida",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Erro: Arquivo &#39;../app.py&#39; não existe mais.",
+    "obs": ""
+  },
+  {
+    "caso": "dna_sem_csv",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Por favor, carregue o arquivo CSV de matches.",
+    "obs": ""
+  },
+  {
+    "caso": "dna_csv_nome_vazio",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Por favor, carregue o arquivo CSV de matches.",
+    "obs": ""
+  },
+  {
+    "caso": "dna_raiz_ausente",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Ocorreu um erro: Seu nome &#39;Zzz Ninguem&#39; não foi encontrado no GEDCOM.",
+    "obs": ""
+  },
+  {
+    "caso": "dna_csv_sem_colunas",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Ocorreu um erro: Colunas de Nome e cM não encontradas no CSV. O arquivo foi lido com o separador &#39;,&#39; e as colunas encontradas foram: [&#39;alfa&#39;, &#39;beta&#39;]. Confira se o arquivo enviado é a lista de matches de DNA (exportação do GEDmatch/MyHeritage/FamilyTreeDNA) e não o GEDCOM ou outro CSV.",
+    "obs": ""
+  },
+  {
+    "caso": "dna_ok",
+    "status": 200,
+    "alerta": "success",
+    "mensagem": "1 conexões encontradas. 0 descartadas.",
+    "obs": ""
+  },
+  {
+    "caso": "path_pessoa1_ausente",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Pessoa 1 &#39;Zzz Ninguem&#39; não encontrada.",
+    "obs": ""
+  },
+  {
+    "caso": "path_pessoa2_ausente",
+    "status": 200,
+    "alerta": "danger",
+    "mensagem": "Pessoa 2 &#39;Zzz Ninguem&#39; não encontrada.",
+    "obs": ""
+  },
+  {
+    "caso": "path_direto",
+    "status": 200,
+    "alerta": "success",
+    "mensagem": "Conexão direta encontrada (ancestral comum).",
+    "obs": ""
+  },
+  {
+    "caso": "path_indireto",
+    "status": 200,
+    "alerta": "success",
+    "mensagem": "Conexão indireta encontrada (via casamento/afinidade).",
+    "obs": ""
+  },
+  {
+    "caso": "path_sem_conexao",
+    "status": 200,
+    "alerta": "success",
+    "mensagem": "Nenhuma conexão encontrada entre &#39;Joao Silva&#39; e &#39;Solo Ninguem&#39;.",
+    "obs": ""
+  }
+]
