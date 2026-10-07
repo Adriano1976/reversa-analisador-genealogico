@@ -6,7 +6,13 @@ import sys
 from flask import Flask, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from core.dna_analysis import Dependencias, dna_analysis as dna_analysis_flow
+from application import Desfecho, nomes_de_exibicao
+from application.dna_analysis import dna_analysis as caso_de_uso_dna
+from application.path_search import path_search as caso_de_uso_de_busca
+from application.traducao import traduzir
+from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
+from core.dna_analysis import Dependencias
+from core.erros import ErroDeDominio
 from parsers.csv_ingest import (
     aggregate_matches,
     detect_columns as detectar_colunas,
@@ -16,19 +22,13 @@ from reporting.mermaid_render import (
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
 )
-from core.path_search import path_search as path_search_flow
-from core.registro import get_name
-from parsers.gedcom_parser import carregar_arvore
+from ports.adaptadores import ArmazenamentoEmDisco, CarregadorDeArvoresGedcom
 from utils.number_format import formatar_cm, formatar_inteiro
-from utils.validate import (
-    chave_de_armazenamento,
-    chave_recebida_e_valida,
-    nome_do_arquivo_armazenado,
-    validar_conteudo_gedcom,
-)
 
 # As dependencias de borda que o nucleo consome (RF-09): leitura de CSV e
-# emissao de diagrama. Montadas uma vez, aqui na borda, e injetadas nos fluxos.
+# emissao de diagrama. Montadas UMA vez, aqui na borda, e injetadas nos fluxos
+# pelo caso de uso (D-05). Ate a extracao havia uma segunda montagem identica
+# dentro do ramo de DNA, a cada requisicao; ela saiu em `T018`.
 _DEPENDENCIAS = Dependencias(
     read_csv_with_fallback,
     detectar_colunas,
@@ -36,6 +36,13 @@ _DEPENDENCIAS = Dependencias(
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
 )
+
+# RN-06: NAO ha identidade de usuario nesta onda. O dono e um marcador unico do
+# processo, e existe porque a costura precisa estar na assinatura ANTES de a Onda
+# 3 chegar — adiar reabriria toda assinatura de porta (RF-08). Nenhum
+# comportamento de isolamento depende deste valor, e nenhuma entrega desta feature
+# pode ser citada como tendo implementado isolamento.
+DONO_DO_PROCESSO = "unico"
 
 # --- Configuração ---
 app = Flask(__name__)
@@ -49,7 +56,18 @@ app = Flask(__name__)
 # Teto de corpo de requisicao. Ausente no legado, e a ausencia fazia o multipart
 # inteiro ser gravado em disco antes de qualquer verificacao de negocio
 # (BUG-20260929-QMLY). Acima do teto o Flask aborta com 413 antes de ler o corpo.
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+#
+# O valor passa a ter nome (`T004`, `D-10`). A `RN-01` permite nomear constantes e
+# proibe alterar valores: o numero e o MESMO, e o que muda e existir um ponto unico
+# de mudanca — e o teste poder citar a constante em vez de repetir o literal.
+TETO_DE_UPLOAD_EM_BYTES = 16 * 1024 * 1024
+
+# Derivado do mesmo teto para a mensagem de `413`, que fala em MB e nao em bytes.
+# A divisao fica aqui, ao lado da origem, para as duas formas do MESMO teto
+# mudarem juntas se o valor mudar um dia.
+TETO_DE_UPLOAD_EM_MB = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
+
+app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
 # Formato dos numeros que o operador le (BUG-20261004-EWSJ). O template pede o
 # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
@@ -81,92 +99,52 @@ def _pasta_uploads() -> str:
 # criado no import e o procurado nas requisicoes nao poderem divergir.
 os.makedirs(_pasta_uploads(), exist_ok=True)
 
+# Os adaptadores concretos das portas, montados na borda (RF-02, D-07). Nenhum
+# caso de uso instancia estes: ele recebe a porta por parametro. A pasta e
+# resolvida UMA vez, aqui, e nao a cada requisicao — a funcao acima le o
+# ambiente, e o ambiente nao muda no meio do processo.
+_ARMAZENAMENTO = ArmazenamentoEmDisco(_pasta_uploads())
+_CARREGADOR = CarregadorDeArvoresGedcom(_ARMAZENAMENTO)
+
 
 @app.errorhandler(RequestEntityTooLarge)
 def _requisicao_grande(_erro):
-    limite_mb = app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024)
     return render_template(
         "index.html",
-        message=f"Arquivo maior que o limite de {limite_mb} MB.",
+        message=f"Arquivo maior que o limite de {TETO_DE_UPLOAD_EM_MB} MB.",
         success=False,
     ), 413
 
 
-def _guardar_upload(arquivo, kind: str):
-    """Valida e grava o upload sob chave gerada pelo servidor.
-
-    Devolve `(caminho, motivo)`. `motivo` e None em caso de sucesso, e `caminho`
-    e o CAMINHO COMPLETO do arquivo gravado. Devolver o caminho, e nao o nome, e
-    deliberado: quem le depois usa exatamente o que foi escrito, sem remontar o
-    caminho. A versao anterior devolvia o nome e a rota de DNA o passava direto
-    ao parser, que procurava o CSV no diretorio corrente e falhava com
-    `No such file or directory`. Nome e caminho nunca devem ser intercambiaveis.
-    """
-    conteudo = arquivo.read()
-    motivo = validar_conteudo_gedcom(conteudo) if kind == "gedcom" else None
-    if motivo is not None:
-        return None, f"Arquivo não reconhecido como GEDCOM: {motivo}."
-
-    chave = chave_de_armazenamento(conteudo)
-    nome_armazenado = nome_do_arquivo_armazenado(chave, arquivo.filename)
-    caminho = os.path.join(_pasta_uploads(), nome_armazenado)
-    if not os.path.exists(caminho):
-        with open(caminho, "wb") as destino:
-            destino.write(conteudo)
-    return caminho, None
-
-
-def _resolver_caminho_armazenado(nome_recebido):
-    """Caminho do arquivo ja armazenado, ou None quando o valor e invalido.
-
-    A validacao de forma e o que impede um `gedcom_filename` manipulado de
-    apontar para fora da pasta de upload (BUG-20260929-QMLY, criterio 5).
-    """
-    if not chave_recebida_e_valida(nome_recebido):
-        return None
-    caminho = os.path.join(_pasta_uploads(), nome_recebido)
-    return caminho if os.path.exists(caminho) else None
-
-
-def _gedcom_do_formulario() -> tuple[str | None, str | None, str | None]:
-    """Arvore pedida pelo formulario: devolve `(nome, caminho, mensagem)`.
+def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
+    """Arvore pedida pelo formulario: devolve `(referencia, arvore, mensagem)`.
 
     Fonte unica das duas guardas de entrada dos fluxos pos-upload (analise de
     DNA e busca de caminho). Antes da OPP-20261006-4KMB o mesmo par de guardas
     estava escrito em `index()` com as duas mensagens duplicadas.
 
-    O `nome` volta junto porque e ele que o template devolve no campo oculto
+    A `referencia` volta junto porque e ela que o template devolve no campo oculto
     `gedcom_filename`, para a requisicao seguinte. E o valor RECEBIDO do
     formulario, e nao uma forma derivada do caminho: e assim que o contrato de
     continuidade entre requisicoes sempre funcionou.
 
-    A uniao e explicita de proposito, e o chamador repete a guarda de `None`.
-    O checador nao estreita o segundo elemento da tupla por `erro is not None`,
-    entao sem as duas a chamada de `load_gedcom_and_build_graph` recebe
-    `str | None`. Medido com pyrefly 1.3.2: sem a guarda, os erros de `src/`
-    sobem de 27 para 28.
+    Ate `T016` da feature 006 esta funcao resolvia o caminho por
+    `_resolver_caminho_armazenado` e chamava `carregar_arvore` direto — as duas
+    coisas que a `RF-01` tira do adaptador de entrada. Agora quem resolve e quem
+    parseia sao as portas: `CarregadorDeArvores` resolve a referencia e devolve a
+    arvore, e `None` significa que a referencia nao aponta para arquivo existente.
 
-    O parse NAO acontece aqui de proposito: `load_gedcom_and_build_graph`
-    substitui o estado global do processo, e cada ramo o chama no ponto exato em
-    que chamava antes. Devolver a arvore pronta mudaria esse instante.
+    A uniao e explicita de proposito, e o chamador repete a guarda de `None`. O
+    checador nao estreita o segundo elemento da tupla por `erro is not None`,
+    entao sem as duas a chamada do carregador recebe `str | None`.
     """
-    nome_recebido = request.form.get("gedcom_filename")
-    if not nome_recebido:
+    referencia = request.form.get("gedcom_filename")
+    if not referencia:
         return None, None, "Erro: Arquivo GEDCOM não encontrado."
-    caminho: str | None = _resolver_caminho_armazenado(nome_recebido)
-    if caminho is None:
-        return None, None, f"Erro: Arquivo '{nome_recebido}' não existe mais."
-    return nome_recebido, caminho, None
-
-
-def _nomes_da_arvore(arvore) -> list[str]:
-    """Nomes de exibicao, ordenados — a lista que alimenta o campo de sugestao.
-
-    Era o retorno de carregar_arvore. Com o parse devolvendo a
-    arvore (T009/T020), a lista passa a ser derivada AQUI, na borda, e a
-    ordenacao tem de ser a mesma: sorted, sobre get_name de cada pessoa.
-    """
-    return sorted([get_name(p) for p in arvore[0].values()])
+    arvore = _CARREGADOR.carregar(referencia)
+    if arvore is None:
+        return None, None, f"Erro: Arquivo '{referencia}' não existe mais."
+    return referencia, arvore, None
 
 
 # --- Rota Principal ---
@@ -181,53 +159,55 @@ def index():
             if gedcom_file.filename == '':
                 return render_template("index.html", message="Nenhum arquivo selecionado.", success=False)
             try:
-                caminho_armazenado, motivo = _guardar_upload(gedcom_file, "gedcom")
-                if motivo is not None:
-                    return render_template("index.html", message=motivo, success=False)
-                arvore = carregar_arvore(caminho_armazenado)
-                all_names = _nomes_da_arvore(arvore)
-                return render_template("index.html", gedcom_filename=os.path.basename(caminho_armazenado), all_names=all_names, message=f"Arquivo '{gedcom_file.filename}' carregado!", success=True)
+                resultado = caso_de_uso_de_upload(
+                    gedcom_file.read(), gedcom_file.filename, DONO_DO_PROCESSO,
+                    _ARMAZENAMENTO, _CARREGADOR)
+                return render_template("index.html", gedcom_filename=resultado.referencia, all_names=resultado.nomes, message=resultado.mensagem, success=True)
+            except ErroDeDominio as erro_de_dominio:
+                # A recusa de conteudo passa por aqui. O texto e o MESMO de antes
+                # da extracao (`Arquivo nao reconhecido como GEDCOM: ...`), e a
+                # unica diferenca e que agora a condicao chega TIPADA: a moldura
+                # e da tabela de traducao, e o motivo veio dentro da excecao.
+                return render_template("index.html", message=traduzir(erro_de_dominio).mensagem, success=False)
             except Exception as e:
                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
 
-        gedcom_filename, gedcom_path, erro = _gedcom_do_formulario()
+        gedcom_filename, arvore, erro = _arvore_do_formulario()
         if erro is not None:
             return render_template("index.html", message=erro, success=False)
-        if gedcom_path is None:
-            # Inalcancavel em execucao: `erro` e `caminho` sao preenchidos juntos.
+        if arvore is None:
+            # Inalcancavel em execucao: `erro` e `arvore` sao preenchidos juntos.
             # Existe para o checador de tipos estreitar a uniao do retorno.
             return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
-        arvore = carregar_arvore(gedcom_path)
-        all_names = _nomes_da_arvore(arvore)
+        all_names = nomes_de_exibicao(arvore)
 
         if action == "dna_analysis":
             try:
                 if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
                 matches_file, root_name = request.files["matches_csv"], request.form["root_name"]
-                matches_path, motivo = _guardar_upload(matches_file, "csv")
+
+                # A gravação do CSV passa pela MESMA porta do GEDCOM. O tipo
+                # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
+                # divida #10, preservada de proposito (`RF-10`, `RN-01`).
+                caminho_do_csv, motivo = _ARMAZENAMENTO.guardar(
+                    matches_file.read(), matches_file.filename, "csv")
                 if motivo is not None:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
 
-                results_list_sorted, skipped_matches, message = dna_analysis_flow(
-                    matches_path,
-                    root_name,
-                    # A borda monta as dependencias: leitura de CSV e diagrama
-                    # sao de fora do nucleo (RF-09, T016).
-                    Dependencias(read_csv_with_fallback, detectar_colunas,
-                                 aggregate_matches, generate_mermaid_graph,
-                                 generate_mermaid_graph_indirect_bridge),
-                    arvore,
-                )
+                resultado = caso_de_uso_dna(
+                    caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO)
                 return render_template(
                     "index.html",
                     gedcom_filename=gedcom_filename,
                     all_names=all_names,
-                    dna_results=results_list_sorted,
-                    skipped_matches=skipped_matches,
-                    message=message,
+                    dna_results=resultado.resultados,
+                    skipped_matches=resultado.descartados,
+                    message=resultado.mensagem,
                     success=True
                 )
+            except ErroDeDominio as erro_de_dominio:
+                return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=traduzir(erro_de_dominio).mensagem, success=False)
             except Exception as e:
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Ocorreu um erro: {e}", success=False)
 
@@ -236,12 +216,22 @@ def index():
                 person1_name = request.form["person1_name"].strip()
                 person2_name = request.form["person2_name"].strip()
 
-                path_result, msg, success = path_search_flow(person1_name, person2_name, _DEPENDENCIAS, arvore)
-                if not success and path_result is None:
+                resultado = caso_de_uso_de_busca(
+                    person1_name, person2_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO)
+
+                # O modo de renderizacao vem do DESFECHO, nunca do texto: sao dois
+                # casos que o operador ve de formas diferentes e que hoje so se
+                # distinguem por uma linha de codigo — "pessoa nao encontrada"
+                # (alerta de erro) e "nenhuma conexao encontrada" (cartao, com
+                # sucesso). `D-11`.
+                if resultado.desfecho is Desfecho.ERRO_DE_ENTRADA:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
-                                           message=msg, success=False)
+                                           message=resultado.mensagem, success=False)
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
-                                       path_result=path_result, message=msg, success=True)
+                                       path_result=resultado.dados, message=resultado.mensagem, success=True)
+            except ErroDeDominio as erro_de_dominio:
+                return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
+                                       message=traduzir(erro_de_dominio).mensagem, success=False)
             except Exception as e:
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
                                        message=f"Ocorreu um erro: {e}", success=False)
