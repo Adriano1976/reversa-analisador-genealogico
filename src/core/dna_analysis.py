@@ -48,19 +48,50 @@ from .name_normalization import (
     top_given_tokens,
 )
 from .relationship_hypotheses import hypotheses_for_evidence
-from parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
-from reporting.mermaid_render import generate_mermaid_graph
 from utils.text_cleaning import demojibake, strip_bad_utf
-from .gedcom_state import get_name, people
+from .registro import get_name
 
 
-def _montar_diagrama(documentary: dict, root_id: str, pid: str, dominio: dict):
+# ---------------------------------------------------------------------------
+# A arvore entra por parametro (feature 005, T020).
+#
+# `dna_analysis` recebe `arvore`, montada pela borda (`src/app.py`) a partir de
+# `parsers.gedcom_parser.carregar_arvore`. O modulo NAO le estado de processo.
+# ---------------------------------------------------------------------------
+
+
+class Dependencias:
+    """O que a analise de DNA consome de FORA do nucleo (RF-09, `T016`).
+
+    A leitura do CSV e a emissao do diagrama sao borda, e a borda as entrega. O
+    nucleo chama as funcoes, sem importar `parsers/csv_ingest` nem
+    `reporting/mermaid_render` — que e o que a guarda de dependencias cobra.
+
+    A classe existe porque sao QUATRO dependencias relacionadas, e quatro
+    parametros soltos na assinatura de `dna_analysis` convidariam a trocar a
+    ordem por engano. Ela nao guarda estado de dominio: so carrega as funcoes.
+    """
+
+    __slots__ = ("read_csv", "detect_columns", "aggregate_matches", "generate_mermaid",
+                 "generate_mermaid_indirect")
+
+    def __init__(self, read_csv, detect_columns, aggregate_matches, generate_mermaid,
+                 generate_mermaid_indirect=None):
+        self.read_csv = read_csv
+        self.detect_columns = detect_columns
+        self.aggregate_matches = aggregate_matches
+        self.generate_mermaid = generate_mermaid
+        self.generate_mermaid_indirect = generate_mermaid_indirect
+
+
+
+def _montar_diagrama(deps, documentary: dict, root_id: str, pid: str, dominio: dict):
     """Mermaid do caminho DOCUMENTAL (ou None quando nao ha caminho)."""
     caminho = (documentary or {}).get("path") or {}
     if not caminho.get("ids"):
         return None
     ancestral = (documentary.get("common_ancestor") or {}).get("id")
-    return generate_mermaid_graph(caminho["ids"], root_id, pid, ancestral, dominio)
+    return deps.generate_mermaid(caminho["ids"], root_id, pid, ancestral, dominio)
 
 
 def _observacoes(documentary, evidence, comparison, extra=None):
@@ -81,19 +112,20 @@ def _observacoes(documentary, evidence, comparison, extra=None):
     return unicos
 
 
-def dna_analysis(csv_path: str, root_name: str):
+def dna_analysis(csv_path: str, root_name: str, deps, arvore):
     """Executa o fluxo completo da analise de DNA.
 
     Retorna `(results_sorted, skipped, message)`. Cada resultado traz, lado a lado
     e sem misturar: `documentary` (GEDCOM), `genetic_evidence` (DNA),
     `hypotheses` (possibilidades) e `comparison` (confronto).
     """
-    root_person_ids = [pid for pid, p in people.items() if root_name.lower() in get_name(p).lower()]
+    root_person_ids = [pid for pid, p in arvore[0].items()
+                       if root_name.lower() in get_name(p).lower()]
     if not root_person_ids:
         raise ValueError(f"Seu nome '{root_name}' não foi encontrado no GEDCOM.")
     root_id = root_person_ids[0]
 
-    df = read_csv_with_fallback(csv_path)
+    df = deps.read_csv(csv_path)
     linhas_ignoradas = df.attrs.get("linhas_ignoradas") or []
     linhas_de_preambulo = df.attrs.get("linhas_antes_do_cabecalho") or 0
     detalhe_linhas = ""
@@ -108,7 +140,7 @@ def dna_analysis(csv_path: str, root_name: str):
         detalhe_linhas += (f" O cabeçalho foi localizado na linha {linhas_de_preambulo + 1}: "
                            f"{linhas_de_preambulo} linha(s) antes dele foram ignoradas.")
 
-    name_col, cm_col, match_id_col, match_email_col = detect_columns(df)
+    name_col, cm_col, match_id_col, match_email_col = deps.detect_columns(df)
     if not name_col or not cm_col:
         # Erro acionavel: diz o separador usado, as colunas encontradas e o que
         # havia de estranho no arquivo. Antes o operador via "Colunas de Nome e cM
@@ -142,9 +174,9 @@ def dna_analysis(csv_path: str, root_name: str):
         )
 
     evidencias, avisos_da_evidencia = build_genetic_evidence(df)
-    ged_index, surname_index, features = build_ged_indexes()
+    ged_index, surname_index, features = build_ged_indexes(arvore)
 
-    raiz_ambigua = homonym_dossier(root_name)
+    raiz_ambigua = homonym_dossier(arvore, root_name)
     avisos_da_raiz = []
     if raiz_ambigua["ambiguous"]:
         avisos_da_raiz.append(
@@ -161,19 +193,19 @@ def dna_analysis(csv_path: str, root_name: str):
     def _dossie(nome, candidatos):
         """Dossie de homonimos, uma vez por nome (a varredura custa ~35k nomes)."""
         if nome not in dossie_por_nome:
-            dossie_por_nome[nome] = homonym_dossier(nome, similar_ids=candidatos)
+            dossie_por_nome[nome] = homonym_dossier(arvore, nome, similar_ids=candidatos)
         return dossie_por_nome[nome]
 
     # A costura da OPP-20261006-ULVW: resolvido UMA vez por analise, e nao dentro
     # do laco, porque o mapeamento so aponta para funcoes do proprio pacote.
-    dominio = resolvedor_de_diagrama()
+    dominio = resolvedor_de_diagrama(arvore)
 
     for chave_nome, por_kit in evidencias.items():
         for chave_kit, kit in por_kit.items():
             # O matching continua recebendo o cM DO KIT (nunca a soma de kits
             # diferentes), preservando as decisões do fluxo anterior.
             candidate_pids, reason = match_candidates(
-                kit["person_name_csv"], kit["total_cm"], ged_index, surname_index, features)
+                arvore, kit["person_name_csv"], kit["total_cm"], ged_index, surname_index, features)
 
             if not candidate_pids:
                 skipped_matches.append({
@@ -193,7 +225,7 @@ def dna_analysis(csv_path: str, root_name: str):
             for candidato in candidate_pids:
                 if candidato not in documental_por_pessoa:
                     documental_por_pessoa[candidato] = documentary_relationship(
-                        root_id, candidato,
+                        arvore, root_id, candidato,
                         homonyms=_dossie(kit["person_name_csv"], candidate_pids))
                 documentais.append((candidato, documental_por_pessoa[candidato]))
             pid, documentary = next(
@@ -207,12 +239,12 @@ def dna_analysis(csv_path: str, root_name: str):
 
             nomes_do_caminho = (documentary.get("path") or {}).get("names") or []
             results_list.append({
-                "match_name": get_name(people[pid]),
+                "match_name": get_name(arvore[0][pid]),
                 "csv_name": kit["person_name_csv"],
                 "cm": kit["total_cm"],
                 "kit": kit["kit"],
                 "text_path": " → ".join(nomes_do_caminho),
-                "mermaid_data": _montar_diagrama(documentary, root_id, pid, dominio),
+                "mermaid_data": _montar_diagrama(deps, documentary, root_id, pid, dominio),
                 "documentary": documentary,
                 "genetic_evidence": evidence,
                 "hypotheses": hypotheses,
@@ -242,12 +274,15 @@ def dna_analysis(csv_path: str, root_name: str):
 
 
 # ---------------------------------------------------------------------------
-# Superficie de compatibilidade (ver a nota no docstring do modulo).
-# Reexporta o que era definido aqui antes da separacao das tres etapas.
+# Nomes publicos do modulo.
+#
+# A superficie de compatibilidade que reexportava `aggregate_matches`,
+# `detect_columns` e `read_csv_with_fallback` SAIU em `T016`: os tres passaram a
+# ser injetados pela borda, e reexporta-los aqui obrigaria o modulo a importar
+# `parsers/csv_ingest` — que e exatamente a dependencia que a RF-09 remove.
 # ---------------------------------------------------------------------------
 __all__ = [
-    "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
-    "aggregate_matches", "detect_columns", "read_csv_with_fallback",
+    "dna_analysis", "Dependencias", "get_relationships_by_cm", "SHARED_CM_DATA",
     "build_ged_indexes", "match_candidates",
     "norm_name", "split_name_pt", "surnames_set", "top_given_tokens",
     "token_prefixes", "drop_short_tokens", "surname_core_tokens",

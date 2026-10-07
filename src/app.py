@@ -6,15 +6,35 @@ import sys
 from flask import Flask, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from core.dna_analysis import dna_analysis as dna_analysis_flow
+from core.dna_analysis import Dependencias, dna_analysis as dna_analysis_flow
+from parsers.csv_ingest import (
+    aggregate_matches,
+    detect_columns as detectar_colunas,
+    read_csv_with_fallback,
+)
+from reporting.mermaid_render import (
+    generate_mermaid_graph,
+    generate_mermaid_graph_indirect_bridge,
+)
 from core.path_search import path_search as path_search_flow
-from parsers.gedcom_parser import load_gedcom_and_build_graph
+from core.registro import get_name
+from parsers.gedcom_parser import carregar_arvore
 from utils.number_format import formatar_cm, formatar_inteiro
 from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
     nome_do_arquivo_armazenado,
     validar_conteudo_gedcom,
+)
+
+# As dependencias de borda que o nucleo consome (RF-09): leitura de CSV e
+# emissao de diagrama. Montadas uma vez, aqui na borda, e injetadas nos fluxos.
+_DEPENDENCIAS = Dependencias(
+    read_csv_with_fallback,
+    detectar_colunas,
+    aggregate_matches,
+    generate_mermaid_graph,
+    generate_mermaid_graph_indirect_bridge,
 )
 
 # --- Configuração ---
@@ -139,6 +159,16 @@ def _gedcom_do_formulario() -> tuple[str | None, str | None, str | None]:
     return nome_recebido, caminho, None
 
 
+def _nomes_da_arvore(arvore) -> list[str]:
+    """Nomes de exibicao, ordenados — a lista que alimenta o campo de sugestao.
+
+    Era o retorno de carregar_arvore. Com o parse devolvendo a
+    arvore (T009/T020), a lista passa a ser derivada AQUI, na borda, e a
+    ordenacao tem de ser a mesma: sorted, sobre get_name de cada pessoa.
+    """
+    return sorted([get_name(p) for p in arvore[0].values()])
+
+
 # --- Rota Principal ---
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -154,7 +184,8 @@ def index():
                 caminho_armazenado, motivo = _guardar_upload(gedcom_file, "gedcom")
                 if motivo is not None:
                     return render_template("index.html", message=motivo, success=False)
-                all_names = load_gedcom_and_build_graph(caminho_armazenado)
+                arvore = carregar_arvore(caminho_armazenado)
+                all_names = _nomes_da_arvore(arvore)
                 return render_template("index.html", gedcom_filename=os.path.basename(caminho_armazenado), all_names=all_names, message=f"Arquivo '{gedcom_file.filename}' carregado!", success=True)
             except Exception as e:
                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
@@ -166,7 +197,8 @@ def index():
             # Inalcancavel em execucao: `erro` e `caminho` sao preenchidos juntos.
             # Existe para o checador de tipos estreitar a uniao do retorno.
             return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
-        all_names = load_gedcom_and_build_graph(gedcom_path)
+        arvore = carregar_arvore(gedcom_path)
+        all_names = _nomes_da_arvore(arvore)
 
         if action == "dna_analysis":
             try:
@@ -177,7 +209,16 @@ def index():
                 if motivo is not None:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
 
-                results_list_sorted, skipped_matches, message = dna_analysis_flow(matches_path, root_name)
+                results_list_sorted, skipped_matches, message = dna_analysis_flow(
+                    matches_path,
+                    root_name,
+                    # A borda monta as dependencias: leitura de CSV e diagrama
+                    # sao de fora do nucleo (RF-09, T016).
+                    Dependencias(read_csv_with_fallback, detectar_colunas,
+                                 aggregate_matches, generate_mermaid_graph,
+                                 generate_mermaid_graph_indirect_bridge),
+                    arvore,
+                )
                 return render_template(
                     "index.html",
                     gedcom_filename=gedcom_filename,
@@ -195,7 +236,7 @@ def index():
                 person1_name = request.form["person1_name"].strip()
                 person2_name = request.form["person2_name"].strip()
 
-                path_result, msg, success = path_search_flow(person1_name, person2_name)
+                path_result, msg, success = path_search_flow(person1_name, person2_name, _DEPENDENCIAS, arvore)
                 if not success and path_result is None:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
                                            message=msg, success=False)
