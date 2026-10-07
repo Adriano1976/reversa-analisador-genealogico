@@ -287,11 +287,17 @@ def safo(fn, *a, **k):
     except Exception as e:
         return {"ok": False, "e": type(e).__name__}
 
-names = GP.load_gedcom_and_build_graph(GED)
 # A arvore como VALOR: o parse a DEVOLVE (feature 005, `T009`) e nao ha mais
 # estado global (`T023`). Todo probe deste coletor le daqui.
+#
+# `names` era o retorno da casca `GP.load_gedcom_and_build_graph`, removida em
+# `T015` da feature 006. A derivacao abaixo e a MESMA que a casca fazia, sobre a
+# mesma arvore, entao o probe `names` continua comparando o mesmo valor com o
+# oraculo. O ganho colateral e que o coletor deixou de parsear DUAS vezes por
+# fixture: antes, a casca parseava uma vez e `carregar_arvore` parseava de novo.
 arvore = GP.carregar_arvore(GED)
 people, families, graph, child_to_family = arvore
+names = sorted([get_name(p) for p in people.values()])
 obs["person_count"] = len(people)
 obs["family_count"] = len(families)
 obs["names"] = names
