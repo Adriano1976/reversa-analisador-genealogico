@@ -43,12 +43,23 @@ from __future__ import annotations
 from .diagram_domain import resolvedor_de_diagrama
 from .documentary_relationship import documentary_relationship, homonym_dossier, person_summary
 from .family_navigation import find_person_by_name
-from reporting.mermaid_render import (
-    generate_mermaid_graph,
-    generate_mermaid_graph_indirect_bridge,
-)
 from .path_finding import MAX_HOPS, find_indirect_path
-from .gedcom_state import get_name, people
+from .registro import get_name
+
+
+# ---------------------------------------------------------------------------
+# Ponto unico de transicao (feature 005, T018).
+#
+# A construcao da arvore a partir do estado vive AGORA NUM LUGAR SO, e os
+# modulos que ainda precisam dela a importam de `documentary_relationship`.
+# Antes desta acao havia tres copias da mesma funcao — o que e pior do que uma
+# funcao de transicao: sao tres pontos para esquecer quando a transicao acabar.
+#
+# Em `T023`, quando `gedcom_state` sair, esta linha vira a passagem do parametro
+# `arvore` que o `app.py` monta — um ponto para mudar, nao tres.
+# ---------------------------------------------------------------------------
+
+
 
 # Bloco de reexportacao removido pela OPP-20261006-ESKO. Os 13 nomes que ficavam
 # aqui nao eram usados por `path_search` e existiam so pela superficie de
@@ -69,7 +80,7 @@ AVISO_AFINIDADE = ("O caminho exibido passa por casamento/afinidade, e não por 
 LIMITE_DE_CANDIDATOS = 5
 
 
-def _candidatos(nome, ids_do_legado):
+def _candidatos(arvore, nome, ids_do_legado):
     """Todo registro que pode ser a pessoa consultada, sem escolher por ninguem.
 
     `find_person_by_name` compara com acento, entao "Jose Vicente de Souza" (sem
@@ -78,24 +89,24 @@ def _candidatos(nome, ids_do_legado):
     diferem na acentuacao — que sao exatamente os homonimos que a regra manda
     NAO escolher em silencio.
     """
-    dossie = homonym_dossier(nome)
+    dossie = homonym_dossier(arvore, nome)
     ids_exatos = [ficha["id"] for ficha in dossie["exact_matches"]]
     candidatos = list(dict.fromkeys(list(ids_do_legado) + ids_exatos))
     parecidos = [pid for pid in candidatos if pid not in ids_exatos]
-    dossie["similar_matches"] = [person_summary(pid) for pid in parecidos[:5]]
+    dossie["similar_matches"] = [person_summary(arvore, pid) for pid in parecidos[:5]]
     dossie["similar_count"] = len(parecidos)
     return dossie, candidatos
 
 
-def _homonimos(person1_name, person2_name, p1_ids, p2_ids):
+def _homonimos(arvore, person1_name, person2_name, p1_ids, p2_ids):
     """Dossie de ambiguidade dos dois nomes, ou {} quando cada um e unico.
 
     O rotulo e a contagem falam apenas do lado ambiguo: misturar os dois lados
     faria a tabela de homonimos listar a propria pessoa 1 como se fosse
     homonima da pessoa 2.
     """
-    dossie1, _ = _candidatos(person1_name, p1_ids)
-    dossie2, _ = _candidatos(person2_name, p2_ids)
+    dossie1, _ = _candidatos(arvore, person1_name, p1_ids)
+    dossie2, _ = _candidatos(arvore, person2_name, p2_ids)
     ambiguos = [(nome, dossie) for nome, dossie in
                 ((person1_name, dossie1), (person2_name, dossie2)) if dossie["ambiguous"]]
     if not ambiguos and not dossie1["similar_count"] and not dossie2["similar_count"]:
@@ -121,7 +132,7 @@ def _homonimos(person1_name, person2_name, p1_ids, p2_ids):
     }
 
 
-def path_search(person1_name: str, person2_name: str):
+def path_search(person1_name: str, person2_name: str, deps, arvore):
     """Executa o fluxo completo de busca de caminho.
 
     Retorna `(path_result, msg, success)`. `path_result` é dict com
@@ -131,28 +142,28 @@ def path_search(person1_name: str, person2_name: str):
     person1_name = person1_name.strip()
     person2_name = person2_name.strip()
 
-    p1_ids = find_person_by_name(person1_name)
-    p2_ids = find_person_by_name(person2_name)
+    p1_ids = find_person_by_name(arvore, person1_name)
+    p2_ids = find_person_by_name(arvore, person2_name)
     if not p1_ids:
         return None, f"Pessoa 1 '{person1_name}' não encontrada.", False
     if not p2_ids:
         return None, f"Pessoa 2 '{person2_name}' não encontrada.", False
 
-    homonimos = _homonimos(person1_name, person2_name, p1_ids, p2_ids)
+    homonimos = _homonimos(arvore, person1_name, person2_name, p1_ids, p2_ids)
 
     # Com homonimos, a escolha do registro deixa de ser silenciosa E deixa de ser
     # a primeira da lista: as combinacoes sao testadas e vence a primeira que
     # tiver caminho. Medido no GEDCOM real: "Jose Vicente de Souza" tem tres
     # registros (dois so diferem no acento) e so um tem pais — antes, a tela
     # respondia "nenhuma conexao" para uma conexao que o GEDCOM contem.
-    _, candidatos1 = _candidatos(person1_name, p1_ids)
-    _, candidatos2 = _candidatos(person2_name, p2_ids)
+    _, candidatos1 = _candidatos(arvore, person1_name, p1_ids)
+    _, candidatos2 = _candidatos(arvore, person2_name, p2_ids)
     cache = {}
     p1_id = p2_id = documental = None
     for cand1 in candidatos1[:LIMITE_DE_CANDIDATOS]:
         for cand2 in candidatos2[:LIMITE_DE_CANDIDATOS]:
             if (cand1, cand2) not in cache:
-                cache[(cand1, cand2)] = documentary_relationship(cand1, cand2, homonyms=homonimos)
+                cache[(cand1, cand2)] = documentary_relationship(arvore, cand1, cand2, homonyms=homonimos)
             candidato = cache[(cand1, cand2)]
             if (candidato.get("path") or {}).get("ids"):
                 p1_id, p2_id, documental = cand1, cand2, candidato
@@ -162,7 +173,7 @@ def path_search(person1_name: str, person2_name: str):
 
     if documental is None:
         p1_id, p2_id = p1_ids[0], p2_ids[0]
-        documental = cache.get((p1_id, p2_id)) or documentary_relationship(p1_id, p2_id, homonyms=homonimos)
+        documental = cache.get((p1_id, p2_id)) or documentary_relationship(arvore, p1_id, p2_id, homonyms=homonimos)
 
     caminho = (documental.get("path") or {}).get("ids")
     observacoes = [aviso["message"] for aviso in documental.get("warnings") or []]
@@ -170,22 +181,22 @@ def path_search(person1_name: str, person2_name: str):
     # A costura da OPP-20261006-ULVW: quem busca o dado de dominio e este lado,
     # e o renderizador recebe o resolvedor por parametro. Ver
     # `core/diagram_domain.py`.
-    dominio = resolvedor_de_diagrama()
+    dominio = resolvedor_de_diagrama(arvore)
 
     if caminho:
         nomes = (documental.get("path") or {}).get("names") or []
-        mermaid_data = generate_mermaid_graph(caminho, p1_id, p2_id,
+        mermaid_data = deps.generate_mermaid(caminho, p1_id, p2_id,
                                              (documental.get("common_ancestor") or {}).get("id"),
                                              dominio)
         msg = "Conexão direta encontrada (ancestral comum)."
     else:
-        person_path = find_indirect_path(p1_id, p2_id, max_hops=MAX_HOPS)
+        person_path = find_indirect_path(arvore, p1_id, p2_id, max_hops=MAX_HOPS)
         if not person_path:
             return (None,
                     f"Nenhuma conexão encontrada entre '{person1_name}' e '{person2_name}'.",
                     True)
-        nomes = [get_name(people[n]) for n in person_path]
-        mermaid_data = generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio)
+        nomes = [get_name(arvore[0][n]) for n in person_path]
+        mermaid_data = deps.generate_mermaid_indirect(p1_id, p2_id, person_path, dominio)
         msg = "Conexão indireta encontrada (via casamento/afinidade)."
         documental = dict(documental)
         documental["status"] = "affinity"

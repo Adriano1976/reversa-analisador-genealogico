@@ -30,9 +30,8 @@ import re
 import unicodedata
 from collections import deque
 
-from . import gedcom_state
 from .family_navigation import get_parents
-from .gedcom_state import child_to_family, families, get_name, people, ref_id
+from .registro import get_name, ref_id
 from .path_finding import MAX_DEPTH, find_ancestral_path
 from utils.text_cleaning import demojibake
 
@@ -48,6 +47,28 @@ MAX_DEPTH_ALTERNATIVOS = 12
 LIMITE_DE_CADEIAS = 8
 
 
+# ---------------------------------------------------------------------------
+# Ponto unico de transicao (feature 005)
+# ---------------------------------------------------------------------------
+# `T011` a `T014` migraram os modulos do nucleo para receber a arvore por
+# parametro. Este modulo era o maior consumidor do estado e JA NAO LE NADA DELE:
+# todas as funcoes publicas recebem `arvore`. O que sobra e a construcao da
+# tupla, usada pelos pontos de entrada que a feature ainda nao migrou
+# (`T016`/`T017`). Quando `T023` remover o estado, esta funcao sai e quem a
+# chama passa a receber a arvore de quem o chama.
+#
+# ## Por que a chave e derivada do CONTEUDO, e nao da identidade
+#
+# Medido em 2026-10-06: `load_gedcom_and_build_graph` MUTA `gedcom_state.people`
+# in place (`clear()` + `update()`), entao o `id()` do dicionario e o MESMO em
+# todo o processo. Um cache chaveado por identidade nunca invalidaria — e a
+# invalidacao e justamente o que `test_6d` cobra. Enquanto a transicao durar, a
+# chave e o tamanho de cada estrutura mais a primeira e a ultima chave de
+# `people`: barato, derivado do valor, e muda quando a arvore muda.
+#
+# Quando `T023` remover o estado, `carregar_arvore` passa a devolver dicionarios
+# NOVOS a cada parse, e entao a identidade volta a ser chave valida — o que o
+# comentario de `_indice_por_nome` ja antecipa.
 # ---------------------------------------------------------------------------
 # Datas
 # ---------------------------------------------------------------------------
@@ -69,7 +90,7 @@ def parse_year(date_value) -> int | None:
     return int(achado.group(1)) if achado else None
 
 
-def _data_de(pid, tag):
+def _data_de(people, pid, tag):
     pessoa = people.get(pid)
     if not pessoa:
         return None
@@ -81,15 +102,15 @@ def _data_de(pid, tag):
     return None
 
 
-def birth_date(pid):
-    return _data_de(pid, "BIRT")
+def birth_date(people, pid):
+    return _data_de(people, pid, "BIRT")
 
 
-def death_date(pid):
-    return _data_de(pid, "DEAT")
+def death_date(people, pid):
+    return _data_de(people, pid, "DEAT")
 
 
-def _local_de(pid, tag):
+def _local_de(people, pid, tag):
     pessoa = people.get(pid)
     if not pessoa:
         return None
@@ -105,13 +126,14 @@ def _local_de(pid, tag):
 # Fichas de pessoa
 # ---------------------------------------------------------------------------
 
-def _ids(sub_tag, pid):
+def _ids(people, sub_tag, pid):
     return [ref_id(r.value) for r in people[pid].sub_records if r.tag == sub_tag] if pid in people else []
 
 
-def get_children(person_id):
+def get_children(arvore, person_id):
     """Filhos declarados em qualquer familia em que a pessoa seja HUSB ou WIFE."""
     filhos = []
+    people, families = arvore[0], arvore[1]
     for fam in families.values():
         husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
         wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)
@@ -124,22 +146,22 @@ def get_children(person_id):
     return filhos
 
 
-def person_summary(person_id) -> dict:
+def person_summary(arvore, person_id) -> dict:
     """Ficha comparavel de uma pessoa, para desambiguar homonimos."""
     return {
         "id": person_id,
-        "name": get_name(people.get(person_id)),
-        "sex": next((r.value for r in people[person_id].sub_records if r.tag == "SEX"), None) if person_id in people else None,
-        "birth": birth_date(person_id),
-        "birth_year": parse_year(birth_date(person_id)),
-        "birth_place": _local_de(person_id, "BIRT"),
-        "death": death_date(person_id),
-        "death_year": parse_year(death_date(person_id)),
-        "parents": get_parents(person_id),
-        "parent_names": [get_name(people.get(p)) for p in get_parents(person_id)],
-        "spouses": _ids("FAMS", person_id),
-        "children": get_children(person_id),
-        "family_as_child": child_to_family.get(person_id, []),
+        "name": get_name(arvore[0].get(person_id)),
+        "sex": next((r.value for r in arvore[0][person_id].sub_records if r.tag == "SEX"), None) if person_id in arvore[0] else None,
+        "birth": birth_date(arvore[0], person_id),
+        "birth_year": parse_year(birth_date(arvore[0], person_id)),
+        "birth_place": _local_de(arvore[0], person_id, "BIRT"),
+        "death": death_date(arvore[0], person_id),
+        "death_year": parse_year(death_date(arvore[0], person_id)),
+        "parents": get_parents(arvore, person_id),
+        "parent_names": [get_name(arvore[0].get(p)) for p in get_parents(arvore, person_id)],
+        "spouses": _ids(arvore[0], "FAMS", person_id),
+        "children": get_children(arvore, person_id),
+        "family_as_child": arvore[3].get(person_id, []),
     }
 
 
@@ -161,7 +183,7 @@ def normalizar(nome: str) -> str:
     return " ".join(sem_acento.lower().split())
 
 
-def _diferencas(ids) -> list:
+def _diferencas(arvore, ids) -> list:
     """Campos em que as fichas divergem — o que o operador precisa olhar."""
     campos = [
         ("birth", "data de nascimento"),
@@ -173,7 +195,7 @@ def _diferencas(ids) -> list:
     ]
     # As fichas sao montadas UMA vez: `person_summary` varre as familias do
     # arquivo, e refazer isso por campo custava 6x por homonimo.
-    fichas = [person_summary(i) for i in ids]
+    fichas = [person_summary(arvore, i) for i in ids]
     divergencias = []
     for campo, rotulo in campos:
         valores = {str(ficha.get(campo)) for ficha in fichas}
@@ -182,27 +204,44 @@ def _diferencas(ids) -> list:
     return divergencias
 
 
-_INDICE_DE_NOMES = {"versao": None, "mapa": None}
+_INDICE_DE_NOMES = {"chave": None, "mapa": None}
 
 
-def _indice_por_nome() -> dict:
+def _chave_de(people) -> tuple:
+    """Chave de invalidacao do indice, derivada do CONTEUDO recebido.
+
+    A identidade do dicionario NAO serve: o parse muta `people` in place, entao o
+    `id()` e o mesmo durante todo o processo e o cache nunca invalidaria (medido
+    em 2026-10-06, e cobrado por `test_6d`). A chave usa contagem, primeira e
+    ultima chave — barato e suficiente para distinguir dois GEDCOMs carregados.
+    """
+    if not people:
+        return (0, None, None)
+    chaves = sorted(people)
+    return (len(people), chaves[0], chaves[-1])
+
+
+def _indice_por_nome(arvore) -> dict:
     """nome normalizado -> lista de ids, reconstruido a cada GEDCOM carregado.
 
     A varredura de 35 mil pessoas custa ~0,9 s. Sem este indice, o fluxo de DNA
     (71 nomes distintos no arquivo real) pagava isso 71 vezes. A invalidacao usa
-    `gedcom_state.versao`, e nao o tamanho de `people`: dois GEDCOMs diferentes
-    podem ter a mesma contagem.
+    a IDENTIDADE do dicionario de pessoas recebido, e nao um contador
+    (`gedcom_state.versao`, removido pela feature 005): dois GEDCOMs diferentes
+    podem ter a mesma contagem, e um contador exigiria estado.
     """
-    if _INDICE_DE_NOMES["versao"] != gedcom_state.versao:
+    people = arvore[0]
+    chave = _chave_de(people)
+    if _INDICE_DE_NOMES["chave"] != chave:
         mapa: dict = {}
         for pid, pessoa in people.items():
             mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
         _INDICE_DE_NOMES["mapa"] = mapa
-        _INDICE_DE_NOMES["versao"] = gedcom_state.versao
+        _INDICE_DE_NOMES["chave"] = chave
     return _INDICE_DE_NOMES["mapa"]
 
 
-def homonym_dossier(name_query: str, similar_ids=None) -> dict:
+def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
     """Todos os registros que podem ser a pessoa consultada, com ficha e ID.
 
     Nao escolhe: devolve o conjunto. `ambiguous` e True quando existe mais de um
@@ -211,18 +250,18 @@ def homonym_dossier(name_query: str, similar_ids=None) -> dict:
     entao "Jose Vicente de Souza" e "José Vicente de Souza" sao o mesmo nome.
     """
     alvo = normalizar(name_query)
-    exatos = list(_indice_por_nome().get(alvo, []))
+    exatos = list(_indice_por_nome(arvore).get(alvo, []))
     parecidos = [pid for pid in (similar_ids or []) if pid not in exatos]
-    fichas = [person_summary(pid) for pid in exatos]
+    fichas = [person_summary(arvore, pid) for pid in exatos]
     return {
         "query": name_query,
         "exact_count": len(exatos),
         "exact_matches": fichas,
         "similar_count": len(parecidos),
-        "similar_matches": [person_summary(pid) for pid in parecidos[:5]],
+        "similar_matches": [person_summary(arvore, pid) for pid in parecidos[:5]],
         "ambiguous": len(exatos) > 1,
-        "differences": _diferencas(exatos) if len(exatos) > 1 else [],
-        "identical_data": bool(len(exatos) > 1 and not _diferencas(exatos)),
+        "differences": _diferencas(arvore, exatos) if len(exatos) > 1 else [],
+        "identical_data": bool(len(exatos) > 1 and not _diferencas(arvore, exatos)),
     }
 
 
@@ -230,7 +269,7 @@ def homonym_dossier(name_query: str, similar_ids=None) -> dict:
 # Evidencia de cada salto
 # ---------------------------------------------------------------------------
 
-def hop_evidence(child_id, parent_id) -> dict:
+def hop_evidence(arvore, child_id, parent_id) -> dict:
     """O registro cru que liga `child_id` a `parent_id`, com a idade implicada.
 
     Devolve a familia (FAM), o casal declarado nela e as datas, para que a tela
@@ -240,13 +279,14 @@ def hop_evidence(child_id, parent_id) -> dict:
     """
     familia_id = None
     husb = wife = None
-    for famc in _ids("FAMC", child_id):
+    people, families = arvore[0], arvore[1]
+    for famc in _ids(people, "FAMC", child_id):
         candidata = families.get(famc)
         if candidata and parent_id in {ref_id(r.value) for r in candidata.sub_records if r.tag in ("HUSB", "WIFE")}:
             familia_id = famc
             break
     if familia_id is None:
-        for fam_id in child_to_family.get(child_id, []):
+        for fam_id in arvore[3].get(child_id, []):
             fam = families.get(fam_id)
             if not fam:
                 continue
@@ -255,25 +295,25 @@ def hop_evidence(child_id, parent_id) -> dict:
                 familia_id = fam_id
                 break
     if familia_id:
-        fam = families.get(familia_id)
+        fam = arvore[1].get(familia_id)
         husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
         wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)
 
-    ano_filho = parse_year(birth_date(child_id))
-    ano_genitor = parse_year(birth_date(parent_id))
+    ano_filho = parse_year(birth_date(arvore[0], child_id))
+    ano_genitor = parse_year(birth_date(arvore[0], parent_id))
     idade = (ano_filho - ano_genitor) if (ano_filho and ano_genitor) else None
     plausivel = None if idade is None else (IDADE_MINIMA_GENITOR <= idade <= IDADE_MAXIMA_GENITOR)
 
     return {
         "child_id": child_id,
-        "child_name": get_name(people.get(child_id)),
-        "child_birth": birth_date(child_id),
+        "child_name": get_name(arvore[0].get(child_id)),
+        "child_birth": birth_date(arvore[0], child_id),
         "parent_id": parent_id,
-        "parent_name": get_name(people.get(parent_id)),
-        "parent_birth": birth_date(parent_id),
+        "parent_name": get_name(arvore[0].get(parent_id)),
+        "parent_birth": birth_date(arvore[0], parent_id),
         "family_id": familia_id,
-        "family_husband": {"id": husb, "name": get_name(people.get(husb))} if husb else None,
-        "family_wife": {"id": wife, "name": get_name(people.get(wife))} if wife else None,
+        "family_husband": {"id": husb, "name": get_name(arvore[0].get(husb))} if husb else None,
+        "family_wife": {"id": wife, "name": get_name(arvore[0].get(wife))} if wife else None,
         "age_at_birth": idade,
         "plausible": plausivel,
         "link_source": "FAMC/CHIL do GEDCOM" if familia_id else "sem registro de familia localizado",
@@ -340,14 +380,14 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
             "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": grau, "removed": removidos}}
 
 
-def _ancestor_depths(start_id, max_depth: int) -> dict:
+def _ancestor_depths(arvore, start_id, max_depth: int) -> dict:
     """Menor numero de saltos de `start_id` ate cada ancestral (BFS por pais)."""
     profundidades = {}
     fronteira = [start_id]
     for nivel in range(1, max_depth + 1):
         proxima = []
         for pid in fronteira:
-            for pai in get_parents(pid):
+            for pai in get_parents(arvore, pid):
                 if pai == start_id or pai in profundidades:
                     continue
                 profundidades[pai] = nivel
@@ -358,7 +398,7 @@ def _ancestor_depths(start_id, max_depth: int) -> dict:
     return profundidades
 
 
-def _cadeias_ate(start_id, alvo, max_depth: int, limite=LIMITE_DE_CADEIAS) -> int:
+def _cadeias_ate(arvore, start_id, alvo, max_depth: int, limite=LIMITE_DE_CADEIAS) -> int:
     """Quantas cadeias distintas de pais levam de `start_id` ate `alvo`.
 
     Mais de uma cadeia ate o MESMO ancestral e a assinatura de colapso de
@@ -372,7 +412,7 @@ def _cadeias_ate(start_id, alvo, max_depth: int, limite=LIMITE_DE_CADEIAS) -> in
         pid, nivel = pilha.popleft()
         if nivel >= max_depth:
             continue
-        for pai in get_parents(pid):
+        for pai in get_parents(arvore, pid):
             if pai == alvo:
                 total += 1
                 if total >= limite:
@@ -382,7 +422,7 @@ def _cadeias_ate(start_id, alvo, max_depth: int, limite=LIMITE_DE_CADEIAS) -> in
     return total
 
 
-def _cadeia_curta(start_id, alvo, max_depth):
+def _cadeia_curta(arvore, start_id, alvo, max_depth):
     """Caminho mais curto de `start_id` ate `alvo` subindo por pais."""
     anterior = {start_id: None}
     fila = deque([(start_id, 0)])
@@ -392,7 +432,7 @@ def _cadeia_curta(start_id, alvo, max_depth):
             break
         if nivel >= max_depth:
             continue
-        for pai in get_parents(pid):
+        for pai in get_parents(arvore, pid):
             if pai not in anterior:
                 anterior[pai] = pid
                 fila.append((pai, nivel + 1))
@@ -405,47 +445,47 @@ def _cadeia_curta(start_id, alvo, max_depth):
     return cadeia[::-1]
 
 
-def find_all_common_ancestors(a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIVOS, limit=12) -> list:
+def find_all_common_ancestors(arvore, a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIVOS, limit=12) -> list:
     """Todos os ancestrais comuns dentro do teto, ordenados por distancia total."""
-    de_a = _ancestor_depths(a_id, max_depth)
-    de_b = _ancestor_depths(b_id, max_depth)
+    de_a = _ancestor_depths(arvore, a_id, max_depth)
+    de_b = _ancestor_depths(arvore, b_id, max_depth)
     comuns = []
     for pid in set(de_a) & set(de_b):
         da, db = de_a[pid], de_b[pid]
         comuns.append({
             "id": pid,
-            "name": get_name(people.get(pid)),
+            "name": get_name(arvore[0].get(pid)),
             "distance_a": da,
             "distance_b": db,
             "total_meioses": da + db,
-            "birth": birth_date(pid),
+            "birth": birth_date(arvore[0], pid),
         })
     comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]), c["name"] or ""))
     return comuns[:limit]
 
 
-def _caminho_alternativo(a_id, b_id, ancestral_id):
-    subida = _cadeia_curta(a_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
-    descida = _cadeia_curta(b_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
+def _caminho_alternativo(arvore, a_id, b_id, ancestral_id):
+    subida = _cadeia_curta(arvore, a_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
+    descida = _cadeia_curta(arvore, b_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
     if not subida or not descida:
         return None
     ids = subida + descida[::-1][1:]
-    return {"ids": ids, "names": [get_name(people.get(i)) for i in ids], "via": ancestral_id}
+    return {"ids": ids, "names": [get_name(arvore[0].get(i)) for i in ids], "via": ancestral_id}
 
 
-def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
+def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
     """Parentesco documental completo entre duas pessoas do GEDCOM.
 
     Nunca le cM. Devolve caminho principal (o mesmo que o legado produzia),
     caminhos alternativos, ancestrais comuns, distancia geracional, rotulo,
     evidencias por salto e avisos.
     """
-    if a_id not in people or b_id not in people:
+    if a_id not in arvore[0] or b_id not in arvore[0]:
         return {"status": "not_found", "source": "GEDCOM",
                 "label": "Pessoas não encontradas no GEDCOM",
                 "warnings": [{"code": "pessoa_ausente", "message": "Registro ausente no GEDCOM carregado."}]}
 
-    path, comum = find_ancestral_path(a_id, b_id, max_depth=MAX_DEPTH)
+    path, comum = find_ancestral_path(arvore, a_id, b_id, max_depth=MAX_DEPTH)
     avisos = []
     homonimos = homonyms or {}
 
@@ -471,8 +511,8 @@ def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
             "relationship_key": None,
             "meioses": None,
             "degrees": None,
-            "person_a": person_summary(a_id),
-            "person_b": person_summary(b_id),
+            "person_a": person_summary(arvore, a_id),
+            "person_b": person_summary(arvore, b_id),
             "common_ancestor": None,
             "path": None,
             "common_ancestors": [],
@@ -490,9 +530,9 @@ def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
     evidencia = []
     for i in range(len(path) - 1):
         if i < indice:
-            evidencia.append(hop_evidence(path[i], path[i + 1]))
+            evidencia.append(hop_evidence(arvore, path[i], path[i + 1]))
         else:
-            evidencia.append(hop_evidence(path[i + 1], path[i]))
+            evidencia.append(hop_evidence(arvore, path[i + 1], path[i]))
 
     for item in evidencia:
         if item["plausible"] is False:
@@ -506,12 +546,12 @@ def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
                 "family_id": item["family_id"],
             })
 
-    comuns = find_all_common_ancestors(a_id, b_id)
+    comuns = find_all_common_ancestors(arvore, a_id, b_id)
     alternativos = []
     for c in comuns:
         if c["id"] == comum:
             continue
-        caminho = _caminho_alternativo(a_id, b_id, c["id"])
+        caminho = _caminho_alternativo(arvore, a_id, b_id, c["id"])
         if caminho:
             alternativos.append({**caminho, "distance_a": c["distance_a"], "distance_b": c["distance_b"],
                                  "total_meioses": c["total_meioses"], "ancestor_name": c["name"]})
@@ -526,7 +566,7 @@ def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
 
     colapso = []
     for c in comuns:
-        cadeias = _cadeias_ate(a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
+        cadeias = _cadeias_ate(arvore, a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
         if cadeias > 1:
             colapso.append({"ancestor_id": c["id"], "ancestor_name": c["name"], "chains": cadeias})
     if colapso:
@@ -555,11 +595,11 @@ def documentary_relationship(a_id, b_id, homonyms=None) -> dict:
         "relationship_key": parentesco["key"],
         "meioses": parentesco["meioses"],
         "degrees": parentesco["degrees"],
-        "person_a": person_summary(a_id),
-        "person_b": person_summary(b_id),
-        "common_ancestor": {"id": comum, "name": get_name(people.get(comum)), "birth": birth_date(comum)},
+        "person_a": person_summary(arvore, a_id),
+        "person_b": person_summary(arvore, b_id),
+        "common_ancestor": {"id": comum, "name": get_name(arvore[0].get(comum)), "birth": birth_date(arvore[0], comum)},
         "common_ancestors": comuns,
-        "path": {"ids": path, "names": [get_name(people.get(p)) for p in path]},
+        "path": {"ids": path, "names": [get_name(arvore[0].get(p)) for p in path]},
         "additional_paths": alternativos,
         "evidence": evidencia,
         "homonyms": homonimos,

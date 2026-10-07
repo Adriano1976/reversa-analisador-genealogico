@@ -1,16 +1,22 @@
-"""Achar o caminho entre duas pessoas.
+"""Achar o caminho entre duas pessoas, numa arvore recebida por parametro.
 
 Extraido de `path_search.py` pela OPP-20260929-UXEF. Responsabilidade unica: a
 busca direta por ancestral comum (BFS bidirecional) e a busca indireta por
 afinidade (`nx.shortest_path` com compressao de nos de familia), com os limites
 que a alma fixa: profundidade 20 e 40 hops.
 
-## Contrato de import com `.gedcom_state`
+## A arvore entra por parametro (feature 005, T012)
 
-`people` e mutado in place, entao vem do topo. `graph` e a excecao: e
-reatribuido a cada parse (`graph = new_graph`), entao um import no topo ficaria
-preso ao grafo antigo, e ele continua sendo importado dentro de
-`find_indirect_path`.
+Antes, `people` vinha de um import no topo e `graph` de um import DENTRO da
+funcao, porque `graph` era reatribuido a cada parse e um import no topo ficaria
+preso ao grafo antigo. A assimetria sumiu: os dois saem da arvore recebida.
+
+## O que NAO pode mudar
+
+`MAX_DEPTH` conta ITERACOES do BFS bidirecional, nao geracoes — a extracao
+anterior descrevia como "20 niveis" e estava errada. E a ordem de insercao das
+arestas do grafo decide qual caminho o `nx.shortest_path` devolve quando ha mais
+de um de mesmo comprimento, entao ela e contrato de paridade (tag `@ordem`).
 """
 from __future__ import annotations
 
@@ -19,7 +25,8 @@ from collections import deque
 import networkx as nx
 
 from .family_navigation import get_parents
-from .gedcom_state import people
+
+Arvore = tuple
 
 
 MAX_DEPTH = 20
@@ -28,14 +35,12 @@ MAX_DEPTH = 20
 MAX_HOPS = 40
 
 
-def find_indirect_path(start_id, end_id, max_hops=MAX_HOPS):
+def find_indirect_path(arvore: Arvore, start_id, end_id, max_hops=MAX_HOPS):
     """Procura QUALQUER caminho no grafo pessoa<->família.
 
     Retorna apenas os nós de pessoa, comprimindo os nós de família.
     """
-    # `graph` é reatribuído por `load_gedcom_and_build_graph` (graph = new_graph),
-    # então um import no topo ficaria preso ao grafo antigo. Ver o contrato no topo.
-    from .gedcom_state import graph
+    people, _families, graph, _child_to_family = arvore
     if graph is None or start_id not in graph or end_id not in graph:
         return None
     try:
@@ -48,8 +53,8 @@ def find_indirect_path(start_id, end_id, max_hops=MAX_HOPS):
         return None
 
 
-def find_ancestral_path(start_id, end_id, max_depth=MAX_DEPTH):
-    """BFS bidirecional subindo por pais (profundidade máx. max_depth).
+def find_ancestral_path(arvore: Arvore, start_id, end_id, max_depth=MAX_DEPTH):
+    """BFS bidirecional subindo por pais (profundidade maxima max_depth).
 
     Retorna `(path, common_ancestor)` ou `(None, None)`.
     """
@@ -65,7 +70,7 @@ def find_ancestral_path(start_id, end_id, max_depth=MAX_DEPTH):
             curr_id, path = q1.popleft()
             if curr_id in visited2:
                 return (path + visited2[curr_id][::-1][1:], curr_id)
-            for p_id in get_parents(curr_id):
+            for p_id in get_parents(arvore, curr_id):
                 if p_id not in visited1:
                     new_path = path + [p_id]
                     visited1[p_id] = new_path
@@ -77,7 +82,7 @@ def find_ancestral_path(start_id, end_id, max_depth=MAX_DEPTH):
             curr_id, path = q2.popleft()
             if curr_id in visited1:
                 return (visited1[curr_id] + path[::-1][1:], curr_id)
-            for p_id in get_parents(curr_id):
+            for p_id in get_parents(arvore, curr_id):
                 if p_id not in visited2:
                     new_path = path + [p_id]
                     visited2[p_id] = new_path

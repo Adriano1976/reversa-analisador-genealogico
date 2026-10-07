@@ -5,6 +5,14 @@ construir os indices sobre a arvore carregada e decidir, para cada match do CSV,
 quais pessoas do GEDCOM sao candidatas aceitas e por que.
 
 Nao depende de pandas: quem le o CSV e `csv_ingest`.
+
+## A arvore entra por parametro (feature 005, T013)
+
+`build_ged_indexes` e `match_candidates` recebem `arvore` como primeiro
+parametro. **Nenhum limiar, peso, ramo de aceitacao ou ordem de avaliacao mudou**
+— a migracao toca a assinatura e a origem de `people`, e nada mais. As regras
+A/B/C/D, o filtro anti-falso-positivo e o Jaccard adaptativo continuam com os
+mesmos literais mapeados em `_reversa_sdd/code-analysis.md` secao 3.5.
 """
 from __future__ import annotations
 
@@ -21,10 +29,14 @@ from .name_normalization import (
     surnames_set,
     token_prefixes,
 )
-from .gedcom_state import get_name, people
+from .registro import get_name
+
+# Forma da arvore recebida por parametro (feature 005, `T013`). O parametro se
+# chama `arvore` e vem primeiro, como em `family_navigation` e `path_finding`.
+Arvore = tuple
 
 
-def build_ged_indexes():
+def build_ged_indexes(arvore: Arvore):
     """Constroi os indices de busca e o cache de atributos normalizados.
 
     O cache existe porque ``norm_name`` custa cerca de 41 us e ``surnames_set``
@@ -33,6 +45,7 @@ def build_ged_indexes():
     um valor que nao depende do CSV. Calcular aqui, uma vez por analise, nao
     altera nenhuma decisao: os valores sao os mesmos.
     """
+    people = arvore[0]
     ged_index = {}
     surname_index = {}
     features = {}
@@ -59,7 +72,7 @@ def build_ged_indexes():
     return ged_index, surname_index, features
 
 
-def match_candidates(match_name, cm_value, ged_index, surname_index, features):
+def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_index, features):
     """Retorna `(candidate_pids, reason)` seguindo o bloco de scoring do legado."""
     key = norm_name(match_name)
     candidate_pids = ged_index.get(key, [])
