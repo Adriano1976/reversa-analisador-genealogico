@@ -1,21 +1,10 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/006-fronteira-aplicacao-ports",
-  "feature-id": "006",
-  "short-name": "fronteira-aplicacao-ports",
-  "started-at": "2026-10-07T11:24:27Z",
-  "current-stage": "requirements",
+  "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
+  "feature-id": "003",
+  "short-name": "renomear-pasta-app-para-src",
+  "started-at": "2026-10-02T21:38:27Z",
+  "current-stage": "coding-em-progresso",
   "stages-completed": [],
-  "paused-features": [
-    {
-      "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
-      "feature-id": "003",
-      "short-name": "renomear-pasta-app-para-src",
-      "started-at": "2026-10-02T21:38:27Z",
-      "current-stage": "requirements",
-      "stages-completed": [],
-      "paused-at": "2026-10-03T19:03:55Z",
-      "paused-from-stage": "coding-em-progresso"
-    }
-  ]
+  "paused-features": []
 }
