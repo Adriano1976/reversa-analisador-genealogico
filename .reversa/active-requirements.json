@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/005-nucleo-puro-src",
-  "feature-id": "005",
-  "short-name": "nucleo-puro-src",
-  "started-at": "2026-10-06T00:00:00Z",
+  "feature-dir": "_reversa_forward/006-fronteira-aplicacao-ports",
+  "feature-id": "006",
+  "short-name": "fronteira-aplicacao-ports",
+  "started-at": "2026-10-07T11:24:27Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [
