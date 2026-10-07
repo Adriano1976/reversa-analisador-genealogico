@@ -37,6 +37,10 @@ from core.genetic_evidence import SEM_KIT, build_genetic_evidence, evidence_for
 from core.path_search import path_search
 from core.relationship_hypotheses import hypotheses_for_evidence, possible_relationships
 from parsers import gedcom_parser
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -381,7 +385,7 @@ def _carregar(ged_texto):
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(ged_texto)
-        gedcom_parser.load_gedcom_and_build_graph(caminho)
+        guardar(gedcom_parser.carregar_arvore(caminho))
     finally:
         os.remove(caminho)
 
@@ -397,7 +401,7 @@ def _analisar(csv_texto, ged_texto=GED_FAMILIA, raiz="Adriano Vieira Souza"):
     _carregar(ged_texto)
     caminho = _csv(csv_texto)
     try:
-        return dna_analysis(caminho, raiz)
+        return dna_analysis(caminho, raiz, _deps(), atual())
     finally:
         os.remove(caminho)
 
@@ -488,14 +492,14 @@ def test_3_parentesco_distante_nunca_vira_certeza():
 def test_4_sem_dna_documental_segue_e_genetica_e_inconclusiva():
     _carregar(GED_FAMILIA)
     # Unidade: o confronto sem evidencia genetica nao pode inventar compatibilidade.
-    documental = documentary_relationship("@ROOT@", "@S1@")
+    documental = documentary_relationship(atual(), "@ROOT@", "@S1@")
     assert documental["label"] == "Irmãos"
     confronto = compare(documental, hypotheses=[], evidence={"available": False, "kits": [], "totals": {}})
     assert confronto["status"] == "INCONCLUSIVO"
     assert "Sem evidência genética" in confronto["detail"]
 
     # Tela sem DNA: a busca documental continua entregando o parentesco.
-    resultado, mensagem, sucesso = path_search("Adriano Vieira Souza", "Soraia Vieira Souza")
+    resultado, mensagem, sucesso = path_search("Adriano Vieira Souza", "Soraia Vieira Souza", _deps(), atual())
     assert sucesso is True
     assert mensagem == "Conexão direta encontrada (ancestral comum)."
     assert resultado["documentary"]["label"] == "Irmãos"
@@ -543,7 +547,7 @@ def test_6_homonimos_nao_sao_escolhidos_em_silencio():
 
 def test_6b_dossie_de_homonimo_traz_id_datas_locais_pais_conjuges_filhos():
     _carregar(GED_FAMILIA)
-    dossie = homonym_dossier("Joao Vieira Souza")
+    dossie = homonym_dossier(atual(), "Joao Vieira Souza")
     assert dossie["exact_count"] == 2
     for ficha in dossie["exact_matches"]:
         assert ficha["id"] and ficha["birth"] and ficha["parent_names"] is not None
@@ -559,7 +563,7 @@ def test_6c_homonimo_que_difere_so_no_acento_nao_e_escolhido_em_silencio():
     primeiro em silêncio.
     """
     _carregar(GED_FAMILIA)
-    resultado, mensagem, sucesso = path_search("Adriano Vieira Souza", "Jose Zacarias Vieira Souza")
+    resultado, mensagem, sucesso = path_search("Adriano Vieira Souza", "Jose Zacarias Vieira Souza", _deps(), atual())
 
     assert sucesso is True
     assert mensagem == "Conexão direta encontrada (ancestral comum)."
@@ -573,13 +577,13 @@ def test_6c_homonimo_que_difere_so_no_acento_nao_e_escolhido_em_silencio():
 def test_6d_indice_de_nomes_e_invalidado_a_cada_gedcom_carregado():
     """Dois GEDCOMs diferentes não podem compartilhar o índice em cache."""
     _carregar(GED_FAMILIA)
-    assert homonym_dossier("Joao Vieira Souza")["exact_count"] == 2
+    assert homonym_dossier(atual(), "Joao Vieira Souza")["exact_count"] == 2
 
     _carregar(GED_PEDIGREE_COLLAPSE)
-    assert homonym_dossier("Joao Vieira Souza")["exact_count"] == 0
+    assert homonym_dossier(atual(), "Joao Vieira Souza")["exact_count"] == 0
 
     _carregar(GED_FAMILIA)
-    assert homonym_dossier("Joao Vieira Souza")["exact_count"] == 2
+    assert homonym_dossier(atual(), "Joao Vieira Souza")["exact_count"] == 2
 
 
 def test_6e_normalizacao_de_nome_tolera_acento_e_mojibake():
@@ -603,7 +607,7 @@ def test_6e_normalizacao_de_nome_tolera_acento_e_mojibake():
 
 def test_7_multiplos_caminhos_sao_identificados():
     _carregar(GED_PEDIGREE_COLLAPSE)
-    documental = documentary_relationship("@K11@", "@K12@")
+    documental = documentary_relationship(atual(), "@K11@", "@K12@")
 
     assert documental["status"] == "found"
     assert len(documental["common_ancestors"]) > 1, "o casal fundador é ancestral comum dos dois"
@@ -782,7 +786,7 @@ def test_rotulo_documental_cobre_toda_a_tabela_de_parentesco():
 def test_vinculo_cronologicamente_impossivel_e_avisado_sem_reescrever_o_gedcom():
     _carregar(GED_DATA_IMPOSSIVEL)
     # Adriano (@X5@) e a avo Maria (@X1@), que o GEDCOM declara mae de Celso.
-    documental = documentary_relationship("@X5@", "@X1@")
+    documental = documentary_relationship(atual(), "@X5@", "@X1@")
 
     # O GEDCOM continua determinando o parentesco: nada foi corrigido nem apagado.
     assert documental["status"] == "found"
@@ -803,7 +807,7 @@ def test_vinculo_cronologicamente_impossivel_e_avisado_sem_reescrever_o_gedcom()
 def test_afinidade_nao_e_apresentada_como_parentesco():
     _carregar(GED_FAMILIA)
     # Marta (esposa de Pedro) e Jorge (marido de Rita): ligados só por casamento.
-    resultado, mensagem, sucesso = path_search("Marta Souza", "Jorge Lima")
+    resultado, mensagem, sucesso = path_search("Marta Souza", "Jorge Lima", _deps(), atual())
     assert sucesso is True
     assert mensagem == "Conexão indireta encontrada (via casamento/afinidade)."
     assert resultado["documentary"]["status"] == "affinity"
@@ -914,7 +918,7 @@ def test_arquivo_que_nao_e_lista_de_matches_explica_o_problema_em_portugues():
     caminho = _csv(ged_como_csv)
     try:
         with pytest.raises(ValueError) as excinfo:
-            dna_analysis(caminho, "Adriano Vieira Souza")
+            dna_analysis(caminho, "Adriano Vieira Souza", _deps(), atual())
     finally:
         os.remove(caminho)
 
@@ -930,7 +934,7 @@ def test_csv_vazio_ou_sem_colunas_nao_estoura_erro_cru():
     caminho = _csv("X,Y\n1,2\n")
     try:
         with pytest.raises(ValueError) as excinfo:
-            dna_analysis(caminho, "Adriano Vieira Souza")
+            dna_analysis(caminho, "Adriano Vieira Souza", _deps(), atual())
     finally:
         os.remove(caminho)
     assert "não encontradas" in str(excinfo.value)

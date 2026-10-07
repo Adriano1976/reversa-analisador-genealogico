@@ -27,6 +27,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from parsers import gedcom_parser
 from reporting.mermaid_render import _mermaid_label
 from core.path_search import path_search
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
 
 # Forma exata de uma linha de no: identificador, rotulo entre aspas, e nada mais.
 LINHA_DE_NO = re.compile(r'^N_[A-Za-z0-9_]+\["[^"]*"\]$')
@@ -68,11 +70,16 @@ def _gedcom_com_nome(nome_hostil: str) -> str:
 
 
 def _carregar(conteudo: str):
+    """Carrega o GEDCOM e devolve a ARVORE que o parse devolveu.
+
+    Devolvia a lista de nomes, que nao serve para navegar: quem chamava recorria
+    ao modulo de estado. O parse ja devolve a arvore (feature 005, `T009`).
+    """
     fd, path = tempfile.mkstemp(suffix=".ged")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(conteudo)
-        return gedcom_parser.load_gedcom_and_build_graph(path)
+        return gedcom_parser.carregar_arvore(path)
     finally:
         os.remove(path)
 
@@ -98,8 +105,8 @@ def test_rotulo_neutraliza_crase():
 @pytest.mark.parametrize("nome_hostil", NOMES_HOSTIS)
 def test_diagrama_nao_carrega_caractere_que_quebra_a_gramatica(nome_hostil):
     """Nenhum nome hostil pode deixar no rotulo um caractere capaz de quebrar o diagrama."""
-    _carregar(_gedcom_com_nome(nome_hostil))
-    result, msg, success = path_search("Ana Raiz", "Alvo Filho")
+    arvore = _carregar(_gedcom_com_nome(nome_hostil))
+    result, msg, success = path_search("Ana Raiz", "Alvo Filho", _deps(), _arvore_de(arvore))
 
     assert success is True, msg
     mermaid = result["mermaid_data"]

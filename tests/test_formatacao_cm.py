@@ -14,6 +14,9 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
@@ -47,14 +50,14 @@ def _html_do_badge(cm):
 def _resultados_do_fluxo_real():
     """Roda o fluxo real de analise com tres segmentos de 6,4 cM do mesmo match."""
     from core.dna_analysis import dna_analysis
-    from parsers.gedcom_parser import load_gedcom_and_build_graph
+    from parsers.gedcom_parser import carregar_arvore
     from tests.fixtures.sample_dna import DNA_GED
 
     fd, ged = tempfile.mkstemp(suffix=".ged")
     with os.fdopen(fd, "w", encoding="utf-8") as fh:
         fh.write(DNA_GED)
     try:
-        load_gedcom_and_build_graph(ged)
+        guardar(carregar_arvore(ged))
     finally:
         os.remove(ged)
 
@@ -62,7 +65,7 @@ def _resultados_do_fluxo_real():
     with os.fdopen(fd, "w", encoding="utf-8") as fh:
         fh.write("Name,cM\nAna Silva Souza,6.4\nAna Silva Souza,6.4\nAna Silva Souza,6.4\n")
     try:
-        resultados, _descartados, _mensagem = dna_analysis(csv, "Carlos Silva Souza")
+        resultados, _descartados, _mensagem = dna_analysis(csv, "Carlos Silva Souza", _deps(), atual())
     finally:
         os.remove(csv)
     return resultados

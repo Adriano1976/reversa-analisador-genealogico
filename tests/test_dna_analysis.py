@@ -24,14 +24,21 @@ from tests.fixtures.sample_dna import (
 )
 
 from parsers import gedcom_parser
-from core import gedcom_state
 from core.dna_analysis import (
-    aggregate_matches,
-    detect_columns,
     dna_analysis,
     get_relationships_by_cm,
+)
+# `aggregate_matches`, `detect_columns` e `read_csv_with_fallback` deixaram de ser
+# reexportados pelo nucleo em `T016`: a leitura do CSV passou a ser injetada pela
+# borda, e reexporta-los la obrigaria `core/` a importar `parsers/`.
+from parsers.csv_ingest import (
+    aggregate_matches,
+    detect_columns,
     read_csv_with_fallback,
 )
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
 
 
 @pytest.fixture(scope="module")
@@ -39,20 +46,20 @@ def dna_loaded():
     """Carrega o GEDCOM sintético de DNA uma única vez para toda a suite.
 
     Escreve ``DNA_GED`` em um arquivo temporário, invoca
-    ``gedcom_parser.load_gedcom_and_build_graph`` para popular o grafo em memória e
-    remove o arquivo ao final, independentemente de erros.
+    ``gedcom_parser.carregar_arvore`` e guarda a arvore devolvida — os testes a
+    alcancam por ``atual()`` —, removendo o arquivo ao final.
 
     Yields:
-        module: O módulo ``gedcom_state`` com o grafo já carregado.
+        tuple: A arvore ``(people, families, graph, child_to_family)`` carregada.
     """
     fd, ged_path = tempfile.mkstemp(suffix=".ged")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_GED)
-        gedcom_parser.load_gedcom_and_build_graph(ged_path)
+        guardar(gedcom_parser.carregar_arvore(ged_path))
     finally:
         os.remove(ged_path)
-    return gedcom_state
+    return atual()
 
 
 # TT-03: encoding — CSV UTF-8 e Latin-1 são lidos.
@@ -81,7 +88,7 @@ def test_read_csv_latin1(dna_loaded):
     e retorna o DataFrame com o nome correto na coluna ``Name``.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
@@ -100,7 +107,7 @@ def test_detect_columns(dna_loaded):
     confirma que os quatro valores retornados mapeiam para os nomes esperados.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     df = pd.DataFrame({"Name": ["A"], "cM": [1], "email": ["x"]})
     name_col, cm_col, id_col, email_col = detect_columns(df)
@@ -118,7 +125,7 @@ def test_aggregate_duplicated(dna_loaded):
     de cM (537).
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     df = pd.read_csv(io.StringIO(DNA_CSV_DUPLICATED))
     name_col, cm_col, id_col, email_col = detect_columns(df)
@@ -141,13 +148,13 @@ def test_dna_analysis_happy(dna_loaded):
     - A lista de relações não está vazia.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_CSV_UTF8)
-        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
+        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
         assert msg.startswith("1 conexões encontradas")
         assert len(results) == 1
         assert "Ana Silva Souza" in results[0]["match_name"]
@@ -179,13 +186,13 @@ def test_anti_false_positive(dna_loaded):
     - O match vai para ``skipped`` com motivo que contém ``não`` ou ``sem``.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_CSV_NO_INTERSECTION)
-        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
+        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
         assert len(results) == 0
         assert len(skipped) == 1
         assert "não" in skipped[0]["motivo"] or "sem" in skipped[0]["motivo"]
@@ -202,14 +209,14 @@ def test_root_not_found(dna_loaded):
     contendo ``não foi encontrado``.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_CSV_UTF8)
         with pytest.raises(ValueError) as excinfo:
-            dna_analysis(path, "Zzz Ninguem")
+            dna_analysis(path, "Zzz Ninguem", _deps(), atual())
         assert "não foi encontrado" in str(excinfo.value)
     finally:
         os.remove(path)
@@ -224,14 +231,14 @@ def test_missing_columns(dna_loaded):
     ``ValueError`` com a mensagem contendo ``não encontradas``.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     fd, path = tempfile.mkstemp(suffix=".csv")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("X,Y\n1,2\n")
         with pytest.raises(ValueError) as excinfo:
-            dna_analysis(path, "Carlos Silva Souza")
+            dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
         assert "não encontradas" in str(excinfo.value)
     finally:
         os.remove(path)
@@ -250,7 +257,7 @@ def test_match_without_path(dna_loaded):
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("Name,cM\nLone Ranger,120\n")
-        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
+        results, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
         assert len(results) == 1
         assert results[0]["documentary"]["status"] == "not_found"
         assert results[0]["documentary"]["path"] is None
@@ -273,7 +280,7 @@ def test_relationships_by_cm(dna_loaded):
     - 0 cM    → deve retornar lista vazia (comportamento legado).
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
     assert "Primos" in ", ".join(get_relationships_by_cm(600))
@@ -288,7 +295,7 @@ def test_relationships_by_cm_out_of_range(dna_loaded):
     ``Relação distante ou indeterminada``.
 
     Args:
-        dna_loaded: Fixture que carrega o GEDCOM sintético no módulo ``gedcom_state``.
+        dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
     """
     # 5000 está acima de todas as faixas -> texto padrão do legado.
     assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]

@@ -21,9 +21,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from parsers import gedcom_parser
-from core import gedcom_state
 from parsers.gedcom_parser import build_graph_from_parser
-from core.gedcom_state import get_name, ref_id
+from core.registro import get_name, ref_id
+from tests.fixtures.arvore_atual import atual, guardar
 
 
 def _write_g(content=SAMPLE_GED):
@@ -64,9 +64,9 @@ def test_get_name_empty_none():
 def test_get_name_real_person():
     path = _write_g(SAMPLE_GED)
     try:
-        gedcom_parser.load_gedcom_and_build_graph(path)
+        guardar(gedcom_parser.carregar_arvore(path))
         # @I1@ é "Joao /Silva/" no fixture; verifica formato retornado.
-        p = gedcom_state.people["@I1@"]
+        p = atual()[0]["@I1@"]
         name = get_name(p)
         assert name and isinstance(name, str)
         assert name.lower().startswith("joao")
@@ -107,8 +107,8 @@ def test_get_name_empty_formatted_returns_empty_string():
     ged = SAMPLE_GED.replace("1 NAME Joao /Silva/", "1 NAME /")
     path = _write_g(ged)
     try:
-        gedcom_parser.load_gedcom_and_build_graph(path)
-        assert get_name(gedcom_state.people["@I1@"]) == ""
+        guardar(gedcom_parser.carregar_arvore(path))
+        assert get_name(atual()[0]["@I1@"]) == ""
     finally:
         os.remove(path)
 
@@ -118,8 +118,8 @@ def test_get_name_indian_without_name_tag_returns_empty_string():
     ged = SAMPLE_GED.replace("1 NAME Joao /Silva/", "1 SEX M")
     path = _write_g(ged)
     try:
-        gedcom_parser.load_gedcom_and_build_graph(path)
-        assert get_name(gedcom_state.people["@I1@"]) == ""
+        guardar(gedcom_parser.carregar_arvore(path))
+        assert get_name(atual()[0]["@I1@"]) == ""
     finally:
         os.remove(path)
 
@@ -138,10 +138,10 @@ def _load(content):
 
 def test_load_populates_globals():
     _load(SAMPLE_GED)
-    assert "@I1@" in gedcom_state.people
-    assert "@I3@" in gedcom_state.people
-    assert "@F1@" in gedcom_state.families
-    assert gedcom_state.child_to_family.get("@I3@") == ["@F1@"]
+    assert "@I1@" in atual()[0]
+    assert "@I3@" in atual()[0]
+    assert "@F1@" in atual()[1]
+    assert atual()[3].get("@I3@") == ["@F1@"]
 
 
 def test_load_returns_sorted_names():
@@ -165,7 +165,7 @@ def test_load_returns_exactly_one_name_per_person_and_no_empty_entries():
     """
     names = _load(SAMPLE_GED)
     assert len(names) == 7
-    assert len(names) == len(gedcom_state.people)
+    assert len(names) == len(atual()[0])
     assert "" not in names
     assert "Sem Nome" not in names
 
@@ -174,7 +174,7 @@ def test_reload_replaces_globals():
     first = _load(SAMPLE_GED)
     # Carrega outro conteúdo -> `people` deve ser substituído, não somado.
     _load(SAMPLE_GED)
-    assert set(gedcom_state.people.keys()) == {"@I1@", "@I2@", "@I3@", "@I4@", "@I5@", "@I6@", "@I9@"}
+    assert set(atual()[0].keys()) == {"@I1@", "@I2@", "@I3@", "@I4@", "@I5@", "@I6@", "@I9@"}
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +186,7 @@ def test_build_graph_structure():
     from ged4py.parser import GedcomReader
 
     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
-        g, c2f = build_graph_from_parser(gedcom_state.people, parser)
+        g, c2f = build_graph_from_parser(atual()[0], parser)
 
     assert isinstance(g, nx.Graph)
     # Nós de pessoas e de família presentes.
@@ -202,7 +202,7 @@ def test_build_graph_structure():
 
 def test_graph_bidirectional_nodes_person_family_types():
     _load(SAMPLE_GED)
-    g = gedcom_state.graph
+    g = atual()[2]
     assert g.nodes["@I1@"]["type"] == "person"
     assert g.nodes["@F1@"]["type"] == "family"
 
@@ -232,6 +232,6 @@ def test_family_without_id_skipped():
 
     # FAM sem xref_id não adiciona nó; pessoas ainda mapeiam filhos corretamente.
     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
-        g, c2f = build_graph_from_parser(gedcom_state.people, parser)
+        g, c2f = build_graph_from_parser(atual()[0], parser)
     assert "@I3@" in g
     assert c2f.get("@I3@") == ["@F1@"]

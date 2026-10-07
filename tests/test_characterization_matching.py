@@ -41,21 +41,26 @@ from tests.fixtures.sample_dna import (
 )
 
 from parsers import gedcom_parser
-from core import gedcom_state
 from core.dna_analysis import build_ged_indexes, dna_analysis, match_candidates
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
 
 
 @pytest.fixture(scope="module")
 def tree():
-    """Carrega o GEDCOM sintetico de DNA uma unica vez para toda a suite."""
+    """Carrega o GEDCOM sintetico de DNA uma unica vez para toda a suite.
+
+    Le a ARVORE devolvida pelo parse (feature 005), e a registra em `atual()`
+    porque `test_pipeline_caracterizado` a alcanca por la, sem receber a fixture.
+    """
     fd, path = tempfile.mkstemp(suffix=".ged")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_GED)
-        gedcom_parser.load_gedcom_and_build_graph(path)
+        return guardar(gedcom_parser.carregar_arvore(path))
     finally:
         os.remove(path)
-    return gedcom_state
 
 
 def _csv(texto):
@@ -65,12 +70,17 @@ def _csv(texto):
     return path
 
 
-def _decidir(nome, cm):
-    """Chama match_candidates adaptando a aridade, para o teste falar de decisao."""
-    indices = build_ged_indexes()
-    if len(inspect.signature(match_candidates).parameters) >= 5:
-        return match_candidates(nome, cm, indices[0], indices[1], indices[-1])
-    return match_candidates(nome, cm, indices[0], indices[1])
+def _decidir(arvore, nome, cm):
+    """Chama match_candidates com a arvore, na assinatura de `T013`.
+
+    O adaptador de aridade que existia aqui saiu: `match_candidates` passou a
+    receber `arvore` como primeiro parametro (feature 005, `T013`), e a funcao
+    nao consulta a arvore nesta decisao — ela usa os indices. Isso e propriedade
+    a preservar, e nao detalhe: e o que permite testar a regra de aceitacao com
+    um pool montado a mao.
+    """
+    indices = build_ged_indexes(arvore)
+    return match_candidates(arvore, nome, cm, indices[0], indices[1], indices[-1])
 
 
 # --- saida completa do fluxo, por fixture -------------------------------------
@@ -126,7 +136,7 @@ def test_pipeline_caracterizado(tree, caso):
     csv, esperado_res, esperado_doc, esperado_comparacao, esperado_skipped, esperado_msg = PIPELINE[caso]
     path = _csv(csv)
     try:
-        res, skipped, msg = dna_analysis(path, "Carlos Silva Souza")
+        res, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
     finally:
         os.remove(path)
 
@@ -166,13 +176,13 @@ DECISOES = [
 @pytest.mark.parametrize("nome,pids,motivo", DECISOES)
 def test_decisao_de_matching(tree, nome, pids, motivo):
     """A decisao continua a mesma, aceitando ou descartando o mesmo nome."""
-    assert _decidir(nome, 200) == (pids, motivo)
+    assert _decidir(tree, nome, 200) == (pids, motivo)
 
 
 @pytest.mark.parametrize("cm", [0, -1, 150, 3720])
 def test_limiar_de_cm_nao_muda_a_decisao(tree, cm):
     """O nome valido e aceito independentemente do cM, como hoje."""
-    assert _decidir("Ana Silva Souza", cm) == (["@I13@"], None)
+    assert _decidir(tree, "Ana Silva Souza", cm) == (["@I13@"], None)
 
 
 # --- desempate deterministico -------------------------------------------------
@@ -226,7 +236,7 @@ def _pool_empatado(ordem):
 def test_desempate_escolhe_o_menor_xref_id(ordem):
     """Empate exato nos tres criterios e resolvido pelo menor `xref_id`."""
     ged_index, surname_index, features = _pool_empatado(ordem)
-    vencedores, motivo = match_candidates("Mariana Silva Souza", 200, ged_index, surname_index, features)
+    vencedores, motivo = match_candidates(None, "Mariana Silva Souza", 200, ged_index, surname_index, features)
     assert vencedores == ["@I1@"], (
         "o menor xref_id deve vencer o empate, qualquer que seja a ordem de "
         "insercao dos candidatos no pool"
@@ -239,5 +249,5 @@ def test_desempate_nao_depende_da_ordem_do_pool():
     resultados = []
     for ordem in (("@I1@", "@I2@"), ("@I2@", "@I1@")):
         ged_index, surname_index, features = _pool_empatado(ordem)
-        resultados.append(match_candidates("Mariana Silva Souza", 200, ged_index, surname_index, features))
+        resultados.append(match_candidates(None, "Mariana Silva Souza", 200, ged_index, surname_index, features))
     assert resultados[0] == resultados[1]

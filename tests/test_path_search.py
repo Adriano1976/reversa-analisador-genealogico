@@ -16,46 +16,57 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from parsers import gedcom_parser
-from core import gedcom_state
 from core.family_navigation import find_person_by_name
 from core.path_finding import find_ancestral_path, find_indirect_path
 from core.path_search import path_search
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
 
 
 @pytest.fixture(scope="module")
 def loaded_tree():
-    """Carrega o GEDCOM sintético uma única vez para toda a suíte."""
+    """Carrega o GEDCOM sintético uma única vez para toda a suíte.
+
+    Devolve a ARVORE na forma que o nucleo passou a receber por parametro
+    (feature 005, `T011`/`T012`): `(people, families, graph, child_to_family)`.
+    A fixture antes devolvia o modulo de estado; as asserções nao mudaram.
+    """
     fd, path = tempfile.mkstemp(suffix=".ged")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(SAMPLE_GED)
-        gedcom_parser.load_gedcom_and_build_graph(path)
+        # O parse DEVOLVE a arvore (feature 005). Antes devolvia so os nomes e
+        # escrevia as globais de lado; por isso a fixture lia `gedcom_state`.
+        # `guardar` registra a MESMA arvore que a suite usa, para o recurso de
+        # transicao do helper (que recorre as globais) nunca ser acionado — ele
+        # mistura a arvore de outro arquivo de teste.
+        return guardar(gedcom_parser.carregar_arvore(path))
     finally:
         os.remove(path)
-    return gedcom_state
 
 
 def test_person_lookup(loaded_tree):
-    assert find_person_by_name("Carlos Silva") == ["@I3@"]
-    assert "@I4@" in find_person_by_name("Ana Silva")
-    assert find_person_by_name("Zzz Ninguém") == []
+    assert find_person_by_name(loaded_tree, "Carlos Silva") == ["@I3@"]
+    assert "@I4@" in find_person_by_name(loaded_tree, "Ana Silva")
+    assert find_person_by_name(loaded_tree, "Zzz Ninguém") == []
 
 
 def test_direct_connection_trivial(loaded_tree):
-    path, common = find_ancestral_path("@I3@", "@I3@")
+    path, common = find_ancestral_path(loaded_tree, "@I3@", "@I3@")
     assert path == ["@I3@"]
     assert common == "@I3@"
 
 
 def test_direct_connection_common_ancestor(loaded_tree):
     # TT-01: Carlos (I3) e Ana (I4) compartilham I1/I2.
-    path, common = find_ancestral_path("@I3@", "@I4@")
+    path, common = find_ancestral_path(loaded_tree, "@I3@", "@I4@")
     assert path is not None
     assert common in ("@I1@", "@I2@")
 
 
 def test_path_search_direct(loaded_tree):
-    result, msg, success = path_search("Carlos Silva", "Ana Silva")
+    result, msg, success = path_search("Carlos Silva", "Ana Silva", _deps(), atual())
     assert success is True
     assert msg == "Conexão direta encontrada (ancestral comum)."
     assert "Carlos Silva" in result["text_path"]
@@ -65,14 +76,14 @@ def test_path_search_direct(loaded_tree):
 
 def test_indirect_connection_via_marriage(loaded_tree):
     # TT-02: Carlos (I3) e Bia (I5) são casados (F2).
-    result, msg, success = path_search("Carlos Silva", "Bia Oliveira")
+    result, msg, success = path_search("Carlos Silva", "Bia Oliveira", _deps(), atual())
     assert success is True
     assert msg == "Conexão indireta encontrada (via casamento/afinidade)."
     assert "Bia Oliveira" in result["text_path"]
 
 
 def test_indirect_path_function(loaded_tree):
-    person_path = find_indirect_path("@I3@", "@I5@", max_hops=40)
+    person_path = find_indirect_path(loaded_tree, "@I3@", "@I5@", max_hops=40)
     assert person_path is not None
     assert "@I3@" in person_path
     assert "@I5@" in person_path
@@ -80,18 +91,18 @@ def test_indirect_path_function(loaded_tree):
 
 def test_person_not_found(loaded_tree):
     # TT-03: mensagem específica por pessoa.
-    result, msg, success = path_search("Zzz Ninguém", "Carlos Silva")
+    result, msg, success = path_search("Zzz Ninguém", "Carlos Silva", _deps(), atual())
     assert success is False
     assert "Pessoa 1 'Zzz Ninguém' não encontrada." == msg
 
-    result, msg, success = path_search("Carlos Silva", "Zzz Ninguém")
+    result, msg, success = path_search("Carlos Silva", "Zzz Ninguém", _deps(), atual())
     assert success is False
     assert "Pessoa 2 'Zzz Ninguém' não encontrada." == msg
 
 
 def test_no_connection(loaded_tree):
     # TT-04: Lone Ranger não tem famílias; sem conexão com ninguém.
-    result, msg, success = path_search("Carlos Silva", "Lone Ranger")
+    result, msg, success = path_search("Carlos Silva", "Lone Ranger", _deps(), atual())
     assert success is True
     assert "Nenhuma conexão encontrada" in msg
     assert result is None
@@ -99,7 +110,7 @@ def test_no_connection(loaded_tree):
 
 def test_identical_persons(loaded_tree):
     # TT-05: pessoas idênticas -> caminho trivial.
-    result, msg, success = path_search("Carlos Silva", "Carlos Silva")
+    result, msg, success = path_search("Carlos Silva", "Carlos Silva", _deps(), atual())
     assert success is True
     assert msg == "Conexão direta encontrada (ancestral comum)."
     assert result["text_path"] == "Carlos Silva"

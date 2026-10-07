@@ -20,8 +20,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from tests.fixtures.sample_gedcom import SAMPLE_GED
 
 from parsers import gedcom_parser
-from core import gedcom_state
 from core.path_search import path_search
+from tests.fixtures.helpers import arvore_de as _arvore_de
+from tests.fixtures.helpers import deps as _deps
+from tests.fixtures.arvore_atual import atual, guardar
 
 # Saida congelada, linha por linha, para os tres caminhos de render.
 GOLDEN = {
@@ -105,22 +107,26 @@ GOLDEN = {
 
 @pytest.fixture(scope="module")
 def carregado():
-    """Carrega o GEDCOM sintetico uma unica vez para toda a suite."""
+    """Carrega o GEDCOM sintetico uma unica vez para toda a suite.
+
+    Devolve a ARVORE, e nao o modulo de estado: os testes usam `atual()`, que le
+    o que o parse devolveu.
+    """
     fd, path = tempfile.mkstemp(suffix=".ged")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(SAMPLE_GED)
-        gedcom_parser.load_gedcom_and_build_graph(path)
+        guardar(gedcom_parser.carregar_arvore(path))
     finally:
         os.remove(path)
-    return gedcom_state
+    return atual()
 
 
 @pytest.mark.parametrize("caso", sorted(GOLDEN))
 def test_saida_mermaid_caracterizada(carregado, caso):
     """A saida de cada caminho de render tem de continuar identica, linha a linha."""
     esperado = GOLDEN[caso]
-    result, msg, success = path_search(esperado["p1"], esperado["p2"])
+    result, msg, success = path_search(esperado["p1"], esperado["p2"], _deps(), atual())
 
     assert success is esperado["success"]
     assert msg == esperado["msg"]
@@ -130,6 +136,6 @@ def test_saida_mermaid_caracterizada(carregado, caso):
 
 def test_rotulo_com_caracteres_de_escape(carregado):
     """O `&` do rotulo continua saindo como entidade HTML, nao cru."""
-    result, _, _ = path_search("Carlos Silva", "Ana Silva")
+    result, _, _ = path_search("Carlos Silva", "Ana Silva", _deps(), atual())
     assert "&amp;" in result["mermaid_data"]
     assert " & " not in result["mermaid_data"]
