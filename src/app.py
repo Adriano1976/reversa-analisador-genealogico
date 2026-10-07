@@ -37,11 +37,30 @@ _DEPENDENCIAS = Dependencias(
     generate_mermaid_graph_indirect_bridge,
 )
 
-# RN-06: NAO ha identidade de usuario nesta onda. O dono e um marcador unico do
+# RN-06 e RF-04: NAO ha identidade de usuario. O dono e um marcador unico do
 # processo, e existe porque a costura precisa estar na assinatura ANTES de a Onda
-# 3 chegar — adiar reabriria toda assinatura de porta (RF-08). Nenhum
-# comportamento de isolamento depende deste valor, e nenhuma entrega desta feature
-# pode ser citada como tendo implementado isolamento.
+# 3 do cutover chegar — adiar reabriria toda assinatura de porta (RF-08 da 006).
+#
+# Este e o UNICO lugar onde o valor do dono e declarado, e os TRES pontos deste
+# arquivo que fornecem o valor o citam: as duas chamadas de `guardar` (a do GEDCOM
+# pelo caso de uso e a do CSV aqui) e a de `carregar`. Nenhum deles escreve o
+# literal no proprio local. O caso de uso `upload_gedcom` apenas REPASSA o que
+# recebe — ele nao declara nem escolhe identidade.
+#
+# >>> NAO E MECANISMO DE SEGURANCA. <<<
+#
+# Nao ha sessao, login nem papel no sistema (`_reversa_sdd/permissions.md`, P-01 a
+# P-05). Nenhum comportamento de isolamento depende deste valor, e nenhuma entrega
+# desta feature pode ser citada como tendo implementado isolamento. Duas dividas
+# seguem ABERTAS por decisao, e este comentario existe para que a costura nao seja
+# lida como conserto:
+#
+#   #4 — ausencia de identidade e de isolamento entre donos. O armazenamento
+#        continua unico por processo: dois donos com o mesmo conteudo chegam ao
+#        MESMO arquivo, e isso e a `RN-02`, nao um defeito.
+#   #3 — contaminacao entre requisicoes concorrentes. A guarda de exclusividade do
+#        bloco `__main__` e de PROCESSO, nao de thread, e este parametro NAO a
+#        substitui.
 DONO_DO_PROCESSO = "unico"
 
 # --- Configuração ---
@@ -141,7 +160,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     referencia = request.form.get("gedcom_filename")
     if not referencia:
         return None, None, "Erro: Arquivo GEDCOM não encontrado."
-    arvore = _CARREGADOR.carregar(referencia)
+    arvore = _CARREGADOR.carregar(referencia, DONO_DO_PROCESSO)
     if arvore is None:
         return None, None, f"Erro: Arquivo '{referencia}' não existe mais."
     return referencia, arvore, None
@@ -191,7 +210,7 @@ def index():
                 # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
                 # divida #10, preservada de proposito (`RF-10`, `RN-01`).
                 caminho_do_csv, motivo = _ARMAZENAMENTO.guardar(
-                    matches_file.read(), matches_file.filename, "csv")
+                    matches_file.read(), matches_file.filename, "csv", DONO_DO_PROCESSO)
                 if motivo is not None:
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
 

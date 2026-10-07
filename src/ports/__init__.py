@@ -22,6 +22,20 @@ Nesta onda **nao** existe Protocolo para leitura de CSV nem para emissao de
 diagrama: o contrato entre nucleo e fronteira para essas duas continua sendo a
 classe concreta `Dependencias`, de `core/dna_analysis.py`, como a feature 005 a
 estabilizou.
+
+## O dono, nas tres portas
+
+`dono` e parametro **obrigatorio** de `ArmazenamentoDeArquivos.guardar`,
+`ArmazenamentoDeArquivos.resolver`, `CarregadorDeArvores.carregar` e dos dois
+metodos de `RepositorioDeArvores`. A assimetria entre as portas — o repositorio
+com dono desde a feature 006 e o armazenamento sem — acabou na feature
+`007-dono-no-port-e-baseline`, e o motivo e o custo: a Onda 3 teria de reabrir toda
+assinatura de porta e todos os chamadores para acrescenta-lo depois.
+
+Ele e **costura de assinatura, e nao funcionalidade**: nao entra na chave, no nome
+armazenado nem no caminho de nada, e nenhum arquivo e separado por dono. As
+dividas #3 e #4 continuam abertas (`RN-06`). Nenhum metodo novo foi criado em
+nenhuma porta.
 """
 from __future__ import annotations
 
@@ -42,8 +56,8 @@ class ArmazenamentoDeArquivos(Protocol):
     proibe que o nome e o caminho voltem a ser intercambiaveis.
     """
 
-    def guardar(self, conteudo: bytes, nome_original: str | None,
-                tipo: str) -> tuple[str | None, str | None]:
+    def guardar(self, conteudo: bytes, nome_original: str | None, tipo: str,
+                dono: str) -> tuple[str | None, str | None]:
         """Valida ANTES de gravar e devolve `(referencia, motivo)`.
 
         `motivo is None` significa aceito, e `referencia` e o **caminho completo**
@@ -57,16 +71,35 @@ class ArmazenamentoDeArquivos(Protocol):
         `tipo` e o que decide se ha validacao de conteudo — hoje `"gedcom"` valida
         o cabecalho e `"csv"` nao valida conteudo nenhum. A assimetria e a divida
         #10, preservada de proposito nesta onda.
+
+        `dono` e a identidade de quem enviou o dado, e entra **sem comportamento**
+        (`RN-01`, `RN-02`). Ultimo parametro posicional e **sem valor padrao**, pela
+        mesma forma do `RepositorioDeArvores`: um padrao deixaria toda chamada
+        passar sem o dono e a Onda 3 nao teria onde ancorar.
+
+        **O dono nao isola nada.** A chave continua derivada do conteudo, o nome
+        armazenado continua `<chave>__<nome visivel>` e o caminho continua o mesmo,
+        entao dois envios do mesmo conteudo com donos diferentes reencontram o
+        MESMO arquivo. O armazenamento e unico por processo: a divida #4 (ausencia
+        de isolamento) e a #3 (corrida entre requisicoes concorrentes) seguem
+        abertas, e nenhuma entrega desta feature pode ser citada como tendo-as
+        fechado (`RN-06`).
         """
         ...
 
-    def resolver(self, referencia: str | None) -> str | None:
+    def resolver(self, referencia: str | None, dono: str) -> str | None:
         """Caminho do arquivo ja armazenado, ou `None`.
 
         `None` cobre as duas recusas, e cobre-as pelo mesmo motivo: nos dois casos
         nao existe arquivo a ler. Sao elas a **forma invalida** — o que impede um
         `gedcom_filename` manipulado de apontar para fora da pasta de upload — e o
         **arquivo ausente** no disco.
+
+        `dono` entra pela mesma razao do `guardar`, e com o mesmo alcance: ele
+        **nao** filtra nada. Quem resolve a referencia continua sendo a chave de
+        conteudo, e a validacao de forma continua vindo antes de qualquer
+        `os.path.exists`. O parametro existe para as duas operacoes da porta
+        ficarem simetricas entre si e com o `RepositorioDeArvores`.
         """
         ...
 
@@ -80,12 +113,22 @@ class CarregadorDeArvores(Protocol):
     acrescentar o segundo metodo por conveniencia.
     """
 
-    def carregar(self, referencia: str) -> Tree | None:
+    def carregar(self, referencia: str, dono: str) -> Tree | None:
         """Arvore da referencia, ou `None` quando ela nao resolve para arquivo existente.
 
         `None` significa "nao ha o que carregar", e nao "arvore vazia": quem chama
         ja distinguiu o campo de formulario ausente antes de chegar aqui, e
         traduz o `None` na mensagem de referencia que nao existe mais.
+
+        `dono` chega **por chamada** e e repassado a `ArmazenamentoDeArvores.resolver`
+        — este e o unico ponto de producao que resolve referencia. Por chamada, e
+        nao na construcao do adaptador, porque os adaptadores sao **singletons de
+        processo**, montados uma vez no import de `src/app.py`: congelar identidade
+        neles e exatamente o que a Onda 3 teria de desfazer.
+
+        A porta continua com **um unico metodo**, que era a condicao declarada da
+        `D-02` da feature 006 — a condicao era sobre a contagem de metodos, e ela
+        segue satisfeita. Nenhum isolamento e implementado aqui (`RN-06`).
         """
         ...
 

@@ -50,13 +50,13 @@ def upload_gedcom(conteudo: bytes, nome_original: str | None, dono: str,
     motivo em texto que o port devolve vira a excecao tipada **aqui** — o port
     devolve motivo, nao excecao (`RF-03`, achado `A002`).
 
-    `dono` **nao** e usado para comportamento nesta onda (`RN-06`, `RF-08`): ele
-    esta na assinatura porque e a costura que a Onda 3 preenche, e adiar o
-    parametro reabriria toda assinatura de porta depois. Nenhum isolamento entre
-    donos e implementado aqui, e nenhuma entrega desta feature pode ser citada
-    como tendo implementado.
+    `dono` **nao** e usado para comportamento (`RN-06`, `RF-08`): ele e repassado a
+    `armazenamento.guardar`, e a porta o ignora. Esta na assinatura porque e a
+    costura que a Onda 3 preenche, e adiar o parametro reabriria toda assinatura de
+    porta depois. Nenhum isolamento entre donos e implementado aqui, e nenhuma
+    entrega desta feature pode ser citada como tendo implementado.
     """
-    caminho, motivo = armazenamento.guardar(conteudo, nome_original, "gedcom")
+    caminho, motivo = armazenamento.guardar(conteudo, nome_original, "gedcom", dono)
     if motivo is not None:
         raise GedcomNaoSuportado(motivo)
 
@@ -64,7 +64,7 @@ def upload_gedcom(conteudo: bytes, nome_original: str | None, dono: str,
     # que o formulario devolve na requisicao seguinte, e e ela que a `RF-09`
     # separa do caminho de propósito.
     referencia = os.path.basename(caminho)
-    arvore = carregador.carregar(referencia)
+    arvore = carregador.carregar(referencia, dono)
     if arvore is None:
         # Inalcancavel em execucao: `guardar` acabou de gravar o arquivo desta
         # referencia e devolveu o caminho dele. Existe para o checador estreitar

@@ -43,14 +43,22 @@ class ArmazenamentoEmDisco:
     def __init__(self, pasta: str):
         self._pasta = pasta
 
-    def guardar(self, conteudo: bytes, nome_original: str | None,
-                tipo: str) -> tuple[str | None, str | None]:
+    def guardar(self, conteudo: bytes, nome_original: str | None, tipo: str,
+                dono: str) -> tuple[str | None, str | None]:
         """Valida antes de gravar; devolve `(caminho, motivo)`.
 
         A ordem e a regra (`RF-10`): a validacao de conteudo acontece **antes** de
         qualquer escrita, e uma recusa nao deixa residuo na pasta. Tambem e aqui
         que o conteudo ja armazenado **nao** e regravado (`RF-09`) — a chave vem do
         conteudo, entao o mesmo envio reencontra o mesmo arquivo.
+
+        `dono` e recebido e **NAO participa de decisao nenhuma** (`RF-02`): a
+        chave continua vindo do conteudo, o nome armazenado continua
+        `<chave>__<nome visivel>` e o caminho continua o mesmo. Usa-lo aqui — na
+        chave ou no caminho — seria mudanca de comportamento observavel: dois
+        envios do mesmo conteudo por donos diferentes deixariam de reencontrar o
+        MESMO arquivo, e a paridade do armazenamento quebraria (`RN-02`). O
+        parametro existe porque a Onda 3 o preenche, e nada mais.
         """
         motivo = validar_conteudo_gedcom(conteudo) if tipo == "gedcom" else None
         if motivo is not None:
@@ -64,12 +72,17 @@ class ArmazenamentoEmDisco:
                 destino.write(conteudo)
         return caminho, None
 
-    def resolver(self, referencia: str | None) -> str | None:
+    def resolver(self, referencia: str | None, dono: str) -> str | None:
         """Caminho completo do arquivo armazenado, ou `None`.
 
         A validacao de forma e o que impede um `gedcom_filename` manipulado de
         apontar para fora da pasta (BUG-20260929-QMLY, criterio 5), e ela vem
         antes de qualquer `os.path.exists`.
+
+        `dono` e recebido e **ignorado**, pela mesma razao do `guardar`: a
+        referencia continua sendo resolvida pela chave de conteudo, e nenhuma
+        consulta e filtrada por dono. Ele chega por chamada do carregador de
+        arvores, que o recebe da borda.
         """
         if not chave_recebida_e_valida(referencia):
             return None
@@ -83,13 +96,18 @@ class CarregadorDeArvoresGedcom:
     Resolve a referencia pelo armazenamento recebido e chama `carregar_arvore`. E
     o **unico** lugar da fronteira que parseia: a rota entrega a referencia e
     recebe a arvore, e nenhum caso de uso importa `parsers/`.
+
+    O `dono` que `carregar` recebe e repassado a `resolver` sem ser interpretado.
+    Ele chega **por chamada**, e nao pelo construtor deste adaptador, porque o
+    adaptador e um singleton de processo montado no import de `src/app.py`:
+    congelar identidade nele seria o custo que a Onda 3 teria de desfazer.
     """
 
     def __init__(self, armazenamento: ArmazenamentoEmDisco):
         self._armazenamento = armazenamento
 
-    def carregar(self, referencia: str) -> Tree | None:
-        caminho = self._armazenamento.resolver(referencia)
+    def carregar(self, referencia: str, dono: str) -> Tree | None:
+        caminho = self._armazenamento.resolver(referencia, dono)
         if caminho is None:
             return None
         return carregar_arvore(caminho)
