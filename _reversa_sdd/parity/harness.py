@@ -67,7 +67,7 @@ CM_PROBES = [
 # ---------------------------------------------------------------- coletores
 
 ORACLE_COLLECTOR = r'''
-import importlib.util, json, os, shutil, sys
+import importlib.util, json, os, re, shutil, sys
 
 W = sys.argv[1]; GED = sys.argv[2]; OUT = sys.argv[3]
 tmp = os.path.join(W, ".parity-run-oracle")
@@ -144,20 +144,122 @@ for a in sample:
         obs["indirect"][a + "|" + b] = list(q) if q else None
 
 shutil.rmtree(tmp, ignore_errors=True)
+# ------------------------------------------------- probe de aceitacao (rota)
+# A decisao de aceitacao do legado vive INLINE dentro da rota `POST /`
+# (app_legacy_e43ca22.py:695-796): o oraculo NAO expoe `match_candidates` nem
+# `build_ged_indexes`. Um probe que transcrevesse aquele bloco para o coletor
+# seria circular. A saida e executar a ROTA e capturar o contexto de dominio que
+# ela entrega ao template, sem renderizar HTML — o que casa com a regra do
+# parity_specs.md ("asserir sobre comportamento de dominio, nunca sobre HTML").
+_DNA_DIR = sys.argv[5]
+_CTX = {}
+
+def _captura(_template, **ctx):
+    _CTX.clear(); _CTX.update(ctx)
+    return "<captura>"
+
+def modo(mensagem):
+    """Classifica o desfecho pelo MODO, nao pela redacao.
+
+    A ORDEM dos testes importa: `raiz_ausente` e `arquivo_ausente` sao casos
+    ESPECIFICOS que chegam embrulhados na mensagem generica do candidato
+    ("Ocorreu um erro: Seu nome ... nao foi encontrado"). Se o teste generico
+    vier primeiro, ele captura os dois e apaga a distincao que interessa.
+
+    O legado fecha a analise com `Ocorreu um erro: None` (a excecao do pandas nao
+    tem texto); o candidato nomeia a causa. A decisao de DOMINIO e a mesma, e a
+    diferenca e de redacao, que o parity_specs.md manda asserir fora da
+    comparacao.
+    """
+    m = mensagem or ""
+    # `seu nome ... nao foi encontrado` e o aviso da RAIZ. Precisa ser especifico:
+    # a mensagem de colunas do CSV diz "Colunas de Nome e cM nao encontradas", e
+    # "nao encontrada" e SUBSTRING de "nao encontradas" — um teste por substring
+    # simples confundiria os dois casos. Foi o que aconteceu na primeira versao.
+    if re.search(r"seu nome.*n[ãa]o foi encontrad", m, re.I):
+        return "raiz_ausente"
+    if "não existe mais" in m or m.startswith("Erro: Arquivo") or "Arquivo GEDCOM" in m:
+        return "arquivo_ausente"
+    if "Por favor, carregue" in m or "Nenhum arquivo" in m:
+        return "sem_arquivo"
+    if "Ocorreu um erro" in m or "Erro ao processar GEDCOM" in m:
+        return "erro"
+    if "conexões encontradas" in m:
+        return "ok"
+    return "outro"
+
+m.render_template = _captura
+m.UPLOAD_FOLDER = tmp
+root_name = os.environ.get("PARITY_ROOT", "Ana Silva")
+
+obs["dna"] = {}
+for _fn in sorted(os.listdir(_DNA_DIR)):
+    if not _fn.endswith(".csv"):
+        continue
+    _ged_name = "probe.ged"
+    with open(GED, encoding="latin-1") as _src, open(os.path.join(tmp, _ged_name), "w", encoding="latin-1") as _dst:
+        _dst.write(_src.read())
+    with m.app.test_client() as _cli:
+        with open(os.path.join(_DNA_DIR, _fn), "rb") as _fh:
+            _cli.post("/", data={
+                "action": "dna_analysis",
+                "gedcom_filename": _ged_name,
+                "root_name": root_name,
+                "matches_csv": (_fh, _fn),
+            })
+    obs["dna"][_fn] = {
+        "success": _CTX.get("success"),
+        "modo": modo(_CTX.get("message")),
+        "results": [{
+            "match_name": r.get("match_name"),
+            "cm": float(r.get("cm")) if r.get("cm") is not None else None,
+            "caminho": r.get("text_path"),
+        } for r in (_CTX.get("dna_results") or [])],
+        "descartados": [{
+            "csv_name": s.get("csv_name"),
+            "motivo": s.get("motivo"),
+        } for s in (_CTX.get("skipped_matches") or [])],
+    }
+
+# --------------------------------------- probe de decomposicao do caminho
+# `are_spouses` e `split_path_by_marriage` existem NOS DOIS lados com a mesma
+# assinatura, entao aqui o probe e direto (ao contrario do de aceitacao). Ele
+# existe por causa do RISK-011: nenhum cenario de matching falharia se a
+# decomposicao desaparecesse, porque o matching continuaria correto.
+_affinity = os.path.join(os.path.dirname(GED), "affinity.ged")
+obs["decomposicao"] = {"pares": {}, "conjuges": {}}
+if os.path.exists(_affinity):
+    _ids = sorted(m.people.keys())
+    for _a in _ids:
+        for _b in _ids:
+            obs["decomposicao"]["conjuges"][_a + "|" + _b] = bool(m.are_spouses(_a, _b))
+    for _a in _ids:
+        for _b in _ids:
+            _q = m.find_indirect_path(_a, _b)
+            if not _q:
+                continue
+            _l, _r, _c = m.split_path_by_marriage(_q)
+            obs["decomposicao"]["pares"][_a + "|" + _b] = {
+                "caminho": list(_q),
+                "esquerda": list(_l) if _l else None,
+                "direita": list(_r) if _r else None,
+                "casal": list(_c) if _c else None,
+            }
+
 with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(obs, fh, ensure_ascii=False, sort_keys=True)
 print("ORACLE coletado: %d pessoas, %d familias" % (obs["person_count"], obs["family_count"]))
 '''
 
 CANDIDATE_COLLECTOR = r'''
-import json, os, sys
+import json, os, re, sys
 
 W = sys.argv[1]; GED = sys.argv[2]; OUT = sys.argv[3]
 sys.path.insert(0, os.path.join(W, "src"))
 os.chdir(os.path.join(W, ".parity-run-cand"))
 
 from parsers import gedcom_parser as GP
-from core import gedcom_state as GS
+from core.registro import get_name
 from core import family_navigation as FN
 from core import path_finding as PF
 from core import dna_analysis as D
@@ -185,16 +287,20 @@ def safo(fn, *a, **k):
         return {"ok": False, "e": type(e).__name__}
 
 names = GP.load_gedcom_and_build_graph(GED)
-obs["person_count"] = len(GS.people)
-obs["family_count"] = len(GS.families)
+# A arvore como VALOR: o parse a DEVOLVE (feature 005, `T009`) e nao ha mais
+# estado global (`T023`). Todo probe deste coletor le daqui.
+arvore = GP.carregar_arvore(GED)
+people, families, graph, child_to_family = arvore
+obs["person_count"] = len(people)
+obs["family_count"] = len(families)
 obs["names"] = names
-obs["graph"] = {"nodes": GS.graph.number_of_nodes(), "edges": GS.graph.number_of_edges()}
-obs["child_to_family"] = {k: sorted(v) for k, v in sorted(GS.child_to_family.items())}
+obs["graph"] = {"nodes": graph.number_of_nodes(), "edges": graph.number_of_edges()}
+obs["child_to_family"] = {k: sorted(v) for k, v in sorted(child_to_family.items())}
 
-ids = sorted(GS.people.keys())
-obs["get_name"] = {i: (GS.get_name(GS.people[i]) if GS.get_name(GS.people[i]) is not None else None) for i in ids}
-obs["get_parents"] = {i: sorted(FN.get_parents(i) or []) for i in ids}
-obs["get_spouses"] = {i: sorted(FN.get_spouses(i) or []) for i in ids}
+ids = sorted(people.keys())
+obs["get_name"] = {i: (get_name(people[i]) if get_name(people[i]) is not None else None) for i in ids}
+obs["get_parents"] = {i: sorted(FN.get_parents(arvore, i) or []) for i in ids}
+obs["get_spouses"] = {i: sorted(FN.get_spouses(arvore, i) or []) for i in ids}
 
 obs["norm_name"] = {n: safo(D.norm_name, n) for n in names}
 # ATENCAO — equivalente correto de `strip_bad_utf`:
@@ -230,10 +336,111 @@ obs["indirect"] = {}
 sample = ids[:int(os.environ.get("PARITY_SAMPLE", "40"))]
 for a in sample:
     for b in sample:
-        r = PF.find_ancestral_path(a, b)
+        r = PF.find_ancestral_path(arvore, a, b)
         obs["ancestral"][a + "|" + b] = [list(r[0]) if r[0] else None, r[1]]
-        q = PF.find_indirect_path(a, b)
+        q = PF.find_indirect_path(arvore, a, b)
         obs["indirect"][a + "|" + b] = list(q) if q else None
+
+# ------------------------------------------------- probe de aceitacao (rota)
+# Espelho do probe do oraculo: executa a ROTA do candidato e captura o mesmo
+# contexto de dominio. Aqui tambem NAO se chama `match_candidates` diretamente,
+# de proposito — o que se compara e o resultado observavel da analise inteira,
+# nos dois lados, pela mesma porta de entrada.
+import app as APP
+
+_DNA_DIR = sys.argv[5]
+_CTX = {}
+
+def _captura(_template, **ctx):
+    _CTX.clear(); _CTX.update(ctx)
+    return "<captura>"
+
+def modo(mensagem):
+    """Classifica o desfecho pelo MODO, nao pela redacao. Ver o lado do oraculo.
+
+    A ordem dos testes importa pelo mesmo motivo: os casos especificos chegam
+    embrulhados na mensagem generica do candidato.
+    """
+    m = mensagem or ""
+    # `seu nome ... nao foi encontrado` e o aviso da RAIZ. Precisa ser especifico:
+    # a mensagem de colunas do CSV diz "Colunas de Nome e cM nao encontradas", e
+    # "nao encontrada" e SUBSTRING de "nao encontradas" — um teste por substring
+    # simples confundiria os dois casos. Foi o que aconteceu na primeira versao.
+    if re.search(r"seu nome.*n[ãa]o foi encontrad", m, re.I):
+        return "raiz_ausente"
+    if "não existe mais" in m or m.startswith("Erro: Arquivo") or "Arquivo GEDCOM" in m:
+        return "arquivo_ausente"
+    if "Por favor, carregue" in m or "Nenhum arquivo" in m:
+        return "sem_arquivo"
+    if "Ocorreu um erro" in m or "Erro ao processar GEDCOM" in m:
+        return "erro"
+    if "conexões encontradas" in m:
+        return "ok"
+    return "outro"
+
+APP.render_template = _captura
+root_name = os.environ.get("PARITY_ROOT", "Ana Silva")
+
+# O nome do arquivo GEDCOM e DERIVADO DO CONTEUDO no candidato
+# (`chave_de_armazenamento`, BUG-QMLY), e o formulario devolve esse nome no POST
+# seguinte. Reenviar o nome original daria "Arquivo 'probe.ged' nao existe mais"
+# — que nao e divergencia de dominio, e erro de encanamento do probe. O probe
+# faz o que o navegador faz: sobe, le o nome devolvido e usa o nome devolvido.
+_ged_name = "probe.ged"
+with open(GED, encoding="latin-1") as _src, open(os.path.join(os.getcwd(), _ged_name), "w", encoding="latin-1") as _dst:
+    _dst.write(_src.read())
+with APP.app.test_client() as _cli:
+    with open(os.path.join(os.getcwd(), _ged_name), "rb") as _fh:
+        _cli.post("/", data={"action": "upload_gedcom", "gedcom": (_fh, _ged_name)},
+                  content_type="multipart/form-data")
+_ged_name = _CTX.get("gedcom_filename") or _ged_name
+
+obs["dna"] = {}
+for _fn in sorted(os.listdir(_DNA_DIR)):
+    if not _fn.endswith(".csv"):
+        continue
+    with APP.app.test_client() as _cli:
+        with open(os.path.join(_DNA_DIR, _fn), "rb") as _fh:
+            _cli.post("/", data={
+                "action": "dna_analysis",
+                "gedcom_filename": _ged_name,
+                "root_name": root_name,
+                "matches_csv": (_fh, _fn),
+            })
+    obs["dna"][_fn] = {
+        "success": _CTX.get("success"),
+        "modo": modo(_CTX.get("message")),
+        "results": [{
+            "match_name": r.get("match_name"),
+            "cm": float(r.get("cm")) if r.get("cm") is not None else None,
+            "caminho": r.get("text_path"),
+        } for r in (_CTX.get("dna_results") or [])],
+        "descartados": [{
+            "csv_name": s.get("csv_name"),
+            "motivo": s.get("motivo"),
+        } for s in (_CTX.get("skipped_matches") or [])],
+    }
+
+# --------------------------------------- probe de decomposicao do caminho
+_affinity = os.path.join(os.path.dirname(GED), "affinity.ged")
+obs["decomposicao"] = {"pares": {}, "conjuges": {}}
+if os.path.exists(_affinity):
+    _ids = sorted(people.keys())
+    for _a in _ids:
+        for _b in _ids:
+            obs["decomposicao"]["conjuges"][_a + "|" + _b] = bool(FN.are_spouses(arvore, _a, _b))
+    for _a in _ids:
+        for _b in _ids:
+            _q = PF.find_indirect_path(arvore, _a, _b)
+            if not _q:
+                continue
+            _l, _r, _c = FN.split_path_by_marriage(arvore, _q)
+            obs["decomposicao"]["pares"][_a + "|" + _b] = {
+                "caminho": list(_q),
+                "esquerda": list(_l) if _l else None,
+                "direita": list(_r) if _r else None,
+                "casal": list(_c) if _c else None,
+            }
 
 with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(obs, fh, ensure_ascii=False, sort_keys=True)
@@ -241,7 +448,7 @@ print("CANDIDATO coletado: %d pessoas, %d familias" % (obs["person_count"], obs[
 '''
 
 
-def run_collector(code, gedcom, cm_json, tag):
+def run_collector(code, gedcom, cm_json, tag, dna_dir=None):
     runner = os.path.join(HERE, "_collect_%s.py" % tag)
     out = os.path.join(HERE, "_obs_%s.json" % tag)
     run_dir = os.path.join(ROOT, ".parity-run-%s" % ("oracle" if tag == "oracle" else "cand"))
@@ -251,7 +458,7 @@ def run_collector(code, gedcom, cm_json, tag):
     env = dict(os.environ, PYTHONIOENCODING="utf-8", PARITY_SAMPLE=str(SAMPLE))
     try:
         proc = subprocess.run(
-            [sys.executable, runner, ROOT, gedcom, out, cm_json],
+            [sys.executable, runner, ROOT, gedcom, out, cm_json, dna_dir or os.path.join(FIXTURES, "dna")],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             env=env, timeout=TIMEOUT,
         )
@@ -342,6 +549,38 @@ def compare(obs_o, obs_c):
                                           "(causa raiz acima). Corrija `get_name` e re-execute."))
 
     # ---- 3. Probes independentes da identidade dos nomes --------------------
+    # `dna` tem tratamento proprio: e um mapa fixture -> observacao, e comparar o
+    # mapa inteiro de uma vez produz uma linha ilegivel. Reporta-se por fixture.
+    a, b = obs_o.get("dna") or {}, obs_c.get("dna") or {}
+    for k in sorted(set(a) | set(b)):
+        va, vb = a.get(k), b.get(k)
+        if _canon(va) == _canon(vb):
+            continue
+        if not isinstance(va, dict) or not isinstance(vb, dict):
+            diffs.append(("dna[%s]" % k, "oraculo=%r candidato=%r" % (va, vb)))
+            continue
+        for campo in sorted(set(va) | set(vb)):
+            x, y = _canon(va.get(campo)), _canon(vb.get(campo))
+            if x != y:
+                diffs.append(("dna[%s].%s" % (k, campo), "oraculo=%.420r candidato=%.420r" % (x, y)))
+
+    # ---- 4. Decomposicao do caminho (RISK-011) ------------------------------
+    # Estrutura aninhada: comparar em bloco geraria uma linha ilegivel. Reporta
+    # por campo e por par, que e o que permite agir.
+    _da, _db = obs_o.get("decomposicao") or {}, obs_c.get("decomposicao") or {}
+    for _campo in ("pares", "conjuges"):
+        x, y = _da.get(_campo) or {}, _db.get(_campo) or {}
+        _n = 0
+        for k in sorted(set(x) | set(y)):
+            if _canon(x.get(k)) != _canon(y.get(k)):
+                _n += 1
+                if _n <= 5:
+                    diffs.append(("decomposicao[%s][%s]" % (_campo, k),
+                                  "oraculo=%r candidato=%r" % (x.get(k), y.get(k))))
+        if _n > 5:
+            diffs.append(("decomposicao[%s]" % _campo,
+                          "... e mais %d divergencias neste campo" % (_n - 5)))
+
     for key in ["cm", "ancestral", "indirect"]:
         a, b = obs_o.get(key, {}), obs_c.get(key, {})
         n = 0
@@ -366,6 +605,9 @@ def main() -> int:
                          "Reduza para arvores reais grandes.")
     ap.add_argument("--timeout", type=int, default=None,
                     help="Segundos por coletor antes de desistir. Padrao 600.")
+    ap.add_argument("--dna", default=None,
+                    help="Diretorio de CSVs de DNA do probe de aceitacao. "
+                         "Padrao: fixtures/dna/ (as 7 fixtures).")
     args = ap.parse_args()
 
     if args.pares is not None:
@@ -374,10 +616,11 @@ def main() -> int:
         TIMEOUT = args.timeout
 
     if args.gedcom:
-        gedcoms = [args.gedcom]
+        gedcoms = [os.path.abspath(args.gedcom)]
     else:
         gdir = os.path.join(FIXTURES, "gedcom")
         gedcoms = [os.path.join(gdir, f) for f in sorted(os.listdir(gdir)) if f.endswith(".ged")]
+    dna_dir = os.path.abspath(args.dna) if args.dna else os.path.join(FIXTURES, "dna")
 
     cm_json = json.dumps(CM_PROBES)
     total_div = 0
@@ -388,7 +631,7 @@ def main() -> int:
     print("=" * 78)
     print("oraculo   : %s" % os.path.relpath(ORACLE, ROOT))
     print("candidato : src/")
-    print("probes    : %d valores de cM + grafo completo + pares de caminho" % len(CM_PROBES))
+    print("probes    : %d valores de cM + grafo completo + pares de caminho + decomposicao + analise de DNA pela rota" % len(CM_PROBES))
     print("amostra   : %dx%d = %d pares de caminho por lado" % (SAMPLE, SAMPLE, SAMPLE * SAMPLE))
     print("timeout   : %ds por coletor" % TIMEOUT)
     print()
@@ -397,8 +640,8 @@ def main() -> int:
         print("-" * 78)
         print("FIXTURE: %s (%d bytes)" % (os.path.relpath(ged, ROOT), os.path.getsize(ged)))
         try:
-            obs_o = run_collector(ORACLE_COLLECTOR, ged, cm_json, "oracle")
-            obs_c = run_collector(CANDIDATE_COLLECTOR, ged, cm_json, "cand")
+            obs_o = run_collector(ORACLE_COLLECTOR, ged, cm_json, "oracle", dna_dir)
+            obs_c = run_collector(CANDIDATE_COLLECTOR, ged, cm_json, "cand", dna_dir)
         except SystemExit as e:
             msg = str(e)
             if "NAO CONCLUYENTE" in msg:
