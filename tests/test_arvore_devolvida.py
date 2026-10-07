@@ -23,6 +23,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(RAIZ, "src"))
 
 from parsers import gedcom_parser  # noqa: E402
+from core.registro import get_name  # noqa: E402
 
 GEDCOM = """0 HEAD
 1 SOUR TEST
@@ -94,15 +95,20 @@ def test_grafo_da_arvore_liga_pessoa_a_familia_nos_dois_sentidos(gedcom_temporar
         assert graph.has_edge(pessoa, "@F1@"), "aresta %s <-> @F1@ ausente" % pessoa
 
 
-def test_contrato_antigo_devolve_a_lista_de_nomes(gedcom_temporario):
-    """`load_gedcom_and_build_graph` mantem o retorno antigo durante a migracao.
+def test_nomes_da_arvore_sao_a_lista_ordenada_do_contrato_antigo(gedcom_temporario):
+    """A lista ordenada de nomes que alimenta o campo de sugestao.
 
-    Os dois consumidores de hoje dependem desta forma (`src/app.py` para o campo
-    de sugestao; o coletor do harness para o probe `names`). Trocá-la agora
-    quebraria os dois no mesmo passo em que o parse muda.
+    As assercoes sao as MESMAS do teste que fixava a casca
+    `load_gedcom_and_build_graph` — list, ordenada, e o conjunto exato de nomes —,
+    agora derivadas da arvore. A casca saiu em `T015` da feature 006, e a
+    producao deriva esta lista em `application/upload_gedcom.py`.
     """
-    nomes = gedcom_parser.load_gedcom_and_build_graph(gedcom_temporario)
+    people, _families, _graph, _child_to_family = gedcom_parser.carregar_arvore(gedcom_temporario)
 
-    assert isinstance(nomes, list)
-    assert nomes == sorted(nomes), "a lista de nomes deve vir ordenada"
-    assert set(nomes) == {"Joao Silva", "Maria Souza", "Carlos Silva"}
+    nomes = [get_name(p) for p in people.values()]
+    ordenados = sorted(nomes)
+
+    assert isinstance(ordenados, list)
+    assert ordenados == ["Carlos Silva", "Joao Silva", "Maria Souza"], (
+        "a lista de nomes deve vir ordenada, e este e o conteudo exato"
+    )

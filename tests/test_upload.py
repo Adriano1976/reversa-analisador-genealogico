@@ -1,8 +1,12 @@
 """Testes da Tarefa 02 — Parsing de GEDCOM e construção do grafo.
 
-Cobre ref_id, get_name, build_graph_from_parser e
-load_gedcom_and_build_graph, incluindo o comportamento do estado global
-em memória e o índice filho->família. Usa o GEDCOM sintético de testes.
+Cobre ref_id, get_name, build_graph_from_parser e carregar_arvore, incluindo a
+árvore devolvida como valor e o índice filho->família. Usa o GEDCOM sintético de
+testes.
+
+Removido em `T015` da feature 006: o uso da casca `load_gedcom_and_build_graph`,
+que devolvia a lista de nomes ordenada. A lista passou a ser derivada da árvore
+aqui no helper, e as asserções são as mesmas.
 
 Removido em 2026-10-02: o teste de `ensure_dirs()`, junto com a função e a
 constante `UPLOAD_FOLDER` que ele exercitava. Eram resíduo do legado, sem
@@ -125,18 +129,35 @@ def test_get_name_indian_without_name_tag_returns_empty_string():
 
 
 # ---------------------------------------------------------------------------
-# load_gedcom_and_build_graph — happy path
+# carregar_arvore — happy path
 # ---------------------------------------------------------------------------
 
 def _load(content):
+    """Carrega o GEDCOM e devolve a lista ORDENADA de nomes da arvore.
+
+    Ate `T015` da feature 006 isto chamava `load_gedcom_and_build_graph`, a casca
+    que devolvia a lista pronta. A casca saiu, e a lista passa a ser derivada aqui
+    — a MESMA derivacao que a producao usa em `application/upload_gedcom.py`.
+
+    `guardar(...)` entrou junto: sem ele, os testes que leem `atual()` depois
+    dependiam da arvore guardada por um teste ANTERIOR do mesmo arquivo. Passava
+    porque a suite compartilha um processo e o fixture e o mesmo; era leitura
+    acidental, e nao o que o teste dizia medir.
+    """
     ged = _write_g(content)
     try:
-        return gedcom_parser.load_gedcom_and_build_graph(ged)
+        return sorted([get_name(p) for p in guardar(gedcom_parser.carregar_arvore(ged))[0].values()])
     finally:
         os.remove(ged)
 
 
-def test_load_populates_globals():
+def test_carga_devolve_a_arvore_com_pessoas_e_familias():
+    """`atual()` e a arvore que ESTE teste carregou — nao a de um teste anterior.
+
+    O nome antigo era `test_load_populates_globals`, de quando o parse escrevia as
+    globais de `core.gedcom_state`. O estado global saiu na feature 005; o nome
+    ficou mentindo ate `T015` da 006.
+    """
     _load(SAMPLE_GED)
     assert "@I1@" in atual()[0]
     assert "@I3@" in atual()[0]
@@ -170,9 +191,14 @@ def test_load_returns_exactly_one_name_per_person_and_no_empty_entries():
     assert "Sem Nome" not in names
 
 
-def test_reload_replaces_globals():
-    first = _load(SAMPLE_GED)
-    # Carrega outro conteúdo -> `people` deve ser substituído, não somado.
+def test_recarga_nao_soma_a_arvore_anterior():
+    """Duas cargas do mesmo arquivo: a arvore guardada e a da SEGUNDA carga.
+
+    O nome antigo era `test_reload_replaces_globals`, pela mesma razao do teste
+    acima: a substituicao era do estado global, e agora e do valor guardado.
+    """
+    _load(SAMPLE_GED)
+    # Carrega outro conteúdo -> a árvore nova substitui a guardada, não soma.
     _load(SAMPLE_GED)
     assert set(atual()[0].keys()) == {"@I1@", "@I2@", "@I3@", "@I4@", "@I5@", "@I6@", "@I9@"}
 
@@ -217,7 +243,7 @@ def test_parse_malformed_raises():
     try:
         # malformado pode lançar; não deve travar o processo silenciosamente.
         try:
-            gedcom_parser.load_gedcom_and_build_graph(ged)
+            gedcom_parser.carregar_arvore(ged)
         except Exception:
             pass
         else:

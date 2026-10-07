@@ -423,3 +423,132 @@ class TestExtensaoPreservada:
             f"o CSV não foi gravado com a extensão original: {nomes}"
         )
         assert not any(n.endswith(".csv.ged") for n in nomes), nomes
+
+
+# ===========================================================================
+# LITERAIS DE UPLOAD — o texto exato que a paridade de tela cobra
+# ===========================================================================
+
+class TestLiteraisDeUpload:
+    """T030 e T031 — prende o LITERAL das tres recusas de upload, e o nao-residuo.
+
+    Os testes de `TestReproducao` ja medem o STATUS (413 no teto) e a ausencia de
+    gravacao, mas nenhum deles prende o TEXTO: `test_requisicao_acima_do_teto_e_rejeitada`
+    so confere `status_code == 413`. Status certo com mensagem errada passa hoje e
+    quebra a paridade de tela, que e o que o requisito cobra — o operador le
+    texto, nao codigo de status. Cada teste daqui prende a FRASE INTEIRA, com
+    ponto final, e nao um fragmento como "16 MB" ou "GEDCOM", que apareceria no
+    HTML por outro motivo e faria o teste passar sem medir a mensagem.
+
+    A fixture usada e `cliente_de_upload`, de `tests/conftest.py`, e nao o
+    `app_cliente` deste arquivo: o `app_cliente` depende de `tmp_path`, que nesta
+    maquina cria um diretorio que nao pode ser listado nem apagado. Os 15 erros de
+    ambiente da suite sao exatamente isso, e um teste novo que usasse aquele
+    fixture nasceria quebrado.
+
+    Os tres casos recusam ANTES de gravar, entao os tres terminam com a pasta de
+    uploads vazia. No 413 e no campo ausente isso vale por construcao — nenhum
+    codigo da aplicacao chega ao armazenamento. No nome vazio, quem impede a
+    gravacao e a guarda de formulario que roda antes da chamada do caso de uso.
+    """
+
+    @staticmethod
+    def _nomes_na_pasta(pasta_uploads):
+        """Nomes gravados na pasta, ou lista vazia quando ela nao existe.
+
+        A pasta pode NAO existir no caso de 413, e isso nao e falha: o corpo
+        acima do teto e recusado pelo proprio Flask, por `MAX_CONTENT_LENGTH`,
+        antes de qualquer codigo da aplicacao — inclusive antes de o ramo de
+        upload tocar o armazenamento. "Pasta ausente" e "pasta vazia" provam a
+        mesma coisa aqui: nenhuma gravacao aconteceu. Sem esta guarda, o teste
+        falharia por `FileNotFoundError`, que nao tem relacao com o que ele mede.
+        """
+        if not os.path.isdir(pasta_uploads):
+            return []
+        return sorted(os.listdir(pasta_uploads))
+
+    def test_literal_do_teto_de_413(self, cliente_de_upload):
+        """T030 — o status 413 E o literal da mensagem, os dois.
+
+        O corpo e montado a partir de `app.config["MAX_CONTENT_LENGTH"]` lido em
+        execucao, e nao do literal `16 * 1024 * 1024`: se o teto mudar, o teste
+        continua exercitando o teto REAL, e o que ele prende passa a ser so a
+        mensagem. O literal preso e a frase que o operador le, e ela e derivada do
+        MESMO teto em `src/app.py` (`TETO_DE_UPLOAD_EM_MB`, na linha 68): uma
+        divisao errada ou um "MB" a mais apareceria exatamente aqui, e nao no
+        teste de status.
+        """
+        app, client, pasta_de_uploads = cliente_de_upload
+        teto = app.config["MAX_CONTENT_LENGTH"]
+
+        resposta = client.post(
+            "/",
+            data={"action": "upload_gedcom",
+                  "gedcom": (io.BytesIO(b"x" * (teto + 1024)), "grande.ged")},
+            content_type="multipart/form-data",
+        )
+
+        assert resposta.status_code == 413
+        assert "Arquivo maior que o limite de 16 MB." in resposta.get_data(as_text=True), (
+            "o 413 respondeu sem o literal de tela: status certo com mensagem "
+            "errada quebra a paridade de tela, que e o que o requisito cobra"
+        )
+        assert self._nomes_na_pasta(pasta_de_uploads) == [], (
+            "o corpo acima do teto foi recusado depois de gravar algo"
+        )
+
+    def test_campo_de_arquivo_ausente(self, cliente_de_upload):
+        """T031a — multipart so com `action`, sem o campo `gedcom`.
+
+        A negacao do OUTRO literal e tao importante quanto a afirmacao: as duas
+        guardas de formulario vivem em linhas vizinhas (`src/app.py:156-160`), e
+        troca-las de lugar deixaria uma mensagem plausivel na tela — o operador
+        receberia o diagnostico errado e nao saberia se o problema foi o campo
+        ausente ou o arquivo nao escolhido. Afirmar um literal sem negar o outro
+        nao distingue os dois casos.
+        """
+        _, client, pasta_de_uploads = cliente_de_upload
+
+        resposta = client.post(
+            "/",
+            data={"action": "upload_gedcom"},
+            content_type="multipart/form-data",
+        )
+        texto = resposta.get_data(as_text=True)
+
+        assert "Nenhum arquivo GEDCOM enviado." in texto
+        assert "Nenhum arquivo selecionado." not in texto, (
+            "o campo ausente foi diagnosticado como arquivo nao escolhido: as "
+            "duas guardas de formulario trocaram de lugar"
+        )
+        assert self._nomes_na_pasta(pasta_de_uploads) == []
+
+    def test_nome_de_arquivo_vazio(self, cliente_de_upload):
+        """T031b — campo `gedcom` presente, com nome de arquivo vazio.
+
+        `(io.BytesIO(...), "")` e a forma que o navegador envia quando o operador
+        confirma sem escolher arquivo. O conteudo enviado e um GEDCOM VALIDO de
+        proposito: se a guarda de nome vazio cair, o caso de uso aceita o
+        conteudo, grava, e o teste falha pelo RESIDUO na pasta. Com conteudo
+        invalido a recusa viria do validador de conteudo, o residuo seria zero do
+        mesmo jeito, e o teste passaria sem a guarda que ele existe para prender.
+        """
+        _, client, pasta_de_uploads = cliente_de_upload
+
+        resposta = client.post(
+            "/",
+            data={"action": "upload_gedcom",
+                  "gedcom": (io.BytesIO(GEDCOM_VALIDO.encode()), "")},
+            content_type="multipart/form-data",
+        )
+        texto = resposta.get_data(as_text=True)
+
+        assert "Nenhum arquivo selecionado." in texto
+        assert "Nenhum arquivo GEDCOM enviado." not in texto, (
+            "o nome vazio foi diagnosticado como campo ausente: as duas guardas "
+            "de formulario trocaram de lugar"
+        )
+        assert self._nomes_na_pasta(pasta_de_uploads) == [], (
+            "o envio sem nome de arquivo gravou: a guarda de formulario nao "
+            "correu antes do caso de uso"
+        )
