@@ -60,9 +60,10 @@ O Flask recebe os arquivos e renderiza HTML no servidor. Os módulos em `src/cor
 - Os arquivos enviados são gravados em `src/uploads/` sob nomes derivados do conteúdo. Esse diretório é
   armazenamento local persistente; não é um diretório temporário de processamento.
 - Não há banco de dados nem histórico persistido de análises. O GEDCOM é reprocessado em cada `POST` que usa a árvore.
-- O estado do GEDCOM fica em estruturas globais em memória, compartilhadas entre as threads de um mesmo
-  processo. A aplicação impede outra instância na mesma porta, mas isso não isola requisições concorrentes
-  dentro do processo.
+- A árvore existe **por requisição**: cada `POST` faz o parse do arquivo e passa o resultado como parâmetro para o
+  núcleo, que é composto de funções puras. Não há estado de domínio compartilhado entre requisições nem entre
+  threads — a aplicação impede outra instância na mesma porta, mas nenhuma requisição depende disso para estar
+  correta.
 - A lista completa de nomes da árvore, inclusive nomes de pessoas vivas, é incluída no HTML para preencher
   campos de sugestão. A aplicação não tem autenticação; não a exponha a uma rede compartilhada sem controles
   adicionais.
@@ -144,8 +145,9 @@ porta:
 Recusando subir: 127.0.0.1:5000 ja esta em uso (...). Encerre o processo que ja esta no ar, ou suba esta instancia em outra porta com ANALISADOR_PORT.
 ```
 
-O trecho entre parênteses é o diagnóstico do sistema operacional. A árvore vive na memória de cada processo;
-duas instâncias teriam estados independentes. Encerre a instância anterior (Ctrl+C) antes de subir outra, ou
+O trecho entre parênteses é o diagnóstico do sistema operacional. Cada processo lê o mesmo diretório de uploads
+`src/uploads/`, então duas instâncias sobre a mesma pasta competiriam pelo mesmo armazenamento, e requisições do
+mesmo operador cairiam em instâncias diferentes. Encerre a instância anterior (Ctrl+C) antes de subir outra, ou
 use outra porta com `ANALISADOR_PORT`.
 
 ## Estrutura do Projeto
@@ -248,8 +250,8 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
   (confronto). O DNA não altera o parentesco documental.
 - `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
   apresentação.
-- O estado da árvore fica em memória, compartilhado entre as threads de cada processo. Os arquivos enviados
-  ficam em `src/uploads/`; análises e vereditos não são persistidos.
+- A árvore é montada a cada requisição e passada ao núcleo como parâmetro; não há estado de domínio compartilhado
+  entre threads. Os arquivos enviados ficam em `src/uploads/`; análises e vereditos não são persistidos.
 - A limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) é centralizada em `text_cleaning.py`.
 - `path_finding.py` busca caminhos; `mermaid_render.py` emite diagramas com rótulos escapados.
 - `dna_analysis.py` coordena o cruzamento; `csv_ingest.py`, `matching.py` e `name_normalization.py`
@@ -274,8 +276,8 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 
 1. Garanta que ajustes na lógica de *fuzzy matching* não aumentem os falsos positivos.
-2. Ao modificar os grafos (`networkx`), preserve os testes de caracterização e considere o estado global
-   compartilhado entre threads.
+2. Ao modificar os grafos (`networkx`), preserve os testes de caracterização e lembre que o núcleo recebe a
+   árvore por parâmetro: funções de `src/core/` não leem nem escrevem estado de módulo.
 3. Novas regras algorítmicas devem vir acompanhadas de testes; verifique também a cobertura dos módulos afetados.
 
 ## Autoria e Créditos

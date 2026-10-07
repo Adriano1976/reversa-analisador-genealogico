@@ -279,10 +279,14 @@ if __name__ == "__main__":
     #
     # A medicao de 2026-10-04 mostrou que a plataforma NAO impede a coexistencia:
     # o servidor pede SO_REUSEADDR, e no Windows duas instancias escutam na mesma
-    # porta ao mesmo tempo. Como cada processo tem o SEU proprio estado global da
-    # arvore (core/gedcom_state.py), duas instancias atendendo fazem requisicoes do
-    # mesmo operador cairem em estados diferentes. A exclusividade e, portanto,
-    # responsabilidade daqui.
+    # porta ao mesmo tempo. Duas instancias compartilham o MESMO diretorio de
+    # uploads (`src/uploads/`), entao gravam e leem os mesmos arquivos, e
+    # requisicoes do mesmo operador caem em instancias diferentes. A exclusividade
+    # e, portanto, responsabilidade daqui.
+    #
+    # Ate a feature 005 havia um motivo a mais — o estado global da arvore, que
+    # fazia as duas instancias divergirem em memoria. O estado saiu, e o motivo que
+    # fica e o armazenamento em disco.
     #
     # O socket e criado, marcado e LIGADO aqui, e entregue ja pronto ao servidor.
     # Com socket pronto o servidor nao faz bind (bind_socket=False), entao quem liga
