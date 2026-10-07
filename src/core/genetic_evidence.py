@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import re
 
+from .erros import DnaCsvSemColunas
 from .name_normalization import norm_name
 from utils.text_cleaning import demojibake
 
@@ -122,7 +123,7 @@ def build_genetic_evidence(df):
     """
     colunas = detect_segment_columns(df)
     if not colunas["name"] or not colunas["cm"]:
-        raise ValueError("Colunas de Nome e cM não encontradas no CSV.")
+        raise DnaCsvSemColunas("Colunas de Nome e cM não encontradas no CSV.")
 
     kit_col = colunas["kit"]
     evidencias: dict = {}

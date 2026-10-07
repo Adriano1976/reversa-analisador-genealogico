@@ -36,6 +36,7 @@ from __future__ import annotations
 
 from .diagram_domain import resolvedor_de_diagrama
 from .documentary_relationship import documentary_relationship, homonym_dossier
+from .erros import DnaCsvSemColunas, PessoaNaoEncontrada
 from .evidence_comparison import compare
 from .genetic_evidence import build_genetic_evidence, evidence_for
 from .matching import build_ged_indexes, match_candidates
@@ -124,7 +125,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore):
     root_person_ids = [pid for pid, p in arvore[0].items()
                        if root_name.lower() in get_name(p).lower()]
     if not root_person_ids:
-        raise ValueError(f"Seu nome '{root_name}' não foi encontrado no GEDCOM.")
+        raise PessoaNaoEncontrada(f"Seu nome '{root_name}' não foi encontrado no GEDCOM.")
     root_id = root_person_ids[0]
 
     df = deps.read_csv(csv_path)
@@ -149,7 +150,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore):
         # não encontradas" — ou, quando o arquivo era torto, o erro cru do pandas
         # em ingles ("Error tokenizing data. C error: Expected 1 fields in line
         # 4, saw 2") — sem saber o que conferir.
-        raise ValueError(
+        raise DnaCsvSemColunas(
             "Colunas de Nome e cM não encontradas no CSV. "
             f"O arquivo foi lido com o separador {df.attrs.get('separador')!r} e as colunas "
             f"encontradas foram: {list(df.columns)[:8]}." + detalhe_linhas

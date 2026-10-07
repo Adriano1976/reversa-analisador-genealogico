@@ -38,6 +38,7 @@ from collections import Counter
 
 import pandas as pd
 
+from core.erros import CsvIlegivel
 from utils.name_keys import norm_name
 from utils.text_cleaning import demojibake
 
@@ -174,7 +175,7 @@ def read_csv_with_fallback(path):
         df.attrs["erro_de_leitura"] = erro_de_leitura
         return df
 
-    raise ValueError(
+    raise CsvIlegivel(
         "Não foi possível ler o arquivo CSV. Tentativas feitas: "
         + ("; ".join(problemas) or "nenhuma produziu tabela utilizável")
         + ". Confira se o arquivo enviado é a lista de matches de DNA "
