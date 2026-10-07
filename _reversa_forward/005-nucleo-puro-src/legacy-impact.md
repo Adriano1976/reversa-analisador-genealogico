@@ -4,8 +4,18 @@
 > Data: `2026-10-06`
 > Cenário: **legado** (âncora em `_reversa_sdd/architecture.md` + `_reversa_sdd/domain.md`)
 > Rodada: **parcial** — Fase 1 (Preparação), ações `T001` a `T004`
+>
+> ⚠️ **Este arquivo tem DUAS rodadas.** A rodada 1 foi escrita por
+> `/reversa-coding` ao fim de `T001`–`T004` e descreve **apenas o instrumento de
+> paridade**. A **rodada 2**, ao final do arquivo, registra a execução de `T009` a
+> `T029` — que é a entrega propriamente dita e **muda o mecanismo de integração do
+> sistema**. Quem lê o delta desta feature precisa ler as duas: a rodada 1 sozinha
+> afirma que "nenhuma regra de negócio foi modificada", o que era verdade para ela e
+> **deixou de ser** para a feature.
 
-## Escopo desta rodada
+## Rodada 1 — Fase 1 (Preparação), `T001` a `T004`
+
+### Escopo da rodada 1
 
 Esta rodada **não tocou código de produto**. Ela instrumentou o harness diferencial (dois probes novos) e registrou a linha de base. `src/` está exatamente como estava: nenhuma regra de negócio foi criada, alterada ou removida.
 
@@ -71,3 +81,134 @@ Todas as regras 🟢 de `_reversa_sdd/domain.md` continuam intactas. As que impo
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-06 | Versão inicial gerada por `/reversa-coding` na execução de `T001` a `T004` (rodada parcial, Fase 1) | reversa |
+
+---
+---
+
+## Rodada 2 — Integração e Polimento, `T009` a `T029` ⚠️ **ESTA É A ENTREGA DA FEATURE**
+
+> Data: `2026-10-07`
+> A rodada 1 instrumentou o harness; esta rodada **removeu o estado global do
+> sistema**. Escrita retroativamente pelo `/reversa-sync`, porque a rodada 1 não foi
+> atualizada quando o `/reversa-coding` fechou as ações.
+
+### Escopo da rodada 2
+
+`src/` **mudou**. O `T023` apagou `src/core/gedcom_state.py` e tirou a escrita das
+globais de `carregar_arvore`; o `T022` removeu a superfície de compatibilidade de
+`dna_analysis`; os `T011` a `T021` migraram cada consumidor para a árvore por
+parâmetro. **Nenhum resultado de domínio mudou** — a paridade continua 100% nas 6
+fixtures e a suíte passou de `164 passed` para `178 passed` sem remover teste de
+produto. O que mudou é **como as camadas se integram**.
+
+### Arquivo afetado | Componente | Tipo | Severidade | Justificativa (rodada 2)
+
+| Arquivo afetado | Componente | Tipo | Severidade | Justificativa |
+|---|---|---|---|---|
+| `src/core/gedcom_state.py` | estado do GEDCOM (`architecture.md#1`) | **componente-extinto** | HIGH | O módulo foi **apagado**. Continha `people`, `families`, `graph`, `child_to_family` e o contador `versao`. `get_name` e `ref_id` sobrevivem em `src/core/registro.py` (`T008`), sem estado |
+| `src/parsers/gedcom_parser.py` | leitura do GEDCOM (`architecture.md#1`) | **regra-alterada** | HIGH | `carregar_arvore` **devolve** a árvore como valor e **não escreve mais** as globais. A assimetria de substituição que o `architecture.md#1` documenta (dicionários mutados *in place*, grafo reatribuído) **deixa de existir**: não há mais nada a substituir |
+| `src/core/` (12 módulos) | contrato de assinatura do núcleo (`architecture.md#3`) | **delta-de-contrato-externo** | HIGH | Toda função pública que precisava da árvore passa a recebê-la como **primeiro parâmetro** (`T011`–`T014`). As exceções são as que operam sobre lista de ids e não a usam (`split_path_by_marriage`, `exclude_tail`) |
+| `src/core/documentary_relationship.py` | cache de índice de nomes (`erd-complete.md`, `ESTADO_VERSAO`) | **regra-alterada** | MEDIUM | `versao` não existe mais. A invalidação de `_INDICE_DE_NOMES` passa a ser derivada do **conteúdo** de `people` (`_chave_de`), e a identidade do dicionário é explicitamente rejeitada como chave — `id()` é reciclado e o defeito apareceria só sob carga |
+| `src/core/dna_analysis.py` | superfície de compatibilidade (`architecture.md#7`, dívida #17 e #18) | **regra-removida** | LOW | Saíram o import e as entradas `get_relationships_by_cm` e `SHARED_CM_DATA` de `__all__`. Medido: o módulo **não referenciava** nenhum dos dois no corpo. `cm_estimator.py` **permanece em disco** |
+| `src/core/path_search.py` | superfície de compatibilidade (dívida #17) | **regra-removida** | LOW | O bloco de reexportação de 17 nomes já havia saído na OPP-20261006-ESKO; esta rodada removeu o comentário morto que ainda descrevia o mecanismo |
+| `src/app.py` | guarda de instância única (`RN-05`) | **regra-alterada** | LOW | A justificativa da guarda **muda de motivo**: era o estado global em memória, que faria duas instâncias divergirem; agora é o diretório `src/uploads/` compartilhado e o fato de requisições do mesmo operador caírem em instâncias diferentes. **A guarda permanece** — só o motivo foi reescrito |
+| `README.md` | documentação de operação | **delta-de-contrato-externo** | MEDIUM | Quatro passagens afirmavam que o estado do GEDCOM vive em globais compartilhadas entre threads. Agora afirmam que a árvore existe **por requisição** e é passada por parâmetro |
+| `tests/` (8 arquivos + 2 módulos novos) | encanamento dos testes | **regra-alterada** | MEDIUM | Os fixtures passaram a ler a árvore pelo **retorno** do parse. Isto **não** é detalhe de teste: é o que permitiu remover o estado sem quebrar a suíte, e o que revelou que a guarda `atual()` tinha de ser estrita |
+| `_reversa_sdd/parity/harness.py` | instrumento de paridade | **contrato-alterado** | HIGH | O coletor do candidato lia `GS` (o módulo de estado) e passou a desempacar a árvore devolvida. **Absorve o `T010`**, que estava adiado justamente para este momento |
+
+### Diff conceitual por componente (rodada 2)
+
+### `gedcom_state.py` — o que saiu, e o que ficou no lugar
+
+O módulo era o **hub de dependência** do sistema: o `architecture.md#3` o registra
+com 8 dependentes diretos. Ele não foi substituído por outro módulo; foi
+**substituído por um parâmetro**. A árvore é uma tupla de quatro estruturas —
+`(people, families, graph, child_to_family)` — que o parse devolve e o chamador
+repassa. A forma dos dados **não mudou** (ver `data-delta.md` §2): o que mudou é
+quem as possui.
+
+`get_name` e `ref_id` foram para `src/core/registro.py` no `T008`. Eles nunca
+foram estado — são leitura de registro — e a `get_name` é cópia literal do
+oráculo, o ativo de paridade mais delicado do núcleo.
+
+### `architecture.md#1` — o mecanismo de integração deixou de ser estado global
+
+O §1 afirma: *"O mecanismo de integração entre as camadas é estado global mutável,
+e não injeção de dependência."* **Isso deixou de ser verdade.** A tabela das duas
+assimetrias deliberadas (`clear()`+`update()` para os dicionários, reatribuição
+para o `graph`, e o contador `versao`) descreve um mecanismo que não existe mais:
+não há global a mutar nem a reatribuir, e o `versao` foi removido com o módulo.
+
+### `architecture.md#7` — duas dívidas fecham, uma muda de mecanismo
+
+| Dívida | Situação após esta feature |
+|---|---|
+| #17 — superfícies de compatibilidade | ✅ **FECHADA.** `path_search.__all__` já declarava só `path_search`; `dna_analysis.__all__` perdeu os dois nomes de `cm_estimator` |
+| #18 — `cm_estimator` como legado reexportado | ⚠️ **PARCIAL.** O módulo permanece em disco (a ação manda mantê-lo), mas **deixou de ser reexportado** e nenhum teste de produção o alcança pela fachada |
+| #3 — contaminação entre requisições concorrentes | ⚠️ **MECANISMO ALTERADO, DÍVIDA ABERTA.** O vetor "estado global reescrito por requisição + 4 threads" **deixa de existir**: cada requisição monta a própria árvore. A guarda de instância única continua sendo de processo, não de thread, e a dívida permanece como dívida de **thread-safety geral** — não mais de estado de domínio compartilhado |
+| #5 — ciclos de pacote | ❌ **INALTERADA.** `core/` ↔ `reporting/` e `core/` ↔ `parsers/` continuam. Esta feature removeu o **estado**, não o ciclo: `reporting/mermaid_render.py` segue recebendo a árvore por parâmetro via resolvedor injetado |
+
+> **Não inventamos dívida nova.** A remoção do estado não introduziu ciclo nem
+> dependência nova; o `src/core/` inclusive **perdeu** duas dependências (o módulo
+> de estado e o import de `cm_estimator`).
+
+### `erd-complete.md` — `ESTADO_VERSAO` deixa de existir
+
+O ERD documenta 21 estruturas em memória e lista `ESTADO_VERSAO` como a **quinta**
+entidade, com a relação "`ESTADO_VERSAO` → índices derivados (1..N) ... existe
+porque `id()` não muda com mutação *in place*". A entidade **não existe mais**, e
+a razão que a justificava também não. As entidades 1 a 4 (`PESSOA`, `FAMILIA`,
+`GRAFO_BIPARTIDO`, `CHILD_TO_FAMILY`) **permanecem**, com a mesma forma, mudando
+apenas o local: de `gedcom_state.*` para o valor devolvido pelo parse.
+
+### `domain.md` §5.2 — o local do fallback `"Sem Nome"` mudou
+
+A tabela de mensagens de contrato do núcleo aponta `"Sem Nome"` para
+`gedcom_state.py:43`, `:52`. O literal **não mudou** e continua sendo contrato
+(DIV-001: formato vazio devolve `''`, e `"Sem Nome"` só aparece quando não há
+`name`). Só o **arquivo** mudou: agora é `src/core/registro.py`.
+
+### Modificadas — o que a rodada 2 mudou
+
+**Nenhuma regra de negócio 🟢 foi alterada, removida ou criada.** O que mudou é o
+**mecanismo de integração** e as **assinaturas**, exatamente como a `RN-02` e a
+`RN-03` do `requirements.md` §4 previram e autorizaram. A `RN-01` — nenhum
+limiar, peso, ordem de avaliação ou critério do matching e do caminho é alterado —
+foi verificada por medição, não por inspeção:
+
+| Verificação | Resultado |
+|---|---|
+| Paridade diferencial contra o oráculo congelado | `100%` nas 6 fixtures, exit 0 |
+| Suíte | `178 passed, 0 xfailed, 15 errors` (linha de base: `164 passed, 15 errors`; os 15 erros são de ambiente e pré-existentes) |
+| Verificação manual de ponta a ponta | `APROVADO` — `waitress`, `HTTP 200`, upload, DNA e caminho |
+| Guardas estruturais do núcleo | 4 de 4 verdes, provadas **nos dois sentidos** (`T024`) |
+
+### Preservadas — verificado por medição
+
+| Regra | Situação |
+|---|---|
+| BR-D-44 a BR-D-53 — matching exato, score difuso, anti-falso-positivo, Jaccard e os cinco ramos de aceitação | **Intactas.** O probe `dna` exercita a cadeia inteira e não achou divergência |
+| BR-C-04 a BR-C-08 — BFS bidirecional com teto de 20, caminho indireto com teto de 40 | **Intactas.** Os 1.600 pares por fixture seguem em paridade |
+| BR-D-15 — o cM acumulado não é arredondado | **Intacta.** Nenhum código de produto foi tocado |
+| BR-MIGRAR-020/021 — as 9 faixas de cM se sobrepõem; cM ≤ 0 devolve lista vazia | **Intactas.** Medido na verificação manual: `0` e `-5` devolvem `[]`, `99999` devolve o literal |
+| BR-C-22 — o índice nome→ids é invalidado quando a árvore muda | **Preservada com mecanismo novo.** Antes por contador `versao`; agora por conteúdo recebido (`RN-03`) |
+| `are_spouses` / `split_path_by_marriage` — decomposição do caminho (RISK-011) | **Intactas** e com probe dedicado desde a rodada 1 |
+| Ordem de inserção de `people` e das arestas do grafo (tag `@ordem`) | **Intacta.** É contrato de paridade: a ordem decide qual ID o "primeiro ID" escolhe e qual caminho o `shortest_path` devolve |
+
+## Arquivos de observação que esta rodada corrigiu em texto, não em código
+
+`T027` e `T028` corrigiram **quatro** passagens que afirmavam o estado global
+(três no `README.md`, uma no comentário da guarda de exclusividade em `app.py`) e
+as docstrings de `family_navigation.py`, `path_finding.py`, `diagram_domain.py`,
+`documentary_relationship.py`, `text_cleaning.py` e `registro.py`. Uma delas era
+**perigosa e não cosmética**: um comentário em `documentary_relationship.py`
+recomendava voltar a usar `id()` como chave do cache "quando o `T023` removesse o
+estado". Seguir essa recomendação introduziria um defeito de produção — `id()` é
+reciclado — e a nota foi substituída pela explicação de por que **não** fazer isso.
+
+### Histórico de alterações (rodada 2)
+
+| Data | Alteração | Autor |
+|------|-----------|-------|
+| 2026-10-06 | Versão inicial gerada por `/reversa-coding` na execução de `T001` a `T004` (rodada parcial, Fase 1) | reversa |
+| 2026-10-07 | **Rodada 2** acrescentada retroativamente pelo `/reversa-sync`: delta de `T009` a `T029`, com a remoção do estado global, o `componente-extinto` `gedcom_state.py`, as dívidas #17/#18/#3 e o efeito em `architecture.md`, `erd-complete.md` e `domain.md` | reversa |
