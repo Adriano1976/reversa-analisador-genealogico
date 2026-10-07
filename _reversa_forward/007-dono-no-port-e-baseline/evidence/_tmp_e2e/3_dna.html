@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Conexões Genealógicas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { margin-top: 1.5rem; }
+        .nav-tabs { margin-bottom: 1.5rem; }
+        .spinner-border { width: 3rem; height: 3rem; }
+        .graph-container {
+            border: 1px solid #dee2e6;
+            border-radius: .375rem;
+            padding: 1rem;
+            background-color: #fafafa;
+            overflow-x: auto;
+        }
+        .mermaid { text-align: center; }
+        .secao { margin-top: 1.75rem; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+        .secao h5 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+        .secao h5 .numero { color: #6c757d; }
+        .rotulo-fonte { font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .04em; }
+        .tabela-evidencia { font-size: .85rem; }
+        .alerta-aviso { border-left: 4px solid #ffc107; background: #fffdf5; padding: .6rem .8rem; margin-bottom: .5rem; border-radius: .25rem; font-size: .9rem; }
+        .estado-COMPATIVEL { background-color: #198754; }
+        .estado-POSSIVEL { background-color: #fd7e14; }
+        .estado-CONFLITANTE { background-color: #dc3545; }
+        .estado-INCONCLUSIVO { background-color: #6c757d; }
+        .documental-ambiguo { color: #b02a37; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm main-card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center mb-4">Analisador Genealógico e de DNA</h1>
+
+                        
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                1 conexões encontradas. 0 descartadas.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        
+
+                        
+                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" type="button" role="tab">Buscar Conexão no GEDCOM</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" type="button" role="tab">Analisador de DNA</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisTabsContent">
+                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
+                                    <form method="POST" id="path-form">
+                                        <input type="hidden" name="action" value="path_search">
+                                        <input type="hidden" name="gedcom_filename" value="8b667f911a986069__arvore.ged">
+                                        <div class="mb-3">
+                                            <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
+                                            <input type="text" class="form-control" id="person1_name" name="person1_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
+                                            <input type="text" class="form-control" id="person2_name" name="person2_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-info">Encontrar Conexão</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
+                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
+                                    <form method="POST" enctype="multipart/form-data" id="dna-form">
+                                        <input type="hidden" name="action" value="dna_analysis">
+                                        <input type="hidden" name="gedcom_filename" value="8b667f911a986069__arvore.ged">
+                                        <div class="mb-3">
+                                            <label for="matches_csv" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                            <input class="form-control" type="file" id="matches_csv" name="matches_csv" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
+                                            <input type="text" class="form-control" id="root_name" name="root_name" placeholder="Ex: João da Silva" required list="gedcom_names">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <datalist id="gedcom_names">
+                                
+                                    <option value="Ana Silva">
+                                
+                                    <option value="Bia Oliveira">
+                                
+                                    <option value="Carlos Silva">
+                                
+                                    <option value="Diego Silva">
+                                
+                                    <option value="Joao Silva">
+                                
+                                    <option value="Lone Ranger">
+                                
+                                    <option value="Maria Souza">
+                                
+                            </datalist>
+                        
+
+                        <div id="loading" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Analisando...</span></div>
+                            <p class="mt-2">Analisando... Isso pode levar alguns segundos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-area">
+                    
+                        <h2 class="text-center mt-5">Resultado da Análise</h2>
+                        
+                        
+                            
+                            
+                        
+                        <p class="text-center text-muted">
+                            1 conexões analisadas:
+                            <strong>1</strong> com caminho genealógico no GEDCOM
+                            (0 com identidade ambígua) e
+                            <strong>0</strong> apenas com evidência genética
+                            (sem caminho no GEDCOM).
+                        </p>
+                        
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Análise de conexão com <strong>Carlos Silva</strong>
+                                        
+                                            <span class="badge bg-secondary">DNA: 150 cM</span>
+                                        
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+
+                                    
+                                    
+                                    
+                                    <div class="secao" style="margin-top:0; border-top:0; padding-top:0;">
+                                        <h5><span class="numero">1.</span> Parentesco documental</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
+
+                                        <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                            
+                                                <span class="badge bg-primary">A mesma pessoa</span>
+                                            
+                                        </p>
+
+                                        
+
+                                        <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong>
+                                            Carlos Silva
+                                        </p>
+
+                                        
+                                            <p class="mb-1"><strong>Ancestral comum (MRCA) do caminho exibido:</strong>
+                                                Carlos Silva
+                                                
+                                            </p>
+                                        
+
+                                        
+                                            <details class="mb-2">
+                                                <summary><strong>Ancestrais comuns encontrados (2)</strong></summary>
+                                                <ul class="mb-0">
+                                                    
+                                                        <li>Joao Silva — 1 + 1 gerações (2 meioses)</li>
+                                                    
+                                                        <li>Maria Souza — 1 + 1 gerações (2 meioses)</li>
+                                                    
+                                                </ul>
+                                            </details>
+                                        
+
+                                        
+                                            <details class="mb-2">
+                                                <summary><strong>Mais de um caminho genealógico encontrado (2 adicional(is))</strong></summary>
+                                                <ul class="mb-0">
+                                                    
+                                                        <li>Caminho via <strong>Joao Silva</strong> (2 meioses):
+                                                            Carlos Silva → Joao Silva → Carlos Silva</li>
+                                                    
+                                                        <li>Caminho via <strong>Maria Souza</strong> (2 meioses):
+                                                            Carlos Silva → Maria Souza → Carlos Silva</li>
+                                                    
+                                                </ul>
+                                            </details>
+                                        
+
+                                        
+
+                                        
+
+                                        
+                                            <div class="graph-container mt-2"><div class="mermaid">flowchart BT
+N_I3["Carlos Silva"]
+style N_I3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
+style N_I3 fill:#ffebee,stroke:#ef5350,stroke-width:2px
+style N_I3 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px</div></div>
+                                        
+                                    </div>
+                                    
+
+                                    
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">2.</span> Evidência genética</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: fonte não identificada no CSV</p>
+                                        
+                                            
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle">
+                                                        <tbody>
+                                                            <tr><th class="table-light" style="width:32%">Pessoa (como está no CSV)</th><td>Carlos Silva</td></tr>
+                                                            <tr><th class="table-light">Kit</th><td>não informado no CSV</td></tr>
+                                                            <tr><th class="table-light">DNA compartilhado</th><td><strong>150 cM</strong></td></tr>
+                                                            <tr><th class="table-light">Segmentos</th><td>1</td></tr>
+                                                            <tr><th class="table-light">Maior segmento</th><td>150 cM</td></tr>
+                                                            <tr><th class="table-light">SNPs</th><td>—</td></tr>
+                                                            <tr><th class="table-light">Cromossomo(s)</th><td>não informado no CSV</td></tr>
+                                                            <tr><th class="table-light">Método do valor</th><td>valor da única linha do CSV para este kit (1 registro(s) do CSV)</td></tr>
+                                                            <tr>
+                                                                <th class="table-light">Posições</th>
+                                                                <td>
+                                                                    
+                                                                        
+                                                                    
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            
+                                        
+                                    </div>
+                                    
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+                                        
+                                            <p class="mb-2">Com base na quantidade de DNA compartilhada, existem diferentes possibilidades de relacionamento.</p>
+                                            
+                                                <p class="mb-1">
+                                                    <strong>Kit não informado</strong> — 150 cM
+                                                    <span class="badge bg-light text-dark">confiança: muito baixa</span>
+                                                </p>
+                                                
+                                                    <ul>
+                                                        
+                                                            <li>Primos de 2º grau (1× removido)
+                                                                <small class="text-muted">(14–353 cM na fonte; média 122 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Meio-primos de 2º grau
+                                                                <small class="text-muted">(10–325 cM na fonte; média 120 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (3× removidos)
+                                                                <small class="text-muted">(25–238 cM na fonte; média 117 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (2× removidos)
+                                                                <small class="text-muted">(33–471 cM na fonte; média 221 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 3º grau
+                                                                <small class="text-muted">(0–234 cM na fonte; média 73 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau
+                                                                <small class="text-muted">(41–592 cM na fonte; média 229 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau (2× removidos)
+                                                                <small class="text-muted">(0–244 cM na fonte; média 71 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau (3× removidos)
+                                                                <small class="text-muted">(0–154 cM na fonte; média 51 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 3º grau (1× removido)
+                                                                <small class="text-muted">(0–192 cM na fonte; média 48 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (1× removido)
+                                                                <small class="text-muted">(102–980 cM na fonte; média 433 cM)</small>
+                                                            </li>
+                                                        
+                                                    </ul>
+                                                
+                                                <p class="small text-muted">10 relação(ões) publicada(s) na versão 4.0 do Shared cM Project admitem 150 cM. Essas relações têm distribuições sobrepostas: o valor observado não identifica qual delas é a verdadeira. Quanto mais distante a relação, maior a cautela, porque a média das relações distantes só considera quem compartilha DNA detectável. 10 relações publicadas cobrem este valor — nesta faixa o cM praticamente não discrimina.</p>
+                                            
+                                            <div class="alert alert-warning py-2 mb-0">
+                                                <strong>Atenção:</strong> essas possibilidades são estatísticas, vêm das faixas publicadas do
+                                                Shared cM Project 4.0 (4.0) e <b>não</b> representam confirmação
+                                                do parentesco documental. As distribuições das relações se sobrepõem: o mesmo valor de cM cabe em
+                                                várias delas. Endogamia e colapso de pedigree aumentam o cM esperado e alargam ainda mais essas faixas.
+                                            </div>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">4.</span> Confrontação GEDCOM × DNA</h5>
+                                        
+                                            <p class="mb-2">Status:
+                                                <span class="badge estado-INCONCLUSIVO">Inconclusivo</span>
+                                            </p>
+                                            <p class="mb-2">Inconclusivo: os dados disponíveis não permitem avaliar adequadamente a compatibilidade entre o caminho documental e a evidência genética.</p>
+                                            
+                                                <p class="small text-muted mb-2">Não há faixa publicada para comparar: a versão 4.0 do Shared cM Project não publica faixa para “A mesma pessoa” nem para 0 meioses. O parentesco documental segue registrado, mas a evidência genética não pode ser confrontada com ele.</p>
+                                            
+                                            
+                                            
+                                            
+                                        
+                                    </div>
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">5.</span> Observações</h5>
+                                        
+                                            
+                                                <div class="alerta-aviso">Foram encontrados 3 caminhos genealógicos distintos (inclusive por outros ancestrais comuns). O caminho exibido é o de menor distância total; os demais estão listados e nenhum foi descartado.</div>
+                                            
+                                                <div class="alerta-aviso">O CSV não traz coluna de kit nem de e-mail: os segmentos foram agrupados apenas pelo nome. Se duas pessoas diferentes compartilharem o nome, os valores podem estar somados indevidamente.</div>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        
+                    
+
+                    
+
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
+            setTimeout(() => {
+                const mermaidElements = document.querySelectorAll(".mermaid");
+                if (mermaidElements.length) {
+                    mermaid.run({ nodes: mermaidElements });
+                }
+            }, 100);
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results-area').style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

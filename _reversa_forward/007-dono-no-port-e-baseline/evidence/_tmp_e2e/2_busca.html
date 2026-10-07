@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Conexões Genealógicas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { margin-top: 1.5rem; }
+        .nav-tabs { margin-bottom: 1.5rem; }
+        .spinner-border { width: 3rem; height: 3rem; }
+        .graph-container {
+            border: 1px solid #dee2e6;
+            border-radius: .375rem;
+            padding: 1rem;
+            background-color: #fafafa;
+            overflow-x: auto;
+        }
+        .mermaid { text-align: center; }
+        .secao { margin-top: 1.75rem; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+        .secao h5 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+        .secao h5 .numero { color: #6c757d; }
+        .rotulo-fonte { font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .04em; }
+        .tabela-evidencia { font-size: .85rem; }
+        .alerta-aviso { border-left: 4px solid #ffc107; background: #fffdf5; padding: .6rem .8rem; margin-bottom: .5rem; border-radius: .25rem; font-size: .9rem; }
+        .estado-COMPATIVEL { background-color: #198754; }
+        .estado-POSSIVEL { background-color: #fd7e14; }
+        .estado-CONFLITANTE { background-color: #dc3545; }
+        .estado-INCONCLUSIVO { background-color: #6c757d; }
+        .documental-ambiguo { color: #b02a37; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm main-card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center mb-4">Analisador Genealógico e de DNA</h1>
+
+                        
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                Conexão direta encontrada (ancestral comum).
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        
+
+                        
+                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" type="button" role="tab">Buscar Conexão no GEDCOM</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" type="button" role="tab">Analisador de DNA</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisTabsContent">
+                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
+                                    <form method="POST" id="path-form">
+                                        <input type="hidden" name="action" value="path_search">
+                                        <input type="hidden" name="gedcom_filename" value="8b667f911a986069__arvore.ged">
+                                        <div class="mb-3">
+                                            <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
+                                            <input type="text" class="form-control" id="person1_name" name="person1_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
+                                            <input type="text" class="form-control" id="person2_name" name="person2_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-info">Encontrar Conexão</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
+                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
+                                    <form method="POST" enctype="multipart/form-data" id="dna-form">
+                                        <input type="hidden" name="action" value="dna_analysis">
+                                        <input type="hidden" name="gedcom_filename" value="8b667f911a986069__arvore.ged">
+                                        <div class="mb-3">
+                                            <label for="matches_csv" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                            <input class="form-control" type="file" id="matches_csv" name="matches_csv" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
+                                            <input type="text" class="form-control" id="root_name" name="root_name" placeholder="Ex: João da Silva" required list="gedcom_names">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <datalist id="gedcom_names">
+                                
+                                    <option value="Ana Silva">
+                                
+                                    <option value="Bia Oliveira">
+                                
+                                    <option value="Carlos Silva">
+                                
+                                    <option value="Diego Silva">
+                                
+                                    <option value="Joao Silva">
+                                
+                                    <option value="Lone Ranger">
+                                
+                                    <option value="Maria Souza">
+                                
+                            </datalist>
+                        
+
+                        <div id="loading" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Analisando...</span></div>
+                            <p class="mt-2">Analisando... Isso pode levar alguns segundos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-area">
+                    
+
+                    
+
+
+                    
+                        <h2 class="text-center mt-5">Parentesco documental encontrado no GEDCOM</h2>
+                        <div class="card">
+                            <div class="card-header"><h5>Conexão entre: <strong>Carlos Silva</strong> e <strong>Ana Silva</strong></h5></div>
+                            <div class="card-body">
+                                <p class="rotulo-fonte mb-2">Fonte: GEDCOM — análise sem DNA</p>
+                                <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                    <span class="badge bg-primary">
+                                        Irmãos
+                                    </span>
+                                </p>
+                                
+                                    <p class="mb-1 small text-muted">
+                                        Distância geracional: 1 + 1 gerações
+                                        (2 saltos pai-filho).
+                                    </p>
+                                
+                                <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong> Carlos Silva → Joao Silva → Ana Silva</p>
+                                
+                                    <p class="mb-2"><strong>Ancestral comum (MRCA):</strong> Joao Silva</p>
+                                
+
+                                
+
+                                
+                                    <div class="graph-container"><div class="mermaid">flowchart BT
+N_I1_I2["Joao Silva &amp; Maria Souza"]
+N_I3["Carlos Silva"]
+N_I4["Ana Silva"]
+N_I3 --> N_I1_I2
+N_I4 --> N_I1_I2
+style N_I3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
+style N_I4 fill:#ffebee,stroke:#ef5350,stroke-width:2px
+style N_I1_I2 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px</div></div>
+                                
+
+                                
+                                    <h5 class="mt-4"><span class="numero">Observações</span></h5>
+                                    
+                                        <div class="alerta-aviso">Foram encontrados 2 caminhos genealógicos distintos (inclusive por outros ancestrais comuns). O caminho exibido é o de menor distância total; os demais estão listados e nenhum foi descartado.</div>
+                                    
+                                
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
+            setTimeout(() => {
+                const mermaidElements = document.querySelectorAll(".mermaid");
+                if (mermaidElements.length) {
+                    mermaid.run({ nodes: mermaidElements });
+                }
+            }, 100);
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results-area').style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+casos no baseline (entrega da 006): 19
+casos agora: 19
+
+  ok upload_sem_arquivo  status=200 alerta=danger
+  ok upload_nome_vazio  status=200 alerta=danger
+  ok upload_conteudo_invalido  status=200 alerta=danger
+  ok upload_conteudo_vazio  status=200 alerta=danger
+  ok upload_ok  status=200 alerta=success
+  ok upload_acima_do_teto  status=413 alerta=danger
+  ok ref_ausente  status=200 alerta=danger
+  ok ref_inexistente  status=200 alerta=danger
+  ok ref_forma_invalida  status=200 alerta=danger
+  ok dna_sem_csv  status=200 alerta=danger
+  ok dna_csv_nome_vazio  status=200 alerta=danger
+  ok dna_raiz_ausente  status=200 alerta=danger
+  ok dna_csv_sem_colunas  status=200 alerta=danger
+  ok dna_ok  status=200 alerta=success
+  ok path_pessoa1_ausente  status=200 alerta=danger
+  ok path_pessoa2_ausente  status=200 alerta=danger
+  ok path_direto  status=200 alerta=success
+  ok path_indireto  status=200 alerta=success
+  ok path_sem_conexao  status=200 alerta=success
+
+======================================================================
+RESULTADO: TEXTO E MODO DE RENDERIZACAO IDENTICOS EM 19 CASOS
+  status HTTP, classe do alerta e texto, caso a caso
+======================================================================

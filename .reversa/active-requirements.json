@@ -1,10 +1,21 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
-  "feature-id": "003",
-  "short-name": "renomear-pasta-app-para-src",
-  "started-at": "2026-10-02T21:38:27Z",
-  "current-stage": "coding-em-progresso",
+  "feature-dir": "_reversa_forward/007-dono-no-port-e-baseline",
+  "feature-id": "007",
+  "short-name": "dono-no-port-e-baseline",
+  "started-at": "2026-10-07T15:40:00Z",
+  "current-stage": "requirements",
   "stages-completed": [],
-  "paused-features": []
+  "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
+      "feature-id": "003",
+      "short-name": "renomear-pasta-app-para-src",
+      "started-at": "2026-10-02T21:38:27Z",
+      "current-stage": "coding-em-progresso",
+      "stages-completed": [],
+      "paused-at": "2026-10-07T15:40:00Z",
+      "paused-from-stage": "coding-em-progresso"
+    }
+  ]
 }
