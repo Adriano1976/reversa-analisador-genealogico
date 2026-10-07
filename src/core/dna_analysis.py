@@ -24,14 +24,16 @@ misturadas em uma so:
 
 ## Compatibilidade
 
-`get_relationships_by_cm` e `SHARED_CM_DATA` continuam existindo e reexportados
-(`core.cm_estimator`), porque `tests/test_dna_analysis.py` os exercita, mas o
-fluxo e a interface **nao** os usam mais: eram faixas escritas a mao, sem fonte
-verificavel, e estao marcadas como legado.
+`get_relationships_by_cm` e `SHARED_CM_DATA` continuam existindo em
+`core.cm_estimator`, mas a superficie de compatibilidade que os trazia para ca
+SAIU em `T022` — o import e a declaracao em `__all__`. Eram faixas escritas a mao,
+sem fonte verificavel, marcadas como legado, e nem o fluxo nem a interface as usam
+(ADR-19): medido, o modulo nao referenciava nenhum dos dois no corpo. Quem as
+exercita — `tests/test_dna_analysis.py` — as importa do modulo canonico, como o
+harness ja fazia.
 """
 from __future__ import annotations
 
-from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
 from .diagram_domain import resolvedor_de_diagrama
 from .documentary_relationship import documentary_relationship, homonym_dossier
 from .evidence_comparison import compare
@@ -282,7 +284,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore):
 # `parsers/csv_ingest` — que e exatamente a dependencia que a RF-09 remove.
 # ---------------------------------------------------------------------------
 __all__ = [
-    "dna_analysis", "Dependencias", "get_relationships_by_cm", "SHARED_CM_DATA",
+    "dna_analysis", "Dependencias",
     "build_ged_indexes", "match_candidates",
     "norm_name", "split_name_pt", "surnames_set", "top_given_tokens",
     "token_prefixes", "drop_short_tokens", "surname_core_tokens",

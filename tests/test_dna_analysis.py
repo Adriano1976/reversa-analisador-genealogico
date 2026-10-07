@@ -24,10 +24,11 @@ from tests.fixtures.sample_dna import (
 )
 
 from parsers import gedcom_parser
-from core.dna_analysis import (
-    dna_analysis,
-    get_relationships_by_cm,
-)
+from core.dna_analysis import dna_analysis
+# `get_relationships_by_cm` passou a ser importado do modulo canonico em `T022`: o
+# nome vive em `core/cm_estimator.py`, e o reexport por `dna_analysis` era
+# superficie de compatibilidade — o fluxo nao o consome (ADR-19).
+from core.cm_estimator import get_relationships_by_cm
 # `aggregate_matches`, `detect_columns` e `read_csv_with_fallback` deixaram de ser
 # reexportados pelo nucleo em `T016`: a leitura do CSV passou a ser injetada pela
 # borda, e reexporta-los la obrigaria `core/` a importar `parsers/`.

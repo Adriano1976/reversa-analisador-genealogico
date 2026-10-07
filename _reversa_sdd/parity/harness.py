@@ -263,6 +263,7 @@ from core.registro import get_name
 from core import family_navigation as FN
 from core import path_finding as PF
 from core import dna_analysis as D
+from core.cm_estimator import get_relationships_by_cm as _cm_rel
 from utils import text_cleaning as DM
 
 obs = {}
@@ -329,7 +330,7 @@ obs["surname_core_tokens"] = {n: safo(lambda x: D.surname_core_tokens(x), n) for
 
 obs["cm"] = {}
 for cm in json.loads(sys.argv[4]):
-    obs["cm"][str(cm)] = safo(D.get_relationships_by_cm, cm)
+    obs["cm"][str(cm)] = safo(_cm_rel, cm)
 
 obs["ancestral"] = {}
 obs["indirect"] = {}

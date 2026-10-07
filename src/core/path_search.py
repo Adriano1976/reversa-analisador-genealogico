@@ -47,18 +47,6 @@ from .path_finding import MAX_HOPS, find_indirect_path
 from .registro import get_name
 
 
-# ---------------------------------------------------------------------------
-# Ponto unico de transicao (feature 005, T018).
-#
-# A construcao da arvore a partir do estado vive AGORA NUM LUGAR SO, e os
-# modulos que ainda precisam dela a importam de `documentary_relationship`.
-# Antes desta acao havia tres copias da mesma funcao — o que e pior do que uma
-# funcao de transicao: sao tres pontos para esquecer quando a transicao acabar.
-#
-# Em `T023`, quando `gedcom_state` sair, esta linha vira a passagem do parametro
-# `arvore` que o `app.py` monta — um ponto para mudar, nao tres.
-# ---------------------------------------------------------------------------
-
 
 
 # Bloco de reexportacao removido pela OPP-20261006-ESKO. Os 13 nomes que ficavam
