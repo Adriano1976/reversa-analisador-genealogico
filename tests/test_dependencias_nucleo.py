@@ -12,18 +12,18 @@ poder importar o modulo. A pergunta aqui e textual — "que imports este arquivo
 declara?" — e a AST responde isso sem executar nada. E o mesmo metodo que
 `tests/test_servidor_producao.py` usa para a camada de rota.
 
-## Por que T007 nasce com xfail
+## Por que T007 nasceu com xfail
 
-A afirmacao de estado global e escrita para FALHAR hoje (o estado ainda existe) e
+A afirmacao de estado global foi escrita para FALHAR enquanto o estado existia, e
 passar ao final da migracao. Uma falha deliberada e permanente deixaria a suite
 vermelha entre `T007` e `T023`, o que cegaria as verificacoes seguintes: a
 proxima acao que rodar a suite nao distinguiria a falha esperada de uma
 regressao real.
 
-`xfail(strict=True)` resolve as duas pontas: a suite fica verde, e a afirmacao
-continua DISCRIMINANTE — se ela for escrita frouxa e passar por engano, o
-`strict` transforma o XPASS em falha. Ao final da migracao o marcador e removido,
-e o teste passa por merito proprio.
+`xfail(strict=True)` resolveu as duas pontas: a suite ficou verde, e a afirmacao
+continuou DISCRIMINANTE — escrita frouxa, ela passaria por engano e o `strict`
+transformaria o XPASS em falha. O `T023` removeu o marcador, e o teste passa por
+merito proprio.
 """
 from __future__ import annotations
 
@@ -186,18 +186,23 @@ def test_guarda_de_estado_detecta_atribuicao_no_nivel_do_modulo():
     assert encontrados == {"people", "families", "graph"}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A migracao ainda nao removeu o estado global. O marcador sai em T023; "
-           "ate la a afirmacao falha de proposito, e o `strict` garante que ela "
-           "nao passe por engano.",
-)
 def test_core_nao_declara_estado_mutavel_de_modulo():
+    """`RF-01`: nenhum modulo do nucleo declara estado mutavel de modulo.
+
+    Nasceu em `T007` com `xfail(strict=True)`, porque a condicao era falsa: o
+    estado existia em `core/gedcom_state.py`. O `T023` apagou o modulo depois de
+    migrar os consumidores para a arvore por parametro, e o marcador saiu aqui —
+    o teste passa por merito proprio.
+
+    O que ele guarda, daqui em diante: o nucleo e um conjunto de FUNCOES sobre a
+    arvore que o chamador entrega. Uma variavel de modulo com um destes nomes
+    reintroduziria o acoplamento por efeito colateral que custou a `D-11`.
+    """
     achados = []
     for nome in _modulos_do_core():
         achados.extend(_nomes_de_estado_no_modulo(nome))
     assert not achados, (
-        "o nucleo ainda declara estado mutavel de modulo. Ele deve receber a "
+        "o nucleo voltou a declarar estado mutavel de modulo. Ele deve receber a "
         "arvore por parametro (RF-01):\n  " + "\n  ".join(achados)
     )
 
