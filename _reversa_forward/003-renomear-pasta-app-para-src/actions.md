@@ -88,9 +88,35 @@
 
 **Incidente de execução, registrado por transparência.** Ao atualizar o status das três primeiras ações por linha de comando, o `actions.md` foi gravado com codificação dupla: o `Get-Content` do PowerShell 5.1 leu o arquivo UTF-8 como Windows-1252 e a gravação seguinte corrompeu os caracteres acentuados. O mesmo comando gerou o `progress.jsonl` com registros separados por espaço em vez de quebra de linha. Ambos foram reparados por reescrita completa e reverificados. A lição operacional: neste ambiente, arquivo com acento nunca é reescrito por `Get-Content` sem `-Encoding`, e conteúdo multilinha vai pela ferramenta de escrita, não por concatenação no shell.
 
+### Rodada 3 — 2026-10-07
+
+**Zero ações de código a executar, e o resultado é idêntico ao da rodada 2.** A única
+ação aberta continua sendo a `T021`, e ela pertence ao pipeline de documentação. Nada
+foi escrito em `_reversa_docs/`, e o `[ ]` permanece — simular a conclusão seria a
+única coisa que esta rodada poderia fazer de errado.
+
+**Os cinco watch items foram reverificados nesta rodada e continuam verdadeiros**, o
+que é o motivo de esta rodada ter registro apesar de não ter executado ação: entre
+2026-10-03 e hoje, **três features mexeram em `src/`** (004, 005 e 006), e a vigilância
+deste arquivo poderia ter sido invalidada sem que ninguém notasse.
+
+| Item | Reverificação de 2026-10-07 | Nuance nova |
+|---|---|---|
+| **W001** | `src/` é a raiz de código e o núcleo é importado direto dela: `core`, `parsers`, `reporting` e `utils` continuam pacotes de primeiro nível com `__init__.py` | 🆕 A lista **cresceu de 4 para 6**: a feature 006 acrescentou `application/` e `ports/`. A regra continua verdadeira — ela afirma presença, não exaustividade —, mas quem a reverificar deve contar seis |
+| **W002** | `requirements.txt` está na raiz do repositório e **não** existe cópia em `src/` | — |
+| **W003** | A pasta é `src/uploads/` e `_pasta_uploads()` está ancorada no arquivo do aplicativo; não há `chdir` nem `getcwd` no módulo | 🆕 A feature 006 passou a resolver a pasta **uma vez, no import** (`ArmazenamentoEmDisco(_pasta_uploads())`), em vez de a cada requisição. A regra — ancorada no arquivo, nunca no diretório corrente — segue verdadeira; o que mudou é a frequência, e nenhum teste troca `ANALISADOR_UPLOAD_FOLDER` depois do import |
+| **W004** | `src/README.md`, `src/.gitignore` e `src/static/` continuam **ausentes** do disco | — |
+| **W005** | Paridade remedida nesta data para a feature 006: **100 %, zero divergência, exit 0** nas 6 fixtures. A suíte manteve o conjunto: cresceu de **178 para 231** aprovados, sem teste removido ou desabilitado | — |
+
+**O que esta rodada não fez, e não deveria fazer.** Não tocou `legacy-impact.md` nem
+`regression-watch.md`: nenhum arquivo de produto mudou, e o skill manda fazer *append*
+de itens novos nesses dois arquivos, nunca reescrevê-los. Uma rodada sem entrega não
+tem delta de impacto para registrar.
+
 ## Histórico de alterações
 
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-02 | Versão inicial gerada por `/reversa-to-do` | reversa |
 | 2026-10-03 | Rodada 1 de `/reversa-coding`: T001 a T003 concluídas; T004 bloqueada pela política e retomada após liberação de `src/**` e `.vscode/**`; T004 a T020 executadas; T021 pendente; reparo do próprio arquivo após corrupção de codificação | reversa-coding |
+| 2026-10-07 | Rodada 3: zero ações de código a executar (só a `T021`, que é do pipeline de documentação); `[ ]` mantido sem simulação; os cinco watch items reverificados e ainda verdadeiros, com duas nuances novas registradas (`W001` foi de 4 para 6 pacotes de primeiro nível; `W003` passou a resolver a pasta no import) | reversa-coding |
