@@ -13,8 +13,18 @@ funcao (ver `path_finding.py`).
 
 Extraido de `upload.py` pela OPP-20261003-TWNT. As globais e as funcoes sao as
 mesmas; o que mudou foi o endereco.
+
+## Transicao para o modulo puro (feature 005, T008)
+
+`ref_id` e `get_name` NAO sao estado: sao leitura de registro, e agora vivem em
+`core/registro.py`. Eles continuam sendo reexportados aqui **apenas** enquanto
+houver consumidor importando deste modulo; a migracao de cada consumidor e a
+remocao final do estado estao em `_reversa_forward/005-nucleo-puro-src/actions.md`
+(`T011` a `T014`, `T023`).
 """
 from __future__ import annotations
+
+from .registro import get_name, ref_id  # noqa: F401  reexport de transicao
 
 # Estado global em memória (singleton por processo) — não persistente.
 people = {}
@@ -29,24 +39,3 @@ child_to_family: dict[str, list[str]] = {}
 # incrementado por `load_gedcom_and_build_graph`.
 versao = 0
 
-
-def ref_id(val):
-    """Extrai o xref_id de um objeto ged4py; retorna o valor se já for str."""
-    return getattr(val, "xref_id", val)
-
-
-def get_name(person) -> str:
-    """Nome formatado do registro; 'Sem Nome' APENAS se ausente.
-
-    Copia fiel do oraculo (app_legacy_e43ca22.py:42-43):
-
-        return person.name.format() if person and person.name else "Sem Nome"
-
-    ATENCAO — nao "melhore" isto para tratar formato vazio. O legado devolve '' quando
-    `person.name` existe mas `.format()` resulta vazio, e esse caso OCORRE em dado real
-    (296 pessoas em 35.460 em Arvore_Unificada_Oficial_V1_2.ged; 17 em 3.056 em
-    Adriano_Santos.ged). O literal 'Sem Nome' nunca foi observado nos dados. Uma versao
-    anterior desta funcao tratava o formato vazio como 'Sem Nome' e quebrava a paridade
-    com o oraculo (DIV-001, _reversa_sdd/migration/parity_harness.md).
-    """
-    return person.name.format() if person and person.name else "Sem Nome"
