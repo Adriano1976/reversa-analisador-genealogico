@@ -28,12 +28,15 @@ que preserva a costura da OPP-20261006-ULVW sem arrastar o renderizador para a
 migracao — e o RISK-011 depende de as duas consultas de decomposicao continuarem
 chegando la.
 
-O `T018` fechou a ultima ponta: este modulo nao tem mais **nenhuma** referencia a
-`gedcom_state`, nem tardia. Ele recebe a arvore e devolve consultas sobre ela. A
-construcao da arvore a partir do estado vive num lugar so
-(`documentary_relationship._arvore_global`), importado pelos dois fluxos que a
-feature ainda nao migrou; quando `T023` remover o estado, essa construcao sai e a
-arvore passa a vir da borda.
+O `T018` fechou a primeira ponta: este modulo nao tem **nenhuma** referencia a
+`gedcom_state`, nem tardia. Ele recebe a arvore e devolve consultas sobre ela.
+
+O `T023` fechou a segunda, e esta docstring dizia o contrario ate entao: ela
+apontava uma construcao da arvore a partir do estado em
+`documentary_relationship._arvore_global`. Essa funcao era ORFA — ninguem a
+chamava desde o `T020` — e foi removida junto com o modulo de estado. Nao ha mais
+construcao de arvore a partir de estado em lugar nenhum: a arvore vem da borda, do
+retorno de `carregar_arvore`.
 """
 from __future__ import annotations
 

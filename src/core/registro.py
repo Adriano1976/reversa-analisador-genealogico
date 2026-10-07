@@ -5,11 +5,12 @@ framework. Sao funcoes sobre um registro que o chamador entrega.
 
 ## Por que existe separado
 
-Nasceu na feature `005-nucleo-puro-src` (`T008`), que remove o estado global de
-`src/core/gedcom_state.py`. `get_name` e `ref_id` nao sao estado: sao leitura de
-registro, e ficavam no mesmo arquivo apenas por proximidade historica. Separar
-permitiu tirar as duas de dentro do modulo de estado sem duplicar a copia fiel
-do oraculo — que e o ativo de paridade mais delicado deste nucleo.
+Nasceu na feature `005-nucleo-puro-src` (`T008`), que removeu o estado global de
+`src/core/gedcom_state.py` — modulo apagado no `T023` desta mesma feature. `get_name`
+e `ref_id` nao eram estado: sao leitura de registro, e ficavam no mesmo arquivo
+apenas por proximidade historica. Separar permitiu tirar as duas de dentro do modulo
+de estado sem duplicar a copia fiel do oraculo — que e o ativo de paridade mais
+delicado deste nucleo.
 
 ## Sobre `get_name` — nao "melhore" esta funcao
 

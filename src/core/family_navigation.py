@@ -17,11 +17,13 @@ As funcoes que nao precisam — `split_path_by_marriage` e `exclude_tail`, que
 operam sobre uma lista de ids — nao o recebem: passar o que nao se usa e ruido, e
 o objetivo aqui e dependencia explicita, nao assinatura uniforme.
 
-## Assimetria historica que deixou de existir
+## Assimetria historica, extinta na feature 005
 
 `graph` era a excecao do estado: reatribuido a cada parse, e por isso quem o
-consumia precisava importa-lo dentro da funcao. Com a arvore como valor, a
-assimetria sumiu — quem precisa do grafo o pega da arvore recebida.
+consumia precisava importa-lo DENTRO da funcao, enquanto `people`, `families` e
+`child_to_family` vinham de import no topo. A assimetria nao existe mais: o estado
+global saiu (`T023`), a arvore chega inteira por parametro, e quem precisa do
+grafo o pega dela — sem import tardio e sem depender do instante da chamada.
 """
 from __future__ import annotations
 

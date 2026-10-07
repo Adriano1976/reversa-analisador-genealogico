@@ -9,7 +9,7 @@ DECISAO DO USUARIO (2026-09-30, _reversa_sdd/questions.md#pergunta-3):
 `Family`, `GenealogyGraph` e `DNAGroup` foram REMOVIDAS daqui. Eram
 arquitetura abandonada no meio do caminho: nenhuma das tres era instanciada em
 qualquer caminho de producao, confirmado por varredura de referencias. O fluxo
-real usa os dicionarios globais de gedcom_state.py e os registros do ged4py
+real usa os dicionarios de pessoas e de familias e os registros do ged4py
 diretamente. Preservar as classes sem uso custaria a quem reimplementar a
 obrigacao de decidir entre adotar ou descartar algo que o legado nunca adotou.
 
@@ -76,10 +76,11 @@ def demojibake(s):
 #
 #   - `Family`         aparecia apenas na propria definicao e na anotacao de
 #                      `GenealogyGraph.register_family`. O fluxo real guarda os
-#                      registros `FAM` do ged4py em `gedcom_state.families`.
-#   - `GenealogyGraph` nao era instanciada. O grafo real e a global
-#                      `gedcom_state.graph` — um `nx.Graph`, nao `nx.MultiGraph` como
-#                      o docstring afirmava (havia contradicao interna aqui).
+#                      registros `FAM` do ged4py no dicionario de familias.
+#   - `GenealogyGraph` nao era instanciada. O grafo real e um `nx.Graph` nao
+#                      direcionado sobre pessoas e familias — nao o
+#                      `nx.MultiGraph` que o docstring afirmava (havia
+#                      contradicao interna aqui).
 #   - `DNAGroup`       nao era instanciada. `dna_analysis` monta os resultados
 #                      como `dict` simples.
 #

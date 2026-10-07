@@ -9,7 +9,8 @@ que a alma fixa: profundidade 20 e 40 hops.
 
 Antes, `people` vinha de um import no topo e `graph` de um import DENTRO da
 funcao, porque `graph` era reatribuido a cada parse e um import no topo ficaria
-preso ao grafo antigo. A assimetria sumiu: os dois saem da arvore recebida.
+preso ao grafo antigo. Nenhum dos dois existe mais: o estado global saiu
+(`T023`), e os dois saem da arvore recebida.
 
 ## O que NAO pode mudar
 

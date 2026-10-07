@@ -48,27 +48,24 @@ LIMITE_DE_CADEIAS = 8
 
 
 # ---------------------------------------------------------------------------
-# Ponto unico de transicao (feature 005)
+# Por que a chave do indice e derivada do CONTEUDO, e nao da identidade
 # ---------------------------------------------------------------------------
-# `T011` a `T014` migraram os modulos do nucleo para receber a arvore por
-# parametro. Este modulo era o maior consumidor do estado e JA NAO LE NADA DELE:
-# todas as funcoes publicas recebem `arvore`. O que sobra e a construcao da
-# tupla, usada pelos pontos de entrada que a feature ainda nao migrou
-# (`T016`/`T017`). Quando `T023` remover o estado, esta funcao sai e quem a
-# chama passa a receber a arvore de quem o chama.
+# Medido em 2026-10-06, enquanto o estado global existia:
+# `load_gedcom_and_build_graph` MUTAVA `gedcom_state.people` in place
+# (`clear()` + `update()`), entao o `id()` do dicionario era o MESMO em todo o
+# processo. Um cache chaveado por identidade nunca invalidaria — e a invalidacao
+# e justamente o que `test_6d` cobra.
 #
-# ## Por que a chave e derivada do CONTEUDO, e nao da identidade
+# A tentacao, agora que `T023` removeu o estado e `carregar_arvore` devolve
+# dicionarios NOVOS a cada parse, e voltar a usar `id()`. NAO volte: `id()` e
+# reciclado. O dicionario da arvore anterior deixa de ser referenciado assim que
+# o parse seguinte devolve o novo, o CPython pode reusar o mesmo endereco, e a
+# chave coincidiria com a de um GEDCOM DIFERENTE — o cache devolveria o mapa do
+# anterior. O defeito apareceria so sob carga, e nao em teste isolado.
 #
-# Medido em 2026-10-06: `load_gedcom_and_build_graph` MUTA `gedcom_state.people`
-# in place (`clear()` + `update()`), entao o `id()` do dicionario e o MESMO em
-# todo o processo. Um cache chaveado por identidade nunca invalidaria — e a
-# invalidacao e justamente o que `test_6d` cobra. Enquanto a transicao durar, a
-# chave e o tamanho de cada estrutura mais a primeira e a ultima chave de
-# `people`: barato, derivado do valor, e muda quando a arvore muda.
-#
-# Quando `T023` remover o estado, `carregar_arvore` passa a devolver dicionarios
-# NOVOS a cada parse, e entao a identidade volta a ser chave valida — o que o
-# comentario de `_indice_por_nome` ja antecipa.
+# A chave e o tamanho mais a primeira e a ultima chave de `people`: barato,
+# derivado do valor, e muda quando a arvore muda. A explicacao completa esta em
+# `_chave_de`.
 # ---------------------------------------------------------------------------
 # Datas
 # ---------------------------------------------------------------------------
@@ -210,10 +207,17 @@ _INDICE_DE_NOMES = {"chave": None, "mapa": None}
 def _chave_de(people) -> tuple:
     """Chave de invalidacao do indice, derivada do CONTEUDO recebido.
 
-    A identidade do dicionario NAO serve: o parse muta `people` in place, entao o
-    `id()` e o mesmo durante todo o processo e o cache nunca invalidaria (medido
-    em 2026-10-06, e cobrado por `test_6d`). A chave usa contagem, primeira e
-    ultima chave — barato e suficiente para distinguir dois GEDCOMs carregados.
+    O indice e um cache de modulo: a chave tem de mudar quando outro GEDCOM chega,
+    senao o fluxo seguinte leria os ids do anterior. A IDENTIDADE do dicionario nao
+    serve: o parse mutava `people` in place e o `id()` era o mesmo durante todo o
+    processo, entao o cache nunca invalidaria — foi o defeito medido em 2026-10-06
+    e cobrado por `test_6d`.
+
+    A chave usa contagem, primeira e ultima chave — barato e suficiente para
+    distinguir dois GEDCOMs carregados. Ela continua necessaria depois do `T023`,
+    que removeu o estado global e a mutacao in place: o parse agora devolve
+    dicionarios NOVOS, mas este cache e de modulo, e a chave continua sendo o que
+    garante que ele fale do GEDCOM da vez.
     """
     if not people:
         return (0, None, None)
@@ -225,10 +229,11 @@ def _indice_por_nome(arvore) -> dict:
     """nome normalizado -> lista de ids, reconstruido a cada GEDCOM carregado.
 
     A varredura de 35 mil pessoas custa ~0,9 s. Sem este indice, o fluxo de DNA
-    (71 nomes distintos no arquivo real) pagava isso 71 vezes. A invalidacao usa
-    a IDENTIDADE do dicionario de pessoas recebido, e nao um contador
+    (71 nomes distintos no arquivo real) pagava isso 71 vezes. A invalidacao usa o
+    CONTEUDO do dicionario de pessoas recebido, e nao um contador
     (`gedcom_state.versao`, removido pela feature 005): dois GEDCOMs diferentes
-    podem ter a mesma contagem, e um contador exigiria estado.
+    podem ter a mesma contagem, e um contador exigiria estado. O detalhe da chave
+    esta em `_chave_de`.
     """
     people = arvore[0]
     chave = _chave_de(people)
