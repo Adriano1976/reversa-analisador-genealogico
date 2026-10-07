@@ -7,6 +7,14 @@ Extraido de `upload.py` pela OPP-20261003-TWNT. Ate `T023` da feature 005 esta
 funcao TAMBEM substituia o estado global do processo; a escrita saiu, e a
 assimetria de substituicao que ela exigia (dicionarios mutados in place, grafo
 reatribuido) deixou de existir junto com o estado.
+
+## A casca `load_gedcom_and_build_graph` saiu em `T015` da feature 006
+
+Ela devolvia a lista de nomes ordenada, no contrato antigo. A varredura de
+consumidores de producao deu **zero** — `app.py` e o coletor de paridade ja
+liam `carregar_arvore`. Os consumidores reais eram tres, todos de teste, e
+migraram para a arvore no mesmo passo. Quem ainda precisar da lista a deriva da
+arvore, como `application/upload_gedcom.py` faz.
 """
 from __future__ import annotations
 
@@ -66,14 +74,3 @@ def carregar_arvore(file_path: str) -> Tree:
         new_families = {ref_id(f.xref_id): f for f in parser.records0("FAM")}
         new_graph, new_child_to_family = build_graph_from_parser(new_people, parser)
         return new_people, new_families, new_graph, new_child_to_family
-
-
-def load_gedcom_and_build_graph(file_path: str) -> list[str]:
-    """Parseia o GEDCOM e devolve a lista de nomes ordenada.
-
-    Contrato antigo mantido durante a transicao: `src/app.py` e o coletor do
-    harness dependem da lista. Delega para `carregar_arvore`, para haver um so
-    lugar que faz o parse.
-    """
-    people, _families, _graph, _child_to_family = carregar_arvore(file_path)
-    return sorted([get_name(p) for p in people.values()])
