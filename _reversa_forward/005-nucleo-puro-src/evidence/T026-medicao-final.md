@@ -1,12 +1,13 @@
 # T026 — medição final
 
 **Data:** 2026-10-07
-**Ação:** `T026` — medir o resultado final e registrar a evidência: suíte e paridade com a assinatura nova, comparando com a linha de base de `T004`.
+**Ação:** `T026` — medir o resultado final e registrar a evidência: suíte e paridade
+com a assinatura nova, comparando com a linha de base de `T004`.
 
 ## Comparação com a linha de base
 
 | Medição | Linha de base (`T004`) | Resultado final (`T026`) | Δ |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Suíte | `164 passed, 15 errors` | **`178 passed, 0 xfailed, 15 errors`** | **+14 passed** |
 | Falhas esperadas (`xfail`) | 0 | **0** | 0 |
 | Paridade | 100% nas 6 fixtures | **100% nas 6 fixtures** | 0 |
@@ -15,7 +16,7 @@
 **A conta dos 14 a mais fecha, e nenhum teste foi removido para chegar nela:**
 
 | Origem | Testes | Observação |
-|---|---|---|
+| --- | --- | --- |
 | `tests/test_dependencias_nucleo.py` | 8 | guardas estruturais (`RF-01`, `RF-08`, `RF-09`, `RN-04`) + 3 caminhos negativos + 3 do comparador (`T030`) |
 | `tests/test_arvore_devolvida.py` | 5 | forma e completude da árvore devolvida (`RF-13`) |
 | Verificação de mãos dadas | +1 | `test_transicao_ainda_atualiza_o_estado_global` saiu em `T023` — o próprio docstring mandava removê-lo, e não "consertá-lo" |
@@ -36,7 +37,7 @@ O `src/core/` é um conjunto de **funções puras** sobre uma árvore que o cham
 entrega:
 
 | Guarda | Regra | Estado |
-|---|---|---|
+| --- | --- | --- |
 | Não importa framework | `RF-08` | ✅ verde |
 | Não faz I/O nem depende de plataforma | `RN-04` | ✅ verde |
 | Não declara estado mutável de módulo | `RF-01` | ✅ verde (era `xfail`) |

@@ -1,7 +1,9 @@
 # T024 — caminho negativo das guardas de dependência
 
 **Data:** 2026-10-07
-**Ação:** `T024` — verificar o caminho negativo do teste de dependências: introduzir de propósito um import proibido em `src/core/` e confirmar que `T005` falha; depois revertê-lo.
+**Ação:** `T024` — verificar o caminho negativo do teste de dependências: introduzir
+de propósito um import proibido em `src/core/` e confirmar que `T005` falha; depois
+revertê-lo.
 **Alvo:** `tests/test_dependencias_nucleo.py`
 
 ## Por que esta ação existe
@@ -26,14 +28,14 @@ arquivos certos — só o módulo real no diretório real prova isso.
 Foi criado `src/core/_sonda_t024.py` com três violações simultâneas:
 
 | Violação | O que ela deveria disparar |
-|---|---|
+| --- | --- |
 | `import flask` | `test_core_nao_importa_framework` (`RF-08`) |
 | `open(caminho)` | `test_core_nao_faz_io` (`RN-04`) |
 | `people = {}` e `versao = 0` em nível de módulo | `test_core_nao_declara_estado_mutavel_de_modulo` (`RF-01`) |
 
 ## Resultado medido
 
-```
+```text
 FAILED tests/test_dependencias_nucleo.py::test_core_nao_importa_framework
 FAILED tests/test_dependencias_nucleo.py::test_core_nao_faz_io
 FAILED tests/test_dependencias_nucleo.py::test_core_nao_declara_estado_mutavel_de_modulo
@@ -43,7 +45,7 @@ FAILED tests/test_dependencias_nucleo.py::test_core_nao_declara_estado_mutavel_d
 As três reprovaram, e cada uma apontou o achado concreto em vez de falhar por
 acidente:
 
-```
+```text
 AssertionError: o nucleo passou a depender de infraestrutura; a paridade deixa
 de ser isolavel e a Onda 0 perde valor
 AssertionError: o nucleo passou a fazer I/O ou a depender de plataforma; ele deve
@@ -59,7 +61,7 @@ receber a arvore por parametro (RF-01):
 `src/core/_sonda_t024.py` apagado — `Test-Path` devolve `False`. As guardas voltam
 ao verde por mérito próprio, sem o `xfail` que a de estado carregou até `T023`:
 
-```
+```text
 ..........                                                               [100%]
 10 passed in 0.84s
 ```

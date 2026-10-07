@@ -9,8 +9,11 @@
 | Métrica | Valor |
 |---------|-------|
 | Total de ações | **30** |
+| Ações fechadas | **30 de 30** |
 | Paralelizáveis (`[//]`) | **7** (`T003`, `T008`, `T015`, `T019`, `T026`, `T027`, `T028`) |
 | Maior cadeia de dependência | **17 ações** (16 elos): `T002` → `T004` → `T009` → `T011` → `T012` → `T013` → `T014` → `T016` → `T018` → `T020` → `T021` → `T022` → `T023` → `T025` → `T027` → `T029` |
+| Suíte final | `178 passed, 0 xfailed, 15 errors` |
+| Paridade final | `100%` nas 6 fixtures, exit 0 |
 
 **Composição:** 4 ações de preparação, **4** de teste, 12 de núcleo, 7 de integração e 3 de polimento.
 
@@ -73,7 +76,7 @@
 |----|-----------|--------------|-------------|--------------|-------------|--------|
 | T008 | Criar `src/core/registro.py` com `get_name` e `ref_id` copiados **literalmente** de `gedcom_state.py`, preservando a docstring que explica por que o formato vazio devolve `''` e não "Sem Nome" (DIV-001) | T004 | `[//]` | `src/core/registro.py` | 🟢 | `[X]` |
 | T009 | Fazer `load_gedcom_and_build_graph` **devolver** a árvore como valor (pessoas, famílias, grafo, filho→família) sem deixar de atualizar as globais durante a migração, e sem alterar a ordem de inserção de nenhuma estrutura | T008 | - | `src/parsers/gedcom_parser.py` | 🟢 | `[X]` |
-| T010 | Apontar o coletor do candidato no harness para a assinatura nova, de forma que ele consuma a árvore devolvida pelo parse em vez de ler o global | T009 | - | `_reversa_sdd/parity/harness.py` | 🟢 | `[ ]` |
+| T010 | Apontar o coletor do candidato no harness para a assinatura nova, de forma que ele consuma a árvore devolvida pelo parse em vez de ler o global | T009 | - | `_reversa_sdd/parity/harness.py` | 🟢 | `[X]` |
 | T011 | Migrar `family_navigation` para receber a árvore por parâmetro em `get_parents`, `get_spouses`, `find_person_by_name` e no índice filho→família, atualizando os chamadores no mesmo passo | T009 | - | `src/core/family_navigation.py` | 🟢 | `[X]` |
 | T012 | Migrar `path_finding` para receber a árvore e o grafo por parâmetro, removendo o import dentro de `find_indirect_path`, sem tocar em `MAX_DEPTH` nem em `MAX_HOPS` | T011 | - | `src/core/path_finding.py` | 🟢 | `[X]` |
 | T013 | Migrar `matching` para receber a árvore por parâmetro em `build_ged_indexes` e `match_candidates`, **sem tocar em nenhum limiar, peso ou ramo de aceitação** | T012 | - | `src/core/matching.py` | 🟢 | `[X]` |
@@ -120,11 +123,11 @@ O que foi feito: `carregar_arvore()` é a função nova, que devolve `(people, f
 |----|-----------|--------------|-------------|--------------|-------------|--------|
 | T020 | Atualizar a camada de rota para montar a árvore a partir do retorno do parse e repassá-la aos dois fluxos, sem introduzir regra de negócio no `app.py` | T016, T017, T019 | - | `src/app.py` | 🟢 | `[X]` |
 | T021 | Atualizar o encanamento dos oito arquivos de teste que dependem de `gedcom_state`, **preservando todas as asserções** e sem remover nem desabilitar teste | T020 | - | `tests/test_upload.py`, `tests/test_dna_analysis.py`, `tests/test_path_search.py`, `tests/test_characterization_matching.py`, `tests/test_characterization_mermaid.py`, `tests/test_formatacao_cm.py`, `tests/test_mermaid_escape.py`, `tests/test_confrontacao_gedcom_dna.py` | 🟢 | `[X]` |
-| T022 | Remover a superfície de compatibilidade reexportada por `path_search` e `dna_analysis`, atualizando quem a consumia; manter `cm_estimator` em disco, removendo apenas o reexport | T021 | - | `src/core/path_search.py`, `src/core/dna_analysis.py` | 🟢 | `[ ]` |
-| T023 | Remover o estado global: tirar `people`/`families`/`graph`/`child_to_family`/`versao` e o reexport de `get_name`/`ref_id` de `gedcom_state.py`, apontar os últimos consumidores para `src/core/registro.py`, tirar a escrita das globais de `carregar_arvore` — e **absorver o `T010`**: apontar o coletor do harness para a árvore devolvida, já que a casca `load_gedcom_and_build_graph` deixa de existir aqui | T022, T010 | - | `src/core/gedcom_state.py`, `src/parsers/gedcom_parser.py`, `_reversa_sdd/parity/harness.py` | 🟢 | `[ ]` |
-| T024 | Verificar o caminho negativo do teste de dependências: introduzir de propósito um import proibido em `src/core/` e confirmar que `T005` falha; depois revertê-lo | T023 | - | `tests/test_dependencias_nucleo.py` | 🟢 | `[ ]` |
-| T025 | Remover o módulo de estado e apontar os últimos consumidores para `src/core/registro.py` | T023 | - | `src/core/` | 🟢 | `[ ]` |
-| T026 | Medir o resultado final e registrar a evidência: suíte e paridade com a assinatura nova, comparando com a linha de base de `T004` | T025 | `[//]` | `_reversa_forward/005-nucleo-puro-src/evidence/` | 🟢 | `[ ]` |
+| T022 | Remover a superfície de compatibilidade reexportada por `path_search` e `dna_analysis`, atualizando quem a consumia; manter `cm_estimator` em disco, removendo apenas o reexport | T021 | - | `src/core/path_search.py`, `src/core/dna_analysis.py` | 🟢 | `[X]` |
+| T023 | Remover o estado global: tirar `people`/`families`/`graph`/`child_to_family`/`versao` e o reexport de `get_name`/`ref_id` de `gedcom_state.py`, apontar os últimos consumidores para `src/core/registro.py`, tirar a escrita das globais de `carregar_arvore` — e **absorver o `T010`**: apontar o coletor do harness para a árvore devolvida, já que a casca `load_gedcom_and_build_graph` deixa de existir aqui | T022, T010 | - | `src/core/gedcom_state.py`, `src/parsers/gedcom_parser.py`, `_reversa_sdd/parity/harness.py` | 🟢 | `[X]` |
+| T024 | Verificar o caminho negativo do teste de dependências: introduzir de propósito um import proibido em `src/core/` e confirmar que `T005` falha; depois revertê-lo | T023 | - | `tests/test_dependencias_nucleo.py` | 🟢 | `[X]` |
+| T025 | Remover o módulo de estado e apontar os últimos consumidores para `src/core/registro.py` | T023 | - | `src/core/` | 🟢 | `[X]` |
+| T026 | Medir o resultado final e registrar a evidência: suíte e paridade com a assinatura nova, comparando com a linha de base de `T004` | T025 | `[//]` | `_reversa_forward/005-nucleo-puro-src/evidence/` | 🟢 | `[X]` |
 
 > **T024 e T025 trocam de ordem em relação ao plano do roadmap**, que punha a remoção antes da verificação do caminho negativo. A razão é prática: o caminho negativo precisa de um estado em que o import proibido **seja** proibido, e não de um estado intermediário.
 
@@ -132,9 +135,9 @@ O que foi feito: `carregar_arvore()` é a função nova, que devolve `(people, f
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T027 | Atualizar as três passagens do README que afirmam que o estado do GEDCOM vive em estruturas globais em memória compartilhadas entre threads, agora que a afirmação é falsa | T025 | `[//]` | `README.md` | 🟢 | `[ ]` |
-| T028 | Remover as docstrings que documentam como contrato os artefatos do estado global: o contrato de import com `gedcom_state` em `family_navigation` e `path_finding`, o contador `versao` e a nota de captura do resolvedor | T025 | `[//]` | `src/core/family_navigation.py`, `src/core/path_finding.py`, `src/core/diagram_domain.py` | 🟡 | `[ ]` |
-| T029 | Executar a verificação manual do `onboarding.md`: subir por `waitress`, confirmar `HTTP 200`, formulário presente, upload do GEDCOM sintético, análise com o CSV de fronteiras de cM e busca de caminho, registrando a saída em `evidence/` | T026, T027, T028 | - | `_reversa_forward/005-nucleo-puro-src/evidence/` | 🟢 | `[ ]` |
+| T027 | Atualizar as três passagens do README que afirmam que o estado do GEDCOM vive em estruturas globais em memória compartilhadas entre threads, agora que a afirmação é falsa | T025 | `[//]` | `README.md` | 🟢 | `[X]` |
+| T028 | Remover as docstrings que documentam como contrato os artefatos do estado global: o contrato de import com `gedcom_state` em `family_navigation` e `path_finding`, o contador `versao` e a nota de captura do resolvedor | T025 | `[//]` | `src/core/family_navigation.py`, `src/core/path_finding.py`, `src/core/diagram_domain.py` | 🟡 | `[X]` |
+| T029 | Executar a verificação manual do `onboarding.md`: subir por `waitress`, confirmar `HTTP 200`, formulário presente, upload do GEDCOM sintético, análise com o CSV de fronteiras de cM e busca de caminho, registrando a saída em `evidence/` | T026, T027, T028 | - | `_reversa_forward/005-nucleo-puro-src/evidence/` | 🟢 | `[X]` |
 
 > **Nota sobre `T026` e `T029` no mesmo alvo.** As duas escrevem em `evidence/`, e `T026` está marcada `[//]`. Isso **não** é violação do critério de paralelismo: a regra proíbe tarefas `[//]` **entre si** de compartilhar alvo, e `T029` não é `[//]`. Além disso `T029` depende de `T026`, então as duas são sequenciais por construção.
 
@@ -142,7 +145,62 @@ O que foi feito: `carregar_arvore()` é a função nova, que devolve `(people, f
 
 ## Notas de execução
 
-Reservado para `/reversa-coding`.
+**Todas as 30 ações estão fechadas.** O `src/core/` é um núcleo de funções puras:
+recebe a árvore por parâmetro, não declara estado mutável de módulo, não importa
+framework, não faz I/O e não importa `parsers/` nem `reporting/`.
+
+| Medição final | Valor |
+|---|---|
+| Suíte | `178 passed, 0 xfailed, 15 errors` (linha de base: `164 passed, 15 errors`) |
+| Paridade | `100%` nas 6 fixtures, exit 0 |
+| Verificação manual | `APROVADO` — `waitress`, `HTTP 200`, upload, DNA e caminho |
+
+### Estágio 1: `T022` e `T023` — a remoção do estado
+
+Fechado em 2026-10-07. **A ordem interna do `T023` foi a lição mais cara desta
+feature.** Uma primeira tentativa fez `(a)` antes de `(b)` — tirar a mutação das
+globais antes de os fixtures lerem o retorno do parse — e a suíte foi a **49
+falhas**; o usuário pediu a reversão, e ela está registrada em
+`evidence/T023-estado-apos-reversao.md`. A ordem correta é a inversa: primeiro os
+fixtures passam a ler o retorno do parse **com o parser ainda mutando** (suíte
+verde o tempo todo, porque as duas leituras são equivalentes), e só então a
+mutação sai.
+
+Três armadilhas medidas, todas registradas para não repetir:
+
+1. **O coletor do candidato está embutido como string** em `harness.py`; o arquivo
+   `_collect_cand.py` é cópia de referência. Editar só o `.py` não tem efeito.
+2. **`atual()` estrito revelou um defeito real**: o fixture `tree` de
+   `test_characterization_matching` é `scope="module"`, nunca chamou `guardar()`, e
+   o corpo do teste usava `atual()` — ele só funcionava pelo recurso de transição e
+   teria lido a árvore de outro arquivo de teste.
+3. **`_chave_de` continua sendo derivada do conteúdo**, e o comentário que
+   recomendava voltar a usar `id()` foi corrigido: `id()` é reciclado, e o defeito
+   apareceria só sob carga.
+
+### Estágio 2: `T024`, `T025` e `T026` — verificação e medição
+
+`T024` foi executado com uma **sonda real** em `src/core/`, e não com string
+sintética: as três guardas reprovaram apontando o achado exato, no diretório real.
+`T025` já estava absorvido pelo `T023` (o módulo de estado foi apagado lá, e
+`registro.py` já era o destino dos consumidores). `T026` mediu e registrou.
+
+### Estágio 3: `T027`, `T028` e `T029` — resíduo de texto e aceite
+
+`T027` atualizou **quatro** passagens, e não três: além das três do README, o
+comentário da guarda de exclusividade em `app.py` justificava a RN-05 pelo estado
+global, que deixou de existir — o motivo que fica é o armazenamento em disco
+compartilhado. `T028` corrigiu também `text_cleaning.py` e `registro.py`, fora do
+escopo nominal da ação, e o bloco que recomendava `id()` como chave.
+
+`T029` exercitou o roteiro de `onboarding.md` por HTTP contra o `waitress` real,
+com as fixtures sintéticas, e está em `evidence/T029-verificacao-manual.md`.
+
+⚠️ **A verificação manual deixa resíduo.** Subir o app grava o GEDCOM enviado em
+`src/uploads/`. Rodar `python _reversa_sdd\parity\_clean_residue.py` **não** remove
+esse arquivo — o passo 9 do `onboarding.md` manda conferir `git status` antes de
+commitar, e é isso que pega o caso. Confirme que `git status` não lista nada de
+`src/uploads/` (Princípio I).
 
 ## Histórico de alterações
 
@@ -151,3 +209,4 @@ Reservado para `/reversa-coding`.
 | 2026-10-06 | Versão inicial gerada por `/reversa-to-do` | reversa |
 | 2026-10-06 | Correções após auditoria (`audit/cross-check.md`): maior cadeia de dependência corrigida de 15 para 17 ações, com o caminho real; `T028` acrescentado às dependências de `T029`; `T029` passa a registrar evidência em `evidence/`; `T021` cobria 7 arquivos e passou a cobrir os 8 que dependem de `gedcom_state` | reversa |
 | 2026-10-06 | Decisões do usuário sobre os findings abertos: `T030` criada para verificar o bloqueio por divergência (`A004`); `are_spouses` incluído no probe de `T002` (`A007`); portabilidade incorporada ao teste de dependências de `T006` (`A009`); estado esperado da suíte entre `T007` e `T025` registrado como 163 aprovados + 1 falha intencional (`A008`) | reversa |
+| 2026-10-07 | `T022` a `T029` fechadas: estado global removido (`gedcom_state.py` apagado), paridade 100% e suíte `178 passed, 0 xfailed`; `T024` executado com sonda real; `T027` cobriu 4 passagens (a quarta em `app.py`); `T029` aprovado por HTTP | reversa |
