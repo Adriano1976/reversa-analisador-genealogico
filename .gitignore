@@ -19,6 +19,8 @@ _reversa_docs/.backup-*/
 .parity-run-oracle/
 .parity-tmp/
 .pytest-tmp/
+tests/.tmp/
+.parity-run-cand/
 _reversa_sdd/parity/_obs_*.json
 
 # Backups e caches genericos
