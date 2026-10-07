@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/004-servidor-waitress",
-  "feature-id": "004",
-  "short-name": "servidor-waitress",
-  "started-at": "2026-10-03T19:03:55Z",
+  "feature-dir": "_reversa_forward/005-nucleo-puro-src",
+  "feature-id": "005",
+  "short-name": "nucleo-puro-src",
+  "started-at": "2026-10-06T00:00:00Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [

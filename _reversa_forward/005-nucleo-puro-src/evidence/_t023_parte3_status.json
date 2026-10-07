@@ -1,0 +1,11 @@
+{
+  "ts": "2026-10-07T11:30:00Z",
+  "action": "T023",
+  "status": "partial",
+  "files": [
+    "src/core/dna_analysis.py",
+    "src/core/path_search.py",
+    "src/core/documentary_relationship.py"
+  ],
+  "nota": "PARCIAL, com o nucleo ja independente do modulo de estado. Feito nesta rodada: (1) os tres modulos que so precisavam de get_name passaram a importar de core.registro, deixando de depender de gedcom_state sem necessidade; (2) a funcao orfa _arvore_global e a sua _chave_da_arvore foram REMOVIDAS — ninguem as chamava desde o T020, e uma copia orfa ainda e um ponto de esquecimento; (3) a chave de invalidacao do indice virou _chave_de(people), derivada do valor recebido, sem tocar em estado; (4) as ultimas leituras de `people` em path_search e dna_analysis passaram a ler arvore[0]. MEDIDO: src/core/ tem ZERO referencias a gedcom_state (as duas restantes sao comentario), suite 178 passed / 1 xfailed / 15 errors. FALTA para fechar o T023: gedcom_parser ainda importa gedcom_state e MUTA as globais em carregar_arvore (linhas 15-16 e 75-80); gedcom_state.py ainda declara o estado; e os testes ainda leem as globais. A ordem correta e: carregar_arvore devolve dicionarios NOVOS e para de mutar -> os testes passam a ler a arvore pelo retorno -> gedcom_state.py e removido -> a guarda de estado perde o xfail. NAO avancei nisso nesta rodada por limite de contexto, e prefiro parar num ponto verde e documentado a deixar uma migracao pela metade"
+}
