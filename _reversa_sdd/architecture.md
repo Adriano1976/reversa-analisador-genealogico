@@ -193,7 +193,7 @@ Consolidação das 16 dívidas do `code-analysis.md` §6 com os achados desta fa
 - **Regra central:** os **três eixos que não se contaminam** + confronto em quatro estados — capacidade que **não existe em nenhum artefato da extração anterior**. 🟢
 - **Dívidas técnicas:** **20 consolidadas**, sendo **4 de gravidade alta** — e **três delas são achados desta rodada** (determinismo não implementado, divergência de ambiente, corrida entre threads). 🟢
 - **Decisões:** **23 ADRs**; **13 decisões humanas verificadas**, das quais **1 não está honrada** pelo código. 🟢
-- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%** em 6 fixtures e 5 árvores reais (`parity/`), 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 23 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e o vault Obsidian `docs/`. **Nada disso faz parte do sistema em execução.** 🟢
+- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%** em 6 fixtures e 5 árvores reais (`parity/`), 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 23 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages (cópia do mini-site). **Nada disso faz parte do sistema em execução.** 🟢
 
 ---
 

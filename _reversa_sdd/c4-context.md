@@ -70,7 +70,7 @@ flowchart LR
 - **O que substitui a sessão é a chave de conteúdo.** Como não há sessão, a continuidade entre requisições viaja no próprio formulário: o campo oculto `gedcom_filename` carrega `<sha256 do conteúdo truncado>__<nome visível>`, e o servidor **re-parseia o arquivo a partir dela antes de ramificar**. A chave é **identificador, não segredo** — e **não há verificação de propriedade**. Detalhamento em `permissions.md` §4. 🟢
 - **Não há isolamento entre usuários.** O estado do GEDCOM é global de processo e o servidor atende com **4 threads**; a guarda de instância única impede dois **processos**, não duas **threads**. Registrado como `L-16` em `domain.md` §7 e §4.3 de `permissions.md`. 🟡
 - **A exposição é ato explícito:** o padrão de escuta é `127.0.0.1`, e uma segunda instância na mesma porta é recusada. 🟢
-- **Fora do escopo deste diagrama:** a instrumentação de *desenvolvimento* dentro de `_reversa_sdd/` — oráculo congelado (`oracle/`), harness diferencial de paridade (`parity/`), goldens de tela (`screens/`), suíte de migração (`migration/`) e os 23 ADRs (`adrs/`). **Nada disso faz parte do sistema em execução.** O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e o vault Obsidian `docs/`, ambos fora do runtime. 🟢
+- **Fora do escopo deste diagrama:** a instrumentação de *desenvolvimento* dentro de `_reversa_sdd/` — oráculo congelado (`oracle/`), harness diferencial de paridade (`parity/`), goldens de tela (`screens/`), suíte de migração (`migration/`) e os 23 ADRs (`adrs/`). **Nada disso faz parte do sistema em execução.** O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages (cópia do mini-site), ambos fora do runtime. 🟢
 
 ---
 

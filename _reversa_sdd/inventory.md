@@ -5,6 +5,13 @@
 > Snapshot da versão substituída: `.reversa/snapshots/2026-10-05-pre-reextracao/`
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 > ⚠️ **Contagens atualizadas pela revisão de 2026-10-05.** As correções de código decididas nas respostas às perguntas (`matching.py`, `app.py`, `genetic_evidence.py`) somaram **+16 linhas a `src/`** e **+103 a `tests/`**. Os números deste inventário são **pós-revisão**: `src/**.py` = 3.489 · `tests/**.py` = 3.060 · `app.py` = 267 · 129 funções de teste · 179 itens coletados.
+> 🔧 **Correção de 2026-10-08.** O vault Obsidian deixou de existir no repositório: a pasta
+> `.obsidian/` e os arquivos de navegação em `docs/` (`00 - Dashboard.md`, `Mapa Geral.md` e os
+> cinco `Mapa *.canvas`) foram removidos nesta data. As referências ao vault nestes artefatos
+> foram ajustadas junto; `docs/` segue existindo como cópia do mini-site de `_reversa_docs/`.
+> 📌 **`docs/` não é resíduo: é a pasta publicada no GitHub Pages** (source `master`, folder `/docs`),
+> e é preservada por isso. O workflow `.github/workflows/deploy-pages.yml` mira `_reversa_docs/`,
+> mas escuta a branch `main` — inexistente — logo não dispara por push.
 
 ---
 
@@ -29,7 +36,7 @@
 
 ## 2. Estrutura de Árvore de Diretórios
 
-Excluídos: `.git/`, `.agents/` e `.reversa/` (framework Reversa, não é sistema legado), `_reversa_*/` (artefatos do framework), `__pycache__/`, `.pytest_cache/`, `.pytest-tmp/`, `.venv/`, `.obsidian/`, `node_modules/`, `uploads/` e `src/uploads/` (dados do usuário em runtime).
+Excluídos: `.git/`, `.agents/` e `.reversa/` (framework Reversa, não é sistema legado), `_reversa_*/` (artefatos do framework), `__pycache__/`, `.pytest_cache/`, `.pytest-tmp/`, `.venv/`, `node_modules/`, `uploads/` e `src/uploads/` (dados do usuário em runtime).
 
 ```text
 /
@@ -81,9 +88,9 @@ Excluídos: `.git/`, `.agents/` e `.reversa/` (framework Reversa, não é sistem
 │   └── test_servidor_producao.py
 ├── plugins/
 │   └── dsh-markdownlint/            # Plugin Node do harness DSH (sub-projeto à parte, ver §7)
-├── docs/                            # Vault Obsidian: dashboard e canvas por pasta do Reversa
+├── docs/                            # Mini-site PUBLICADO no GitHub Pages (master /docs)
 ├── .github/
-│   ├── workflows/deploy-pages.yml   # Publica _reversa_docs/ no GitHub Pages
+│   ├── workflows/deploy-pages.yml   # Dormante: escuta 'main', inexistente. Quem publica e docs/
 │   └── skills/                      # 5 skills auxiliares (naming, jsdoc, docstring, readme, security)
 ├── .vscode/settings.json            # python.analysis.extraPaths = ./src + regras do markdownlint
 ├── .markdownlint-cli2.jsonc         # Regras de lint do Markdown deste repositório
@@ -201,7 +208,7 @@ Os itens abaixo vivem no repositório e foram deliberadamente **deixados fora** 
 | Caminho | Natureza |
 | --- | --- |
 | `plugins/dsh-markdownlint/` | Sub-projeto **Node/JavaScript** independente: plugin host do harness DSH que expõe a ferramenta `markdown_lint` sobre o `markdownlint-cli2`. Tem `package.json`, `node_modules/` e smoke próprio. Não é importado pela aplicação Python. 🟢 |
-| `docs/` | Vault Obsidian: dashboard central e cinco canvas que mapeiam as pastas do Reversa. Índice de navegação, não sistema. 🟢 |
+| `docs/` | **Pasta publicada no GitHub Pages**: source `master`, folder `/docs` → <https://adriano1976.github.io/reversa-analisador-genealogico/>. É cópia do mini-site de `_reversa_docs/`, sincronizada à mão por `xcopy`; sem `.nojekyll`, o Jekyll não publica nada que comece com ponto. Não é sistema. 🟢 |
 | `.github/skills/` | Cinco skills auxiliares de desenvolvimento. 🟢 |
 | `_reversa_sdd/`, `_reversa_forward/`, `_reversa_bugs/`, `_reversa_refactor/`, `_reversa_docs/`, `.reversa/`, `.agents/` | Framework Reversa e seus artefatos. 🟢 |
 | `.pytest-tmp/` | Resíduo de execução de testes (gitignored), não versionado. 🟡 |

@@ -85,11 +85,11 @@
 | `.vscode/settings.json` | — | **n/a** | `python.analysis.extraPaths = ["./src"]` |
 | `.markdownlint-cli2.jsonc` | — | **n/a** | Regras de lint do repositório |
 | `.gitignore`, `.gitattributes` | — | **n/a** | Versionamento |
-| `.github/workflows/deploy-pages.yml` | — | **n/a** | Publica `_reversa_docs/` no GitHub Pages. **Não há pipeline de teste, build ou análise estática** |
+| `.github/workflows/deploy-pages.yml` | — | **n/a** | Escuta a branch `main`, que não existe: não dispara por push. Quem publica é `master` / `docs`. **Não há pipeline de teste, build ou análise estática** |
 | `README.md` | — | **n/a** | Única superfície de documentação em dia (2026-10-05) |
 | `LICENSE` | — | **n/a** | MIT |
 | `plugins/dsh-markdownlint/` | — | **n/a** | Sub-projeto Node/JavaScript fora do runtime |
-| `docs/` | — | **n/a** | Vault Obsidian |
+| `docs/` | — | **n/a** | **Pasta publicada no GitHub Pages** (source `master`, folder `/docs`); cópia do mini-site de `_reversa_docs/` |
 | `_reversa_*/`, `.reversa/`, `.agents/` | — | **n/a** | Framework Reversa |
 
 ---

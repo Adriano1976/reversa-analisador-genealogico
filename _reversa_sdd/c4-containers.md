@@ -102,8 +102,8 @@ flowchart TB
 | --- | --- | --- |
 | `_reversa_sdd/`, `.reversa/`, `_reversa_forward/`, `_reversa_bugs/`, `_reversa_docs/` | Artefatos do framework Reversa | Não são executados pela aplicação |
 | `plugins/dsh-markdownlint/` | Sub-projeto **Node/JavaScript** independente | Plugin do harness DSH; não é importado pelo Python |
-| `docs/` · `.github/skills/` | Vault Obsidian e skills de apoio | Índice de navegação e apoio ao desenvolvimento |
-| `.github/workflows/deploy-pages.yml` | CI/CD | Publica `_reversa_docs/` no GitHub Pages; **não há pipeline de teste, build ou análise estática** da aplicação |
+| `docs/` · `.github/skills/` | Cópia do mini-site e skills de apoio | `docs/` **é o alvo da publicação**: o GitHub Pages serve a branch `master`, pasta `/docs` |
+| `.github/workflows/deploy-pages.yml` | CI/CD **dormante** | Declara publicar `_reversa_docs/` no GitHub Pages, mas escuta a branch `main`, que não existe: **não dispara por push**. A publicação real vem da branch `master`, pasta `/docs`. **Não há pipeline de teste, build ou análise estática** da aplicação |
 
 ---
 
