@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "startedAt": "2026-10-08T15:48:22Z",
-  "lastCheckpoint": "2026-10-08T17:02:07Z",
+  "lastCheckpoint": "2026-10-08T19:24:15Z",
   "pipelineDurationMs": 1051762,
   "completedAgents": [
     "mapper",
@@ -14,32 +14,32 @@
     "index.html": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:f16a220e8419f4fccdad5a9cac464f46e57944aadfa2987578e615db3c2fa34a"
+      "hash": "sha256:39765f06280c5cb44c4c7180fad0da6302d80fac0533437ef966b9c5bedc0438"
     },
     "arquitetura.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:81def3568a25635c4aec839b0594d8d42919d07329311c3d30cc57d62811be8d"
+      "hash": "sha256:48034c02317e25ba94786aa69cac6aa8b3201aed9347133e3bb674b5ec5c8780"
     },
     "modulos.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:d314a4149985e8b9595949b0ab9d6983b755f26107426321a199743583ecffe5"
+      "hash": "sha256:fea052f1c3194d978c0c688a37816a4034a4c0f27e2f38df0ef2435f50d0fc56"
     },
     "metricas.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:2fe47dc1ea2a283ee95a41c0538a4fec09d3d6aca8c6b677341fd8ea322fb2c7"
+      "hash": "sha256:d4f099f243cb6889b7552cef92cc3ce737e6a8517a6f1d077e4c82aacd8bba12"
     },
     "deck.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:f9921c9382390fd8984abfc456a8b33e57e86aa0282e1f32b28723b031b9323c"
+      "hash": "sha256:eed430a47981d6b5d712f639d364a740cfe438e5857df82330410c2b72db1be6"
     },
     "glossario.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:e90183ee508281e94ec6ccddaa9df3fa0edcc3b4831e309bc163ba94e56f03be"
+      "hash": "sha256:b01e11f82a45303deb7cf15b0944385657fd4435ff8a82d476ae21a32b894425"
     },
     "assets/data/soul.json": {
       "status": "created",
@@ -49,17 +49,17 @@
     "features/upload-gedcom.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:61594a0fa79ac7f20bf592e04b1b1ee624184b70581bd032a03bc34db84d0ca5"
+      "hash": "sha256:5ef6af01b6c9c3a3bee72665d9479ef4d04630e9154ef8a5c1840bc9f45f9897"
     },
     "features/busca-caminho.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:049aa484c5e4e7616c06fd894411a6b3a7447ed1fa7caead82dfc04f6a0a6ec7"
+      "hash": "sha256:1079b5c576d0e2b438490eb6cbc6016ec2ebb0173e32bf2bb89b7b9d189a8ecd"
     },
     "features/analise-dna.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:e451fa512e79f55f66ce3076bcb31ebd1d5c05d016d4c9c93ef396270938818b"
+      "hash": "sha256:51243473609211ec38edca32c15f77ca165b3440ddfd1663644fe0e50a1d79fd"
     },
     "assets/data/modules.json": {
       "status": "created",
@@ -99,7 +99,7 @@
     "timeline.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:275ee101e74c456cd547ba4d76fe57f702b09276bae518e67f8ef93e65b89a8c"
+      "hash": "sha256:078ce6ad9e5bd27683c9a77cbc7cbe561ee9e2ffa621d50e52ae44c62c3b9516"
     },
     "assets/data/timeline.json": {
       "status": "created",
@@ -199,6 +199,7 @@
       "storyteller: soul.json derivado do soul.md de 2026-10-08: 44 conceitos (eram 24) e 7 lacunas (eram 4); deck com 0 ciclos e as 6 decisoes fundadoras, sem o percentual de cobertura de 2026-10-05 nem os 179 itens; bloco de delta 005-008 acrescentado nas 3 features, com as citacoes de arquivo e linha antigas declaradas como validas para 2026-10-05",
       "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
       "publisher: index.html com os cards reescritos (61 modulos, 20 arestas e 0 ciclos, 9972 linhas, 96 eventos, 44 conceitos, 6 decisoes) e a assinatura de 2026-10-08",
+      "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
       "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde"
     ],
     "tooling": "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, extract_modules.py, extract_deps.py, convert_chronicle.py ou convert_soul.py. A extracao de dados foi feita por scripts deterministicos proprios, guardados em .reversa/: _docs_extract_modules.py, _docs_extract_metrics.py, _docs_extract_features.py, _docs_nav.py, _docs_build_datajs.py, _docs_inject_pages.py, _docs_smoke_test.py, _docs_render_check.js e _docs_state.py.",
@@ -230,8 +231,8 @@
   "regenerationStamp": "2026-10-08 (features 005 a 008)",
   "publisherIsolatedRun": {
     "startedAt": "2026-10-08T15:48:22Z",
-    "lastCheckpoint": "2026-10-08T17:02:07Z",
-    "durationMs": 4425926,
+    "lastCheckpoint": "2026-10-08T19:24:15Z",
+    "durationMs": 12953986,
     "reason": "reexecucao isolada do Publisher a pedido do usuario, sem Mapper, Analyst nem Storyteller. Selos regerados pela skill reversa-selo-generativo a partir da mesma seed, na variante dark prevista pela paleta sober para header escuro, com descarte das cores abaixo de 2,5:1 de contraste; selo grande do hero passou de <img> para SVG inline.",
     "preservedPipelineDurationMs": 1051762
   },
@@ -272,6 +273,7 @@
     "substitui": "o selo generativo derivado da seed (seal.svg e seal-mini.svg), removido do mini-site por decisao do usuario. O hero e os 10 mini-selos passaram de SVG inline para <img>.",
     "heroBytes": 32317,
     "miniBytes": 6312,
-    "faviconDoApp": "src/templates/index.html declara o mesmo logo como icone da aba, em data URI de 64x64, sem rota nova e sem src/static/ (proibida pelo watch item W004)"
+    "faviconDoApp": "src/templates/index.html declara o mesmo logo como icone da aba, em data URI de 64x64, sem rota nova e sem src/static/ (proibida pelo watch item W004)",
+    "faviconDoMiniSite": "as 10 paginas de _reversa_docs/ declaram <link rel=\"icon\"> apontando para assets/img/logo-mini.png (com o prefixo ../ nas de features/), em vez de repetir um data URI de 8 KB em cada uma. Mantido pelo passo 4 do Publisher, que virou dono dessa etapa: _docs_inject_pages.py.garantir_favicon"
   }
 }
