@@ -1,5 +1,11 @@
 # Analisador Genealógico
 
+<p align="center">
+  <img src="./_reversa_docs/assets/img/logo.png"
+       alt="Logo do projeto: livro aberto com hélice de DNA e árvore genealógica"
+       width="180">
+</p>
+
 ![Python 3.14](https://img.shields.io/badge/Python-3.14-blue)
 ![Flask 3.1.3](https://img.shields.io/badge/Flask-3.1.3-green)
 ![Testes: pytest](https://img.shields.io/badge/testes-pytest-blue)
@@ -54,29 +60,177 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
 
 ## Arquitetura do Projeto
 
-O Flask recebe os arquivos e renderiza HTML no servidor. Os módulos em `src/core/`, `src/parsers/`,
-`src/reporting/` e `src/utils/` implementam o domínio e a apresentação dos resultados.
+O Flask recebe os arquivos e renderiza HTML no servidor. O código tem quatro camadas com papéis
+distintos: `src/app.py` é a borda HTTP, `src/application/` orquestra os casos de uso, `src/core/` decide
+sem conhecer HTTP nem disco, e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas
+e os adaptadores concretos, que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
 
 - Os arquivos enviados são gravados em `src/uploads/` sob nomes derivados do conteúdo. Esse diretório é
   armazenamento local persistente; não é um diretório temporário de processamento.
-- Não há banco de dados nem histórico persistido de análises. O GEDCOM é reprocessado em cada `POST` que usa a árvore.
-- A árvore existe **por requisição**: cada `POST` faz o parse do arquivo e passa o resultado como parâmetro para o
-  núcleo, que é composto de funções puras. Não há estado de domínio compartilhado entre requisições nem entre
-  threads — a aplicação impede outra instância na mesma porta, mas nenhuma requisição depende disso para estar
-  correta.
+- O histórico das análises é **opcional**: sem `DATABASE_URL` nada é gravado e a tela não muda; com a
+  variável e o banco respondendo, a análise é registrada em uma transação única; se a gravação falhar, a
+  análise **conclui e é exibida** e o operador recebe apenas um aviso não bloqueante. Nada é lido do banco
+  para decidir o que a tela mostra: o banco é histórico, não fonte de decisão.
+- O GEDCOM é reprocessado em cada `POST` que usa a árvore. A árvore existe **por requisição**: cada `POST`
+  faz o parse do arquivo e passa o resultado como parâmetro para o núcleo, que é composto de funções puras.
+  Não há estado de domínio compartilhado entre requisições nem entre threads — a aplicação impede outra
+  instância na mesma porta, mas nenhuma requisição depende disso para estar correta.
 - A lista completa de nomes da árvore, inclusive nomes de pessoas vivas, é incluída no HTML para preencher
   campos de sugestão. A aplicação não tem autenticação; não a exponha a uma rede compartilhada sem controles
   adicionais.
 
+### Os três eixos da análise
+
+O núcleo do produto é a separação. O GEDCOM alimenta um eixo, o CSV alimenta outro, e só no fim os dois se
+encontram, em um veredito que nunca reescreve o parentesco documental.
+
 ```mermaid
 flowchart LR
-    U["Pessoa usuária"] -->|"GEDCOM"| W["Aplicação Flask"]
-    U -->|"CSV de matches"| W
-    W --> P["Parser GEDCOM + grafo"]
-    W --> D["Análise documental e genética"]
-    P --> D
-    D --> H["HTML com resultados e diagrama"]
-    H --> U
+    G["GEDCOM (.ged)"] --> PD["Parentesco documental<br>caminho, ancestral comum, graus, avisos"]
+    C["CSV de matches (.csv)"] --> EG["Evidência genética<br>kit, cM, segmentos, SNPs"]
+    EG --> PO["Possibilidades<br>Shared cM Project 4.0"]
+    PD --> CF["Confronto"]
+    PO --> CF
+    CF --> R["COMPATÍVEL, POSSÍVEL<br>CONFLITANTE, INCONCLUSIVO"]
+```
+
+### O ciclo de uma requisição
+
+O caminho do dado, da borda até a tela, com o registro opcional no fim. A rota adapta, o caso de uso
+orquestra e o núcleo decide.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant N as Navegador
+    participant A as Borda HTTP
+    participant U as Casos de uso
+    participant P as Portas e adaptadores
+    participant C as Núcleo puro
+    N->>A: POST / com action=dna_analysis
+    A->>P: resolver a árvore pela chave de conteúdo
+    P->>C: carregar_arvore(conteúdo)
+    C-->>A: ArvoreGedcom
+    A->>U: analisar(árvore, matches, dependências)
+    U->>C: parentesco documental e evidência genética
+    C-->>U: resultado com o desfecho declarado
+    U-->>A: resultado, ou erro de domínio tipado
+    A->>P: registrar a análise (opcional, se houver banco)
+    P-->>A: gravado, ou aviso não bloqueante
+    A-->>N: HTML com as seções separadas e o veredito
+```
+
+### UML do domínio
+
+As entidades que sustentam a decisão e as relações entre elas. `ParentescoDocumental` nunca lê cM, e
+`EvidenciaGenetica` nunca conhece o GEDCOM: eles só se encontram no `Confronto`.
+
+```mermaid
+classDiagram
+    direction LR
+    class ArvoreGedcom {
+        +dict pessoas
+        +dict familias
+        +grafo
+    }
+    class Pessoa {
+        +str xref_id
+        +str nome
+        +list famc
+        +list fams
+    }
+    class Familia {
+        +str xref_id
+        +str marido
+        +str esposa
+        +list filhos
+    }
+    class MatchDna {
+        +str nome
+        +str kit
+        +float cm_total
+    }
+    class ParentescoDocumental {
+        +str status
+        +list caminho
+        +str ancestral_comum
+        +list avisos
+    }
+    class EvidenciaGenetica {
+        +str kit
+        +float cm_total
+        +int segmentos
+        +int snps
+    }
+    class Possibilidade {
+        +str relacao
+        +str faixa_cm
+    }
+    class Confronto {
+        +str estado
+        +list causas
+    }
+    class AnaliseRegistrada {
+        +dict contexto
+        +list kits
+        +dict veredito
+    }
+    class EstadoDoConfronto {
+        <<enumeration>>
+        COMPATIVEL
+        POSSIVEL
+        CONFLITANTE
+        INCONCLUSIVO
+    }
+    ArvoreGedcom "1" *-- "*" Pessoa : contém
+    ArvoreGedcom "1" *-- "*" Familia : contém
+    Familia "*" -- "*" Pessoa : vincula
+    MatchDna "1" ..> "1" Pessoa : casa por nome
+    ParentescoDocumental "1" --> "1" MatchDna : avalia
+    EvidenciaGenetica "1" --> "1" MatchDna : deriva
+    Possibilidade "*" --> "1" EvidenciaGenetica : interpreta
+    Confronto "1" --> "1" ParentescoDocumental : confronta
+    Confronto "1" --> "*" Possibilidade : usa a janela
+    Confronto --> EstadoDoConfronto : assume
+    AnaliseRegistrada "1" ..> "*" Confronto : registra
+```
+
+### A fronteira entre o núcleo e o mundo
+
+O núcleo é puro e depende apenas de `utils/`. Tudo o que é de fora entra por `ports/`, e as setas apontam
+sempre para dentro: não há ciclo entre os oito pacotes.
+
+```mermaid
+flowchart LR
+    subgraph borda["Borda HTTP"]
+        APP["app.py"]
+    end
+    subgraph casos["Casos de uso"]
+        UC["application/"]
+    end
+    subgraph externo["Mundo externo"]
+        PORTS["ports/"]
+        PARSERS["parsers/"]
+        REPORT["reporting/ (folha)"]
+    end
+    subgraph puro["Núcleo puro"]
+        CORE["core/"]
+    end
+    UTILS["utils/"]
+
+    APP --> UC
+    APP --> PORTS
+    APP --> PARSERS
+    APP --> CORE
+    APP --> REPORT
+    APP --> UTILS
+    UC --> CORE
+    UC --> PORTS
+    PORTS --> PARSERS
+    PORTS --> UTILS
+    PARSERS --> CORE
+    PARSERS --> UTILS
+    CORE --> UTILS
 ```
 
 ## Começando (Getting Started)
@@ -153,36 +307,50 @@ use outra porta com `ANALISADOR_PORT`.
 ## Estrutura do Projeto
 
 ```text
-src/                            # raiz de código da aplicação
-├── app.py                      # Aplicação Flask: rotas e orquestração das requisições
-├── parsers/                    # Leitura do mundo de fora: o arquivo GEDCOM e o CSV de matches
-│   ├── gedcom_parser.py        # Leitura do GEDCOM e construção do grafo networkx
-│   └── csv_ingest.py           # Leitura do CSV de matches: encoding, separador, preâmbulo e linha torta — com agregação de cM por segmento
-├── core/                       # Decisão sobre o que foi lido, sem saber de HTTP
-│   ├── documentary_relationship.py  # Parentesco DOCUMENTAL: caminho, MRCA, homônimos, caminhos múltiplos, colapso de pedigree, datas
-│   ├── genetic_evidence.py     # Evidência GENÉTICA: kits, cM, segmentos, SNPs, cromossomo, posições (nunca soma kits diferentes)
+src/                            # raiz de código: 34 arquivos, 4.816 linhas não vazias
+├── app.py                      # Borda HTTP: rota única com despacho por action, variáveis de ambiente, guarda de instância única e montagem das dependências
+├── application/                # Casos de uso: orquestram o núcleo e traduzem o desfecho
+│   ├── upload_gedcom.py        # Upload: decide se pode gravar, grava sob chave de conteúdo e carrega a árvore
+│   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas
+│   ├── path_search.py          # Busca de caminho
+│   └── traducao.py             # Traduz exceção de domínio de volta para o literal da tela
+├── core/                       # Núcleo puro: decide sem HTTP, sem I/O e sem estado de módulo
+│   ├── documentary_relationship.py  # Parentesco documental: caminho, ancestral comum, homônimos, caminhos múltiplos, colapso de pedigree
+│   ├── genetic_evidence.py     # Evidência genética: kits, cM, segmentos, SNPs (nunca soma kits diferentes)
 │   ├── relationship_hypotheses.py   # cM → possibilidades, pela tabela publicada do Shared cM Project 4.0
-│   ├── evidence_comparison.py  # Confronto GEDCOM × DNA: COMPATÍVEL / POSSÍVEL / CONFLITANTE / INCONCLUSIVO
-│   ├── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, mantidas só como superfície de compatibilidade
+│   ├── evidence_comparison.py  # Confronto GEDCOM × DNA: COMPATÍVEL, POSSÍVEL, CONFLITANTE, INCONCLUSIVO
 │   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
-│   ├── name_normalization.py   # Normalização e decomposição de nomes (norm_name, split_name_pt)
-│   ├── path_finding.py         # Busca direta por ancestral comum (MRCA) e indireta por afinidade
-│   ├── family_navigation.py    # Resolução de pessoa por nome e navegação de parentesco
-│   ├── gedcom_state.py         # Estado do GEDCOM carregado: pessoas, famílias e grafo
-│   ├── path_search.py          # Fachada da busca de caminhos, consumida pelo app.py
-│   └── dna_analysis.py         # Orquestra as três etapas do cruzamento, consumida pelo app.py
+│   ├── name_normalization.py   # Normalização e decomposição de nomes
+│   ├── path_finding.py         # Caminho entre duas pessoas, na árvore recebida por parâmetro
+│   ├── family_navigation.py    # Quem é parente de quem, na árvore recebida por parâmetro
+│   ├── dna_analysis.py         # Fachada do cruzamento para o caso de uso
+│   ├── path_search.py          # Fachada da busca de caminhos para o caso de uso
+│   ├── diagram_domain.py       # Consultas de domínio que o desenho do Mermaid precisa
+│   ├── erros.py                # Exceções de domínio tipadas, com raiz ErroDeDominio
+│   ├── registro.py             # Nome de exibição e identificador do registro
+│   └── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, fora do fluxo
+├── ports/                      # A fronteira: os Protocol das portas e os adaptadores concretos
+│   ├── __init__.py             # As portas e o conjunto de dependências que o caso de uso recebe
+│   └── adaptadores.py          # Armazenamento em disco, carregador de GEDCOM e registro em Postgres
+├── parsers/                    # Leitura do mundo de fora
+│   ├── gedcom_parser.py        # Parsing do GEDCOM e construção do grafo networkx
+│   └── csv_ingest.py           # CSV de matches: encoding, separador, preâmbulo e linha torta, com agregação por match
 ├── reporting/                  # Transformação de resultado em apresentação
 │   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
 ├── utils/                      # Utilitários transversais
 │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   ├── number_format.py        # Formatação de cM, SNPs e posições
-│   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e GEDCOM
+│   ├── name_keys.py            # Normalização de um nome para forma comparável
+│   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e conteúdo do GEDCOM
 ├── templates/
-│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js)
-└── uploads/                    # Criado em tempo de execução pelo app.py; recebe os arquivos enviados e não é versionado
+│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js e ícone da aba)
+├── assets/
+│   └── apple-touch-icon.png    # Arte canônica do ícone de atalho, servida em /apple-touch-icon.png
+└── uploads/                    # Criado em tempo de execução; recebe os arquivos enviados e não é versionado
 ```
 
-Na raiz ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml` e este README.
+Na raiz ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml`, `docker-compose.yml`, `init.sql`,
+`.dockerignore`, `LICENSE` e este README.
 
 ### Pastas do Framework Reversa
 
@@ -191,30 +359,54 @@ Os artefatos do Reversa ficam na raiz do repositório e não fazem parte do runt
 ```text
 .reversa/            # Configuração, estado, princípios, hooks e snapshots do framework
 .agents/skills/      # Skills dos agentes do Reversa instalados
+.github/skills/      # Skills auxiliares do repositório (README, convenções de git, auditoria)
 _reversa_sdd/        # Especificações extraídas do legado (o output_folder do framework)
 _reversa_forward/    # Pipelines de evolução do código a partir das specs
 _reversa_bugs/       # Intake, triagem e rastreabilidade de bugs
 _reversa_refactor/   # Inventário de oportunidades de refatoração e suas transformações
-_reversa_docs/       # Mini-site HTML de documentação (publicado no GitHub Pages)
+_reversa_docs/       # Mini-site HTML de documentação, com os dados em assets/data/
+docs/                # Espelho publicado do mini-site
 ```
+
+O `docs/` é um espelho de `_reversa_docs/`. Com a remoção do workflow de deploy em 2026-10-08, a
+publicação da documentação passou a sair desta pasta; por isso, depois de regenerar o mini-site, os dois
+precisam ser sincronizados, senão o site publicado continua mostrando a versão anterior sem avisar ninguém.
 
 ### Testes
 
 ```text
 tests/
+├── conftest.py                          # Coleta e ambiente temporário da suíte
 ├── fixtures/
-│   ├── sample_dna.py                   # GEDCOM e CSVs sintéticos para análise de DNA
-│   └── sample_gedcom.py                # GEDCOM sintético para parsing e busca de caminhos
-├── test_domain.py                      # Limpeza de mojibake de nomes GEDCOM
-├── test_upload.py                      # Parsing de GEDCOM e construção do grafo
-├── test_path_search.py                 # Busca de ancestrais diretos e caminhos por afinidade
-├── test_dna_analysis.py                # Agregação de segmentos, fuzzy matching e previsões por cM
-├── test_characterization_matching.py   # Caracterização: congela a decisão de matching e a forma do payload
-├── test_characterization_mermaid.py    # Caracterização: congela a saída do diagrama Mermaid
-├── test_confrontacao_gedcom_dna.py     # Regra final: os 10 cenários exigidos (GEDCOM, DNA, confronto, homônimos, múltiplos kits)
-├── test_mermaid_escape.py              # Contrato de escape do rótulo Mermaid
-├── test_servidor_producao.py           # Bloco de entrada: servidor de produção, guarda de instância única e padrão do endereço
-└── test_upload_seguranca.py            # Teto de requisição, chave derivada do conteúdo e recusa de GEDCOM inválido
+│   ├── arvore_atual.py                  # A árvore carregada pelo último parse
+│   ├── helpers.py                       # Helpers compartilhados das fixtures
+│   ├── sample_dna.py                    # GEDCOM e CSVs sintéticos para a análise de DNA
+│   └── sample_gedcom.py                 # GEDCOM sintético para parsing e busca de caminhos
+├── icone_de_atalho.py                   # Receita de derivação da arte do ícone de atalho (não é teste)
+├── test_ambiente_temporario_da_suite.py # O diretório temporário da suíte
+├── test_arvore_devolvida.py             # A árvore devolvida pelo parse como valor
+├── test_characterization_matching.py    # Caracterização: congela a decisão de matching
+├── test_characterization_mermaid.py     # Caracterização: congela a saída Mermaid
+├── test_confrontacao_gedcom_dna.py      # Regra final: os 10 cenários exigidos de confronto
+├── test_dependencias_nucleo.py          # Guardas estruturais do núcleo puro, verificadas por AST
+├── test_deriva_da_arte.py               # A arte de runtime contra a arte canônica
+├── test_desfecho_do_resultado.py        # O modo de renderização vem do desfecho, não do texto
+├── test_dna_analysis.py                 # Agregação de segmentos, fuzzy matching e previsão por cM
+├── test_domain.py                       # Limpeza de mojibake de nomes GEDCOM
+├── test_erros_de_dominio.py             # As exceções de domínio tipadas
+├── test_formatacao_cm.py                # Formatação do total de cM no cartão de resultado
+├── test_icone_de_atalho.py              # A rota do ícone de atalho
+├── test_mermaid_escape.py               # Contrato de escape do rótulo Mermaid
+├── test_path_search.py                  # Busca de ancestrais diretos e caminhos por afinidade
+├── test_persistencia_desabilitada.py    # Persistência desabilitada: nada é gravado
+├── test_persistencia_indisponivel.py    # Persistência indisponível: a análise conclui com aviso
+├── test_porta_de_armazenamento.py       # A porta de armazenamento e a chave derivada do conteúdo
+├── test_projecao_da_analise.py          # A projeção do resultado no payload da porta
+├── test_registro_de_analises.py         # O adaptador Postgres contra o banco (pulado sem banco)
+├── test_servidor_producao.py            # Bloco de entrada: waitress, instância única e endereço padrão
+├── test_traducao_de_erros.py            # A tabela que devolve o literal da tela
+├── test_upload.py                       # Parsing de GEDCOM e construção do grafo
+└── test_upload_seguranca.py             # Teto de requisição, chave de conteúdo e recusa de GEDCOM inválido
 ```
 
 ## Principais Funcionalidades
@@ -231,13 +423,17 @@ tests/
 - **Alertas documentais:** sinaliza datas impossíveis, homônimos, caminhos múltiplos e colapso de pedigree.
 - **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
+- **Histórico opcional em PostgreSQL:** registra cada análise em uma transação única quando há
+  `DATABASE_URL` configurada, e funciona igual sem banco. A gravação nunca bloqueia nem altera o que a
+  tela mostra: se falhar, o operador recebe um aviso e o resultado continua na tela.
 
 ## Fluxo de Desenvolvimento
 
 O código está organizado em `src/`, separando rotas Flask, parsing, domínio, apresentação e utilitários. O
 framework [Reversa](https://github.com/sandeco/reversa) mantém especificações e documentação em pastas próprias.
 
-- **CI/CD:** O workflow disponível publica `_reversa_docs/` no GitHub Pages; não executa a suíte de testes.
+- **CI/CD:** não há workflow de integração contínua no repositório; a suíte é executada localmente. A
+  publicação da documentação passou a sair da pasta `docs/`, que espelha `_reversa_docs/`.
 - **Execução:** `waitress` atende a aplicação; não há etapa de build. Use o Python do `.venv` e as
   dependências fixadas em `requirements.txt`.
 
@@ -251,7 +447,8 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 - `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
   apresentação.
 - A árvore é montada a cada requisição e passada ao núcleo como parâmetro; não há estado de domínio compartilhado
-  entre threads. Os arquivos enviados ficam em `src/uploads/`; análises e vereditos não são persistidos.
+  entre threads. Os arquivos enviados ficam em `src/uploads/`; o que a análise produziu vai para o banco apenas
+  se houver `DATABASE_URL`, e nada é lido de volta para decidir o que a tela mostra.
 - A limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) é centralizada em `text_cleaning.py`.
 - `path_finding.py` busca caminhos; `mermaid_render.py` emite diagramas com rótulos escapados.
 - `dna_analysis.py` coordena o cruzamento; `csv_ingest.py`, `matching.py` e `name_normalization.py`
@@ -261,8 +458,11 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 ## Testes
 
 - A suíte usa **pytest**; `pytest.ini` configura `tests/` como diretório de testes. A medição com
-  `pytest-cov` registrou **83% de cobertura em `src/`**. O resultado varia conforme as alterações; as
-  specs em [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
+  `pytest-cov` em 2026-10-08 registrou **88% de cobertura em `src/`** (1.871 instruções, 223 descobertas),
+  com **302 testes aprovados e 8 pulados**. O resultado varia conforme as alterações; as specs em
+  [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
+- Os **8 pulos** são os testes do adaptador de persistência: eles só executam com o driver e um banco
+  disponíveis, e sem `DATABASE_URL` a suíte roda inteira sem banco, de propósito.
 - Instale as dependências de teste no ambiente oficial e execute os testes:
 
   ```powershell
@@ -286,8 +486,11 @@ Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
 - Autor do projeto Reversa: [Adriano Santos](https://github.com/Adriano1976)
 - Autor do Framework Reversa: [Sandeco](https://github.com/sandeco/reversa)
 - Fonte do Código Legado: [analisador-genealogico](https://github.com/sssazevedo/analisador-genealogico/tree/main)
-- Documentação Antes: [mini-site do projeto](https://adriano1976.github.io/_reversa_docs/)
-- Documentação Depois: [mini-site do projeto](https://adriano1976.github.io/_reversa_docs_v2/)
+- Documentação Antes: [mini-site da extração original](https://adriano1976.github.io/_reversa_docs/) — o
+  sistema legado, com 10 módulos funcionais, como foi lido antes da reconstrução
+- Documentação Depois: [mini-site da reconstrução](https://adriano1976.github.io/_reversa_docs_v2/) — a
+  versão publicada em 2026-10-06; o mini-site atual, regenerado em 2026-10-08, está em
+  [`_reversa_docs/`](./_reversa_docs/) e no espelho [`docs/`](./docs/)
 
 ## Licença
 
