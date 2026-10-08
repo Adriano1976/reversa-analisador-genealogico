@@ -3,7 +3,7 @@ import os
 import socket
 import sys
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
@@ -187,6 +187,52 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     if arvore is None:
         return None, None, f"Erro: Arquivo '{referencia}' não existe mais."
     return referencia, arvore, None
+
+
+# --- Icone de atalho (feature 009) ---
+#
+# A ARTE SERVIDA AQUI NAO E A CANONICA. `docs/assets/img/logo.png` tem 32,5 % de pixels
+# transparentes, e o sistema movel compoe transparencia sobre PRETO no icone de tela
+# inicial: servir a canonica daria um quadrado preto com o desenho por cima, incluindo as
+# aberturas internas entre folhas e galhos. O que esta rota serve e uma RENDERIZACAO
+# DERIVADA - opaca, 180x180, composta sobre branco - e a receita que a produz tem fonte
+# unica em `tests/icone_de_atalho.py`, com o teste de deriva ao lado dela.
+#
+# O CAMINHO E CONVENCAO, NAO ESCOLHA. Nao ha como declarar o icone de atalho no documento
+# e ser obedecido: o sistema procura este caminho na raiz. Por isso a rota e um acrescimo
+# PURO - o template nao e tocado, e o `GET /` continua byte a byte o mesmo (`RN-02`).
+#
+# POR QUE `src/assets/`: o `.dockerignore` deste projeto e lista de PERMISSAO (`*`, depois
+# `!requirements.txt`, `!src/`, `!src/**`). Arte em qualquer outra pasta responderia 200
+# na maquina de desenvolvimento e 404 dentro do container - falha silenciosa no ambiente
+# que o operador usa. `src/static/` continua PROIBIDA pelo `W004`.
+ARTE_DO_ICONE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "apple-touch-icon.png"
+)
+# Em `config` para que o caso de ausencia seja testavel sem tocar no repositorio: o teste
+# aponta a chave para um caminho inexistente em vez de mexer na arte de verdade.
+app.config["ARTE_DO_ICONE"] = ARTE_DO_ICONE
+
+
+@app.route("/apple-touch-icon.png", methods=["GET"])
+def icone_de_atalho():
+    """Serve o icone de atalho (`RF-01`).
+
+    Registrada SO com `GET`: a recusa de escrita sai do roteador com `405`, sem uma linha
+    de validacao nossa que pudesse divergir da convencao.
+
+    Sem `Cache-Control` de validade longa (`D-05`). A arte foi trocada duas vezes em um
+    unico dia, e uma validade de um ano congelaria o cliente que ja tivesse buscado. O
+    `ETag` que o proprio `send_file` emite responde `304` sem corpo na rebusca, e e isso
+    que da a revalidacao barata sem prender o cliente.
+
+    Arte ausente devolve `404` e **nada mais muda**: o atalho degrada para icone generico
+    e nenhuma rota existente altera a resposta (`RN-08`).
+    """
+    caminho = app.config["ARTE_DO_ICONE"]
+    if not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype="image/png")
 
 
 # --- Rota Principal ---
