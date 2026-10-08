@@ -11,9 +11,38 @@
   // "## Testes" e o "### Testes" deixam de conflitar); e os badges/rodape em HTML
   // declarados um a um, em vez de desligar MD033 — desligar esconderia HTML
   // indevido em qualquer outro arquivo do projeto.
+  //
+  // Por que existem "ignores": medido em 2026-10-08, o repositorio inteiro
+  // acusava 13.330 problemas — e o README nao estava entre eles. Quase tudo era
+  // markdown do framework Reversa (skills em .agents/, estado em .reversa/,
+  // artefatos _reversa_*/, skills auxiliares em .github/) ou de terceiros
+  // (.venv/, node_modules/), dominado por regras de forma: MD060 (espaco nos
+  // pipes de tabela) e MD013 (linha acima de 120). Um lint que devolve 13 mil
+  // avisos nao e lido, e deixa de ser sinal. Sob lint fica o que este projeto
+  // escreve: o README.
+  //
+  // Esperado sobrar 5 problemas, todos em
+  // plugins/dsh-markdownlint/fixtures/quebrado.md. Esse arquivo e QUEBRADO de
+  // proposito: e a prova de que a ferramenta detecta problemas. Nao corrigir —
+  // fixture consertado deixa de testar o que existe para testar.
   "config": {
     "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
     "MD024": { "siblings_only": true },
     "MD033": { "allowed_elements": ["div", "p", "b", "h3", "img", "br"] }
-  }
+  },
+  "ignores": [
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/venv/**",
+    ".agents/**",
+    ".reversa/**",
+    ".github/**",
+    "_reversa_sdd/**",
+    "_reversa_forward/**",
+    "_reversa_bugs/**",
+    "_reversa_refactor/**",
+    "_reversa_docs/**",
+    "AGENTS.md",
+    "GEMINI.md"
+  ]
 }
