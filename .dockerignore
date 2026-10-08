@@ -1,0 +1,26 @@
+# Contexto de build do Docker — lista de PERMISSAO, nao de negacao (D-18).
+#
+# Este arquivo precisa ficar na RAIZ do projeto: o Docker so o le no topo do contexto de
+# build, e o contexto e a raiz, porque e de la que vem o `src/` que o Dockerfile copia.
+#
+# POR QUE PERMISSAO, E NAO NEGACAO. A regra negando o que se conhece foi medida e falhou:
+# a raiz tem 22 diretorios que recusam `os.scandir` (sete em `.pytest-tmp/`, dois em
+# `_probe_acl/`, um em `_probe_acl2/`, e os 12 restantes sob `_reversa_*/`), e a lista de
+# negacao cobria apenas 12 deles. `docker build` percorre o contexto inteiro e ABORTA no
+# primeiro diretorio ilegivel. Com a regra invertida, o que nao esta nomeado abaixo nao
+# entra — nem o residuo de hoje, nem o de amanha.
+*
+!requirements.txt
+!src/
+!src/**
+
+# Reexclusoes: o que entrou por `!src/**` e NAO pode ir para a imagem.
+#
+# `src/uploads/` e o mais importante deste arquivo. Ele contem dado real do operador — o
+# GEDCOM `Arvore_Unificada_Oficial_V1_2.ged`, de 5,3 MB, entre 33 entradas. O Principio I do
+# projeto manda que dado real nunca seja versionado, e envia-lo ao daemon do Docker e a mesma
+# classe de exposicao. A ultima regra que casa vence, entao esta linha tem de vir DEPOIS do
+# `!src/**`.
+src/uploads/
+**/__pycache__/
+**/*.pyc

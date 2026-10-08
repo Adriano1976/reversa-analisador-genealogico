@@ -1,0 +1,79 @@
+# docker-compose.yml — banco e aplicacao (feature 008).
+#
+# Dois servicos e DOIS regimes de persistencia, e a diferenca e deliberada (D-08):
+#
+#   - os UPLOADS vao em bind mount, para o operador enxergar o arquivo que ele mesmo enviou,
+#     e porque a pasta ja esta coberta pelo `.gitignore` (`uploads/`, em qualquer
+#     profundidade) — nada novo a ignorar;
+#   - os DADOS DO BANCO vao em volume NOMEADO, porque diretorio de dados do PostgreSQL sobre
+#     bind mount no Windows/Docker Desktop e fonte conhecida de erro de permissao, e o
+#     operador nao ganha nada vendo os arquivos internos do SGBD.
+#
+# NENHUMA CREDENCIAL TEM VALOR PADRAO AQUI (RF-11). As quatro variaveis usam `${VAR:?}`, que
+# faz o `docker compose` PARAR com mensagem explicita quando a variavel nao existe. Um valor
+# padrao dentro de arquivo versionado e credencial versionada, ainda que disfarcada. Os
+# valores vivem no `.env`, que o `.gitignore` ja exclui (linha 6).
+
+name: genealogia
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env — ver onboarding.md secao 2}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env — ver onboarding.md secao 2}
+      POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env — ver onboarding.md secao 2}
+    volumes:
+      # Estado persistente do SGBD. Sobrevive a `down` e a `up`; so `down -v` o remove.
+      - dados_do_banco:/var/lib/postgresql/data
+      # O esquema. O entrypoint do PostgreSQL executa o que estiver aqui apenas quando o
+      # diretorio de dados esta VAZIO; a reexecucao manual e protegida pela idempotencia do
+      # proprio arquivo (RF-12). Somente-leitura porque nao ha por que escrever nele.
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      # Publicado SO no loopback do host (RF-01). Serve a duas coisas: o operador consultar o
+      # historico por `psql`, e os testes de banco que rodam no `.venv` do host apontarem
+      # `DATABASE_URL` para `localhost:5432` em vez de `db:5432`.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      # Existe para o operador e para o `docker compose ps`. NINGUEM o consome como portao de
+      # subida: ver o `depends_on` do servico `app`.
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      # `0.0.0.0` DENTRO do container. A publicacao de porta do Docker chega pelo IP do
+      # container, e `127.0.0.1` aqui tornaria a aplicacao inalcancavel (D-10). O ato
+      # explicito de expor a rede continua sendo a linha `ports:` abaixo.
+      ANALISADOR_HOST: "0.0.0.0"
+      ANALISADOR_PORT: "5000"
+      # Sem valor padrao, pelo mesmo motivo de RF-11. Dentro da rede do compose o host do
+      # banco e `db`, o nome do servico.
+      DATABASE_URL: ${DATABASE_URL:?defina DATABASE_URL no .env — ver onboarding.md secao 2}
+    volumes:
+      # Estado persistente dos uploads, no MESMO caminho que `src/app.py` deriva de
+      # `__file__` (`/app/src/uploads`). Sem `ANALISADOR_UPLOAD_FOLDER`: escrita e leitura
+      # usam o caminho que o codigo ja resolve.
+      - ./src/uploads:/app/src/uploads
+    ports:
+      - "127.0.0.1:5080:5000"
+    depends_on:
+      # Forma CURTA: ordena a subida e NAO espera o banco ficar saudavel. E a consequencia
+      # direta do Q-03/RN-13 — se a aplicacao so subisse depois do banco saudavel, com o
+      # banco fora do ar o operador NAO TERIA NEM A ANALISE, que e exatamente o desfecho que
+      # a RN-13 existe para impedir. NAO troque por `condition: service_healthy`.
+      - db
+    restart: unless-stopped
+
+volumes:
+  dados_do_banco:
+    # Sem `external`: o Compose cria e gerencia. O nome real ganha o prefixo do projeto
+    # (`genealogia_dados_do_banco`), e ele vive fora do repositorio.
