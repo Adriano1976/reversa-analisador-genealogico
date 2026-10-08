@@ -37,8 +37,10 @@ DECISION_NODES = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.ExceptHandler,
 
 # Pasta de origem -> tipo do modulo. Regra mecanica, declarada no proprio JSON.
 TYPE_BY_TOP = {
+    "application": "application",
     "core": "domain",
     "parsers": "parser",
+    "ports": "port",
     "reporting": "reporting",
     "utils": "utility",
 }
@@ -49,8 +51,10 @@ DESCRICOES_MANUAIS = {
 
 FOLDER_LABEL = {
     "src/": "src/",
+    "src/application/": "application/",
     "src/core/": "core/",
     "src/parsers/": "parsers/",
+    "src/ports/": "ports/",
     "src/reporting/": "reporting/",
     "src/utils/": "utils/",
     "src/templates/": "templates/",

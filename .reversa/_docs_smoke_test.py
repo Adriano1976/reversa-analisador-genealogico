@@ -108,7 +108,9 @@ def main():
         print("  %s: %s (esperado em %s)" % (b["from"], b["href"], b["expected_path"]))
 
     (DOCS / ".smoke-result.json").write_text(json.dumps(
-        {"smokeTestFailed": bool(erros), "smokeTestErrors": erros},
+        {"smokeTestFailed": bool(erros), "smokeTestErrors": erros,
+         "pagesChecked": paginas_ok, "pagesTotal": len(paginas()),
+         "assetsChecked": verificados, "brokenLinks": len(quebrados)},
         ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (DOCS / ".links-result.json").write_text(json.dumps(quebrados, ensure_ascii=False, indent=2) + "\n",
                                              encoding="utf-8")

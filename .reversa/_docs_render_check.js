@@ -7,7 +7,6 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
-const { execFileSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
 const DOCS = path.join(ROOT, "_reversa_docs");
@@ -19,33 +18,45 @@ vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(DOCS, "assets", "js", "data.js"), "utf8"), sandbox);
 const D = sandbox.window.RV_DATA || {};
 
-const esperado = {
-  modules: 37,
-  deps: 6,
-  metrics: 37,
-  timeline: 86,
-  glossary: 24,
-  featuresIndex: 3,
+// Inventario: compara o que o data.js embute com os JSONs de assets/data/.
+// Sem contagem fixa aqui, para o verificador nao envelhecer junto com os dados.
+const FONTES = {
+  modules: "modules.json",
+  deps: "deps.json",
+  metrics: "metrics.json",
+  timeline: "timeline.json",
+  glossary: "soul.json",
+  featuresIndex: "features-index.json",
 };
-console.log("=== inventario de window.RV_DATA ===");
+console.log("=== data.js x assets/data/ (o embutido tem de ser igual ao arquivo) ===");
 let falhas = 0;
-const tamanhos = {
-  modules: (D.modules.modules || []).length,
-  deps: (D.deps.nodes || []).length,
-  metrics: D.metrics.code ? D.metrics.code.modules : 0,
-  timeline: (D.timeline.events || []).length,
-  glossary: (D.glossary.concepts || []).length,
-  featuresIndex: (D.featuresIndex.specs || []).length,
-};
-for (const k of Object.keys(esperado)) {
-  const ok = tamanhos[k] === esperado[k];
-  if (!ok) falhas++;
-  console.log(`  ${ok ? "OK  " : "FALHA"} ${k.padEnd(14)} ${tamanhos[k]} (esperado ${esperado[k]})`);
+for (const chave of Object.keys(FONTES)) {
+  const arq = path.join(DOCS, "assets", "data", FONTES[chave]);
+  if (!fs.existsSync(arq)) { falhas++; console.log(`  FALHA ${chave}: ${FONTES[chave]} nao existe`); continue; }
+  const disco = JSON.parse(fs.readFileSync(arq, "utf8"));
+  const embutido = D[chave];
+  const igual = JSON.stringify(disco) === JSON.stringify(embutido);
+  if (!igual) falhas++;
+  const resumo = {
+    modules: (o) => `${(o.modules || []).length} modulos`,
+    deps: (o) => `${(o.nodes || []).length} nos, ${(o.edges || []).length} arestas, ${(o.cycles || []).length} ciclos`,
+    metrics: (o) => `${o.code ? o.code.modules : "?"} modulos, ${o.code ? o.code.locNaoVazio : "?"} linhas`,
+    timeline: (o) => `${(o.events || []).length} eventos`,
+    glossary: (o) => `${(o.concepts || []).length} conceitos`,
+    featuresIndex: (o) => `${(o.specs || []).length} specs`,
+  }[chave];
+  console.log(`  ${igual ? "OK  " : "FALHA"} ${chave.padEnd(14)} ${resumo(disco)}${igual ? "" : "   DIVERGE do data.js"}`);
 }
 console.log(`  ${D.sealSvg ? "OK  " : "FALHA"} sealSvg        ${D.sealSvg.length} bytes`);
 console.log(`  ${D.sealMiniSvg ? "OK  " : "FALHA"} sealMiniSvg    ${D.sealMiniSvg.length} bytes`);
 console.log(`  ${D.seedShort ? "OK  " : "FALHA"} seedShort      ${D.seedShort}`);
-if (!D.sealSvg) falhas++;
+console.log(`  ${Array.isArray(D.nav) ? "OK  " : "FALHA"} nav            ${(D.nav || []).length} itens`);
+if (!D.sealSvg || !D.sealMiniSvg || !Array.isArray(D.nav)) falhas++;
+
+console.log("=== numeros que as paginas exibem (informativos) ===");
+console.log(`  modulos ${(D.modules.modules || []).length} | pastas ${new Set((D.modules.modules || []).map((m) => m.folder)).size}`);
+console.log(`  pacotes ${(D.deps.nodes || []).length} | arestas ${(D.deps.edges || []).length} | ciclos ${(D.deps.cycles || []).length}`);
+console.log(`  eventos ${(D.timeline.events || []).length} | conceitos ${(D.glossary.concepts || []).length}`);
 
 console.log("=== navegacao ===");
 const nav = D.nav || [];

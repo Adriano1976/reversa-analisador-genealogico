@@ -19,7 +19,7 @@ DOCS = ROOT / "_reversa_docs"
 STATE = DOCS / ".state.json"
 
 INICIO = "2026-10-06T03:43:10Z"
-ISOLADO_INICIO = "2026-10-06T05:24:11Z"
+ISOLADO_INICIO = "2026-10-08T15:48:22Z"
 
 
 def ler(p, padrao):
@@ -74,9 +74,10 @@ def main():
     s["vendorFiles"] = sorted(p.name for p in (DOCS / "assets" / "vendor").glob("*"))
     s["smokeTestFailed"] = bool(smoke.get("smokeTestFailed"))
     s["smokeTestErrors"] = smoke.get("smokeTestErrors", [])
-    s["smokeTestCheckedPages"] = 10
-    s["smokeTestCheckedAssets"] = 29
+    s["smokeTestCheckedPages"] = smoke.get("pagesChecked")
+    s["smokeTestCheckedAssets"] = smoke.get("assetsChecked")
     s["brokenLinks"] = links
+    s["regenerationStamp"] = "2026-10-08 (features 005 a 008)"
     s["dataJsKeys"] = ["modules", "deps", "metrics", "timeline", "glossary", "featuresIndex",
                        "sealSvg", "sealMiniSvg", "seedShort", "nav", "config"]
     s["seal"] = {
