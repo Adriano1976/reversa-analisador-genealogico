@@ -62,9 +62,13 @@ def main():
             obj[chave] = {}
             ausentes.append(arquivo)
 
-    for chave, arquivo in (("sealSvg", "seal.svg"), ("sealMiniSvg", "seal-mini.svg")):
-        f = DOCS / "assets" / "img" / arquivo
-        obj[chave] = f.read_text(encoding="utf-8").strip() if f.exists() else ""
+    # As imagens do logo sao carregadas por <img src>, nao pelo data.js: nao ha
+    # por que embutir 50 KB de base64 que nenhuma pagina le. A existencia delas e
+    # verificada pelo smoke test (GET em cada src) e pelo finalize.
+    logos = {}
+    for nome in ("logo.png", "logo-mini.png"):
+        f = DOCS / "assets" / "img" / nome
+        logos[nome] = f.stat().st_size if f.exists() else 0
 
     obj["seedShort"] = str(config.get("seed", {}).get("hash", "")).replace("sha256:", "")[:8]
     obj["nav"] = itens
@@ -81,8 +85,6 @@ def main():
     for chave, _ in CHAVES:
         partes.append("window.RV_DATA = window.RV_DATA || {};")
         partes.append("window.RV_DATA.%s = %s;" % (chave, json.dumps(obj[chave], ensure_ascii=False)))
-    for chave in ("sealSvg", "sealMiniSvg"):
-        partes.append("window.RV_DATA.%s = %s;" % (chave, json.dumps(obj[chave], ensure_ascii=False)))
     partes.append("window.RV_DATA.seedShort = %s;" % json.dumps(obj["seedShort"], ensure_ascii=False))
     partes.append("window.RV_DATA.nav = %s;" % json.dumps(obj["nav"], ensure_ascii=False, indent=2))
     partes.append("window.RV_DATA.config = %s;" % json.dumps(obj["config"], ensure_ascii=False))
@@ -94,8 +96,7 @@ def main():
         v = obj[chave]
         n = len(v) if isinstance(v, (list, dict)) else 0
         print("  %-14s <- %-22s %s" % (chave, arquivo, ("%d chaves/itens" % n) if n else "VAZIO"))
-    print("  sealSvg=%d bytes  sealMiniSvg=%d bytes  seedShort=%s"
-          % (len(obj["sealSvg"]), len(obj["sealMiniSvg"]), obj["seedShort"]))
+    print("  seedShort=%s  logos=%s" % (obj["seedShort"], logos))
     print("  nav: %d itens -> %s" % (len(itens), [i["href"] for i in itens]))
     if ausentes:
         print("  AUSENTES (gravados como {}): %s" % ausentes)

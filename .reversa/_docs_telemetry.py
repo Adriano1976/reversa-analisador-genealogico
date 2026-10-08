@@ -79,15 +79,18 @@ def main():
     s["brokenLinks"] = links
     s["regenerationStamp"] = "2026-10-08 (features 005 a 008)"
     s["dataJsKeys"] = ["modules", "deps", "metrics", "timeline", "glossary", "featuresIndex",
-                       "sealSvg", "sealMiniSvg", "seedShort", "nav", "config"]
-    s["seal"] = {
-        "seedSource": ".reversa/soul.md",
-        "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
-        "pattern": "crystal-lattice",
-        "variant": "dark (paleta sober espelhada para header escuro)",
-        "sealSvgBytes": (DOCS / "assets" / "img" / "seal.svg").stat().st_size,
-        "sealMiniSvgBytes": (DOCS / "assets" / "img" / "seal-mini.svg").stat().st_size,
-        "deterministic": True,
+                       "seedShort", "nav", "config"]
+    s.pop("seal", None)
+    s["logo"] = {
+        "origem": "logo do projeto fornecido pelo usuario em 2026-10-08 (livro aberto, hélice de DNA e árvore)",
+        "hero": "assets/img/logo.png (512x512, RGBA com transparencia real)",
+        "mini": "assets/img/logo-mini.png (64x64)",
+        "substitui": ("o selo generativo derivado da seed (seal.svg e seal-mini.svg), removido do mini-site "
+                      "por decisao do usuario. O hero e os 10 mini-selos passaram de SVG inline para <img>."),
+        "heroBytes": (DOCS / "assets" / "img" / "logo.png").stat().st_size,
+        "miniBytes": (DOCS / "assets" / "img" / "logo-mini.png").stat().st_size,
+        "faviconDoApp": ("src/templates/index.html declara o mesmo logo como icone da aba, em data URI de "
+                         "64x64, sem rota nova e sem src/static/ (proibida pelo watch item W004)"),
     }
     s["regeneration"]["tooling"] = (
         "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, "
@@ -109,17 +112,19 @@ def main():
         "regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 "
         "features; auto-discovery com 0 HTMLs auxiliares; smoke test verde"
     )
-    s["regeneration"]["seal"] = {
-        "seedSource": ".reversa/soul.md",
-        "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
-        "sealSvgBytes": (DOCS / "assets" / "img" / "seal.svg").stat().st_size,
-        "sealMiniSvgBytes": (DOCS / "assets" / "img" / "seal-mini.svg").stat().st_size,
+    s["regeneration"].pop("sealRerun", None)
+    s["regeneration"]["logo"] = {
+        "instaladoEm": "2026-10-08",
+        "hero": "assets/img/logo.png",
+        "mini": "assets/img/logo-mini.png",
+        "removeu": ["assets/img/seal.svg", "assets/img/seal-mini.svg"],
+        "motivo": "decisao do usuario: o logo do projeto substitui o selo generativo derivado da seed",
     }
     s["regeneration"]["soul"] = {
-        "regeneratedAt": "2026-10-06",
-        "by": "reversa-extract-soul (autorizado pelo usuario nesta sessao)",
-        "previousPreservedAt": ".reversa/soul.20260928-1537.md",
-        "previousBytes": 4585,
+        "regeneratedAt": "2026-10-08",
+        "by": "reversa-extract-soul, gravado pelo orquestrador (o subagente nao tinha escopo de escrita)",
+        "previousPreservedAt": ".reversa/soul.20261006-0142.md",
+        "previousBytes": 15559,
         "currentBytes": (ROOT / ".reversa" / "soul.md").stat().st_size,
     }
 

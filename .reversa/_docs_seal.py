@@ -1,4 +1,11 @@
-"""Publisher, passos 1 e 2: gera os dois selos a partir da seed, seguindo a skill
+"""OBSOLETO desde 2026-10-08. Gerava os dois selos generativos (seal.svg e
+seal-mini.svg) a partir da seed. O usuario substituiu o selo pelo logo do
+projeto, entao estes arquivos nao existem mais e nada consome esta saida.
+Fica no repositorio como registro de como o selo era derivado, e porque a seed
+continua sendo a identidade do projeto em _reversa_docs/.config.json.
+Nao rode isto esperando reverter a decisao: ele recriaria SVGs orfaos.
+
+Publisher, passos 1 e 2: gera os dois selos a partir da seed, seguindo a skill
 reversa-selo-generativo.
 
 Regras aplicadas da skill:

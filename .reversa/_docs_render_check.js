@@ -47,11 +47,19 @@ for (const chave of Object.keys(FONTES)) {
   }[chave];
   console.log(`  ${igual ? "OK  " : "FALHA"} ${chave.padEnd(14)} ${resumo(disco)}${igual ? "" : "   DIVERGE do data.js"}`);
 }
-console.log(`  ${D.sealSvg ? "OK  " : "FALHA"} sealSvg        ${D.sealSvg.length} bytes`);
-console.log(`  ${D.sealMiniSvg ? "OK  " : "FALHA"} sealMiniSvg    ${D.sealMiniSvg.length} bytes`);
 console.log(`  ${D.seedShort ? "OK  " : "FALHA"} seedShort      ${D.seedShort}`);
 console.log(`  ${Array.isArray(D.nav) ? "OK  " : "FALHA"} nav            ${(D.nav || []).length} itens`);
-if (!D.sealSvg || !D.sealMiniSvg || !Array.isArray(D.nav)) falhas++;
+if (!D.seedShort || !Array.isArray(D.nav)) falhas++;
+
+// O logo e carregado por <img src>, nao pelo data.js. Confere o arquivo e, mais
+// abaixo, se cada pagina aponta para o caminho relativo certo.
+console.log("=== logo ===");
+for (const nome of ["logo.png", "logo-mini.png"]) {
+  const f = path.join(DOCS, "assets", "img", nome);
+  const ok = fs.existsSync(f);
+  if (!ok) falhas++;
+  console.log(`  ${ok ? "OK  " : "FALHA"} assets/img/${nome.padEnd(15)} ${ok ? fs.statSync(f).size + " bytes" : "AUSENTE"}`);
+}
 
 console.log("=== numeros que as paginas exibem (informativos) ===");
 console.log(`  modulos ${(D.modules.modules || []).length} | pastas ${new Set((D.modules.modules || []).map((m) => m.folder)).size}`);
@@ -86,6 +94,19 @@ for (const p of paginas) {
   const ok = ausentes.length === 0;
   if (!ok) falhas++;
   console.log(`  ${ok ? "OK  " : "FALHA"} ${p.padEnd(32)} le: ${[...chaves].join(", ") || "(nada)"}${ok ? "" : "  AUSENTE NO data.js: " + ausentes.join(", ")}`);
+
+  // o <img> do logo tem de resolver no disco a partir da propria pagina
+  const imgs = [...txt.matchAll(/<img[^>]+class="seal[^"]*"[^>]+src="([^"]+)"/g)].map((x) => x[1]);
+  if (imgs.length === 0) {
+    falhas++;
+    console.log(`  FALHA ${p}: nenhum <img class="seal...">`);
+  }
+  for (const src of imgs) {
+    const alvo = path.join(DOCS, path.dirname(p), src);
+    const existe = fs.existsSync(alvo);
+    if (!existe) falhas++;
+    console.log(`  ${existe ? "OK  " : "FALHA"} ${p.padEnd(32)} img -> ${src}`);
+  }
 }
 
 console.log("=== sintaxe do script inline de cada pagina ===");

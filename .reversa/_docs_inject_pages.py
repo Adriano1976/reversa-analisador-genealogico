@@ -22,9 +22,10 @@ from _docs_nav import nav_para, html_links  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "_reversa_docs"
-SEAL_MINI = DOCS / "assets" / "img" / "seal-mini.svg"
+LOGO_MINI = DOCS / "assets" / "img" / "logo-mini.png"
 
 RE_HEADER_SVG = re.compile(r'(<header class="site">\s*)(<svg\b.*?</svg>)', re.S)
+RE_MINI_IMG = re.compile(r'<img class="seal-mini"[^>]*>')
 RE_NAV = re.compile(r'(<nav class="reversa-doc-nav">)(.*?)(</nav>)', re.S)
 RE_ANCORAS_SOLTAS = re.compile(
     r'((?:<a href="[^"]+" data-page-id="[^"]+">[^<]*</a>\s*)+)(<nav class="reversa-doc-nav">)')
@@ -32,12 +33,11 @@ RE_HTML_TAG = re.compile(r"<html\b[^>]*>")
 AGORA = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def selo_mini() -> str:
-    svg = SEAL_MINI.read_text(encoding="utf-8").strip()
-    svg = re.sub(r"<\?xml[^>]*\?>\s*", "", svg)
-    if 'class="seal-mini"' not in svg:
-        svg = svg.replace("<svg", '<svg class="seal-mini"', 1)
-    return "\n".join("  " + l if l.strip() else l for l in svg.splitlines())
+def selo_mini(prefixo: str = "") -> str:
+    """O header de cada pagina carrega o logo como <img>, com o caminho relativo
+    correto: "" na raiz e "../" nas paginas de features/."""
+    return ('<img class="seal-mini" src="%sassets/img/logo-mini.png" alt="Logo do projeto">'
+            % prefixo)
 
 
 def garantir_base_path(txt: str) -> str:
@@ -70,7 +70,6 @@ def main():
     paginas = [p for p in paginas if (DOCS / p).exists()]
 
     itens = nav_para(paginas)
-    selo = selo_mini()
 
     backup = DOCS / (".backup-" + datetime.now().strftime("%Y%m%d-%H%M%S"))
     backup.mkdir(parents=True, exist_ok=True)
@@ -89,15 +88,19 @@ def main():
         prefixo = "../" * (len(Path(p).parts) - 1)
         links = html_links(itens, prefixo)
 
-        # 1. mini-selo
+        # 1. logo do header (o mini-selo agora e um <img>, nao um SVG inline)
+        logo = selo_mini(prefixo)
         if "<!-- MINI_SEAL_SVG -->" in txt:
-            txt = txt.replace("<!-- MINI_SEAL_SVG -->", selo, 1)
+            txt = txt.replace("<!-- MINI_SEAL_SVG -->", logo, 1)
             via = "marcador MINI_SEAL_SVG"
+        elif RE_MINI_IMG.search(txt):
+            txt = RE_MINI_IMG.sub(logo, txt, count=1)
+            via = "img do header atualizado"
         elif RE_HEADER_SVG.search(txt):
-            txt = RE_HEADER_SVG.sub(lambda m: m.group(1) + "\n" + selo + "\n", txt, count=1)
-            via = "svg do header substituido"
+            txt = RE_HEADER_SVG.sub(lambda m: m.group(1) + "\n" + logo + "\n", txt, count=1)
+            via = "svg antigo do header substituido pelo img"
         else:
-            via = "SEM SELO (nao achei marcador nem svg no header)"
+            via = "SEM LOGO (nao achei marcador, img nem svg no header)"
 
         # 2. nav estatico, sempre DENTRO do elemento <nav>, nunca solto
         if RE_NAV.search(txt):
