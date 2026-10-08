@@ -9,9 +9,10 @@
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
 <meta name="reversa-generated-at" content="2026-10-08T19:23:55Z">
-<title>upload-gedcom — analisador-genealogico</title>
+<title>Upload e parsing de GEDCOM — Analisador Genealógico</title>
 <!-- icone da aba: logo do projeto -->
-    <link rel="icon" type="image/png" sizes="64x64" href="../assets/img/logo-mini.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/logo.png">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
 <style>
@@ -78,7 +79,7 @@
 
 
 
-  <span class="brand">analisador-genealogico</span>
+  <span class="brand">Analisador Genealógico</span>
   <span class="sub">Feature</span>
     <nav class="reversa-doc-nav">
   <a href="../index.html" data-page-id="index">Visão geral</a>
@@ -95,7 +96,7 @@
 </header>
 <main>
   <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
-  <h1>upload-gedcom</h1>
+  <h1>Upload e parsing de GEDCOM</h1>
   <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>upload_gedcom</code></span><span class="pill" id="pillRf">19 requisitos funcionais</span><span class="pill" id="pillGh">6 cenários Gherkin</span><span class="pill" id="pillTk">20 tarefas</span><span class="pill">Spec: upload-gedcom</span></div>
   <p class="summary" id="tldr">Recebe um arquivo GEDCOM enviado pelo navegador, decide se ele pode ser gravado, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo). É a porta de entrada de todas as outras unidades: sem upload-gedcom, não há analise-dna nem busca-caminho.</p>
 
