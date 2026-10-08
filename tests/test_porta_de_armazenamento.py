@@ -298,10 +298,19 @@ class TestContratoDoRepositorio:
         Duas metades:
 
         - `adaptadores.__all__` e EXATAMENTE `["ArmazenamentoEmDisco",
-          "CarregadorDeArvoresGedcom"]`. A lista literal prende a superficie
-          publica do modulo: acrescentar um terceiro adaptador — o candidato
-          obvio sendo o repositorio em memoria que a `D-03` descarta — quebra
-          este teste e obriga a decisao a ser reaberta em vez de contornada.
+          "CarregadorDeArvoresGedcom", "RegistroDeAnalisesPostgres"]`. A lista
+          literal prende a superficie publica do modulo: acrescentar um adaptador
+          quebra este teste e obriga a decisao a ser reaberta em vez de contornada.
+
+          ⚠️ **Foi o que aconteceu, e o registro fica aqui.** A feature
+          `008-persistencia-postgres-docker` acrescentou o terceiro nome, e a
+          decisao foi reaberta antes: a `D-01` daquela feature a declara, e o
+          `roadmap.md` §5 a registra como `componente-novo`. O nome que entrou
+          **nao** e o repositorio — e a porta de registro da **analise**, que
+          persiste o resultado depois do processamento, e nao a arvore. Quem
+          acrescentar um QUARTO nome reabre a decisao outra vez, e e isso que a
+          lista literal existe para forcar.
+
         - Nenhuma classe DEFINIDA no modulo (o filtro por `__module__` exclui
           nome importado) implementa o par: ter `guardar` E `obter` com `dono`
           obrigatorio nos dois. Procurar o par, e nao a heranca, e deliberado:
@@ -311,6 +320,7 @@ class TestContratoDoRepositorio:
         """
         assert adaptadores.__all__ == [
             "ArmazenamentoEmDisco", "CarregadorDeArvoresGedcom",
+            "RegistroDeAnalisesPostgres",
         ], "a superficie publica dos adaptadores mudou: reabra a D-03 antes"
 
         classes_do_modulo = [
