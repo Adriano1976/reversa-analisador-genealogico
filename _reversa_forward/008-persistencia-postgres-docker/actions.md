@@ -9,8 +9,8 @@
 | Métrica | Valor |
 |---------|-------|
 | Total de ações | **26** |
-| Concluídas nesta rodada | **25** de 26 — `T001` a `T025` |
-| **Falhou** | **1** — `T026`, que **não atendeu o critério**: mediu `8,14×` contra o limite de `2,00×`. A falha é **do critério**, e não da implementação — ver `evidence/T026-custo-da-gravacao.md` |
+| Concluídas nesta rodada | **26 de 26** — a feature está fechada |
+| Falhas em aberto | **0** — a `T026` foi **fechada com o critério ATENDIDO** (`1,08×` contra `2,00×`) depois de a medição ser refeita em escala representativa. A conclusão anterior, que atribuía a falha ao critério, **estava errada**: o defeito era do fixture |
 | Paralelizáveis (`[//]`) | **11** (`T002`, `T003`, `T004`, `T007`, `T009`, `T010`, `T013`, `T015`, `T018`, `T019`, `T024`) |
 | Maior cadeia de dependência | **14 ações** (13 elos): `T001` → `T004` → `T005` → `T006` → `T008` → `T009` → `T011` → `T012` → `T013` → `T016` → `T017` → `T020` → `T021` → `T022` |
 | Linha de base herdada | `261 passed`, `0 errors` e paridade `100 %` — medidos em 2026-10-08, **antes** do plano, com o comando em `roadmap.md` §0 |
@@ -105,7 +105,7 @@
 | T023 | Conferir o **escopo** por `diff`: `src/core/`, `src/parsers/`, `src/reporting/` e `src/utils/` sem nenhuma alteração (`RN-01`); `pytest.ini`, `.gitignore` e os artefatos de `_reversa_sdd/migration/` intocados; e nenhuma consulta, `CHECK` ou índice que filtre ou comece por `owner_id` (`RN-10`) | T021 | - | `evidence/T023-conferencia-de-escopo.md` | 🟢 | `[X]` |
 | T024 | Documentar em `evidence/README-evidencias.md` os instrumentos desta rodada e o diretório **preso** `.probe/`, criado pela sonda de `pip` que falhou durante a investigação, com o comando de remoção que exige shell elevado (`D-11`, `investigation.md` §2) | T001 | `[//]` | `evidence/README-evidencias.md` | 🟢 | `[X]` |
 | T025 | Varrer **credencial**: procurar por qualquer valor de `POSTGRES_PASSWORD` e por `DATABASE_URL` no que é versionado, no template, no `.env.example` inexistente, na saída de `docker compose config` e nas camadas da imagem, e confirmar por `git check-ignore -v .env` que o arquivo do operador está ignorado. Registrar os comandos e a ausência de ocorrência (`RF-11`) | T021 | - | `evidence/T025-varredura-de-credencial.md` | 🟢 | `[X]` |
-| T026 | Medir e registrar o **custo da gravação**: tempo da análise no mesmo GEDCOM e CSV **sintéticos**, com a persistência desabilitada e habilitada, com o comando e os dois números lado a lado e o acréscimo em porcentagem. **Critério:** o tempo com a persistência tem de ficar **abaixo do dobro** do tempo sem ela — é o RNF de Desempenho, e o `roadmap.md` §0 registra a linha de base de onde ele parte | T021 | - | `evidence/T026-custo-da-gravacao.md` | 🟢 | `[ ]` |
+| T026 | Medir e registrar o **custo da gravação**: tempo da análise no mesmo GEDCOM e CSV **sintéticos**, com a persistência desabilitada e habilitada, com o comando e os dois números lado a lado e o acréscimo em porcentagem. **Critério:** o tempo com a persistência tem de ficar **abaixo do dobro** do tempo sem ela — é o RNF de Desempenho, e o `roadmap.md` §0 registra a linha de base de onde ele parte | T021 | - | `evidence/T026-custo-da-gravacao.md` | 🟢 | `[X]` |
 
 ## Notas sobre a decomposição
 
@@ -433,6 +433,53 @@ precisa acontecer é uma decisão **de requisito**: trocar a razão por um **or�
 (por exemplo, "não acrescenta mais de 100 ms"), ou declarar o `n` do fixture em que a razão
 passa a ter significado.
 
+### ⚠️ Correção do `T026`: o defeito era do INSTRUMENTO, e eu o atribuí ao critério
+
+O parágrafo acima conclui que o critério está errado. **A conclusão está errada, e a medição
+que a desfaz é simples: medir em escala representativa.**
+
+| Escala | Árvore | Matches | Sem | Com | Acréscimo | Razão |
+|---|---|---:|---:|---:|---:|---:|
+| `pequena` | 5 pessoas | 2 | 5,5 ms | 44,9 ms | 39,4 ms | **8,16×** |
+| `media` | 728 pessoas | 21 | 128,2 ms | 203,0 ms | 74,8 ms | **1,58×** |
+| `grande` | **19.682 pessoas** | **71** | 5.088,1 ms | 5.501,2 ms | **413,1 ms** | **1,08×** |
+
+**O critério foi atendido**, e com folga na escala que corresponde ao caso real — 71 conexões,
+o mesmo número que o `roadmap.md` §0 registra para o GEDCOM de verdade. A árvore é
+**sintética**, gerada por `evidence/_gerar_fixture.py`: o `Princípio I` proíbe medir com o dado
+real, e **não** proíbe gerar um equivalente.
+
+O que a primeira medição mediu foi **o tamanho do fixture**, não o custo da persistência. A
+frase "qualquer trabalho de banco maior que 5 ms dobra uma análise de 5 ms" está certa; o que
+se seguia dela não era "o critério é ruim", e sim **"o fixture não serve para medir isso"**.
+
+⚠️ **É o segundo defeito de instrumento desta feature, com a mesma forma do primeiro.** O CSV
+com `KIT-A` não exercitava o caso de dois kits e parecia defeito de agregação (`OBS-22`); o
+fixture pequeno demais parecia defeito de desempenho. Nos dois, **um resultado convincente
+apontava para o lugar errado** — e nos dois a correção foi consertar o instrumento, não afrouxar
+o critério.
+
+**`T026` fechada com `[X]`, e a feature com 26 de 26.**
+
+### Correção de metadado: o `current-stage` estava defasado
+
+`.reversa/active-requirements.json` declarava `"current-stage": "requirements"` enquanto o
+estágio físico real era **`coding-em-progresso`** — 25 ações fechadas e uma aberta.
+
+**Nada quebrou por causa disso, e a razão é o desenho:** o campo é *metadado informativo, não
+autoritativo*, e a detecção por artefatos prevaleceu nas duas vezes em que ela rodou nesta
+rodada (`/reversa-forward` e `/reversa-sync`). Mesmo assim, um campo defasado induz a erro quem
+o ler — e induziu: foi ele que fez a pergunta "qual feature está ativa?" ter duas respostas
+possíveis.
+
+⚠️ **Esta correção não é trabalho de `/reversa-forward`**, que por regra não escreve nesse
+arquivo. Ela foi feita em 2026-10-08 como ato avulso, **a pedido explícito do usuário**, com
+escrita atômica (tempfile mais rename) e preservando todos os outros campos.
+
+**`stages-completed` foi deixado vazio de propósito.** É o que a feature `003` pausada também
+traz, e preenchê-lo exigiria inventar um vocabulário de estágios que nenhum artefato do projeto
+define. O que se corrigiu foi o campo **demonstravelmente errado**; o resto ficou como estava.
+
 ## Histórico de alterações
 
 | Data | Alteração | Autor |
@@ -447,3 +494,5 @@ passa a ter significado.
 | 2026-10-08 | **`T021` concluído**: 21 de 26 ações. Verificação manual do `onboarding.md` com dado sintético. `down` + `up` **sem** `-v` preservou os 35 arquivos de `src/uploads/` **e** a análise (1 → 1, com as 2 conexões e os 2 kits consultáveis) — `RF-02` provado. Banco **derrubado**: HTTP 200, as mesmas 2 conexões e o aviso não bloqueante, com o `OperationalError` de produção. Depois de religar, a análise continuava **1** — nada parcial, `RF-10` no caminho de falha real | reversa |
 | 2026-10-08 | **`T022`, `T023` e `T024` concluídos**: 24 de 26 ações. `T022` mediu os dois números da suíte — **`282 passed, 8 skipped`** sem `DATABASE_URL`, e **`2 failed, 280 passed, 8 skipped`** com ela, sendo as duas falhas o **guarda do estado desabilitado** protestando de propósito. `T023` confirmou por `diff` que os quatro pacotes do núcleo e os arquivos de configuração estão intocados, e que nenhum índice, `CHECK` ou consulta começa por `owner_id`. `T024` documentou os instrumentos, o resíduo `.probe/` e os quatro defeitos de ambiente | reversa |
 | 2026-10-08 | **`T025` concluído e `T026` FALHOU o critério**: 25 de 26 ações. `T025`: o valor da senha só existe no `.env` (gitignored), o template tem zero ocorrências, as camadas e o ambiente da imagem também, e `/app/src/uploads` está ausente. `T026` mediu **8,14×** contra o limite de `2,00×` — a falha é **do critério**, que compara uma razão sobre um fixture de 5,1 ms que o Princípio I obriga a ser sintético. **Não ajustei o critério para bater com o resultado.** A ação fica aberta e a fase para aqui | reversa |
+| 2026-10-08 | **Correção de metadado, a pedido do usuário:** `.reversa/active-requirements.json` declarava `current-stage: "requirements"` e o estágio físico real é `coding-em-progresso`. Campo corrigido por escrito atômica, com `stages-completed` deixado vazio de propósito e os demais campos preservados | reversa |
+| 2026-10-08 | **`T026` FECHADA com o critério ATENDIDO — e a conclusão anterior retratada.** Medido em três escalas de fixture sintético: `8,16×` com 5 pessoas, `1,58×` com 728 e **`1,08×` com 19.682 pessoas e 71 matches** — o mesmo número de conexões do caso real. O acréscimo absoluto é **413 ms**. A falha anterior era **do instrumento**: o fixture era pequeno demais, e a razão media o tamanho dele. **Não afrouxei o critério — consertei o instrumento.** Feature com **26 de 26** | reversa |

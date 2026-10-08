@@ -4,7 +4,7 @@
   "feature-id": "008",
   "short-name": "persistencia-postgres-docker",
   "started-at": "2026-10-08T03:11:46Z",
-  "current-stage": "requirements",
+  "current-stage": "coding-em-progresso",
   "stages-completed": [],
   "paused-features": [
     {

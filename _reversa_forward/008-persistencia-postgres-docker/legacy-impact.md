@@ -104,8 +104,9 @@ declarada. A segunda metade daquele teste — a que prova que nenhum adaptador i
 
 ---
 
-*Rodada de `/reversa-coding` de 2026-10-08: `T001`–`T025` concluídas, `T026` aberta por
-critério não atendido. Suíte em **`282 passed, 8 skipped`**, contra `261 passed` da linha de
-base — os 21 aprovados novos são os testes desta feature, e os 8 pulos são o `T014` e as seis
-parametrizações dele. A persistência foi verificada ponta a ponta (`T020`) e na verificação
-manual (`T021`).*
+*Rodada de `/reversa-coding` de 2026-10-08: **`26` de `26` ações concluídas** — a feature está
+fechada. A `T026` fechou com o critério de desempenho **atendido** (`1,08×` contra `2,00×`), e a
+conclusão anterior, que o dava por não atendido, foi **retratada**: o defeito era do fixture, não
+do critério. Suíte em **`282 passed, 8 skipped`**, contra `261 passed` da linha de base — os 21
+aprovados novos são os testes desta feature, e os 8 pulos são o `T014` e as seis parametrizações
+dele. A persistência foi verificada ponta a ponta (`T020`) e na verificação manual (`T021`).*

@@ -241,11 +241,11 @@ daquele documento. Nada aqui depende de premissa não decidida.
 - [ ] `git status` não lista arquivo de upload nem dado de banco (`RF-16`)
 - [ ] `.dockerignore` **na raiz** e como **lista de permissão**, e o contexto de build
       comprovadamente **não** inclui `src/uploads/` nem os diretórios presos (`D-11`, `D-18`)
-- [ ] ❌ **NÃO ATENDIDO** — o `T026` mediu **8,14×** contra o limite de "abaixo do dobro", e o
-      critério é que está errado: o fixture é sintético por exigência do Princípio I e leva
-      5,1 ms, então qualquer trabalho de banco o "dobra". O acréscimo absoluto é 36,4 ms. Ver
-      `evidence/T026-custo-da-gravacao.md`; **o critério precisa de decisão de requisito, e não
-      foi ajustado para bater com o resultado**
+- [ ] ✅ **ATENDIDO** — o `T026` mediu **`1,08×`** contra o limite de "abaixo do dobro", na
+      escala que corresponde ao caso real (**19.682 pessoas sintéticas, 71 matches**): 5.088 ms
+      sem persistência contra 5.501 ms com ela, acréscimo absoluto de **413 ms**. ⚠️ Na escala
+      pequena (5 pessoas) a razão é `8,16×` e **não** significa nada — o instrumento é que era
+      pequeno demais. Ver `evidence/T026-custo-da-gravacao.md` e `evidence/_gerar_fixture.py`
 - [ ] `pytest.ini`, `.gitignore` e os artefatos de `_reversa_sdd/migration/` intocados
 - [ ] Nenhuma afirmação, em nenhum artefato da feature, de que as dívidas #3 ou #4 foram fechadas (`RN-10`)
 - [ ] `RF-03` e `RF-04` entregues com o desvio de `D-15` **declarado**: a ambiguidade da raiz
