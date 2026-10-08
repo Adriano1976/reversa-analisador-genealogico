@@ -85,17 +85,25 @@ entrega **acrescenta** um recurso e não toca em nada que já existe.
    nunca a identidade visual. 🟢
    - Origem no legado: arte medida em `docs/assets/img/logo.png` e em `src/templates/index.html:8`.
    - Tipo: nova.
-4. **RN-04 — O ícone do atalho é opaco.** O arquivo servido não pode ter transparência: fundo
-   sólido cobrindo a área inteira. O PNG transparente permanece válido para a aba. 🟢
+4. **RN-04 — O ícone do atalho é opaco, com fundo branco e cantos retos.** O arquivo servido não
+   tem transparência: a área inteira é preenchida com branco sólido `#ffffff`, e os cantos
+   ficam **retos**, porque o sistema móvel aplica a própria máscara arredondada — arredondar na
+   arte produziria arredondamento duplo e um anel de fundo no canto. O branco foi escolhido por
+   contraste: a arte tem **51,5 % de creme em duas tonalidades** (`#f5efca` e `#f9eab0`), e
+   eleger uma delas faria a outra página parecer errada. O PNG transparente permanece válido — e
+   intocado — para o ícone da aba. 🟢
    - Origem no legado: medido — 32,5 % de pixels transparentes e cantos `(0, 0, 0, 0)` em
-     `docs/assets/img/logo.png`.
-   - Tipo: nova.
-5. **RN-05 — A arte servida mora dentro de `src/`.** O contexto de build só admite
-   `requirements.txt` e `src/**`; qualquer outro caminho produz uma rota que responde `200` na
-   máquina de desenvolvimento e `404` no contêiner. 🟢
-   - Origem no legado: `.dockerignore` na raiz (lista de permissão) e
+     `docs/assets/img/logo.png`; cores dominantes medidas no mesmo arquivo.
+   - Tipo: nova. **Decidido pelo operador em 2026-10-08** (§9, `Q-02`).
+5. **RN-05 — A arte servida mora dentro de `src/`, e é cópia de uma fonte declarada.** O
+   contexto de build só admite `requirements.txt` e `src/**`; qualquer outro caminho produz uma
+   rota que responde `200` na máquina de desenvolvimento e `404` no contêiner. A **fonte
+   canônica continua sendo `docs/assets/img/logo.png`**, e ela **não sai de lá**: o mini-site
+   publicado consome esse mesmo arquivo, e as duas cópias servem a dois alvos de publicação
+   distintos. O que a entrega acrescenta é a **detecção de deriva** entre as duas. 🟢
+   - Origem no legado: `.dockerignore` na raiz (lista de permissão);
      `_reversa_sdd/addenda/008-persistencia-postgres-docker.md#Impacto por artefato da extração`.
-   - Tipo: nova.
+   - Tipo: nova. **Decidido pelo operador em 2026-10-08** (§9, `Q-03`).
 6. **RN-06 — A rota nova é de leitura, sem entrada e sem estado.** Nenhum campo de formulário,
    nenhum parâmetro de consulta interpretado, nenhuma escrita, nada guardado entre requisições.
    Ela não pode ser confundida com o formulário. 🟢
@@ -110,6 +118,16 @@ entrega **acrescenta** um recurso e não toca em nada que já existe.
    rota existente muda de resposta. 🟢
    - Origem no legado: `.reversa/principles.md#II`.
    - Tipo: nova.
+9. **RN-09 — Só o caminho principal é servido; nenhum caminho sem consumidor.** A entrega
+   responde a `/apple-touch-icon.png` e a mais nada. O alias legado
+   `/apple-touch-icon-precomposed.png` pertence a sistemas anteriores e nenhum atual o
+   requisita; `/favicon.ico` só é buscado quando o documento **não** declara ícone, e o
+   `src/templates/index.html:8` declara. Acrescentar qualquer um dos dois repetiria a dívida
+   **#17**, que este projeto já fechou: *"superfícies de compatibilidade reexportando nomes
+   históricos que ninguém usa"*. 🟢
+   - Origem no legado: `_reversa_sdd/architecture.md#7` (dívida #17, fechada);
+     `src/templates/index.html:8` (o ícone é declarado no documento).
+   - Tipo: nova (restrição de escopo). **Decidido pelo operador em 2026-10-08** (§9, `Q-01`).
 
 ## 5. Requisitos Funcionais
 
@@ -117,13 +135,15 @@ entrega **acrescenta** um recurso e não toca em nada que já existe.
 |----|-----------|------------|--------------------|-------------|
 | RF-01 | A aplicação responde a `/apple-touch-icon.png`, com status `200` e tipo de imagem declarado | Must | Requisição de leitura a `/apple-touch-icon.png` devolve `200` e `Content-Type` de imagem; medido por requisição real, não por leitura de código | 🟢 |
 | RF-02 | O ícone servido tem **180×180** pixels | Must | O corpo da resposta decodifica em imagem de 180×180; dimensão medida no binário | 🟢 |
-| RF-03 | O ícone servido é **opaco** | Must | Varredura do canal alfa do arquivo servido: nenhum pixel com alfa menor que 255 | 🟢 |
+| RF-03 | O ícone servido é **opaco**, com fundo branco `#ffffff` e cantos retos | Must | Varredura do canal alfa do arquivo servido: nenhum pixel com alfa menor que 255; leitura dos quatro cantos confirma `#ffffff` | 🟢 |
 | RF-04 | A arte servida está sob `src/` | Must | O arquivo existe dentro de `src/` e a rota responde `200` **a partir do contêiner**, não apenas no host | 🟢 |
 | RF-05 | `GET /` devolve exatamente a mesma resposta de antes da feature | Must | Comparação byte a byte da resposta de `GET /` antes e depois; zero diferença | 🟢 |
 | RF-06 | A rota aceita apenas leitura, e recusa qualquer outro método | Should | Requisição de escrita ao caminho do ícone recebe recusa de método, e nenhuma escrita acontece no disco | 🟡 |
-| RF-07 | A resposta do ícone é cacheável pelo cliente | Should | A resposta traz indicador de validação por conteúdo (marca de versão), para que o sistema móvel não rebusque a cada abertura | 🟡 |
+| RF-07 | A resposta do ícone traz marca de versão por conteúdo, **sem** validade longa declarada | Should | Requisição repetida devolve resposta de "não modificado", sem corpo; e nenhuma resposta declara validade de cache superior a um dia | 🟡 |
 | RF-08 | Existe teste automatizado que **falha antes** da mudança e passa depois | Must | O teste novo, executado contra o commit anterior, falha; contra a entrega, passa. `.reversa/principles.md#III` | 🟢 |
 | RF-09 | A entrega **não** acrescenta bytes ao HTML de `GET /` | Must | A resposta de `GET /` mantém o mesmo tamanho em bytes de antes da feature | 🟢 |
+| RF-10 | Existe teste que falha quando a arte de runtime diverge da arte canônica, comparando **pixel a pixel** | Must | Alterar um pixel de uma das cópias faz o teste falhar; reencodar o mesmo desenho com outra compressão **não** faz. Medido: o mesmo desenho existe com 32.317 e com 44.069 bytes e diferença de pixel **zero** — a comparação por bytes daria alarme falso | 🟢 |
+| RF-11 | Os caminhos **não** servidos continuam recusando | Must | `/apple-touch-icon-precomposed.png` e `/favicon.ico` continuam respondendo que o recurso não foi encontrado, exatamente como respondem hoje | 🟢 |
 
 ## 6. Requisitos Não Funcionais
 
@@ -133,8 +153,10 @@ entrega **acrescenta** um recurso e não toca em nada que já existe.
 | Desempenho | A resposta do ícone é inferior a **50 ms** no host | Mesma ordem de grandeza das demais respostas locais do sistema | 🟡 |
 | Segurança | A rota não interpola entrada do cliente em caminho de arquivo | É a mesma classe de falha do `BUG-20260929-QMLY`: nome controlado pelo cliente usado para montar caminho. A rota nova **não tem** entrada, e o requisito existe para que continue assim | 🟢 |
 | Segurança | A rota não expõe listagem nem qualquer outro arquivo do projeto | Sem entrada, não há como endereçar outro recurso | 🟢 |
-| Compatibilidade | O ícone é opaco, porque o sistema móvel compõe transparência sobre preto | Medido: `docs/assets/img/logo.png` tem 32,5 % de pixels transparentes | 🟢 |
+| Compatibilidade | O ícone é opaco, com fundo branco e cantos retos, porque o sistema móvel compõe transparência sobre preto e aplica a própria máscara de canto | Medido: `docs/assets/img/logo.png` tem 32,5 % de pixels transparentes e cantos `(0, 0, 0, 0)`; e 51,5 % de creme em duas tonalidades | 🟢 |
 | Compatibilidade | A arte servida **não** substitui o ícone da aba, que continua embutido no documento | O `data URI` é a forma que respeita a rota única e o `W004` | 🟢 |
+| Operação | A troca da arte tem de ser vista **sem** esperar expiração de cache | A arte foi trocada **duas vezes em 2026-10-08**; validade longa congelaria o cliente de quem já buscou. Decidido em §9, `Q-04` | 🟢 |
+| Manutenibilidade | A mesma arte existe em dois lugares, e a divergência entre eles é **detectada por teste** | Medido: o desenho existe com 32.317 e com 44.069 bytes e diferença de pixel **zero** — comparar bytes daria alarme falso | 🟢 |
 | Conformidade | Nenhum dado real do operador é versionado ou embutido nesta entrega | `.reversa/principles.md#I`. A arte é marca do projeto, não dado de genealogia | 🟢 |
 | Concorrência | n/a — a rota é leitura pura sobre recurso **imutável**; não há escrita, retentativa nem tempo limite a considerar | A única escrita do sistema continua sendo o upload, cuja chave é derivada do conteúdo | 🟢 |
 | Observabilidade | n/a — a rota não tem caminho de falha visível e não produz mensagem ao operador | `_reversa_sdd/domain.md#5.1`: as dez mensagens permanecem as mesmas | 🟢 |
@@ -166,11 +188,24 @@ Cenário: Escrita no caminho do ícone é recusada
   Então a resposta recusa o método
   E nenhum arquivo é criado ou alterado no disco
 
-Cenário: O ícone é reaproveitado pelo sistema móvel sem nova busca completa
-  Dado que o sistema móvel já buscou /apple-touch-icon.png uma vez
+Cenário: O ícone é revalidado, e não congelado por validade longa
+  Dado que o cliente já buscou /apple-touch-icon.png uma vez
   Quando ele busca o mesmo caminho de novo
-  Então a resposta traz marca de versão do conteúdo
-  E a marca não muda entre as duas buscas
+  Então a resposta informa que o conteúdo não mudou e não traz corpo
+  E nenhuma resposta declara validade de cache superior a um dia
+
+Cenário: Caminhos que ninguém requisita continuam sem resposta
+  Dado que a aplicação está no ar
+  Quando /apple-touch-icon-precomposed.png é buscado
+  Então a resposta informa que o recurso não foi encontrado
+  Quando /favicon.ico é buscado
+  Então a resposta informa que o recurso não foi encontrado
+
+Cenário: A arte de runtime divergindo da canônica é detectada
+  Dado que a arte canônica e a cópia de runtime estão idênticas em pixel
+  Quando um único pixel da cópia de runtime é alterado
+  Então o teste de deriva falha
+  E reencodar o mesmo desenho com outra compressão não faz o teste falhar
 
 Cenário: Ausência do ícone não derruba a aplicação
   Dado que a arte do ícone foi removida do projeto
@@ -185,35 +220,87 @@ Cenário: Ausência do ícone não derruba a aplicação
 |------|--------|---------------|
 | RF-01 | Must | É a entrega: sem a rota, o atalho continua genérico |
 | RF-02 | Must | A medida de 180×180 é a esperada pelo sistema móvel; outra medida é reamostrada e perde nitidez |
-| RF-03 | Must | Sem opacidade o ícone fica com fundo preto — defeito visível que anula o ganho |
+| RF-03 | Must | Fundo transparente vira fundo preto no atalho, e canto arredondado na arte vira arredondamento duplo — dois defeitos visíveis que anulariam o ganho |
 | RF-04 | Must | Fora de `src/` a rota responde `200` no host e `404` no contêiner: falha silenciosa no ambiente que o operador usa |
 | RF-05 | Must | `RN-02`. É a garantia de que a entrega é acréscimo, e não alteração |
 | RF-08 | Must | `.reversa/principles.md#III` |
 | RF-09 | Must | O ícone da aba já custa 19,3 KB por página; somar mais seria regressão de peso |
+| RF-10 | Must | Sem detecção de deriva, a cópia de runtime envelhece em silêncio e o atalho passa a mostrar uma arte que não é mais a do projeto |
+| RF-11 | Must | `RN-09`. É o que impede a entrega de criar caminho sem consumidor |
 | RF-06 | Should | Escrita no caminho do ícone é uso anômalo, não fluxo real |
-| RF-07 | Should | Sem marca de versão o ícone é rebuscado, mas o atalho funciona |
+| RF-07 | Should | O atalho funciona sem marca de versão; o que se perde é a revalidação barata |
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-10-08
+
+Quatro perguntas dirigidas, todas respondidas. Cada resposta foi integrada **in-place** no
+ponto do documento onde a dúvida vivia; o mapa pergunta → mudança está em cada item.
+
+- **Q-01 (escopo funcional) — qual o escopo de caminhos que a feature serve?**
+  **R:** ✅ **Só o caminho principal.** Apenas `/apple-touch-icon.png`. O alias legado
+  `/apple-touch-icon-precomposed.png` e o `/favicon.ico` continuam **sem resposta**: nenhum dos
+  dois tem consumidor — o alias pertence a sistemas anteriores, e o `favicon.ico` só é buscado
+  quando o documento **não** declara ícone, e o `src/templates/index.html:8` declara. Criá-los
+  repetiria a dívida **#17**, que o projeto já fechou.
+  *Aplicado em:* `RN-09` (nova), `RF-11` (novo), cenário Gherkin novo, MoSCoW. Marca de dúvida
+  removida.
+- **Q-02 (experiência) — qual a cor do fundo opaco do ícone, e os cantos?**
+  **R:** ✅ **Branco `#ffffff`, cantos retos.** Os cantos ficam retos porque o sistema móvel
+  aplica a própria máscara arredondada — arredondar na arte produziria arredondamento duplo e
+  um anel de fundo no canto. O branco foi escolhido por contraste: a arte tem 51,5 % de creme em
+  **duas** tonalidades (`#f5efca` e `#f9eab0`), e eleger uma delas faria a outra página parecer
+  errada.
+  *Aplicado em:* `RN-04` (detalhada), `RF-03` (critério com leitura dos quatro cantos), MoSCoW,
+  RNF de Compatibilidade. Marca de dúvida removida.
+- **Q-03 (compatibilidade com o legado) — qual passa a ser a fonte canônica da arte?**
+  **R:** ✅ **`docs/assets/img/logo.png` continua a fonte, e não sai de lá.** O mini-site
+  publicado consome o mesmo arquivo, então as duas cópias servem a dois alvos de publicação
+  distintos — e isso é legítimo. O que a entrega acrescenta é uma cópia de runtime sob `src/` e
+  a **detecção de deriva** entre as duas. O teste compara **pixel a pixel**, nunca bytes:
+  medido, o mesmo desenho existe com 32.317 e com 44.069 bytes e diferença de pixel **zero**,
+  então uma comparação por `sha256` daria alarme falso na primeira recompressão.
+  *Aplicado em:* `RN-05` (detalhada), `RF-10` (novo), cenário Gherkin novo, RNF de
+  Manutenibilidade. Marca de dúvida removida.
+- **Q-04 (atributos não funcionais) — que política de cache o ícone deve ter?**
+  **R:** ✅ **Marca de versão por conteúdo, sem validade longa declarada.** O `ETag` responde
+  `304` sem corpo na rebusca, e nenhuma validade superior a um dia é declarada. Razão: a arte
+  foi trocada **duas vezes em 2026-10-08**, e uma validade de um ano congelaria o cliente que já
+  tivesse buscado — o `ETag` não salva, porque só age depois de a validade expirar. Sendo a
+  aplicação local e monousuário, a revalidação é barata.
+  *Aplicado em:* `RF-07` (critério reescrito), cenário Gherkin reescrito, RNF de Operação,
+  MoSCoW. Marca de dúvida removida.
+
+> **Nota de escopo declarada, e não escondida.** As quatro respostas fecham as três lacunas do
+> documento inicial e ainda abriram trabalho novo: `RN-09`, `RF-10` e `RF-11` não existiam antes
+> desta sessão. Uma quinta questão foi levantada durante a recomendação técnica e **não** entrou
+> nesta feature: o ícone da aba, embutido no documento, responde por **19.298 dos 23.906 bytes
+> da página** — 81 % da resposta. Está registrada em §12, com a razão de ter ficado de fora.
 
 ## 10. Lacunas
 
-- 🔴 [DÚVIDA] **Escopo dos caminhos convencionais.** Servir **apenas** o caminho principal do
-  ícone de atalho, ou também o caminho legado do mesmo ícone (usado por sistemas antigos) e o
-  caminho do ícone de aba? Cada caminho adicional é uma linha a mais no contrato HTTP, e o
-  contrato tem hoje três linhas. Prioridade: escopo.
-- 🔴 [DÚVIDA] **Cor do fundo opaco.** O ícone do atalho precisa de fundo sólido, e a arte não
-  define qual. Candidatos medidos: **branco**, o **creme do livro** que já existe na arte, ou o
-  **cinza da página** (`#f8f9fa`, o mesmo `body` do template). E os cantos: retos, deixando a
-  máscara do sistema móvel arredondar, ou já arredondados na arte?
-- 🔴 [DÚVIDA] **Fonte canônica da arte.** O mesmo desenho passaria a existir em três lugares: a
-  arte em `docs/assets/img/` (que **não** entra no contexto de build), o `data URI` embutido no
-  template e o arquivo novo em `src/`. Qual é a fonte da verdade, e como a entrega impede que
-  as três derivem entre si? Prioridade: técnico.
+n/a — nenhuma lacuna em aberto. As três lacunas do documento inicial foram resolvidas na sessão
+de esclarecimento de 2026-10-08 (§9).
 
 ## 11. Histórico de alterações
 
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-08 | Versão inicial gerada por `/reversa-requirements` | reversa |
+| 2026-10-08 | Sessão de esclarecimento: `Q-01` a `Q-04` resolvidas; `RN-04`, `RN-05` e `RN-09` detalhadas; `RF-10` e `RF-11` acrescentados; três lacunas fechadas | reversa |
+
+## 12. Fora de escopo
+
+**Registrado aqui para não se perder, decidido fora desta feature.**
+
+O ícone da aba é entregue como `data URI` embutido em `src/templates/index.html:8` e responde
+por **19.298 dos 23.906 bytes** de cada resposta de `GET /` — **81 % da página**. Medido nesta
+sessão, com a página servida na `5080`.
+
+Não entra nesta feature por três razões: contraria a `RN-02` (o `GET /` deixaria de ser byte a
+byte idêntico), mexeria no template vigiado pelo `W005`, e o projeto trata cada onda como
+entregável fechado (`_reversa_sdd/migration/risk_register.md#RISK-008`).
+
+Candidato a feature própria, se o operador quiser: servir o ícone da aba por um caminho
+dedicado, o que também respeitaria o `W004`. A decisão registrada em §9, `Q-01` (opção 1-d),
+foi **não** fazer agora.
