@@ -1,10 +1,21 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
-  "feature-id": "003",
-  "short-name": "renomear-pasta-app-para-src",
-  "started-at": "2026-10-02T21:38:27Z",
-  "current-stage": "coding-em-progresso",
+  "feature-dir": "_reversa_forward/009-rota-do-apple-touch-icon",
+  "feature-id": "009",
+  "short-name": "rota-do-apple-touch-icon",
+  "started-at": "2026-10-08T17:51:16Z",
+  "current-stage": "requirements",
   "stages-completed": [],
-  "paused-features": []
+  "paused-features": [
+    {
+      "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
+      "feature-id": "003",
+      "short-name": "renomear-pasta-app-para-src",
+      "started-at": "2026-10-02T21:38:27Z",
+      "current-stage": "coding-em-progresso",
+      "stages-completed": [],
+      "paused-at": "2026-10-08T17:51:16Z",
+      "paused-from-stage": "coding-em-progresso"
+    }
+  ]
 }
