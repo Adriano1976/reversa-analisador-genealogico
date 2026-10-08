@@ -22,7 +22,11 @@ from reporting.mermaid_render import (
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
 )
-from ports.adaptadores import ArmazenamentoEmDisco, CarregadorDeArvoresGedcom
+from ports.adaptadores import (
+    ArmazenamentoEmDisco,
+    CarregadorDeArvoresGedcom,
+    RegistroDeAnalisesPostgres,
+)
 from utils.number_format import formatar_cm, formatar_inteiro
 
 # As dependencias de borda que o nucleo consome (RF-09): leitura de CSV e
@@ -125,6 +129,25 @@ os.makedirs(_pasta_uploads(), exist_ok=True)
 _ARMAZENAMENTO = ArmazenamentoEmDisco(_pasta_uploads())
 _CARREGADOR = CarregadorDeArvoresGedcom(_ARMAZENAMENTO)
 
+# A quarta porta: o registro historico da analise (feature 008, `D-01`). Montada
+# aqui, no ponto unico de montagem da borda, pelo mesmo motivo das outras duas.
+#
+# A REGRA DOS TRES ESTADOS (`D-02`):
+#
+#   1. sem `DATABASE_URL` -> registrador **nulo** (`None`), e nada muda na tela. E
+#      este estado que protege a paridade das 6 fixtures e os 261 testes: a suite e
+#      o harness de paridade **importam este modulo**, e avisar quando a persistencia
+#      esta desligada por configuracao mudaria o contrato congelado de tela;
+#   2. com a variavel e o banco respondendo -> grava;
+#   3. com a variavel e a gravacao falhando -> a analise conclui e e exibida, com
+#      aviso NAO bloqueante (`RN-13`, `RF-17`).
+#
+# NENHUMA CONEXAO ACONTECE AQUI, e o `import psycopg2` e preguicoso, dentro do
+# metodo de gravacao: sem as duas coisas, `import app` quebraria a suite e a
+# paridade **por ambiente**, porque o driver nao esta instalado no `.venv/` do host.
+DATABASE_URL = os.environ.get("DATABASE_URL")
+_REGISTRO = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
+
 
 @app.errorhandler(RequestEntityTooLarge)
 def _requisicao_grande(_erro):
@@ -215,7 +238,8 @@ def index():
                     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
 
                 resultado = caso_de_uso_dna(
-                    caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO)
+                    caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO,
+                    gedcom_filename, _REGISTRO)
                 return render_template(
                     "index.html",
                     gedcom_filename=gedcom_filename,
@@ -223,6 +247,7 @@ def index():
                     dna_results=resultado.resultados,
                     skipped_matches=resultado.descartados,
                     message=resultado.mensagem,
+                    aviso_de_persistencia=resultado.aviso_de_persistencia,
                     success=True
                 )
             except ErroDeDominio as erro_de_dominio:

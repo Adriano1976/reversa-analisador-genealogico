@@ -11,12 +11,20 @@ parametro, sem nunca instanciar a implementacao concreta. Quem implementa mora e
 | `ArmazenamentoDeArquivos` | gravar o upload e resolver a referencia recebida | 2 |
 | `CarregadorDeArvores` | entregar a arvore a partir da referencia | 1 |
 | `RepositorioDeArvores` | persistencia da arvore — **Onda 3, sem implementacao** | 2 |
+| `RegistroDeAnalises` | persistencia HISTORICA da analise — **feature 008** | 1 |
 
 `RF-02` nomeia as duas primeiras como "armazenamento de arquivo" e "repositorio de
 arvore". `CarregadorDeArvores` e a **terceira**, acrescentada pela `D-02` e nao
 prevista no `requirements.md`: sem ela, ou o caso de uso importaria
 `parsers.gedcom_parser` (acoplando a aplicacao a um pacote de borda) ou cada ramo
 da rota repetiria a resolucao de caminho e o parse. Fica declarado como desvio.
+
+A **quarta** — `RegistroDeAnalises` — vem da feature `008-persistencia-postgres-docker`.
+Ela guarda o **resultado** da analise depois do processamento, e nao a arvore: e o
+que a distingue de `RepositorioDeArvores`, que segue **declarado, sem implementacao
+e sem consumidor**. O payload dela viaja em tipos proprios, declarados no fim deste
+modulo, para que o adaptador receba **dado ja projetado** e nao precise conhecer o
+formato do resultado do nucleo (`D-15`).
 
 Nesta onda **nao** existe Protocolo para leitura de CSV nem para emissao de
 diagrama: o contrato entre nucleo e fronteira para essas duas continua sendo a
@@ -39,6 +47,7 @@ nenhuma porta.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
@@ -158,8 +167,163 @@ class RepositorioDeArvores(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class PessoaDaAnalise:
+    """Retrato de UMA pessoa que a analise usou (`analysis_person`, `RF-04`).
+
+    `completa` distingue a ficha inteira da mera identificacao. O resultado do
+    nucleo traz a ficha pronta para a raiz e para o match — em
+    `documentary.person_a` e `.person_b`, que sao `person_summary(...)` —, e dos
+    nos intermediarios do caminho carrega apenas `id` e `nome`
+    (`documentary.path.ids` e `.names`).
+
+    Isso e **limite da saida atual do nucleo**, e nao escolha desta camada
+    (`D-15`): expor o resto exigiria mexer na assinatura de retorno, que o `W016`
+    congela e a paridade compara.
+    """
+
+    xref: str
+    nome: str | None = None
+    sexo: str | None = None
+    nascimento: str | None = None
+    local_nascimento: str | None = None
+    falecimento: str | None = None
+    completa: bool = False
+
+
+@dataclass(frozen=True)
+class KitDaAnalise:
+    """Metadados de UM kit e o veredito **dele** (`match_kit`, `RF-05`, `RN-06`).
+
+    O cM e o **deste** kit. Kits nunca se somam — a chave da evidencia e
+    `(nome do CSV, kit)`, e dois kits do mesmo nome sao duas evidencias.
+    """
+
+    ordinal: int
+    kit: str | None
+    source: str | None
+    total_cm: float | None
+    segment_count: int | None
+    largest_segment_cm: float | None
+    status: str
+    status_note: str | None = None
+
+
+@dataclass(frozen=True)
+class ConexaoDaAnalise:
+    """UMA conexao: o documento, a genetica e o confronto (`match_result`).
+
+    `caminho` carrega pares `(xref, papel)` na ordem do caminho documental, e nao
+    so os identificadores: `match_path_node.role` e `NOT NULL` com dominio fechado
+    (`ascendente`, `descendente`, `afinidade`), e o nucleo **nao** entrega o papel
+    de cada no. Quem o deriva e a projecao, dividindo o caminho no ancestral comum
+    — o adaptador **so escreve**, como a `D-15` exige.
+
+    `afinidade` nunca aparece aqui: quem atribui esse estado e `path_search.py`, e
+    nao o fluxo de analise de DNA (`state-machines.md#4`).
+    """
+
+    ordinal: int
+    csv_name: str
+    matched_name: str
+    matched_person_xref: str
+    comparison_status: str
+    comparison_label: str
+    comparison_detail: str
+    documentary_status: str
+    total_cm: float | None = None
+    relationship_key: str | None = None
+    relationship_label: str | None = None
+    meioses: int | None = None
+    mrca_xref: str | None = None
+    comparison_method: str | None = None
+    expected_low: float | None = None
+    expected_high: float | None = None
+    expected_average: float | None = None
+    causes: tuple[str, ...] = ()
+    observations: tuple[str, ...] = ()
+    kits: tuple[KitDaAnalise, ...] = ()
+    caminho: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
+class DescartadoDaAnalise:
+    """UMA conexao descartada, com o motivo (`skipped_match`, `RN-07`).
+
+    O motivo e o **texto do nucleo**, e nao um codigo: o alvo tem `reason_code`
+    como enum fechado, e fecha-lo aqui exigiria mapear texto em codigo — a
+    inferencia a partir de mensagem de contrato que o projeto recusa desde a
+    feature 006.
+    """
+
+    ordinal: int
+    csv_name: str
+    reason: str
+    kit: str | None = None
+    total_cm: float | None = None
+
+
+@dataclass(frozen=True)
+class AnaliseParaRegistrar:
+    """A analise inteira, ja projetada — o que a porta recebe (`D-01`, `D-15`).
+
+    E **dado plano**: nao carrega o resultado do nucleo, nao tem dicionario
+    aninhado e nao expoe nome de campo de template. A projecao acontece no caso de
+    uso, e o adaptador so escreve.
+    """
+
+    tree_ref: str
+    match_file_ref: str
+    root_name_input: str
+    message: str
+    pessoas: tuple[PessoaDaAnalise, ...]
+    conexoes: tuple[ConexaoDaAnalise, ...]
+    descartados: tuple[DescartadoDaAnalise, ...]
+    root_person_xref: str | None = None
+    accepted_count: int = 0
+    skipped_count: int = 0
+
+
+class RegistroDeAnalises(Protocol):
+    """Persistencia historica do resultado da analise (`D-01`).
+
+    Fica **depois** do processamento e **fora** da decisao: nenhum modulo de
+    `src/core/` a conhece, e nenhum fluxo consulta o banco para decidir, completar
+    ou corrigir um resultado (`RN-01`, `RN-12`). Ela responde "o que esta analise
+    concluiu, e por que" — nao produz a resposta.
+    """
+
+    def registrar(self, analise: AnaliseParaRegistrar, dono: str) -> tuple[str | None, str | None]:
+        """Grava a analise inteira e devolve `(referencia, aviso)`.
+
+        `aviso is None` significa **gravado**, e `referencia` identifica a analise
+        no banco.
+
+        `aviso` preenchido significa **nao gravado**, e o texto explica por que. O
+        aviso existe no lugar da excecao pela `RN-13`: falha de persistencia
+        **nunca** interrompe a analise nem impede o resultado de ser exibido, e
+        este texto e o unico sinal que o operador tem de que o historico nao foi
+        registrado.
+
+        A gravacao e **uma unica transacao** (`RF-10`): ou a analise inteira entra,
+        ou nao entra nada. Analise pela metade e pior que analise ausente —
+        deixaria o veredito de um par gravado com os dados de outro.
+
+        `dono` e a identidade de quem enviou o dado, e entra **sem comportamento**
+        (`RN-10`): vira coluna, e **nenhuma** consulta filtra por ele. Este metodo
+        nao isola nada, e as dividas #3 e #4 seguem abertas.
+        """
+        ...
+
+
 __all__ = [
     "ArmazenamentoDeArquivos",
     "CarregadorDeArvores",
     "RepositorioDeArvores",
+    "RegistroDeAnalises",
+    "AnaliseParaRegistrar",
+    "PessoaDaAnalise",
+    "KitDaAnalise",
+    "ConexaoDaAnalise",
+    "DescartadoDaAnalise",
 ]

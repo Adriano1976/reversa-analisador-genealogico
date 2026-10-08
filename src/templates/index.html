@@ -123,6 +123,9 @@
                 </div>
 
                 <div id="results-area">
+                    {% if aviso_de_persistencia %}
+                        <div class="alerta-aviso" role="alert">{{ aviso_de_persistencia }}</div>
+                    {% endif %}
                     {% if dna_results %}
                         <h2 class="text-center mt-5">Resultado da Análise</h2>
                         {% set ns = namespace(com_caminho=0, ambiguos=0) %}

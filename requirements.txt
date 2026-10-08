@@ -25,3 +25,10 @@ thefuzz==0.22.1
 waitress==3.0.2
 rapidfuzz==3.14.6
 python-Levenshtein==0.27.5
+
+# Adicionada pela feature 008 (persistencia historica das analises). E usada APENAS pelo
+# adaptador da porta de registro (`src/ports/adaptadores.py`), nunca pelo nucleo: `src/core/`
+# nao conhece banco (RN-01). Existe wheel `cp314` para Windows e para Linux, entao nao ha
+# compilacao local em nenhum dos dois. Versao fixada pelo mesmo motivo das outras: uma
+# instalacao nova nao pode trazer outra versao sem uma linha de codigo mudar.
+psycopg2-binary==2.9.13
