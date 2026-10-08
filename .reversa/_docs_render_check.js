@@ -107,6 +107,18 @@ for (const p of paginas) {
     if (!existe) falhas++;
     console.log(`  ${existe ? "OK  " : "FALHA"} ${p.padEnd(32)} img -> ${src}`);
   }
+
+  // e o icone da aba tem de estar declarado e resolver
+  const ic = txt.match(/<link rel="icon"[^>]*href="([^"]+)"/);
+  if (!ic) {
+    falhas++;
+    console.log(`  FALHA ${p}: sem <link rel="icon">`);
+  } else {
+    const alvo = path.join(DOCS, path.dirname(p), ic[1]);
+    const existe = fs.existsSync(alvo);
+    if (!existe) falhas++;
+    console.log(`  ${existe ? "OK  " : "FALHA"} ${p.padEnd(32)} icon -> ${ic[1]}`);
+  }
 }
 
 console.log("=== sintaxe do script inline de cada pagina ===");

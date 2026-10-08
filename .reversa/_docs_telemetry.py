@@ -91,6 +91,10 @@ def main():
         "miniBytes": (DOCS / "assets" / "img" / "logo-mini.png").stat().st_size,
         "faviconDoApp": ("src/templates/index.html declara o mesmo logo como icone da aba, em data URI de "
                          "64x64, sem rota nova e sem src/static/ (proibida pelo watch item W004)"),
+        "faviconDoMiniSite": ("as 10 paginas de _reversa_docs/ declaram <link rel=\"icon\"> apontando para "
+                              "assets/img/logo-mini.png (com o prefixo ../ nas de features/), em vez de "
+                              "repetir um data URI de 8 KB em cada uma. Mantido pelo passo 4 do Publisher, "
+                              "que virou dono dessa etapa: _docs_inject_pages.py.garantir_favicon"),
     }
     s["regeneration"]["tooling"] = (
         "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, "
@@ -130,10 +134,10 @@ def main():
 
     STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    for f in (".smoke-result.json", ".links-result.json"):
-        p = DOCS / f
-        if p.exists():
-            p.unlink()
+    # Os dois arquivos de resultado do smoke test FICAM: o conteudo deles ja foi
+    # absorvido aqui, e apaga-los mexeria em arquivos que o git passou a rastrear.
+    # Se quiser que voltem a ser transitorios, tire-os do versionamento e ponha
+    # no .gitignore; esta funcao nao decide isso sozinha.
 
     print("state.json atualizado")
     print("  startedAt=%s  lastCheckpoint=%s" % (s["startedAt"], s["lastCheckpoint"]))

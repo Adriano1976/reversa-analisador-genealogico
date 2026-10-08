@@ -32,6 +32,7 @@ PADROES_DE_ERRO = ["is not defined", "Failed to fetch", "Access to fetch",
 
 RE_SCRIPT = re.compile(r'<script[^>]+src="([^"]+)"')
 RE_IMG = re.compile(r'<img[^>]+src="([^"]+)"')
+RE_LINK = re.compile(r'<link[^>]+href="([^"]+)"')
 RE_HREF = re.compile(r'<a[^>]+href="([^"]+)"')
 
 
@@ -72,7 +73,7 @@ def main():
                     erros.append({"page": p, "kind": "padrao-de-erro", "detail": pat})
 
             parent = (DOCS / p).parent
-            for src in set(RE_SCRIPT.findall(corpo)) | set(RE_IMG.findall(corpo)):
+            for src in set(RE_SCRIPT.findall(corpo)) | set(RE_IMG.findall(corpo)) | set(RE_LINK.findall(corpo)):
                 if src.startswith(("http://", "https://", "//", "data:")):
                     erros.append({"page": p, "kind": "recurso-externo", "detail": src})
                     continue

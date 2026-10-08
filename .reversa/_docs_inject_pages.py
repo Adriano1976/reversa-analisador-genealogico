@@ -26,6 +26,10 @@ LOGO_MINI = DOCS / "assets" / "img" / "logo-mini.png"
 
 RE_HEADER_SVG = re.compile(r'(<header class="site">\s*)(<svg\b.*?</svg>)', re.S)
 RE_MINI_IMG = re.compile(r'<img class="seal-mini"[^>]*>')
+MARCA_ICONE = "<!-- icone da aba: logo do projeto -->"
+RE_ICONE_MARCADO = re.compile(
+    r"[ \t]*" + re.escape(MARCA_ICONE) + r"\n[ \t]*<link rel=\"icon\"[^>]*>\n?")
+RE_QUALQUER_ICONE = re.compile(r"[ \t]*<link rel=\"icon\"[^>]*>\n?")
 RE_NAV = re.compile(r'(<nav class="reversa-doc-nav">)(.*?)(</nav>)', re.S)
 RE_ANCORAS_SOLTAS = re.compile(
     r'((?:<a href="[^"]+" data-page-id="[^"]+">[^<]*</a>\s*)+)(<nav class="reversa-doc-nav">)')
@@ -38,6 +42,20 @@ def selo_mini(prefixo: str = "") -> str:
     correto: "" na raiz e "../" nas paginas de features/."""
     return ('<img class="seal-mini" src="%sassets/img/logo-mini.png" alt="Logo do projeto">'
             % prefixo)
+
+
+def garantir_favicon(txt: str, prefixo: str) -> str:
+    """Declara o logo como icone da aba, logo depois do <title>. Idempotente."""
+    bloco = ('%s\n    <link rel="icon" type="image/png" sizes="64x64" href="%sassets/img/logo-mini.png">\n'
+             % (MARCA_ICONE, prefixo))
+    if RE_ICONE_MARCADO.search(txt):
+        return RE_ICONE_MARCADO.sub(bloco, txt, count=1)
+    if RE_QUALQUER_ICONE.search(txt):
+        return RE_QUALQUER_ICONE.sub(bloco, txt, count=1)
+    alvo = re.search(r"[ \t]*<title>[^<]*</title>\n", txt)
+    if not alvo:
+        return txt
+    return txt[:alvo.end()] + bloco + txt[alvo.end():]
 
 
 def garantir_base_path(txt: str) -> str:
@@ -118,9 +136,10 @@ def main():
         if n_soltas:
             nav_via += " + %d bloco(s) solto(s) removido(s)" % n_soltas
 
-        # 3. data-base-path, ordem dos scripts e carimbo de geracao
+        # 3. data-base-path, ordem dos scripts, icone da aba e carimbo de geracao
         txt = garantir_base_path(txt)
         txt = garantir_ordem_scripts(txt)
+        txt = garantir_favicon(txt, prefixo)
         txt = re.sub(r'(<meta name="reversa-generated-at" content=")[^"]*(")',
                      r'\g<1>%s\g<2>' % AGORA, txt, count=1)
 
