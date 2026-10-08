@@ -1,21 +1,10 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/008-persistencia-postgres-docker",
-  "feature-id": "008",
-  "short-name": "persistencia-postgres-docker",
-  "started-at": "2026-10-08T03:11:46Z",
+  "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
+  "feature-id": "003",
+  "short-name": "renomear-pasta-app-para-src",
+  "started-at": "2026-10-02T21:38:27Z",
   "current-stage": "coding-em-progresso",
   "stages-completed": [],
-  "paused-features": [
-    {
-      "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
-      "feature-id": "003",
-      "short-name": "renomear-pasta-app-para-src",
-      "started-at": "2026-10-02T21:38:27Z",
-      "current-stage": "coding-em-progresso",
-      "stages-completed": [],
-      "paused-at": "2026-10-07T15:40:00Z",
-      "paused-from-stage": "coding-em-progresso"
-    }
-  ]
+  "paused-features": []
 }

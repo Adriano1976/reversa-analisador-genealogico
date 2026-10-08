@@ -55,7 +55,7 @@
 | T018 | Varrer o conjunto vivo por referência residual ao nome antigo e registrar o resultado | T009, T010, T011, T012, T013, T014, T015 | `[//]` | `_reversa_forward/003-renomear-pasta-app-para-src/evidence/varredura-residual.txt` | 🟢 | `[X]` |
 | T019 | Conferir que nenhum arquivo de dado real entrou no versionamento, em nenhuma profundidade | T005, T008 | `[//]` | `_reversa_forward/003-renomear-pasta-app-para-src/evidence/versionamento.txt` | 🟢 | `[X]` |
 | T020 | Publicar o adendo da feature em `_reversa_sdd/addenda/`, registrando as remoções e as citações de caminho que ficaram desatualizadas nas specs | T016, T017, T018, T019 | - | `_reversa_sdd/addenda/003-renomear-pasta-app-para-src.md` | 🟢 | `[X]` |
-| T021 | Regenerar o mini-site de documentação para refletir a árvore nova | T020 | - | `_reversa_docs/` | 🟡 | `[ ]` |
+| T021 | Regenerar o mini-site de documentação para refletir a árvore nova | T020 | - | `_reversa_docs/` | 🟡 | `[X]` |
 
 ## Notas de execução
 
@@ -113,6 +113,61 @@ deste arquivo poderia ter sido invalidada sem que ninguém notasse.
 de itens novos nesses dois arquivos, nunca reescrevê-los. Uma rodada sem entrega não
 tem delta de impacto para registrar.
 
+## Fechamento da T021 — 2026-10-08
+
+**A `T021` foi concluída pelo pipeline de documentação, que é o dono dela.** As rodadas 2 e 3 do
+`/reversa-coding` estavam certas ao não executá-la: não há ação de código aqui. O que faltava era o
+`/reversa-docs`, e ele rodou por inteiro nesta data, com `reversa-extract-soul` antes, porque o
+`_reversa_sdd/` de 2026-10-05 e o `soul.md` de 2026-10-06 já não descreviam o sistema.
+
+A premissa literal da ação, "refletir a árvore nova", já estava satisfeita desde 2026-10-06. O que
+faltava era o resto: o mini-site ignorava as features 005 a 008, e portanto publicava números e uma
+afirmação de arquitetura que não valiam mais.
+
+| Medida no mini-site | Antes (2026-10-06) | Depois (2026-10-08) |
+|---|---|---|
+| Módulos | 37 | **61** |
+| Linhas não vazias | 5 966 | **9 972** |
+| Pastas de código | 8 | **10** (entram `application/` e `ports/`) |
+| Pacotes de import | 6 | **8** |
+| Arestas de pacote | 13 | **20** |
+| **Ciclos de pacote** | **2**, pintados de vermelho | **0** |
+| Eventos de timeline | 86, até 2026-10-06 | **96**, até 2026-10-08, com a terceira fonte |
+| Conceitos de glossário | 24 | **44** |
+| Lacunas declaradas | 4 | **7** |
+
+**Prova em disco**, toda reproduzível a partir da raiz:
+
+1. `_reversa_docs/assets/data/modules.json` e `deps.json` — 61 módulos, 10 pastas, 8 nós, 20
+   arestas e `cycles: []`, extraídos do código por script determinístico.
+2. `node .reversa/_docs_render_check.js` — confere que o `data.js` embute exatamente os seis JSONs
+   de `assets/data/`, que os 10 itens de nav resolvem no disco e que o script inline das 10 páginas
+   compila. Resultado: **tudo verde**.
+3. `.venv/Scripts/python.exe .reversa/_docs_smoke_test.py` — sobe `http.server` efêmero, faz GET nas
+   10 páginas e nos 28 assets locais e valida os links relativos. Resultado: **10/10 páginas em 200,
+   0 erros, 0 links quebrados**.
+4. `_reversa_docs/.state.json` — telemetria com as duas execuções, os hashes de cada artefato e o
+   registro do achado de ciclos.
+
+**Um achado que vale mais que a ação.** O mini-site marcava **2 ciclos de pacote** em vermelho, e o
+código atual é **acíclico**. A quebra não veio de nenhuma feature do ciclo forward: veio de **dois
+commits diretos**, `2443273` (`refactor(utils): move norm_name para utils e quebra o ciclo
+core-parsers`) e `87bcea5` (`refactor(reporting): injeta o resolvedor de diagrama e quebra o ciclo
+core-reporting`), ambos de 2026-10-06, entre o encerramento da 004 e a abertura da 005. É por isso
+que os adendos das features 005, 006 e 007 registram a dívida #5 como **inalterada por elas**: quando
+a 005 começou, os ciclos já não existiam. Nenhum artefato do `_reversa_sdd/` declara a quebra, e o
+mini-site agora declara, com a atribuição por commit. O `soul.md` registra o mesmo padrão na D1, para
+a mudança do eixo triplo de confronto.
+
+**O que este fechamento não fez.** Não rodou `/reversa-sync`, porque o adendo desta feature já está
+superado pela re-extração de 2026-10-05 e o delta dela foi absorvido. Não tocou `legacy-impact.md`
+nem `regression-watch.md`. Não alterou nenhuma citação de arquivo e linha das páginas de feature: elas
+valem para a extração de 2026-10-05, e cada uma ganhou um bloco de delta apontando os adendos
+vigentes. As citações mortas que o pipeline encontrou nessas páginas (por exemplo
+`src/core/gedcom_state.py`, apagado pela feature 005, e `_guardar_upload` e
+`_resolver_caminho_armazenado`, que não existem mais em `src/app.py`) ficam registradas aqui como
+passivo conhecido da extração de 2026-10-05, não como erro desta ação.
+
 ## Histórico de alterações
 
 | Data | Alteração | Autor |
@@ -120,3 +175,4 @@ tem delta de impacto para registrar.
 | 2026-10-02 | Versão inicial gerada por `/reversa-to-do` | reversa |
 | 2026-10-03 | Rodada 1 de `/reversa-coding`: T001 a T003 concluídas; T004 bloqueada pela política e retomada após liberação de `src/**` e `.vscode/**`; T004 a T020 executadas; T021 pendente; reparo do próprio arquivo após corrupção de codificação | reversa-coding |
 | 2026-10-07 | Rodada 3: zero ações de código a executar (só a `T021`, que é do pipeline de documentação); `[ ]` mantido sem simulação; os cinco watch items reverificados e ainda verdadeiros, com duas nuances novas registradas (`W001` foi de 4 para 6 pacotes de primeiro nível; `W003` passou a resolver a pasta no import) | reversa-coding |
+| 2026-10-08 | T021 concluída pelo `/reversa-docs`, com `reversa-extract-soul` antes: mini-site regenerado (61 módulos, 9 972 linhas, 10 pastas, 8 pacotes, 20 arestas, 0 ciclos, 96 eventos, 44 conceitos); `[X]` com prova em disco | reversa-docs |
