@@ -1,0 +1,28 @@
+﻿=== T008: a arte entra na imagem ===
+ Container genealogia-app-1 Recreate 
+ Container genealogia-app-1 Recreated 
+ Container genealogia-app-1 Starting 
+ Container genealogia-app-1 Started 
+--- ls dentro do container ---
+total 20
+-rwxr-xr-x 1 root root 16504 Oct  8 18:44 apple-touch-icon.png
+--- confere que src/static NAO existe no container ---
+docker : ls: cannot access '/app/src/static': No such file or directory
+No linha:9 caractere:1
++ docker compose exec -T app ls -d /app/src/static 2>&1 | Out-File -App ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ls: cannot acce...le or directory:String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+=== T009: a rota responde DE DENTRO ===
+status 200
+tipo image/png
+bytes 16504
+etag "1791485083.0-16504-4142140804"
+cache-control no-cache
+--- e do host, pela porta publicada ---
+GET /apple-touch-icon.png -> 200  (16504 bytes)
+GET /                     -> 200  (23906 bytes)
+GET /favicon.ico          -> 404

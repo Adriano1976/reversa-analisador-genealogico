@@ -1,0 +1,24 @@
+﻿=== onboarding 4: conteudo servido (curl.exe) ===
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Length: 16504
+Content-Type: image/png
+Etag: "1791485083.0-16504-4142140804"
+Last-Modified: Thu, 08 Oct 2026 18:44:43 GMT
+bytes no disco : 16504
+
+=== onboarding 4b: sonda de conteudo ===
+dimensoes IHDR : (180, 180)
+tipo de cor    : 2 (2 = sem canal alfa)
+cantos         : [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)]
+
+=== onboarding 5: revalidacao com If-None-Match ===
+etag usado     : "1791485083.0-16504-4142140804"
+status         : 304
+bytes no corpo : 0
+
+=== onboarding 5b: a tela nao mudou ===
+GET / bytes    : 23906  (linha de base: 23906)
+
+=== onboarding 7: pasta proibida no host ===
+src/static existe: False
