@@ -21,6 +21,8 @@ _reversa_sdd/parity/_obs_*.json
 .backup-*
 .reversa/snapshots/
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Dados reais do usuario: GEDCOM e CSV de DNA nunca sao versionados (principio I).
 # O padrao com barra final casa em qualquer profundidade, cobrindo
