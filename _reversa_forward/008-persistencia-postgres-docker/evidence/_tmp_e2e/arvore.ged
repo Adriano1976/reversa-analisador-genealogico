@@ -1,0 +1,28 @@
+0 HEAD
+1 SOUR TEST
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @I10@ INDI
+1 NAME Joaquim /Silva/
+1 SEX M
+0 @I11@ INDI
+1 NAME Marta /Souza/
+1 SEX F
+0 @I12@ INDI
+1 NAME Carlos /Silva/ Souza
+1 SEX M
+1 FAMC @F10@
+0 @I13@ INDI
+1 NAME Ana /Silva/ Souza
+1 SEX F
+1 FAMC @F10@
+0 @I90@ INDI
+1 NAME Lone /Ranger/
+1 SEX M
+0 @F10@ FAM
+1 HUSB @I10@
+1 WIFE @I11@
+1 CHIL @I12@
+1 CHIL @I13@
+0 TRLR

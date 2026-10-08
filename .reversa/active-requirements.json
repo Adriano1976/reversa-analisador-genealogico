@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/007-dono-no-port-e-baseline",
-  "feature-id": "007",
-  "short-name": "dono-no-port-e-baseline",
-  "started-at": "2026-10-07T15:40:00Z",
+  "feature-dir": "_reversa_forward/008-persistencia-postgres-docker",
+  "feature-id": "008",
+  "short-name": "persistencia-postgres-docker",
+  "started-at": "2026-10-08T03:11:46Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [
