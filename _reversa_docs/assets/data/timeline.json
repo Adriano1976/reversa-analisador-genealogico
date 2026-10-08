@@ -1,12 +1,32 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T00:43:10Z",
-  "sourceName": "chronicle até 2026-09-30 + .reversa/state.json a partir de 2026-10-05",
+  "generatedAt": "2026-10-08T15:50:16Z",
+  "sourceName": "cronica ate 2026-09-30, eventos de .reversa/state.json a partir de 2026-10-05 e eventos do ciclo forward a partir de 2026-08-11, todos os posteriores marcados como fora da cronica",
   "project": "analisador-genealogico",
+  "sources": [
+    {
+      "id": "chronicle",
+      "path": ".reversa/chronicle.md",
+      "eventos": 78,
+      "ultimo": "2026-09-30T23:59:00-03:00"
+    },
+    {
+      "id": "state.json",
+      "path": ".reversa/state.json",
+      "eventos": 8,
+      "ultimo": "2026-10-06T03:20:00Z"
+    },
+    {
+      "id": "progress.jsonl",
+      "path": "_reversa_forward/*/progress.jsonl",
+      "eventos": 10,
+      "ultimo": "2026-10-08T06:56:45Z"
+    }
+  ],
   "events": [
     {
       "id": "e01",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T11:48:40Z",
       "agent": "reversa-scout",
       "category": "extracao",
@@ -15,7 +35,7 @@
     },
     {
       "id": "e02",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:22:00Z",
       "agent": "reversa-archaeologist",
       "category": "extracao",
@@ -24,7 +44,7 @@
     },
     {
       "id": "e03",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:31:00Z",
       "agent": "reversa-detective",
       "category": "extracao",
@@ -33,7 +53,7 @@
     },
     {
       "id": "e04",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:35:00Z",
       "agent": "reversa-architect",
       "category": "extracao",
@@ -42,7 +62,7 @@
     },
     {
       "id": "e05",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:50:00Z",
       "agent": "reversa-writer",
       "category": "extracao",
@@ -51,7 +71,7 @@
     },
     {
       "id": "e06",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:50:00Z",
       "agent": "reversa-reviewer",
       "category": "extracao",
@@ -60,7 +80,7 @@
     },
     {
       "id": "e07",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T12:52:00Z",
       "agent": "reversa",
       "category": "extracao",
@@ -69,7 +89,7 @@
     },
     {
       "id": "e08",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-03T16:15:11-03:00",
       "agent": "reversa",
       "category": "extracao",
@@ -78,7 +98,7 @@
     },
     {
       "id": "e09",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-06T14:35:38-03:00",
       "agent": "commit",
       "category": "framework",
@@ -87,7 +107,7 @@
     },
     {
       "id": "e10",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-06T14:41:29-03:00",
       "agent": "commit",
       "category": "framework",
@@ -96,7 +116,7 @@
     },
     {
       "id": "e11",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T10:32:56-03:00",
       "agent": "reversa-reconstructor",
       "category": "reconstrucao",
@@ -105,7 +125,7 @@
     },
     {
       "id": "e12",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T12:00:29-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -114,7 +134,7 @@
     },
     {
       "id": "e13",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T12:43:35-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -123,7 +143,7 @@
     },
     {
       "id": "e14",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T12:52:39-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -132,7 +152,7 @@
     },
     {
       "id": "e15",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T13:00:32-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -141,7 +161,7 @@
     },
     {
       "id": "e16",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T13:06:05-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -150,7 +170,7 @@
     },
     {
       "id": "e17",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-07T13:10:07-03:00",
       "agent": "commit",
       "category": "reconstrucao",
@@ -159,7 +179,7 @@
     },
     {
       "id": "e18",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T13:36:03-03:00",
       "agent": "commit",
       "category": "forward",
@@ -168,7 +188,7 @@
     },
     {
       "id": "e19",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T13:45:55Z",
       "agent": "reversa-coding",
       "category": "forward",
@@ -176,8 +196,20 @@
       "detail": "reversa-coding feature 001 — ações T001–T004 concluídas: reconstrução do conteúdo de templates/index.html"
     },
     {
+      "id": "f001-20260811",
+      "date": "2026-08-11T13:45:55Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "reconstrua-o-conteudo-da-index: 2026-08-11",
+      "detail": "4 ação(ões) em 2026-08-11 (4 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "001-reconstrua-o-conteudo-da-index",
+      "featureId": "001"
+    },
+    {
       "id": "e20",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:11:08-03:00",
       "agent": "commit",
       "category": "forward",
@@ -186,7 +218,7 @@
     },
     {
       "id": "e21",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:21:24-03:00",
       "agent": "commit",
       "category": "forward",
@@ -195,7 +227,7 @@
     },
     {
       "id": "e22",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:30:22-03:00",
       "agent": "commit",
       "category": "forward",
@@ -204,7 +236,7 @@
     },
     {
       "id": "e23",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:32:10Z",
       "agent": "reversa-coding",
       "category": "forward",
@@ -213,7 +245,7 @@
     },
     {
       "id": "e24",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:33:34Z",
       "agent": "reversa",
       "category": "forward",
@@ -221,8 +253,20 @@
       "detail": "T002: testes test_upload.py, test_path_search.py, test_dna_analysis.py, test_domain.py"
     },
     {
+      "id": "f002-20260811",
+      "date": "2026-08-11T14:33:34Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "integrar-rota-app-modulos: 2026-08-11",
+      "detail": "2 ação(ões) em 2026-08-11 (2 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "002-integrar-rota-app-modulos",
+      "featureId": "002"
+    },
+    {
       "id": "e25",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:42:37Z",
       "agent": "reversa",
       "category": "forward",
@@ -231,7 +275,7 @@
     },
     {
       "id": "e26",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T14:43:52Z",
       "agent": "reversa",
       "category": "forward",
@@ -240,7 +284,7 @@
     },
     {
       "id": "e27",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-11T16:13:47-03:00",
       "agent": "commit",
       "category": "forward",
@@ -249,7 +293,7 @@
     },
     {
       "id": "e28",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-12T13:41:00-03:00",
       "agent": "commit",
       "category": "docs",
@@ -258,7 +302,7 @@
     },
     {
       "id": "e29",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-12T14:00:00Z",
       "agent": "reversa-docs",
       "category": "docs",
@@ -267,7 +311,7 @@
     },
     {
       "id": "e30",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-12T14:16:28-03:00",
       "agent": "commit",
       "category": "docs",
@@ -276,7 +320,7 @@
     },
     {
       "id": "e31",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-12T16:16:48-03:00",
       "agent": "reversa-docs-storyteller",
       "category": "docs",
@@ -285,7 +329,7 @@
     },
     {
       "id": "e32",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-12T18:41:35Z",
       "agent": "reversa",
       "category": "docs",
@@ -294,7 +338,7 @@
     },
     {
       "id": "e33",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-13T01:30:56-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -303,7 +347,7 @@
     },
     {
       "id": "e34",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-13T01:42:33-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -312,7 +356,7 @@
     },
     {
       "id": "e35",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-13T01:47:42-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -321,7 +365,7 @@
     },
     {
       "id": "e36",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-13T10:30:26-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -330,7 +374,7 @@
     },
     {
       "id": "e37",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-13T10:47:31-03:00",
       "agent": "commit",
       "category": "licenca",
@@ -339,7 +383,7 @@
     },
     {
       "id": "e38",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-08-16T16:48:38-03:00",
       "agent": "reversa",
       "category": "docs",
@@ -348,7 +392,7 @@
     },
     {
       "id": "e39",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T02:14:23-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -357,7 +401,7 @@
     },
     {
       "id": "e40",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T13:02:20-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -366,7 +410,7 @@
     },
     {
       "id": "e41",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T13:02:39-03:00",
       "agent": "reversa",
       "category": "migracao",
@@ -375,7 +419,7 @@
     },
     {
       "id": "e42",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T13:02:48-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -384,7 +428,7 @@
     },
     {
       "id": "e43",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T15:17:17-03:00",
       "agent": "commit",
       "category": "migracao",
@@ -393,7 +437,7 @@
     },
     {
       "id": "e76",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-28T23:59:00-03:00",
       "agent": "reversa",
       "category": "migracao",
@@ -402,7 +446,7 @@
     },
     {
       "id": "e44",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T03:20:41-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -411,7 +455,7 @@
     },
     {
       "id": "e45",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T03:20:49-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -420,7 +464,7 @@
     },
     {
       "id": "e46",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T03:20:55-03:00",
       "agent": "reversa-refactor",
       "category": "refactor",
@@ -429,7 +473,7 @@
     },
     {
       "id": "e47",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T03:21:00-03:00",
       "agent": "reversa-principles",
       "category": "refactor",
@@ -438,7 +482,7 @@
     },
     {
       "id": "e48",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:22:16-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -447,7 +491,7 @@
     },
     {
       "id": "e49",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:22:21-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -456,7 +500,7 @@
     },
     {
       "id": "e50",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:33:51-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -465,7 +509,7 @@
     },
     {
       "id": "e51",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:41:43-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -474,7 +518,7 @@
     },
     {
       "id": "e52",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:41:48-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -483,7 +527,7 @@
     },
     {
       "id": "e53",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:41:54-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -492,7 +536,7 @@
     },
     {
       "id": "e54",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:55:52-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -501,7 +545,7 @@
     },
     {
       "id": "e55",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T14:55:58-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -510,7 +554,7 @@
     },
     {
       "id": "e56",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T15:07:46-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -519,7 +563,7 @@
     },
     {
       "id": "e57",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T15:07:56-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -528,7 +572,7 @@
     },
     {
       "id": "e58",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T15:08:03-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -537,7 +581,7 @@
     },
     {
       "id": "e59",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T15:13:47-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -546,7 +590,7 @@
     },
     {
       "id": "e60",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T15:13:59-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -555,7 +599,7 @@
     },
     {
       "id": "e61",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T16:08:47-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -564,7 +608,7 @@
     },
     {
       "id": "e62",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T16:08:56-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -573,7 +617,7 @@
     },
     {
       "id": "e63",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T16:09:03-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -582,7 +626,7 @@
     },
     {
       "id": "e64",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T16:09:09-03:00",
       "agent": "commit",
       "category": "refactor",
@@ -591,7 +635,7 @@
     },
     {
       "id": "e65",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T16:09:15-03:00",
       "agent": "reversa-debugger",
       "category": "refactor",
@@ -600,7 +644,7 @@
     },
     {
       "id": "e77",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-29T23:59:00-03:00",
       "agent": "reversa",
       "category": "refactor",
@@ -609,7 +653,7 @@
     },
     {
       "id": "e66",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T11:16:52-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -618,7 +662,7 @@
     },
     {
       "id": "e67",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T11:17:02-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -627,7 +671,7 @@
     },
     {
       "id": "e68",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T11:17:07-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -636,7 +680,7 @@
     },
     {
       "id": "e69",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T13:20:04-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -645,7 +689,7 @@
     },
     {
       "id": "e70",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T13:20:11-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -654,7 +698,7 @@
     },
     {
       "id": "e71",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T15:11:57-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -663,7 +707,7 @@
     },
     {
       "id": "e72",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T15:47:24-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -672,7 +716,7 @@
     },
     {
       "id": "e73",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T15:47:29-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -681,7 +725,7 @@
     },
     {
       "id": "e74",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T16:36:42-03:00",
       "agent": "reversa",
       "category": "reextracao",
@@ -690,7 +734,7 @@
     },
     {
       "id": "e75",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T16:36:48-03:00",
       "agent": "commit",
       "category": "reextracao",
@@ -699,12 +743,48 @@
     },
     {
       "id": "e78",
-"source": "chronicle",
+      "source": "chronicle",
       "date": "2026-09-30T23:59:00-03:00",
       "agent": "reversa-reviewer",
       "category": "reextracao",
       "title": "Resultado da re-extração",
       "detail": "819 afirmações catalogadas, 90,5% de confiança geral. Correções contra a extração anterior: HARD_MIN/GIVEN_MIN não existem na reconstrução; cM ≤ 0 devolve lista vazia; a action de DNA é dna_analysis e não process_dna; 8 "
+    },
+    {
+      "id": "f003-20261003",
+      "date": "2026-10-03T18:55:47Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-pasta-app-para-src: 2026-10-03",
+      "detail": "25 ação(ões) em 2026-10-03 (1 blocked, 2 corrected, 20 done, 2 failed). T004: src/** e .vscode/** ausentes em allowedPaths de .reversa/reversa-config.json (ultima modificacao 2026-10-01 02:26:25). Escrita em src/ recusada. Fase... SELF: reparo de corrupcao de codificacao: Get-Content sem -Encoding no PowerShell 5.1 leu UTF-8 como Windows-1252 (actions.md, 153 sequencias de mojibake d... T004: rename bloqueado por 3 processos com CWD dentro de analisador-genealogico: PID 13872 (powershell/WindowsTerminal), PID 16764 (python app.py, filho da... T021: rodada 2 de reversa-coding: zero acoes de codigo a executar. T021 e regeneracao do mini-site e pertence ao pipeline de documentacao, nao ao ciclo de...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "003-renomear-pasta-app-para-src",
+      "featureId": "003"
+    },
+    {
+      "id": "f004-20261003",
+      "date": "2026-10-03T19:18:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "servidor-waitress: 2026-10-03",
+      "detail": "11 ação(ões) em 2026-10-03 (2 blocked, 8 done, 1 failed). T011: nao verificavel neste ambiente: a sandbox nega o diretorio temporario do pip (Permission denied), e a rede funciona. Lacuna substantiva declarada: ne... T001: caminho requirements.txt fora de allowedPaths; politica recusa a escrita. Nenhuma acao deste plano pode liberar o caminho T007: 121 passed, 15 errors: linha de base de 118 aprovados mais os 3 testes novos, mesmos 15 erros de ambiente T010: mensagem nomeia o pacote e o interpretador exato, codigo de saida 1, nenhuma porta aberta",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "004-servidor-waitress",
+      "featureId": "004"
+    },
+    {
+      "id": "f004-20261004",
+      "date": "2026-10-04T07:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "servidor-waitress: 2026-10-04",
+      "detail": "14 ação(ões) em 2026-10-04 (13 done, 1 failed). T011: executada em 2026-10-04 e o resultado contradiz a premissa: no Windows duas instancias do servidor escutam na MESMA porta, porque ele usa SO_REUSEADD... T012: seis dependencias diretas fixadas com == nas versoes validadas: Flask 3.1.3, ged4py 0.5.2, networkx 3.6.1, pandas 3.0.3, thefuzz 0.22.1, waitress 3.0... T013: pip install -r requirements.txt com codigo de saida 0, nada instalado nem removido porque o conjunto ja correspondia; conferencia declarado x instala... T014: quatro afirmacoes novas; falharam antes da mudanca (4 failed, 3 passed) e passam depois (7 passed). Uma delas procurava aspa dupla e o ast.unparse no...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "004-servidor-waitress",
+      "featureId": "004"
     },
     {
       "id": "e79",
@@ -785,6 +865,66 @@
       "title": "re-extração de 2026-10-05 concluída",
       "detail": "Re-extração integral do _reversa_sdd/ a partir do código de 2026-10-05: 6 agentes (scout, archaeologist, detective, architect, writer e reviewer) e 5 fases concluídas, com cerca de 60 artefatos gerados ou reescritos (15 transversais, 3 flowcharts, 12 specs de unit, 23 ADRs, 3 user stories, 1 openapi e 2 de rastreabilidade). Confiança final de 92,8% em 1.922 afirmações (1737 verdes, 95 amarelas e 90 vermelhas) e 14 lacunas abertas, 1 delas crítica (corrida entre threads). Suíte com 164 acertos e 15 erros de ambiente, paridade de 100% em 6 de 6 fixtures e cobertura de 83% de src/. As 16 perguntas de validação humana foram respondidas e nenhuma segue aberta. migration/, oracle/, parity/, screens/, addenda/, design-system/ e traceability/bugs.md foram preservados sem regeneração.",
       "foraDaCronica": true
+    },
+    {
+      "id": "f006-20261007",
+      "date": "2026-10-07T14:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "fronteira-aplicacao-ports: 2026-10-07",
+      "detail": "31 ação(ões) em 2026-10-07 (31 done). T006: Protocol CarregadorDeArvores com UM metodo, que e a condicao declarada da D-02. Executada depois de T005, respeitando o criterio de arquivo alvo dist... T007: ArmazenamentoEmDisco delega para utils/validate.py (autoridade unica, D-07) e CarregadorDeArvoresGedcom resolve a referencia e chama carregar_arvore.... T010: Os quatro pontos de deteccao, um a um, com o literal conferido. O ponto do csv_ingest e forcado por monkeypatch de pd.read_csv: alcancar o raise real... T012: Campo de desfecho com tres valores, derivado de payload + flag de sucesso, nunca do texto (D-11). O campo do payload chama-se 'dados' e nao 'path_res...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "006-fronteira-aplicacao-ports",
+      "featureId": "006"
+    },
+    {
+      "id": "f003-20261007",
+      "date": "2026-10-07T15:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-pasta-app-para-src: 2026-10-07",
+      "detail": "1 ação(ões) em 2026-10-07 (1 blocked). T021: rodada 3 de reversa-coding: zero acoes de codigo a executar, resultado identico ao da rodada 2. T021 e regeneracao do mini-site e pertence ao pipelin...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "003-renomear-pasta-app-para-src",
+      "featureId": "003"
+    },
+    {
+      "id": "f007-20261007",
+      "date": "2026-10-07T16:31:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "dono-no-port-e-baseline: 2026-10-07",
+      "detail": "19 ação(ões) em 2026-10-07 (17 done, 2 failed). T003: 1 failed, 248 passed: a assercao tmp_path != pasta_temporaria supunha dois diretorios independentes no mesmo teste; o pytest cacheia a instancia do f... T003: assercao corrigida para exigir IGUALDADE e raiz unica, com o motivo no docstring; nenhuma assercao enfraquecida; nao e falha de produto nem de ambien... T004: linha de base vigente: 249 passed, 0 errors, exit 0; paridade 100%, exit 0; zero residuo em tests/.tmp/. Aritmetica: 231 + 15 que passaram a executar... T005: dono como ultimo parametro posicional e sem valor padrao em ArmazenamentoDeArquivos.guardar, .resolver e CarregadorDeArvores.carregar; o carregador c...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "007-dono-no-port-e-baseline",
+      "featureId": "007"
+    },
+    {
+      "id": "f005-20261007",
+      "date": "2026-10-07T17:50:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "nucleo-puro-src: 2026-10-07",
+      "detail": "35 ação(ões) em 2026-10-07 (1 deferred, 31 done, 1 failed, 1 partial, 1 reverted). harness (reparo): O coletor do candidato QUEBROU com o T011/T012, exatamente como o desvio declarado no T010 previu: ele chamava FN.get_parents(i) na assinatura antiga... T005-T007+T030: Medicao da fase: suite 172 passed / 2 xfailed / 15 errors, contra 164 passed / 15 errors da linha de base. Os 15 erros de ambiente sao os mesmos e os... T023(a,c,d): (a) carregar_arvore deixou de mutar as globais e o import de gedcom_state saiu do parser; get_name/ref_id passaram a vir de core.registro. O coletor... T008-T009: Medicao da rodada: suite 177 passed / 2 xfailed / 15 errors e paridade 100 por cento nas 6 fixtures com exit 0. Nada quebrou: T008 e T009 entraram se...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "005-nucleo-puro-src",
+      "featureId": "005"
+    },
+    {
+      "id": "f008-20261008",
+      "date": "2026-10-08T06:56:45Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "persistencia-postgres-docker: 2026-10-08",
+      "detail": "34 ação(ões) em 2026-10-08 (1 blocked, 5 corrected, 26 done, 2 failed). T005: extensoes do D-06: bloco do veredito, match_kit, analysis_person, CHECKs e indices. T004 e T005 aplicadas numa escrita so do arquivo, declarado em No... T006: dois servicos, volume nomeado + bind mount, mount do init.sql no entrypoint, depends_on curto sem service_healthy. docker compose config --quiet = ex... T008: build exit 0 (9 pacotes cp314/manylinux instalados SEM compilar); up -d exit 0; db healthy; app Up 127.0.0.1:5080->5000; HTTP 200 em 4s. Exigiu autor... T011: PORTAO DO BLOCO 0 VERDE: 261 passed (igual a linha de base) e PARIDADE 100% exit 0, os dois SEM DATABASE_URL. Suite mais lenta (62,2s vs 27,1s) por c...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "008-persistencia-postgres-docker",
+      "featureId": "008"
     }
   ]
 }

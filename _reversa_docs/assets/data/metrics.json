@@ -1,66 +1,78 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T03:53:11Z",
+  "generatedAt": "2026-10-08T15:50:16Z",
   "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
   "code": {
-    "modules": 37,
-    "locNaoVazio": 5966,
-    "locSrcPython": 2941,
-    "locTests": 2532,
-    "complexityTotal": 1141,
-    "pastas": 8,
-    "pacotes": 6,
-    "arestasDePacote": 13,
-    "ciclos": 2
+    "modules": 61,
+    "locNaoVazio": 9972,
+    "locSrcPython": 4320,
+    "locTests": 5156,
+    "complexityTotal": 1549,
+    "pastas": 10,
+    "pacotes": 8,
+    "arestasDePacote": 20,
+    "ciclos": 0
   },
   "treemap_loc_by_folder": [
     {
       "folder": "tests/",
-      "loc": 2433,
-      "modules": 11,
-      "complexity": 499
+      "loc": 4981,
+      "modules": 23,
+      "complexity": 822
     },
     {
       "folder": "core/",
-      "loc": 2015,
-      "modules": 13,
-      "complexity": 483
+      "loc": 2254,
+      "modules": 15,
+      "complexity": 481
+    },
+    {
+      "folder": "application/",
+      "loc": 506,
+      "modules": 5,
+      "complexity": 65
     },
     {
       "folder": "templates/",
-      "loc": 493,
+      "loc": 496,
       "modules": 1,
       "complexity": 0
     },
     {
+      "folder": "ports/",
+      "loc": 488,
+      "modules": 2,
+      "complexity": 18
+    },
+    {
+      "folder": "src/",
+      "loc": 336,
+      "modules": 1,
+      "complexity": 33
+    },
+    {
       "folder": "parsers/",
-      "loc": 253,
+      "loc": 256,
       "modules": 3,
-      "complexity": 55
+      "complexity": 54
     },
     {
       "folder": "reporting/",
-      "loc": 242,
+      "loc": 253,
       "modules": 2,
       "complexity": 45
     },
     {
-      "folder": "src/",
-      "loc": 232,
-      "modules": 1,
-      "complexity": 34
-    },
-    {
       "folder": "utils/",
-      "loc": 199,
-      "modules": 4,
-      "complexity": 25
+      "loc": 227,
+      "modules": 5,
+      "complexity": 28
     },
     {
       "folder": "tests/fixtures/",
-      "loc": 99,
-      "modules": 2,
-      "complexity": 0
+      "loc": 175,
+      "modules": 4,
+      "complexity": 3
     }
   ],
   "top_complexity": [
@@ -69,63 +81,91 @@
       "name": "test_confrontacao_gedcom_dna.py",
       "folder": "tests/",
       "complexity": 204,
-      "loc": 824
+      "loc": 827
     },
     {
       "id": "src/core/documentary_relationship.py",
       "name": "documentary_relationship.py",
       "folder": "core/",
-      "complexity": 117,
-      "loc": 490
+      "complexity": 118,
+      "loc": 531
     },
     {
       "id": "tests/test_upload_seguranca.py",
       "name": "test_upload_seguranca.py",
       "folder": "tests/",
-      "complexity": 80,
-      "loc": 345
+      "complexity": 90,
+      "loc": 454
     },
     {
       "id": "src/core/genetic_evidence.py",
       "name": "genetic_evidence.py",
       "folder": "core/",
       "complexity": 71,
-      "loc": 228
+      "loc": 229
+    },
+    {
+      "id": "tests/test_projecao_da_analise.py",
+      "name": "test_projecao_da_analise.py",
+      "folder": "tests/",
+      "complexity": 70,
+      "loc": 254
+    },
+    {
+      "id": "src/application/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "application/",
+      "complexity": 57,
+      "loc": 248
     },
     {
       "id": "src/core/dna_analysis.py",
       "name": "dna_analysis.py",
       "folder": "core/",
       "complexity": 52,
-      "loc": 220
+      "loc": 253
     },
     {
       "id": "src/core/matching.py",
       "name": "matching.py",
       "folder": "core/",
       "complexity": 51,
-      "loc": 145
+      "loc": 155
+    },
+    {
+      "id": "tests/test_dependencias_nucleo.py",
+      "name": "test_dependencias_nucleo.py",
+      "folder": "tests/",
+      "complexity": 50,
+      "loc": 254
     },
     {
       "id": "src/reporting/mermaid_render.py",
       "name": "mermaid_render.py",
       "folder": "reporting/",
       "complexity": 45,
-      "loc": 241
+      "loc": 252
+    },
+    {
+      "id": "tests/test_upload.py",
+      "name": "test_upload.py",
+      "folder": "tests/",
+      "complexity": 45,
+      "loc": 202
     },
     {
       "id": "tests/test_dna_analysis.py",
       "name": "test_dna_analysis.py",
       "folder": "tests/",
       "complexity": 44,
-      "loc": 243
+      "loc": 251
     },
     {
-      "id": "tests/test_upload.py",
-      "name": "test_upload.py",
+      "id": "tests/test_porta_de_armazenamento.py",
+      "name": "test_porta_de_armazenamento.py",
       "folder": "tests/",
-      "complexity": 44,
-      "loc": 181
+      "complexity": 43,
+      "loc": 493
     },
     {
       "id": "src/core/evidence_comparison.py",
@@ -139,70 +179,42 @@
       "name": "csv_ingest.py",
       "folder": "parsers/",
       "complexity": 39,
-      "loc": 191
+      "loc": 192
     },
     {
       "id": "src/core/family_navigation.py",
       "name": "family_navigation.py",
       "folder": "core/",
       "complexity": 37,
-      "loc": 87
-    },
-    {
-      "id": "src/core/name_normalization.py",
-      "name": "name_normalization.py",
-      "folder": "core/",
-      "complexity": 35,
-      "loc": 90
+      "loc": 119
     },
     {
       "id": "src/app.py",
       "name": "app.py",
       "folder": "src/",
-      "complexity": 34,
-      "loc": 232
+      "complexity": 33,
+      "loc": 336
     },
     {
       "id": "src/core/path_search.py",
       "name": "path_search.py",
       "folder": "core/",
       "complexity": 33,
-      "loc": 186
+      "loc": 180
+    },
+    {
+      "id": "src/core/name_normalization.py",
+      "name": "name_normalization.py",
+      "folder": "core/",
+      "complexity": 32,
+      "loc": 85
     },
     {
       "id": "tests/test_path_search.py",
       "name": "test_path_search.py",
       "folder": "tests/",
       "complexity": 29,
-      "loc": 82
-    },
-    {
-      "id": "tests/test_servidor_producao.py",
-      "name": "test_servidor_producao.py",
-      "folder": "tests/",
-      "complexity": 26,
-      "loc": 129
-    },
-    {
-      "id": "tests/test_characterization_matching.py",
-      "name": "test_characterization_matching.py",
-      "folder": "tests/",
-      "complexity": 21,
-      "loc": 204
-    },
-    {
-      "id": "src/core/relationship_hypotheses.py",
-      "name": "relationship_hypotheses.py",
-      "folder": "core/",
-      "complexity": 21,
-      "loc": 198
-    },
-    {
-      "id": "tests/test_mermaid_escape.py",
-      "name": "test_mermaid_escape.py",
-      "folder": "tests/",
-      "complexity": 19,
-      "loc": 163
+      "loc": 89
     }
   ],
   "loc_histogram": {
@@ -216,11 +228,11 @@
       5000
     ],
     "counts": [
-      7,
       11,
-      8,
-      10,
-      1,
+      18,
+      12,
+      18,
+      2,
       0,
       0
     ],
@@ -240,10 +252,16 @@
         "id": "app"
       },
       {
+        "id": "application"
+      },
+      {
         "id": "core"
       },
       {
         "id": "parsers"
+      },
+      {
+        "id": "ports"
       },
       {
         "id": "reporting"
@@ -258,6 +276,11 @@
     "links": [
       {
         "source": "app",
+        "target": "application",
+        "value": 5
+      },
+      {
+        "source": "app",
         "target": "core",
         "value": 2
       },
@@ -268,71 +291,101 @@
       },
       {
         "source": "app",
-        "target": "utils",
-        "value": 2
-      },
-      {
-        "source": "core",
-        "target": "parsers",
+        "target": "ports",
         "value": 1
       },
       {
-        "source": "core",
+        "source": "app",
         "target": "reporting",
-        "value": 2
+        "value": 1
       },
       {
-        "source": "core",
-        "target": "utils",
-        "value": 4
-      },
-      {
-        "source": "parsers",
-        "target": "core",
-        "value": 3
-      },
-      {
-        "source": "parsers",
+        "source": "app",
         "target": "utils",
         "value": 1
       },
       {
-        "source": "reporting",
+        "source": "application",
         "target": "core",
-        "value": 3
+        "value": 5
+      },
+      {
+        "source": "application",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "core",
+        "target": "utils",
+        "value": 5
+      },
+      {
+        "source": "parsers",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "parsers",
+        "target": "utils",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "parsers",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "utils",
+        "value": 1
       },
       {
         "source": "tests",
         "target": "app",
-        "value": 1
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "application",
+        "value": 9
       },
       {
         "source": "tests",
         "target": "core",
-        "value": 20
+        "value": 26
       },
       {
         "source": "tests",
         "target": "parsers",
-        "value": 13
+        "value": 17
+      },
+      {
+        "source": "tests",
+        "target": "ports",
+        "value": 5
+      },
+      {
+        "source": "tests",
+        "target": "reporting",
+        "value": 2
       },
       {
         "source": "tests",
         "target": "utils",
-        "value": 5
+        "value": 6
       }
     ]
   },
   "language_distribution": [
     {
       "language": "python",
-      "modules": 36,
-      "loc": 5473
+      "modules": 60,
+      "loc": 9476
     },
     {
       "language": "html",
       "modules": 1,
-      "loc": 493
+      "loc": 496
     }
   ],
   "sdd": {

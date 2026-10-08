@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-06T05:25:53Z">
+<meta name="reversa-generated-at" content="2026-10-08T16:05:12Z">
 <title>upload-gedcom — analisador-genealogico</title>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/nav.js"></script>
@@ -54,10 +54,16 @@
   .acc .body{padding:0 14px 14px 14px;color:var(--muted);font-size:13px;line-height:1.6;}
   .acc details[open] summary{background:rgba(79,140,255,.08);}
   .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:16px;}
+  .delta-warn{background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.35);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;margin:18px 0 6px;}
+  .delta-warn h3{font-size:14px;color:#fff;margin-bottom:8px;letter-spacing:.3px;}
+  .delta-warn p{color:var(--muted);margin-bottom:8px;}
+  .delta-warn p:last-child{margin-bottom:0;}
+  .delta-warn a{color:var(--accent);text-decoration:none;}
 </style>
 </head>
 <body>
 <header class="site">
+  
   
   
   
@@ -72,6 +78,7 @@
   </g>
     <polygon points="30.95,26.60 36.82,29.34 36.02,35.76 29.67,36.99 26.54,31.32" fill="#f5f3ee" stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round"/>
   </svg>
+
 
 
 
@@ -97,6 +104,12 @@
   <h1>upload-gedcom</h1>
   <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>upload_gedcom</code></span><span class="pill" id="pillRf">19 requisitos funcionais</span><span class="pill" id="pillGh">6 cenários Gherkin</span><span class="pill" id="pillTk">20 tarefas</span><span class="pill">Spec: upload-gedcom</span></div>
   <p class="summary" id="tldr">Recebe um arquivo GEDCOM enviado pelo navegador, decide se ele pode ser gravado, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo). É a porta de entrada de todas as outras unidades: sem upload-gedcom, não há analise-dna nem busca-caminho.</p>
+
+  <div class="delta-warn" id="delta-pos-extracao">
+    <h3>Delta depois da extração: features 005 a 008 do ciclo forward</h3>
+    <p>Esta página descreve a extração de 2026-10-05. Depois dela, as features 005 a 008 moveram a implementação: os casos de uso foram para <code>src/application/</code>, o mundo externo entra por <code>src/ports/</code> e o núcleo ficou puro, dependendo só de <code>utils</code>.</p>
+    <p>Ou seja: o documento desta página continua correto para o que foi extraído em 2026-10-05, e tudo nesta página que cita arquivo e linha vale para aquele momento. Para o estado vigente, leia os <a href="../glossario.html#concept-adendos-vigentes">adendos vigentes</a> em <code>_reversa_sdd/addenda/</code>: <code>005-nucleo-puro-src.md</code>, <code>006-fronteira-aplicacao-ports.md</code>, <code>007-dono-no-port-e-baseline.md</code> e <code>008-persistencia-postgres-docker.md</code>.</p>
+  </div>
 
   <h2>Como a Feature Funciona</h2>
   <div class="tabs" id="tabs">

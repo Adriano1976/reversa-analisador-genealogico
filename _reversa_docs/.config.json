@@ -12,7 +12,9 @@
   },
   "seed": {
     "hash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
-    "source": "soul.md"
+    "source": "soul.md",
+    "explicitOverride": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+    "note": "Identidade visual fixada em 2026-10-08. O hash foi calculado a partir do soul.md de 2026-10-06 e passa a ser imutavel por override, para que o selo nao mude de desenho a cada regeracao do soul."
   },
   "knowledgeSources": {
     "soul": true,

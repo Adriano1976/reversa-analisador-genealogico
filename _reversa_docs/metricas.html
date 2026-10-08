@@ -6,7 +6,7 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-analyst">
 <meta name="reversa-template" content="metricas">
-<meta name="reversa-generated-at" content="2026-10-06T05:25:53Z">
+<meta name="reversa-generated-at" content="2026-10-08T16:05:12Z">
 <!-- TITLE -->
 <title>Métricas — analisador-genealogico</title>
 <!-- PAGE_ID -->
@@ -46,10 +46,18 @@
   .chart h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:10px 8px 4px;}
   .chartbox{height:360px;}
   .note{color:var(--muted); font-size:12px; text-align:center; padding:20px 0;}
+  .kpi.zero b{color:#6fbf73;}
+  .kpi .como{display:block; margin-top:8px; font-size:11.5px; line-height:1.5; color:var(--muted);}
+  .kpi .como b{display:inline; font-size:11.5px; color:#aeb9d0; margin:0;}
+  .fontes{margin:0 0 26px; padding:14px 18px; border:1px solid rgba(251,191,36,.35); border-left:4px solid #fbbf24; border-radius:12px; background:rgba(251,191,36,.07); font-size:13.5px; line-height:1.65; color:var(--txt);}
+  .fontes b.tit{color:#fbbf24;}
+  .fontes code{color:#aeb9d0;}
+  .fontes .linha{display:block; color:var(--muted); font-size:12.5px; padding-left:12px;}
 </style>
 </head>
 <body>
 <header class="site">
+  
   
   
   
@@ -64,6 +72,7 @@
   </g>
     <polygon points="30.95,26.60 36.82,29.34 36.02,35.76 29.67,36.99 26.54,31.32" fill="#f5f3ee" stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round"/>
   </svg>
+
 
 
 
@@ -93,8 +102,15 @@
     <div class="kpi"><b id="kSrc">-</b><span>Linhas não vazias em src/ (Python)</span></div>
     <div class="kpi"><b id="kTests">-</b><span>Linhas não vazias em tests/</span></div>
     <div class="kpi"><b id="kArestas">-</b><span>Arestas entre pacotes</span></div>
-    <div class="kpi"><b id="kCiclos">-</b><span>Ciclos de importação entre pacotes</span></div>
+    <div class="kpi" id="kpiCiclos"><b id="kCiclos">-</b><span>Ciclos de importação entre pacotes</span><span class="como" id="ciclosComo"></span></div>
     <div class="kpi"><b id="kEstrutura">-</b><span>Pastas / pacotes</span></div>
+  </div>
+
+  <div class="fontes">
+    <b class="tit">Ciclos de pacote: zero.</b> O grafo de dependências entre os 8 pacotes tem 20 arestas e nenhum ciclo.
+    O núcleo (<code>core/</code>) ficou puro: depende só de <code>utils/</code>, sem alcançar <code>application/</code>, <code>parsers/</code>, <code>reporting/</code> nem <code>src/</code>.
+    O mundo externo entra por <code>ports/</code>, que é quem conversa com <code>parsers/</code> e <code>utils/</code>.
+    A leitura é do grafo de imports entre pacotes, calculado sobre <code>assets/data/deps.json</code>. Zero aqui é conquista arquitetural, não ausência de dado.
   </div>
 
   <div class="grid">
@@ -118,6 +134,7 @@
         <div class="kpi"><b id="kSddFechadas">-</b><span>Lacunas fechadas nesta rodada</span></div>
       </div>
       <ul style="list-style:none; color:#8b909a; font-size:12.5px; line-height:1.7; padding:4px 2px 0;">
+        <li><b style="color:#aeb9d0">Ciclos de pacote:</b> zero em 2026-10-08, contra 2 ciclos na medição anterior de 2026-10-06. O blob de 61 módulos foi reorganizado em pacotes por responsabilidade (ADR 11) e o núcleo passou a depender apenas de utils/. A imagem de arquitetura e o treemap por pasta continuam a mesma ideia: 10 pastas, 8 pacotes e 20 arestas de dependência.</li>
         <li><b style="color:#aeb9d0">Confiança da extração:</b> 1.922 afirmações catalogadas na apuração final, com 92,8% de confiança geral (1.737 verdes, 95 amarelas e 90 vermelhas). O relatório nasceu com 1.923 afirmações, 91,5% e 109 vermelhas; as 16 decisões humanas desta rodada elevaram a confiança e derrubaram as vermelhas de 109 para 90. Fonte: _reversa_sdd/confidence-report.md.</li>
         <li><b style="color:#aeb9d0">Suíte de testes:</b> 164 passam e 15 erros, idêntico no interpretador global e no .venv. Os 15 erros são todos de tests/test_upload_seguranca.py, em setup, por PermissionError ao criar ou limpar o diretório temporário no Windows: são pré-existentes e não são regressão (164 + 15 = 179 itens coletados).</li>
         <li><b style="color:#aeb9d0">Cobertura de src/:</b> 83% (1.520 instruções, 253 descobertas). Pior módulo: number_format.py, com 53%. Fonte: _reversa_sdd/confidence-report.md.</li>
@@ -127,11 +144,480 @@
     </div>
   </div>
 
-  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs. Método de contagem declarado: LOC são linhas não vazias (o SDD conta linhas totais, então src/app.py aparece com 232 linhas aqui e 267 lá); complexidade são nós de decisão do AST; os cenários Gherkin contam linhas de passo Dado nos requirements.md. Fontes: assets/data/metrics.json (extração de 2026-10-06, sobre modules.json e deps.json), assets/data/modules.json, assets/data/deps.json e _reversa_sdd/confidence-report.md (revisão de 2026-10-05). Página gerada em 2026-10-06.</p>
+  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs. Método de contagem declarado: LOC são linhas não vazias (o SDD conta linhas totais, então src/app.py aparece com 232 linhas aqui e 267 lá); complexidade são nós de decisão do AST; os cenários Gherkin contam linhas de passo Dado nos requirements.md; ciclos são ciclos de importação no grafo de pacotes. Fontes: assets/data/metrics.json (contagens de 2026-10-08 sobre a extração determinística de 2026-10-06 que gerou assets/data/modules.json e assets/data/deps.json) e _reversa_sdd/confidence-report.md (revisão de 2026-10-05). Página gerada em 2026-10-08.</p>
 </main>
 
 <!-- PAYLOAD -->
-<script type="application/json" id="rv-snapshot">{"schemaVersion":1,"generatedAt":"2026-10-06T03:53:11Z","source":"modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05","code":{"modules":37,"locNaoVazio":5966,"locSrcPython":2941,"locTests":2532,"complexityTotal":1141,"pastas":8,"pacotes":6,"arestasDePacote":13,"ciclos":2},"treemap_loc_by_folder":[{"folder":"tests/","loc":2433,"modules":11,"complexity":499},{"folder":"core/","loc":2015,"modules":13,"complexity":483},{"folder":"templates/","loc":493,"modules":1,"complexity":0},{"folder":"parsers/","loc":253,"modules":3,"complexity":55},{"folder":"reporting/","loc":242,"modules":2,"complexity":45},{"folder":"src/","loc":232,"modules":1,"complexity":34},{"folder":"utils/","loc":199,"modules":4,"complexity":25},{"folder":"tests/fixtures/","loc":99,"modules":2,"complexity":0}],"top_complexity":[{"id":"tests/test_confrontacao_gedcom_dna.py","name":"test_confrontacao_gedcom_dna.py","folder":"tests/","complexity":204,"loc":824},{"id":"src/core/documentary_relationship.py","name":"documentary_relationship.py","folder":"core/","complexity":117,"loc":490},{"id":"tests/test_upload_seguranca.py","name":"test_upload_seguranca.py","folder":"tests/","complexity":80,"loc":345},{"id":"src/core/genetic_evidence.py","name":"genetic_evidence.py","folder":"core/","complexity":71,"loc":228},{"id":"src/core/dna_analysis.py","name":"dna_analysis.py","folder":"core/","complexity":52,"loc":220},{"id":"src/core/matching.py","name":"matching.py","folder":"core/","complexity":51,"loc":145},{"id":"src/reporting/mermaid_render.py","name":"mermaid_render.py","folder":"reporting/","complexity":45,"loc":241},{"id":"tests/test_dna_analysis.py","name":"test_dna_analysis.py","folder":"tests/","complexity":44,"loc":243},{"id":"tests/test_upload.py","name":"test_upload.py","folder":"tests/","complexity":44,"loc":181},{"id":"src/core/evidence_comparison.py","name":"evidence_comparison.py","folder":"core/","complexity":41,"loc":209},{"id":"src/parsers/csv_ingest.py","name":"csv_ingest.py","folder":"parsers/","complexity":39,"loc":191},{"id":"src/core/family_navigation.py","name":"family_navigation.py","folder":"core/","complexity":37,"loc":87},{"id":"src/core/name_normalization.py","name":"name_normalization.py","folder":"core/","complexity":35,"loc":90},{"id":"src/app.py","name":"app.py","folder":"src/","complexity":34,"loc":232},{"id":"src/core/path_search.py","name":"path_search.py","folder":"core/","complexity":33,"loc":186},{"id":"tests/test_path_search.py","name":"test_path_search.py","folder":"tests/","complexity":29,"loc":82},{"id":"tests/test_servidor_producao.py","name":"test_servidor_producao.py","folder":"tests/","complexity":26,"loc":129},{"id":"tests/test_characterization_matching.py","name":"test_characterization_matching.py","folder":"tests/","complexity":21,"loc":204},{"id":"src/core/relationship_hypotheses.py","name":"relationship_hypotheses.py","folder":"core/","complexity":21,"loc":198},{"id":"tests/test_mermaid_escape.py","name":"test_mermaid_escape.py","folder":"tests/","complexity":19,"loc":163}],"loc_histogram":{"bins":[0,50,100,200,500,1000,5000],"counts":[7,11,8,10,1,0,0],"labels":["\u003c50","50-99","100-199","200-499","500-999","1000-4999","\u003e=5000"]},"dependency_sankey":{"nodes":[{"id":"app"},{"id":"core"},{"id":"parsers"},{"id":"reporting"},{"id":"tests"},{"id":"utils"}],"links":[{"source":"app","target":"core","value":2},{"source":"app","target":"parsers","value":1},{"source":"app","target":"utils","value":2},{"source":"core","target":"parsers","value":1},{"source":"core","target":"reporting","value":2},{"source":"core","target":"utils","value":4},{"source":"parsers","target":"core","value":3},{"source":"parsers","target":"utils","value":1},{"source":"reporting","target":"core","value":3},{"source":"tests","target":"app","value":1},{"source":"tests","target":"core","value":20},{"source":"tests","target":"parsers","value":13},{"source":"tests","target":"utils","value":5}]},"language_distribution":[{"language":"python","modules":36,"loc":5473},{"language":"html","modules":1,"loc":493}],"sdd":{"tasks":{"upload-gedcom":20,"analise-dna":32,"busca-caminho":29},"gherkin":{"upload-gedcom":6,"analise-dna":10,"busca-caminho":9},"rfTotal":69,"rfPorFeature":{"upload-gedcom":19,"analise-dna":26,"busca-caminho":24},"adrs":23,"adrIds":["01-reconstruir-em-modulos","02-camada-de-rota-fina","03-mermaid-no-cliente","04-oraculo-congelado-por-commit","05-escape-de-rotulo-mermaid","06-politica-de-edicao-do-legado","07-autoridade-unica-de-limpeza-de-nome","08-nao-implementar-hard-min-given-min","09-remover-entidades-decorativas","10-mover-raiz-para-src","11-reorganizar-em-pacotes-por-responsabilidade","12-servidor-waitress-instancia-unica","13-fixar-dependencias-diretas","14-separar-documental-genetica-e-confronto","15-confronto-por-sobreposicao-de-faixas","16-leitura-tolerante-do-csv","17-upload-por-chave-de-conteudo","18-single-tenant-por-aceite-de-risco","19-heuristicas-declaradas-como-heuristicas","20-formatacao-numerica-so-na-apresentacao","21-endogamia-avisar-nao-corrigir","22-ordem-de-apresentacao-documental-primeiro","23-desempate-deterministico"],"gapsAbertasLinhas":14,"gapsAbertasIds":12,"gapsCriticas":1,"gapsFechadasNaRodada":16,"confidenceMd":"_reversa_sdd/confidence-report.md","percentuaisCitados":["100,0","63,6","66,7","69,9","70,0","72,7","76,0","85,2","87,0","88,6","89,3","89,8","90,5","91,4","91,5","92,0","92,4","92,8","94,1","94,8","94,9","95,2","95,5","95,7","96,2","96,8","97,1","98,5"]}}</script>
+<script type="application/json" id="rv-snapshot">{"schemaVersion":1,
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T15:50:16Z",
+  "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
+  "code": {
+    "modules": 61,
+    "locNaoVazio": 9972,
+    "locSrcPython": 4320,
+    "locTests": 5156,
+    "complexityTotal": 1549,
+    "pastas": 10,
+    "pacotes": 8,
+    "arestasDePacote": 20,
+    "ciclos": 0
+  },
+  "treemap_loc_by_folder": [
+    {
+      "folder": "tests/",
+      "loc": 4981,
+      "modules": 23,
+      "complexity": 822
+    },
+    {
+      "folder": "core/",
+      "loc": 2254,
+      "modules": 15,
+      "complexity": 481
+    },
+    {
+      "folder": "application/",
+      "loc": 506,
+      "modules": 5,
+      "complexity": 65
+    },
+    {
+      "folder": "templates/",
+      "loc": 496,
+      "modules": 1,
+      "complexity": 0
+    },
+    {
+      "folder": "ports/",
+      "loc": 488,
+      "modules": 2,
+      "complexity": 18
+    },
+    {
+      "folder": "src/",
+      "loc": 336,
+      "modules": 1,
+      "complexity": 33
+    },
+    {
+      "folder": "parsers/",
+      "loc": 256,
+      "modules": 3,
+      "complexity": 54
+    },
+    {
+      "folder": "reporting/",
+      "loc": 253,
+      "modules": 2,
+      "complexity": 45
+    },
+    {
+      "folder": "utils/",
+      "loc": 227,
+      "modules": 5,
+      "complexity": 28
+    },
+    {
+      "folder": "tests/fixtures/",
+      "loc": 175,
+      "modules": 4,
+      "complexity": 3
+    }
+  ],
+  "top_complexity": [
+    {
+      "id": "tests/test_confrontacao_gedcom_dna.py",
+      "name": "test_confrontacao_gedcom_dna.py",
+      "folder": "tests/",
+      "complexity": 204,
+      "loc": 827
+    },
+    {
+      "id": "src/core/documentary_relationship.py",
+      "name": "documentary_relationship.py",
+      "folder": "core/",
+      "complexity": 118,
+      "loc": 531
+    },
+    {
+      "id": "tests/test_upload_seguranca.py",
+      "name": "test_upload_seguranca.py",
+      "folder": "tests/",
+      "complexity": 90,
+      "loc": 454
+    },
+    {
+      "id": "src/core/genetic_evidence.py",
+      "name": "genetic_evidence.py",
+      "folder": "core/",
+      "complexity": 71,
+      "loc": 229
+    },
+    {
+      "id": "tests/test_projecao_da_analise.py",
+      "name": "test_projecao_da_analise.py",
+      "folder": "tests/",
+      "complexity": 70,
+      "loc": 254
+    },
+    {
+      "id": "src/application/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "application/",
+      "complexity": 57,
+      "loc": 248
+    },
+    {
+      "id": "src/core/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "core/",
+      "complexity": 52,
+      "loc": 253
+    },
+    {
+      "id": "src/core/matching.py",
+      "name": "matching.py",
+      "folder": "core/",
+      "complexity": 51,
+      "loc": 155
+    },
+    {
+      "id": "tests/test_dependencias_nucleo.py",
+      "name": "test_dependencias_nucleo.py",
+      "folder": "tests/",
+      "complexity": 50,
+      "loc": 254
+    },
+    {
+      "id": "src/reporting/mermaid_render.py",
+      "name": "mermaid_render.py",
+      "folder": "reporting/",
+      "complexity": 45,
+      "loc": 252
+    },
+    {
+      "id": "tests/test_upload.py",
+      "name": "test_upload.py",
+      "folder": "tests/",
+      "complexity": 45,
+      "loc": 202
+    },
+    {
+      "id": "tests/test_dna_analysis.py",
+      "name": "test_dna_analysis.py",
+      "folder": "tests/",
+      "complexity": 44,
+      "loc": 251
+    },
+    {
+      "id": "tests/test_porta_de_armazenamento.py",
+      "name": "test_porta_de_armazenamento.py",
+      "folder": "tests/",
+      "complexity": 43,
+      "loc": 493
+    },
+    {
+      "id": "src/core/evidence_comparison.py",
+      "name": "evidence_comparison.py",
+      "folder": "core/",
+      "complexity": 41,
+      "loc": 209
+    },
+    {
+      "id": "src/parsers/csv_ingest.py",
+      "name": "csv_ingest.py",
+      "folder": "parsers/",
+      "complexity": 39,
+      "loc": 192
+    },
+    {
+      "id": "src/core/family_navigation.py",
+      "name": "family_navigation.py",
+      "folder": "core/",
+      "complexity": 37,
+      "loc": 119
+    },
+    {
+      "id": "src/app.py",
+      "name": "app.py",
+      "folder": "src/",
+      "complexity": 33,
+      "loc": 336
+    },
+    {
+      "id": "src/core/path_search.py",
+      "name": "path_search.py",
+      "folder": "core/",
+      "complexity": 33,
+      "loc": 180
+    },
+    {
+      "id": "src/core/name_normalization.py",
+      "name": "name_normalization.py",
+      "folder": "core/",
+      "complexity": 32,
+      "loc": 85
+    },
+    {
+      "id": "tests/test_path_search.py",
+      "name": "test_path_search.py",
+      "folder": "tests/",
+      "complexity": 29,
+      "loc": 89
+    }
+  ],
+  "loc_histogram": {
+    "bins": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000,
+      5000
+    ],
+    "counts": [
+      11,
+      18,
+      12,
+      18,
+      2,
+      0,
+      0
+    ],
+    "labels": [
+      "<50",
+      "50-99",
+      "100-199",
+      "200-499",
+      "500-999",
+      "1000-4999",
+      ">=5000"
+    ]
+  },
+  "dependency_sankey": {
+    "nodes": [
+      {
+        "id": "app"
+      },
+      {
+        "id": "application"
+      },
+      {
+        "id": "core"
+      },
+      {
+        "id": "parsers"
+      },
+      {
+        "id": "ports"
+      },
+      {
+        "id": "reporting"
+      },
+      {
+        "id": "tests"
+      },
+      {
+        "id": "utils"
+      }
+    ],
+    "links": [
+      {
+        "source": "app",
+        "target": "application",
+        "value": 5
+      },
+      {
+        "source": "app",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "app",
+        "target": "parsers",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "reporting",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "application",
+        "target": "core",
+        "value": 5
+      },
+      {
+        "source": "application",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "core",
+        "target": "utils",
+        "value": 5
+      },
+      {
+        "source": "parsers",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "parsers",
+        "target": "utils",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "parsers",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "tests",
+        "target": "app",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "application",
+        "value": 9
+      },
+      {
+        "source": "tests",
+        "target": "core",
+        "value": 26
+      },
+      {
+        "source": "tests",
+        "target": "parsers",
+        "value": 17
+      },
+      {
+        "source": "tests",
+        "target": "ports",
+        "value": 5
+      },
+      {
+        "source": "tests",
+        "target": "reporting",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "utils",
+        "value": 6
+      }
+    ]
+  },
+  "language_distribution": [
+    {
+      "language": "python",
+      "modules": 60,
+      "loc": 9476
+    },
+    {
+      "language": "html",
+      "modules": 1,
+      "loc": 496
+    }
+  ],
+  "sdd": {
+    "tasks": {
+      "upload-gedcom": 20,
+      "analise-dna": 32,
+      "busca-caminho": 29
+    },
+    "gherkin": {
+      "upload-gedcom": 6,
+      "analise-dna": 10,
+      "busca-caminho": 9
+    },
+    "rfTotal": 69,
+    "rfPorFeature": {
+      "upload-gedcom": 19,
+      "analise-dna": 26,
+      "busca-caminho": 24
+    },
+    "adrs": 23,
+    "adrIds": [
+      "01-reconstruir-em-modulos",
+      "02-camada-de-rota-fina",
+      "03-mermaid-no-cliente",
+      "04-oraculo-congelado-por-commit",
+      "05-escape-de-rotulo-mermaid",
+      "06-politica-de-edicao-do-legado",
+      "07-autoridade-unica-de-limpeza-de-nome",
+      "08-nao-implementar-hard-min-given-min",
+      "09-remover-entidades-decorativas",
+      "10-mover-raiz-para-src",
+      "11-reorganizar-em-pacotes-por-responsabilidade",
+      "12-servidor-waitress-instancia-unica",
+      "13-fixar-dependencias-diretas",
+      "14-separar-documental-genetica-e-confronto",
+      "15-confronto-por-sobreposicao-de-faixas",
+      "16-leitura-tolerante-do-csv",
+      "17-upload-por-chave-de-conteudo",
+      "18-single-tenant-por-aceite-de-risco",
+      "19-heuristicas-declaradas-como-heuristicas",
+      "20-formatacao-numerica-so-na-apresentacao",
+      "21-endogamia-avisar-nao-corrigir",
+      "22-ordem-de-apresentacao-documental-primeiro",
+      "23-desempate-deterministico"
+    ],
+    "gapsAbertasLinhas": 14,
+    "gapsAbertasIds": 12,
+    "gapsCriticas": 1,
+    "gapsFechadasNaRodada": 16,
+    "confidenceMd": "_reversa_sdd/confidence-report.md",
+    "percentuaisCitados": [
+      "100,0",
+      "63,6",
+      "66,7",
+      "69,9",
+      "70,0",
+      "72,7",
+      "76,0",
+      "85,2",
+      "87,0",
+      "88,6",
+      "89,3",
+      "89,8",
+      "90,5",
+      "91,4",
+      "91,5",
+      "92,0",
+      "92,4",
+      "92,8",
+      "94,1",
+      "94,8",
+      "94,9",
+      "95,2",
+      "95,5",
+      "95,7",
+      "96,2",
+      "96,8",
+      "97,1",
+      "98,5"
+    ]
+  }
+}</script>
 <script>
 (function(){
   "use strict";
@@ -207,6 +693,14 @@
   set("kTests", C.locTests !== undefined ? C.locTests : "-");
   set("kArestas", arestas);
   set("kCiclos", C.ciclos !== undefined ? C.ciclos : "-");
+  if(num(C.ciclos) === 0){
+    var kpiCiclos = document.getElementById("kpiCiclos");
+    if(kpiCiclos) kpiCiclos.classList.add("zero");
+    var comoCiclos = document.getElementById("ciclosComo");
+    if(comoCiclos){
+      comoCiclos.innerHTML = "Zero é o resultado: o núcleo (<b>core/</b>) depende só de <b>utils/</b> e o mundo externo entra por <b>ports/</b>. Nenhum ciclo no grafo de <b>20</b> arestas entre os <b>8</b> pacotes.";
+    }
+  }
   set("kEstrutura", (C.pastas !== undefined ? C.pastas : "-") + " / " + (C.pacotes !== undefined ? C.pacotes : "-"));
 
   var S = M.sdd || {};
@@ -325,7 +819,7 @@
   });
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Analyst em 2026-10-06. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Analyst em 2026-10-06.</div>
+<!-- Gerado pelo Reversa-Docs-Analyst em 2026-10-08. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Analyst em 2026-10-08.</div>
 </body>
 </html>
