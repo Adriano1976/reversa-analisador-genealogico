@@ -6,12 +6,6 @@ venv/
 .env
 cls
 
-# Configuracoes e caches locais do Obsidian
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/cache/
-.obsidian/backups/
-
 # Backups gerados pelo reversa-docs
 _reversa_docs/.backup-*/
 
