@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-06T03:43:10Z",
+  "reversa": {
+    "version": "1.3.4"
+  },
+  "projectName": "analisador-genealogico",
+  "interview": {
+    "readerProfile": "stakeholder",
+    "depth": "full",
+    "visualStyle": "sober"
+  },
+  "seed": {
+    "hash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+    "source": "soul.md",
+    "explicitOverride": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
+    "note": "Identidade visual fixada em 2026-10-08. O hash foi calculado a partir do soul.md de 2026-10-06 e passa a ser imutavel por override, para que o selo nao mude de desenho a cada regeracao do soul."
+  },
+  "knowledgeSources": {
+    "soul": true,
+    "chronicle": true,
+    "topology": true,
+    "sddSpecs": [
+      "analise-dna",
+      "busca-caminho",
+      "upload-gedcom"
+    ],
+    "sourceCode": true
+  },
+  "pagesPlanned": [
+    "index.html",
+    "arquitetura.html",
+    "modulos.html",
+    "metricas.html",
+    "timeline.html",
+    "glossario.html",
+    "deck.html",
+    "features/upload-gedcom.html",
+    "features/busca-caminho.html",
+    "features/analise-dna.html"
+  ],
+  "pagesOmitted": [
+    {
+      "page": "topologia.html",
+      "reason": "architecture.md de 2026-10-05 nao declara secao de Topologia nem variantes de topologia (secoes 1 a 9: visao geral, containers, componentes, modelo de dados, fluxo, integracoes, dividas, decisoes, resumo)"
+    }
+  ]
+}

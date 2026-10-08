@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="../">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-storyteller">
+<meta name="reversa-template" content="feature">
+<meta name="reversa-page-id" content="feature-analise-dna">
+<meta name="reversa-visual-style" content="sober">
+<meta name="reversa-generated-at" content="2026-10-08T16:05:12Z">
+<title>analise-dna — analisador-genealogico</title>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/nav.js"></script>
+<style>
+  :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;height:100vh;overflow-y:auto;}
+  header.site{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(30,32,36,.92);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;z-index:20;gap:14px;}
+  header.site .brand{font-weight:600;white-space:nowrap;}
+  header.site .sub{color:var(--muted);font-size:12px;white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex;gap:4px;flex:1;justify-content:flex-end;align-items:center;min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:6px;white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt);background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff;background:rgba(79,140,255,.16);outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px;height:26px;flex:0 0 auto;}
+  main{margin-top:52px;padding:28px;max-width:960px;margin-left:auto;margin-right:auto;}
+  .crumb{color:var(--muted);font-size:13px;margin-bottom:10px;}
+  .crumb a{color:var(--accent);text-decoration:none;}
+  h1{font-size:26px;margin-bottom:6px;}
+  .summary{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:20px;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);}
+  h2{font-size:18px;margin:26px 0 12px;border-left:3px solid var(--accent);padding-left:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border-radius:8px;overflow:hidden;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;}
+  td b{color:#fff;}
+  code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
+  pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
+  .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0;}
+  .tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:inherit;}
+  .tabs button.on{color:#fff;border-color:rgba(79,140,255,.5);background:rgba(79,140,255,.14);}
+  .panel{display:none;margin-top:12px;}
+  .panel.on{display:block;}
+  .acc{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel);}
+  .acc details{border-bottom:1px solid var(--line);}
+  .acc details:last-child{border-bottom:none;}
+  .acc summary{cursor:pointer;padding:12px 14px;font-size:13px;color:var(--txt);list-style:none;display:flex;gap:10px;align-items:baseline;}
+  .acc summary::-webkit-details-marker{display:none;}
+  .acc summary .id{color:var(--accent);font-family:Consolas,monospace;font-size:12px;min-width:58px;}
+  .acc summary .pri{margin-left:auto;color:var(--muted);font-size:11px;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .acc .body{padding:0 14px 14px 14px;color:var(--muted);font-size:13px;line-height:1.6;}
+  .acc details[open] summary{background:rgba(79,140,255,.08);}
+  .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:16px;}
+  .delta-warn{background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.35);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;margin:18px 0 6px;}
+  .delta-warn h3{font-size:14px;color:#fff;margin-bottom:8px;letter-spacing:.3px;}
+  .delta-warn p{color:var(--muted);margin-bottom:8px;}
+  .delta-warn p:last-child{margin-bottom:0;}
+  .delta-warn a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<header class="site">
+  
+  
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1e2937"/>
+  <g stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round">
+      <polygon points="26.77,4.98 56.08,18.68 52.11,50.79 20.35,56.93 4.69,28.62" fill="#f5f3ee"/>
+      <polygon points="27.88,11.31 50.41,21.69 47.49,46.32 23.17,51.16 11.05,29.52" fill="#bdb4a4"/>
+      <polygon points="31.04,17.35 45.63,26.56 41.39,43.28 24.17,44.41 17.77,28.39" fill="#7c8a99"/>
+  </g>
+    <polygon points="30.95,26.60 36.82,29.34 36.02,35.76 29.67,36.99 26.54,31.32" fill="#f5f3ee" stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round"/>
+  </svg>
+
+
+
+
+
+
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Feature</span>
+    <nav class="reversa-doc-nav">
+  <a href="../index.html" data-page-id="index">Visão geral</a>
+  <a href="../arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="../modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="../metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="../timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="../glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="../deck.html" data-page-id="deck">Deck</a>
+  <a href="../features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="../features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="../features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
+</header>
+<main>
+  <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / <a href="../metricas.html">Métricas</a> / Feature</div>
+  <h1>analise-dna</h1>
+  <div class="meta"><span class="pill">Endpoint <code>POST /</code> action=<code>dna_analysis</code></span><span class="pill" id="pillRf">26 requisitos funcionais</span><span class="pill" id="pillGh">10 cenários Gherkin</span><span class="pill" id="pillTk">32 tarefas</span><span class="pill">Spec: analise-dna</span></div>
+  <p class="summary" id="tldr">Cruza a árvore GEDCOM carregada com um CSV de matches de DNA e responde três perguntas separadas, sem nunca misturá-las: o que o GEDCOM afirma sobre o parentesco, o que o arquivo de DNA informa e as duas coisas são compatíveis entre si. É a unit de maior complexidade do sistema, com 62 regras de negócio e 8 módulos, e a única cuja saída é um veredito: COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO.</p>
+
+  <div class="delta-warn" id="delta-pos-extracao">
+    <h3>Delta depois da extração: features 005 a 008 do ciclo forward</h3>
+    <p>Esta página descreve a extração de 2026-10-05. Depois dela, as features 005 a 008 moveram a implementação: os casos de uso foram para <code>src/application/</code>, o mundo externo entra por <code>src/ports/</code> e o núcleo ficou puro, dependendo só de <code>utils</code>.</p>
+    <p>Ou seja: o documento desta página continua correto para o que foi extraído em 2026-10-05, e tudo nesta página que cita arquivo e linha vale para aquele momento. Para o estado vigente, leia os <a href="../glossario.html#concept-adendos-vigentes">adendos vigentes</a> em <code>_reversa_sdd/addenda/</code>: <code>005-nucleo-puro-src.md</code>, <code>006-fronteira-aplicacao-ports.md</code>, <code>007-dono-no-port-e-baseline.md</code> e <code>008-persistencia-postgres-docker.md</code>.</p>
+  </div>
+
+  <h2>Como a Feature Funciona</h2>
+  <div class="tabs" id="tabs">
+    <button data-panel="p-fluxo" class="on">Fluxo</button>
+    <button data-panel="p-regras">Regras de negócio</button>
+    <button data-panel="p-contratos">Contratos</button>
+    <button data-panel="p-tarefas">Tarefas</button>
+  </div>
+
+  <div class="panel on" id="p-fluxo">
+    <table><tbody>
+      <tr><td><b>1. Re-parsear o GEDCOM</b></td><td>Valida a chave recebida, resolve o caminho em disco e recarrega a árvore antes de ramificar por <code>action</code>. É ele que decide sobre qual árvore a análise roda</td></tr>
+      <tr><td><b>2. Ler o CSV de forma tolerante</b></td><td>UTF-8 com recuo para Latin-1, separador decidido pelo cabeçalho, preâmbulo localizado com três guardas e linhas tortas descartadas com contagem e números publicados</td></tr>
+      <tr><td><b>3. O que o GEDCOM afirma</b></td><td>Raiz resolvida por substring com aviso de homônimos; índices de nome; matching difuso; e o parentesco documental completo, que nunca lê cM</td></tr>
+      <tr><td><b>4. O que o DNA informa</b></td><td>Evidência por <code>(nome, kit)</code>, com cM somado sem arredondar, maior segmento e SNPs. Kits diferentes nunca são somados</td></tr>
+      <tr><td><b>5. As duas coisas são compatíveis?</b></td><td>O cM é traduzido em lista de possibilidades pela tabela do Shared cM Project 4.0 e confrontado com a janela documental, produzindo um dos quatro estados, sempre com o porquê</td></tr>
+      <tr><td><b>6. Apresentar</b></td><td>Ordem documental primeiro, depois cM decrescente, com a lista auditável dos descartes e o motivo de cada um</td></tr>
+    </tbody></table>
+    <p class="note">Fonte: <code>_reversa_sdd/analise-dna/design.md</code> (seção Fluxo Principal) e <code>requirements.md</code> (seção Visão Geral), re-extração de 2026-10-05. O eixo genético saiu do <code>dna_analysis</code> monolítico para <code>genetic_evidence</code> e <code>evidence_comparison</code>.</p>
+  </div>
+
+  <div class="panel" id="p-regras">
+    <table><tbody>
+      <tr><td><b>Raiz</b></td><td>Resolvida por substring case-insensitive; usa o primeiro registro e avisa quantos e quais são os homônimos. Ausente devolve <code>ValueError</code> acionável</td></tr>
+      <tr><td><b>Leitura tolerante</b></td><td>UTF-8 e, na falha, Latin-1; separador entre vírgula, ponto e vírgula, TAB e barra vertical, vencendo a maior contagem e a vírgula no empate; cabeçalho localizado com três guardas dentro das 10 primeiras linhas</td></tr>
+      <tr><td><b>Linha torta</b></td><td>Não derruba a análise: o arquivo é relido descartando as linhas, e a tela publica a contagem e os números de linha</td></tr>
+      <tr><td><b>Colunas por papel</b></td><td>Nome, cM, kit, ID, e-mail, SNPs, cromossomo, início, fim e fonte, tolerando variação de cabeçalho</td></tr>
+      <tr><td><b>Agregação</b></td><td>Um registro por chave, com o cM somado. O cM acumulado não é arredondado: o arredondamento é só de apresentação</td></tr>
+      <tr><td><b>Evidência genética</b></td><td>Chave <code>(nome, kit)</code>; sem coluna de kit o e-mail assume; sem ambos a chave é <code>SEM-KIT</code> com aviso <code>kit_ausente</code>. Nenhum total é somado entre kits: com mais de um kit, <code>totals.cm</code> é <code>None</code>, o número honesto</td></tr>
+      <tr><td><b>Segmento fraco</b></td><td>Maior segmento abaixo de 15 cM marca <code>weak_segment</code> e emite o aviso <code>segmento_fraco</code>. Limite é heurística do projeto, não da fonte</td></tr>
+      <tr><td><b>Score</b></td><td><code>0,55 token_sort + 0,25 partial + 0,20 similaridade do prenome + (8 x interseção − 4 x sobrenomes comuns)</code>, arredondado a 2 casas. Pesos herdados do legado</td></tr>
+      <tr><td><b>Desempate</b></td><td>Mais sobrenomes em comum, depois maior similaridade de prenome, depois maior score, e por fim o menor <code>xref_id</code></td></tr>
+      <tr><td><b>Anti-falso-positivo</b></td><td>Ambos os lados com sobrenome, interseção zero e sem acerto de sufixo rejeita, com o motivo registrado</td></tr>
+      <tr><td><b>Jaccard</b></td><td>Limiar 0,50 com 2 ou mais sobrenomes; cai para 0,33 apenas quando o cM é maior ou igual a 150 e o prenome não é genérico. O relaxamento é decisão humana intencional, e o número é heurístico e ajustável</td></tr>
+      <tr><td><b>Aceitação</b></td><td>Cinco ramos em ordem, mais um sexto por prefixo de sobrenome; o primeiro verdadeiro vence. Conflito de nome do meio rebaixa o aceite para <code>score ≥ 96</code> e <code>given ≥ 92</code></td></tr>
+      <tr><td><b>O cM não decide a aceitação</b></td><td>Ele só influencia o limiar de Jaccard, e há teste de caracterização que congela isso</td></tr>
+      <tr><td><b>Confronto</b></td><td>Dentro da janela vira <code>COMPATIVEL</code>; fora, com alguma relação publicada que se sobreponha à janela, vira <code>POSSIVEL</code>; fora sem sobreposição vira <code>CONFLITANTE</code>. Distância em meioses não é critério</td></tr>
+      <tr><td><b>INCONCLUSIVO</b></td><td>Estado inicial de todo resultado e caminho de falha padrão: sem DNA, sem caminho documental, identidade ambígua ou sem faixa publicada. Nenhum estado é afirmado por omissão</td></tr>
+      <tr><td><b>Vários kits</b></td><td>Estado final é o mais conservador, na ordem <code>CONFLITANTE &gt; POSSIVEL &gt; COMPATIVEL &gt; INCONCLUSIVO</code>, com o estado por kit registrado</td></tr>
+      <tr><td><b>Relações não publicadas</b></td><td>Seis relações ausentes na versão 4.0 não recebem número inventado: a janela passa a ser a envoltória das publicadas com o mesmo número de meioses</td></tr>
+      <tr><td><b>Ordem de apresentação</b></td><td>Documental primeiro, cM decrescente depois, e o código declara que não é ordem de confiança. Justificativa medida: das 71 conexões do GEDCOM real, 64 não têm caminho</td></tr>
+      <tr><td><b>cm_estimator</b></td><td>As 9 faixas escritas à mão estão fora do fluxo e da interface; o módulo continua existindo porque a suíte e o harness de paridade o exercitam</td></tr>
+    </tbody></table>
+    <div class="warn"><b>Duas correções contra a extração anterior.</b> (1) As constantes <code>HARD_MIN = 92</code> e <code>GIVEN_MIN = 90</code> não existem em nenhum arquivo do sistema atual: eram código morto do monolito original e a reconstrução nunca as implementou, por decisão registrada no ADR-08. Os literais 92 e 90 vivem dentro dos ramos de aceitação. (2) O <code>RF-26</code> desta spec é a renumeração do <code>RF-14</code> de 2026-09-30 (tornar o desempate determinístico) e foi implementado em 2026-10-05: é a segunda divergência deliberada do legado e a primeira que muda comportamento, apenas nos casos de empate triplo.</div>
+  </div>
+
+  <div class="panel" id="p-contratos">
+    <table><tbody>
+      <tr><th>Contrato</th><th>O que fixa</th></tr>
+      <tr><td><b>HTTP</b></td><td><code>POST /</code> com <code>action=dna_analysis</code>, <code>gedcom_filename</code>, <code>root_name</code> e o arquivo em <code>matches_csv</code>. Erro de negócio vira mensagem na tela com status <code>200</code>; <code>413</code> só se o corpo exceder 16 MB</td></tr>
+      <tr><td><b>CSV de entrada</b></td><td>Colunas por papel: nome e cM obrigatórios; kit, ID, e-mail, SNPs, cromossomo, início, fim e fonte opcionais. A cobertura de exportadores é declarada: só o GEDmatch</td></tr>
+      <tr><td><b>Canal de metadados</b></td><td><code>df.attrs</code> carrega <code>separador</code>, <code>encoding</code>, <code>linhas_antes_do_cabecalho</code>, <code>linhas_ignoradas</code> e <code>erro_de_leitura</code>. É canal por contrato: trocar o retorno por tupla quebraria o fluxo</td></tr>
+      <tr><td><b>Evidência genética</b></td><td><code>evidencias[nome_normalizado][kit]</code>; <code>total_cm</code> somado sem arredondamento; <code>totals.cm</code> é o cM do kit quando há um e <code>None</code> quando há mais de um. <code>None</code> significa "não sei", nunca zero</td></tr>
+      <tr><td><b>Possibilidades</b></td><td>Sempre lista, inclusive vazia, nunca um parentesco único. Lista vazia com valor válido não descarta parentesco: é ausência de cobertura publicada</td></tr>
+      <tr><td><b>Veredito</b></td><td>Quatro estados, com <code>label</code>, <code>message</code>, <code>causes</code> (12 em CONFLITANTE, 9 em POSSIVEL), <code>per_kit</code>, <code>method</code>, <code>expected_range</code>, <code>detail</code> e <code>observations</code></td></tr>
+      <tr><td><b>Fonte publicada</b></td><td>Shared cM Project 4.0, março de 2020, 59.714 envios, faixa após remoção de 1 % dos envios. A mediana não é publicada e não deve ser inventada. A fonte declara que não atende endogamia nem colapso de pedigree</td></tr>
+      <tr><td><b>Falha</b></td><td>CSV ilegível vira <code>ValueError</code> acionável com separador, colunas e linhas tortas; raiz inexistente não exibe resultado parcial; faixa não publicada vira <code>INCONCLUSIVO</code> sem número inventado</td></tr>
+      <tr><td><b>Avisos</b></td><td><code>multiplos_kits</code>, <code>kit_ausente</code>, <code>segmento_fraco</code>, <code>sem_evidencia</code>, <code>pessoa_ausente</code>, <code>sem_caminho</code>, <code>homonimo</code>, <code>data_impossivel</code>, <code>caminhos_multiplos</code>, <code>colapso_de_pedigree</code> e <code>afinidade</code></td></tr>
+    </tbody></table>
+    <pre>Formula do score (pesos herdados do legado)
+score = round(0.55 * token_sort_ratio
+            + 0.25 * partial_ratio
+            + 0.20 * similaridade_do_prenome
+            + (8 * intersecao_de_sobrenomes - 4 * sobrenomes_comuns), 2)
+
+Chave da evidencia genetica
+evidencias[ nome_normalizado ][ kit ]
+  sem coluna de kit  -> o e-mail assume o papel
+  sem kit e sem mail -> " SEM-KIT" (com espaco a esquerda, defesa contra colisao)
+  mais de um kit     -> totals.cm = None  (nunca a soma)
+
+Ordem de conservadorismo entre kits
+CONFLITANTE > POSSIVEL > COMPATIVEL > INCONCLUSIVO</pre>
+    <p class="note">Fonte: <code>_reversa_sdd/analise-dna/contracts.md</code>, seções 1 a 9.</p>
+  </div>
+
+  <div class="panel" id="p-tarefas">
+    <table><tbody>
+      <tr><th>Ordem</th><th>Bloco</th><th>Tarefas</th></tr>
+      <tr><td>1</td><td><b>Normalização de nomes</b>, todas as tarefas de matching dependem dela</td><td>T-13</td></tr>
+      <tr><td>2</td><td><b>Leitura, agregação e colunas</b></td><td>T-04 a T-09</td></tr>
+      <tr><td>3</td><td><b>Evidência genética</b></td><td>T-10 a T-12</td></tr>
+      <tr><td>4</td><td><b>Índices do GEDCOM</b></td><td>T-14</td></tr>
+      <tr><td>5</td><td><b>Matching</b>, o bloco mais crítico do sistema</td><td>T-15 a T-20</td></tr>
+      <tr><td>6</td><td><b>Parentesco documental</b></td><td>T-21</td></tr>
+      <tr><td>7</td><td><b>Possibilidades e janela</b></td><td>T-22 a T-24</td></tr>
+      <tr><td>8</td><td><b>Confronto</b>, o núcleo da unit</td><td>T-25 e T-26</td></tr>
+      <tr><td>9</td><td><b>Saída e erro</b></td><td>T-27 a T-30</td></tr>
+      <tr><td>10</td><td><b>Divergências deliberadas do legado</b></td><td>T-31 (determinismo do desempate, executada em 2026-10-05) e T-32 (faixas de cM fora do fluxo, executada)</td></tr>
+    </tbody></table>
+    <p class="note">Total: 30 tarefas de produção mais 2 divergências deliberadas, e 18 tarefas de teste. Bloqueios: nada aqui funciona sem upload-gedcom, e T-21 depende dos módulos de parentesco que a unit busca-caminho também usa.</p>
+  </div>
+
+  <h2>Requisitos Funcionais</h2>
+  <div class="acc" id="rfAcc"></div>
+
+  <h2>O eixo de confronto em quatro estados</h2>
+  <table><tbody>
+    <tr><th>Estado</th><th>Rótulo</th><th>Gatilho</th></tr>
+    <tr><td><code>COMPATIVEL</code></td><td>Compatível</td><td>cM dentro da janela esperada</td></tr>
+    <tr><td><code>POSSIVEL</code></td><td>Possível</td><td>cM fora, mas alguma relação publicada que contém o valor tem faixa que se sobrepõe à janela</td></tr>
+    <tr><td><code>CONFLITANTE</code></td><td>Conflitante</td><td>cM fora e nenhuma sobreposição</td></tr>
+    <tr><td><code>INCONCLUSIVO</code></td><td>Inconclusivo</td><td>Sem DNA, sem caminho, identidade ambígua ou sem faixa publicada</td></tr>
+  </tbody></table>
+  <p class="note">O confronto não altera o parentesco documental: nenhum campo é reescrito, e nenhum caminho é inventado a partir do DNA.</p>
+
+  <h2>Critérios de Aceitação</h2>
+  <pre>Dado um GEDCOM carregado e um CSV valido
+Quando o operador submete a analise com um root_name existente
+Entao cada conexao traz parentesco documental, evidencia genetica, possibilidades e confronto
+E o resultado traz um dos quatro estados, com o porque
+E a mensagem final informa quantas conexoes foram encontradas e quantas descartadas
+
+Dado um CSV em que o mesmo nome aparece em dois kits diferentes
+Quando a evidencia genetica e construida
+Entao existem DUAS evidencias, uma por kit
+E totals.cm e None, porque nao se sabe qual kit e a pessoa do GEDCOM
+E nenhum total e somado entre os kits
+
+Dado um match cujo maior segmento e de 12 cM
+Quando a evidencia e construida
+Entao a evidencia e marcada como segmento fraco
+E o aviso "segmento_fraco" e emitido
+
+Dado um CSV com separador ponto e virgula, em latin-1, com 3 linhas de titulo
+Quando a analise e executada
+Entao o separador e detectado como ponto e virgula
+E o encoding usado e latin-1
+E o cabecalho e localizado na linha 4
+
+Dado um CSV com 2 linhas com numero de campos diferente do cabecalho
+Quando a analise e executada
+Entao a analise prossegue com as demais linhas
+E a tela informa quantas linhas foram descartadas e quais
+
+Dado um cM fora da janela documental, sem nenhuma relacao publicada que se sobreponha
+Quando o confronto e executado
+Entao o estado e CONFLITANTE
+E o rol completo de 12 causas e apresentado
+
+Dado um nome de raiz que nao existe na arvore
+Quando a analise e executada
+Entao a tela exibe "Ocorreu um erro: Seu nome 'X' nao foi encontrado no GEDCOM."
+E nenhum resultado parcial e exibido
+
+Dado um CSV sem a coluna de cM
+Quando a analise e executada
+Entao a tela exibe um erro acionavel dizendo o separador usado e as colunas encontradas
+E a aplicacao nao quebra</pre>
+
+  <h2>Rastreabilidade de Código</h2>
+  <table><tbody>
+    <tr><td><b>src/app.py</b></td><td>ramo <code>dna_analysis</code> (:134-154); re-parse (:132); guarda do CSV (:136-137)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/dna_analysis.py</b></td><td><code>dna_analysis</code> (:83); <code>_montar_diagrama</code> (:56); <code>_observacoes</code> (:65); <code>_ordem</code> (:226)</td><td>🟢</td></tr>
+    <tr><td><b>src/parsers/csv_ingest.py</b></td><td><code>read_csv_with_fallback</code> (:140); <code>detectar_separador</code> (:76); <code>localizar_cabecalho</code> (:93); <code>linhas_irregulares</code> (:126); <code>detect_columns</code> (:185); <code>aggregate_matches</code> (:198)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/genetic_evidence.py</b></td><td><code>build_genetic_evidence</code> (:110); <code>detect_segment_columns</code> (:41); <code>evidence_for</code> (:209)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/relationship_hypotheses.py</b></td><td><code>possible_relationships</code> (:161); <code>hypotheses_for_evidence</code> (:208); <code>row_for_key</code> (:106); <code>meioses_window</code> (:120)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/evidence_comparison.py</b></td><td><code>compare</code> (:150); <code>_avaliar_kit</code> (:75); <code>_janela_do_documental</code> (:116)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/matching.py</b></td><td><code>build_ged_indexes</code> (:27); <code>match_candidates</code> (:62), desempate em quatro critérios (:96-111)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/documentary_relationship.py</b></td><td><code>documentary_relationship</code> (:436); <code>homonym_dossier</code> (:205)</td><td>🟢</td></tr>
+    <tr><td><b>src/core/cm_estimator.py</b></td><td><code>get_relationships_by_cm</code> (:53), legado fora do fluxo</td><td>🟢</td></tr>
+    <tr><td><b>tests/</b></td><td><code>test_dna_analysis.py</code>, <code>test_characterization_matching.py</code> (24 testes, 2 de determinismo), <code>test_confrontacao_gedcom_dna.py</code> (922 linhas, 27 funções, dez cenários) e <code>test_formatacao_cm.py</code></td><td>🟢</td></tr>
+  </tbody></table>
+
+  <h2>Avisos contratados (11 códigos)</h2>
+  <table><tbody>
+    <tr><td><code>multiplos_kits</code></td><td>Mais de um kit para o mesmo nome; nenhum total somado</td></tr>
+    <tr><td><code>kit_ausente</code></td><td>Sem coluna de kit e sem e-mail: chave <code>SEM-KIT</code></td></tr>
+    <tr><td><code>segmento_fraco</code></td><td>Maior segmento abaixo de 15 cM, heurística do projeto</td></tr>
+    <tr><td><code>sem_evidencia</code></td><td>Não há evidência genética para esta pessoa</td></tr>
+    <tr><td><code>pessoa_ausente</code></td><td>Registro ausente no GEDCOM</td></tr>
+    <tr><td><code>sem_caminho</code></td><td>Nenhum caminho dentro do teto, o que não prova ausência de parentesco</td></tr>
+    <tr><td><code>homonimo</code></td><td>Identidade ambígua; análise não conclusiva</td></tr>
+    <tr><td><code>data_impossivel</code></td><td>Idade de genitor fora de 12 a 70; o vínculo é mantido</td></tr>
+    <tr><td><code>caminhos_multiplos</code></td><td>Mais de um percurso; nenhum descartado</td></tr>
+    <tr><td><code>colapso_de_pedigree</code></td><td>Mesmo ancestral por mais de uma cadeia, com teto 8</td></tr>
+    <tr><td><code>afinidade</code></td><td>Caminho por casamento, que não é consanguinidade</td></tr>
+  </tbody></table>
+
+  <h2>Lacunas Declaradas</h2>
+  <table><tbody>
+    <tr><td><b>L-17</b></td><td>Endogamia e colapso de pedigree não entram na decisão do estado. O colapso é detectado no lado documental, mas não altera o veredito: nesses casos o cM lido é um teto otimista</td><td>🔴</td></tr>
+    <tr><td><b>L-18</b></td><td>As relações mais distantes não são publicadas na versão 4.0 (1C4R, 1C5R, 1C6R, 3C2R e os bisavós distantes), justamente onde o caso real deste repositório cai. A envoltória por meioses mitiga, sem substituir a fonte</td><td>🔴</td></tr>
+    <tr><td><b>Fonte</b></td><td>A fonte não publica mediana e a faixa exclui 1 % dos envios. Quem reimplementar não deve inventar mediana nem tratar a faixa como intervalo observado completo</td><td>🔴</td></tr>
+    <tr><td><b>L-19</b></td><td>A divergência de <code>RapidFuzz</code> entre o pin e o <code>.venv</code> pode mudar o matching sem uma linha de código mudar</td><td>🔴</td></tr>
+    <tr><td><b>L-08</b></td><td>Cobertura de exportadores de CSV: a regex de ID é específica de um padrão, sem prova de generalidade. Fechada como cobertura declarada de um exportador</td><td>🔴</td></tr>
+    <tr><td><b>E-03</b></td><td>A sentinela <code>SEM-KIT</code> poderia colidir com um kit literalmente chamado <code>SEM-KIT</code>; não há decisão registrada</td><td>🔴</td></tr>
+  </tbody></table>
+  <p class="note">Fechadas nesta rodada: o determinismo do desempate (T-31 / RF-26, executado em 2026-10-05) e a autoridade do número 0,33, que passou a ser declarado heurístico e ajustável. Já decididas, e portanto não são pendências: regras de aceitação definitivas; relaxamento de Jaccard intencional; faixas de cM como heurística e fora do fluxo; <code>HARD_MIN</code> e <code>GIVEN_MIN</code> não implementados (ADR-08).</p>
+</main>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"generatedAt":"2026-10-06T04:45:00Z","spec":{"id":"analise-dna","slug":"analise-dna","title":"Analise de DNA e confronto","endpoint":"action=dna_analysis","counts":{"requisitosFuncionais":26,"criteriosGherkin":10,"tarefas":32}},"tldr":"Cruza a arvore GEDCOM carregada com um CSV de matches de DNA e responde TRES perguntas separadas, sem nunca mistura-las: o que o GEDCOM afirma sobre o parentesco, o que o arquivo de DNA informa e as duas coisas sao compativeis entre si. E a unit de maior complexidade do sistema (62 regras de negocio, 8 modulos) e a unica cuja saida e um veredito: COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO.","requirements":[{"id":"RF-01","text":"Receber POST com action=dna_analysis, exigindo gedcom_filename, root_name e o arquivo no campo matches_csv","pri":"Must","crit":"Sem CSV devolve \"Por favor, carregue o arquivo CSV de matches.\", preservando all_names na tela"},{"id":"RF-02","text":"Ler o CSV tolerando encoding, separador e preambulo","pri":"Must","crit":"CSV em latin-1, com ponto e virgula e com 3 linhas de titulo e lido com as colunas corretas"},{"id":"RF-03","text":"Localizar o cabecalho com as tres guardas, sem perder a primeira linha de dados de um arquivo sem cabecalho","pri":"Must","crit":"Arquivo sem cabecalho nao perde a linha 1; arquivo que nao e tabela nao elege cabecalho falso"},{"id":"RF-04","text":"Descartar linhas irregulares publicando contagem e numeros de linha","pri":"Must","crit":"A tela informa quantas linhas e quais foram descartadas"},{"id":"RF-05","text":"Detectar as colunas por papel, tolerando variacao de cabecalho","pri":"Must","crit":"Nome em Name/MatchedName/Nome; cM em cM/TotalCM/Total cM; kit, SNPs, cromossomo, inicio, fim e fonte opcionais"},{"id":"RF-06","text":"Agregar cM por nome normalizado mais cauda, com a cauda sendo id, e-mail ou nada","pri":"Must","crit":"Um registro por chave, com o cM somado"},{"id":"RF-07","text":"Construir evidencia por (nome, kit), sem somar kits diferentes","pri":"Must","crit":"Mesmo nome em dois kits produz DUAS evidencias"},{"id":"RF-08","text":"Marcar segmento_fraco quando o maior segmento for menor que 15 cM","pri":"Should","crit":"Aviso segmento_fraco presente; o limite e declarado como heuristica do projeto"},{"id":"RF-09","text":"Construir os indices do GEDCOM e o cache de atributos normalizados","pri":"Must","crit":"ged_index, surname_index e features[pid] populados a partir da arvore"},{"id":"RF-10","text":"Calcular o score difuso ponderado e desempatar candidatos","pri":"Must","crit":"Score conforme a formula; desempate inter, given, score"},{"id":"RF-11","text":"Aplicar o filtro anti-falso-positivo","pri":"Must","crit":"Match com sobrenomes disjuntos e sem sufixo e rejeitado com motivo"},{"id":"RF-12","text":"Aplicar a intersecao minima adaptativa e o limiar de Jaccard, com o relaxamento condicional","pri":"Must","crit":"Prenome generico com 2 ou mais sobrenomes exige 2 em comum; limiar 0,33 so com cM maior ou igual a 150 e prenome nao generico"},{"id":"RF-13","text":"Aplicar os cinco ramos de aceitacao em ordem, mais o ramo de prefixo e o rebaixamento do nome do meio","pri":"Must","crit":"Decisao identica a congelada pelos testes de caracterizacao"},{"id":"RF-14","text":"Nao permitir que o cM decida aceitacao diretamente","pri":"Must","crit":"Alterar o cM sob o limiar de 150 nao muda a decisao de aceitacao"},{"id":"RF-15","text":"Resolver a raiz por substring, usando o primeiro registro e avisando a ambiguidade","pri":"Must","crit":"Raiz inexistente devolve \"Seu nome '{root_name}' nao foi encontrado no GEDCOM.\"; ambigua emite aviso com a contagem e os ids"},{"id":"RF-16","text":"Obter o parentesco documental de cada candidato e escolher o primeiro que tiver caminho","pri":"Must","crit":"Resultado com documentary, text_path e mermaid_data"},{"id":"RF-17","text":"Traduzir o cM em lista de possibilidades pela tabela do SCP 4.0","pri":"Must","crit":"Sempre lista, inclusive vazia; 27 relacoes publicadas; ordenada por distancia da media"},{"id":"RF-18","text":"Usar a envoltoria por meioses quando a relacao exata nao for publicada","pri":"Must","crit":"1C6R e os bisavos distantes nao recebem numero inventado"},{"id":"RF-19","text":"Produzir o confronto com um dos quatro estados, sempre com o porque","pri":"Must","crit":"method, expected_range, detail e per_kit preenchidos quando ha janela"},{"id":"RF-20","text":"Agregar multiplos kits pelo mais conservador e registrar o estado por kit","pri":"Must","crit":"Um kit CONFLITANTE entre cinco torna o resultado CONFLITANTE, com a nota por kit"},{"id":"RF-21","text":"Ordenar com documental primeiro, depois cM decrescente","pri":"Must","crit":"Resultados com caminho aparecem antes dos que so tem DNA"},{"id":"RF-22","text":"Emitir a mensagem final \"{n} conexoes encontradas. {m} descartadas.\"","pri":"Must","crit":"Contagens corretas; sem resultados, os avisos do arquivo sao anexados"},{"id":"RF-23","text":"Listar os descartes com o motivo especifico, orientando a acao do operador","pri":"Must","crit":"Cada descarte traz csv_name, kit, cm e motivo, nunca vazio; e cada motivo tem uma acao esperada correspondente"},{"id":"RF-24","text":"Reportar erro amigavel, sem quebrar a aplicacao","pri":"Must","crit":"Raiz inexistente e colunas ausentes viram \"Ocorreu um erro: {e}\" com success=False"},{"id":"RF-25","text":"Declarar cm_estimator como legado fora do fluxo, reexportado so por compatibilidade","pri":"Should","crit":"O modulo nao e importado por nenhum caminho de producao nem pela interface"},{"id":"RF-26","text":"Tornar o desempate de candidatos deterministico","pri":"Must","crit":"Com empate exato nos tres criterios, vence o menor xref_id. Implementado em 2026-10-05, com 2 testes novos"}]}</script>
+<script>
+(function(){
+  "use strict";
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var SLUG = "analise-dna";
+  var snap = parseSnapshot();
+
+  var idx = (window.RV_DATA && window.RV_DATA.featuresIndex) || null;
+  var specIdx = null;
+  if(idx && idx.specs){
+    idx.specs.forEach(function(s){ if(s.slug === SLUG || s.id === SLUG) specIdx = s; });
+  }
+  var spec = pickData(specIdx, snap.spec) || snap.spec || {};
+  // O TL;DR vem do snapshot, extraido da secao "Visao Geral" da spec de 2026-10-05.
+  // O resumo do features-index e mais curto e nao substitui o texto da secao.
+  var list = (snap.requirements) || [];
+
+  function set(id, v){ var el = document.getElementById(id); if(el && v !== undefined && v !== null) el.textContent = v; }
+
+  var c = (spec && spec.counts) || {};
+  if(c.requisitosFuncionais !== undefined){
+    set("pillRf", c.requisitosFuncionais + " requisitos funcionais");
+    set("pillGh", c.criteriosGherkin + " cenarios Gherkin");
+    set("pillTk", c.tarefas + " tarefas");
+  }
+  if(snap.tldr) set("tldr", snap.tldr);
+
+  // Requisitos funcionais como accordion
+  var acc = document.getElementById("rfAcc");
+  if(acc){
+    if(!list.length){
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "Requisitos nao disponiveis.";
+      acc.appendChild(p);
+    }
+    list.forEach(function(r, i){
+      var d = document.createElement("details");
+      if(i === 0) d.open = true;
+      var s = document.createElement("summary");
+      var id = document.createElement("span");
+      id.className = "id";
+      id.textContent = r.id || "";
+      s.appendChild(id);
+      s.appendChild(document.createTextNode(r.text || ""));
+      var pr = document.createElement("span");
+      pr.className = "pri";
+      pr.textContent = r.pri || "";
+      s.appendChild(pr);
+      d.appendChild(s);
+      var body = document.createElement("div");
+      body.className = "body";
+      body.textContent = "Criterio de aceite: " + (r.crit || "nao declarado");
+      d.appendChild(body);
+      acc.appendChild(d);
+    });
+  }
+
+  // Abas
+  var tabs = document.getElementById("tabs");
+  if(tabs){
+    tabs.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-panel]") : null;
+      if(!b) return;
+      Array.prototype.forEach.call(tabs.querySelectorAll("button"), function(x){ x.classList.toggle("on", x === b); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function(p){ p.classList.remove("on"); });
+      var alvo = document.getElementById(b.getAttribute("data-panel"));
+      if(alvo) alvo.classList.add("on");
+    });
+  }
+})();
+</script>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-06. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-06.</div>
+</body>
+</html>

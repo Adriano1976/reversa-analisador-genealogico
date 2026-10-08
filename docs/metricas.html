@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-analyst">
+<meta name="reversa-template" content="metricas">
+<meta name="reversa-generated-at" content="2026-10-08T16:05:12Z">
+<!-- TITLE -->
+<title>Métricas — analisador-genealogico</title>
+<!-- PAGE_ID -->
+<meta name="reversa-page-id" content="metricas">
+<!-- VISUAL_STYLE -->
+<meta name="reversa-visual-style" content="sober">
+<!-- HEAD_EXTRAS -->
+<script src="assets/vendor/highcharts.js"></script>
+<script src="assets/vendor/highcharts-accessibility.js"></script>
+<script src="assets/vendor/highcharts-exporting.js"></script>
+<script src="assets/vendor/highcharts-treemap.js"></script>
+<script src="assets/vendor/highcharts-sankey.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/nav.js"></script>
+<style>
+  :root{
+    --bg:#1e2024; --panel:#26282e; --line:#3a3d45; --txt:#d7dae0;
+    --muted:#8b909a; --accent:#4f8cff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:"Segoe UI", system-ui, sans-serif; min-height:100vh;}
+  header.site{position:fixed; top:0; left:0; right:0; height:52px; background:rgba(30,32,36,.92); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 20px; z-index:20; gap:14px;}
+  header.site .brand{font-weight:600; letter-spacing:.3px; white-space:nowrap;}
+  header.site .sub{color:var(--muted); font-size:12px; white-space:nowrap;}
+  nav.reversa-doc-nav{display:flex; gap:4px; flex:1; justify-content:flex-end; align-items:center; min-width:0;}
+  nav.reversa-doc-nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt); background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff; background:rgba(79,140,255,.16); outline:1px solid rgba(79,140,255,.35);}
+  .seal-mini{width:26px; height:26px; flex:0 0 auto;}
+  main{padding:72px 24px 40px; max-width:1240px; margin:0 auto;}
+  .summary{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:24px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;}
+  .kpi b{display:block; font-size:26px; color:#fff; margin-bottom:4px;}
+  .kpi span{font-size:12px; color:var(--muted);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(540px,1fr)); gap:18px;}
+  .chart{border:1px solid var(--line); border-radius:12px; padding:6px 12px 12px; background:var(--panel);}
+  .chart h3{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:10px 8px 4px;}
+  .chartbox{height:360px;}
+  .note{color:var(--muted); font-size:12px; text-align:center; padding:20px 0;}
+  .kpi.zero b{color:#6fbf73;}
+  .kpi .como{display:block; margin-top:8px; font-size:11.5px; line-height:1.5; color:var(--muted);}
+  .kpi .como b{display:inline; font-size:11.5px; color:#aeb9d0; margin:0;}
+  .fontes{margin:0 0 26px; padding:14px 18px; border:1px solid rgba(251,191,36,.35); border-left:4px solid #fbbf24; border-radius:12px; background:rgba(251,191,36,.07); font-size:13.5px; line-height:1.65; color:var(--txt);}
+  .fontes b.tit{color:#fbbf24;}
+  .fontes code{color:#aeb9d0;}
+  .fontes .linha{display:block; color:var(--muted); font-size:12.5px; padding-left:12px;}
+</style>
+</head>
+<body>
+<header class="site">
+  
+  
+  
+  
+  
+  
+  <svg class="seal-mini" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1e2937"/>
+  <g stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round">
+      <polygon points="26.77,4.98 56.08,18.68 52.11,50.79 20.35,56.93 4.69,28.62" fill="#f5f3ee"/>
+      <polygon points="27.88,11.31 50.41,21.69 47.49,46.32 23.17,51.16 11.05,29.52" fill="#bdb4a4"/>
+      <polygon points="31.04,17.35 45.63,26.56 41.39,43.28 24.17,44.41 17.77,28.39" fill="#7c8a99"/>
+  </g>
+    <polygon points="30.95,26.60 36.82,29.34 36.02,35.76 29.67,36.99 26.54,31.32" fill="#f5f3ee" stroke="#1e2937" stroke-width="1.40" stroke-linejoin="round"/>
+  </svg>
+
+
+
+
+
+
+  <span class="brand">analisador-genealogico</span>
+  <span class="sub">Métricas</span>
+    <nav class="reversa-doc-nav">
+  <a href="index.html" data-page-id="index">Visão geral</a>
+  <a href="arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="deck.html" data-page-id="deck">Deck</a>
+  <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+</nav>
+</header>
+
+<main>
+  <div class="summary">
+    <div class="kpi"><b id="kModulos">-</b><span>Módulos analisados</span></div>
+    <div class="kpi"><b id="kLoc">-</b><span>Linhas não vazias (total)</span></div>
+    <div class="kpi"><b id="kDecisoes">-</b><span>Pontos de decisão do AST</span></div>
+    <div class="kpi"><b id="kSrc">-</b><span>Linhas não vazias em src/ (Python)</span></div>
+    <div class="kpi"><b id="kTests">-</b><span>Linhas não vazias em tests/</span></div>
+    <div class="kpi"><b id="kArestas">-</b><span>Arestas entre pacotes</span></div>
+    <div class="kpi" id="kpiCiclos"><b id="kCiclos">-</b><span>Ciclos de importação entre pacotes</span><span class="como" id="ciclosComo"></span></div>
+    <div class="kpi"><b id="kEstrutura">-</b><span>Pastas / pacotes</span></div>
+  </div>
+
+  <div class="fontes">
+    <b class="tit">Ciclos de pacote: zero.</b> O grafo de dependências entre os 8 pacotes tem 20 arestas e nenhum ciclo.
+    O núcleo (<code>core/</code>) ficou puro: depende só de <code>utils/</code>, sem alcançar <code>application/</code>, <code>parsers/</code>, <code>reporting/</code> nem <code>src/</code>.
+    O mundo externo entra por <code>ports/</code>, que é quem conversa com <code>parsers/</code> e <code>utils/</code>.
+    A leitura é do grafo de imports entre pacotes, calculado sobre <code>assets/data/deps.json</code>. Zero aqui é conquista arquitetural, não ausência de dado.
+  </div>
+
+  <div class="grid">
+    <div class="chart"><h3>LOC por pasta</h3><div id="chartTreemap" class="chartbox"></div></div>
+    <div class="chart"><h3>Top complexidade (20 módulos)</h3><div id="chartComplexity" class="chartbox"></div></div>
+    <div class="chart"><h3>Histograma de LOC</h3><div id="chartHistogram" class="chartbox"></div></div>
+    <div class="chart"><h3>Dependências entre pacotes</h3><div id="chartSankey" class="chartbox"></div></div>
+    <div class="chart"><h3>Pontos de decisão por pasta</h3><div id="chartFolderComplexity" class="chartbox"></div></div>
+    <div class="chart"><h3>Distribuição por linguagem</h3><div id="chartLang" class="chartbox"></div></div>
+  </div>
+
+  <div class="chart" style="margin-top:18px">
+    <h3>Números do projeto (SDD)</h3>
+    <div style="padding:6px 8px 10px">
+      <div class="summary" style="margin-bottom:6px">
+        <div class="kpi"><b id="kSddRf">-</b><span>Requisitos funcionais (19 + 26 + 24)</span></div>
+        <div class="kpi"><b id="kSddTarefas">-</b><span>Tarefas (20 + 32 + 29)</span></div>
+        <div class="kpi"><b id="kSddGherkin">-</b><span>Cenários Gherkin (6 + 10 + 9)</span></div>
+        <div class="kpi"><b id="kSddAdrs">-</b><span>ADRs documentadas</span></div>
+        <div class="kpi"><b id="kSddLacunas">-</b><span>Lacunas abertas (1 crítica)</span></div>
+        <div class="kpi"><b id="kSddFechadas">-</b><span>Lacunas fechadas nesta rodada</span></div>
+      </div>
+      <ul style="list-style:none; color:#8b909a; font-size:12.5px; line-height:1.7; padding:4px 2px 0;">
+        <li><b style="color:#aeb9d0">Ciclos de pacote:</b> zero em 2026-10-08, contra 2 ciclos na medição anterior de 2026-10-06. O blob de 61 módulos foi reorganizado em pacotes por responsabilidade (ADR 11) e o núcleo passou a depender apenas de utils/. A imagem de arquitetura e o treemap por pasta continuam a mesma ideia: 10 pastas, 8 pacotes e 20 arestas de dependência.</li>
+        <li><b style="color:#aeb9d0">Confiança da extração:</b> 1.922 afirmações catalogadas na apuração final, com 92,8% de confiança geral (1.737 verdes, 95 amarelas e 90 vermelhas). O relatório nasceu com 1.923 afirmações, 91,5% e 109 vermelhas; as 16 decisões humanas desta rodada elevaram a confiança e derrubaram as vermelhas de 109 para 90. Fonte: _reversa_sdd/confidence-report.md.</li>
+        <li><b style="color:#aeb9d0">Suíte de testes:</b> 164 passam e 15 erros, idêntico no interpretador global e no .venv. Os 15 erros são todos de tests/test_upload_seguranca.py, em setup, por PermissionError ao criar ou limpar o diretório temporário no Windows: são pré-existentes e não são regressão (164 + 15 = 179 itens coletados).</li>
+        <li><b style="color:#aeb9d0">Cobertura de src/:</b> 83% (1.520 instruções, 253 descobertas). Pior módulo: number_format.py, com 53%. Fonte: _reversa_sdd/confidence-report.md.</li>
+        <li><b style="color:#aeb9d0">Lacuna crítica restante:</b> L-16 / M-03 / P-02, corrida entre requisições concorrentes. O estado do GEDCOM é global de processo e é reescrito a cada requisição, com o servidor atendendo em 4 threads; a guarda de instância única cobre processos, não threads. O mecanismo é confirmado por leitura do código e o alcance não foi medido.</li>
+        <li><b style="color:#aeb9d0">Requisitos funcionais por feature:</b> upload-gedcom 19, analise-dna 26, busca-caminho 24.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs. Método de contagem declarado: LOC são linhas não vazias (o SDD conta linhas totais, então src/app.py aparece com 232 linhas aqui e 267 lá); complexidade são nós de decisão do AST; os cenários Gherkin contam linhas de passo Dado nos requirements.md; ciclos são ciclos de importação no grafo de pacotes. Fontes: assets/data/metrics.json (contagens de 2026-10-08 sobre a extração determinística de 2026-10-06 que gerou assets/data/modules.json e assets/data/deps.json) e _reversa_sdd/confidence-report.md (revisão de 2026-10-05). Página gerada em 2026-10-08.</p>
+</main>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"schemaVersion":1,
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T15:50:16Z",
+  "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
+  "code": {
+    "modules": 61,
+    "locNaoVazio": 9972,
+    "locSrcPython": 4320,
+    "locTests": 5156,
+    "complexityTotal": 1549,
+    "pastas": 10,
+    "pacotes": 8,
+    "arestasDePacote": 20,
+    "ciclos": 0
+  },
+  "treemap_loc_by_folder": [
+    {
+      "folder": "tests/",
+      "loc": 4981,
+      "modules": 23,
+      "complexity": 822
+    },
+    {
+      "folder": "core/",
+      "loc": 2254,
+      "modules": 15,
+      "complexity": 481
+    },
+    {
+      "folder": "application/",
+      "loc": 506,
+      "modules": 5,
+      "complexity": 65
+    },
+    {
+      "folder": "templates/",
+      "loc": 496,
+      "modules": 1,
+      "complexity": 0
+    },
+    {
+      "folder": "ports/",
+      "loc": 488,
+      "modules": 2,
+      "complexity": 18
+    },
+    {
+      "folder": "src/",
+      "loc": 336,
+      "modules": 1,
+      "complexity": 33
+    },
+    {
+      "folder": "parsers/",
+      "loc": 256,
+      "modules": 3,
+      "complexity": 54
+    },
+    {
+      "folder": "reporting/",
+      "loc": 253,
+      "modules": 2,
+      "complexity": 45
+    },
+    {
+      "folder": "utils/",
+      "loc": 227,
+      "modules": 5,
+      "complexity": 28
+    },
+    {
+      "folder": "tests/fixtures/",
+      "loc": 175,
+      "modules": 4,
+      "complexity": 3
+    }
+  ],
+  "top_complexity": [
+    {
+      "id": "tests/test_confrontacao_gedcom_dna.py",
+      "name": "test_confrontacao_gedcom_dna.py",
+      "folder": "tests/",
+      "complexity": 204,
+      "loc": 827
+    },
+    {
+      "id": "src/core/documentary_relationship.py",
+      "name": "documentary_relationship.py",
+      "folder": "core/",
+      "complexity": 118,
+      "loc": 531
+    },
+    {
+      "id": "tests/test_upload_seguranca.py",
+      "name": "test_upload_seguranca.py",
+      "folder": "tests/",
+      "complexity": 90,
+      "loc": 454
+    },
+    {
+      "id": "src/core/genetic_evidence.py",
+      "name": "genetic_evidence.py",
+      "folder": "core/",
+      "complexity": 71,
+      "loc": 229
+    },
+    {
+      "id": "tests/test_projecao_da_analise.py",
+      "name": "test_projecao_da_analise.py",
+      "folder": "tests/",
+      "complexity": 70,
+      "loc": 254
+    },
+    {
+      "id": "src/application/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "application/",
+      "complexity": 57,
+      "loc": 248
+    },
+    {
+      "id": "src/core/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "core/",
+      "complexity": 52,
+      "loc": 253
+    },
+    {
+      "id": "src/core/matching.py",
+      "name": "matching.py",
+      "folder": "core/",
+      "complexity": 51,
+      "loc": 155
+    },
+    {
+      "id": "tests/test_dependencias_nucleo.py",
+      "name": "test_dependencias_nucleo.py",
+      "folder": "tests/",
+      "complexity": 50,
+      "loc": 254
+    },
+    {
+      "id": "src/reporting/mermaid_render.py",
+      "name": "mermaid_render.py",
+      "folder": "reporting/",
+      "complexity": 45,
+      "loc": 252
+    },
+    {
+      "id": "tests/test_upload.py",
+      "name": "test_upload.py",
+      "folder": "tests/",
+      "complexity": 45,
+      "loc": 202
+    },
+    {
+      "id": "tests/test_dna_analysis.py",
+      "name": "test_dna_analysis.py",
+      "folder": "tests/",
+      "complexity": 44,
+      "loc": 251
+    },
+    {
+      "id": "tests/test_porta_de_armazenamento.py",
+      "name": "test_porta_de_armazenamento.py",
+      "folder": "tests/",
+      "complexity": 43,
+      "loc": 493
+    },
+    {
+      "id": "src/core/evidence_comparison.py",
+      "name": "evidence_comparison.py",
+      "folder": "core/",
+      "complexity": 41,
+      "loc": 209
+    },
+    {
+      "id": "src/parsers/csv_ingest.py",
+      "name": "csv_ingest.py",
+      "folder": "parsers/",
+      "complexity": 39,
+      "loc": 192
+    },
+    {
+      "id": "src/core/family_navigation.py",
+      "name": "family_navigation.py",
+      "folder": "core/",
+      "complexity": 37,
+      "loc": 119
+    },
+    {
+      "id": "src/app.py",
+      "name": "app.py",
+      "folder": "src/",
+      "complexity": 33,
+      "loc": 336
+    },
+    {
+      "id": "src/core/path_search.py",
+      "name": "path_search.py",
+      "folder": "core/",
+      "complexity": 33,
+      "loc": 180
+    },
+    {
+      "id": "src/core/name_normalization.py",
+      "name": "name_normalization.py",
+      "folder": "core/",
+      "complexity": 32,
+      "loc": 85
+    },
+    {
+      "id": "tests/test_path_search.py",
+      "name": "test_path_search.py",
+      "folder": "tests/",
+      "complexity": 29,
+      "loc": 89
+    }
+  ],
+  "loc_histogram": {
+    "bins": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000,
+      5000
+    ],
+    "counts": [
+      11,
+      18,
+      12,
+      18,
+      2,
+      0,
+      0
+    ],
+    "labels": [
+      "<50",
+      "50-99",
+      "100-199",
+      "200-499",
+      "500-999",
+      "1000-4999",
+      ">=5000"
+    ]
+  },
+  "dependency_sankey": {
+    "nodes": [
+      {
+        "id": "app"
+      },
+      {
+        "id": "application"
+      },
+      {
+        "id": "core"
+      },
+      {
+        "id": "parsers"
+      },
+      {
+        "id": "ports"
+      },
+      {
+        "id": "reporting"
+      },
+      {
+        "id": "tests"
+      },
+      {
+        "id": "utils"
+      }
+    ],
+    "links": [
+      {
+        "source": "app",
+        "target": "application",
+        "value": 5
+      },
+      {
+        "source": "app",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "app",
+        "target": "parsers",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "reporting",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "application",
+        "target": "core",
+        "value": 5
+      },
+      {
+        "source": "application",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "core",
+        "target": "utils",
+        "value": 5
+      },
+      {
+        "source": "parsers",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "parsers",
+        "target": "utils",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "parsers",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "tests",
+        "target": "app",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "application",
+        "value": 9
+      },
+      {
+        "source": "tests",
+        "target": "core",
+        "value": 26
+      },
+      {
+        "source": "tests",
+        "target": "parsers",
+        "value": 17
+      },
+      {
+        "source": "tests",
+        "target": "ports",
+        "value": 5
+      },
+      {
+        "source": "tests",
+        "target": "reporting",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "utils",
+        "value": 6
+      }
+    ]
+  },
+  "language_distribution": [
+    {
+      "language": "python",
+      "modules": 60,
+      "loc": 9476
+    },
+    {
+      "language": "html",
+      "modules": 1,
+      "loc": 496
+    }
+  ],
+  "sdd": {
+    "tasks": {
+      "upload-gedcom": 20,
+      "analise-dna": 32,
+      "busca-caminho": 29
+    },
+    "gherkin": {
+      "upload-gedcom": 6,
+      "analise-dna": 10,
+      "busca-caminho": 9
+    },
+    "rfTotal": 69,
+    "rfPorFeature": {
+      "upload-gedcom": 19,
+      "analise-dna": 26,
+      "busca-caminho": 24
+    },
+    "adrs": 23,
+    "adrIds": [
+      "01-reconstruir-em-modulos",
+      "02-camada-de-rota-fina",
+      "03-mermaid-no-cliente",
+      "04-oraculo-congelado-por-commit",
+      "05-escape-de-rotulo-mermaid",
+      "06-politica-de-edicao-do-legado",
+      "07-autoridade-unica-de-limpeza-de-nome",
+      "08-nao-implementar-hard-min-given-min",
+      "09-remover-entidades-decorativas",
+      "10-mover-raiz-para-src",
+      "11-reorganizar-em-pacotes-por-responsabilidade",
+      "12-servidor-waitress-instancia-unica",
+      "13-fixar-dependencias-diretas",
+      "14-separar-documental-genetica-e-confronto",
+      "15-confronto-por-sobreposicao-de-faixas",
+      "16-leitura-tolerante-do-csv",
+      "17-upload-por-chave-de-conteudo",
+      "18-single-tenant-por-aceite-de-risco",
+      "19-heuristicas-declaradas-como-heuristicas",
+      "20-formatacao-numerica-so-na-apresentacao",
+      "21-endogamia-avisar-nao-corrigir",
+      "22-ordem-de-apresentacao-documental-primeiro",
+      "23-desempate-deterministico"
+    ],
+    "gapsAbertasLinhas": 14,
+    "gapsAbertasIds": 12,
+    "gapsCriticas": 1,
+    "gapsFechadasNaRodada": 16,
+    "confidenceMd": "_reversa_sdd/confidence-report.md",
+    "percentuaisCitados": [
+      "100,0",
+      "63,6",
+      "66,7",
+      "69,9",
+      "70,0",
+      "72,7",
+      "76,0",
+      "85,2",
+      "87,0",
+      "88,6",
+      "89,3",
+      "89,8",
+      "90,5",
+      "91,4",
+      "91,5",
+      "92,0",
+      "92,4",
+      "92,8",
+      "94,1",
+      "94,8",
+      "94,9",
+      "95,2",
+      "95,5",
+      "95,7",
+      "96,2",
+      "96,8",
+      "97,1",
+      "98,5"
+    ]
+  }
+}</script>
+<script>
+(function(){
+  "use strict";
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado apenas quando o data.js injetado esta mais antigo que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var M = pickData(window.RV_DATA && window.RV_DATA.metrics, parseSnapshot());
+  if(!M || !M.treemap_loc_by_folder || !M.treemap_loc_by_folder.length){
+    var aviso = document.createElement("p");
+    aviso.setAttribute("style","color:#e57373;padding:20px");
+    aviso.textContent = "Nenhum dado de métricas disponível.";
+    document.querySelector("main").appendChild(aviso);
+    return;
+  }
+
+  var COR = { painel:"#26282e", txt:"#d7dae0", muted:"#8b909a", linha:"#3a3d45", accent:"#4f8cff" };
+
+  Highcharts.setOptions({
+    chart:{ backgroundColor:COR.painel, style:{ fontFamily:'"Segoe UI", system-ui, sans-serif' } },
+    title:{ style:{ color:COR.txt } },
+    legend:{ itemStyle:{ color:COR.muted }, itemHoverStyle:{ color:COR.txt } },
+    tooltip:{ backgroundColor:"#1e2024", style:{ color:COR.txt }, borderColor:COR.linha },
+    xAxis:{ labels:{ style:{ color:COR.muted } }, lineColor:COR.linha, tickColor:COR.linha, title:{ style:{ color:COR.muted } } },
+    yAxis:{ title:{ style:{ color:COR.muted } }, labels:{ style:{ color:COR.muted } }, gridLineColor:COR.linha },
+    credits:{ enabled:false }
+  });
+
+  function num(v){ var n = Number(v); return isNaN(n) ? 0 : n; }
+  function br(v){ return num(v).toLocaleString("pt-BR"); }
+  function set(id, value){
+    var el = document.getElementById(id);
+    if(el) el.textContent = (typeof value === "number") ? br(value) : String(value);
+  }
+  function soma(obj){
+    var t = 0;
+    if(obj){ Object.keys(obj).forEach(function(k){ t += num(obj[k]); }); }
+    return t;
+  }
+
+  var C = M.code || {};
+  var treemap = M.treemap_loc_by_folder || [];
+  var totalLoc = treemap.reduce(function(a,d){ return a + num(d.loc); }, 0);
+  var totalMods = C.modules || treemap.reduce(function(a,d){ return a + num(d.modules); }, 0);
+  var totalDecisoes = C.complexityTotal || treemap.reduce(function(a,d){ return a + num(d.complexity); }, 0);
+  var arestas = (C.arestasDePacote !== undefined) ? C.arestasDePacote
+              : ((M.dependency_sankey && M.dependency_sankey.links) ? M.dependency_sankey.links.length : 0);
+
+  set("kModulos", totalMods);
+  set("kLoc", C.locNaoVazio !== undefined ? C.locNaoVazio : totalLoc);
+  set("kDecisoes", totalDecisoes);
+  set("kSrc", C.locSrcPython !== undefined ? C.locSrcPython : "-");
+  set("kTests", C.locTests !== undefined ? C.locTests : "-");
+  set("kArestas", arestas);
+  set("kCiclos", C.ciclos !== undefined ? C.ciclos : "-");
+  if(num(C.ciclos) === 0){
+    var kpiCiclos = document.getElementById("kpiCiclos");
+    if(kpiCiclos) kpiCiclos.classList.add("zero");
+    var comoCiclos = document.getElementById("ciclosComo");
+    if(comoCiclos){
+      comoCiclos.innerHTML = "Zero é o resultado: o núcleo (<b>core/</b>) depende só de <b>utils/</b> e o mundo externo entra por <b>ports/</b>. Nenhum ciclo no grafo de <b>20</b> arestas entre os <b>8</b> pacotes.";
+    }
+  }
+  set("kEstrutura", (C.pastas !== undefined ? C.pastas : "-") + " / " + (C.pacotes !== undefined ? C.pacotes : "-"));
+
+  var S = M.sdd || {};
+  set("kSddRf", S.rfTotal !== undefined ? S.rfTotal : "-");
+  set("kSddTarefas", S.tasks ? soma(S.tasks) : "-");
+  set("kSddGherkin", S.gherkin ? soma(S.gherkin) : "-");
+  set("kSddAdrs", S.adrs !== undefined ? S.adrs : ((S.adrIds || []).length || "-"));
+  set("kSddLacunas", S.gapsAbertasLinhas !== undefined ? S.gapsAbertasLinhas : "-");
+  set("kSddFechadas", S.gapsFechadasNaRodada !== undefined ? S.gapsFechadasNaRodada : "-");
+
+  // 1. Treemap de LOC por pasta
+  var porPastaNome = {};
+  treemap.forEach(function(d){ porPastaNome[d.folder] = d; });
+  Highcharts.chart("chartTreemap", {
+    chart:{ type:"treemap" },
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Treemap de linhas não vazias por pasta do projeto." },
+    colorAxis:{ minColor:"#31435f", maxColor:"#4f8cff" },
+    tooltip:{ formatter:function(){
+      var d = porPastaNome[this.key] || {};
+      return "<b>" + this.key + "</b><br/>Linhas não vazias: <b>" + br(d.loc)
+           + "</b><br/>Módulos: " + num(d.modules)
+           + "<br/>Pontos de decisão: " + br(d.complexity);
+    } },
+    series:[{
+      type:"treemap",
+      layoutAlgorithm:"squarified",
+      dataLabels:{ style:{ color:"#ffffff", textOutline:"none", fontSize:"12px" } },
+      data: treemap.map(function(d){
+        return { name:d.folder, value:num(d.loc), modules:num(d.modules), complexity:num(d.complexity) };
+      })
+    }]
+  });
+
+  // 2. Colunas: top 20 por complexidade
+  var top = (M.top_complexity || []).slice(0, 20);
+  Highcharts.chart("chartComplexity", {
+    chart:{ type:"column" },
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Colunas com os 20 módulos de maior complexidade, medida em pontos de decisão do AST." },
+    xAxis:{ categories: top.map(function(d){ return d.name; }), labels:{ rotation:-45, style:{ color:COR.muted, fontSize:"10px" } } },
+    yAxis:{ title:{ text:"Pontos de decisão (AST)" }, gridLineColor:COR.linha },
+    legend:{ enabled:false },
+    tooltip:{ formatter:function(){
+      return "<b>" + this.key + "</b><br/>Pontos de decisão: <b>" + br(this.y)
+           + "</b><br/>Linhas não vazias: " + br((top[this.point.index] || {}).loc);
+    } },
+    plotOptions:{ column:{ color:COR.accent, borderWidth:0 } },
+    series:[{ name:"Pontos de decisão", data: top.map(function(d){ return { y:num(d.complexity), loc:num(d.loc) }; }) }]
+  });
+
+  // 3. Histograma de LOC
+  var hist = M.loc_histogram || { labels:[], counts:[] };
+  Highcharts.chart("chartHistogram", {
+    chart:{ type:"column" },
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Histograma de módulos por faixa de linhas não vazias." },
+    xAxis:{ categories: hist.labels || [], title:{ text:"Faixa de linhas não vazias por módulo" } },
+    yAxis:{ title:{ text:"Módulos" }, gridLineColor:COR.linha },
+    legend:{ enabled:false },
+    tooltip:{ formatter:function(){ return "<b>" + this.key + "</b><br/>Módulos: <b>" + br(this.y) + "</b>"; } },
+    plotOptions:{ column:{ color:"#6fbf73", borderWidth:0 } },
+    series:[{ name:"Módulos", data:(hist.counts || []).map(num) }]
+  });
+
+  // 4. Sankey de dependências entre pacotes
+  var sankey = M.dependency_sankey || { nodes:[], links:[] };
+  Highcharts.chart("chartSankey", {
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Sankey das dependências declaradas entre os pacotes do projeto." },
+    series:[{
+      type:"sankey",
+      keys:["from","to","weight"],
+      data:(sankey.links || []).map(function(l){ return { from:l.source, to:l.target, weight:num(l.value) }; }),
+      nodes:(sankey.nodes || []).map(function(n){ return { id:n.id }; }),
+      nodeWidth:18,
+      linkOpacity:0.5,
+      dataLabels:{ style:{ color:COR.txt, textOutline:"none" } }
+    }],
+    tooltip:{ headerFormat:null, pointFormat:"{point.from} para {point.to}: <b>{point.weight}</b> dependências" }
+  });
+
+  // 5. Pontos de decisão por pasta
+  var porPasta = treemap.slice().sort(function(a,b){ return num(b.complexity) - num(a.complexity); });
+  Highcharts.chart("chartFolderComplexity", {
+    chart:{ type:"column" },
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Pontos de decisão do AST somados por pasta." },
+    xAxis:{ categories: porPasta.map(function(d){ return d.folder; }), labels:{ rotation:-30, style:{ color:COR.muted, fontSize:"10px" } } },
+    yAxis:{ title:{ text:"Pontos de decisão (AST)" }, gridLineColor:COR.linha },
+    legend:{ enabled:false },
+    tooltip:{ formatter:function(){ return "<b>" + this.key + "</b><br/>Pontos de decisão: <b>" + br(this.y) + "</b>"; } },
+    plotOptions:{ column:{ color:"#d18a5a", borderWidth:0 } },
+    series:[{ name:"Pontos de decisão", data: porPasta.map(function(d){ return num(d.complexity); }) }]
+  });
+
+  // 6. Distribuição por linguagem
+  var langs = M.language_distribution || [];
+  Highcharts.chart("chartLang", {
+    chart:{ type:"pie" },
+    title:{ text:null },
+    accessibility:{ enabled:true, description:"Distribuição das linhas não vazias por linguagem." },
+    tooltip:{ formatter:function(){
+      return "<b>" + this.key + "</b><br/>Linhas não vazias: <b>" + br(this.y)
+           + "</b><br/>Módulos: " + num((langs[this.point.index] || {}).modules);
+    } },
+    plotOptions:{ pie:{
+      dataLabels:{ style:{ color:COR.txt, textOutline:"none" }, format:"{point.name}: {point.y} ({point.percentage:.1f}%)" },
+      showInLegend:true
+    } },
+    series:[{
+      name:"Linhas não vazias",
+      colorByPoint:true,
+      data: langs.map(function(d){ return { name:d.language, y:num(d.loc), modules:num(d.modules) }; })
+    }]
+  });
+})();
+</script>
+<!-- Gerado pelo Reversa-Docs-Analyst em 2026-10-08. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Analyst em 2026-10-08.</div>
+</body>
+</html>

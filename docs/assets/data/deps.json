@@ -1,0 +1,1028 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T15:49:35Z",
+  "project": "analisador-genealogico",
+  "language": "Python/Flask",
+  "aggregation": "pacote de primeiro nivel (src/ e a raiz de import: app, core, parsers, reporting, utils, tests)",
+  "nodes": [
+    "app",
+    "application",
+    "core",
+    "parsers",
+    "ports",
+    "reporting",
+    "tests",
+    "utils"
+  ],
+  "edges": [
+    {
+      "source": "app",
+      "target": "application"
+    },
+    {
+      "source": "app",
+      "target": "core"
+    },
+    {
+      "source": "app",
+      "target": "parsers"
+    },
+    {
+      "source": "app",
+      "target": "ports"
+    },
+    {
+      "source": "app",
+      "target": "reporting"
+    },
+    {
+      "source": "app",
+      "target": "utils"
+    },
+    {
+      "source": "application",
+      "target": "core"
+    },
+    {
+      "source": "application",
+      "target": "ports"
+    },
+    {
+      "source": "core",
+      "target": "utils"
+    },
+    {
+      "source": "parsers",
+      "target": "core"
+    },
+    {
+      "source": "parsers",
+      "target": "utils"
+    },
+    {
+      "source": "ports",
+      "target": "parsers"
+    },
+    {
+      "source": "ports",
+      "target": "utils"
+    },
+    {
+      "source": "tests",
+      "target": "app"
+    },
+    {
+      "source": "tests",
+      "target": "application"
+    },
+    {
+      "source": "tests",
+      "target": "core"
+    },
+    {
+      "source": "tests",
+      "target": "parsers"
+    },
+    {
+      "source": "tests",
+      "target": "ports"
+    },
+    {
+      "source": "tests",
+      "target": "reporting"
+    },
+    {
+      "source": "tests",
+      "target": "utils"
+    }
+  ],
+  "cycles": [],
+  "imports": [
+    {
+      "from": "src/app.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "src/app.py",
+      "import": "application.dna_analysis",
+      "to": "application"
+    },
+    {
+      "from": "src/app.py",
+      "import": "application.path_search",
+      "to": "application"
+    },
+    {
+      "from": "src/app.py",
+      "import": "application.traducao",
+      "to": "application"
+    },
+    {
+      "from": "src/app.py",
+      "import": "application.upload_gedcom",
+      "to": "application"
+    },
+    {
+      "from": "src/app.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "src/app.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "src/app.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "src/app.py",
+      "import": "reporting.mermaid_render",
+      "to": "reporting"
+    },
+    {
+      "from": "src/app.py",
+      "import": "ports.adaptadores",
+      "to": "ports"
+    },
+    {
+      "from": "src/app.py",
+      "import": "utils.number_format",
+      "to": "utils"
+    },
+    {
+      "from": "src/application/__init__.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/__init__.py",
+      "import": "enum",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/__init__.py",
+      "import": "core.registro",
+      "to": "core"
+    },
+    {
+      "from": "src/application/dna_analysis.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/dna_analysis.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "src/application/dna_analysis.py",
+      "import": "ports",
+      "to": "ports"
+    },
+    {
+      "from": "src/application/path_search.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/path_search.py",
+      "import": "core.path_search",
+      "to": "core"
+    },
+    {
+      "from": "src/application/traducao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/traducao.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "src/application/upload_gedcom.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/upload_gedcom.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "src/core/diagram_domain.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/diagram_domain.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/diagram_domain.py",
+      "import": "path_finding",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/diagram_domain.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "diagram_domain",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "erros",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "evidence_comparison",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "genetic_evidence",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "matching",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "name_normalization",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "relationship_hypotheses",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "path_finding",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/erros.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/evidence_comparison.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/evidence_comparison.py",
+      "import": "relationship_hypotheses",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/family_navigation.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/family_navigation.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/genetic_evidence.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/genetic_evidence.py",
+      "import": "erros",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/genetic_evidence.py",
+      "import": "name_normalization",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/genetic_evidence.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/matching.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/matching.py",
+      "import": "name_normalization",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/matching.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/name_normalization.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/name_normalization.py",
+      "import": "utils.name_keys",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/name_normalization.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/path_finding.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_finding.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "diagram_domain",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "path_finding",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/path_search.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/registro.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/relationship_hypotheses.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/parsers/csv_ingest.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/parsers/csv_ingest.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "src/parsers/csv_ingest.py",
+      "import": "utils.name_keys",
+      "to": "utils"
+    },
+    {
+      "from": "src/parsers/csv_ingest.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/parsers/gedcom_parser.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/parsers/gedcom_parser.py",
+      "import": "core.registro",
+      "to": "core"
+    },
+    {
+      "from": "src/ports/__init__.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/ports/__init__.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
+      "import": "utils.validate",
+      "to": "utils"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
+      "import": "psycopg2",
+      "to": "externo"
+    },
+    {
+      "from": "src/reporting/mermaid_render.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/reporting/mermaid_render.py",
+      "import": "contextlib",
+      "to": "externo"
+    },
+    {
+      "from": "tests/conftest.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/conftest.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "tests/conftest.py",
+      "import": "uuid",
+      "to": "externo"
+    },
+    {
+      "from": "tests/fixtures/arvore_atual.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/fixtures/helpers.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/fixtures/helpers.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/fixtures/helpers.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/fixtures/helpers.py",
+      "import": "reporting.mermaid_render",
+      "to": "reporting"
+    },
+    {
+      "from": "tests/test_arvore_devolvida.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_arvore_devolvida.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_arvore_devolvida.py",
+      "import": "core.registro",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_characterization_matching.py",
+      "import": "inspect",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_characterization_matching.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_characterization_matching.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_characterization_mermaid.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_characterization_mermaid.py",
+      "import": "core.path_search",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.documentary_relationship",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.evidence_comparison",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.genetic_evidence",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.path_search",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.relationship_hypotheses",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.documentary_relationship",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "core.documentary_relationship",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_confrontacao_gedcom_dna.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_dependencias_nucleo.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_dependencias_nucleo.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_desfecho_do_resultado.py",
+      "import": "html",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_desfecho_do_resultado.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_desfecho_do_resultado.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_desfecho_do_resultado.py",
+      "import": "inspect",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_dna_analysis.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_dna_analysis.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_dna_analysis.py",
+      "import": "core.cm_estimator",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_dna_analysis.py",
+      "import": "parsers.csv_ingest",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_domain.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_erros_de_dominio.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "utils.number_format",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "utils.number_format",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_formatacao_cm.py",
+      "import": "utils.number_format",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_mermaid_escape.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_mermaid_escape.py",
+      "import": "reporting.mermaid_render",
+      "to": "reporting"
+    },
+    {
+      "from": "tests/test_mermaid_escape.py",
+      "import": "core.path_search",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_path_search.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_path_search.py",
+      "import": "core.family_navigation",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_path_search.py",
+      "import": "core.path_finding",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_path_search.py",
+      "import": "core.path_search",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_persistencia_desabilitada.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_desabilitada.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_desabilitada.py",
+      "import": "fixtures",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_indisponivel.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_indisponivel.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_indisponivel.py",
+      "import": "fixtures",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_persistencia_indisponivel.py",
+      "import": "application.dna_analysis",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_persistencia_indisponivel.py",
+      "import": "ports.adaptadores",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "inspect",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "application.upload_gedcom",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "ports",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "ports",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_porta_de_armazenamento.py",
+      "import": "ports.adaptadores",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_projecao_da_analise.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_projecao_da_analise.py",
+      "import": "application.dna_analysis",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "application.dna_analysis",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "ports.adaptadores",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "psycopg2",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "psycopg2",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "psycopg2",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_registro_de_analises.py",
+      "import": "psycopg2",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_servidor_producao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_traducao_de_erros.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_traducao_de_erros.py",
+      "import": "application.traducao",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_traducao_de_erros.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_traducao_de_erros.py",
+      "import": "utils.validate",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_traducao_de_erros.py",
+      "import": "core.erros",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_upload.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_upload.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_upload.py",
+      "import": "core.registro",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_upload_seguranca.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_upload_seguranca.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
+      "from": "src/utils/name_keys.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/name_keys.py",
+      "import": "string",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/name_keys.py",
+      "import": "text_cleaning",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/number_format.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/text_cleaning.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/validate.py",
+      "import": "__future__",
+      "to": "externo"
+    }
+  ],
+  "summary": {
+    "nodes": 8,
+    "edges": 20,
+    "cycles": 0,
+    "internalImports": 184
+  }
+}

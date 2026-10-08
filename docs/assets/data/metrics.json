@@ -1,0 +1,470 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T15:50:16Z",
+  "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
+  "code": {
+    "modules": 61,
+    "locNaoVazio": 9972,
+    "locSrcPython": 4320,
+    "locTests": 5156,
+    "complexityTotal": 1549,
+    "pastas": 10,
+    "pacotes": 8,
+    "arestasDePacote": 20,
+    "ciclos": 0
+  },
+  "treemap_loc_by_folder": [
+    {
+      "folder": "tests/",
+      "loc": 4981,
+      "modules": 23,
+      "complexity": 822
+    },
+    {
+      "folder": "core/",
+      "loc": 2254,
+      "modules": 15,
+      "complexity": 481
+    },
+    {
+      "folder": "application/",
+      "loc": 506,
+      "modules": 5,
+      "complexity": 65
+    },
+    {
+      "folder": "templates/",
+      "loc": 496,
+      "modules": 1,
+      "complexity": 0
+    },
+    {
+      "folder": "ports/",
+      "loc": 488,
+      "modules": 2,
+      "complexity": 18
+    },
+    {
+      "folder": "src/",
+      "loc": 336,
+      "modules": 1,
+      "complexity": 33
+    },
+    {
+      "folder": "parsers/",
+      "loc": 256,
+      "modules": 3,
+      "complexity": 54
+    },
+    {
+      "folder": "reporting/",
+      "loc": 253,
+      "modules": 2,
+      "complexity": 45
+    },
+    {
+      "folder": "utils/",
+      "loc": 227,
+      "modules": 5,
+      "complexity": 28
+    },
+    {
+      "folder": "tests/fixtures/",
+      "loc": 175,
+      "modules": 4,
+      "complexity": 3
+    }
+  ],
+  "top_complexity": [
+    {
+      "id": "tests/test_confrontacao_gedcom_dna.py",
+      "name": "test_confrontacao_gedcom_dna.py",
+      "folder": "tests/",
+      "complexity": 204,
+      "loc": 827
+    },
+    {
+      "id": "src/core/documentary_relationship.py",
+      "name": "documentary_relationship.py",
+      "folder": "core/",
+      "complexity": 118,
+      "loc": 531
+    },
+    {
+      "id": "tests/test_upload_seguranca.py",
+      "name": "test_upload_seguranca.py",
+      "folder": "tests/",
+      "complexity": 90,
+      "loc": 454
+    },
+    {
+      "id": "src/core/genetic_evidence.py",
+      "name": "genetic_evidence.py",
+      "folder": "core/",
+      "complexity": 71,
+      "loc": 229
+    },
+    {
+      "id": "tests/test_projecao_da_analise.py",
+      "name": "test_projecao_da_analise.py",
+      "folder": "tests/",
+      "complexity": 70,
+      "loc": 254
+    },
+    {
+      "id": "src/application/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "application/",
+      "complexity": 57,
+      "loc": 248
+    },
+    {
+      "id": "src/core/dna_analysis.py",
+      "name": "dna_analysis.py",
+      "folder": "core/",
+      "complexity": 52,
+      "loc": 253
+    },
+    {
+      "id": "src/core/matching.py",
+      "name": "matching.py",
+      "folder": "core/",
+      "complexity": 51,
+      "loc": 155
+    },
+    {
+      "id": "tests/test_dependencias_nucleo.py",
+      "name": "test_dependencias_nucleo.py",
+      "folder": "tests/",
+      "complexity": 50,
+      "loc": 254
+    },
+    {
+      "id": "src/reporting/mermaid_render.py",
+      "name": "mermaid_render.py",
+      "folder": "reporting/",
+      "complexity": 45,
+      "loc": 252
+    },
+    {
+      "id": "tests/test_upload.py",
+      "name": "test_upload.py",
+      "folder": "tests/",
+      "complexity": 45,
+      "loc": 202
+    },
+    {
+      "id": "tests/test_dna_analysis.py",
+      "name": "test_dna_analysis.py",
+      "folder": "tests/",
+      "complexity": 44,
+      "loc": 251
+    },
+    {
+      "id": "tests/test_porta_de_armazenamento.py",
+      "name": "test_porta_de_armazenamento.py",
+      "folder": "tests/",
+      "complexity": 43,
+      "loc": 493
+    },
+    {
+      "id": "src/core/evidence_comparison.py",
+      "name": "evidence_comparison.py",
+      "folder": "core/",
+      "complexity": 41,
+      "loc": 209
+    },
+    {
+      "id": "src/parsers/csv_ingest.py",
+      "name": "csv_ingest.py",
+      "folder": "parsers/",
+      "complexity": 39,
+      "loc": 192
+    },
+    {
+      "id": "src/core/family_navigation.py",
+      "name": "family_navigation.py",
+      "folder": "core/",
+      "complexity": 37,
+      "loc": 119
+    },
+    {
+      "id": "src/app.py",
+      "name": "app.py",
+      "folder": "src/",
+      "complexity": 33,
+      "loc": 336
+    },
+    {
+      "id": "src/core/path_search.py",
+      "name": "path_search.py",
+      "folder": "core/",
+      "complexity": 33,
+      "loc": 180
+    },
+    {
+      "id": "src/core/name_normalization.py",
+      "name": "name_normalization.py",
+      "folder": "core/",
+      "complexity": 32,
+      "loc": 85
+    },
+    {
+      "id": "tests/test_path_search.py",
+      "name": "test_path_search.py",
+      "folder": "tests/",
+      "complexity": 29,
+      "loc": 89
+    }
+  ],
+  "loc_histogram": {
+    "bins": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000,
+      5000
+    ],
+    "counts": [
+      11,
+      18,
+      12,
+      18,
+      2,
+      0,
+      0
+    ],
+    "labels": [
+      "<50",
+      "50-99",
+      "100-199",
+      "200-499",
+      "500-999",
+      "1000-4999",
+      ">=5000"
+    ]
+  },
+  "dependency_sankey": {
+    "nodes": [
+      {
+        "id": "app"
+      },
+      {
+        "id": "application"
+      },
+      {
+        "id": "core"
+      },
+      {
+        "id": "parsers"
+      },
+      {
+        "id": "ports"
+      },
+      {
+        "id": "reporting"
+      },
+      {
+        "id": "tests"
+      },
+      {
+        "id": "utils"
+      }
+    ],
+    "links": [
+      {
+        "source": "app",
+        "target": "application",
+        "value": 5
+      },
+      {
+        "source": "app",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "app",
+        "target": "parsers",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "reporting",
+        "value": 1
+      },
+      {
+        "source": "app",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "application",
+        "target": "core",
+        "value": 5
+      },
+      {
+        "source": "application",
+        "target": "ports",
+        "value": 1
+      },
+      {
+        "source": "core",
+        "target": "utils",
+        "value": 5
+      },
+      {
+        "source": "parsers",
+        "target": "core",
+        "value": 2
+      },
+      {
+        "source": "parsers",
+        "target": "utils",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "parsers",
+        "value": 2
+      },
+      {
+        "source": "ports",
+        "target": "utils",
+        "value": 1
+      },
+      {
+        "source": "tests",
+        "target": "app",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "application",
+        "value": 9
+      },
+      {
+        "source": "tests",
+        "target": "core",
+        "value": 26
+      },
+      {
+        "source": "tests",
+        "target": "parsers",
+        "value": 17
+      },
+      {
+        "source": "tests",
+        "target": "ports",
+        "value": 5
+      },
+      {
+        "source": "tests",
+        "target": "reporting",
+        "value": 2
+      },
+      {
+        "source": "tests",
+        "target": "utils",
+        "value": 6
+      }
+    ]
+  },
+  "language_distribution": [
+    {
+      "language": "python",
+      "modules": 60,
+      "loc": 9476
+    },
+    {
+      "language": "html",
+      "modules": 1,
+      "loc": 496
+    }
+  ],
+  "sdd": {
+    "tasks": {
+      "upload-gedcom": 20,
+      "analise-dna": 32,
+      "busca-caminho": 29
+    },
+    "gherkin": {
+      "upload-gedcom": 6,
+      "analise-dna": 10,
+      "busca-caminho": 9
+    },
+    "rfTotal": 69,
+    "rfPorFeature": {
+      "upload-gedcom": 19,
+      "analise-dna": 26,
+      "busca-caminho": 24
+    },
+    "adrs": 23,
+    "adrIds": [
+      "01-reconstruir-em-modulos",
+      "02-camada-de-rota-fina",
+      "03-mermaid-no-cliente",
+      "04-oraculo-congelado-por-commit",
+      "05-escape-de-rotulo-mermaid",
+      "06-politica-de-edicao-do-legado",
+      "07-autoridade-unica-de-limpeza-de-nome",
+      "08-nao-implementar-hard-min-given-min",
+      "09-remover-entidades-decorativas",
+      "10-mover-raiz-para-src",
+      "11-reorganizar-em-pacotes-por-responsabilidade",
+      "12-servidor-waitress-instancia-unica",
+      "13-fixar-dependencias-diretas",
+      "14-separar-documental-genetica-e-confronto",
+      "15-confronto-por-sobreposicao-de-faixas",
+      "16-leitura-tolerante-do-csv",
+      "17-upload-por-chave-de-conteudo",
+      "18-single-tenant-por-aceite-de-risco",
+      "19-heuristicas-declaradas-como-heuristicas",
+      "20-formatacao-numerica-so-na-apresentacao",
+      "21-endogamia-avisar-nao-corrigir",
+      "22-ordem-de-apresentacao-documental-primeiro",
+      "23-desempate-deterministico"
+    ],
+    "gapsAbertasLinhas": 14,
+    "gapsAbertasIds": 12,
+    "gapsCriticas": 1,
+    "gapsFechadasNaRodada": 16,
+    "confidenceMd": "_reversa_sdd/confidence-report.md",
+    "percentuaisCitados": [
+      "100,0",
+      "63,6",
+      "66,7",
+      "69,9",
+      "70,0",
+      "72,7",
+      "76,0",
+      "85,2",
+      "87,0",
+      "88,6",
+      "89,3",
+      "89,8",
+      "90,5",
+      "91,4",
+      "91,5",
+      "92,0",
+      "92,4",
+      "92,8",
+      "94,1",
+      "94,8",
+      "94,9",
+      "95,2",
+      "95,5",
+      "95,7",
+      "96,2",
+      "96,8",
+      "97,1",
+      "98,5"
+    ]
+  }
+}

@@ -1,0 +1,930 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T15:50:16Z",
+  "sourceName": "cronica ate 2026-09-30, eventos de .reversa/state.json a partir de 2026-10-05 e eventos do ciclo forward a partir de 2026-08-11, todos os posteriores marcados como fora da cronica",
+  "project": "analisador-genealogico",
+  "sources": [
+    {
+      "id": "chronicle",
+      "path": ".reversa/chronicle.md",
+      "eventos": 78,
+      "ultimo": "2026-09-30T23:59:00-03:00"
+    },
+    {
+      "id": "state.json",
+      "path": ".reversa/state.json",
+      "eventos": 8,
+      "ultimo": "2026-10-06T03:20:00Z"
+    },
+    {
+      "id": "progress.jsonl",
+      "path": "_reversa_forward/*/progress.jsonl",
+      "eventos": 10,
+      "ultimo": "2026-10-08T06:56:45Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "e01",
+      "source": "chronicle",
+      "date": "2026-08-03T11:48:40Z",
+      "agent": "reversa-scout",
+      "category": "extracao",
+      "title": "inventário da superfície",
+      "detail": "reversa-scout — inventário da superfície. Gerou _reversa_sdd/inventory.md, _reversa_sdd/dependencies.md, .reversa/context/surface.json"
+    },
+    {
+      "id": "e02",
+      "source": "chronicle",
+      "date": "2026-08-03T12:22:00Z",
+      "agent": "reversa-archaeologist",
+      "category": "extracao",
+      "title": "escavação do módulo analisador-genealogico",
+      "detail": "reversa-archaeologist — escavação do módulo analisador-genealogico. Gerou _reversa_sdd/code-analysis.md, .reversa/context/modules.json"
+    },
+    {
+      "id": "e03",
+      "source": "chronicle",
+      "date": "2026-08-03T12:31:00Z",
+      "agent": "reversa-detective",
+      "category": "extracao",
+      "title": "conhecimento de negócio implícito",
+      "detail": "reversa-detective — conhecimento de negócio implícito. Gerou _reversa_sdd/domain.md"
+    },
+    {
+      "id": "e04",
+      "source": "chronicle",
+      "date": "2026-08-03T12:35:00Z",
+      "agent": "reversa-architect",
+      "category": "extracao",
+      "title": "arquitetura",
+      "detail": "reversa-architect — arquitetura. Gerou _reversa_sdd/architecture.md, _reversa_sdd/c4-context.md"
+    },
+    {
+      "id": "e05",
+      "source": "chronicle",
+      "date": "2026-08-03T12:50:00Z",
+      "agent": "reversa-writer",
+      "category": "extracao",
+      "title": "writer (fase geração)",
+      "detail": "reversa-writer (fase geração) — specs das 3 unidades: upload-gedcom, analise-dna, busca-caminho (requirements.md + design.md + tasks.md cada)"
+    },
+    {
+      "id": "e06",
+      "source": "chronicle",
+      "date": "2026-08-03T12:50:00Z",
+      "agent": "reversa-reviewer",
+      "category": "extracao",
+      "title": "revisão e confiança",
+      "detail": "reversa-reviewer — revisão e confiança. Gerou _reversa_sdd/confidence-report.md, _reversa_sdd/questions.md (4 perguntas respondidas; 1 reclassificação 🟢→🟡 no limiar HARD_MIN/GIVEN_MIN)"
+    },
+    {
+      "id": "e07",
+      "source": "chronicle",
+      "date": "2026-08-03T12:52:00Z",
+      "agent": "reversa",
+      "category": "extracao",
+      "title": "reversa (orquestrador)",
+      "detail": "reversa (orquestrador) — extração completa, regression check silencioso, sem addendas pendentes"
+    },
+    {
+      "id": "e08",
+      "source": "chronicle",
+      "date": "2026-08-03T16:15:11-03:00",
+      "agent": "reversa",
+      "category": "extracao",
+      "title": "bootstrap git /reversa: framework instalado, skills e templates criado",
+      "detail": "bootstrap git /reversa: framework instalado, skills e templates criados (commit de origem nao resolve mais no historico atual)"
+    },
+    {
+      "id": "e09",
+      "source": "chronicle",
+      "date": "2026-08-06T14:35:38-03:00",
+      "agent": "commit",
+      "category": "framework",
+      "title": "reconfiguração do projeto na nova versão do framework",
+      "detail": "reconfiguração do projeto na nova versão do framework"
+    },
+    {
+      "id": "e10",
+      "source": "chronicle",
+      "date": "2026-08-06T14:41:29-03:00",
+      "agent": "commit",
+      "category": "framework",
+      "title": "aceite do framework reversa 1.2.58",
+      "detail": "aceite do framework reversa 1.2.58"
+    },
+    {
+      "id": "e11",
+      "source": "chronicle",
+      "date": "2026-08-07T10:32:56-03:00",
+      "agent": "reversa-reconstructor",
+      "category": "reconstrucao",
+      "title": "plano de reconstrução: _reversa_sdd/reconstruction-plan.md",
+      "detail": "reversa-reconstructor — plano de reconstrução: _reversa_sdd/reconstruction-plan.md"
+    },
+    {
+      "id": "e12",
+      "source": "chronicle",
+      "date": "2026-08-07T12:00:29-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "módulos domain.py, path_search.py e upload.py com testes",
+      "detail": "módulos domain.py, path_search.py e upload.py com testes"
+    },
+    {
+      "id": "e13",
+      "source": "chronicle",
+      "date": "2026-08-07T12:43:35-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "módulo dna_analysis.py com testes da análise de DNA",
+      "detail": "módulo dna_analysis.py com testes da análise de DNA"
+    },
+    {
+      "id": "e14",
+      "source": "chronicle",
+      "date": "2026-08-07T12:52:39-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "relatório final da reconstrução: _reversa_sdd/reconstruction-report.md",
+      "detail": "relatório final da reconstrução: _reversa_sdd/reconstruction-report.md"
+    },
+    {
+      "id": "e15",
+      "source": "chronicle",
+      "date": "2026-08-07T13:00:32-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "testes do módulo domain.py",
+      "detail": "testes do módulo domain.py"
+    },
+    {
+      "id": "e16",
+      "source": "chronicle",
+      "date": "2026-08-07T13:06:05-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "testes do módulo upload.py",
+      "detail": "testes do módulo upload.py"
+    },
+    {
+      "id": "e17",
+      "source": "chronicle",
+      "date": "2026-08-07T13:10:07-03:00",
+      "agent": "commit",
+      "category": "reconstrucao",
+      "title": "relatório final atualizado com novos testes",
+      "detail": "relatório final atualizado com novos testes"
+    },
+    {
+      "id": "e18",
+      "source": "chronicle",
+      "date": "2026-08-11T13:36:03-03:00",
+      "agent": "commit",
+      "category": "forward",
+      "title": "forward → reversa-requirements → reversa-plan",
+      "detail": "reversa-forward → reversa-requirements → reversa-plan — requirements e roadmap da feature 001 001-reconstrua-o-conteudo-da-index"
+    },
+    {
+      "id": "e19",
+      "source": "chronicle",
+      "date": "2026-08-11T13:45:55Z",
+      "agent": "reversa-coding",
+      "category": "forward",
+      "title": "coding feature 001",
+      "detail": "reversa-coding feature 001 — ações T001–T004 concluídas: reconstrução do conteúdo de templates/index.html"
+    },
+    {
+      "id": "f001-20260811",
+      "date": "2026-08-11T13:45:55Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "reconstrua-o-conteudo-da-index: 2026-08-11",
+      "detail": "4 ação(ões) em 2026-08-11 (4 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "001-reconstrua-o-conteudo-da-index",
+      "featureId": "001"
+    },
+    {
+      "id": "e20",
+      "source": "chronicle",
+      "date": "2026-08-11T14:11:08-03:00",
+      "agent": "commit",
+      "category": "forward",
+      "title": "entrega da index e requirements da integração app-módulos (feature 002",
+      "detail": "entrega da index e requirements da integração app-módulos (feature 002)"
+    },
+    {
+      "id": "e21",
+      "source": "chronicle",
+      "date": "2026-08-11T14:21:24-03:00",
+      "agent": "commit",
+      "category": "forward",
+      "title": "requirements → reversa-plan → reversa-to-do",
+      "detail": "reversa-requirements → reversa-plan → reversa-to-do — requirements, roadmap e actions da feature 002 002-integrar-rota-app-modulos"
+    },
+    {
+      "id": "e22",
+      "source": "chronicle",
+      "date": "2026-08-11T14:30:22-03:00",
+      "agent": "commit",
+      "category": "forward",
+      "title": "relatório actions.md do reversa-to-do",
+      "detail": "relatório actions.md do reversa-to-do"
+    },
+    {
+      "id": "e23",
+      "source": "chronicle",
+      "date": "2026-08-11T14:32:10Z",
+      "agent": "reversa-coding",
+      "category": "forward",
+      "title": "coding feature 002",
+      "detail": "reversa-coding feature 002 — T001: módulos reconstructed/ criados (__init__.py, upload.py, path_search.py, dna_analysis.py, domain.py)"
+    },
+    {
+      "id": "e24",
+      "source": "chronicle",
+      "date": "2026-08-11T14:33:34Z",
+      "agent": "reversa",
+      "category": "forward",
+      "title": "T002: testes test_upload.py, test_path_search.py, test_dna_analysis.py",
+      "detail": "T002: testes test_upload.py, test_path_search.py, test_dna_analysis.py, test_domain.py"
+    },
+    {
+      "id": "f002-20260811",
+      "date": "2026-08-11T14:33:34Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "integrar-rota-app-modulos: 2026-08-11",
+      "detail": "2 ação(ões) em 2026-08-11 (2 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "002-integrar-rota-app-modulos",
+      "featureId": "002"
+    },
+    {
+      "id": "e25",
+      "source": "chronicle",
+      "date": "2026-08-11T14:42:37Z",
+      "agent": "reversa",
+      "category": "forward",
+      "title": "T003–T006: integração das rotas no app.py (upload_gedcom, path_search,",
+      "detail": "T003–T006: integração das rotas no app.py (upload_gedcom, path_search, dna_analysis)"
+    },
+    {
+      "id": "e26",
+      "source": "chronicle",
+      "date": "2026-08-11T14:43:52Z",
+      "agent": "reversa",
+      "category": "forward",
+      "title": "T007–T008: validação da suíte de testes e ajustes finais no app.py",
+      "detail": "T007–T008: validação da suíte de testes e ajustes finais no app.py"
+    },
+    {
+      "id": "e27",
+      "source": "chronicle",
+      "date": "2026-08-11T16:13:47-03:00",
+      "agent": "commit",
+      "category": "forward",
+      "title": "feat de integração dos módulos reconstruídos ao app Flask + reorganiza",
+      "detail": "feat de integração dos módulos reconstruídos ao app Flask + reorganização da estrutura do projeto"
+    },
+    {
+      "id": "e28",
+      "source": "chronicle",
+      "date": "2026-08-12T13:41:00-03:00",
+      "agent": "commit",
+      "category": "docs",
+      "title": "README com arquitetura modular e suíte de testes",
+      "detail": "README com arquitetura modular e suíte de testes"
+    },
+    {
+      "id": "e29",
+      "source": "chronicle",
+      "date": "2026-08-12T14:00:00Z",
+      "agent": "reversa-docs",
+      "category": "docs",
+      "title": "início do pipeline (mapper, analyst, storyteller, publisher)",
+      "detail": "reversa-docs — início do pipeline (mapper, analyst, storyteller, publisher)"
+    },
+    {
+      "id": "e30",
+      "source": "chronicle",
+      "date": "2026-08-12T14:16:28-03:00",
+      "agent": "commit",
+      "category": "docs",
+      "title": "regeneração do mini-site _reversa_docs/ para a arquitetura modular",
+      "detail": "regeneração do mini-site _reversa_docs/ para a arquitetura modular"
+    },
+    {
+      "id": "e31",
+      "source": "chronicle",
+      "date": "2026-08-12T16:16:48-03:00",
+      "agent": "reversa-docs-storyteller",
+      "category": "docs",
+      "title": "glossário interativo e slide deck do soul",
+      "detail": "reversa-docs-storyteller — glossário interativo e slide deck do soul"
+    },
+    {
+      "id": "e32",
+      "source": "chronicle",
+      "date": "2026-08-12T18:41:35Z",
+      "agent": "reversa",
+      "category": "docs",
+      "title": "check-point final do docs: 17 páginas; timeline omitida por ausência d",
+      "detail": "check-point final do docs: 17 páginas; timeline omitida por ausência do chronicle (que este arquivo agora resolve)"
+    },
+    {
+      "id": "e33",
+      "source": "chronicle",
+      "date": "2026-08-13T01:30:56-03:00",
+      "agent": "commit",
+      "category": "licenca",
+      "title": "clarificação da licença no README",
+      "detail": "clarificação da licença no README"
+    },
+    {
+      "id": "e34",
+      "source": "chronicle",
+      "date": "2026-08-13T01:42:33-03:00",
+      "agent": "commit",
+      "category": "licenca",
+      "title": "adição da MIT License ao projeto",
+      "detail": "adição da MIT License ao projeto"
+    },
+    {
+      "id": "e35",
+      "source": "chronicle",
+      "date": "2026-08-13T01:47:42-03:00",
+      "agent": "commit",
+      "category": "licenca",
+      "title": "revisão dos links da documentação no README",
+      "detail": "revisão dos links da documentação no README"
+    },
+    {
+      "id": "e36",
+      "source": "chronicle",
+      "date": "2026-08-13T10:30:26-03:00",
+      "agent": "commit",
+      "category": "licenca",
+      "title": "docstrings Google e correção de avisos do Pyrefly nos testes",
+      "detail": "docstrings Google e correção de avisos do Pyrefly nos testes"
+    },
+    {
+      "id": "e37",
+      "source": "chronicle",
+      "date": "2026-08-13T10:47:31-03:00",
+      "agent": "commit",
+      "category": "licenca",
+      "title": "merge de origin/master e README com a LICENSE",
+      "detail": "merge de origin/master e README com a LICENSE"
+    },
+    {
+      "id": "e38",
+      "source": "chronicle",
+      "date": "2026-08-16T16:48:38-03:00",
+      "agent": "reversa",
+      "category": "docs",
+      "title": "criação deste arquivo e da timeline do mini-site",
+      "detail": "criação deste arquivo e da timeline do mini-site . A partir daqui a crônica passa a existir como fonte; a timeline de _reversa_docs/ passa a consumi-la"
+    },
+    {
+      "id": "e39",
+      "source": "chronicle",
+      "date": "2026-09-28T02:14:23-03:00",
+      "agent": "commit",
+      "category": "migracao",
+      "title": "Artefatos de migração atualizados",
+      "detail": "artefatos de migração e documentação atualizados"
+    },
+    {
+      "id": "e40",
+      "source": "chronicle",
+      "date": "2026-09-28T13:02:20-03:00",
+      "agent": "commit",
+      "category": "migracao",
+      "title": "Ignore de resíduos do harness",
+      "detail": "resíduos de execução do harness de paridade passam a ser ignorados"
+    },
+    {
+      "id": "e41",
+      "source": "chronicle",
+      "date": "2026-09-28T13:02:39-03:00",
+      "agent": "reversa",
+      "category": "migracao",
+      "title": "harness diferencial oráculo × reconstrução",
+      "detail": "harness diferencial oráculo × reconstrução . Dois subprocessos obrigatórios, porque o oráculo mantém estado global mutável e importar ambos no mesmo processo contaminaria o candidato"
+    },
+    {
+      "id": "e42",
+      "source": "chronicle",
+      "date": "2026-09-28T13:02:48-03:00",
+      "agent": "commit",
+      "category": "migracao",
+      "title": "Documentação do harness de paridade",
+      "detail": "documentação do harness de paridade e da verificação pós-handoff"
+    },
+    {
+      "id": "e43",
+      "source": "chronicle",
+      "date": "2026-09-28T15:17:17-03:00",
+      "agent": "commit",
+      "category": "migracao",
+      "title": "Snapshot antes do Reversa",
+      "detail": "snapshot do repositório antes do Reversa"
+    },
+    {
+      "id": "e76",
+      "source": "chronicle",
+      "date": "2026-09-28T23:59:00-03:00",
+      "agent": "reversa",
+      "category": "migracao",
+      "title": "Artefatos do ciclo consolidados",
+      "detail": "_reversa_sdd/migration/ (19 artefatos, 6 agentes, strategy C), _reversa_sdd/oracle/, _reversa_sdd/parity/. Resultado medido: paridade de 100% em 6/6 fixtures sintéticas e 5/5 árvores reais, inclusive uma de 35.460 pessoa"
+    },
+    {
+      "id": "e44",
+      "source": "chronicle",
+      "date": "2026-09-29T03:20:41-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "framework atualizado para reversa 1.3.4",
+      "detail": "framework atualizado para reversa 1.3.4"
+    },
+    {
+      "id": "e45",
+      "source": "chronicle",
+      "date": "2026-09-29T03:20:49-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "política de edição do legado documentada em .reversa/reversa-config.js",
+      "detail": "política de edição do legado documentada em .reversa/reversa-config.json . Escrita fora das pastas do Reversa passa a exigir glob explícito"
+    },
+    {
+      "id": "e46",
+      "source": "chronicle",
+      "date": "2026-09-29T03:20:55-03:00",
+      "agent": "reversa-refactor",
+      "category": "refactor",
+      "title": "refactor aplica as primeiras otimizações medidas",
+      "detail": "reversa-refactor aplica as primeiras otimizações medidas"
+    },
+    {
+      "id": "e47",
+      "source": "chronicle",
+      "date": "2026-09-29T03:21:00-03:00",
+      "agent": "reversa-principles",
+      "category": "refactor",
+      "title": "principles e reversa-debugger registram princípios, bugs e oportunidad",
+      "detail": "reversa-principles e reversa-debugger registram princípios, bugs e oportunidades de refactor; cria .reversa/principles.md"
+    },
+    {
+      "id": "e48",
+      "source": "chronicle",
+      "date": "2026-09-29T14:22:16-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "redes de segurança do refactor promovidas a testes permanentes",
+      "detail": "redes de segurança do refactor promovidas a testes permanentes . Surgem tests/test_characterization_matching.py e tests/test_characterization_mermaid.py"
+    },
+    {
+      "id": "e49",
+      "source": "chronicle",
+      "date": "2026-09-29T14:22:21-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "adendo do refactor de qualidade de código: _reversa_sdd/addenda/003-re",
+      "detail": "adendo do refactor de qualidade de código: _reversa_sdd/addenda/003-refactor-code-quality.md"
+    },
+    {
+      "id": "e50",
+      "source": "chronicle",
+      "date": "2026-09-29T14:33:51-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "Fim de linha normalizado em LF",
+      "detail": "fim de linha normalizado em LF"
+    },
+    {
+      "id": "e51",
+      "source": "chronicle",
+      "date": "2026-09-29T14:41:43-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "OPP-B5F2 opção B",
+      "detail": "OPP-B5F2 opção B — limpeza de nome unificada em domain.py . Havia duas implementações que divergiam em 5 de 9 casos"
+    },
+    {
+      "id": "e52",
+      "source": "chronicle",
+      "date": "2026-09-29T14:41:48-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "registro da transformação OPP-B5F2",
+      "detail": "registro da transformação OPP-B5F2"
+    },
+    {
+      "id": "e53",
+      "source": "chronicle",
+      "date": "2026-09-29T14:41:54-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "extraPaths do Pylance configurado para a raiz da fonte",
+      "detail": "extraPaths do Pylance configurado para a raiz da fonte"
+    },
+    {
+      "id": "e54",
+      "source": "chronicle",
+      "date": "2026-09-29T14:55:52-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "OPP-4MGR",
+      "detail": "OPP-4MGR — o índice deixa de renormalizar na construção . Medido: 27,77 ms → 2,29 ms por match (12,13x)"
+    },
+    {
+      "id": "e55",
+      "source": "chronicle",
+      "date": "2026-09-29T14:55:58-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "registro de OPP-4MGR e de 5 oportunidades novas",
+      "detail": "registro de OPP-4MGR e de 5 oportunidades novas"
+    },
+    {
+      "id": "e56",
+      "source": "chronicle",
+      "date": "2026-09-29T15:07:46-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "OPP-IM3Q",
+      "detail": "OPP-IM3Q — python-Levenshtein não importado é removido"
+    },
+    {
+      "id": "e57",
+      "source": "chronicle",
+      "date": "2026-09-29T15:07:56-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "OPP-DW3U",
+      "detail": "OPP-DW3U — propriedade morta g removida de GenealogyGraph"
+    },
+    {
+      "id": "e58",
+      "source": "chronicle",
+      "date": "2026-09-29T15:08:03-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "registro das transformações OPP-IM3Q e OPP-DW3U",
+      "detail": "registro das transformações OPP-IM3Q e OPP-DW3U"
+    },
+    {
+      "id": "e59",
+      "source": "chronicle",
+      "date": "2026-09-29T15:13:47-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "README do legado corrigido: Pyvis → Mermaid",
+      "detail": "README do legado corrigido: Pyvis → Mermaid . Fecha divergência documental que existia desde a remoção do Pyvis"
+    },
+    {
+      "id": "e60",
+      "source": "chronicle",
+      "date": "2026-09-29T15:13:59-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "Divergências de README",
+      "detail": "divergência do README do legado fechada; divergências do README da raiz abertas"
+    },
+    {
+      "id": "e61",
+      "source": "chronicle",
+      "date": "2026-09-29T16:08:47-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "OPP-U2NK",
+      "detail": "OPP-U2NK — import re órfão removido"
+    },
+    {
+      "id": "e62",
+      "source": "chronicle",
+      "date": "2026-09-29T16:08:56-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "OPP-Z6IO",
+      "detail": "OPP-Z6IO — configuração do pyrefly corrigida e supressões de tipo removidas"
+    },
+    {
+      "id": "e63",
+      "source": "chronicle",
+      "date": "2026-09-29T16:09:03-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "Evidências em UTF-8",
+      "detail": "evidências convertidas de UTF-16LE para UTF-8"
+    },
+    {
+      "id": "e64",
+      "source": "chronicle",
+      "date": "2026-09-29T16:09:09-03:00",
+      "agent": "commit",
+      "category": "refactor",
+      "title": "README da raiz corrigido",
+      "detail": "README da raiz corrigido e divergências do adendo 003 fechadas"
+    },
+    {
+      "id": "e65",
+      "source": "chronicle",
+      "date": "2026-09-29T16:09:15-03:00",
+      "agent": "reversa-debugger",
+      "category": "refactor",
+      "title": "debugger reavalia os bugs e regenera as views",
+      "detail": "reversa-debugger reavalia os bugs e regenera as views"
+    },
+    {
+      "id": "e77",
+      "source": "chronicle",
+      "date": "2026-09-29T23:59:00-03:00",
+      "agent": "reversa",
+      "category": "refactor",
+      "title": "Artefatos do ciclo consolidados",
+      "detail": "_reversa_refactor/ (7 transformações OPP-*), _reversa_bugs/, .reversa/principles.md."
+    },
+    {
+      "id": "e66",
+      "source": "chronicle",
+      "date": "2026-09-30T11:16:52-03:00",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "fix: fecha o escape do rótulo Mermaid (BUG-20260929-J6PQ)",
+      "detail": "fix: fecha o escape do rótulo Mermaid (BUG-20260929-J6PQ) . O gatilho confirmado em navegador é aspa dupla seguida de crase num nome vindo do GEDCOM: o lexer desvia para *markdown-string* e o fecha-colchete nunca vira o "
+    },
+    {
+      "id": "e67",
+      "source": "chronicle",
+      "date": "2026-09-30T11:17:02-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "Bug fechado com dois gates",
+      "detail": "bug fechado com os dois gates"
+    },
+    {
+      "id": "e68",
+      "source": "chronicle",
+      "date": "2026-09-30T11:17:07-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "BOM UTF-8 removido",
+      "detail": "BOM UTF-8 removido dos change sets; views regeneradas"
+    },
+    {
+      "id": "e69",
+      "source": "chronicle",
+      "date": "2026-09-30T13:20:04-03:00",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "o oráculo congelado é recuperado",
+      "detail": "o oráculo congelado é recuperado . Ele havia sumido do alcançável"
+    },
+    {
+      "id": "e70",
+      "source": "chronicle",
+      "date": "2026-09-30T13:20:11-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "Views globais regeneradas",
+      "detail": "views globais do refactor regeneradas"
+    },
+    {
+      "id": "e71",
+      "source": "chronicle",
+      "date": "2026-09-30T15:11:57-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "Selo de proveniência padronizado",
+      "detail": "selo de proveniência padronizado no rodapé"
+    },
+    {
+      "id": "e72",
+      "source": "chronicle",
+      "date": "2026-09-30T15:47:24-03:00",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "re-extração das specs contra a árvore atual",
+      "detail": "re-extração das specs contra a árvore atual . Primeira re-extração desde 03/08: rodou Scout, Arqueólogo, Detetive, Arquiteto, Redator e Revisor no nível essencial, com snapshot da extração anterior em .reversa/snapshots/"
+    },
+    {
+      "id": "e73",
+      "source": "chronicle",
+      "date": "2026-09-30T15:47:29-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "Snapshots ignorados pelo git",
+      "detail": "snapshots do Reversa passam a ser ignorados pelo git"
+    },
+    {
+      "id": "e74",
+      "source": "chronicle",
+      "date": "2026-09-30T16:36:42-03:00",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "entidades mortas removidas de domain.py",
+      "detail": "entidades mortas removidas de domain.py . Family, GenealogyGraph e DNAGroup eram arquitetura abandonada: nenhuma era instanciada em caminho de produção. O módulo caiu de 115 para 84 linhas"
+    },
+    {
+      "id": "e75",
+      "source": "chronicle",
+      "date": "2026-09-30T16:36:48-03:00",
+      "agent": "commit",
+      "category": "reextracao",
+      "title": "re-extração das specs após a remoção das entidades",
+      "detail": "re-extração das specs após a remoção das entidades"
+    },
+    {
+      "id": "e78",
+      "source": "chronicle",
+      "date": "2026-09-30T23:59:00-03:00",
+      "agent": "reversa-reviewer",
+      "category": "reextracao",
+      "title": "Resultado da re-extração",
+      "detail": "819 afirmações catalogadas, 90,5% de confiança geral. Correções contra a extração anterior: HARD_MIN/GIVEN_MIN não existem na reconstrução; cM ≤ 0 devolve lista vazia; a action de DNA é dna_analysis e não process_dna; 8 "
+    },
+    {
+      "id": "f003-20261003",
+      "date": "2026-10-03T18:55:47Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-pasta-app-para-src: 2026-10-03",
+      "detail": "25 ação(ões) em 2026-10-03 (1 blocked, 2 corrected, 20 done, 2 failed). T004: src/** e .vscode/** ausentes em allowedPaths de .reversa/reversa-config.json (ultima modificacao 2026-10-01 02:26:25). Escrita em src/ recusada. Fase... SELF: reparo de corrupcao de codificacao: Get-Content sem -Encoding no PowerShell 5.1 leu UTF-8 como Windows-1252 (actions.md, 153 sequencias de mojibake d... T004: rename bloqueado por 3 processos com CWD dentro de analisador-genealogico: PID 13872 (powershell/WindowsTerminal), PID 16764 (python app.py, filho da... T021: rodada 2 de reversa-coding: zero acoes de codigo a executar. T021 e regeneracao do mini-site e pertence ao pipeline de documentacao, nao ao ciclo de...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "003-renomear-pasta-app-para-src",
+      "featureId": "003"
+    },
+    {
+      "id": "f004-20261003",
+      "date": "2026-10-03T19:18:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "servidor-waitress: 2026-10-03",
+      "detail": "11 ação(ões) em 2026-10-03 (2 blocked, 8 done, 1 failed). T011: nao verificavel neste ambiente: a sandbox nega o diretorio temporario do pip (Permission denied), e a rede funciona. Lacuna substantiva declarada: ne... T001: caminho requirements.txt fora de allowedPaths; politica recusa a escrita. Nenhuma acao deste plano pode liberar o caminho T007: 121 passed, 15 errors: linha de base de 118 aprovados mais os 3 testes novos, mesmos 15 erros de ambiente T010: mensagem nomeia o pacote e o interpretador exato, codigo de saida 1, nenhuma porta aberta",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "004-servidor-waitress",
+      "featureId": "004"
+    },
+    {
+      "id": "f004-20261004",
+      "date": "2026-10-04T07:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "servidor-waitress: 2026-10-04",
+      "detail": "14 ação(ões) em 2026-10-04 (13 done, 1 failed). T011: executada em 2026-10-04 e o resultado contradiz a premissa: no Windows duas instancias do servidor escutam na MESMA porta, porque ele usa SO_REUSEADD... T012: seis dependencias diretas fixadas com == nas versoes validadas: Flask 3.1.3, ged4py 0.5.2, networkx 3.6.1, pandas 3.0.3, thefuzz 0.22.1, waitress 3.0... T013: pip install -r requirements.txt com codigo de saida 0, nada instalado nem removido porque o conjunto ja correspondia; conferencia declarado x instala... T014: quatro afirmacoes novas; falharam antes da mudanca (4 failed, 3 passed) e passam depois (7 passed). Uma delas procurava aspa dupla e o ast.unparse no...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "004-servidor-waitress",
+      "featureId": "004"
+    },
+    {
+      "id": "e79",
+      "source": "state.json",
+      "date": "2026-10-05T15:42:15Z",
+      "agent": "reversa-scout",
+      "category": "reextracao",
+      "title": "inventário da superfície na re-extração de 2026-10-05",
+      "detail": "reversa-scout. Re-extraiu _reversa_sdd/inventory.md, _reversa_sdd/dependencies.md e .reversa/context/surface.json, com snapshot do conjunto anterior em .reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo no _MANIFEST.txt). Correções contra a extração anterior: raiz de código de analisador-genealogico/ para src/; pacote reconstructed/ (4 módulos, 1086 linhas) substituído por core/ (13) mais parsers/ (3) mais reporting/ (2) mais utils/ (4), 3473 linhas com o app.py; app.py de 84 para 262 linhas; tests de 7 arquivos e 1134 linhas para 11 arquivos e 2957 linhas; CI/CD passou a existir com .github/workflows/deploy-pages.yml. Os 3 módulos identificados (upload-gedcom, analise-dna e busca-caminho) e a superfície de rotas seguem iguais aos da extração anterior.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e80",
+      "source": "state.json",
+      "date": "2026-10-05T17:00:00Z",
+      "agent": "reversa-archaeologist",
+      "category": "reextracao",
+      "title": "escavação do código de src/ com 118 regras de negócio",
+      "detail": "reversa-archaeologist. Gerou _reversa_sdd/code-analysis.md (seções 1 a 6, 118 regras catalogadas), _reversa_sdd/data-dictionary.md, os 3 flowcharts por unit e .reversa/context/modules.json (4 módulos, 77 funções, 118 regras). Totais: 3473 linhas lidas em 22 arquivos, 27 entidades documentadas, 19 algoritmos e 16 dívidas técnicas. Achado central do módulo analise-dna: a separação entre parentesco documental, evidência genética e confronto é capacidade nova, sem spec na extração anterior.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e81",
+      "source": "state.json",
+      "date": "2026-10-05T19:30:00Z",
+      "agent": "reversa-detective",
+      "category": "reextracao",
+      "title": "domínio, máquinas de decisão, permissões e 23 ADRs",
+      "detail": "reversa-detective. Reescreveu _reversa_sdd/domain.md (8 seções, 21 mensagens de contrato, lacunas L-15 a L-23) e criou state-machines.md (2 máquinas de decisão, 11 códigos de aviso, lacunas M-01 a M-04) e permissions.md (zero autenticação, zero sessão e zero papéis, lacunas P-01 a P-05), além de 23 ADRs a partir de 125 commits (8 herdadas revalidadas e 15 novas). Achado principal: a regra final da análise entrou por commits diretos, sem ciclo forward, e é a lacuna de rastreabilidade que motivou esta re-rotação.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e82",
+      "source": "state.json",
+      "date": "2026-10-05T21:10:00Z",
+      "agent": "reversa-architect",
+      "category": "reextracao",
+      "title": "arquitetura, C4 e ERD completos, com 2 ciclos de pacote",
+      "detail": "reversa-architect. Reescreveu _reversa_sdd/architecture.md (9 seções, 20 dívidas consolidadas) e c4-context.md, e criou c4-containers.md, c4-components.md, erd-complete.md e traceability/spec-impact-matrix.md. Sumário: 3 containers, 19 componentes, 27 estruturas de dados, 20 dívidas técnicas (4 de alta gravidade) e 7 dívidas fechadas desde 2026-09-30. Achado novo: os quatro pacotes do núcleo não formam camadas acíclicas, há 2 ciclos em nível de pacote (core/ com reporting/ e core/ com parsers/), ainda que não exista ciclo em nível de módulo. utils/ é o único pacote folha real.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e83",
+      "source": "state.json",
+      "date": "2026-10-06T01:20:00Z",
+      "agent": "reversa-writer",
+      "category": "reextracao",
+      "title": "as 3 specs SDD e os artefatos globais regenerados",
+      "detail": "reversa-writer. Gerou 17 arquivos: as 3 units (upload-gedcom, analise-dna e busca-caminho, cada uma com requirements, design, tasks e contracts), openapi/index.yaml, as 3 user stories e traceability/code-spec-matrix.md. Totais declarados: 69 requisitos funcionais, 34 não funcionais, 81 tarefas (49 de teste), 23 critérios Gherkin e 11 códigos de aviso contratados. As 9 specs canônicas de 2026-09-30 foram sobrescritas por decisão explícita do usuário, com snapshot integral em .reversa/snapshots/2026-10-05-pre-reextracao/.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e84",
+      "source": "state.json",
+      "date": "2026-10-06T02:40:00Z",
+      "agent": "reversa-reviewer",
+      "category": "reextracao",
+      "title": "revisão com 92,8% de confiança e a lacuna crítica ainda aberta",
+      "detail": "reversa-reviewer. Reescreveu _reversa_sdd/confidence-report.md e questions.md (16 perguntas, todas respondidas) e criou gaps.md. 1.922 afirmações catalogadas e 92,8% de confiança geral, contra 91,5% antes das 16 decisões humanas. Suíte com 164 acertos e 15 erros de ambiente em setup (PermissionError de tmp_path no Windows), idênticos no interpretador global e no .venv, e cobertura de 83% de src/ (1520 instruções, 253 descobertas). Seis arquivos do legado foram editados por decisão explícita do usuário: src/core/matching.py, src/app.py, src/core/genetic_evidence.py, requirements.txt e 2 arquivos de teste. A única lacuna crítica restante é a corrida entre threads (L-16, M-03 e P-02).",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e85",
+      "source": "state.json",
+      "date": "2026-10-06T03:20:00Z",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "Passo 4: verificação de regressão semântica",
+      "detail": "Verificação de regressão contra as 4 features com regression-watch.md: 13 watch items em tabela principal, 12 vereditos verdes, 1 amarelo e zero vermelhos, sem block on red. O amarelo é o W008 da feature 004-servidor-waitress: as versões fixadas mudaram em relação à lista do watch por decisão humana registrada (o .venv passou a ser o interpretador oficial), sem regressão. A paridade contra o oráculo congelado deu 100% em 6 de 6 fixtures, o que prova que as 3 mudanças de código de 2026-10-05 não alteraram o comportamento observável. 6 adendos foram reconciliados nesta passada.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "e86",
+      "source": "state.json",
+      "date": "2026-10-06T03:20:00Z",
+      "agent": "reversa",
+      "category": "reextracao",
+      "title": "re-extração de 2026-10-05 concluída",
+      "detail": "Re-extração integral do _reversa_sdd/ a partir do código de 2026-10-05: 6 agentes (scout, archaeologist, detective, architect, writer e reviewer) e 5 fases concluídas, com cerca de 60 artefatos gerados ou reescritos (15 transversais, 3 flowcharts, 12 specs de unit, 23 ADRs, 3 user stories, 1 openapi e 2 de rastreabilidade). Confiança final de 92,8% em 1.922 afirmações (1737 verdes, 95 amarelas e 90 vermelhas) e 14 lacunas abertas, 1 delas crítica (corrida entre threads). Suíte com 164 acertos e 15 erros de ambiente, paridade de 100% em 6 de 6 fixtures e cobertura de 83% de src/. As 16 perguntas de validação humana foram respondidas e nenhuma segue aberta. migration/, oracle/, parity/, screens/, addenda/, design-system/ e traceability/bugs.md foram preservados sem regeneração.",
+      "foraDaCronica": true
+    },
+    {
+      "id": "f006-20261007",
+      "date": "2026-10-07T14:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "fronteira-aplicacao-ports: 2026-10-07",
+      "detail": "31 ação(ões) em 2026-10-07 (31 done). T006: Protocol CarregadorDeArvores com UM metodo, que e a condicao declarada da D-02. Executada depois de T005, respeitando o criterio de arquivo alvo dist... T007: ArmazenamentoEmDisco delega para utils/validate.py (autoridade unica, D-07) e CarregadorDeArvoresGedcom resolve a referencia e chama carregar_arvore.... T010: Os quatro pontos de deteccao, um a um, com o literal conferido. O ponto do csv_ingest e forcado por monkeypatch de pd.read_csv: alcancar o raise real... T012: Campo de desfecho com tres valores, derivado de payload + flag de sucesso, nunca do texto (D-11). O campo do payload chama-se 'dados' e nao 'path_res...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "006-fronteira-aplicacao-ports",
+      "featureId": "006"
+    },
+    {
+      "id": "f003-20261007",
+      "date": "2026-10-07T15:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-pasta-app-para-src: 2026-10-07",
+      "detail": "1 ação(ões) em 2026-10-07 (1 blocked). T021: rodada 3 de reversa-coding: zero acoes de codigo a executar, resultado identico ao da rodada 2. T021 e regeneracao do mini-site e pertence ao pipelin...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "003-renomear-pasta-app-para-src",
+      "featureId": "003"
+    },
+    {
+      "id": "f007-20261007",
+      "date": "2026-10-07T16:31:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "dono-no-port-e-baseline: 2026-10-07",
+      "detail": "19 ação(ões) em 2026-10-07 (17 done, 2 failed). T003: 1 failed, 248 passed: a assercao tmp_path != pasta_temporaria supunha dois diretorios independentes no mesmo teste; o pytest cacheia a instancia do f... T003: assercao corrigida para exigir IGUALDADE e raiz unica, com o motivo no docstring; nenhuma assercao enfraquecida; nao e falha de produto nem de ambien... T004: linha de base vigente: 249 passed, 0 errors, exit 0; paridade 100%, exit 0; zero residuo em tests/.tmp/. Aritmetica: 231 + 15 que passaram a executar... T005: dono como ultimo parametro posicional e sem valor padrao em ArmazenamentoDeArquivos.guardar, .resolver e CarregadorDeArvores.carregar; o carregador c...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "007-dono-no-port-e-baseline",
+      "featureId": "007"
+    },
+    {
+      "id": "f005-20261007",
+      "date": "2026-10-07T17:50:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "nucleo-puro-src: 2026-10-07",
+      "detail": "35 ação(ões) em 2026-10-07 (1 deferred, 31 done, 1 failed, 1 partial, 1 reverted). harness (reparo): O coletor do candidato QUEBROU com o T011/T012, exatamente como o desvio declarado no T010 previu: ele chamava FN.get_parents(i) na assinatura antiga... T005-T007+T030: Medicao da fase: suite 172 passed / 2 xfailed / 15 errors, contra 164 passed / 15 errors da linha de base. Os 15 erros de ambiente sao os mesmos e os... T023(a,c,d): (a) carregar_arvore deixou de mutar as globais e o import de gedcom_state saiu do parser; get_name/ref_id passaram a vir de core.registro. O coletor... T008-T009: Medicao da rodada: suite 177 passed / 2 xfailed / 15 errors e paridade 100 por cento nas 6 fixtures com exit 0. Nada quebrou: T008 e T009 entraram se...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "005-nucleo-puro-src",
+      "featureId": "005"
+    },
+    {
+      "id": "f008-20261008",
+      "date": "2026-10-08T06:56:45Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "persistencia-postgres-docker: 2026-10-08",
+      "detail": "34 ação(ões) em 2026-10-08 (1 blocked, 5 corrected, 26 done, 2 failed). T005: extensoes do D-06: bloco do veredito, match_kit, analysis_person, CHECKs e indices. T004 e T005 aplicadas numa escrita so do arquivo, declarado em No... T006: dois servicos, volume nomeado + bind mount, mount do init.sql no entrypoint, depends_on curto sem service_healthy. docker compose config --quiet = ex... T008: build exit 0 (9 pacotes cp314/manylinux instalados SEM compilar); up -d exit 0; db healthy; app Up 127.0.0.1:5080->5000; HTTP 200 em 4s. Exigiu autor... T011: PORTAO DO BLOCO 0 VERDE: 261 passed (igual a linha de base) e PARIDADE 100% exit 0, os dois SEM DATABASE_URL. Suite mais lenta (62,2s vs 27,1s) por c...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "008-persistencia-postgres-docker",
+      "featureId": "008"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+<title>Selo generativo de analisador-genealogico: crystal-lattice</title>
+<rect width="800" height="800" rx="28" fill="#1e2937"/>
+<g stroke="#4f6b5d" stroke-width="1" stroke-opacity="0.22">
+    <line x1="400.00" y1="400.00" x2="333.13" y2="54.41"/>
+    <line x1="400.00" y1="400.00" x2="708.01" y2="229.61"/>
+    <line x1="400.00" y1="400.00" x2="657.23" y2="640.28"/>
+    <line x1="400.00" y1="400.00" x2="250.97" y2="718.89"/>
+    <line x1="400.00" y1="400.00" x2="50.66" y2="356.81"/>
+</g>
+<g stroke="#1e2937" stroke-width="3.00" stroke-linejoin="round">
+    <polygon points="333.13,54.41 708.01,229.61 657.23,640.28 250.97,718.89 50.66,356.81" fill="#f5f3ee"/>
+    <polygon points="340.94,103.10 664.12,252.08 622.30,605.48 273.27,674.92 99.38,364.42" fill="#bdb4a4"/>
+    <polygon points="383.37,147.11 635.38,306.04 562.10,594.82 264.80,614.37 154.35,337.66" fill="#7c8a99"/>
+    <polygon points="393.49,195.94 592.06,330.75 525.21,561.26 285.33,568.91 203.92,343.14" fill="#a06b4a"/>
+    <polygon points="399.33,245.12 547.09,351.50 491.58,524.90 309.51,525.69 252.49,352.78" fill="#4f6b5d"/>
+</g>
+  <polygon points="388.63,341.25 452.36,371.03 443.73,440.85 374.66,454.21 340.61,392.66" fill="#f5f3ee" stroke="#1e2937" stroke-width="3.00" stroke-linejoin="round"/>
+</svg>
