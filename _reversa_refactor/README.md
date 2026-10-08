@@ -38,7 +38,7 @@ _reversa_refactor/
 
 | Contexto | Alvo principal | Oportunidades |
 |----------|----------------|---------------|
-| `analise-dna` | `src/core/dna_analysis.py` e dependências | 8 |
+| `analise-dna` | `src/core/dna_analysis.py` e dependências | 9 |
 | `arquitetura-src` | `src/` inteiro: acoplamento, ciclos de pacote e duplicação | 4 |
 | `busca-caminho` | `src/core/path_search.py` | 4 |
 | `contrato-de-dados-src` | contrato dos dicionários de domínio e caminhos de importação | 2 |
@@ -215,6 +215,7 @@ caracterização e equivalência a teste permanente da suíte continua sendo dec
 Números medidos em **2026-10-06** (substituem os de 2026-09-29):
 
 - Suíte existente: **164 testes passam e 15 erros de ambiente** em `tests/` (`py -3.14 -m pytest -q`). Os 15 erros são `PermissionError` do sandbox ao criar o diretório temporário do `tmp_path`, e não regressão: o mesmo número e a mesma causa aparecem antes e depois de cada transformação.
+- **Suíte remedida em 2026-10-08**, no contexto da `OPP-20261008-JXQN`: **282 passam, 8 pulados, 0 erros e 0 falhas**, em 290 itens coletados, com 173 s de execução. Os 15 erros de ambiente de 2026-10-06 **não existem mais**: a correção do `tmp_path` feita pela feature 007 os eliminou. Os 8 pulados são os 8 testes de `tests/test_registro_de_analises.py`, pulados por ausência de `DATABASE_URL`. **A verificação de tipos não foi remedida nesta data**, e os 27 erros do pyrefly continuam sendo o número de 2026-10-06. Evidência bruta: `analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/suite-antes.txt`.
 - Verificação de tipos: `py -3.14 -m pyrefly check src` reporta **27 erros**. O critério de aceite de qualquer transformação é a contagem e o conjunto de erros não aumentarem, comparados arquivo a arquivo.
 - Harness de paridade diferencial oráculo x reconstrução: `_reversa_sdd/parity/harness.py`, com
   fixtures sintéticas em `_reversa_sdd/parity/fixtures/`. Roda e reporta 100 por cento, ao

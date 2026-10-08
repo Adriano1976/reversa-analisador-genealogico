@@ -1,0 +1,275 @@
+PROVA DE USO de core.cm_estimator (SHARED_CM_DATA e get_relationships_by_cm)
+Varredura: repositorio inteiro, excluindo .git, .pytest-tmp, .pytest_cache, .venv, __pycache__, node_modules.
+Deteccao de literal: tokenize.STRING, por arquivo .py.
+Total de ocorrencias: 551 em 147 arquivos.
+
+Ocorrencias em que a linha e CODIGO EXECUTAVEL pelo interpretador ao carregar o arquivo:
+
+  [alvo (codigo do projeto)] src/core/cm_estimator.py:40
+      SHARED_CM_DATA = [
+  [alvo (codigo do projeto)] src/core/cm_estimator.py:53
+      def get_relationships_by_cm(cm_value):
+  [alvo (codigo do projeto)] src/core/cm_estimator.py:64
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:31
+      from core.cm_estimator import get_relationships_by_cm
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:286
+      assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:287
+      assert "Primos" in ", ".join(get_relationships_by_cm(600))
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:288
+      assert get_relationships_by_cm(0) == []  # cM <= 0 -> sem relação (legado)
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:302
+      assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_verificar_t029.py:193
+      from core.cm_estimator import get_relationships_by_cm
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_verificar_t029.py:196
+      fronteiras[valor] = get_relationships_by_cm(valor)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:32
+      get_relationships_by_cm,
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:264
+      assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:265
+      assert "Primos" in ", ".join(get_relationships_by_cm(600))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:266
+      assert get_relationships_by_cm(0) == []  # cM <= 0 -> sem relação (legado)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:280
+      assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/cm_estimator.py:32
+      SHARED_CM_DATA = [
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/cm_estimator.py:45
+      def get_relationships_by_cm(cm_value):
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/cm_estimator.py:56
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/dna_analysis.py:34
+      from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/dna_analysis.py:91
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/dna_analysis.py:34
+      from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/dna_analysis.py:91
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/core/cm_estimator.py:32
+      SHARED_CM_DATA = [
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/core/cm_estimator.py:45
+      def get_relationships_by_cm(cm_value):
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/core/cm_estimator.py:56
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/src__reconstructed__dna_analysis.py:34
+      from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/src__reconstructed__dna_analysis.py:91
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/src__reconstructed__dna_analysis.py:34
+      from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/src__reconstructed__dna_analysis.py:91
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:32
+      get_relationships_by_cm,
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:264
+      assert "Irmãos completos" in ", ".join(get_relationships_by_cm(2500))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:265
+      assert "Primos" in ", ".join(get_relationships_by_cm(600))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:266
+      assert get_relationships_by_cm(0) == []  # cM <= 0 -> sem relação (legado)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:280
+      assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/dna_analysis.py:34
+      from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/dna_analysis.py:91
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/core/cm_estimator.py:32
+      SHARED_CM_DATA = [
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/core/cm_estimator.py:45
+      def get_relationships_by_cm(cm_value):
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/core/cm_estimator.py:56
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:57
+      from reconstructed.core import cm_estimator as C
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:68
+      print("   depois : %d faixas" % len(C.SHARED_CM_DATA))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:78
+      b = C.get_relationships_by_cm(valor)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/before-after/dna_analysis.antes.py:48
+      SHARED_CM_DATA = [
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/before-after/dna_analysis.antes.py:61
+      def get_relationships_by_cm(cm_value):
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/before-after/dna_analysis.antes.py:64
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/before-after/dna_analysis.antes.py:106
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [oraculo congelado (copia propria)] _reversa_sdd/oracle/app_legacy_e43ca22.py:26
+      SHARED_CM_DATA = [
+  [oraculo congelado (copia propria)] _reversa_sdd/oracle/app_legacy_e43ca22.py:169
+      def get_relationships_by_cm(cm_value):
+  [oraculo congelado (copia propria)] _reversa_sdd/oracle/app_legacy_e43ca22.py:172
+      poss = [item["relationship"] for item in SHARED_CM_DATA if item["range"][0] <= cm_value <= item["range"][1]]
+  [oraculo congelado (copia propria)] _reversa_sdd/oracle/app_legacy_e43ca22.py:809
+      probable_relationships = get_relationships_by_cm(cm_value)
+  [oraculo congelado (copia propria)] _reversa_sdd/oracle/run_oracle.py:158
+      rel = module.get_relationships_by_cm(args.cm)
+
+Ocorrencias em que a linha esta dentro de LITERAL de string (so vira codigo se o texto for
+escrito em disco e executado):
+
+  [alvo (codigo do projeto)] src/core/cm_estimator.py:19
+      `SHARED_CM_DATA` **nao tem fonte externa verificavel**. As nove faixas foram
+  [alvo (codigo do projeto)] src/core/dna_analysis.py:27
+      `get_relationships_by_cm` e `SHARED_CM_DATA` continuam existindo em
+  [alvo (codigo do projeto)] src/core/dna_analysis.py:28
+      `core.cm_estimator`, mas a superficie de compatibilidade que os trazia para ca
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:278
+      Testa três casos representativos de ``get_relationships_by_cm``:
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:295
+      ``get_relationships_by_cm`` retorna a lista com o texto padrão
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_registrar_t023.py:95
+      "evitou duas suposicoes erradas: (1) eu supus que o modulo usava SHARED_CM_DATA na "
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_registrar_t023.py:99
+      "o contrato do harness, que a alcanca por D.get_relationships_by_cm. Como o coletor "
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_registrar_t023.py:101
+      "passou a importar get_relationships_by_cm de core.cm_estimator, e o teste de "
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_registrar_t023.py:102
+      "test_dna_analysis idem. Saíram: o import de cm_estimator, e "
+  [artefato do framework (evidencia datada)] _reversa_forward/005-nucleo-puro-src/evidence/_registrar_t023.py:103
+      "'get_relationships_by_cm'/'SHARED_CM_DATA' de __all__. cm_estimator PERMANECE em "
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/ensaio_equivalencia.py:49
+      API = ["dna_analysis", "get_relationships_by_cm", "aggregate_matches", "detect_columns",
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/ensaio_equivalencia.py:53
+      "strip_bad_utf", "demojibake", "SHARED_CM_DATA"]
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/ensaio_equivalencia.py:84
+      saida["cm"] = {str(c): puro(c, lambda c=c: D.get_relationships_by_cm(c))
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/gerar_divisao.py:57
+      "SHARED_CM_DATA": "dna_analysis",
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/gerar_divisao.py:58
+      "get_relationships_by_cm": "dna_analysis",
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/gerar_divisao.py:177
+      "dna_analysis": ["SHARED_CM_DATA", "get_relationships_by_cm", "dna_analysis"],
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20260929-ZV52-separar-por-responsabilidade/before-after/gerar_divisao.py:187
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/medir-usos.py:1
+      """Prova de uso de core.cm_estimator: varredura completa, com deteccao de literal.
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/medir-usos.py:26
+      ALVO = ("cm_estimator", "SHARED_CM_DATA", "get_relationships_by_cm")
+  [artefato do framework (registro de refactor)] _reversa_refactor/analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/medir-usos.py:112
+      partes.append("PROVA DE USO de core.cm_estimator (SHARED_CM_DATA e get_relationships_by_cm)")
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/reorganizar.py:94
+      "│   │   ├── cm_estimator.py     # Tradução de cM em relações prováveis (faixas heurísticas)\n"
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/reorganizar.py:111
+      "│   ├── cm_estimator.py         # Tradução de cM em relações prováveis (faixas heurísticas)\n"
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:256
+      Testa três casos representativos de ``get_relationships_by_cm``:
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/tests__test_dna_analysis.py:273
+      ``get_relationships_by_cm`` retorna a lista com o texto padrão
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/_reversa_sdd__parity__harness.py:134
+      obs["cm"][str(cm)] = safo(m.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/head/_reversa_sdd__parity__harness.py:220
+      obs["cm"][str(cm)] = safo(D.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/cm_estimator.py:11
+      `SHARED_CM_DATA` **nao tem fonte externa verificavel**. As nove faixas foram
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/dna_analysis.py:21
+      `OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-FLAT-achatar-o-nivel-de-pacote/before-after/src-antes/reconstructed/core/dna_analysis.py:116
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/dna_analysis.py:21
+      `OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/dna_analysis.py:116
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-GUE7-reorganizar-em-subpacotes/before-after/src-antes/reconstructed/core/cm_estimator.py:11
+      `SHARED_CM_DATA` **nao tem fonte externa verificavel**. As nove faixas foram
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/src__reconstructed__dna_analysis.py:21
+      `OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/src__reconstructed__dna_analysis.py:116
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/_reversa_sdd__parity__harness.py:134
+      obs["cm"][str(cm)] = safo(m.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-LMAY-padronizar-nomes-de-modulo/before-after/head/_reversa_sdd__parity__harness.py:220
+      obs["cm"][str(cm)] = safo(D.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/registrar-diff.py:57
+      "│   │   ├── cm_estimator.py     # Tradução de cM em relações prováveis (faixas heurísticas)",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/registrar-diff.py:72
+      "│   │   ├── cm_estimator.py     # Tradução de cM em relações prováveis (faixas heurísticas)",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/reorganizar.py:45
+      ("from .core.cm_estimator import SHARED_CM_DATA, get_relationships_by_cm",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/reorganizar.py:46
+      "from .cm_estimator import SHARED_CM_DATA, get_relationships_by_cm"),
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/src__reconstructed__dna_analysis.py:21
+      `OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/src__reconstructed__dna_analysis.py:116
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:256
+      Testa três casos representativos de ``get_relationships_by_cm``:
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/tests__test_dna_analysis.py:273
+      ``get_relationships_by_cm`` retorna a lista com o texto padrão
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/_reversa_sdd__parity__harness.py:134
+      obs["cm"][str(cm)] = safo(m.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/head/_reversa_sdd__parity__harness.py:220
+      obs["cm"][str(cm)] = safo(D.get_relationships_by_cm, cm)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/dna_analysis.py:21
+      `OPP-20261003-RGKA` e moram em `core/cm_estimator.py`, que declara no proprio
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/dna_analysis.py:116
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RAIZ-distribuir-modulos-soltos/before-after/src-antes/reconstructed/core/cm_estimator.py:11
+      `SHARED_CM_DATA` **nao tem fonte externa verificavel**. As nove faixas foram
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/medir-coesao.py:20
+      ALVO = ["SHARED_CM_DATA", "get_relationships_by_cm", "dna_analysis"]
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/registrar-diff.py:19
+      ("CHG-002-core-cm-estimator.diff", "src/reconstructed/core/cm_estimator.py"),
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/registrar-diff.py:51
+      print("tabela de cM ainda no dna_analysis.py? %s" % ("SIM" if "SHARED_CM_DATA = [" in atual else "nao"))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/registrar-diff.py:53
+      "sim" if atual_bloco(antes) in open(os.path.join(ROOT, "src", "reconstructed", "core", "cm_estimator.py"), encoding="utf-8").read() else "NAO"))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/registrar-diff.py:58
+      """Extrai a lista original, do 'SHARED_CM_DATA = [' ate o ']' de fechamento."""
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/registrar-diff.py:59
+      inicio = texto.index("SHARED_CM_DATA = [")
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:3
+      Extrai `SHARED_CM_DATA` e `get_relationships_by_cm` da copia PRISTINA guardada em
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:36
+      and any(isinstance(t, ast.Name) and t.id == "SHARED_CM_DATA" for t in no.targets)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:37
+      ) or (isinstance(no, ast.FunctionDef) and no.name == "get_relationships_by_cm")
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:67
+      print("   antes  : %d faixas" % len(antes["SHARED_CM_DATA"]))
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:69
+      if antes["SHARED_CM_DATA"] != C.SHARED_CM_DATA:
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:77
+      a = antes["get_relationships_by_cm"](valor)
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:87
+      ("SHARED_CM_DATA", D.SHARED_CM_DATA, C.SHARED_CM_DATA),
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/verificar-costura.py:88
+      ("get_relationships_by_cm", D.get_relationships_by_cm, C.get_relationships_by_cm),
+  [artefato do framework (registro de refactor)] _reversa_refactor/pacote-reconstructed/transformations/OPP-20261003-RGKA-isolar-heuristica-de-cm/before-after/dna_analysis.antes.py:131
+      "dna_analysis", "get_relationships_by_cm", "SHARED_CM_DATA",
+  [harness de paridade] _reversa_sdd/parity/harness.py:134
+      obs["cm"][str(cm)] = safo(m.get_relationships_by_cm, cm)
+  [harness de paridade] _reversa_sdd/parity/harness.py:266
+      from core.cm_estimator import get_relationships_by_cm as _cm_rel
+
+Ocorrencias em COMENTARIO (nao executam nada):
+
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:28
+      # `get_relationships_by_cm` passou a ser importado do modulo canonico em `T022`: o
+  [alvo (codigo do projeto)] tests/test_dna_analysis.py:29
+      # nome vive em `core/cm_estimator.py`, e o reexport por `dna_analysis` era
+
+Ocorrencias em arquivos que nao sao Python (documentacao e artefatos):
+
+  artefato do framework (evidencia datada): 20 ocorrencia(s) em 15 arquivo(s)
+  artefato do framework (registro de refactor): 268 ocorrencia(s) em 25 arquivo(s)
+  documentacao do framework: 98 ocorrencia(s) em 51 arquivo(s)
+  documentacao local: 3 ocorrencia(s) em 1 arquivo(s)
+  oraculo congelado (copia propria): 3 ocorrencia(s) em 1 arquivo(s)
+  outro: 40 ocorrencia(s) em 23 arquivo(s)
+
+Contagem por categoria (todas as naturezas):
+  alvo (codigo do projeto)                       15
+  artefato do framework (evidencia datada)       27
+  artefato do framework (registro de refactor)   358
+  documentacao do framework                      98
+  documentacao local                             3
+  harness de paridade                            2
+  oraculo congelado (copia propria)              8
+  outro                                          40
+
+Leitura: o modulo NAO esta morto. Existe referencia de codigo executavel em
+tests/test_dna_analysis.py, e existe referencia carregada por string no coletor embutido
+do harness de paridade. As duas condicoes do verbo prune falham, uma por cada motivo.

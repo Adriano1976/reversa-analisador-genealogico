@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de poda · OPP-20261008-JXQN</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  h3 { font-size: 14px; margin: 20px 0 8px; color: #d8d8d8; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 20px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .card.warn .v { color: #ffe08a; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  .lit { color: #ffe08a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.morto { background: #2b1b1b; border: 1px solid #5a3a3a; color: #ffb4b4; }
+  .tag.orfo { background: #2b2a1b; border: 1px solid #5a573a; color: #ffe08a; }
+  .tag.vivo { background: #1b2b1b; border: 1px solid #3a5a3a; color: #a8e6a8; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de poda · OPP-20261008-JXQN</h1>
+<div class="meta">
+  Legado de cM fora do fluxo · contexto <code>analise-dna</code> · verbo <code>prune</code> ·
+  gerado por reversa-prune em 2026-10-08 · <code>control_mode: gated</code> ·
+  <code>safety_net_policy: require-characterization</code>
+</div>
+
+<div class="cards">
+  <div class="card bad"><div class="v">0 de 1</div><div class="k">candidato classificado como morto</div></div>
+  <div class="card warn"><div class="v">1 de 1</div><div class="k">candidato é órfão suspeito</div></div>
+  <div class="card bad"><div class="v">2</div><div class="k">consumidores vivos, um por string</div></div>
+  <div class="card good"><div class="v">551</div><div class="k">ocorrências varridas em 147 arquivos</div></div>
+  <div class="card"><div class="v">0 linhas</div><div class="k">no diff, nada é removido</div></div>
+</div>
+
+<div class="block note">
+  <strong>Veredito, antes de tudo: nada será removido nesta rodada.</strong> A prova de morte
+  exige duas condições ao mesmo tempo, e o candidato falha nas duas: existe um <code>import</code>
+  executável em <code>tests/test_dna_analysis.py:31</code> e existe uma referência carregada por
+  string dentro do coletor embutido do harness de paridade
+  (<code>_reversa_sdd/parity/harness.py:266</code>). A doutrina do <code>prune</code> é explícita:
+  na dúvida, não remove, sinaliza. O candidato fica registrado como <strong>órfão suspeito</strong>,
+  com <code>promoted_to: null</code>.
+</div>
+
+<h2>1. Candidatos e classificação</h2>
+
+<table>
+  <thead>
+    <tr><th>Candidato</th><th>O que é</th><th>Classificação</th><th>Motivo</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>src/core/cm_estimator.py</code><br>65 linhas</td>
+      <td>Tabela <code>SHARED_CM_DATA</code> (9 faixas escritas à mão) e <code>get_relationships_by_cm</code></td>
+      <td><span class="tag orfo">órfão suspeito</span></td>
+      <td>Dois consumidores vivos: a suíte e o harness de paridade. O segundo chega por string.</td>
+    </tr>
+    <tr>
+      <td><code>tests/test_dna_analysis.py</code><br>linhas 28 a 31 e 274 a 302</td>
+      <td>Import, comentário de origem e os dois testes que exercitam o módulo</td>
+      <td><span class="tag vivo">vivo</span></td>
+      <td>Testes que passam não são código morto. Só sairiam junto com o módulo, e o módulo não sai.</td>
+    </tr>
+    <tr>
+      <td>Superfície de compatibilidade de <code>src/core/dna_analysis.py</code><br>linhas 43 a 54 e 287 a 293</td>
+      <td>Reexportação de nomes de <code>name_normalization</code> pelo <code>__all__</code></td>
+      <td><span class="tag orfo">fora do alvo</span></td>
+      <td>Candidato adjacente observado na varredura, com o <strong>mesmo bloqueio</strong>: o harness o alcança por <code>D.split_name_pt</code> e companhia. Não faz parte dos arquivos declarados nesta oportunidade.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. A prova por trecho</h2>
+
+<p>Varredura do repositório inteiro, não amostra: 551 ocorrências em 147 arquivos, excluindo
+<code>.git</code>, <code>.venv</code>, <code>node_modules</code>, <code>__pycache__</code>,
+<code>.pytest_cache</code> e <code>.pytest-tmp</code>. A natureza de cada ocorrência foi decidida
+por <code>tokenize</code>, com granularidade de <strong>coluna</strong>, e não de linha: uma linha
+como <code>assert "x" in f(y)</code> contém um literal e ainda assim é código executável.
+Script e saída bruta em <code>before-after/</code>.</p>
+
+<h3>2.1 Código executável pelo interpretador</h3>
+
+<table>
+  <thead><tr><th>Trecho</th><th>Papel</th><th>Vivo?</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/core/cm_estimator.py:40</code><br><code>SHARED_CM_DATA = [</code></td><td>a própria definição</td><td><span class="tag vivo">é o alvo</span></td></tr>
+    <tr><td><code>src/core/cm_estimator.py:53</code><br><code>def get_relationships_by_cm(cm_value):</code></td><td>a própria definição</td><td><span class="tag vivo">é o alvo</span></td></tr>
+    <tr><td><code>tests/test_dna_analysis.py:31</code><br><code>from core.cm_estimator import get_relationships_by_cm</code></td><td><strong>import executável</strong></td><td><span class="tag vivo">consumidor 1</span></td></tr>
+    <tr><td><code>tests/test_dna_analysis.py:286</code>, <code>:287</code>, <code>:288</code>, <code>:302</code></td><td>as quatro asserções que exercitam a função</td><td><span class="tag vivo">consumidor 1</span></td></tr>
+    <tr><td><code>_reversa_forward/005-nucleo-puro-src/evidence/_verificar_t029.py:193</code> e <code>:196</code></td><td>sonda de evidência do ciclo 005, datada</td><td><span class="tag orfo">artefato</span></td></tr>
+    <tr><td><code>_reversa_sdd/oracle/app_legacy_e43ca22.py:26</code>, <code>:169</code>, <code>:172</code>, <code>:809</code></td><td>cópia própria do oráculo congelado. <strong>Não importa</strong> o módulo do candidato</td><td><span class="tag orfo">independente</span></td></tr>
+    <tr><td><code>_reversa_sdd/oracle/run_oracle.py:158</code></td><td>usa a cópia do oráculo, via <code>module.get_relationships_by_cm</code></td><td><span class="tag orfo">independente</span></td></tr>
+    <tr><td><code>_reversa_refactor/pacote-reconstructed/**</code> (cópias <code>before-after</code>)</td><td>evidência histórica das transformações de 2026-10-03</td><td><span class="tag orfo">histórico</span></td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 Dentro de literal de string, ou seja, carregado por código gerado</h3>
+
+<p>Esta é a seção que decide a classificação. As duas linhas abaixo <strong>não</strong> são imports
+do arquivo: elas vivem dentro de <code>CANDIDATE_COLLECTOR = r'''...'''</code>
+(<code>harness.py:254</code>), um coletor que o harness escreve em disco e executa como processo
+separado. Uma varredura por AST em <code>harness.py</code> não enxerga nenhuma das duas.</p>
+
+<pre><span class="cmt"># _reversa_sdd/parity/harness.py:266  (dentro da string CANDIDATE_COLLECTOR)</span>
+<span class="lit">from core.cm_estimator import get_relationships_by_cm as _cm_rel</span>
+
+<span class="cmt"># _reversa_sdd/parity/harness.py:339  (uso efetivo, também dentro da string)</span>
+    obs["cm"][str(cm)] = safo(<span class="lit">_cm_rel</span>, cm)
+
+<span class="cmt"># _reversa_sdd/parity/harness.py:134  (lado do oráculo, dentro da string ORACLE_COLLECTOR)</span>
+    obs["cm"][str(cm)] = safo(<span class="lit">m.get_relationships_by_cm</span>, cm)</pre>
+
+<p>Os literais restantes são docstrings que <em>falam sobre</em> o módulo, sem alcançá-lo:
+<code>src/core/cm_estimator.py:19</code>, <code>src/core/dna_analysis.py:27</code> e <code>:28</code>,
+<code>tests/test_dna_analysis.py:278</code> e <code>:295</code>. E há dois comentários, que não
+executam nada: <code>tests/test_dna_analysis.py:28</code> e <code>:29</code>.</p>
+
+<h2>3. As duas condições do verbo prune</h2>
+
+<table>
+  <thead><tr><th>Condição</th><th>Resultado</th><th>Evidência</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>1.</strong> Sem referência estática</td>
+      <td><span class="tag morto">FALHA</span></td>
+      <td><code>tests/test_dna_analysis.py:31</code> é um <code>import</code> que o interpretador executa; e <code>:286</code>, <code>:287</code>, <code>:288</code>, <code>:302</code> o usam de fato</td>
+    </tr>
+    <tr>
+      <td><strong>2.</strong> Sem entrada dinâmica conhecida</td>
+      <td><span class="tag morto">FALHA</span></td>
+      <td><code>_reversa_sdd/parity/harness.py:266</code> é carregamento por string, exatamente o caso que a doutrina manda elevar o rigor e não remover</td>
+    </tr>
+    <tr>
+      <td>Dentro do próprio módulo</td>
+      <td><span class="tag vivo">limpo</span></td>
+      <td>Zero <code>globals()</code>, <code>getattr</code>, <code>__import__</code>, <code>importlib</code>, <code>eval</code>, <code>exec</code>. É uma lista e uma função puras</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Nenhum caminho de produção alcança o módulo.</strong> Isso continua verdadeiro e é o que
+  dá valor à oportunidade: nem <code>src/app.py</code>, nem <code>src/application/</code>, nem
+  <code>src/core/dna_analysis.py</code> importam <code>cm_estimator</code>. Quem o mantém vivo são
+  dois instrumentos de verificação, e um deles por string.
+</div>
+
+<h2>4. Conferência contra a alma (trava dura)</h2>
+
+<p>A regra é dura: código que implementa regra de negócio confirmada <strong>nunca</strong> é tratado
+como morto, ainda que pareça sem uso. A conferência encontrou bloqueio real.</p>
+
+<table>
+  <thead><tr><th>Locator</th><th>O que fixa</th></tr></thead>
+  <tbody>
+    <tr><td><code>.reversa/soul.md</code> §4 (Lacunas)</td><td>declarar as faixas de cM como heurística é <strong>decisão vigente</strong>, listada entre as que não são lacuna</td></tr>
+    <tr><td><code>.reversa/soul.md</code> §3 (D2)</td><td>registra o <code>cm_estimator</code> como "legado mantido fora do fluxo apenas porque a suíte e o harness o exercitam"</td></tr>
+    <tr><td><code>_reversa_sdd/analise-dna/requirements.md</code> RF-25</td><td>requisito vivo (<em>Should</em>) que manda declarar o módulo como legado fora do fluxo</td></tr>
+    <tr><td><code>_reversa_sdd/analise-dna/tasks.md</code> T-32</td><td>a tarefa que produziu o estado atual, com critério de pronto explícito</td></tr>
+    <tr><td><code>_reversa_sdd/adrs/19</code></td><td>decisão aceita e vigente, que <strong>já descartou</strong> a remoção completa em 2026-10-04</td></tr>
+    <tr><td><code>_reversa_sdd/code-analysis.md:306</code></td><td><strong>BR-D-62</strong>, regra de negócio catalogada com confiança verde, e o módulo é o único lugar onde ela vive</td></tr>
+    <tr><td><code>_reversa_sdd/architecture.md:154</code></td><td>dívida técnica #18, aberta: o módulo segue no repositório com faixas sem fonte verificável</td></tr>
+  </tbody>
+</table>
+
+<p>Remover o módulo <strong>apaga um requisito vivo e uma regra catalogada</strong>. Isso é alteração
+de spec efetiva, e alteração de spec efetiva pertence ao <code>/reversa-forward</code>. O
+<code>prune</code> não tem mandato para isso.</p>
+
+<div class="note ok">
+  <strong>Uma correção de registro, medida nesta rodada.</strong> O RF-25 diz que o módulo é
+  "reexportado só por compatibilidade", e essa metade <strong>deixou de valer na T022</strong>: o
+  <code>__all__</code> de <code>src/core/dna_analysis.py:287-293</code> não traz mais
+  <code>get_relationships_by_cm</code> nem <code>SHARED_CM_DATA</code>. A outra metade do requisito
+  segue verdadeira e foi reconfirmada.
+</div>
+
+<h2>5. O que NÃO será removido, e por quê</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Por que fica</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/core/cm_estimator.py</code></td><td>Órfão suspeito: dois consumidores vivos, e remover apaga RF-25 e BR-D-62</td></tr>
+    <tr><td>Os dois testes e o import de <code>tests/test_dna_analysis.py</code></td><td>Testes que passam não são código morto. Só sairiam com o módulo</td></tr>
+    <tr><td>A fixture <code>dna_loaded</code></td><td>Serve outros testes do mesmo arquivo</td></tr>
+    <tr><td><code>src/core/relationship_hypotheses.py</code></td><td>É a autoridade <strong>vigente</strong> sobre cM, pela tabela publicada do SCP 4.0 (RF-17, RF-18)</td></tr>
+    <tr><td><code>src/core/genetic_evidence.py:31</code><br><code>LIMITE_SEGMENTO_FRACO = 15.0</code></td><td>Heurística declarada do projeto, com requisito próprio (RF-08). Não pertence a este alvo</td></tr>
+    <tr><td><code>_reversa_sdd/oracle/app_legacy_e43ca22.py</code></td><td>Cópia congelada do oráculo, com definição própria. Somente leitura por decisão de extração</td></tr>
+    <tr><td>Os 358 registros históricos em <code>_reversa_refactor/**</code></td><td>São a memória auditável das transformações de 2026-10-03. Apagar prova para ganhar limpeza é o oposto do que este registro faz</td></tr>
+    <tr><td>Os resíduos de execução mapeados em 2026-10-08</td><td>Não são código, não têm referência estática a provar, e ficam fora do mandato do <code>prune</code></td></tr>
+  </tbody>
+</table>
+
+<h2>6. O que desbloquearia a poda</h2>
+
+<table>
+  <thead><tr><th>Cenário</th><th>O que sai</th><th>O que exige antes</th><th>Está liberado?</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A</strong><br>aposentar a superfície</td>
+      <td>o módulo (65 linhas), 33 linhas de teste, o campo <code>cm</code> dos dois coletores, e a linha <code>README.md:166</code></td>
+      <td>decisão humana sobre RF-25 e BR-D-62 no ciclo forward, <strong>e</strong> liberação do glob <code>_reversa_sdd/**</code></td>
+      <td><span class="tag morto">não</span> <code>src/**</code>, <code>tests/**</code> e <code>README.md</code> sim; <code>_reversa_sdd/**</code> não</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong><br>podar só o teste</td>
+      <td>33 linhas de <code>tests/test_dna_analysis.py</code></td>
+      <td>nada. Está em caminho liberado</td>
+      <td><span class="tag vivo">sim</span></td>
+    </tr>
+    <tr>
+      <td><strong>C</strong><br>declinar</td>
+      <td>nada</td>
+      <td>nada</td>
+      <td><span class="tag vivo">sim</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>O cenário B não tem retorno.</strong> Ele deixa o módulo vivo pelo harness, e o órfão
+suspeito permanece. O cenário A é o único que entrega o retorno descrito na oportunidade, e ele
+começa no <code>/reversa-forward</code>, não aqui.</p>
+
+<h2>7. Gate</h2>
+
+<div class="note">
+  <strong>Não há diff para aprovar.</strong> O gate obrigatório deste verbo existe para autorizar
+  remoção, e a remoção só alcança o que for provado morto. Como a classificação é
+  <strong>órfão suspeito</strong>, o conjunto de remoções é vazio e nenhum <code>CHG</code> foi
+  gerado. Pela mesma razão, <strong>não foi criado <code>transformation.md</code></strong>: o schema
+  da transformação admite apenas <code>state: applied</code> ou <code>reverted</code>, e afirmar
+  qualquer um dos dois aqui seria registrar um fato que não aconteceu.
+</div>
+
+<p>A persistência desta rodada é, portanto:</p>
+<ul>
+  <li><code>plan.html</code>, este arquivo;</li>
+  <li><code>before-after/medir-usos.py</code>, a medição reexecutável;</li>
+  <li><code>before-after/prova-de-uso.txt</code>, a saída bruta dos 551 achados;</li>
+  <li><code>promoted_to: null</code> na oportunidade <code>OPP-20261008-JXQN</code>, que continua
+      <code>proposed</code>;</li>
+  <li>o <code>index.md</code> do contexto, regenerado.</li>
+</ul>
+
+<p class="foot">
+  Gerado pelo Reversa-Pruner em 2026-10-08, sobre <code>OPP-20261008-JXQN</code>.
+  Rede de segurança exigida em qualquer avanço do cenário A: suíte existente mais harness de
+  paridade, antes e depois, com a contagem de falhas comparada arquivo a arquivo.
+</p>
+
+</div>
+</body>
+</html>

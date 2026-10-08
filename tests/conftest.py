@@ -50,28 +50,24 @@ pytest desmonta o `tmp_path` **antes** de o `monkeypatch` desfazer o `chdir`: o
 Windows recusa, e o `ignore_errors=True` engole a recusa. Medido: **15 diretorios
 vazios sobrevivem por execucao**. Com a saida, medido: **zero residuo**.
 
-## 4. Uma cicatriz datada: `collect_ignore`
+## 4. A cicatriz datada, fechada em 2026-10-08
 
-`tests/_basetemp_probe/` e um diretorio VAZIO que ficou preso nesta maquina. Ele
-nasceu de `python -m pytest --basetemp=tests/_basetemp_probe`, executado em
-2026-10-07 durante a feature `006-fronteira-aplicacao-ports` para tentar medir a
-suite sem os 15 erros de ambiente. **A correcao acima nao o remove**: nenhum
-diretorio preso foi removido por esta feature, por decisao registrada.
+`tests/_basetemp_probe/` nasceu de `python -m pytest --basetemp=tests/_basetemp_probe`,
+executado em 2026-10-07 durante a feature `006-fronteira-aplicacao-ports`, e ficou preso
+nesta maquina. Enquanto ele existiu, o `collect_ignore` era obrigatorio: o pytest desce no
+diretorio, a ACL recusa o `os.scandir` e a COLETA INTEIRA aborta com `PermissionError`, o
+que deixaria a suite cega por causa de um diretorio vazio.
 
-Sem a linha de `collect_ignore`, o pytest desce no diretorio preso e a COLETA
-INTEIRA aborta com `PermissionError` — a suite ficaria cega por um diretorio
-vazio. O `collect_ignore` e consultado antes da descida, entao a coleta segue.
+**O diretorio foi removido e a linha `collect_ignore` saiu junto.** O procedimento que
+funcionou, medido naquele dia: `takeown /f <dir> /a` seguido de `icacls <dir> /reset`, os
+dois num shell elevado, o que devolve as permissoes herdadas ao diretorio. A remocao em si
+funciona depois, sem elevacao. Registro completo, com o inventario daquele dia e a
+armadilha do `rd` do PowerShell, em
+`_reversa_forward/006-fronteira-aplicacao-ports/evidence/limpeza-2026-10-08-diretorios-presos.md`.
 
-**Como remover esta cicatriz.** Num shell elevado:
-
-    takeown /f tests/_basetemp_probe /a
-    icacls tests/_basetemp_probe /reset
-    rd /s /q tests/_basetemp_probe
-
-Com o diretorio fora, remova tambem a linha `collect_ignore`. Sao **13** os
-diretorios presos no workspace, oito deles anteriores a feature 006; o inventario
-e o comando em lote para os treze estao em
-`_reversa_forward/006-fronteira-aplicacao-ports/evidence/README-evidencias.md` §2.2.
+**Se um diretorio preso voltar a aparecer sob `tests/`**, o sintoma e a coleta inteira
+abortando com `PermissionError` num diretorio que parece vazio. A saida e a mesma receita
+acima, e nao reintroduzir `collect_ignore`.
 
 ## 5. `cliente_de_upload`
 
@@ -88,8 +84,6 @@ import uuid
 from pathlib import Path
 
 import pytest
-
-collect_ignore = ["_basetemp_probe"]
 
 _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _PASTA_APP = os.path.join(_RAIZ, "src")
