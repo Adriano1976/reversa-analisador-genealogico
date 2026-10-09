@@ -30,7 +30,7 @@ Nada é apagado, renomeado ou alterado por esta feature.
 | `_reversa_sdd/user-stories/upload-gedcom.md#us-u-04--continuidade-entre-requisições` | A continuidade é história de usuário declarada, não detalhe de implementação | 🟢 |
 | `_reversa_sdd/architecture.md#7` | Dívida 8: "nada é persistido entre requisições" — propriedade deliberada, que esta feature não pode quebrar | 🟢 |
 | `_reversa_sdd/inventory.md#4` | A pasta de upload é resolvida por `ANALISADOR_UPLOAD_FOLDER` e é a fonte da lista | 🟢 |
-| `_reversa_sdd/screens/golden/SCR-001-initial-upload.html.txt` | A tela de entrada atual — o golden que a mudança do `GET /` invalida | 🟢 |
+| `_reversa_sdd/screens/golden/SCR-001-initial-upload.html.txt` | O golden da tela de entrada — **do oráculo legado congelado**, não da aplicação atual. Medido no plano: a mudança do `GET /` **não** o invalida; o que fica é uma divergência declarada | 🟢 |
 | `_reversa_forward/010-uploads-fora-do-repositorio/onboarding.md#16` | A pasta canônica está fora do repositório e tem duas cópias idênticas de 36 arquivos | 🟢 |
 | Medição desta feature (2026-10-09) | Na pasta canônica: **36 arquivos**, dos quais **19 `.csv`**, **16 `.ged`** e **1 `.xlsx`**. Aplicando a regra de agrupar pela chave do nome: a aba de árvore dá **15 itens para 16 arquivos** e a de DNA dá **19 itens para 19 arquivos** — o agrupamento quase não reduz. Dos 36, **18 são resíduo de instrumento** (9 na aba de árvore, 9 na de DNA), e é a remoção deles que leva as abas a 7 e 10 arquivos. **3 arquivos não têm chave no nome** (`Adriano_Santos.ged`, `Arvore_Unificada_Oficial_V1_2.ged` e `Famílias_Sergipanas.csv`), e o `.xlsx` não aparece em aba nenhuma | 🟢 |
 
@@ -64,7 +64,8 @@ Nada é apagado, renomeado ou alterado por esta feature.
 5. **RN-05:** A lista é lida do disco no momento de renderizar a tela; **nada** é mantido em memória entre
    requisições. 🟢
    - Origem no legado: `_reversa_sdd/architecture.md#7` (dívida 8) — propriedade preservada
-   - Tipo: **preservada**
+   - Tipo: **preservada** — confirmada na §9: a escolha do operador também **não** sobrevive ao fechamento
+     da página
 6. **RN-06:** Escolher um arquivo não o altera, não o copia e não cria arquivo novo. 🟢
    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.2`
    - Tipo: **preservada**
@@ -76,14 +77,25 @@ Nada é apagado, renomeado ou alterado por esta feature.
    campos, para a paridade diferencial e os testes de rota continuarem válidos. 🟢
    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#1.1`, `_reversa_sdd/analise-dna/contracts.md#1`
    - Tipo: **preservada**
+9. **RN-09:** A lista seleciona por **extensão do nome visível**, sem ler o conteúdo de arquivo nenhum.
+   Arquivo cujo nome anuncia um tipo e cujo conteúdo é outro continua listado, e a recusa acontece **no
+   uso**, pela validação de conteúdo que já existe. 🟢
+   - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.1` (a extensão original é preservada no
+     nome); a validação de conteúdo é do uso, não da listagem
+   - Tipo: **nova** — decidida na §9
+10. **RN-10:** Arquivo armazenado **sem** chave de conteúdo no nome vira item próprio, marcado na tela
+    como sem chave; ele não é agrupado, e o conteúdo **não** é lido para agrupá-lo. 🟢
+    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.1` — a chave passou a compor o nome
+      depois, e três arquivos são anteriores a isso
+    - Tipo: **nova** — decidida na §9
 
 ## 5. Requisitos Funcionais
 
 | ID | Requisito | Prioridade | Critério de aceite | Confidência |
 |----|-----------|------------|--------------------|-------------|
-| RF-01 | A aba de árvore lista as árvores armazenadas, um item por conteúdo, com nome visível, tamanho e data | Must | Com a pasta medida em 2026-10-09, a aba mostra **15 itens para 16 arquivos** e o item que agrupa declara **2 arquivos**; nenhum arquivo é lido para montar a lista; depois do expurgo do resíduo, a mesma aba mostra **7 arquivos** | 🟢 |
+| RF-01 | A aba de árvore lista as árvores armazenadas, um item por conteúdo, com nome visível, tamanho e data | Must | Antes do expurgo do resíduo a aba mostrava **15 itens para 16 arquivos**; hoje, com o resíduo expurgado, mostra **8 arquivos e 7 itens** — dois compartilham a chave `080e7943572d2652`. Nenhum arquivo é lido para montar a lista (`RN-09`), e os três sem chave aparecem como item próprio marcado (`RN-10`) | 🟢 |
 | RF-02 | O operador escolhe a árvore a ser usada, e a escolha é a referência que o formulário devolve | Must | Escolher um item e submeter a busca de caminho conclui, sem novo envio de arquivo | 🟢 |
-| RF-03 | A aba de DNA lista os relatórios de CSV armazenados, pelo mesmo critério de agrupamento | Must | A aba mostra um item por conteúdo, com nome visível, tamanho e data; com a pasta medida em 2026-10-09 são **19 itens para 19 arquivos**, e depois do expurgo do resíduo, **10 arquivos** | 🟢 |
+| RF-03 | A aba de DNA lista os relatórios de CSV armazenados, pelo mesmo critério de agrupamento | Must | A aba mostra um item por conteúdo, com nome visível, tamanho e data; antes do expurgo eram **19 itens para 19 arquivos**, e hoje são **10 arquivos e 10 itens** | 🟢 |
 | RF-04 | O operador escolhe o CSV a ser usado, e a escolha viaja entre requisições | Must | Duas análises seguidas, com CSVs diferentes escolhidos na lista, concluem sem reenvio de arquivo | 🟢 |
 | RF-05 | Cada aba permite enviar um arquivo novo, com o contrato de envio atual preservado | Must | O envio pela aba valida o conteúdo antes de gravar, grava sob chave de conteúdo e passa a listar o arquivo novo | 🟢 |
 | RF-06 | A tela de entrada passa a exibir as duas abas com a lista, sem exigir um envio prévio | Must | `GET /` com a pasta povoada renderiza as duas abas com a lista; nenhum arquivo é exigido para chegar até elas | 🟢 |
@@ -142,6 +154,20 @@ Cenário: pasta vazia
   Então a tela orienta o envio de um arquivo
   E responde com sucesso, sem erro
 
+Cenário: a tela de entrada mostra as duas abas sem exigir envio
+  Dado que a pasta de upload tem arquivos armazenados
+  Quando o operador acessa a raiz da aplicação
+  Então as duas abas aparecem com as suas listas
+  E nenhum arquivo é exigido para chegar até elas
+  E a aplicação passa a divergir da tela inicial do legado, e a divergência fica declarada
+
+Cenário: arquivo sem chave de conteúdo aparece marcado
+  Dado que a pasta tem um arquivo cujo nome não começa com a chave de 16 hexadecimais
+  Quando a lista é renderizada
+  Então esse arquivo aparece como item próprio
+  E o item declara que ele é anterior à chave por conteúdo
+  E nenhum conteúdo é lido para agrupá-lo
+
 Cenário: arquivo escolhido que não é do tipo anunciado (caso negativo)
   Dado que existe um arquivo de conteúdo CSV com nome visível terminando em .ged
   Quando o operador o escolhe na aba de árvore
@@ -166,34 +192,49 @@ Cenário: nada é apagado nem alterado (guarda de escopo)
 | RF-08 | Must | Guarda de escopo: a remoção pela tela é de outra feature, e nada desta pode tocar arquivo |
 | RNF Desempenho | Must | Reler 27,9 MB por renderização transformaria uma tela de nomes em gargalo |
 | RNF Documentação | Should | Não bloqueia a entrega, mas a tela de entrada descrita no README deixa de existir |
+| RN-09 | Must | Decidida na §9: a lista abre sem ler conteúdo, e a recusa do arquivo trocado acontece no uso, onde a validação já existe |
+| RN-10 | Must | Decidida na §9: sem a marca de "sem chave", o operador veria dois itens parecidos sem entender por quê |
 
 ## 9. Esclarecimentos
 
-> Nenhuma sessão de dúvidas registrada ainda. Rode `/reversa-clarify` quando houver `[DÚVIDA]` pendente.
+### Sessão 2026-10-09
+
+- **Q:** Existe arquivo guardado cujo nome termina em `.ged` mas cujo conteúdo é um CSV
+  (`Famílias_Sergipanas.csv.ged`). A lista seleciona só pelo nome, ou confere o conteúdo?
+  **R:** Só pelo nome. A lista abre **sem ler arquivo nenhum**; o arquivo que anuncia um tipo e entrega
+  outro continua listado e é recusado **no uso**, pela validação de conteúdo que já existe
+  (`Arquivo não reconhecido como GEDCOM: {motivo}`), sem quebrar nada. Conferir o conteúdo na listagem
+  custaria reler 27,9 MB a cada renderização — exatamente o que o RNF de desempenho evita.
+- **Q:** Os três arquivos salvos antes de a chave de conteúdo entrar no nome aparecem separados no
+  agrupamento. O que fazer com eles?
+  **R:** Cada um vira **item próprio**, marcado na tela como sem chave. O agrupamento pela chave não os
+  alcança, e **não** haverá leitura de conteúdo para agrupá-los (10,6 MB só nas duas árvores). Efeito
+  aceito: a mesma árvore pode aparecer duas vezes — uma sem chave, outra com — e a marca diz qual é qual.
+- **Q:** A escolha sobrevive se a página for fechada e reaberta?
+  **R:** Não. Vale só para a página aberta. Preserva a propriedade "nada é persistido entre requisições"
+  (`architecture.md#7`, dívida 8) e não cria lugar nenhum para guardar preferência.
+- **Q:** A tela de entrada (o `GET /`, que hoje exige um envio antes de mostrar qualquer coisa) entra no
+  escopo desta feature?
+  **R:** Entra. Ela passa a renderizar as duas abas com a lista, e o envio se muda para dentro de cada
+  aba. **Correção medida no `/reversa-plan`:** o golden **não** é recapturado — ele captura o **oráculo
+  legado congelado** (`legacyOrigin: analisador-genealogico/templates/index.html:41-52`, captura na
+  porta do oráculo por `_reversa_sdd/parity/_golden_capture.py`), e um oráculo congelado não deixa de
+  valer porque o candidato mudou. O que existe de real é a **divergência**: a aplicação atual deixa de
+  ter o estado inicial "envie antes de tudo" que o legado tem, e isso passa a ser declarado
+  (`D-05`, `D-06` do roadmap).
 
 ## 10. Lacunas
 
-- 🔴 [DÚVIDA] **Escopo:** a lista mostra todo arquivo cuja extensão corresponde, sinalizando os que não são
-  do tipo, ou valida o conteúdo e desabilita o que não serve? A pasta real tem um caso concreto —
-  `Famílias_Sergipanas.csv.ged`, que é um CSV com nome de GEDCOM. Listar apenas com aviso é barato;
-  validar o conteúdo na listagem custa leitura de arquivo em toda renderização, que é justamente o que o
-  RNF de desempenho evita.
-- 🔴 [DÚVIDA] **Experiência:** a escolha é lembrada entre sessões do navegador, ou vale apenas para a
-  página aberta? A segunda opção preserva a propriedade "nada é persistido entre requisições"
-  (`architecture.md#7`, dívida 8); a primeira introduz estado novo no sistema, com um lugar para guardá-lo
-  que hoje não existe.
-- 🔴 [DÚVIDA] **Experiência:** a tela de entrada muda — o `GET /` passa a renderizar as duas abas com a
-  lista, e o golden `SCR-001-initial-upload.html.txt` deixa de valer, exigindo recaptura. Confirmar que a
-  mudança da tela de entrada entra no escopo desta feature, já que a recaptura do golden é custo real.
+Nenhuma lacuna aberta. As três dúvidas do documento inicial foram resolvidas na sessão de 2026-10-09
+(§9); as decisões viraram as regras `RN-09` e `RN-10` (§4) e dois cenários novos (§7).
 
 **Fatos medidos que o plano precisa tratar** — não são dúvidas, são consequências já conhecidas:
 
 - **Três arquivos não têm chave de conteúdo no nome:** `Adriano_Santos.ged`,
   `Arvore_Unificada_Oficial_V1_2.ged` e `Famílias_Sergipanas.csv`. São anteriores à chave por conteúdo, e a
   regra de agrupar pela chave **não os alcança**: cada um vira um item próprio, e a mesma árvore pode
-  aparecer duas vezes na lista — uma sem chave, outra com. Agrupá-los de verdade exigiria reler o conteúdo
-  (10,6 MB só nas duas árvores), que é exatamente o que o RNF de desempenho evita. Fica declarado o
-  trade-off, para o desenho escolher.
+  aparecer duas vezes na lista — uma sem chave, outra com. **Decidido na §9:** item próprio, com marca de
+  "sem chave", e sem leitura de conteúdo para agrupá-los.
 - **O mesmo conteúdo aparece em abas diferentes.** A chave `94e2402671702cac` existe como
   `…__Famílias_Sergipanas.csv` **e** como `…__Famílias_Sergipanas.csv.ged`. Como o agrupamento é por aba, a
   duplicação entre abas não é vista. Registrado; resolver isso está fora do escopo.
@@ -205,3 +246,5 @@ Cenário: nada é apagado nem alterado (guarda de escopo)
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-09 | Versão inicial gerada por `/reversa-requirements` | reversa |
+| 2026-10-09 | Sessão de dúvidas: 4 perguntas respondidas, 3 dúvidas resolvidas; `RN-09` e `RN-10` acrescentadas; 2 cenários novos (§7); contagens de `RF-01` e `RF-03` atualizadas para o estado pós-expurgo | reversa |
+| 2026-10-09 | Correção vinda do `/reversa-plan`: a premissa de que o golden `SCR-001` "deixa de valer" era **falsa** — ele captura o oráculo legado congelado. Corrigidos a linha da §2, a resposta da §9 e um cenário da §7; o golden **não** é recapturado, e a divergência da app atual passa a ser declarada | reversa |

@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/012-pasta-canonica-no-repositorio",
-  "feature-id": "012",
-  "short-name": "pasta-canonica-no-repositorio",
-  "started-at": "2026-10-09T15:55:40Z",
+  "feature-dir": "_reversa_forward/011-escolher-arquivo-da-lista",
+  "feature-id": "011",
+  "short-name": "escolher-arquivo-da-lista",
+  "started-at": "2026-10-09T15:46:30Z",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [
@@ -16,16 +16,6 @@
       "stages-completed": [],
       "paused-at": "2026-10-08T17:51:16Z",
       "paused-from-stage": "coding-em-progresso"
-    },
-    {
-      "feature-dir": "_reversa_forward/011-escolher-arquivo-da-lista",
-      "feature-id": "011",
-      "short-name": "escolher-arquivo-da-lista",
-      "started-at": "2026-10-09T15:46:30Z",
-      "current-stage": "requirements",
-      "stages-completed": [],
-      "paused-at": "2026-10-09T15:57:09Z",
-      "paused-from-stage": "requirements"
     }
   ]
 }
