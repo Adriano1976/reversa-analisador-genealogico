@@ -1,17 +1,24 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-04T13:51:03-03:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-09T15:30:33-03:00 a partir de 2 bugs -->
 
 # Matriz BUG x SPEC · upload-gedcom
 
-Todos os 1 bug(s) deste contexto têm `visibility: restricted`. Os locators de spec não são projetados nas views; consulte a seção `## Traceability` de cada `bug.md`.
+1 dos 2 bug(s) deste contexto tem `visibility: restricted`: os locators de spec dele não são projetados
+nas views, e a linha aparece agrupada. Consulte a seção `## Traceability` de cada `bug.md`.
 
 | Seção de spec | open | active | resolved |
 |---------------|------|--------|----------|
+| `_reversa_sdd/upload-gedcom/contracts.md#2.1` | 1 | 0 | 0 |
+| `_reversa_sdd/domain.md#3.5` | 1 | 0 | 0 |
 | (omitida por política de visibilidade) | 0 | 0 | 1 |
 
 ## Lacuna de spec
 
-Não projetada por política de visibilidade. O bug deste contexto tem veredito
-`spec-desatualizada`, e não `spec-gap`, com adendo em
+**Nenhum bug deste contexto é `spec-gap`.** O `BUG-20261009-6RKP` **não** é lacuna: a spec cobre o
+assunto, e o problema é que ela **se contradiz**. `contracts.md:51` manda preservar acentos e espaços no
+nome visível, e `contracts.md:53` manda validar, em toda leitura, uma forma fechada que não admite nem um
+nem outro. O veredito tende a `spec-desatualizada`, com decisão humana e adendo, e não a `spec-gap`.
+
+O bug restrito deste contexto tem veredito `spec-desatualizada`, com adendo em
 `_reversa_sdd/addenda/bug-BUG-20260929-QMLY-v001.md`.
 
 ## Adendos de bug vigentes neste contexto

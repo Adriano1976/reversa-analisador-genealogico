@@ -40,61 +40,94 @@
 
 <h1>Grafo de Bugs · upload-gedcom</h1>
 <p class="meta">
-  Gerado por /reversa-debugger-graph em 2026-10-04T13:51:03-03:00 ·
-  1 bug neste contexto · 0 inconsistências · 1 bug com visibilidade restrita, exibido sem título ·
+  Gerado por /reversa-debugger-graph em 2026-10-09T15:30:33-03:00 ·
+  2 bugs neste contexto · 0 inconsistências · 1 bug com visibilidade restrita, exibido sem título ·
   legenda: <b>arestas tracejadas = relação <code>proposed</code> (hipótese)</b>
 </p>
 
 <div class="cartoes">
-  <div class="cartao"><b>1</b><span>bugs no contexto</span></div>
+  <div class="cartao"><b>2</b><span>bugs no contexto</span></div>
   <div class="cartao"><b class="ok">1</b><span>resolved · fixed</span></div>
-  <div class="cartao"><b>0</b><span>abertos / ativos</span></div>
+  <div class="cartao"><b class="aberto">1</b><span>abertos / ativos</span></div>
   <div class="cartao"><b>1</b><span>adendos de spec de bug</span></div>
   <div class="cartao"><b class="ok">0</b><span>inconsistências</span></div>
 </div>
 
 <section>
   <h2>Relações</h2>
-  <svg viewBox="0 0 900 170" role="img"
-       aria-label="Grafo de relações: o bug 2 aponta para o bug 1, do contexto busca-caminho">
+  <svg viewBox="0 0 1240 190" role="img"
+       aria-label="Grafo de relações: o bug 6 aponta para o bug 2, e o bug 2 aponta para o bug 1, do contexto busca-caminho">
     <defs>
       <marker id="seta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
         <path d="M0,0 L10,4 L0,8 z" fill="#93a4c0"></path>
       </marker>
     </defs>
 
-    <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">
-      <rect x="20" y="36" width="250" height="92" rx="10" fill="#1b2740" stroke="#f87171" stroke-width="2.4"></rect>
-      <text x="36" y="64" fill="#e6edf7" font-size="14" font-weight="600">#2 · QMLY</text>
-      <text x="36" y="86" fill="#e6edf7" font-size="12">restrito</text>
-      <text x="36" y="110" fill="#34d399" font-size="12">resolved · fixed · high · P1</text>
+    <a href="../bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">
+      <rect x="20" y="40" width="280" height="100" rx="10" fill="#1b2740" stroke="#f87171" stroke-width="2.4"></rect>
+      <text x="36" y="68" fill="#e6edf7" font-size="14" font-weight="600">#6 · 6RKP</text>
+      <text x="36" y="90" fill="#e6edf7" font-size="12">nome com acento não resolve</text>
+      <text x="36" y="114" fill="#f87171" font-size="12">open · triaging · high · P2</text>
     </a>
-    <line x1="272" y1="82" x2="626" y2="82" stroke="#93a4c0" stroke-width="1.6" marker-end="url(#seta)"></line>
-    <text x="392" y="72" fill="#93a4c0" font-size="11">related-to confirmed</text>
+    <line x1="302" y1="90" x2="468" y2="90" stroke="#93a4c0" stroke-width="1.6"
+          stroke-dasharray="6 5" marker-end="url(#seta)"></line>
+    <text x="316" y="80" fill="#93a4c0" font-size="11">related-to proposed</text>
+
+    <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">
+      <rect x="474" y="40" width="250" height="100" rx="10" fill="#1b2740" stroke="#f87171" stroke-width="2.4"></rect>
+      <text x="490" y="68" fill="#e6edf7" font-size="14" font-weight="600">#2 · QMLY</text>
+      <text x="490" y="90" fill="#e6edf7" font-size="12">restrito</text>
+      <text x="490" y="114" fill="#34d399" font-size="12">resolved · fixed · high · P1</text>
+    </a>
+    <line x1="726" y1="90" x2="898" y2="90" stroke="#93a4c0" stroke-width="1.6"
+          marker-end="url(#seta)"></line>
+    <text x="740" y="80" fill="#93a4c0" font-size="11">related-to confirmed</text>
 
     <a href="../../busca-caminho/bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">
-      <rect x="630" y="36" width="250" height="92" rx="10" fill="#151f33" stroke="#5a5a7a"
+      <rect x="904" y="40" width="300" height="100" rx="10" fill="#151f33" stroke="#5a5a7a"
             stroke-width="1.6" stroke-dasharray="5 4"></rect>
-      <text x="646" y="64" fill="#c9c9c9" font-size="14" font-weight="600">#1 · BJJH</text>
-      <text x="646" y="86" fill="#c9c9c9" font-size="12">restrito · contexto busca-caminho</text>
-      <text x="646" y="110" fill="#f87171" font-size="12">open · critical · P0</text>
+      <text x="920" y="68" fill="#c9c9c9" font-size="14" font-weight="600">#1 · BJJH</text>
+      <text x="920" y="90" fill="#c9c9c9" font-size="12">restrito · contexto busca-caminho</text>
+      <text x="920" y="114" fill="#f87171" font-size="12">open · critical · P0</text>
     </a>
   </svg>
 
   <p class="legenda">
-    O contexto tem <b>um</b> bug, e ele já está encerrado. A única aresta é
-    <code>related-to</code> em estado <code>confirmed</code>, e ela <b>atravessa contexto</b>: liga o
+    O nó central deste grafo é o <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a>:
+    as <b>duas</b> arestas do contexto o tocam, e é por ele que passa a única relação
+    <code>confirmed</code>. Ela <b>atravessa contexto</b> e liga o
     <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a> ao
     <a href="../../busca-caminho/bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">#1 BJJH</a>,
-    do contexto <code>busca-caminho</code>, que segue aberto. Os dois compartilham o mesmo mecanismo: a
-    pasta de upload única e o nome de arquivo controlado pelo cliente. <b>Não há cluster</b>, porque
-    não há segundo defeito neste contexto para convergir.
+    do contexto <code>busca-caminho</code>, que segue aberto: os dois compartilham a pasta de upload
+    única e o nome de arquivo controlado pelo cliente.
+    A segunda aresta nasceu nesta regeneração e é <b>interna</b> e <b>tracejada</b>: o
+    <a href="../bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">#6 6RKP</a> aponta para o
+    <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a> como
+    <code>related-to proposed</code>. É <b>hipótese</b>, não fato apurado, e o fix tem de confirmá-la ou
+    descartá-la. <b>Há um cluster</b>: os dois bugs convergem na composição do nome armazenado, e a
+    leitura está no <code>graph.md</code>.
   </p>
 </section>
 
 <section>
   <h2>Bugs abertos / ativos</h2>
-  <p class="vazio">Nenhum. O contexto <code>upload-gedcom</code> não tem bug aberto.</p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>ID</th><th>Severidade</th><th>Prioridade</th><th>Título</th>
+          <th>area / module / feature</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>6</td>
+        <td><a href="../bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">BUG-20261009-6RKP</a></td>
+        <td class="aberto">high</td>
+        <td>P2</td>
+        <td>Nome armazenado com acento ou espaço não pode ser resolvido</td>
+        <td>analisador-genealogico / upload / upload-gedcom</td>
+        <td class="aberto">open · triaging</td>
+      </tr>
+    </tbody>
+  </table>
 </section>
 
 <section>
