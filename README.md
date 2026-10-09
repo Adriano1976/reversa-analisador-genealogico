@@ -65,8 +65,10 @@ distintos: `src/app.py` é a borda HTTP, `src/application/` orquestra os casos d
 sem conhecer HTTP nem disco, e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas
 e os adaptadores concretos, que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
 
-- Os arquivos enviados são gravados em `src/uploads/` sob nomes derivados do conteúdo. Esse diretório é
-  armazenamento local persistente; não é um diretório temporário de processamento.
+- Os arquivos enviados são gravados na **pasta canônica de dados**, `src/uploads/`, sob nomes derivados do
+  conteúdo. O destino é resolvido por `_pasta_uploads()` e pode ser sobreposto por `ANALISADOR_UPLOAD_FOLDER`
+  — sobreposição que a suíte e o invólucro de paridade usam para não escreverem na pasta real; ver "Onde ficam
+  os arquivos enviados". O diretório é armazenamento local persistente, não um diretório temporário.
 - O histórico das análises é **opcional**: sem `DATABASE_URL` nada é gravado e a tela não muda; com a
   variável e o banco respondendo, a análise é registrada em uma transação única; se a gravação falhar, a
   análise **conclui e é exibida** e o operador recebe apenas um aviso não bloqueante. Nada é lido do banco
@@ -264,14 +266,16 @@ reprodutibilidade.
 
 ### Configuração de execução
 
-O bloco de entrada lê três variáveis de ambiente. Todas têm padrão declarado no código, então nada precisa
-ser definido para subir a aplicação:
+O bloco de entrada lê três variáveis de ambiente — todas com padrão declarado no código, então nada precisa
+ser definido para subir a aplicação. A tabela inclui ainda a variável da pasta de upload, que é lida na
+**importação** do módulo, e não no bloco de entrada:
 
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
 | `ANALISADOR_HOST` | `127.0.0.1` | endereço de escuta. O padrão atende apenas a máquina local; use `0.0.0.0` para atender a rede |
 | `ANALISADOR_PORT` | `5000` | porta de escuta |
 | `ANALISADOR_THREADS` | `4` | número de threads do servidor |
+| `ANALISADOR_UPLOAD_FOLDER` | *(sem padrão: usa `<diretório do app>/uploads`)* | pasta que recebe os arquivos enviados. É uma **sobreposição de processo**, usada pela suíte e pelo invólucro de paridade para não escreverem na pasta de dados; ver "Onde ficam os arquivos enviados" |
 
 #### Abrir a aplicação para a rede
 
@@ -289,6 +293,49 @@ A inicialização informa o endereço em uso (`Servindo com waitress em http://0
 equipamento da mesma rede, acesse `http://<ip-da-máquina>:5000/`. Em rede compartilhada, mantenha o padrão e
 não defina a variável.
 
+#### Onde ficam os arquivos enviados
+
+Os arquivos enviados são gravados em **`src/uploads`**, dentro do repositório, e essa é a **única** pasta que
+os recebe. A aplicação resolve a pasta a partir do próprio arquivo (`_pasta_uploads()`), ancorada em
+`__file__` e nunca no diretório corrente, e a cria na importação do módulo. Nada precisa ser configurado para
+subir a aplicação.
+
+A variável `ANALISADOR_UPLOAD_FOLDER` existe como **sobreposição de processo**, não como modo de operação. Ela
+é lida na **importação**, não a cada requisição — defini-la depois de subir não muda nada. Quem depende dela é
+o teste: `tests/conftest.py` e `tests/rodar_paridade.py` a apontam para uma pasta descartável, para que nem a
+suíte nem o instrumento de paridade escrevam na pasta de dados do operador.
+
+No modo com contêiner, a mesma pasta do repositório é montada no alvo que a aplicação já deriva
+(`/app/src/uploads`), sem variável de ambiente envolvida: é a linha de `volumes:` do serviço `app`, em
+`docker-compose.yml`, e ela é `./src/uploads:/app/src/uploads`.
+
+> **O que protege este dado.** Duas guardas, e só duas:
+>
+> - o `.gitignore` cobre `uploads/` em qualquer profundidade, então o dado **nunca** é versionado;
+> - o `.dockerignore` reexclui `src/uploads/` do contexto de build, então o dado **nunca** é enviado ao
+>   daemon do Docker. A reexclusão vem **depois** de `!src/**`, porque no `.dockerignore` a **última regra que
+>   casa vence** — invertidas as duas linhas, o dado voltaria ao contexto de build sem que nenhuma linha
+>   tivesse sido removida.
+>
+> As duas são presas por teste em `tests/test_guardas_do_armazenamento.py`: tirá-las faz a suíte falhar, e o
+> teste confere também a ordem acima, com verificação por mutação.
+>
+> **A pasta é não rastreada, e isso tem preço.** `git clean -xdf` — e também `-Xdf`, que remove só o que é
+> ignorado — **apaga `src/uploads` inteira**. Faça backup periódico para fora do repositório: ela é a única
+> cópia do dado.
+
+A manutenção da pasta fica em `tests/manutencao_de_uploads.py`, com quatro verbos: `manifesto` (a lista
+revisável do resíduo de instrumento), `expurgo` (remove **apenas** o que estiver no manifesto, e sempre tem
+simulação), `duplicatas` (relata cópias byte a byte idênticas, sem removê-las) e `migrar` (cópia verificada
+por `sha256`, sem papel no modo de operação — ferramenta de cópia avulsa):
+
+```powershell
+.\.venv\Scripts\python.exe tests\manutencao_de_uploads.py manifesto --pasta src\uploads --saida manifesto.txt
+.\.venv\Scripts\python.exe tests\manutencao_de_uploads.py expurgo --manifesto manifesto.txt --dry-run
+.\.venv\Scripts\python.exe tests\manutencao_de_uploads.py expurgo --manifesto manifesto.txt --aplicar
+.\.venv\Scripts\python.exe tests\manutencao_de_uploads.py duplicatas --pasta src\uploads
+```
+
 #### Uma instância por vez
 
 A aplicação **recusa subir** se já houver uma instância atendendo no endereço e na porta configurados. A
@@ -299,8 +346,8 @@ porta:
 Recusando subir: 127.0.0.1:5000 ja esta em uso (...). Encerre o processo que ja esta no ar, ou suba esta instancia em outra porta com ANALISADOR_PORT.
 ```
 
-O trecho entre parênteses é o diagnóstico do sistema operacional. Cada processo lê o mesmo diretório de uploads
-`src/uploads/`, então duas instâncias sobre a mesma pasta competiriam pelo mesmo armazenamento, e requisições do
+O trecho entre parênteses é o diagnóstico do sistema operacional. Cada processo usa a mesma pasta canônica de
+dados, então duas instâncias sobre a mesma pasta competiriam pelo mesmo armazenamento, e requisições do
 mesmo operador cairiam em instâncias diferentes. Encerre a instância anterior (Ctrl+C) antes de subir outra, ou
 use outra porta com `ANALISADOR_PORT`.
 
@@ -346,7 +393,7 @@ src/                            # raiz de código: 34 arquivos, 4.816 linhas nã
 │   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js e ícone da aba)
 ├── assets/
 │   └── apple-touch-icon.png    # Arte canônica do ícone de atalho, servida em /apple-touch-icon.png
-└── uploads/                    # Criado em tempo de execução; recebe os arquivos enviados e não é versionado
+└── uploads/                    # Criado em tempo de execução pela aplicação; recebe os arquivos enviados e é a pasta canônica de dados, a única. Não é versionada
 ```
 
 Na raiz ficam `requirements.txt`, `pytest.ini`, `pyrefly.toml`, `docker-compose.yml`, `init.sql`,
@@ -447,7 +494,8 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 - `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
   apresentação.
 - A árvore é montada a cada requisição e passada ao núcleo como parâmetro; não há estado de domínio compartilhado
-  entre threads. Os arquivos enviados ficam em `src/uploads/`; o que a análise produziu vai para o banco apenas
+  entre threads. Os arquivos enviados ficam em `src/uploads`, a única pasta canônica de dados; o que a análise
+  produziu vai para o banco apenas
   se houver `DATABASE_URL`, e nada é lido de volta para decidir o que a tela mostra.
 - A limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) é centralizada em `text_cleaning.py`.
 - `path_finding.py` busca caminhos; `mermaid_render.py` emite diagramas com rótulos escapados.
@@ -470,6 +518,16 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
   .\.venv\Scripts\python.exe -m pytest
   .\.venv\Scripts\python.exe -m pytest --cov=src --cov-report=term-missing
   ```
+
+- A **paridade diferencial** contra o oráculo congelado do legado é medida por um invólucro, que isola a pasta
+  de upload antes de lançar o instrumento:
+
+  ```powershell
+  .\.venv\Scripts\python.exe tests\rodar_paridade.py
+  ```
+
+  O `harness.py` é o instrumento e **não** deve ser executado direto: sem o invólucro ele escreve as sondas de
+  GEDCOM e as fixtures de DNA na pasta real de uploads, que é justamente o resíduo que a feature 010 corrigiu.
 
 ## Contribuindo
 
