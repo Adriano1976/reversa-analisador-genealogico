@@ -1,0 +1,126 @@
+# Actions: Escolher arquivo da lista
+
+> Identificador: `011-escolher-arquivo-da-lista`
+> Data: `2026-10-09`
+> Roadmap: `_reversa_forward/011-escolher-arquivo-da-lista/roadmap.md`
+
+## Resumo
+
+| Métrica | Valor |
+|---------|-------|
+| Total de ações | 32 |
+| Paralelizáveis (`[//]`) | 22 |
+| Maior cadeia de dependência | 12 (`T001 → T005 → T014 → T015 → T016 → T019 → T020 → T021 → T022 → T023 → T031 → T032`) |
+
+> **Três notas de leitura.** (1) Onde a coluna "Arquivo alvo" nomeia `evidence/…`, a ação é de
+> **execução e medição**, e o arquivo alvo é a evidência que ela produz — a pasta `evidence/` desta
+> feature ainda não existe, e nasce no primeiro passo que escrever nela. (2) A `T032` é do estágio
+> `/reversa-sync`, que é quem cria adendos neste projeto; ela fica aqui porque o risco da §9 do
+> `roadmap.md` declara a divergência "em `legacy-impact.md` **e no adendo**". (3) A convenção do `[//]`
+> está na primeira nota de execução, e ela é mais estreita que a do template.
+
+## Fase 1, Preparação
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| T001 | Rodar a suíte completa **antes de qualquer edição** e registrar a contagem obtida, com `DATABASE_URL` ausente do ambiente (a feature 012 mediu `335 passed, 9 skipped`; a contagem de agora é o que vale) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T001-suite-antes.txt` | 🟢 | [ ] |
+| T002 | Rodar a paridade pelo invólucro `tests/rodar_paridade.py` **antes de qualquer edição** e registrar o `PARIDADE … %` obtido — é a metade "antes" da premissa de §4 do roadmap | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T002-paridade-antes.txt` | 🟢 | [ ] |
+| T003 | Levantar o inventário por `sha256` da pasta `src/uploads` — nome, bytes e totais — e conferir que ela está no estado que o plano supõe: **19 arquivos e 29.166.183 bytes** (`RF-08`) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T003-inventario-antes.txt` | 🟢 | [ ] |
+| T004 | Registrar o estado do git antes de editar — `git status --porcelain` e o commit de `HEAD` — para que o "núcleo intocado" da `T026` tenha linha de base | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T004-git-antes.txt` | 🟢 | [ ] |
+
+## Fase 2, Testes
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| T005 | Escrever o teste da função pura sobre nomes **sintéticos**, cobrindo os quatro casos medidos — com chave, com **chave vazada** no nome visível, sem chave, e dois arquivos com a mesma chave — e provando o agrupamento, a contagem do grupo, a marca de sem chave e a ordem por data decrescente (`RN-01`, `RN-02`, `RN-10`, `D-09`) | T001 | `[//]` | `tests/test_lista_de_arquivos.py` | 🟢 | [ ] |
+| T006 | Escrever o teste de `listar()` pela porta: sobre pasta temporária povoada devolve nome armazenado, bytes e data; sobre pasta **ausente** devolve lista vazia em vez de exceção (`D-01`, `D-07`) | T001 | `[//]` | `tests/test_porta_de_armazenamento.py` | 🟢 | [ ] |
+| T007 | Escrever o teste de rota do `GET /` **sem envio prévio**: responde `200` e entrega as duas listas, com um item por conteúdo (`RF-06`) | T001 | `[//]` | `tests/test_lista_na_tela.py` | 🟢 | [ ] |
+| T008 | Escrever o teste de rota do **estado vazio**: sem arquivo do tipo na pasta, a aba orienta o envio e a resposta continua `200` (`RF-07`, `D-07`) | T007 | - | `tests/test_lista_na_tela.py` | 🟢 | [ ] |
+| T009 | Escrever o teste de rota da **referência do CSV**: com `matches_csv_filename` a análise conclui sem arquivo, a referência **vence** o arquivo quando os dois vêm, e o envio só com `matches_csv` continua concluindo como hoje (`RF-04`, `RN-04`, `D-03`) | T001 | `[//]` | `tests/test_dna_analysis.py` | 🟢 | [ ] |
+| T010 | Escrever o teste de rota de **escolher a árvore da lista** e submeter a busca de caminho, sem novo envio de arquivo (`RF-02`) | T001 | `[//]` | `tests/test_path_search.py` | 🟢 | [ ] |
+| T011 | Escrever o teste de rota do **envio pela aba**: valida o conteúdo antes de gravar, grava sob chave de conteúdo e o arquivo novo passa a aparecer na lista (`RF-05`) | T001 | `[//]` | `tests/test_upload.py` | 🟢 | [ ] |
+
+## Fase 3, Núcleo
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| T012 | Declarar `listar(dono)` no `Protocol` `ArmazenamentoDeArquivos`, com o retorno tipado da entrada da lista, e atualizar o docstring do módulo — a tabela de portas passa de 2 para 3 métodos e a frase final "Nenhum metodo novo foi criado em nenhuma porta" deixa de valer (`D-01`) | T006 | `[//]` | `src/ports/__init__.py` | 🟢 | [ ] |
+| T013 | Implementar `listar(dono)` em `ArmazenamentoEmDisco`, lendo **só** o nome do diretório e os atributos do arquivo — sem abrir conteúdo nenhum — e devolvendo lista vazia quando a pasta não existe (RNF de desempenho, `D-01`, `D-07`) | T012 | - | `src/ports/adaptadores.py` | 🟢 | [ ] |
+| T014 | Acrescentar a `src/utils/validate.py` a decomposição do nome armazenado em `(chave, nome visível)`, **reusando** `_FORMATO_CHAVE` em vez de escrever um segundo padrão para a mesma regra (`D-02`) | T005 | `[//]` | `src/utils/validate.py` | 🟢 | [ ] |
+| T015 | Escrever a função pura de apresentação em `src/reporting/lista_de_arquivos.py`: agrupa pela chave, marca o arquivo sem chave como item próprio, calcula contagem e tamanho, e ordena por data decrescente (`RN-01`, `RN-02`, `RN-10`, RNF de desempenho) | T014 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [ ] |
+| T016 | Aplicar na mesma função a regra do **nome exibido sem chave vazada** quando o grupo tem nomes visíveis diferentes — o caso medido da chave `080e7943572d2652` (`D-09`) | T015 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [ ] |
+
+## Fase 4, Integração
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| T017 | O `GET /` monta as duas listas a partir da porta e as entrega ao template no contexto — sem `os.listdir` na rota e sem remover nenhuma variável de contexto existente (`D-01`, `D-04`, `RF-06`) | T015 | `[//]` | `src/app.py` | 🟢 | [ ] |
+| T018 | O ramo `dna_analysis` passa a aceitar `matches_csv_filename`, com a referência tendo **precedência** sobre o arquivo e o caminho antigo intocado quando ela não vem (`D-03`, `RN-04`, `RF-04`) | T017, T009 | - | `src/app.py` | 🟢 | [ ] |
+| T019 | O ramo `{% if not gedcom_filename %}` deixa de ser formulário de envio e passa a renderizar as duas abas com as listas, com o envio movido para dentro de cada aba (`D-04`, `RF-06`) | T007, T010, T011, T016 | `[//]` | `src/templates/index.html` | 🟢 | [ ] |
+| T020 | Cada item das duas listas exibe nome visível, tamanho, data e a contagem do grupo, e o item sem chave traz a marca de que é anterior à chave por conteúdo (`RN-02`, `RN-10`, `D-09`) | T019 | - | `src/templates/index.html` | 🟢 | [ ] |
+| T021 | A aba de DNA ganha o campo de escolha que preenche `matches_csv_filename`, mantendo o envio de arquivo como a outra via de entrada (`RN-04`, `D-03`) | T020 | - | `src/templates/index.html` | 🟢 | [ ] |
+| T022 | O estado vazio de cada aba orienta o envio de um arquivo e não falha (`RF-07`, `D-07`) | T008, T021 | - | `src/templates/index.html` | 🟢 | [ ] |
+
+## Fase 5, Polimento
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| T023 | Rodar a suíte **depois** e registrar a contagem, comparando com a linha de base da `T001` — é a metade "depois" que sustenta "não houve regressão" | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T023-suite-depois.txt` | 🟢 | [ ] |
+| T024 | Rodar a paridade pelo invólucro **depois** da mudança de template e registrar o resultado, que tem de ser `PARIDADE 100 %` (premissa de §4 e risco de §9 do roadmap) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T024-paridade-depois.txt` | 🟢 | [ ] |
+| T025 | Levantar o inventário por `sha256` **depois** de percorrer as duas abas e o envio, e comparar com o da `T003`: idêntico (`RF-08`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T025-inventario-depois.txt` | 🟢 | [ ] |
+| T026 | Provar que o núcleo não foi tocado: `git diff -- src/core src/parsers src/application` **vazio**, contra o estado registrado na `T004` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T026-nucleo-intocado.txt` | 🟢 | [ ] |
+| T027 | Provar que o golden `SCR-001` **não** foi alterado, pelo `git status` de `_reversa_sdd/screens/golden/` e pelo `sha256` do arquivo — é a execução do `D-05` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T027-golden-intocado.txt` | 🟢 | [ ] |
+| T028 | Atualizar o `README.md`: a tela de entrada descrita deixa de existir, e as listas das duas abas entram no lugar dela (RNF de documentação) | T018, T022 | `[//]` | `README.md` | 🟢 | [ ] |
+| T029 | Escrever o `legacy-impact.md` registrando que a aplicação atual deixa de ter o estado inicial do legado, e o que isso significa para o pipeline de migração que ancorou cenários em `SCR-001` (`D-06`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/legacy-impact.md` | 🟢 | [ ] |
+| T030 | Escrever o `regression-watch.md` com os itens de vigilância, o que cada um vigia e o sintoma que o dispara | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/regression-watch.md` | 🟢 | [ ] |
+| T031 | Revisar o `onboarding.md` desta feature e preencher a tabela de resultados medidos com o que cada passo efetivamente produziu | T023, T024, T025, T027 | - | `_reversa_forward/011-escolher-arquivo-da-lista/onboarding.md` | 🟢 | [ ] |
+| T032 | Escrever o adendo `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md`: o campo opcional novo do contrato, a tela nova das duas abas e a divergência declarada. **Estágio `/reversa-sync`** (`D-06`) | T029, T030, T031 | - | `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md` | 🟢 | [ ] |
+
+## Notas de execução
+
+- **Convenção do `[//]`, mais estreita que a do template.** Ele marca a ação que roda em paralelo com as
+  demais `[//]` **da mesma fase**: sem dependência entre si e sem arquivo alvo compartilhado. Depender da
+  linha de base (`T001`–`T004`) não desmarca — a linha de base é um portão único, e tratá-la como
+  bloqueio de paralelismo faria todas as 28 ações seguintes perderem a marca sem que isso descrevesse
+  nada real.
+- **A suíte roda com `DATABASE_URL` ausente.** Medido na feature 012: com a variável no ambiente, dois
+  testes de `tests/test_persistencia_desabilitada.py` falham e a contagem vira
+  `325 passed, 2 failed, 9 skipped`. Não é regressão desta feature, e a `T023` seria lida errado se a
+  variável estivesse no ambiente.
+- **`listar(dono)` — decidido aqui, não no roadmap.** O `D-01` escreve `listar()` sem assinatura. A
+  doutrina declarada no docstring do `src/ports/__init__.py` diz que `dono` é **obrigatório e último** em
+  toda porta, e o motivo registrado lá é literalmente o custo de "acrescentá-lo depois", reabrindo toda
+  assinatura e todos os chamadores. Aplicada ao método novo, a assinatura é `listar(self, dono)`, e a
+  `T006` acrescenta uma linha na tabela de `TestContratoDoArmazenamento` (`test_porta_de_armazenamento.py:463-471`)
+  para `listar`, que passa a exigir a mesma forma no contrato e no adaptador. **Se o executor discordar
+  desta leitura, o certo é reabrir a decisão, não contornar o teste.**
+- **`src/ports/__init__.py` muda de TEXTO, e o texto era uma afirmação de escopo.** A frase final do
+  docstring — "Nenhum metodo novo foi criado em nenhuma porta." — e a tabela de portas (que declara 2
+  métodos para `ArmazenamentoDeArquivos`) deixam de ser verdade com o `listar`. Varredura feita: nenhum
+  teste prende essas frases, então a correção é de documentação. Ela é obrigatória mesmo assim — um
+  docstring que afirma o contrário do código é pior que nenhum, e é o tipo de resíduo que o
+  `/reversa-audit` cobra depois.
+- **`adaptadores.__all__` NÃO muda.** `listar` é método, e a lista literal de
+  `tests/test_porta_de_armazenamento.py:321-324` prende **classes** (`ArmazenamentoEmDisco`,
+  `CarregadorDeArvoresGedcom`, `RegistroDeAnalisesPostgres`). Nenhum nome novo entra ali, e o quarto
+  nome continua sendo motivo para reabrir a `D-03` da feature 006 — esta feature não é exceção.
+- **`src/utils/validate.py` é tocado, e o critério de pronto não o protege.** O `git diff` exigido é
+  `-- src/core src/parsers src/application`; `src/utils/` fica de fora de propósito, porque a
+  decomposição do nome pertence ao módulo que já é dono da forma do nome (`D-02`). Varredura feita:
+  nenhum teste afirma o conjunto de funções de `validate`, então o acréscimo é aditivo.
+- **As fixtures de teste da lista são sintéticas.** É o Princípio I levado ao teste: o inventário real da
+  pasta (19 nomes de arquivo de dados genealógicos reais do operador) **não** entra em teste nenhum. Os
+  quatro casos da `T005` são construídos com nomes inventados, e o que se copia deles é a **forma**
+  (com chave, chave vazada, sem chave, chave repetida), não o conteúdo.
+- **A `T027` mede um golden que a feature não deve tocar — e é a prova do `D-05`.** Se o `sha256` do
+  `SCR-001` mudar, a leitura de que o golden captura o oráculo legado congelado estava errada, a premissa
+  cai e o instrumento de paridade de tela precisa ser reaberto. Falhar aqui é sinal, não ruído.
+- **A `T018` e a `T019` são ramos paralelos, e a `T023` espera os dois.** A `T018` mexe na rota e a
+  `T019` no template; a suíte e a paridade só fazem sentido depois de ambas, por isso a Fase 5 depende de
+  `T018` **e** `T022`, e não só da última ação da fase anterior.
+
+## Histórico de alterações
+
+| Data | Alteração | Autor |
+|------|-----------|-------|
+| 2026-10-09 | Versão inicial gerada por `/reversa-to-do` | reversa |
