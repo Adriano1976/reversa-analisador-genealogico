@@ -4,6 +4,7 @@ import socket
 import sys
 
 from flask import Flask, render_template, request, send_file
+from reporting.lista_de_arquivos import itens_da_aba
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
@@ -235,6 +236,41 @@ def icone_de_atalho():
     return send_file(caminho, mimetype="image/png")
 
 
+# --- As listas da tela (feature 011, T017) ---
+#
+# A `D-04` fez o `GET /` entregar as duas abas com as listas **sempre**, e nao apenas
+# depois de um envio. Como a tela precisa delas em TODA renderizacao, elas entram por
+# um processador de contexto, e nao repetidas nos oito `render_template("index.html",
+# ...)` da rota: repetir seria oito lugares para esquecer um, e o nono nasceria
+# desatualizado.
+#
+# **Nao ha `os.listdir` aqui.** Quem le a pasta e a PORTA (`D-01`): a rota so compoe o
+# que ela devolve. Foi a feature 006 que tirou o acesso a disco da borda, e um listdir
+# aqui o traria de volta.
+#
+# O que a listagem NAO faz, por decisao: nao abre conteudo (`D-08`, `RN-09`) e nao
+# filtra arquivo nenhum. Quem separa as abas e quem marca o item indisponivel e a
+# funcao pura de `reporting/`, que decide pelo NOME.
+#
+# **O instrumento de paridade nao enxerga isto.** `harness.py:191` substitui
+# `render_template` por uma captura de contexto, entao o processador nem chega a
+# rodar; e as chaves que ele le (`:211-221`) continuam sendo as mesmas de antes.
+# Acrescentar chave ao contexto e invisivel para ele, por construcao.
+@app.context_processor
+def _listas_da_tela():
+    """As duas listas de arquivos armazenados, para as abas da tela de entrada.
+
+    `RN-01`..`RN-03` e `D-09`/`D-10`: a selecao por extensao do nome visivel, o
+    agrupamento pela chave e a ordem por data moram na funcao pura; aqui so se
+    pergunta a ela duas vezes, uma por aba.
+    """
+    entradas = _ARMAZENAMENTO.listar(DONO_DO_PROCESSO)
+    return {
+        "arvores_da_lista": itens_da_aba(entradas, ".ged"),
+        "relatorios_da_lista": itens_da_aba(entradas, ".csv"),
+    }
+
+
 # --- Rota Principal ---
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -269,19 +305,53 @@ def index():
             return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
         all_names = nomes_de_exibicao(arvore)
 
+        if action == "selecionar_arvore":
+            # Escolher a arvore CLICANDO na lista (feature 012, `D-01`). A referencia ja
+            # foi resolvida por `_arvore_do_formulario`, e o unico trabalho deste ramo e
+            # renderizar o estado "arvore escolhida" — o MESMO que o envio produz.
+            #
+            # O ramo existe porque, sem ele, este `action` cai no `return` do fim de
+            # `index()`, que renderiza `index.html` SEM `gedcom_filename`: a arvore
+            # resolvida seria descartada e o operador clicaria sem nada acontecer. Era o
+            # defeito medido em 2026-10-09 — a lista mostrava as arvores e nao havia como
+            # escolher nenhuma (`RF-02`).
+            #
+            # Nao ha efeito colateral: nenhum arquivo e lido alem do parse que
+            # `_arvore_do_formulario` ja fez, e nada e escrito.
+            return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names)
+
         if action == "dna_analysis":
             try:
-                if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
-                    return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
-                matches_file, root_name = request.files["matches_csv"], request.form["root_name"]
+                root_name = request.form["root_name"]
 
-                # A gravação do CSV passa pela MESMA porta do GEDCOM. O tipo
-                # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
-                # divida #10, preservada de proposito (`RF-10`, `RN-01`).
-                caminho_do_csv, motivo = _ARMAZENAMENTO.guardar(
-                    matches_file.read(), matches_file.filename, "csv", DONO_DO_PROCESSO)
-                if motivo is not None:
-                    return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
+                # Feature 011, T018 (`D-03`, `RN-04`): a referencia escolhida na LISTA
+                # tem **precedencia** sobre o arquivo, e o campo novo e OPCIONAL.
+                #
+                # Quando ele nao vem, o caminho abaixo e exatamente o de antes — mesma
+                # gravacao, mesma porta, mesma mensagem. Foi por isso que o campo e NOVO
+                # em vez de reaproveitar `matches_csv`: reaproveitar apagaria a prova de
+                # que o caminho antigo continua igual, e e essa prova que a paridade e os
+                # testes de rota consomem.
+                referencia_do_csv = request.form.get("matches_csv_filename")
+                if referencia_do_csv:
+                    caminho_do_csv = _ARMAZENAMENTO.resolver(referencia_do_csv, DONO_DO_PROCESSO)
+                    if caminho_do_csv is None:
+                        # Mesma classe de mensagem do caminho de uso da arvore: a tela
+                        # continua utilizavel, e o operador ve o que aconteceu. O texto
+                        # e o mesmo de `_arvore_do_formulario` porque a causa e a mesma.
+                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Erro: Arquivo '{referencia_do_csv}' não existe mais.", success=False)
+                else:
+                    if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
+                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
+                    matches_file = request.files["matches_csv"]
+
+                    # A gravação do CSV passa pela MESMA porta do GEDCOM. O tipo
+                    # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
+                    # divida #10, preservada de proposito (`RF-10`, `RN-01`).
+                    caminho_do_csv, motivo = _ARMAZENAMENTO.guardar(
+                        matches_file.read(), matches_file.filename, "csv", DONO_DO_PROCESSO)
+                    if motivo is not None:
+                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
 
                 resultado = caso_de_uso_dna(
                     caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO,

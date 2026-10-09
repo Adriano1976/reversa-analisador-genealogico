@@ -29,7 +29,21 @@ CABECALHO_GEDCOM = "0 HEAD"
 # A forma e fechada de proposito: exclui `/`, `\` e `..`, de modo que um valor
 # vindo do formulario nunca pode escapar da pasta de upload.
 _SEPARADOR = "__"
-_FORMATO_CHAVE = re.compile(r"^[0-9a-f]{16}" + _SEPARADOR + r"[A-Za-z0-9._-]+$")
+_HEX16 = r"[0-9a-f]{16}"
+_FORMATO_CHAVE = re.compile(r"^" + _HEX16 + _SEPARADOR + r"[A-Za-z0-9._-]+$")
+
+# O PREFIXO da chave, sem exigir que o nome INTEIRO seja valido. Existe porque as
+# duas perguntas sao diferentes, e a feature 011 precisa das duas:
+#
+#   `chave_recebida_e_valida` responde "posso RESOLVER este nome?" — e por isso
+#   exige a forma inteira, porque e ela que impede escape de caminho;
+#   `_PREFIXO_CHAVE` responde "este nome TEM chave?" — e um nome com chave e nome
+#   visivel acentuado devolve NAO para a primeira e SIM para a segunda.
+#
+# Sem esta distincao, o arquivo com acento cairia no mesmo balde do arquivo sem
+# chave, e a tela diria ao operador a coisa errada sobre o proprio arquivo.
+# `_HEX16` e `_SEPARADOR` sao os MESMOS objetos: a forma do nome e definida uma vez.
+_PREFIXO_CHAVE = re.compile(r"^" + _HEX16 + _SEPARADOR)
 
 # Separadores de caminho, dos dois sistemas, e o byte nulo.
 _SEPARADORES = ("/", "\\", "\x00")
@@ -103,3 +117,67 @@ def validar_conteudo_gedcom(conteudo: bytes) -> str | None:
     if inicio != CABECALHO_GEDCOM.encode("ascii"):
         return "não começa com a declaração {}".format(CABECALHO_GEDCOM)
     return None
+
+
+# --- Decomposicao do nome armazenado (feature 011, `T014`) -------------------
+#
+# Estas duas funcoes existem para a LISTA da tela: a funcao pura de `reporting/`
+# precisa saber, para cada arquivo da pasta, como ele se chama para o operador e
+# se ele pode ser usado. As duas perguntas se respondem **sem abrir arquivo**, e
+# por isso vivem aqui: este modulo ja e o dono da forma do nome, e uma segunda
+# definicao dela em outro lugar seria uma segunda verdade sobre a mesma regra.
+
+SEM_CHAVE = "sem chave de conteúdo no nome"
+FORA_DA_FORMA = "nome com caractere que a referência não aceita"
+
+
+def decompor_nome_armazenado(nome) -> tuple[str | None, str]:
+    """`(chave, nome_visivel)` do nome armazenado. `(None, nome)` quando nao ha chave.
+
+    A chave sai **so** quando o prefixo de 16 hexadecimais esta la, e ela pode vir
+    acompanhada de um nome visivel que a forma fechada recusa — acento e espaco sao
+    os casos medidos. Quem decide se o arquivo e ALCANCAVEL e
+    `chave_recebida_e_valida`, e nao esta funcao: aqui so se separa o que e chave do
+    que e rotulo.
+
+    Nome que nao e `str`, ou vazio, devolve `(None, "")`.
+    """
+    if not isinstance(nome, str) or not nome:
+        return None, ""
+    if _PREFIXO_CHAVE.match(nome):
+        chave, visivel = nome.split(_SEPARADOR, 1)
+        return chave, visivel
+    return None, nome
+
+
+def motivo_de_indisponibilidade(nome) -> str | None:
+    """Por que este nome armazenado NAO pode ser usado, ou `None` se ele pode.
+
+    Dois motivos, e a distincao importa para o operador (`D-11`):
+
+    - nao tem os 16 hexadecimais: e arquivo anterior a chave por conteudo, e a
+      referencia nao tem como alcanca-lo;
+    - tem chave, mas o nome visivel carrega caractere que a forma fechada recusa.
+      E o caso do acento e do espaco, medido na pasta real, e o defeito de raiz
+      esta registrado como `BUG-20261009-6RKP`.
+
+    Dizer "sem chave" para o arquivo acentuado seria mentir sobre o motivo, e o
+    operador concluiria que o arquivo e antigo quando ele nao e.
+    """
+    chave, _visivel = decompor_nome_armazenado(nome)
+    if chave is None:
+        return SEM_CHAVE
+    if not chave_recebida_e_valida(nome):
+        return FORA_DA_FORMA
+    return None
+
+
+def pode_ser_usado(nome) -> bool:
+    """`True` quando a referencia alcanca este nome armazenado.
+
+    Delega para `chave_recebida_e_valida`, que e a **mesma** funcao que
+    `ArmazenamentoEmDisco.resolver` aplica. Nao ha segundo teste de alcance, de
+    proposito: dois testes equivalentes divergem com o tempo, e a tela passaria a
+    dizer "disponivel" para um arquivo que o resolvedor recusa.
+    """
+    return chave_recebida_e_valida(nome)

@@ -24,6 +24,7 @@ import os
 from typing import TYPE_CHECKING
 
 from parsers.gedcom_parser import Tree, carregar_arvore
+from ports import EntradaArmazenada
 from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
@@ -94,6 +95,63 @@ class ArmazenamentoEmDisco:
             return None
         caminho = os.path.join(self._pasta, referencia)
         return caminho if os.path.exists(caminho) else None
+
+    def listar(self, dono: str) -> list[EntradaArmazenada]:
+        """Entradas da pasta: nome armazenado, bytes e data. **Nao abre arquivo.**
+
+        Feature `011-escolher-arquivo-da-lista`, acao `T013` (`D-01`, `D-07`, `D-08`).
+
+        ## O que ela le, e o que ela deliberadamente NAO le
+
+        Do **diretorio**: o nome de cada entrada. Do **arquivo**: os atributos que o
+        sistema de arquivos ja mantem — tamanho e data de modificacao —, por `os.stat`.
+        Do **conteudo**: nada. Nao ha `open` aqui, e e por isso que a tela pode ser
+        montada sem reler os 29 MB da pasta a cada renderizacao (RNF de desempenho).
+        E tambem por isso que a extensao decide a aba, e nao o conteudo (`RN-09`).
+
+        ## Pasta ausente devolve lista vazia, e nao excecao
+
+        `D-07`. Uma instalacao nova tem a pasta criada e vazia; uma pasta que
+        desapareca sob a aplicacao em execucao nao pode virar erro na tela de entrada.
+        O `D-07` recusou o `os.makedirs` que seria o conserto obvio: criar diretorio
+        dentro de uma leitura e efeito colateral escondido numa operacao que promete
+        nao escrever nada. Por isso o `isdir` vem antes, e o retorno e `[]`.
+
+        ## Nao filtra nada
+
+        Nem por nome, nem por extensao, nem por forma da chave. Quem separa as abas e
+        quem marca o item indisponivel e a funcao pura de `reporting/`, que decide pelo
+        nome. Filtrar aqui esconderia do operador um arquivo que existe — e o `D-11`
+        existe justamente para o item indisponivel aparecer **marcado**, em vez de
+        desaparecer.
+
+        Subdiretorio e ignorado: a pasta guarda arquivo, e um diretorio ali dentro nao
+        tem referencia que o alcance.
+
+        `dono` e recebido e **ignorado**, como no `guardar` e no `resolver`. Ele nao
+        filtra nada: as dividas #3 e #4 seguem abertas (`RN-06`), e a assimetria entre
+        os tres metodos da porta seria o custo que a feature 007 pagou para nao ter.
+        """
+        if not os.path.isdir(self._pasta):
+            return []
+
+        entradas: list[EntradaArmazenada] = []
+        for nome in os.listdir(self._pasta):
+            caminho = os.path.join(self._pasta, nome)
+            if not os.path.isfile(caminho):
+                continue
+            try:
+                atributos = os.stat(caminho)
+            except OSError:
+                # Entrada que sumiu entre o listdir e o stat: a listagem e um retrato
+                # do instante, e um arquivo que nao esta mais la nao vira excecao.
+                continue
+            entradas.append(EntradaArmazenada(
+                nome=nome,
+                bytes=atributos.st_size,
+                modificado_em=atributos.st_mtime,
+            ))
+        return entradas
 
 
 class CarregadorDeArvoresGedcom:

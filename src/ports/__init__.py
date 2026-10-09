@@ -8,7 +8,7 @@ parametro, sem nunca instanciar a implementacao concreta. Quem implementa mora e
 
 | Porta | O que a fronteira consome | Metodos |
 |-------|---------------------------|---------|
-| `ArmazenamentoDeArquivos` | gravar o upload e resolver a referencia recebida | 2 |
+| `ArmazenamentoDeArquivos` | gravar o upload, resolver a referencia recebida e LISTAR a pasta | 3 |
 | `CarregadorDeArvores` | entregar a arvore a partir da referencia | 1 |
 | `RepositorioDeArvores` | persistencia da arvore — **Onda 3, sem implementacao** | 2 |
 | `RegistroDeAnalises` | persistencia HISTORICA da analise — **feature 008** | 1 |
@@ -42,8 +42,15 @@ assinatura de porta e todos os chamadores para acrescenta-lo depois.
 
 Ele e **costura de assinatura, e nao funcionalidade**: nao entra na chave, no nome
 armazenado nem no caminho de nada, e nenhum arquivo e separado por dono. As
-dividas #3 e #4 continuam abertas (`RN-06`). Nenhum metodo novo foi criado em
-nenhuma porta.
+dividas #3 e #4 continuam abertas (`RN-06`).
+
+**Esta frase deixou de valer na feature `011-escolher-arquivo-da-lista`.** Ate
+entao ela dizia, com razao, que nenhum metodo novo havia sido criado em nenhuma
+porta. A `011` criou o **primeiro**: `ArmazenamentoDeArquivos.listar`, que devolve
+as entradas da pasta para a tela montar a lista de escolha. O motivo de ele
+tambem receber `dono` e o mesmo do paragrafo acima, e nao simetria decorativa:
+deixar o parametro de fora agora obrigaria a reabrir esta assinatura e todos os
+chamadores depois, que e exatamente o custo que a feature 007 pagou para nao ter.
 """
 from __future__ import annotations
 
@@ -111,6 +118,60 @@ class ArmazenamentoDeArquivos(Protocol):
         ficarem simetricas entre si e com o `RepositorioDeArvores`.
         """
         ...
+
+    def listar(self, dono: str) -> list["EntradaArmazenada"]:
+        """Entrada da pasta de upload: nome armazenado, bytes e data. **Nao le conteudo.**
+
+        A `011-escolher-arquivo-da-lista` (`D-01`) trouxe esta operacao para a porta,
+        e nao para a rota, porque a feature 006 tirou o acesso a disco da borda:
+        `_arvore_do_formulario()` nao resolve caminho. Um `os.listdir` na rota
+        desfaria essa fronteira e tornaria a listagem impossivel de testar sem
+        pasta real.
+
+        **O que ela lista, e o que ela NAO faz** (`D-08`, `RN-09`, `D-11`):
+
+        - lista **tudo** o que e arquivo na pasta, sem julgar conteudo e sem julgar
+          nome. Nao ha filtro aqui: quem separa as abas e quem marca o item
+          indisponivel e a funcao pura de `reporting/`, que decide pelo NOME;
+        - **nao abre arquivo nenhum**. O que ela le do diretorio e o nome, e do
+          arquivo sao os atributos do sistema de arquivos (tamanho e data). E o
+          que evita reler 29 MB a cada renderizacao, e e o que faz o agrupamento
+          pela chave — que ja esta no nome — ser barato;
+        - **pasta ausente devolve lista vazia, e nao excecao** (`D-07`). Instalacao
+          nova tem a pasta criada e vazia, e uma pasta que desapareca sob a
+          aplicacao em execucao nao pode virar erro na tela de entrada. O `D-07`
+          recusou explicitamente o `os.makedirs` aqui: criar diretorio dentro de
+          uma leitura e efeito colateral escondido;
+        - **nao escreve nada**: listar e leitura pura (`RF-08`, `RN-06`).
+
+        `dono` entra pela mesma razao e com o mesmo alcance dos outros metodos:
+        **nao filtra nada** (dividas #3 e #4 abertas). Quem decide se uma entrada
+        pode ser usada e a forma do nome, aplicada na leitura — e nao a identidade.
+        """
+        ...
+
+
+@dataclass(frozen=True)
+class EntradaArmazenada:
+    """Um arquivo da pasta de upload, como a LISTAGEM o ve (`D-01`).
+
+    Nao e o arquivo: e o retrato do diretorio. Os tres campos sao os unicos que a
+    leitura de uma entrada produz, e nenhum deles exige abrir o conteudo.
+
+    `nome` e o **nome armazenado** (`<16 hex>__<nome visivel>`), e nao o visivel: e
+    ele que o formulario devolve na requisicao seguinte, e e ele que o resolvedor
+    aceita. Quem deriva o rotulo de tela e a funcao pura de `reporting/`, a partir
+    deste campo.
+
+    `modificado_em` e o instante do sistema de arquivos, em segundos desde a epoch,
+    na mesma unidade que `os.path.getmtime`. A ordem da lista e por ele, decrescente:
+    o nome exibido nao e unico — medido, ha tres arquivos chamados
+    `Arvore_Unificada_Oficial_V1_2.ged` na pasta real — e e a data que distingue.
+    """
+
+    nome: str
+    bytes: int
+    modificado_em: float
 
 
 class CarregadorDeArvores(Protocol):
@@ -321,6 +382,7 @@ __all__ = [
     "CarregadorDeArvores",
     "RepositorioDeArvores",
     "RegistroDeAnalises",
+    "EntradaArmazenada",
     "AnaliseParaRegistrar",
     "PessoaDaAnalise",
     "KitDaAnalise",
