@@ -1,0 +1,17 @@
+# T021 - numeros finais da pasta canonica, nas duas unidades
+# Gerado em: 2026-10-09
+#
+# Depois do RF-09 (copias de arrasto) e do RF-10 (residuo de instrumento).
+
+total: 18 arquivos, 27925843 bytes
+hashes distintos: 13
+
+| aba | arquivos | itens pela chave do nome |
+|---|---|---|
+| arvore (.ged) | 7 | 6 |
+| DNA (.csv) | 10 | 10 |
+
+arquivos que nao aparecem em aba nenhuma: b70889273a505a5d__Familias Sergipanas.xlsx
+
+Antes desta feature: arvore 16 arquivos / 15 itens; DNA 19 arquivos / 19 itens.
+Depois: arvore 7 arquivos / 6 itens; DNA 10 arquivos / 10 itens.

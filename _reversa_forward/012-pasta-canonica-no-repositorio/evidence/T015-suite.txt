@@ -1,0 +1,17 @@
+# T015 - suite completa, DATABASE_URL ausente
+# Gerado em: 2026-10-09T17:21:35Z
+# Comando: python -m pytest -q
+# exit code: 0
+
+........................................................................ [ 20%]
+........................................................................ [ 41%]
+......................s................................................. [ 62%]
+........................................ssssssss........................ [ 83%]
+........................................................                 [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:469
+  D:\Projetos\reversa_analisador_gelealogico\.venv\Lib\site-packages\_pytest\cacheprovider.py:469: PytestCacheWarning: could not create cache path D:\Projetos\reversa_analisador_gelealogico\.pytest_cache\v\cache\nodeids: [WinError 183] Não é possível criar um arquivo já existente: 'D:\\Projetos\\reversa_analisador_gelealogico\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+335 passed, 9 skipped, 1 warning in 19.33s

@@ -1,0 +1,14 @@
+# Duplicatas relatadas - nenhuma foi removida
+# Grupos: 3
+
+sha256=080e7943572d2652a570d042886a39d18eacee23e1c7f9e7759ff0b3632300c3	3 copias
+    080e7943572d2652__080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+    080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+    Arvore_Unificada_Oficial_V1_2.ged
+sha256=94e2402671702cac4535e3928d1cd1dcc08593dbb7c2745f39494a5d0ef4bb01	3 copias
+    94e2402671702cac__Famílias_Sergipanas.csv
+    94e2402671702cac__Famílias_Sergipanas.csv.ged
+    Famílias_Sergipanas.csv
+sha256=b3211a52a933fdd0a650c4767844f9a2a42652622284a14cdc0f761a884133a0	2 copias
+    Adriano_Santos.ged
+    b3211a52a933fdd0__Adriano_Santos.ged

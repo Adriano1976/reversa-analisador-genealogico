@@ -1,0 +1,23 @@
+# Estado do ambiente antes de qualquer remocao - T001 (feature 012)
+# Gerado em: 2026-10-09T17:13:56Z
+# Regra (D-11): usar 'docker compose ps' e os processos do host.
+# NAO usar a tabela de portas: medido em 2026-10-09, ela deu tres respostas
+# contraditorias em tres execucoes seguidas, com os dois servicos no ar.
+
+== docker compose ps ==
+NAME               IMAGE                COMMAND                  SERVICE   CREATED       STATUS                 PORTS
+genealogia-app-1   genealogia-app       "python src/app.py"      app       2 hours ago   Up 2 hours             127.0.0.1:5080->5000/tcp
+genealogia-db-1    postgres:16-alpine   "docker-entrypoint.s…"   db        2 hours ago   Up 2 hours (healthy)   127.0.0.1:5432->5432/tcp
+
+== processos python do host ==
+nenhum
+
+== /app/src/uploads dentro do container (esperado: ausente) ==
+ls: cannot access '/app/src/uploads': No such file or directory
+
+== D:\dados-genealogicos ==
+diretorio existe: True
+uploads existe  : False
+
+== src/uploads ==
+arquivos: 36  bytes: 27932474

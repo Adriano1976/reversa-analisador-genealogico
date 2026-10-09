@@ -1,0 +1,7 @@
+# T004 - a composicao voltou ao estado entregue pela feature 008
+# Gerado em: 2026-10-09T17:14:25Z
+# Comando: git diff HEAD -- docker-compose.yml ; git status --porcelain -- docker-compose.yml
+# Resultado: as DUAS saidas vazias. O arquivo e byte a byte o do commit 80964c4.
+
+linha de volumes do servico app:
+  - ./src/uploads:/app/src/uploads

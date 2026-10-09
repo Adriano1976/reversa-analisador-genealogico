@@ -1,0 +1,25 @@
+# T014 - src/ intacto e git sem novidade (D-01)
+# Gerado em: 2026-10-09T17:21:13Z
+
+== git diff --stat -- src ==
+(vazio)
+
+== git diff -- src (saida completa) ==
+(vazio)
+
+== git status --porcelain -- src _reversa_sdd ==
+?? _reversa_sdd/addenda/010-uploads-fora-do-repositorio.md
+
+== git status --porcelain (arvore inteira) ==
+ M .reversa/active-requirements.json
+ M README.md
+?? _reversa_forward/010-uploads-fora-do-repositorio/
+?? _reversa_forward/011-escolher-arquivo-da-lista/
+?? _reversa_forward/012-pasta-canonica-no-repositorio/
+?? _reversa_sdd/addenda/010-uploads-fora-do-repositorio.md
+?? tests/manutencao_de_uploads.py
+?? tests/rodar_paridade.py
+?? tests/test_documentacao_do_upload.py
+?? tests/test_guardas_do_armazenamento.py
+?? tests/test_manutencao_de_uploads.py
+?? tests/test_rodar_paridade.py

@@ -1,0 +1,8 @@
+# Manifesto de residuo de instrumento - feature 010
+# Gerado em: 2026-10-09T17:23:17Z
+# Pasta: D:\Projetos\reversa_analisador_gelealogico\src\uploads
+# Arquivos listados: 0
+# REGRA: o expurgo remove APENAS as linhas abaixo.
+# Revise esta lista e apague as linhas que voce NAO quer remover.
+# Formato: nome<TAB>sha256<TAB>motivo
+

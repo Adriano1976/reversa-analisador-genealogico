@@ -1,0 +1,59 @@
+# T013 - instrumentos do refactor depois da retirada das copias de arrasto
+
+## 1. Montagem das duas situacoes (controle A/B)
+   A: sem as copias de arrasto
+   B: com as copias reconstruidas a partir de src/uploads (27 arquivos)
+
+## 2. registrar-diff.py nas duas situacoes
+   A: exit code 1, 3 linha(s) de saida, 10 de erro
+      linhas que mencionam 'uploads': 0
+   B: exit code 1, 3 linha(s) de saida, 10 de erro
+      linhas que mencionam 'uploads': 0
+   saida identica entre A e B (caminhos normalizados): True
+   --- stderr de A (diagnostico) ---
+   Traceback (most recent call last):
+     File "D:\Projetos\reversa_analisador_gelealogico\_reversa_forward\012-pasta-canonica-no-repositorio\evidence\_t013\A-sem-as-copias\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-FLAT-achatar-o-nivel-de-pacote\registrar-diff.py", line 167, in <module>
+       raise SystemExit(main())
+                        ~~~~^^
+     File "D:\Projetos\reversa_analisador_gelealogico\_reversa_forward\012-pasta-canonica-no-repositorio\evidence\_t013\A-sem-as-copias\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-FLAT-achatar-o-nivel-de-pacote\registrar-diff.py", line 113, in main
+       depois = le(os.path.join(ROOT, destino))
+     File "D:\Projetos\reversa_analisador_gelealogico\_reversa_forward\012-pasta-canonica-no-repositorio\evidence\_t013\A-sem-as-copias\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-FLAT-achatar-o-nivel-de-pacote\reorganizar.py", line 149, in le
+       with open(caminho, encoding="utf-8") as fh:
+            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   FileNotFoundError: [Errno 2] No such file or directory: 'D:\\Projetos\\reversa_analisador_gelealogico\\_reversa_forward\\012-pasta-canonica-no-repositorio\\evidence\\_t013\\A-sem-as-copias\\src/core/gedcom_state.py'
+
+   quais CHG foram de fato regravados em A:
+      CHG-001-movimentacao.diff                AUSENTE (nao regravado)
+      CHG-002-relativo-vira-absoluto.diff      AUSENTE (nao regravado)
+      CHG-003-prefixo-sai-do-import.diff       AUSENTE (nao regravado)
+      CHG-004-prosa-e-readme.diff              AUSENTE (nao regravado)
+      CHG-005-watch-w001.diff                  AUSENTE (nao regravado)
+
+## 3. verificar-estrutura.py nas duas situacoes (somente leitura)
+   A: exit code 1, 50 linha(s) de saida, 13 de erro
+      linhas que mencionam 'uploads': 1
+         uploads/
+   B: exit code 1, 50 linha(s) de saida, 13 de erro
+      linhas que mencionam 'uploads': 1
+         uploads/
+   saida identica entre A e B (caminhos normalizados): True
+   --- ultimas linhas de A ---
+       utils/
+         __init__.py                   1 linhas
+         name_keys.py                 37 linhas
+         number_format.py             54 linhas
+         text_cleaning.py             87 linhas
+         validate.py                 105 linhas
+   
+     modulos alcancaveis: 33
+   
+   1. RESOLUCAO DE IMPORT, POR AST
+
+## 4. Veredito
+   A retirada das copias de arrasto muda a saida dos instrumentos? NAO
+   Os instrumentos executam? registrar-diff exit 1, verificar-estrutura exit 1
+   Linhas que mencionam 'uploads' nas quatro saidas: 2
+      'uploads/'
+   (a unica ocorrencia e a linha 'uploads/' da listagem da arvore de src/,
+    que aparece igual nas duas situacoes -- nao e reclamacao)
+   copia removida: True

@@ -1,0 +1,39 @@
+# Expurgo de residuo - feature 010
+# Gerado em: 2026-10-09T17:23:07Z
+# Modo: SIMULACAO (nada foi removido)
+# removidos: 18
+# recusados: 0
+# ausentes: 0
+# duplicatas relatadas (preservadas): 3 grupo(s)
+
+seria removido	19da3bae17746752__no_intersection.csv
+seria removido	202881c5bff9b799__generic.csv
+seria removido	20a046eb06150ccd__nomes-inertes.ged
+seria removido	2fb588e6670bc166__probe.ged
+seria removido	3835dd799786d4ee__probe.ged
+seria removido	513e3f04c229d32f__probe.ged
+seria removido	641b786ce546bff6__cm_boundaries.csv
+seria removido	72f459ae1591d177__latin1.csv
+seria removido	739b8f1005995e08__utf8.csv
+seria removido	78dc213cb27fdd2d__probe.ged
+seria removido	8ccc014af6ea76e0__duplicated.csv
+seria removido	996082fbcceb908e__probe.ged
+seria removido	a36c0d2aae577481__missing_col.csv
+seria removido	b79bce6984606468__arvore.ged
+seria removido	c6926bb74ce64b88__basic.ged
+seria removido	cf5b3295b82210e8__probe.ged
+seria removido	e68ec63b62730ac0__matches_dois_kits.csv
+seria removido	f896dd5094332039__matches_dois_kits.csv
+
+# Duplicatas byte a byte identicas - RELATADAS, nao removidas (D-06)
+duplicata	3 copias	sha256=080e7943572d2652a570d042886a39d18eacee23e1c7f9e7759ff0b3632300c3
+    080e7943572d2652__080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+    080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+    Arvore_Unificada_Oficial_V1_2.ged
+duplicata	3 copias	sha256=94e2402671702cac4535e3928d1cd1dcc08593dbb7c2745f39494a5d0ef4bb01
+    94e2402671702cac__Famílias_Sergipanas.csv
+    94e2402671702cac__Famílias_Sergipanas.csv.ged
+    Famílias_Sergipanas.csv
+duplicata	2 copias	sha256=b3211a52a933fdd0a650c4767844f9a2a42652622284a14cdc0f761a884133a0
+    Adriano_Santos.ged
+    b3211a52a933fdd0__Adriano_Santos.ged

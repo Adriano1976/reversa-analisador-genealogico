@@ -1,0 +1,76 @@
+# Remocao das copias de arrasto - feature 012
+# Pasta canonica : D:\Projetos\reversa_analisador_gelealogico\src\uploads
+# Modo           : SIMULACAO (nada sera removido)
+
+# Canonica: 36 arquivos, 27932474 bytes (31 hashes distintos)
+# git status --porcelain: 12 linha(s) antes
+
+== FLAT
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-FLAT-achatar-o-nivel-de-pacote\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   SIMULADO: seria removido
+
+== GUE7
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-GUE7-reorganizar-em-subpacotes\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   SIMULADO: seria removido
+
+== RAIZ
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RAIZ-distribuir-modulos-soltos\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   SIMULADO: seria removido
+
+======================================================================
+# resumo
+#   removidos/simulados : 3
+#   recusados           : 0
+#   canonica antes      : 36 arquivos, 27932474 bytes
+#   canonica depois     : 36 arquivos, 27932474 bytes
+#   git status antes    : 12 linha(s)
+#   git status depois   : 12 linha(s)
+
+======================================================================
+# SEGUNDA EXECUCAO: APLICADA (exit code 0)
+======================================================================
+# Remocao das copias de arrasto - feature 012
+# Pasta canonica : D:\Projetos\reversa_analisador_gelealogico\src\uploads
+# Modo           : APLICADO
+
+# Canonica: 36 arquivos, 27932474 bytes (31 hashes distintos)
+# git status --porcelain: 12 linha(s) antes
+
+== FLAT
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-FLAT-achatar-o-nivel-de-pacote\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   REMOVIDO
+
+== GUE7
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-GUE7-reorganizar-em-subpacotes\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   REMOVIDO
+
+== RAIZ
+   D:\Projetos\reversa_analisador_gelealogico\_reversa_refactor\pacote-reconstructed\transformations\OPP-20261003-RAIZ-distribuir-modulos-soltos\before-after\src-antes\uploads
+   inventario: 9 arquivos, 16920784 bytes
+   orfaos: 0 -- todo conteudo existe em src/uploads
+   irmaos de codigo presentes: True
+   REMOVIDO
+
+======================================================================
+# resumo
+#   removidos/simulados : 3
+#   recusados           : 0
+#   canonica antes      : 36 arquivos, 27932474 bytes
+#   canonica depois     : 36 arquivos, 27932474 bytes
+#   git status antes    : 12 linha(s)
+#   git status depois   : 12 linha(s)

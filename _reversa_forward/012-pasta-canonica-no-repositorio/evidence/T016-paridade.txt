@@ -1,0 +1,56 @@
+# T016 - paridade pelo involucro, e a pasta canonica intacta
+# Gerado em: 2026-10-09
+# Comando: python tests/rodar_paridade.py
+#
+# inventario de src/uploads ANTES : 36 arquivos, 27932474 bytes
+# inventario de src/uploads DEPOIS: 36 arquivos, 27932474 bytes
+# inventario identico antes/depois: True
+# saida contem PARIDADE 100 %%     : True
+# exit code do involucro          : 0
+
+## saida completa do involucro
+
+    pasta de upload isolada: D:\Projetos\reversa_analisador_gelealogico\.parity-tmp\uploads
+    ==============================================================================
+    HARNESS DIFERENCIAL â€” oraculo congelado x reconstrucao
+    ==============================================================================
+    oraculo   : _reversa_sdd\oracle\app_legacy_e43ca22.py
+    candidato : src/
+    probes    : 40 valores de cM + grafo completo + pares de caminho + decomposicao + analise de DNA pela rota
+    amostra   : 40x40 = 1600 pares de caminho por lado
+    timeout   : 600s por coletor
+    
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\affinity.ged (417 bytes)
+      ORACLE coletado: 6 pessoas, 3 familias
+      CANDIDATO coletado: 6 pessoas, 3 familias
+      PARIDADE OK â€” zero divergencia
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\basic.ged (523 bytes)
+      ORACLE coletado: 7 pessoas, 2 familias
+      CANDIDATO coletado: 7 pessoas, 2 familias
+      PARIDADE OK â€” zero divergencia
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\deep25.ged (2439 bytes)
+      ORACLE coletado: 25 pessoas, 24 familias
+      CANDIDATO coletado: 25 pessoas, 24 familias
+      PARIDADE OK â€” zero divergencia
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\mojibake_latin1.ged (257 bytes)
+      ORACLE coletado: 3 pessoas, 1 familias
+      CANDIDATO coletado: 3 pessoas, 1 familias
+      PARIDADE OK â€” zero divergencia
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\no_name.ged (233 bytes)
+      ORACLE coletado: 3 pessoas, 1 familias
+      CANDIDATO coletado: 3 pessoas, 1 familias
+      PARIDADE OK â€” zero divergencia
+    ------------------------------------------------------------------------------
+    FIXTURE: _reversa_sdd\parity\fixtures\gedcom\variants.ged (507 bytes)
+      ORACLE coletado: 6 pessoas, 2 familias
+      CANDIDATO coletado: 6 pessoas, 2 familias
+      PARIDADE OK â€” zero divergencia
+    
+    ==============================================================================
+    RESULTADO: PARIDADE 100%% (zero divergencia)
+    ==============================================================================
