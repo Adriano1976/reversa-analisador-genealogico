@@ -12,6 +12,7 @@ Removido em 2026-10-02: o teste de `ensure_dirs()`, junto com a função e a
 constante `UPLOAD_FOLDER` que ele exercitava. Eram resíduo do legado, sem
 consumidor de produção — o `app.py` resolve a pasta por `_pasta_uploads()`.
 """
+import io
 import os
 import sys
 import tempfile
@@ -28,6 +29,7 @@ from parsers import gedcom_parser
 from parsers.gedcom_parser import build_graph_from_parser
 from core.registro import get_name, ref_id
 from tests.fixtures.arvore_atual import atual, guardar
+from utils.validate import chave_de_armazenamento
 
 
 def _write_g(content=SAMPLE_GED):
@@ -261,3 +263,74 @@ def test_family_without_id_skipped():
         g, c2f = build_graph_from_parser(atual()[0], parser)
     assert "@I3@" in g
     assert c2f.get("@I3@") == ["@F1@"]
+
+
+class TestEnvioPelaAba:
+    """T011 (feature `011-escolher-arquivo-da-lista`) — a rota, com o envio feito DE DENTRO da aba.
+
+    ## O terceiro arquivo de teste do nucleo a receber uma classe de rota
+
+    `T009`, `T010` e agora `T011` apontam, no plano, para arquivos que medem o **nucleo** — este aqui
+    mede parsing e grafo, e nao faz HTTP. As tres classes entraram separadas, com o descompasso
+    declarado. Fica como observacao para a conclusao da feature: a coluna "Arquivo alvo" do plano
+    nomeou o arquivo do ASSUNTO, e nao o arquivo de teste de ROTA.
+
+    ## O que ela mede (`RF-05`, `RN-08`)
+
+    O envio muda de **lugar na tela** — sai de uma tela de entrada e entra na aba —, e o **pedido nao
+    muda**: `multipart/form-data` com `action=upload_gedcom` e o arquivo em `gedcom`. As duas primeiras
+    provas sao guardas do contrato de envio, que a `RN-08` manda preservar; a terceira e o motor desta
+    acao, e depende da lista existir na tela.
+    """
+
+    VISIVEL = "minha_arvore.ged"
+
+    def _enviar(self, cliente, conteudo: bytes, nome: str = VISIVEL):
+        return cliente.post("/", data={
+            "action": "upload_gedcom",
+            "gedcom": (io.BytesIO(conteudo), nome),
+        }, content_type="multipart/form-data")
+
+    def test_envio_valido_grava_sob_chave_de_conteudo(self, cliente_de_upload):
+        """Guarda de `RN-08`: o caminho de envio nao muda de comportamento."""
+        _app, cliente, pasta = cliente_de_upload
+        antes = set(os.listdir(pasta))
+
+        resposta = self._enviar(cliente, SAMPLE_GED.encode("utf-8"))
+
+        novos = set(os.listdir(pasta)) - antes
+        assert resposta.status_code == 200
+        assert len(novos) == 1, f"o envio gravou {len(novos)} arquivos em vez de um"
+        nome = novos.pop()
+        assert nome.endswith(f"__{self.VISIVEL}"), nome
+        assert nome.startswith(chave_de_armazenamento(SAMPLE_GED.encode("utf-8"))), (
+            "o arquivo nao foi gravado sob a chave derivada do CONTEUDO: e ela que faz a referencia "
+            "circular entre requisicoes (contracts.md#2.1)"
+        )
+
+    def test_envio_de_conteudo_invalido_recusa_e_nao_deixa_residuo(self, cliente_de_upload):
+        """Guarda de `RF-05`: a validacao de conteudo continua ANTES de gravar."""
+        _app, cliente, pasta = cliente_de_upload
+
+        resposta = self._enviar(cliente, b"isto nao comeca com a declaracao de cabecalho", "falso.ged")
+
+        assert "não reconhecido como GEDCOM" in resposta.get_data(as_text=True)
+        assert os.listdir(pasta) == [], (
+            "a recusa deixou residuo na pasta: a validacao tem de acontecer antes da escrita (RF-10)"
+        )
+
+    def test_arquivo_enviado_pela_aba_passa_a_aparecer_na_lista(self, cliente_de_upload):
+        """`RF-05`, e o MOTOR desta acao: o que o operador envia aparece na lista sem recarregar nada.
+
+        Antes da `T019` este teste e vermelho: o envio conclui, mas o `GET /` ainda nao monta lista
+        nenhuma, entao o nome enviado nao tem onde aparecer.
+        """
+        _app, cliente, _pasta = cliente_de_upload
+        self._enviar(cliente, SAMPLE_GED.encode("utf-8"))
+
+        corpo = cliente.get("/").get_data(as_text=True)
+
+        assert self.VISIVEL in corpo, (
+            "o arquivo enviado pela aba nao apareceu na lista: o envio grava, mas a tela nao mostra "
+            "o que foi gravado, e o operador nao tem como saber que o envio funcionou (RF-05)"
+        )

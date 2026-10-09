@@ -22,6 +22,7 @@ from core.path_search import path_search
 from tests.fixtures.helpers import arvore_de as _arvore_de
 from tests.fixtures.helpers import deps as _deps
 from tests.fixtures.arvore_atual import atual, guardar
+from utils.validate import chave_de_armazenamento
 
 
 @pytest.fixture(scope="module")
@@ -114,3 +115,107 @@ def test_identical_persons(loaded_tree):
     assert success is True
     assert msg == "Conexão direta encontrada (ancestral comum)."
     assert result["text_path"] == "Carlos Silva"
+
+
+class TestEscolherArvoreDaLista:
+    """T010 (feature `011-escolher-arquivo-da-lista`) — a rota, escolhendo a arvore da lista.
+
+    ## Por que esta classe mora AQUI, e o descompasso que isso cria
+
+    Este arquivo mede o **nucleo** (`path_search`, `find_ancestral_path`), com arvore em memoria e sem
+    HTTP; o docstring dele diz exatamente isso. A `T010` do plano fixou este arquivo como alvo, e a
+    classe entra separada por isso. O leitor deve saber que a partir daqui o arquivo tem **dois
+    assuntos**: acima, o nucleo puro; abaixo, a rota. Registrado como observacao na conclusao da
+    feature, e nao corrigido em silencio.
+
+    ## O que ela mede
+
+    - `RF-02`: escolher a arvore na lista e submeter a busca **sem novo envio de arquivo**. O caminho
+      antigo dependia de um envio anterior, que devolvia a referencia; aqui a referencia e escrita
+      direto na pasta, que e o estado que a lista produz.
+    - `D-08` + `RN-11`: forcar o uso de um item **indisponivel** (nome visivel com acento, que a forma
+      fechada do resolvedor nao admite) e recusado **com mensagem, sem `500` e sem arvore carregada**,
+      e o arquivo **continua na lista**.
+
+    ## O que ela NAO faz, de proposito
+
+    Nao fixa o literal da mensagem do caso negativo: o texto que o sistema devolve hoje e
+    `Erro: Arquivo '...' nao existe mais.`, medido e **falso** para esse caso. O defeito de raiz esta
+    registrado como `BUG-20261009-6RKP`, e um teste que congelasse esse literal transformaria o defeito
+    em contrato. E nao monta arquivo sintetico de nome ASCII com conteudo invalido: esse caminho
+    derruba a requisicao com `500` (`A008` da auditoria) e **nao** e o caso real.
+    """
+
+    @staticmethod
+    def _guardar(pasta: str, nome: str, conteudo: str) -> str:
+        with open(os.path.join(pasta, nome), "wb") as fh:
+            fh.write(conteudo.encode("utf-8"))
+        return nome
+
+    def test_busca_conclui_com_a_arvore_escolhida_sem_envio_previo(self, cliente_de_upload):
+        """`RF-02`: a referencia escolhida na lista basta. Nenhum `upload_gedcom` antes."""
+        _app, cliente, pasta = cliente_de_upload
+        chave = chave_de_armazenamento(SAMPLE_GED.encode("utf-8"))
+        armazenado = self._guardar(pasta, f"{chave}__arvore.ged", SAMPLE_GED)
+
+        resposta = cliente.post("/", data={
+            "action": "path_search",
+            "gedcom_filename": armazenado,
+            "person1_name": "Carlos Silva",
+            "person2_name": "Ana Silva",
+        })
+
+        corpo = resposta.get_data(as_text=True)
+        assert resposta.status_code == 200
+        assert "Conexão direta encontrada (ancestral comum)." in corpo, (
+            "a busca nao concluiu com a arvore escolhida na lista: o caminho antigo exigia um envio "
+            "previo, e a lista existe para tirar essa exigencia (RF-02)"
+        )
+
+    def test_item_indisponivel_e_recusado_sem_500_e_sem_carregar_arvore(self, cliente_de_upload):
+        """`D-08`, `RN-11`: a recusa acontece no USO, com mensagem, e a tela continua utilizavel.
+
+        O arquivo tem os 16 hexadecimais no inicio do nome, entao ele passa no prefixo; o que a forma
+        fechada recusa e o **acento** no nome visivel. E o caso real medido, so que construido em pasta
+        temporaria, porque a mitigacao de 2026-10-09 tirou os acentos da pasta de verdade.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        chave = chave_de_armazenamento(SAMPLE_GED.encode("utf-8"))
+        armazenado = self._guardar(pasta, f"{chave}__Famílias.ged", SAMPLE_GED)
+
+        resposta = cliente.post("/", data={
+            "action": "path_search",
+            "gedcom_filename": armazenado,
+            "person1_name": "Carlos Silva",
+            "person2_name": "Ana Silva",
+        })
+        corpo = resposta.get_data(as_text=True)
+
+        assert resposta.status_code == 200, (
+            "a recusa virou erro do servidor: uma referencia que nao resolve tem de continuar sendo "
+            "mensagem na tela, e nao 500"
+        )
+        assert "Conexão direta encontrada" not in corpo, "uma arvore foi carregada apesar da recusa"
+        assert corpo.strip(), "a recusa nao deixou mensagem nenhuma para o operador"
+        assert os.path.isfile(os.path.join(pasta, armazenado)), (
+            "o arquivo foi removido ou escondido: a lista nao filtra e nao altera a pasta (D-08, RF-08)"
+        )
+
+    def test_o_mesmo_item_continua_utilizavel_se_o_nome_nao_tiver_acento(self, cliente_de_upload):
+        """O par do teste acima: sem o acento, o MESMO conteudo resolve.
+
+        Sem este par, o teste anterior poderia estar passando por a busca estar quebrada para todo
+        mundo, e nao por o item estar indisponivel.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        chave = chave_de_armazenamento(SAMPLE_GED.encode("utf-8"))
+        armazenado = self._guardar(pasta, f"{chave}__Familias.ged", SAMPLE_GED)
+
+        resposta = cliente.post("/", data={
+            "action": "path_search",
+            "gedcom_filename": armazenado,
+            "person1_name": "Carlos Silva",
+            "person2_name": "Ana Silva",
+        })
+
+        assert "Conexão direta encontrada (ancestral comum)." in resposta.get_data(as_text=True)

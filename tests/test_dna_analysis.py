@@ -40,6 +40,7 @@ from parsers.csv_ingest import (
 from tests.fixtures.helpers import arvore_de as _arvore_de
 from tests.fixtures.helpers import deps as _deps
 from tests.fixtures.arvore_atual import atual, guardar
+from utils.validate import chave_de_armazenamento
 
 
 @pytest.fixture(scope="module")
@@ -300,3 +301,112 @@ def test_relationships_by_cm_out_of_range(dna_loaded):
     """
     # 5000 está acima de todas as faixas -> texto padrão do legado.
     assert get_relationships_by_cm(5000) == ["Relação distante ou indeterminada"]
+
+
+class TestReferenciaDoCsvEscolhido:
+    """T009 (feature `011-escolher-arquivo-da-lista`) — a rota, com o CSV vindo da lista.
+
+    ## O descompasso, igual ao da `T010`, e declarado pelo mesmo motivo
+
+    Este arquivo mede o **nucleo** (`dna_analysis`, `csv_ingest`), sem HTTP. A `T009` do plano fixou
+    este arquivo como alvo, e a classe entra separada. O arquivo passa a ter **dois assuntos** a partir
+    daqui: acima, o nucleo puro; abaixo, a rota.
+
+    ## O contrato que ela prende (`D-03`, `RN-04`)
+
+    `matches_csv_filename` e **campo novo, opcional, em `form`**, e o campo de arquivo `matches_csv`
+    **permanece** em `files`. A mudanca e aditiva de proposito: o caminho antigo fica intocado, e a
+    paridade e os testes de rota continuam exercitando o contrato de hoje. Tres regras, na ordem:
+
+    1. com a referencia, a analise conclui **sem arquivo**;
+    2. vindo os **dois**, a referencia **vence** -- e o arquivo e ignorado;
+    3. sem nenhum dos dois, a mensagem e a de hoje: `"Por favor, carregue o arquivo CSV de matches."`
+       (`domain.md:192`), que `interfaces/formulario-http.md` §2.2 manda **preservar**.
+    """
+
+    GEDCOM = DNA_GED
+    CSV = DNA_CSV_UTF8
+
+    def _semear(self, pasta: str) -> tuple[str, str]:
+        """Escreve a arvore e o CSV na pasta, com a chave de conteudo de cada um."""
+        nomes = []
+        for conteudo, visivel in ((self.GEDCOM, "arvore.ged"), (self.CSV, "relatorio.csv")):
+            bruto = conteudo.encode("utf-8") if isinstance(conteudo, str) else conteudo
+            nome = f"{chave_de_armazenamento(bruto)}__{visivel}"
+            with open(os.path.join(pasta, nome), "wb") as fh:
+                fh.write(bruto)
+            nomes.append(nome)
+        return nomes[0], nomes[1]
+
+    def test_analise_conclui_com_a_referencia_do_csv_sem_arquivo(self, cliente_de_upload):
+        """Regra 1: o campo novo basta, e nenhum arquivo precisa ser enviado na requisicao."""
+        _app, cliente, pasta = cliente_de_upload
+        arvore, relatorio = self._semear(pasta)
+
+        resposta = cliente.post("/", data={
+            "action": "dna_analysis",
+            "gedcom_filename": arvore,
+            "root_name": "Carlos Silva",
+            "matches_csv_filename": relatorio,
+        })
+
+        assert resposta.status_code == 200
+        assert "Por favor, carregue o arquivo CSV" not in resposta.get_data(as_text=True), (
+            "a referencia do CSV nao foi aceita: o campo novo (matches_csv_filename) nao chegou ao "
+            "ramo dna_analysis, e o operador seria obrigado a enviar o arquivo de novo (RF-04, D-03)"
+        )
+
+    def test_a_referencia_vence_o_arquivo_quando_os_dois_vem(self, cliente_de_upload):
+        """Regra 2: precedencia declarada em `interfaces/formulario-http.md` §2.2.
+
+        ## O arquivo enviado aqui e LIXO de proposito, e isso e o que da poder ao teste
+
+        A primeira versao desta assercao usava um CSV valido de outro conteudo como sentinela e exigia
+        que o nome dele **nao** aparecesse no corpo. Isso passava vazio: o nome de um CSV descartado nao
+        aparece na tela de qualquer modo, entao a assercao nao distinguia "a referencia venceu" de "o
+        arquivo foi usado e nada foi exibido".
+
+        Agora o arquivo e um conteudo que **nao tem colunas utilizaveis**, e o nucleo recusa esse
+        conteudo com `"Colunas de Nome e cM nao encontradas no CSV"` (`domain.md` §5.2). Assim:
+
+        - se o ARQUIVO for usado, a analise falha e a mensagem aparece -> teste vermelho;
+        - se a REFERENCIA vencer, o arquivo e ignorado e a analise conclui -> teste verde.
+
+        Antes da `T018` o ramo ainda nao conhece `matches_csv_filename`, entao o arquivo e usado e este
+        teste e **vermelho**. E o estado que o Principio III exige.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        arvore, relatorio = self._semear(pasta)
+
+        resposta = cliente.post("/", data={
+            "action": "dna_analysis",
+            "gedcom_filename": arvore,
+            "root_name": "Carlos Silva",
+            "matches_csv_filename": relatorio,
+            "matches_csv": (io.BytesIO(b"lixo\nsem colunas utilizaveis\n"), "sentinela.csv"),
+        }, content_type="multipart/form-data")
+        corpo = resposta.get_data(as_text=True)
+
+        assert resposta.status_code == 200
+        assert "Colunas de Nome e cM" not in corpo, (
+            "a analise leu o ARQUIVO em vez da referencia: a precedencia do D-03 nao esta valendo, e "
+            "o operador que escolhe na lista e tambem envia um arquivo recebe o erro do arquivo"
+        )
+        assert "Por favor, carregue o arquivo CSV" not in corpo, (
+            "a referencia foi ignorada a ponto de a analise pedir o CSV: o campo novo nao chegou ao ramo"
+        )
+
+    def test_sem_referencia_e_sem_arquivo_a_mensagem_de_hoje_e_preservada(self, cliente_de_upload):
+        """Regra 3: a mensagem de contrato nao muda (`domain.md:192`, `RN-08`)."""
+        _app, cliente, pasta = cliente_de_upload
+        arvore, _ = self._semear(pasta)
+
+        resposta = cliente.post("/", data={
+            "action": "dna_analysis",
+            "gedcom_filename": arvore,
+            "root_name": "Carlos Silva",
+        })
+
+        assert "Por favor, carregue o arquivo CSV de matches." in resposta.get_data(as_text=True), (
+            "a mensagem de arquivo ausente mudou: ela e contrato congelado (domain.md:192)"
+        )

@@ -25,9 +25,19 @@ CAMINHO_DO_ICONE = "/apple-touch-icon.png"
 LADO = 180
 TAMANHO_ESPERADO = 16504
 
-#: `sha256` do HTML de `GET /` medido em 2026-10-08, ANTES de a rota existir.
-#: 23.906 bytes. Qualquer mudanca aqui e mudanca de tela, e nao desta feature.
-SHA_DA_TELA = "4b7f0b0cbe27c11e5ea8d436a49957f5b2d371735a89986ad96320fb245f02fb"
+#: `sha256` do HTML de `GET /`.
+#:
+#: **Atualizado em 2026-10-09 pela feature `011-escolher-arquivo-da-lista`.** O invariante que
+#: este teste mede e "a tela nao mudou DESDE a ultima mudanca declarada", e nao "a tela nunca
+#: muda": a `011` mudou a tela de entrada por decisao declarada (`D-04`, `RF-06`), com adendo
+#: vigente em `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md` e divergencia registrada
+#: no `legacy-impact.md` dela.
+#:
+#: A troca do valor NAO e afrouxamento do teste, e o proprio comentario anterior ja declarava o
+#: criterio: "qualquer mudanca aqui e mudanca de tela, e nao desta feature". Foi o que aconteceu.
+#: O teste continua prendendo o que ele existe para prender — que nenhuma mudanca de tela passe
+#: despercebida. Era 23.906 bytes em 2026-10-08; sao 25.825 agora.
+SHA_DA_TELA = "e18d174930572778d74677b9019b1d52367fac8ea6b8ea855a14954da78fd78d"
 
 
 def _cabecalho_png(corpo: bytes):

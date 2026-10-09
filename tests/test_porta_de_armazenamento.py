@@ -578,3 +578,119 @@ class TestContratoDoArmazenamento:
             assert nomes_de_exibicao(arvore) == NOMES_ESPERADOS
 
         assert carregador.carregar("nao-e-uma-chave-valida", "dono-a") is None
+
+
+class TestListagemDaPasta:
+    """T006 (feature `011-escolher-arquivo-da-lista`) — a listagem entra pela PORTA.
+
+    ## Por que pela porta, e nao por `os.listdir` no teste
+
+    A `D-01` da 011 decidiu que a listagem e **capacidade nova da porta de armazenamento**, e nao
+    `os.listdir` dentro da rota. O motivo esta medido na feature 006: `_arvore_do_formulario()` nao
+    resolve caminho, quem resolve e o `CarregadorDeArvoresGedcom`. Ler a pasta na borda desfaria essa
+    fronteira. Este bloco mede a porta pelo mesmo caminho que `src/app.py` monta, com `_portas`.
+
+    ## O que a listagem NAO faz, e como isso e medido
+
+    `D-08` e `RN-09` dizem que a listagem **nao le conteudo** e **nao filtra nada**: ela seleciona por
+    extensao do nome visivel, e o item cujo conteudo nao serve e recusado **no uso**. Os testes abaixo
+    medem a consequencia observavel disso — conteudo binario arbitrario e listado com o tamanho certo,
+    e a pasta nao ganha nem perde arquivo —, e **nao** afirmam ausencia de chamada de sistema, que um
+    teste de comportamento nao consegue provar.
+
+    ## Estado esperado ANTES da T013
+
+    Vermelho: `ArmazenamentoEmDisco` ainda nao tem `listar`, entao cada teste falha com
+    `AttributeError`. A falha e no CORPO, e nao na coleta — as outras seis acoes da fase seguem
+    verificaveis.
+    """
+
+    def test_pasta_povoada_devolve_nome_bytes_e_data(self, pasta_temporaria):
+        """O que a lista precisa da porta: o nome, o tamanho e a data. Nada de conteudo."""
+        armazenamento, _ = _portas(pasta_temporaria)
+        os.makedirs(pasta_temporaria, exist_ok=True)
+        for nome, conteudo in (("080e7943572d2652__arvore.ged", b"0 HEAD\n0 TRLR\n"),
+                               ("94e2402671702cac__dna.csv", b"nome,cm\nMaria,100\n")):
+            with open(os.path.join(pasta_temporaria, nome), "wb") as fh:
+                fh.write(conteudo)
+
+        entradas = armazenamento.listar(DONO)
+
+        nomes = sorted(e.nome for e in entradas)
+        assert nomes == ["080e7943572d2652__arvore.ged", "94e2402671702cac__dna.csv"], (
+            "a listagem tem de devolver o NOME ARMAZENADO, e nao o nome visivel: e ele que o "
+            "formulario devolve na requisicao seguinte (RN-04)"
+        )
+        por_nome = {e.nome: e for e in entradas}
+        for nome, conteudo in (("080e7943572d2652__arvore.ged", b"0 HEAD\n0 TRLR\n"),
+                               ("94e2402671702cac__dna.csv", b"nome,cm\nMaria,100\n")):
+            assert por_nome[nome].bytes == len(conteudo)
+            assert por_nome[nome].modificado_em > 0, "a data entra na lista: e por ela que o operador distingue dois itens de mesmo nome (D-09)"
+
+    def test_pasta_existente_e_vazia_devolve_lista_vazia(self, pasta_temporaria):
+        """`RF-07`/`D-07`: instalacao nova tem a pasta criada e vazia, e isso nao e excecao."""
+        armazenamento, _ = _portas(pasta_temporaria)
+        os.makedirs(pasta_temporaria, exist_ok=True)
+
+        assert armazenamento.listar(DONO) == []
+
+    def test_pasta_ausente_devolve_lista_vazia(self, pasta_temporaria):
+        """`D-07`: pasta que nao existe devolve lista vazia, e NAO excecao.
+
+        Uma pasta que desapareca sob a aplicacao em execucao nao pode virar erro 500 na tela de
+        entrada — e o `D-07` recusou explicitamente o `os.makedirs` na listagem, porque criar
+        diretorio dentro de uma leitura e efeito colateral escondido.
+        """
+        ausente = os.path.join(pasta_temporaria, "nao-existe")
+        armazenamento = ArmazenamentoEmDisco(ausente)
+
+        assert not os.path.isdir(ausente), "pre-condicao do teste: a pasta nao pode existir"
+        assert armazenamento.listar(DONO) == []
+        assert not os.path.isdir(ausente), (
+            "a listagem CRIOU a pasta: e o efeito colateral que o D-07 proibe"
+        )
+
+    def test_conteudo_irrelevante_nao_impede_a_listagem(self, pasta_temporaria):
+        """`D-08`/`RN-09`: a lista nao precisa que o conteudo sirva para nada.
+
+        O arquivo abaixo nao e GEDCOM nem CSV, e tem byte nulo. Ainda assim ele e listado, com o
+        tamanho certo: quem recusa e o USO, com a mensagem de conteudo nao reconhecido, e nao a
+        listagem.
+        """
+        armazenamento, _ = _portas(pasta_temporaria)
+        os.makedirs(pasta_temporaria, exist_ok=True)
+        conteudo = b"\x00\x01binario que nao serve a nada\xff"
+        with open(os.path.join(pasta_temporaria, "94e2402671702cac__planilha.csv.ged"), "wb") as fh:
+            fh.write(conteudo)
+
+        entradas = armazenamento.listar(DONO)
+
+        assert [e.nome for e in entradas] == ["94e2402671702cac__planilha.csv.ged"]
+        assert entradas[0].bytes == len(conteudo)
+
+    def test_listar_recebe_o_dono_e_nao_filtra_por_ele(self, pasta_temporaria):
+        """A simetria da porta: `listar(dono)`, e o dono NAO isola nada (dividas #3 e #4 abertas)."""
+        armazenamento, _ = _portas(pasta_temporaria)
+        os.makedirs(pasta_temporaria, exist_ok=True)
+        with open(os.path.join(pasta_temporaria, "080e7943572d2652__arvore.ged"), "wb") as fh:
+            fh.write(GEDCOM_VALIDO.encode("utf-8"))
+
+        de_a = armazenamento.listar("dono-a")
+        de_b = armazenamento.listar("dono-b")
+
+        assert [e.nome for e in de_a] == [e.nome for e in de_b], (
+            "o dono virou filtro da listagem: ele e costura de assinatura, nao funcionalidade "
+            "(RN-06 da feature 007)"
+        )
+
+    def test_listagem_nao_altera_a_pasta(self, pasta_temporaria):
+        """`RF-08`/`RN-06`: listar e leitura pura. Nenhum arquivo e criado, movido ou apagado."""
+        armazenamento, _ = _portas(pasta_temporaria)
+        os.makedirs(pasta_temporaria, exist_ok=True)
+        with open(os.path.join(pasta_temporaria, "080e7943572d2652__arvore.ged"), "wb") as fh:
+            fh.write(GEDCOM_VALIDO.encode("utf-8"))
+        antes = sorted(os.listdir(pasta_temporaria))
+
+        armazenamento.listar(DONO)
+
+        assert sorted(os.listdir(pasta_temporaria)) == antes
