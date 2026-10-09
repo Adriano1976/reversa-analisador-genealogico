@@ -1,0 +1,17 @@
+﻿# Suite completa depois da feature - T023
+# Gerado em (UTC): 2026-10-09T14:59:33Z
+# Linha de base antes: 302 passed, 8 skipped
+# exit code: 0
+
+........................................................................ [ 21%]
+........................................................................ [ 42%]
+..............s......................................................... [ 64%]
+................................ssssssss................................ [ 85%]
+................................................                         [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:469
+  D:\Projetos\reversa_analisador_gelealogico\.venv\Lib\site-packages\_pytest\cacheprovider.py:469: PytestCacheWarning: could not create cache path D:\Projetos\reversa_analisador_gelealogico\.pytest_cache\v\cache\nodeids: [WinError 183] N�o � poss�vel criar um arquivo j� existente: 'D:\\Projetos\\reversa_analisador_gelealogico\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+327 passed, 9 skipped, 1 warning in 120.06s (0:02:00)

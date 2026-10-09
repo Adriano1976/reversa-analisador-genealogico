@@ -1,0 +1,58 @@
+﻿# Linha de base da paridade - T003
+# Gerado em: 
+2026-10-09T11:32:12Z
+# Comando: ANALISADOR_UPLOAD_FOLDER=.parity-tmp\uploads ; python _reversa_sdd\parity\harness.py
+# exit code: 
+0
+# arquivos criados na pasta descartavel: 
+13
+# pasta real alterada? 
+NAO - inventario identico
+
+==============================================================================
+HARNESS DIFERENCIAL � oraculo congelado x reconstrucao
+==============================================================================
+oraculo   : _reversa_sdd\oracle\app_legacy_e43ca22.py
+candidato : src/
+probes    : 40 valores de cM + grafo completo + pares de caminho + decomposicao + analise de DNA pela rota
+amostra   : 40x40 = 1600 pares de caminho por lado
+timeout   : 600s por coletor
+
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\affinity.ged (417 bytes)
+  ORACLE coletado: 6 pessoas, 3 familias
+  CANDIDATO coletado: 6 pessoas, 3 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\basic.ged (523 bytes)
+  ORACLE coletado: 7 pessoas, 2 familias
+  CANDIDATO coletado: 7 pessoas, 2 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\deep25.ged (2439 bytes)
+  ORACLE coletado: 25 pessoas, 24 familias
+  CANDIDATO coletado: 25 pessoas, 24 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\mojibake_latin1.ged (257 bytes)
+  ORACLE coletado: 3 pessoas, 1 familias
+  CANDIDATO coletado: 3 pessoas, 1 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\no_name.ged (233 bytes)
+  ORACLE coletado: 3 pessoas, 1 familias
+  CANDIDATO coletado: 3 pessoas, 1 familias
+  PARIDADE OK � zero divergencia
+------------------------------------------------------------------------------
+FIXTURE: _reversa_sdd\parity\fixtures\gedcom\variants.ged (507 bytes)
+  ORACLE coletado: 6 pessoas, 2 familias
+  CANDIDATO coletado: 6 pessoas, 2 familias
+  PARIDADE OK � zero divergencia
+
+==============================================================================
+RESULTADO: PARIDADE 100%% (zero divergencia)
+==============================================================================
+
+--- comparacao antes/depois da pasta real ---
+(vazio: nenhuma diferenca)
+# CORRECAO DE HORARIO: o carimbo deste arquivo foi gravado com Get-Date no fuso LOCAL e sufixo Z literal (UTC-3). O instante UTC real do lote e 2026-10-09T14:34Z, e os carimbos da ferramenta (UTC de verdade) aparecem como 14:44Z para o mesmo periodo.

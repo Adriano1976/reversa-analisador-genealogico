@@ -1,0 +1,18 @@
+﻿# Linha de base da suite - T002
+# Gerado em: 
+2026-10-09T11:29:12Z
+# Comando: .venv\Scripts\python.exe -m pytest -q
+
+........................................................................ [ 23%]
+........................................................................ [ 46%]
+........................................................................ [ 69%]
+...........ssssssss..................................................... [ 92%]
+......................                                                   [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:469
+  D:\Projetos\reversa_analisador_gelealogico\.venv\Lib\site-packages\_pytest\cacheprovider.py:469: PytestCacheWarning: could not create cache path D:\Projetos\reversa_analisador_gelealogico\.pytest_cache\v\cache\nodeids: [WinError 183] N�o � poss�vel criar um arquivo j� existente: 'D:\\Projetos\\reversa_analisador_gelealogico\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+302 passed, 8 skipped, 1 warning in 107.66s (0:01:47)
+# CORRECAO DE HORARIO: o carimbo deste arquivo foi gravado com Get-Date no fuso LOCAL e sufixo Z literal (UTC-3). O instante UTC real do lote e 2026-10-09T14:34Z, e os carimbos da ferramenta (UTC de verdade) aparecem como 14:44Z para o mesmo periodo.

@@ -1,0 +1,55 @@
+﻿# Testes novos da feature 010 - T005 a T008
+# Gerado em: 2026-10-09T11:34:23Z
+# Comando: pytest tests/test_manutencao_de_uploads.py tests/test_rodar_paridade.py tests/test_documentacao_do_upload.py -q
+# exit code: 1
+
+# Leitura: 22 passam (ferramenta e involucro) e 2 FALHAM de proposito: e o teste de
+# documentacao (T008), que so fica verde em T019. Ele e a prova do Principio III para
+# a entrega documental. 1 skip = link simbolico indisponivel neste ambiente.
+
+.............s.........FF                                                [100%]
+================================== FAILURES ===================================
+________________ test_variavel_esta_na_tabela_de_configuracao _________________
+
+    def test_variavel_esta_na_tabela_de_configuracao():
+        linhas = _linhas()
+        tabela = _tabela_que_contem(linhas, "`ANALISADOR_HOST`")
+    
+        assert tabela, "nao encontrei a tabela de configuracoes no README.md"
+>       assert any(VARIAVEL in linha for linha in tabela), (
+            "a variavel %s tem de estar na tabela de configuracoes do README.md: sob a "
+            "resposta 1a, e a documentacao que mantem a pasta fora do repositorio" % VARIAVEL
+        )
+E       AssertionError: a variavel ANALISADOR_UPLOAD_FOLDER tem de estar na tabela de configuracoes do README.md: sob a resposta 1a, e a documentacao que mantem a pasta fora do repositorio
+E       assert False
+E        +  where False = any(<generator object test_variavel_esta_na_tabela_de_configuracao.<locals>.<genexpr> at 0x0000023464622740>)
+
+tests\test_documentacao_do_upload.py:48: AssertionError
+_____________ test_caminho_documentado_da_paridade_e_o_involucro ______________
+
+    def test_caminho_documentado_da_paridade_e_o_involucro():
+        conteudo = "\n".join(_linhas())
+    
+>       assert INVOLUCRO in conteudo, (
+            "o README.md tem de declarar %s como caminho de execucao da paridade: o "
+            "harness.py direto escreve as sondas na pasta real do operador" % INVOLUCRO
+        )
+E       AssertionError: o README.md tem de declarar tests/rodar_paridade.py como caminho de execucao da paridade: o harness.py direto escreve as sondas na pasta real do operador
+E       assert 'tests/rodar_paridade.py' in '# Analisador Geneal�gico\n\n<p align="center">\n  <img src="./_reversa_docs/assets/img/logo.png"\n       alt="Logo do...s/`](./docs/)\n\n## Licen�a\n\nEste reposit�rio inclui um arquivo [LICENSE](./LICENSE) com os termos de licenciamento.'
+
+tests\test_documentacao_do_upload.py:57: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:469
+  D:\Projetos\reversa_analisador_gelealogico\.venv\Lib\site-packages\_pytest\cacheprovider.py:469: PytestCacheWarning: could not create cache path D:\Projetos\reversa_analisador_gelealogico\.pytest_cache\v\cache\nodeids: [WinError 183] N�o � poss�vel criar um arquivo j� existente: 'D:\\Projetos\\reversa_analisador_gelealogico\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+.venv\Lib\site-packages\_pytest\cacheprovider.py:423
+  D:\Projetos\reversa_analisador_gelealogico\.venv\Lib\site-packages\_pytest\cacheprovider.py:423: PytestCacheWarning: could not create cache path D:\Projetos\reversa_analisador_gelealogico\.pytest_cache\v\cache\lastfailed: [WinError 183] N�o � poss�vel criar um arquivo j� existente: 'D:\\Projetos\\reversa_analisador_gelealogico\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/lastfailed", self.lastfailed)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_documentacao_do_upload.py::test_variavel_esta_na_tabela_de_configuracao
+FAILED tests/test_documentacao_do_upload.py::test_caminho_documentado_da_paridade_e_o_involucro
+2 failed, 22 passed, 1 skipped, 2 warnings in 9.54s
+# CORRECAO DE HORARIO: o carimbo deste arquivo foi gravado com Get-Date no fuso LOCAL e sufixo Z literal (UTC-3). O instante UTC real do lote e 2026-10-09T14:34Z, e os carimbos da ferramenta (UTC de verdade) aparecem como 14:44Z para o mesmo periodo.

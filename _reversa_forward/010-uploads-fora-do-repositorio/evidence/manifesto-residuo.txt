@@ -1,0 +1,26 @@
+# Manifesto de residuo de instrumento - feature 010
+# Gerado em: 2026-10-09T14:51:46Z
+# Pasta: D:\Projetos\reversa_analisador_gelealogico\src\uploads
+# Arquivos listados: 18
+# REGRA: o expurgo remove APENAS as linhas abaixo.
+# Revise esta lista e apague as linhas que voce NAO quer remover.
+# Formato: nome<TAB>sha256<TAB>motivo
+
+19da3bae17746752__no_intersection.csv	19da3bae17746752082dd7b4f768abf55b282a5915b06b3352f929ff3462d2f3	nome de sonda/fixture de instrumento (paridade/evidencia)
+202881c5bff9b799__generic.csv	202881c5bff9b799ec8b1915c513aa91a0ba3bc1eb2c45ff157c6b7f27e2910b	nome de sonda/fixture de instrumento (paridade/evidencia)
+20a046eb06150ccd__nomes-inertes.ged	20a046eb06150ccdd30fc56e589fc2b60e720e53a497db55391401a47166271b	nome de sonda/fixture de instrumento (paridade/evidencia)
+2fb588e6670bc166__probe.ged	2fb588e6670bc1661cb1b5cc86e59c0784446e20b1b7582279f7d736437d6768	nome de sonda/fixture de instrumento (paridade/evidencia)
+3835dd799786d4ee__probe.ged	3835dd799786d4eed8760d2e557c17c7e21f9f74fad63e1ff00e72a749703f7b	nome de sonda/fixture de instrumento (paridade/evidencia)
+513e3f04c229d32f__probe.ged	513e3f04c229d32f04158840331c74e4a097696f1ddf7a2f5fbd98c4e4190d2f	nome de sonda/fixture de instrumento (paridade/evidencia)
+641b786ce546bff6__cm_boundaries.csv	641b786ce546bff63514335fc4aa45f8b6cfa216402384c20cbb981e5271c5c3	nome de sonda/fixture de instrumento (paridade/evidencia)
+72f459ae1591d177__latin1.csv	72f459ae1591d1775c3d1c1d7bb5e9a6b9d40debf527b41066b52614bf57c850	nome de sonda/fixture de instrumento (paridade/evidencia)
+739b8f1005995e08__utf8.csv	739b8f1005995e08b7024cadd54cdf80b11a9263661fe158156d00150259fad0	nome de sonda/fixture de instrumento (paridade/evidencia)
+78dc213cb27fdd2d__probe.ged	78dc213cb27fdd2d4ca85b28866c7685d21bd39e9f4cb41fec65c12d3fb11083	nome de sonda/fixture de instrumento (paridade/evidencia)
+8ccc014af6ea76e0__duplicated.csv	8ccc014af6ea76e030c8bee6b2799727e44de7628cceb11a67bc45ece95c8c2b	nome de sonda/fixture de instrumento (paridade/evidencia)
+996082fbcceb908e__probe.ged	996082fbcceb908e0a34aa23a87311a7e09c782f7a6f62873622e607eaae3d75	nome de sonda/fixture de instrumento (paridade/evidencia)
+a36c0d2aae577481__missing_col.csv	a36c0d2aae577481d1e460a79f14753954f09c998c9e1846abe5b150855079f1	nome de sonda/fixture de instrumento (paridade/evidencia)
+b79bce6984606468__arvore.ged	b79bce69846064689b184c8f96b3d1499ef96e0cde7e72cd747ea7753a66cde0	nome de sonda/fixture de instrumento (paridade/evidencia)
+c6926bb74ce64b88__basic.ged	c6926bb74ce64b883c9311ceb28510dff66590fbb835be56dffca2f85d9219e4	nome de sonda/fixture de instrumento (paridade/evidencia)
+cf5b3295b82210e8__probe.ged	cf5b3295b82210e85bbd250c6b772049ec9ddb857adf104748c858d1be947d4b	nome de sonda/fixture de instrumento (paridade/evidencia)
+e68ec63b62730ac0__matches_dois_kits.csv	e68ec63b62730ac021b8296cbaa7cb2ab99d293359c337e5031ab097a20b7eb7	nome de sonda/fixture de instrumento (paridade/evidencia)
+f896dd5094332039__matches_dois_kits.csv	f896dd50943320396cff4bb3e5ccdb5476f7f3a90af51a6871481fb7a8fe428a	nome de sonda/fixture de instrumento (paridade/evidencia)

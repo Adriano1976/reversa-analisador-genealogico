@@ -1,0 +1,44 @@
+# Migracao - feature 010
+# Gerado em: 2026-10-09T14:44:42Z
+# copiados: 36
+# ja conferidos (mesmo sha256 no destino): 0
+# divergentes (NAO sobrescritos, origem intacta): 0
+# bytes na origem: 27932474
+# bytes no destino: 27932474
+
+copiado	080e7943572d2652__080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+copiado	080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged
+copiado	0e85a4f3052e19e3__Genealogia_Mineira.csv
+copiado	19da3bae17746752__no_intersection.csv
+copiado	202881c5bff9b799__generic.csv
+copiado	20a046eb06150ccd__nomes-inertes.ged
+copiado	2fb588e6670bc166__probe.ged
+copiado	3835dd799786d4ee__probe.ged
+copiado	442e5bb013a121f6__Projetos_Genealogicos_Unificados.csv
+copiado	50a3dd36fea8f8bb__Famílias_Sergipanas.csv
+copiado	513e3f04c229d32f__probe.ged
+copiado	555c9871570e8044__Best_of_British_DNA_Gedmatch_Project.csv
+copiado	641b786ce546bff6__cm_boundaries.csv
+copiado	72f459ae1591d177__latin1.csv
+copiado	739b8f1005995e08__utf8.csv
+copiado	78dc213cb27fdd2d__probe.ged
+copiado	7d693792453770c9__DNA_Nordestino.csv
+copiado	877d18ad9c6ac1e6__African_Brazilian_Genealogy_and_Genetics.csv
+copiado	8ccc014af6ea76e0__duplicated.csv
+copiado	94e2402671702cac__Famílias_Sergipanas.csv
+copiado	94e2402671702cac__Famílias_Sergipanas.csv.ged
+copiado	996082fbcceb908e__probe.ged
+copiado	Adriano_Santos.ged
+copiado	Arvore_Unificada_Oficial_V1_2.ged
+copiado	Famílias_Sergipanas.csv
+copiado	a36c0d2aae577481__missing_col.csv
+copiado	b3211a52a933fdd0__Adriano_Santos.ged
+copiado	b70889273a505a5d__Familias Sergipanas.xlsx
+copiado	b79bce6984606468__arvore.ged
+copiado	c6926bb74ce64b88__basic.ged
+copiado	c7bf4be4bf7c4201__Italian_Ancestors.csv
+copiado	c84fd7fb4201b69f__Arvore_Unificada_Oficial_V1_2.ged
+copiado	cf5b3295b82210e8__probe.ged
+copiado	d8cdd388e5b6f432__Genealogia_Paulistana.csv
+copiado	e68ec63b62730ac0__matches_dois_kits.csv
+copiado	f896dd5094332039__matches_dois_kits.csv
