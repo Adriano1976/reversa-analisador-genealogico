@@ -1,0 +1,18 @@
+# T024 - paridade DEPOIS da mudanca de template (pelo involucro)
+Quando: 2026-10-09T19:33:17Z
+Comando: .venv\Scripts\python.exe tests\rodar_paridade.py
+Exit code: 0
+
+## Linha de base (T002)
+RESULTADO: PARIDADE 100% (zero divergencia)
+
+## Veredito
+PARIDADE 100% mantida: a premissa de §4 do roadmap se confirma, e a mudanca de template e paridade-neutra como a leitura do harness previa
+
+  PARIDADE OK — zero divergencia
+  PARIDADE OK — zero divergencia
+  PARIDADE OK — zero divergencia
+  PARIDADE OK — zero divergencia
+  PARIDADE OK — zero divergencia
+  PARIDADE OK — zero divergencia
+RESULTADO: PARIDADE 100%% (zero divergencia)

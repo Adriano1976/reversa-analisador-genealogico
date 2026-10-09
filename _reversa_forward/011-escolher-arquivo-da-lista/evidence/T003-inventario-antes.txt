@@ -1,0 +1,31 @@
+# T003 - inventario por sha256 de `src/uploads` ANTES, e conferencia do estado suposto
+Quando: 2026-10-09T18:41:51Z
+Observacao: a mitigacao do BUG-20261009-6RKP renomeou 4 arquivos em 2026-10-09, ANTES desta
+linha de base. O manifesto antigo -> novo esta em
+`_reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/fix/manifesto-renomeacao.md`.
+
+- arquivos: 19   (o plano supoe 19)   -> CONFERE
+- bytes:    29166183   (o plano supoe 29.166.183)   -> CONFERE
+
+| Nome armazenado | sha256 | Bytes |
+|---|---|---:|
+| `080e7943572d2652__080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` | 5332198 |
+| `080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` | 5332198 |
+| `0e85a4f3052e19e3__Genealogia_Mineira.csv` | `0e85a4f3052e19e3` | 9466 |
+| `442e5bb013a121f6__Projetos_Genealogicos_Unificados.csv` | `442e5bb013a121f6` | 136177 |
+| `4ee53cbc4914fadd__Backup-Arvore-Sandro-12-11-2024.ged` | `4ee53cbc4914fadd` | 1240340 |
+| `50a3dd36fea8f8bb__Familias_Sergipanas.csv` | `50a3dd36fea8f8bb` | 30591 |
+| `555c9871570e8044__Best_of_British_DNA_Gedmatch_Project.csv` | `555c9871570e8044` | 18952 |
+| `7d693792453770c9__DNA_Nordestino.csv` | `7d693792453770c9` | 36714 |
+| `877d18ad9c6ac1e6__African_Brazilian_Genealogy_and_Genetics.csv` | `877d18ad9c6ac1e6` | 2248 |
+| `94e2402671702cac__Familias_Sergipanas.csv` | `94e2402671702cac` | 30968 |
+| `94e2402671702cac__Familias_Sergipanas.csv.ged` | `94e2402671702cac` | 30968 |
+| `Adriano_Santos.ged` | `b3211a52a933fdd0` | 3063082 |
+| `Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` | 5332198 |
+| `b3211a52a933fdd0__Adriano_Santos.ged` | `b3211a52a933fdd0` | 3063082 |
+| `b70889273a505a5d__Familias_Sergipanas.xlsx` | `b70889273a505a5d` | 138024 |
+| `c7bf4be4bf7c4201__Italian_Ancestors.csv` | `c7bf4be4bf7c4201` | 2502 |
+| `c84fd7fb4201b69f__Arvore_Unificada_Oficial_V1_2.ged` | `c84fd7fb4201b69f` | 5332198 |
+| `d8cdd388e5b6f432__Genealogia_Paulistana.csv` | `d8cdd388e5b6f432` | 3309 |
+| `Famílias_Sergipanas.csv` | `94e2402671702cac` | 30968 |
+| **TOTAL** | | **29166183** |

@@ -23,58 +23,58 @@
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T001 | Rodar a suíte completa **antes de qualquer edição** e registrar a contagem obtida, com `DATABASE_URL` ausente do ambiente (a feature 012 mediu `335 passed, 9 skipped`; a contagem de agora é o que vale) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T001-suite-antes.txt` | 🟢 | [ ] |
-| T002 | Rodar a paridade pelo invólucro `tests/rodar_paridade.py` **antes de qualquer edição** e registrar o `PARIDADE … %` obtido — é a metade "antes" da premissa de §4 do roadmap | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T002-paridade-antes.txt` | 🟢 | [ ] |
-| T003 | Levantar o inventário por `sha256` da pasta `src/uploads` — nome, bytes e totais — e conferir que ela está no estado que o plano supõe: **19 arquivos e 29.166.183 bytes** (`RF-08`) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T003-inventario-antes.txt` | 🟢 | [ ] |
-| T004 | Registrar o estado do git antes de editar — `git status --porcelain` e o commit de `HEAD` — para que o "núcleo intocado" da `T026` tenha linha de base | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T004-git-antes.txt` | 🟢 | [ ] |
+| T001 | Rodar a suíte completa **antes de qualquer edição** e registrar a contagem obtida, com `DATABASE_URL` ausente do ambiente (a feature 012 mediu `335 passed, 9 skipped`; a contagem de agora é o que vale) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T001-suite-antes.txt` | 🟢 | [X] |
+| T002 | Rodar a paridade pelo invólucro `tests/rodar_paridade.py` **antes de qualquer edição** e registrar o `PARIDADE … %` obtido — é a metade "antes" da premissa de §4 do roadmap | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T002-paridade-antes.txt` | 🟢 | [X] |
+| T003 | Levantar o inventário por `sha256` da pasta `src/uploads` — nome, bytes e totais — e conferir que ela está no estado que o plano supõe: **19 arquivos e 29.166.183 bytes** (`RF-08`) | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T003-inventario-antes.txt` | 🟢 | [X] |
+| T004 | Registrar o estado do git antes de editar — `git status --porcelain` e o commit de `HEAD` — para que o "núcleo intocado" da `T026` tenha linha de base | - | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T004-git-antes.txt` | 🟢 | [X] |
 
 ## Fase 2, Testes
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T005 | Escrever o teste da função pura sobre nomes **sintéticos**, cobrindo os quatro casos medidos — com chave, com **chave vazada** no nome visível, sem chave, e dois arquivos com a mesma chave — e provando o agrupamento, a contagem do grupo, a marca de sem chave e a ordem por data decrescente (`RN-01`, `RN-02`, `RN-10`, `D-09`) | T001 | `[//]` | `tests/test_lista_de_arquivos.py` | 🟢 | [ ] |
-| T006 | Escrever o teste de `listar()` pela porta: sobre pasta temporária povoada devolve nome armazenado, bytes e data; sobre pasta **ausente** devolve lista vazia em vez de exceção (`D-01`, `D-07`) | T001 | `[//]` | `tests/test_porta_de_armazenamento.py` | 🟢 | [ ] |
-| T007 | Escrever o teste de rota do `GET /` **sem envio prévio**: responde `200` e entrega as duas listas, com um item por conteúdo (`RF-06`) | T001 | `[//]` | `tests/test_lista_na_tela.py` | 🟢 | [ ] |
-| T008 | Escrever o teste de rota do **estado vazio**: sem arquivo do tipo na pasta, a aba orienta o envio e a resposta continua `200` (`RF-07`, `D-07`) | T007 | - | `tests/test_lista_na_tela.py` | 🟢 | [ ] |
-| T009 | Escrever o teste de rota da **referência do CSV**: com `matches_csv_filename` a análise conclui sem arquivo, a referência **vence** o arquivo quando os dois vêm, e o envio só com `matches_csv` continua concluindo como hoje (`RF-04`, `RN-04`, `D-03`) | T001 | `[//]` | `tests/test_dna_analysis.py` | 🟢 | [ ] |
-| T010 | Escrever o teste de rota de **escolher a árvore da lista** e submeter a busca de caminho, sem novo envio de arquivo (`RF-02`) | T001 | `[//]` | `tests/test_path_search.py` | 🟢 | [ ] |
-| T011 | Escrever o teste de rota do **envio pela aba**: valida o conteúdo antes de gravar, grava sob chave de conteúdo e o arquivo novo passa a aparecer na lista (`RF-05`) | T001 | `[//]` | `tests/test_upload.py` | 🟢 | [ ] |
+| T005 | Escrever o teste da função pura sobre nomes **sintéticos**, cobrindo os quatro casos de agrupamento medidos — com chave, com **chave vazada** no nome visível, sem chave, e dois arquivos com a mesma chave — mais os casos de **partição por extensão** (`.ged`, `.csv` e um nome de outra extensão, que não entra em aba nenhuma), provando o agrupamento, a contagem do grupo, a marca de sem chave, a ordem por data decrescente a extensão que decide a aba, e o **alcance por referência** de cada item — nome com acento e nome sem chave marcados como **indisponíveis** com o motivo, e o nome ASCII com chave marcado como disponível (`RN-01`, `RN-02`, `RN-03`, `RN-10`, `RN-11`, `D-09`, `D-10`, `D-11`) | T001 | `[//]` | `tests/test_lista_de_arquivos.py` | 🟢 | [X] |
+| T006 | Escrever o teste de `listar()` pela porta: sobre pasta temporária povoada devolve nome armazenado, bytes e data; sobre pasta **ausente** devolve lista vazia em vez de exceção (`D-01`, `D-07`) | T001 | `[//]` | `tests/test_porta_de_armazenamento.py` | 🟢 | [X] |
+| T007 | Escrever o teste de rota do `GET /` **sem envio prévio**: responde `200` e entrega as duas listas, com um item por conteúdo (`RF-06`) | T001 | `[//]` | `tests/test_lista_na_tela.py` | 🟢 | [X] |
+| T008 | Escrever o teste de rota do **estado vazio**: sem arquivo do tipo na pasta, a aba orienta o envio e a resposta continua `200` (`RF-07`, `D-07`) | T007 | - | `tests/test_lista_na_tela.py` | 🟢 | [X] |
+| T009 | Escrever o teste de rota da **referência do CSV**: com `matches_csv_filename` a análise conclui sem arquivo, a referência **vence** o arquivo quando os dois vêm, e o envio só com `matches_csv` continua concluindo como hoje (`RF-04`, `RN-04`, `D-03`) | T001 | `[//]` | `tests/test_dna_analysis.py` | 🟢 | [X] |
+| T010 | Escrever o teste de rota de **escolher a árvore da lista** e submeter a busca de caminho, sem novo envio de arquivo, mais o **caso negativo**: forçar o uso de um item **indisponível** (nome com acento, ou sem chave) é recusado **com mensagem na tela, sem `500` e sem árvore carregada**, e o arquivo **continua na lista**. **Não fixe o literal** da mensagem — ele é hoje o falso "não existe mais" do defeito `A007` — e **não** monte arquivo sintético de nome ASCII com conteúdo inválido: esse caminho derruba a requisição com `500` (`A008`) e não é o caso real (`RF-02`, `D-08`, `RN-09`, `RN-11`) | T001 | `[//]` | `tests/test_path_search.py` | 🟢 | [X] |
+| T011 | Escrever o teste de rota do **envio pela aba**: valida o conteúdo antes de gravar, grava sob chave de conteúdo e o arquivo novo passa a aparecer na lista (`RF-05`) | T001 | `[//]` | `tests/test_upload.py` | 🟢 | [X] |
 
 ## Fase 3, Núcleo
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T012 | Declarar `listar(dono)` no `Protocol` `ArmazenamentoDeArquivos`, com o retorno tipado da entrada da lista, e atualizar o docstring do módulo — a tabela de portas passa de 2 para 3 métodos e a frase final "Nenhum metodo novo foi criado em nenhuma porta" deixa de valer (`D-01`) | T006 | `[//]` | `src/ports/__init__.py` | 🟢 | [ ] |
-| T013 | Implementar `listar(dono)` em `ArmazenamentoEmDisco`, lendo **só** o nome do diretório e os atributos do arquivo — sem abrir conteúdo nenhum — e devolvendo lista vazia quando a pasta não existe (RNF de desempenho, `D-01`, `D-07`) | T012 | - | `src/ports/adaptadores.py` | 🟢 | [ ] |
-| T014 | Acrescentar a `src/utils/validate.py` a decomposição do nome armazenado em `(chave, nome visível)`, **reusando** `_FORMATO_CHAVE` em vez de escrever um segundo padrão para a mesma regra (`D-02`) | T005 | `[//]` | `src/utils/validate.py` | 🟢 | [ ] |
-| T015 | Escrever a função pura de apresentação em `src/reporting/lista_de_arquivos.py`: agrupa pela chave, marca o arquivo sem chave como item próprio, calcula contagem e tamanho, e ordena por data decrescente (`RN-01`, `RN-02`, `RN-10`, RNF de desempenho) | T014 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [ ] |
-| T016 | Aplicar na mesma função a regra do **nome exibido sem chave vazada** quando o grupo tem nomes visíveis diferentes — o caso medido da chave `080e7943572d2652` (`D-09`) | T015 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [ ] |
+| T012 | Declarar `listar(dono)` no `Protocol` `ArmazenamentoDeArquivos`, com o retorno tipado da entrada da lista, e atualizar o docstring do módulo — a tabela de portas passa de 2 para 3 métodos e a frase final "Nenhum metodo novo foi criado em nenhuma porta" deixa de valer (`D-01`) | T006 | `[//]` | `src/ports/__init__.py` | 🟢 | [X] |
+| T013 | Implementar `listar(dono)` em `ArmazenamentoEmDisco`, lendo **só** o nome do diretório e os atributos do arquivo — sem abrir conteúdo nenhum e sem filtrar nada — e devolvendo lista vazia quando a pasta não existe (RNF de desempenho, `D-01`, `D-07`, `D-08`) | T012 | - | `src/ports/adaptadores.py` | 🟢 | [X] |
+| T014 | Acrescentar a `src/utils/validate.py` a decomposição do nome armazenado em `(chave, nome visível)`, **reusando** `_FORMATO_CHAVE` em vez de escrever um segundo padrão para a mesma regra (`D-02`) | T005 | `[//]` | `src/utils/validate.py` | 🟢 | [X] |
+| T015 | Escrever a função pura de apresentação em `src/reporting/lista_de_arquivos.py`: **seleciona pela extensão do nome visível** (`RN-03`, `D-10`), agrupa pela chave, marca o arquivo sem chave como item próprio, calcula contagem e tamanho, **decide o alcance de cada item com `chave_recebida_e_valida` — a mesma função que o resolvedor aplica — e deriva o motivo quando o item não é alcançável**, e ordena por data decrescente (`RN-01`, `RN-02`, `RN-03`, `RN-10`, `RN-11`, `D-10`, `D-11`, RNF de desempenho) | T014 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [X] |
+| T016 | Aplicar na mesma função a regra do **nome exibido sem chave vazada** quando o grupo tem nomes visíveis diferentes — o caso medido da chave `080e7943572d2652` (`D-09`) | T015 | - | `src/reporting/lista_de_arquivos.py` | 🟢 | [X] |
 
 ## Fase 4, Integração
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T017 | O `GET /` monta as duas listas a partir da porta e as entrega ao template no contexto — sem `os.listdir` na rota e sem remover nenhuma variável de contexto existente (`D-01`, `D-04`, `RF-06`) | T015 | `[//]` | `src/app.py` | 🟢 | [ ] |
-| T018 | O ramo `dna_analysis` passa a aceitar `matches_csv_filename`, com a referência tendo **precedência** sobre o arquivo e o caminho antigo intocado quando ela não vem (`D-03`, `RN-04`, `RF-04`) | T017, T009 | - | `src/app.py` | 🟢 | [ ] |
-| T019 | O ramo `{% if not gedcom_filename %}` deixa de ser formulário de envio e passa a renderizar as duas abas com as listas, com o envio movido para dentro de cada aba (`D-04`, `RF-06`) | T007, T010, T011, T016 | `[//]` | `src/templates/index.html` | 🟢 | [ ] |
-| T020 | Cada item das duas listas exibe nome visível, tamanho, data e a contagem do grupo, e o item sem chave traz a marca de que é anterior à chave por conteúdo (`RN-02`, `RN-10`, `D-09`) | T019 | - | `src/templates/index.html` | 🟢 | [ ] |
-| T021 | A aba de DNA ganha o campo de escolha que preenche `matches_csv_filename`, mantendo o envio de arquivo como a outra via de entrada (`RN-04`, `D-03`) | T020 | - | `src/templates/index.html` | 🟢 | [ ] |
-| T022 | O estado vazio de cada aba orienta o envio de um arquivo e não falha (`RF-07`, `D-07`) | T008, T021 | - | `src/templates/index.html` | 🟢 | [ ] |
+| T017 | O `GET /` monta as duas listas a partir da porta e as entrega ao template no contexto — sem `os.listdir` na rota e sem remover nenhuma variável de contexto existente (`D-01`, `D-04`, `RF-06`) | T015 | `[//]` | `src/app.py` | 🟢 | [X] |
+| T018 | O ramo `dna_analysis` passa a aceitar `matches_csv_filename`, com a referência tendo **precedência** sobre o arquivo e o caminho antigo intocado quando ela não vem (`D-03`, `RN-04`, `RF-04`) | T017, T009 | - | `src/app.py` | 🟢 | [X] |
+| T019 | O ramo `{% if not gedcom_filename %}` deixa de ser formulário de envio e passa a renderizar as duas abas com as listas, com o envio movido para dentro de cada aba (`D-04`, `RF-06`) | T007, T010, T011, T016 | `[//]` | `src/templates/index.html` | 🟢 | [X] |
+| T020 | Cada item das duas listas exibe nome visível, tamanho, data e a contagem do grupo; o item sem chave traz a marca de que é anterior à chave por conteúdo, e o item **não alcançável por referência** traz a marca de **indisponível**, com o motivo, sem que a escolha seja oferecida como se fosse funcionar (`RN-02`, `RN-10`, `RN-11`, `RF-09`, `D-09`, `D-11`) | T019 | - | `src/templates/index.html` | 🟢 | [X] |
+| T021 | A aba de DNA ganha o campo de escolha que preenche `matches_csv_filename`, mantendo o envio de arquivo como a outra via de entrada (`RN-04`, `D-03`) | T020 | - | `src/templates/index.html` | 🟢 | [X] |
+| T022 | O estado vazio de cada aba orienta o envio de um arquivo e não falha (`RF-07`, `D-07`) | T008, T021 | - | `src/templates/index.html` | 🟢 | [X] |
 
 ## Fase 5, Polimento
 
 | ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
 |----|-----------|--------------|-------------|--------------|-------------|--------|
-| T023 | Rodar a suíte **depois** e registrar a contagem, comparando com a linha de base da `T001` — é a metade "depois" que sustenta "não houve regressão" | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T023-suite-depois.txt` | 🟢 | [ ] |
-| T024 | Rodar a paridade pelo invólucro **depois** da mudança de template e registrar o resultado, que tem de ser `PARIDADE 100 %` (premissa de §4 e risco de §9 do roadmap) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T024-paridade-depois.txt` | 🟢 | [ ] |
-| T025 | Levantar o inventário por `sha256` **depois** de percorrer as duas abas e o envio, e comparar com o da `T003`: idêntico (`RF-08`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T025-inventario-depois.txt` | 🟢 | [ ] |
-| T026 | Provar que o núcleo não foi tocado: `git diff -- src/core src/parsers src/application` **vazio**, contra o estado registrado na `T004` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T026-nucleo-intocado.txt` | 🟢 | [ ] |
-| T027 | Provar que o golden `SCR-001` **não** foi alterado, pelo `git status` de `_reversa_sdd/screens/golden/` e pelo `sha256` do arquivo — é a execução do `D-05` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T027-golden-intocado.txt` | 🟢 | [ ] |
+| T023 | Rodar a suíte **depois** e registrar a contagem, comparando com a linha de base da `T001` — é a metade "depois" que sustenta "não houve regressão" | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T023-suite-depois.txt` | 🟢 | [X] |
+| T024 | Rodar a paridade pelo invólucro **depois** da mudança de template e registrar o resultado, que tem de ser `PARIDADE 100 %` (premissa de §4 e risco de §9 do roadmap) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T024-paridade-depois.txt` | 🟢 | [X] |
+| T025 | Levantar o inventário por `sha256` **depois** de percorrer as duas abas e o envio, e comparar com o da `T003`: idêntico (`RF-08`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T025-inventario-depois.txt` | 🟢 | [X] |
+| T026 | Provar que o núcleo não foi tocado: `git diff -- src/core src/parsers src/application` **vazio**, contra o estado registrado na `T004` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T026-nucleo-intocado.txt` | 🟢 | [X] |
+| T027 | Provar que o golden `SCR-001` **não** foi alterado, pelo `git status` de `_reversa_sdd/screens/golden/` e pelo `sha256` do arquivo — é a execução do `D-05` | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/evidence/T027-golden-intocado.txt` | 🟢 | [X] |
 | T028 | Atualizar o `README.md`: a tela de entrada descrita deixa de existir, e as listas das duas abas entram no lugar dela (RNF de documentação) | T018, T022 | `[//]` | `README.md` | 🟢 | [ ] |
-| T029 | Escrever o `legacy-impact.md` registrando que a aplicação atual deixa de ter o estado inicial do legado, e o que isso significa para o pipeline de migração que ancorou cenários em `SCR-001` (`D-06`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/legacy-impact.md` | 🟢 | [ ] |
-| T030 | Escrever o `regression-watch.md` com os itens de vigilância, o que cada um vigia e o sintoma que o dispara | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/regression-watch.md` | 🟢 | [ ] |
-| T031 | Revisar o `onboarding.md` desta feature e preencher a tabela de resultados medidos com o que cada passo efetivamente produziu | T023, T024, T025, T027 | - | `_reversa_forward/011-escolher-arquivo-da-lista/onboarding.md` | 🟢 | [ ] |
-| T032 | Escrever o adendo `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md`: o campo opcional novo do contrato, a tela nova das duas abas e a divergência declarada. **Estágio `/reversa-sync`** (`D-06`) | T029, T030, T031 | - | `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md` | 🟢 | [ ] |
+| T029 | Escrever o `legacy-impact.md` registrando que a aplicação atual deixa de ter o estado inicial do legado, e o que isso significa para o pipeline de migração que ancorou cenários em `SCR-001` (`D-06`) | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/legacy-impact.md` | 🟢 | [X] |
+| T030 | Escrever o `regression-watch.md` com os itens de vigilância, o que cada um vigia e o sintoma que o dispara | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/regression-watch.md` | 🟢 | [X] |
+| T031 | Revisar o `onboarding.md` desta feature e preencher a tabela de resultados medidos com o que cada passo efetivamente produziu | T023, T024, T025, T027 | - | `_reversa_forward/011-escolher-arquivo-da-lista/onboarding.md` | 🟢 | [X] |
+| T032 | Escrever o adendo `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md`: o campo opcional novo do contrato, a **pré-condição 🟢 de `_reversa_sdd/domain.md` §4 como `regra-alterada`**, a tela nova das duas abas e a divergência declarada. **Estágio `/reversa-sync`** (`D-06`) | T029, T030, T031 | - | `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md` | 🟢 | [X] |
 
 ## Notas de execução
 
@@ -115,6 +115,15 @@
 - **A `T027` mede um golden que a feature não deve tocar — e é a prova do `D-05`.** Se o `sha256` do
   `SCR-001` mudar, a leitura de que o golden captura o oráculo legado congelado estava errada, a premissa
   cai e o instrumento de paridade de tela precisa ser reaberto. Falhar aqui é sinal, não ruído.
+- **O alcance de um item é decidido por `chave_recebida_e_valida`, nunca por um teste novo (`D-11`).**
+  É a **mesma** função que `ArmazenamentoEmDisco.resolver` aplica (`adaptadores.py:93`). Escrever um
+  segundo teste de alcance — mesmo "equivalente" — cria a possibilidade de a marca da tela dizer
+  "disponível" e o resolvedor recusar, que é exatamente o defeito que a `D-11` existe para não repetir.
+- **O defeito de raiz NÃO é desta feature.** O gravador preserva acento no nome visível
+  (`validate.py:40-65`) e o resolvedor recusa acento (`validate.py:32`); é isso que torna 3 dos 6 itens
+  inalcançáveis, e consertar isso mexe na defesa contra escape de caminho. Fica registrado como **bug
+  próprio** (`A007` da auditoria), fora das 32 ações. A `011` **marca** o item: não esconde, não
+  conserta e não promete que ele volta a funcionar.
 - **A `T018` e a `T019` são ramos paralelos, e a `T023` espera os dois.** A `T018` mexe na rota e a
   `T019` no template; a suíte e a paridade só fazem sentido depois de ambas, por isso a Fase 5 depende de
   `T018` **e** `T022`, e não só da última ação da fase anterior.
@@ -124,3 +133,5 @@
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-09 | Versão inicial gerada por `/reversa-to-do` | reversa |
+| 2026-10-09 | Correção vinda do `/reversa-audit`: `RN-03`/`D-10` citados em `T005` e `T015` (`A001`); `D-08` citado em `T013` e o caso negativo entrou na `T010` (`A002`); `domain.md` §4 declarado na `T032` (`A003`) | reversa |
+| 2026-10-09 | Correção vinda do `/reversa-audit` (`A007`, `CRITICAL`): `T005`, `T015` e `T020` passam a cobrir o **item indisponível** (`RN-11`, `RF-09`, `D-11`). Nenhum ID novo, nenhuma dependência nova — as contagens do resumo seguem 32 / 22 / 12 | reversa |

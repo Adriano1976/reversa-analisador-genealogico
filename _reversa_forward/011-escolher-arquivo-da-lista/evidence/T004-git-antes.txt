@@ -1,0 +1,38 @@
+# T004 - estado do git ANTES de editar
+Quando: 2026-10-09T18:41:52Z
+
+HEAD: 5cd3ae00dd0b8d72bc3dd7b17e10b5b1f8148201
+
+Ultimos commits:
+5cd3ae0 docs(reversa-forward): registra a auditoria da feature 011
+09c2b87 docs(reversa-forward): registra as acoes e evidencias da feature 011
+8c1a120 docs(reversa-forward): retoma a feature 011 e registra o plano
+
+git status --porcelain:
+M _reversa_bugs/upload-gedcom/generated/catalog.jsonl
+ M _reversa_bugs/upload-gedcom/generated/graph.html
+ M _reversa_bugs/upload-gedcom/generated/graph.md
+ M _reversa_bugs/upload-gedcom/generated/index.md
+ M _reversa_bugs/upload-gedcom/generated/matrix.md
+ M _reversa_bugs/upload-gedcom/generated/spec-matrix.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/actions.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/audit/cross-check.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/data-delta.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/interfaces/formulario-http.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/onboarding.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/requirements.md
+ M _reversa_forward/011-escolher-arquivo-da-lista/roadmap.md
+ M _reversa_sdd/traceability/bugs.md
+?? _reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/
+?? _reversa_bugs/upload-gedcom/intake/relato-20261009-1526.md
+?? _reversa_bugs/upload-gedcom/tests/
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/T001-suite-antes.txt
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/T002-paridade-antes.txt
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/T003-inventario-antes.txt
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/_fase1_linha_de_base.py
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/_sonda_caso_negativo.py
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/_sonda_caso_negativo_real.py
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/_sonda_forma_do_nome.py
+?? _reversa_forward/011-escolher-arquivo-da-lista/evidence/_verificar_correcoes.py
+?? _reversa_sdd/parity/_collect_cand.py
+?? _reversa_sdd/parity/_collect_oracle.py

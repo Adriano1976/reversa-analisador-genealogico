@@ -67,6 +67,31 @@ Pasta `src/uploads`: **19 arquivos e 29.166.183 bytes**, depois do expurgo de re
 `Familias Sergipanas.xlsx` (`b70889273a505a5d`, 138.024 bytes) não termina em `.ged` nem em `.csv`, então
 não aparece em aba nenhuma. Continua armazenado e invisível, como hoje.
 
+### 3.4 Alcance por referência — medido, arquivo por arquivo
+
+A feature **oferece** tudo o que está na pasta, mas a referência só alcança o arquivo cujo nome passa na
+forma fechada de `utils/validate.py:32` — a **mesma** função que `ArmazenamentoEmDisco.resolver` aplica
+(`adaptadores.py:93`). Medido em 2026-10-09 por `evidence/_sonda_forma_do_nome.py`:
+
+| Grupo | Arquivos | Alcançável por referência? |
+|---|---|---|
+| Chave + nome visível em ASCII | **12** | **sim** |
+| Nome visível com **acento** | **3** — `50a3dd36fea8f8bb__Famílias_Sergipanas.csv`, `94e2402671702cac__Famílias_Sergipanas.csv`, `94e2402671702cac__Famílias_Sergipanas.csv.ged` | **não** |
+| **Sem chave** no nome | **3** — `Adriano_Santos.ged`, `Arvore_Unificada_Oficial_V1_2.ged`, `Famílias_Sergipanas.csv` | **não** |
+| Chave + **espaço** no nome visível | **1** — `b70889273a505a5d__Familias Sergipanas.xlsx` (fora das abas) | **não** |
+
+**Por aba, isso significa:** dos **7 itens** da aba de árvore, **3** não podem ser escolhidos; dos
+**10 itens** da aba de DNA, também **3**. E escolher um deles responde
+`Erro: Arquivo '…' não existe mais.` — **falso**: o arquivo está na pasta, e o inventário da §3 o lista.
+
+Confirmado por execução da rota contra a pasta real, em modo somente leitura
+(`evidence/_sonda_caso_negativo_real.py`), com o inventário por `sha256` **idêntico** antes e depois.
+
+**Consequência para o desenho:** o item não pode ser oferecido como se fosse funcionar. `RN-11` e `D-11`
+mandam **marcá-lo como indisponível**, com o motivo, sem escondê-lo. O defeito de raiz — o gravador
+preserva acento (`validate.py:40-65`) e o resolvedor o recusa (`:32`) — é **bug próprio**, fora do escopo
+desta feature.
+
 ## 4. Nomes visíveis repetidos — o efeito medido do agrupamento por chave
 
 Este é o custo aceito na §9 da sessão de esclarecimento, e ele tem instâncias concretas:

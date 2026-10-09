@@ -22,23 +22,33 @@ A severidade segue a **tabela de categorias** do `/reversa-audit`, e não uma es
 Por isso cada finding `CRITICAL`/`HIGH` traz, abaixo da tabela, o impacto real **e o que já mitiga o
 risco** — em três dos casos, existe rede de segurança, e ela está declarada em vez de escondida.
 
+**Adendo de 2026-10-09, escrito depois da primeira passagem.** Ao corrigir o `A002` foi preciso medir o
+desfecho real do caso negativo — e a medição (`evidence/_sonda_forma_do_nome.py` e
+`evidence/_sonda_caso_negativo_real.py`) revelou um defeito que **esta primeira passagem não encontrou**:
+o `A007`, `CRITICAL`. Ele estava sob o nariz do `A002`, e passou porque a primeira passagem comparou os
+**documentos entre si** em vez de confrontar a afirmação central deles com a pasta real. O registro fica:
+a auditoria errou por omissão na primeira passagem, e o erro está medido.
+
 ## 1. Resumo
 
 | Severidade | Quantidade |
 |------------|-----------:|
-| CRITICAL | **0** |
+| CRITICAL | **1** |
 | HIGH | **3** |
-| MEDIUM | **2** |
+| MEDIUM | **3** |
 | LOW | **1** |
-| **Total** | **6** |
+| **Total** | **8** |
 
-Nenhum `CRITICAL`: não há ciclo de dependência, nenhum contrato externo quebrado e nenhuma regra 🟢 do
-legado **removida** ou contradita de forma silenciosa.
+O `CRITICAL` (`A007`) não é ciclo de dependência nem contrato externo quebrado: é um **defeito medido no
+código de hoje** que a feature torna alcançável pela tela. Nenhuma regra 🟢 do legado é removida nem
+contradita em silêncio.
 
 ## 2. Findings
 
 | ID | Severidade | Eixo | Descrição | Onde está |
 |----|------------|------|-----------|-----------|
+| A007 | CRITICAL | Coerência com o legado · Cobertura | **6 dos 17 itens que a lista vai renderizar não podem ser usados.** `ArmazenamentoEmDisco.resolver` recusa a referência por `chave_recebida_e_valida` (forma `^[0-9a-f]{16}__[A-Za-z0-9._-]+$`), mas `nome_visivel_seguro` **preserva acentos e espaços**. Medido: das 19 entradas da pasta, **7 são recusadas** — 3 por acento no nome visível (`50a3dd36…__Famílias_Sergipanas.csv`, `94e2402671702cac__Famílias_Sergipanas.csv` e `94e2402671702cac__Famílias_Sergipanas.csv.ged`), 3 por não terem chave (`Adriano_Santos.ged`, `Arvore_Unificada_Oficial_V1_2.ged`, `Famílias_Sergipanas.csv`) e 1 por **espaço** (`b70889273a505a5d__Familias Sergipanas.xlsx`, que está fora das abas). Escolher qualquer uma delas responde **`Erro: Arquivo '…' não existe mais.`** — que é **falso**: o arquivo existe. Nenhum dos cinco artefatos menciona isso, e a `D-08` afirma o contrário ("o caso já é pego pela validação de uso") | `src/ports/adaptadores.py:93`; `src/utils/validate.py:32` e `:40-65`; medido em `evidence/_sonda_forma_do_nome.py` e `evidence/_sonda_caso_negativo_real.py`; ausente de `requirements.md`, `roadmap.md`, `actions.md`, `data-delta.md` e `interfaces/` |
+| A008 | MEDIUM | Sanidade · Robustez | Escolher um arquivo cujo **nome passa** na forma fechada e cujo **conteúdo** o `ged4py` não lê derruba a requisição com **`500`** e traceback, em vez de mensagem: `_arvore_do_formulario()` chama `carregar_arvore()` **fora** de qualquer `try`, e os ramos de `index()` que capturam exceção começam depois (`app.py:263` contra `:299` e `:322`). **Não é alcançável com os 19 arquivos de hoje** — os de nome válido são GEDCOM legítimo, e os inválidos são recusados antes pelo resolvedor —, mas é alcançável por arquivo colocado na pasta **fora** da aplicação, ou por qualquer fixture que reproduza o caso | `src/app.py:186` e `:263`; `src/parsers/gedcom_parser.py:72`; medido em `evidence/_sonda_caso_negativo.py` |
 | A001 | HIGH | Cobertura | `RN-03` — "a aba de árvore lista o que termina em `.ged`, a de DNA o que termina em `.csv`" — é citada **apenas na própria definição**. Nenhuma das 9 decisões do roadmap a cobre, e nenhuma das 32 ações a implementa | `requirements.md:56-57`; **zero ocorrências** em `roadmap.md`, `actions.md`, `data-delta.md`, `interfaces/` e `onboarding.md` |
 | A002 | HIGH | Cobertura | `D-08` ("o arquivo que não serve ao uso **não** é filtrado na lista; a recusa continua no uso") não tem ação correspondente: `D-08` aparece **0 vezes** em `actions.md`. O cenário negativo da §7, que é a expressão operacional dessa decisão, também não tem ação | `roadmap.md:49` (e `:126`); `actions.md` — 0 ocorrências; `requirements.md:171-175` |
 | A003 | HIGH | Coerência com o legado | `D-03` amplia a pré-condição 🟢 de `domain.md` §4 — de "CSV presente" para "CSV presente **ou** referenciado" — e **nenhum artefato declara `domain.md` §4 como alterado**. O `roadmap.md` §5 declara esse mesmo delta contra o artefato irmão (`openapi/index.yaml:167-179`), mas não contra a tabela de fluxo do domínio | `_reversa_sdd/domain.md:168`; `roadmap.md:44` e §5 (a tabela de delta **não tem linha** para `domain.md`) |
@@ -46,7 +56,49 @@ legado **removida** ou contradita de forma silenciosa.
 | A005 | MEDIUM | Consistência | Dois nomes para o mesmo objeto. `requirements.md` usa os **rótulos de tela** ("Buscar Conexão no GEDCOM", "Analisador de DNA"); o plano inteiro usa **"aba de árvore"** e **"aba de DNA"**. Nenhum artefato fixa qual rótulo literal a tela nova tem de manter — e os rótulos de hoje são texto de contrato em `index.html:67` e `:70` | `requirements.md:13-14` vs. `roadmap.md:131`, `actions.md:60`; `src/templates/index.html:67,70` |
 | A006 | LOW | Consistência | `RF-01`, `RF-03`, `RN-06`, `RN-07` e `RN-09` não são citadas por ID em `actions.md`. A cobertura **existe** (por `T003`/`T025` no caso de `RN-06`/`RN-07`, por `T013`/`T015` no de `RN-09`, e por `T015`/`T019`/`T020` no de `RF-01`/`RF-03`), mas a rastreabilidade por ID se perde na leitura | `actions.md`; `requirements.md` §4 e §5 |
 
-## 3. Impacto dos findings `HIGH`
+## 3. Impacto dos findings `CRITICAL` e `HIGH`
+
+### A007 — a lista vai oferecer itens que não funcionam
+
+Esta é a descoberta que muda o tamanho da feature, e a única que é `CRITICAL` no sentido próprio: **o
+código de hoje já tem o defeito**, e a feature o torna alcançável pela tela.
+
+O armazenamento grava sob `<16 hex>__<nome visível>`, e `nome_visivel_seguro` **preserva acentos** — é o
+que o docstring dele promete, e é o rótulo que o operador reconhece (`validate.py:40-47`). Mas
+`resolver` aceita a referência **só** se ela casar `^[0-9a-f]{16}__[A-Za-z0-9._-]+$`
+(`validate.py:32`), que **não** admite acento nem espaço (`adaptadores.py:93`). As duas metades do mesmo
+contrato não combinam.
+
+Medido, arquivo por arquivo, com a função do próprio repositório:
+
+| Grupo | Quantos | Alcance por referência |
+|---|---:|---|
+| Nome visível com **acento** | 3 | **recusado** — `chave_recebida_e_valida` devolve `False` |
+| Nome visível com **espaço** | 1 | **recusado** — é o `.xlsx`, fora das abas |
+| **Sem chave** no nome | 3 | **recusado** — a forma exige os 16 hexadecimais |
+| Chave + nome ASCII | 12 | aceito |
+
+Confirmado também por execução da rota, em modo somente leitura sobre a pasta real: escolher
+`94e2402671702cac__Famílias_Sergipanas.csv.ged` na busca de caminho responde **`200` com
+`Erro: Arquivo '…' não existe mais.`** — a mensagem de "referência que não resolve", aplicada a um
+arquivo que **está lá**. O inventário por `sha256` antes e depois foi idêntico: a sonda não escreveu nada.
+
+**O alcance na feature, item por item:** dos **7 itens** da aba de árvore, **3 são inutilizáveis**; dos
+**10 itens** da aba de DNA, **3 são inutilizáveis**. Ou seja: **6 dos 17 itens** que a tela vai
+desenhar não fazem nada além de produzir uma mensagem falsa quando clicados.
+
+**Por que a primeira passagem não viu:** o `requirements.md` §10 trata os três arquivos sem chave como
+"item próprio, marcado" — **marcado como sem chave, não como inutilizável** —, e todos os artefatos
+herdaram essa leitura. A pergunta que ninguém fez foi a mais simples: *o item, uma vez escolhido,
+funciona?* A resposta é não, para um terço de cada aba.
+
+**Isto é decisão sua, e não do auditor.** As saídas não são equivalentes, e nenhuma delas é "só
+consertar": (a) a lista marca o item inutilizável e explica por quê; (b) a `011` conserta a forma do nome
+para aceitar acento — e isso **mexe no contrato de segurança do armazenamento**, que é a defesa contra
+escape de caminho; (c) a lista só oferece o que é alcançável, escondendo o resto, o que contradiz a
+`D-08` e a `RN-10`; (d) a `011` segue como está e o defeito vira bug próprio, tratado pelo
+`/reversa-debugger`. Qualquer que seja a escolha, ela **precisa entrar nos artefatos antes do coding** —
+a `D-08`, a `RN-10` e o §10 do `requirements.md` afirmam hoje o contrário do que a pasta faz.
 
 ### A001 — a partição por extensão não tem dono
 
@@ -192,3 +244,5 @@ adendo da `T032` é onde isso converge na extração, mas o roadmap precisa diz�
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-10-09 | Versão inicial gerada por `/reversa-audit` | reversa |
+| 2026-10-09 | Acrescentado o `A007` (`CRITICAL`), medido durante a correção do `A002` — a primeira passagem não o encontrou, e o motivo está registrado na §0. Contagens atualizadas (1/3/2/1, total 7). Os `A001`, `A002` e `A003` foram corrigidos depois, por instrução do operador, em `roadmap.md` e `actions.md`; a classificação desta auditoria refere-se ao estado no momento dela | reversa |
+| 2026-10-09 | Acrescentado o `A008` (`MEDIUM`, o `500` do arquivo de nome válido com conteúdo inválido), medido na mesma sonda. Contagens finais: 1/3/3/1, total 8. **Resolução do `A007` por instrução do operador:** o item indisponível passa a ser **marcado** (`RN-11`, `RF-09`, `D-11`, citados em `T005`, `T015` e `T020`) e o defeito de raiz fica como **bug próprio**; `requirements.md`, `roadmap.md`, `actions.md`, `data-delta.md`, `interfaces/` e `onboarding.md` foram corrigidos nesse sentido. O `A008` fica registrado, dentro do mesmo bug | reversa |

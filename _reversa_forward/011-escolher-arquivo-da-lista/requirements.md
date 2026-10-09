@@ -88,6 +88,14 @@ Nada é apagado, renomeado ou alterado por esta feature.
     - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.1` — a chave passou a compor o nome
       depois, e três arquivos são anteriores a isso
     - Tipo: **nova** — decidida na §9
+11. **RN-11:** Item cujo arquivo **não pode ser usado por referência** é exibido com a marca de
+    **indisponível** e o motivo, e **continua na lista** — ele não é escondido nem filtrado. 🟢
+    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.1` — quem decide se uma referência
+      alcança o arquivo é a **forma fechada do nome** (`utils/validate.py:32`), aplicada pelo resolvedor
+      (`ports/adaptadores.py:93`)
+    - Tipo: **nova** — decidida na auditoria de 2026-10-09, depois de medida a pasta real: **6 dos 17
+      itens** que a lista desenha não podem ser escolhidos, e a resposta a eles hoje é a mensagem
+      **falsa** `Erro: Arquivo '…' não existe mais.` (o arquivo existe)
 
 ## 5. Requisitos Funcionais
 
@@ -101,6 +109,7 @@ Nada é apagado, renomeado ou alterado por esta feature.
 | RF-06 | A tela de entrada passa a exibir as duas abas com a lista, sem exigir um envio prévio | Must | `GET /` com a pasta povoada renderiza as duas abas com a lista; nenhum arquivo é exigido para chegar até elas | 🟢 |
 | RF-07 | Estado vazio: sem arquivo do tipo na pasta, a aba orienta o envio e não falha | Must | Com a pasta vazia, a aba mostra a orientação de envio e responde `200` | 🟢 |
 | RF-08 | Nenhuma ação da feature remove, renomeia ou altera arquivo armazenado | Must | Inventário por `sha256` da pasta antes e depois de percorrer todas as telas: idêntico | 🟢 |
+| RF-09 | A lista marca o item cujo arquivo **não pode ser usado por referência**, com o motivo, sem escondê-lo | Must | Medido em 2026-10-09: **3 dos 7 itens** da aba de árvore e **3 dos 10** da de DNA são marcados como indisponíveis, com o motivo, e nenhum arquivo desaparece da lista | 🟢 |
 
 ## 6. Requisitos Não Funcionais
 
@@ -168,16 +177,30 @@ Cenário: arquivo sem chave de conteúdo aparece marcado
   E o item declara que ele é anterior à chave por conteúdo
   E nenhum conteúdo é lido para agrupá-lo
 
-Cenário: arquivo escolhido que não é do tipo anunciado (caso negativo)
-  Dado que existe um arquivo de conteúdo CSV com nome visível terminando em .ged
-  Quando o operador o escolhe na aba de árvore
+Cenário: item indisponível, forçado (caso negativo)
+  Dado que a pasta tem um arquivo cujo nome visível tem acento, ou que não tem chave de conteúdo
+  Quando o operador força o uso dele, apesar da marca
+  Então a aplicação recusa e nenhuma árvore é carregada
+  E a tela continua utilizável
+  E o arquivo continua na lista
+
+Cenário: arquivo de conteúdo trocado, no envio (caso negativo)
+  Dado que o operador envia um arquivo cujo conteúdo não começa com a declaração 0 HEAD
+  Quando o envio é submetido
   Então a aplicação responde com a mensagem de conteúdo não reconhecido
-  E nenhuma árvore é carregada
+  E nada é gravado na pasta
 
 Cenário: nada é apagado nem alterado (guarda de escopo)
   Dado o inventário da pasta por sha256 antes de percorrer as telas
   Quando o operador lista, escolhe e envia arquivos
   Então todos os arquivos preexistentes continuam existindo, com o mesmo sha256
+
+Cenário: item que não pode ser usado por referência aparece marcado
+  Dado que a pasta tem um arquivo cujo nome visível tem acento, ou que não tem chave de conteúdo
+  Quando a lista é renderizada
+  Então esse item aparece marcado como indisponível
+  E o item declara o motivo
+  E o arquivo continua na lista, sem ser escondido
 ```
 
 ## 8. Prioridade MoSCoW
@@ -194,6 +217,7 @@ Cenário: nada é apagado nem alterado (guarda de escopo)
 | RNF Documentação | Should | Não bloqueia a entrega, mas a tela de entrada descrita no README deixa de existir |
 | RN-09 | Must | Decidida na §9: a lista abre sem ler conteúdo, e a recusa do arquivo trocado acontece no uso, onde a validação já existe |
 | RN-10 | Must | Decidida na §9: sem a marca de "sem chave", o operador veria dois itens parecidos sem entender por quê |
+| RF-09, RN-11 | Must | Decidida na auditoria: sem a marca de indisponível, **6 dos 17 itens** levariam o operador à mensagem **falsa** "não existe mais", e ele concluiria que o arquivo sumiu do disco |
 
 ## 9. Esclarecimentos
 
@@ -240,6 +264,14 @@ Nenhuma lacuna aberta. As três dúvidas do documento inicial foram resolvidas n
   duplicação entre abas não é vista. Registrado; resolver isso está fora do escopo.
 - **Um arquivo não aparece em aba nenhuma:** `Familias Sergipanas.xlsx`, que nenhum dos dois fluxos
   consome. Ele continua armazenado e invisível, como hoje.
+- **6 dos 17 itens não podem ser usados por referência** — medido em 2026-10-09, arquivo por arquivo
+  (`evidence/_sonda_forma_do_nome.py`): `50a3dd36fea8f8bb__Famílias_Sergipanas.csv`,
+  `94e2402671702cac__Famílias_Sergipanas.csv` e `94e2402671702cac__Famílias_Sergipanas.csv.ged` têm
+  **acento no nome visível**, que a forma fechada de `utils/validate.py:32` não admite; e os **três sem
+  chave** não têm os 16 hexadecimais que a mesma forma exige. Escolher qualquer um deles responde
+  `Erro: Arquivo '…' não existe mais.`, que é **falso** — o arquivo está na pasta. **Decidido na
+  auditoria:** o item é marcado como indisponível, com o motivo, e o defeito do contrato do nome (o
+  gravador preserva acento e o resolvedor o recusa) vira **bug próprio**, fora do escopo desta feature.
 
 ## 11. Histórico de alterações
 
@@ -248,3 +280,4 @@ Nenhuma lacuna aberta. As três dúvidas do documento inicial foram resolvidas n
 | 2026-10-09 | Versão inicial gerada por `/reversa-requirements` | reversa |
 | 2026-10-09 | Sessão de dúvidas: 4 perguntas respondidas, 3 dúvidas resolvidas; `RN-09` e `RN-10` acrescentadas; 2 cenários novos (§7); contagens de `RF-01` e `RF-03` atualizadas para o estado pós-expurgo | reversa |
 | 2026-10-09 | Correção vinda do `/reversa-plan`: a premissa de que o golden `SCR-001` "deixa de valer" era **falsa** — ele captura o oráculo legado congelado. Corrigidos a linha da §2, a resposta da §9 e um cenário da §7; o golden **não** é recapturado, e a divergência da app atual passa a ser declarada | reversa |
+| 2026-10-09 | Correção vinda do `/reversa-audit` (`A007`): medido na pasta real que **6 dos 17 itens** não podem ser usados por referência. Acrescentados a `RN-11` (§4), o `RF-09` (§5), um cenário (§7), a linha de MoSCoW (§8) e o fato medido da §10; o defeito do contrato do nome fica registrado como bug próprio, fora do escopo | reversa |

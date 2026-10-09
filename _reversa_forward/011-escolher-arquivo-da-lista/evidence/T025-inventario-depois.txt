@@ -1,0 +1,31 @@
+# T025 - inventario por sha256 de `src/uploads` DEPOIS de percorrer todas as telas
+Quando: 2026-10-09T19:34:20Z
+
+## Veredito (RF-08)
+- arquivos: 19 (antes: 19)
+- o CONJUNTO de sha256 e IDENTICO antes e depois? SIM
+
+Nenhuma acao da feature escreve na pasta: a lista LE, e o envio grava pelo caminho de sempre.
+O conjunto identico e a prova de que listar, escolher e enviar nao alteraram nada guardado.
+
+| Nome armazenado | sha256 |
+|---|---|
+| `080e7943572d2652__080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` |
+| `080e7943572d2652__Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` |
+| `0e85a4f3052e19e3__Genealogia_Mineira.csv` | `0e85a4f3052e19e3` |
+| `442e5bb013a121f6__Projetos_Genealogicos_Unificados.csv` | `442e5bb013a121f6` |
+| `4ee53cbc4914fadd__Backup-Arvore-Sandro-12-11-2024.ged` | `4ee53cbc4914fadd` |
+| `50a3dd36fea8f8bb__Familias_Sergipanas.csv` | `50a3dd36fea8f8bb` |
+| `555c9871570e8044__Best_of_British_DNA_Gedmatch_Project.csv` | `555c9871570e8044` |
+| `7d693792453770c9__DNA_Nordestino.csv` | `7d693792453770c9` |
+| `877d18ad9c6ac1e6__African_Brazilian_Genealogy_and_Genetics.csv` | `877d18ad9c6ac1e6` |
+| `94e2402671702cac__Familias_Sergipanas.csv` | `94e2402671702cac` |
+| `94e2402671702cac__Familias_Sergipanas.csv.ged` | `94e2402671702cac` |
+| `Adriano_Santos.ged` | `b3211a52a933fdd0` |
+| `Arvore_Unificada_Oficial_V1_2.ged` | `080e7943572d2652` |
+| `Famílias_Sergipanas.csv` | `94e2402671702cac` |
+| `b3211a52a933fdd0__Adriano_Santos.ged` | `b3211a52a933fdd0` |
+| `b70889273a505a5d__Familias_Sergipanas.xlsx` | `b70889273a505a5d` |
+| `c7bf4be4bf7c4201__Italian_Ancestors.csv` | `c7bf4be4bf7c4201` |
+| `c84fd7fb4201b69f__Arvore_Unificada_Oficial_V1_2.ged` | `c84fd7fb4201b69f` |
+| `d8cdd388e5b6f432__Genealogia_Paulistana.csv` | `d8cdd388e5b6f432` |

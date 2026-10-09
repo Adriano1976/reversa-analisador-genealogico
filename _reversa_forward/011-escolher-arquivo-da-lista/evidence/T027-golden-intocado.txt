@@ -1,0 +1,11 @@
+# T027 - o golden SCR-001 nao foi alterado (execucao do D-05)
+Quando: 2026-10-09T19:34:20Z
+Arquivo: _reversa_sdd/screens/golden/SCR-001-initial-upload.html.txt
+sha256: ec07f71b4084269a8fe35fc198a756709e9c345b2e47c498dcbbc6a2414381e8
+
+## Veredito
+- git status do diretorio de goldens: (vazio - nada mudou)
+
+O golden captura o ORACULO LEGADO congelado, e nao a aplicacao atual. A mudanca de tela da 011
+nao o invalida: o que existe e uma DIVERGENCIA declarada (`D-06`), registrada no legacy-impact.md.
+A paridade medida em T024 continua 100% sem que este arquivo seja tocado.

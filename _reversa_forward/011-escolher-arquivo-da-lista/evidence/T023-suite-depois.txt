@@ -1,0 +1,15 @@
+# T023 - suite completa DEPOIS da implementacao
+Quando: 2026-10-09T19:32:37Z
+Comando: .venv\Scripts\python.exe -m pytest -q   (DATABASE_URL AUSENTE)
+Exit code: 1
+
+## Linha de base (T001)
+335 passed, 9 skipped
+
+## Veredito
+NAO FECHA o criterio de pronto: 2 falha(s), e 2 delas em tests/test_icone_de_atalho.py, que e o CONFLITO ENTRE FEATURES (a 009 prende o GET / por SHA).
+
+2 failed, 379 passed, 9 skipped, 2 warnings in 23.94s
+
+Falhas por arquivo:
+    2  tests/test_icone_de_atalho.py

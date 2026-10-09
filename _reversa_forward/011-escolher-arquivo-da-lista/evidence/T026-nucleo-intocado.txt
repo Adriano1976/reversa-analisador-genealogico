@@ -1,0 +1,15 @@
+# T026 - o nucleo nao foi tocado
+Quando: 2026-10-09T19:34:20Z
+Comando: git diff --stat -- src/core src/parsers src/application
+
+## Veredito: VAZIO (o nucleo nao foi tocado)
+
+Saida:
+(vazio)
+
+## O que a feature tocou, para contraste
+Comando: git diff --stat -- src/utils src/ports src/reporting
+src/ports/__init__.py    | 68 ++++++++++++++++++++++++++++++++++++++--
+ src/ports/adaptadores.py | 58 +++++++++++++++++++++++++++++++++++
+ src/utils/validate.py    | 80 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 202 insertions(+), 4 deletions(-)
