@@ -300,6 +300,10 @@ os recebe. A aplicação resolve a pasta a partir do próprio arquivo (`_pasta_u
 `__file__` e nunca no diretório corrente, e a cria na importação do módulo. Nada precisa ser configurado para
 subir a aplicação.
 
+Dentro dela há uma subpasta, **`_aposentados/`**, para onde vai o arquivo que o operador **aposenta** pela
+tela de entrada: ele sai da lista e continua **inteiro** lá. A aplicação **nunca apaga** arquivo enviado. A
+descrição da tela está em [A tela de entrada](#a-tela-de-entrada).
+
 A variável `ANALISADOR_UPLOAD_FOLDER` existe como **sobreposição de processo**, não como modo de operação. Ela
 é lida na **importação**, não a cada requisição — defini-la depois de subir não muda nada. Quem depende dela é
 o teste: `tests/conftest.py` e `tests/rodar_paridade.py` a apontam para uma pasta descartável, para que nem a
@@ -455,6 +459,88 @@ tests/
 ├── test_upload.py                       # Parsing de GEDCOM e construção do grafo
 └── test_upload_seguranca.py             # Teto de requisição, chave de conteúdo e recusa de GEDCOM inválido
 ```
+
+## A tela de entrada
+
+A raiz da aplicação (`GET /`) entrega as duas abas com as listas do que já está armazenado, **sem exigir
+envio prévio**. É a tela que o operador vê antes de qualquer análise.
+
+<p align="center">
+  <img src="./src/assets/banner-da-tela.png"
+       alt="Arte do topo: árvore genealógica, livro aberto e hélice de DNA"
+       width="520">
+</p>
+
+### As duas abas
+
+| Aba | O que lista | Seleciona por |
+| --- | --- | --- |
+| **Buscar Conexão no GEDCOM** | as árvores armazenadas | nome visível terminando em `.ged` |
+| **Analisador de DNA** | os relatórios de matches armazenados | nome visível terminando em `.csv` |
+
+Os rótulos literais das abas são **texto de contrato** e não mudam: há teste que os prende no corpo da
+resposta. Um `.xlsx` na pasta não aparece em aba nenhuma.
+
+### A tabela de arquivos
+
+Cada aba mostra uma tabela com **uma linha por conteúdo armazenado**, e não por arquivo: dois envios do
+mesmo conteúdo com nomes diferentes viram uma linha só, e a coluna `Arquivos` diz quantos são.
+
+| Coluna | O que traz |
+| --- | --- |
+| **Nome** | o nome visível **sem a extensão e sem os símbolos** — `Backup-Arvore-Sandro-12-11-2024.ged` vira `Backup Arvore Sandro 12 11 2024` |
+| **Situação** | ✓ verde quando o arquivo pode ser aberto; ⚠ amarelo com o motivo quando não pode |
+| **Arquivos** | quantos arquivos compartilham aquele conteúdo |
+| **Tamanho** | a soma dos bytes do grupo |
+| **Enviado em** | a data do arquivo no disco, em `dd/mm/aaaa` |
+| **Gerenciar** | os botões de ação |
+
+A **chave de conteúdo** — os 16 hexadecimais que compõem o nome no disco — **nunca aparece na tela**. Ela
+viaja em campo oculto do formulário, que é o que sustenta a continuidade entre requisições.
+
+Como o nome exibido não é único (três arquivos podem se chamar `Arvore Unificada Oficial V1 2`), são as
+colunas **Tamanho** e **Enviado em** que distinguem uma linha da outra.
+
+### Os botões
+
+- **Abrir** (verde, só na aba de árvore) carrega a árvore escolhida e leva à tela de busca e análise.
+- **Apagar** (vermelho, nas duas abas) **aposenta** o arquivo: ele sai da lista e continua **inteiro no
+  disco**, em `src/uploads/_aposentados/`. Uma confirmação cita o arquivo antes de agir. Para desfazer, mova
+  o arquivo de volta para `src/uploads`.
+
+Na aba de DNA **não há Abrir**: o relatório de matches entra pela própria análise de DNA, que exige uma
+árvore. Oferecer "Abrir" ali prometeria um caminho que a rota não atende.
+
+### Enviar um arquivo
+
+O envio fica **dentro da aba de árvore**. São três desfechos, com mensagens distintas:
+
+| Situação | Mensagem |
+| --- | --- |
+| arquivo novo | `Arquivo 'X' carregado!` |
+| mesmo nome e mesmo conteúdo | `Arquivo 'X' já estava armazenado com o mesmo conteúdo: nada mudou.` |
+| mesmo nome, conteúdo diferente | `Arquivo 'X' atualizado: a versão anterior saiu da lista e continua guardada, inteira, na pasta de aposentados.` |
+
+No terceiro caso a versão anterior é **aposentada, nunca apagada**, e a lista fica com uma linha só — antes
+disso ela ficava com duas linhas de mesmo rótulo.
+
+### Depois de escolher uma árvore
+
+A tela passa a mostrar os formulários de busca e de análise, e no topo:
+
+> Árvore aberta: **Backup Arvore Sandro** — escolher outra árvore
+
+O link volta para a tela de entrada por `GET /`, que sempre entrega as duas abas com as listas.
+
+### Quando o conteúdo não serve
+
+Um arquivo que não é GEDCOM é recusado no envio com uma **mensagem única**:
+
+> Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.
+
+O motivo técnico da recusa — vazio, byte nulo ou ausência do cabeçalho `0 HEAD` — **não** vai para a tela:
+ele fica dentro da exceção e no log. E um arquivo **já armazenado** cujo conteúdo não pode ser lido responde
+com mensagem na tela, e nunca com erro do servidor.
 
 ## Principais Funcionalidades
 
