@@ -419,9 +419,35 @@ _reversa_docs/       # Mini-site HTML de documentação, com os dados em assets/
 docs/                # Espelho publicado do mini-site
 ```
 
-O `docs/` é um espelho de `_reversa_docs/`. Com a remoção do workflow de deploy em 2026-10-08, a
-publicação da documentação passou a sair desta pasta; por isso, depois de regenerar o mini-site, os dois
-precisam ser sincronizados, senão o site publicado continua mostrando a versão anterior sem avisar ninguém.
+O `docs/` é um espelho de `_reversa_docs/`, mas **não é cópia fiel**: a publicação aplica ajustes que o
+gerador não faz. Com a remoção do workflow de deploy em 2026-10-08, a publicação da documentação passou a
+sair desta pasta; por isso, depois de regenerar o mini-site, os dois precisam ser sincronizados, senão o
+site publicado continua mostrando a versão anterior sem avisar ninguém.
+
+**Sincronize com `publicar_docs.py`, e não com uma cópia direta.** Uma cópia direta regride o site
+publicado: devolve o slug `analisador-genealogico` ao `<title>`, à marca do topo e ao `<h1>`, volta o
+ícone para o `logo-mini.png` de 64 px e perde o `apple-touch-icon`. Os ajustes, medidos em 2026-10-10
+arquivo por arquivo nos 10 HTMLs, são:
+
+| no gerado | no publicado |
+| --- | --- |
+| `analisador-genealogico` no `<title>`, no `brand` e no `<h1>` | **Analisador Genealógico** |
+| `<link rel="icon" ... sizes="64x64" href=".../logo-mini.png">` | `sizes="512x512"` apontando `logo.png`, mais um `apple-touch-icon` |
+| `<title>` e `<h1>` de `features/<slug>.html` com o slug | o rótulo humano curado de cada feature |
+| (não existe) | `assets/img/apple-touch-icon.png`, copiado de `src/assets/` |
+
+```powershell
+.\.venv\Scripts\python.exe publicar_docs.py --conferir   # compara, e nao escreve
+.\.venv\Scripts\python.exe publicar_docs.py              # publica
+```
+
+O `--conferir` é o que prova o script: ele monta o resultado em memória e compara com `docs/` **byte a
+byte**. Enquanto disser `identico`, a publicação está reproduzida exatamente, e rodar sem `--conferir`
+escreve **zero** arquivos. Nada é apagado: arquivo que exista só em `docs/` é preservado, e há um caso
+real — `docs/assets/img/banner-analisador.png` é a fonte canônica da arte do topo do aplicativo, que mora
+ali por convenção do projeto, e não um ativo do mini-site. Os rótulos das features são **curados à mão**
+(o `data.js` traz `Analise de DNA e confronto`, sem acento e mais longo; o site publicado tem
+`Análise de DNA`), então feature nova entra em `ROTULOS_DE_FEATURE`, no script.
 
 ### Testes
 
@@ -571,7 +597,8 @@ O código está organizado em `src/`, separando rotas Flask, parsing, domínio, 
 framework [Reversa](https://github.com/sandeco/reversa) mantém especificações e documentação em pastas próprias.
 
 - **CI/CD:** não há workflow de integração contínua no repositório; a suíte é executada localmente. A
-  publicação da documentação passou a sair da pasta `docs/`, que espelha `_reversa_docs/`.
+  publicação da documentação passou a sair da pasta `docs/`, que espelha `_reversa_docs/` — e o espelho
+  tem ajustes próprios, então sincronize com `publicar_docs.py` (ver "Pastas do Framework Reversa").
 - **Execução:** `waitress` atende a aplicação; não há etapa de build. Use o Python do `.venv` e as
   dependências fixadas em `requirements.txt`.
 
