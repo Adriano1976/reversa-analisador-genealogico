@@ -88,7 +88,7 @@
             stroke-width="1.6" stroke-dasharray="5 4"></rect>
       <text x="920" y="68" fill="#c9c9c9" font-size="14" font-weight="600">#1 · BJJH</text>
       <text x="920" y="90" fill="#c9c9c9" font-size="12">restrito · contexto busca-caminho</text>
-      <text x="920" y="114" fill="#f87171" font-size="12">open · critical · P0</text>
+      <text x="920" y="114" fill="#fbbf24" font-size="12">active · mitigating · critical · P0</text>
     </a>
   </svg>
 
@@ -98,8 +98,10 @@
     <code>confirmed</code>. Ela <b>atravessa contexto</b> e liga o
     <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a> ao
     <a href="../../busca-caminho/bugs/BUG-20260929-BJJH-exposicao-de-arvore-entre-usuarios/bug.md">#1 BJJH</a>,
-    do contexto <code>busca-caminho</code>, que segue aberto: os dois compartilham a pasta de upload
-    única e o nome de arquivo controlado pelo cliente.
+    do contexto <code>busca-caminho</code>, que segue <code>active</code> — <b>bloqueado</b>, e nao
+    abandonado: o tratamento foi roteado para a Onda 3 da migracao, com aceite de risco registrado em
+    <code>mitigation.kind: risk-acceptance</code> e condicao de reabertura nomeada. Os dois
+    compartilham a pasta de upload única e o nome de arquivo controlado pelo cliente.
     A segunda aresta nasceu numa regeneração anterior e era <b>interna</b> e <b>tracejada</b>: o <a href="../bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">#6 6RKP</a> apontava para o <a href="../bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">#2 QMLY</a> com uma relação <code>related-to</code> em estado <code>proposed</code>. <b>Ela foi confirmada pelo fix de 2026-10-10</b> e agora é cheia: a hipótese era que os dois tocam a mesma região de código, e o <code>root_cause</code> apurou que a forma fechada criada pelo <code>QMLY</code> é exatamente a causa raiz do <code>6RKP</code>. <b>Há um cluster</b>: os dois bugs convergem na composição do nome armazenado, e a leitura está no <code>graph.md</code>.
   </p>
 </section>
