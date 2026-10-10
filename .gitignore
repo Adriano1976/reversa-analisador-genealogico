@@ -16,6 +16,7 @@ _reversa_docs/.backup-*/
 tests/.tmp/
 .parity-run-cand/
 _reversa_sdd/parity/_obs_*.json
+_reversa_sdd/parity/_collect_*.py
 
 # Backups e caches genericos
 .backup-*
