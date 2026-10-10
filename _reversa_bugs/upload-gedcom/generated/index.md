@@ -1,34 +1,31 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-09T15:30:33-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-10T03:28:10-03:00 a partir de 2 bugs -->
 
 # Índice de bugs · upload-gedcom
 
-> Gerado em `2026-10-09T15:30:33-03:00`. Fonte de verdade: os `bug.md` deste contexto.
+> Gerado em `2026-10-10T03:28:10-03:00`. Fonte de verdade: os `bug.md` deste contexto.
 
 ## Resumo
 
 | Status | Qtd |
 |--------|-----|
-| open | 1 |
-| resolved | 1 |
+| resolved | 2 |
 
 | Phase | Qtd |
 |-------|-----|
-| triaging | 1 |
-| delivering | 1 |
+| delivering | 2 |
 
 ## Bugs abertos e ativos
 
-| # | ID | Severidade | Prioridade | Título | area / module / feature | Status | Phase | Bloqueado |
-|---|----|-----------|-----------|--------|------------------------|--------|-------|-----------|
-| 6 | `BUG-20261009-6RKP` | high | P2 | Nome armazenado com acento ou espaço não pode ser resolvido | analisador-genealogico / upload / upload-gedcom | open | triaging | não |
+Nenhum. Os 2 bug(s) deste contexto estão `resolved`.
 
 ## Resolvidos
 
-Total: 1.
+Total: 2.
 
 | # | ID | resolution_kind | Travado (DONE.md) |
 |---|----|-----------------|------------------|
 | 2 | `BUG-20260929-QMLY` | fixed | sim |
+| 6 | `BUG-20261009-6RKP` | fixed | sim |
 
 ## Visibilidade restrita
 

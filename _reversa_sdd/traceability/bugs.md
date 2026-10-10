@@ -1,8 +1,8 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-09T15:30:33-03:00 a partir de 6 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-10T03:28:36-03:00 a partir de 6 bugs -->
 
 # Bugs por artefato de spec
 
-> Gerado em `2026-10-09T15:30:33-03:00`. Espelho derivado de `_reversa_bugs/*/bugs/*/bug.md`.
+> Gerado em `2026-10-10T03:28:36-03:00`. Espelho derivado de `_reversa_bugs/*/bugs/*/bug.md`.
 > Bugs com `visibility: restricted` não entram neste espelho: 3 dos 6 bugs varridos foram excluídos.
 
 ## `_reversa_sdd/addenda/bug-BUG-20260929-J6PQ-v001.md`
@@ -43,8 +43,8 @@
 
 ## `_reversa_sdd/domain.md#3.5`
 
-- `BUG-20261009-6RKP` (open/null, P2): Nome armazenado com acento ou espaço não pode ser resolvido -> `_reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md`
+- `BUG-20261009-6RKP` (resolved/fixed, P2): Nome armazenado com acento ou espaço não pode ser resolvido -> `_reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md`
 
 ## `_reversa_sdd/upload-gedcom/contracts.md#2.1`
 
-- `BUG-20261009-6RKP` (open/null, P2): Nome armazenado com acento ou espaço não pode ser resolvido -> `_reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md`
+- `BUG-20261009-6RKP` (resolved/fixed, P2): Nome armazenado com acento ou espaço não pode ser resolvido -> `_reversa_bugs/upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md`

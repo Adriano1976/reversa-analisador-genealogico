@@ -3,12 +3,12 @@ schema_version: 1
 id: BUG-20261009-6RKP
 display_number: 6
 title: Nome armazenado com acento ou espaço não pode ser resolvido
-status: active
-phase: reproducing
+status: resolved
+phase: delivering
 severity: high
 priority: P2
 created: 2026-10-09
-updated: 2026-10-09
+updated: 2026-10-10
 
 origin:
   type: inspection
@@ -54,8 +54,13 @@ mitigation:
 relationships:
   - bug: BUG-20260929-QMLY
     type: related-to
-    state: proposed
-    evidence: []
+    state: confirmed
+    evidence:
+      - ref: _reversa_sdd/upload-gedcom/contracts.md#2.1
+        observation: >-
+          O `QMLY` introduziu a forma `<16 hex>__<nome visivel>` com o alfabeto fechado como
+          defesa contra escape. O `root_cause` CONFIRMADO deste bug e essa mesma forma, lida
+          contra a metade que preserva acento e espaco. A hipotese virou fato no fix.
 
 traceability:
   specs:
@@ -64,18 +69,81 @@ traceability:
   affected_code:
     - "src/utils/validate.py"
     - "src/ports/adaptadores.py"
-  root_cause: null
-  reproduction_tests: []
-  regression_tests: []
+  root_cause:
+    state: confirmed
+    hypothesis: >-
+      A defesa contra escape de caminho foi escrita como um ALFABETO FECHADO
+      (`^[0-9a-f]{16}__[A-Za-z0-9._-]+$`) no MESMO arquivo em que o gravador PRESERVA
+      acento e espaço no nome visível. As duas regras nunca foram confrontadas, e o
+      resolvedor passou a recusar exatamente o que o gravador produz.
+    causal_path:
+      - "`nome_visivel_seguro` preserva acento e espaço (`RF-06`, requisito Must)"
+      - "`_FORMATO_CHAVE` exige `[A-Za-z0-9._-]+` na parte visível"
+      - "`chave_recebida_e_valida` devolve `False` para o nome que a aplicação gravou"
+      - "`ArmazenamentoEmDisco.resolver` devolve `None`"
+      - "a tela responde `Erro: Arquivo '...' não existe mais.` — que é FALSO"
+    evidence:
+      - ref: evidence/_sonda_forma_do_nome.py
+        observation: >-
+          varredura dos nomes da pasta real: 7 de 19 recusados — 3 por acento, 3 por não
+          terem chave e 1 por espaço.
+      - ref: ../evidence/_sonda_forma_do_nome.py
+        observation: >-
+          depois do conserto, a MESMA sonda mede 13 de 13 aceitos e 0 recusados pelo
+          validador de forma.
+      - ref: ../../../../_reversa_forward/011-escolher-arquivo-da-lista/audit/cross-check.md
+        observation: >-
+          `A007` (CRITICAL) mediu o mesmo defeito pelo lado da lista, e é a origem deste
+          registro.
+    code_refs:
+      - {file: src/utils/validate.py, symbol: chave_recebida_e_valida, commit: null}
+      - {file: src/utils/validate.py, symbol: _FORMATO_CHAVE, commit: null}
+  reproduction_tests:
+    - tests/test_forma_da_referencia.py
+  regression_tests:
+    - tests/test_forma_da_referencia.py
+    - tests/test_upload_seguranca.py
+    - tests/test_lista_de_arquivos.py
+    - tests/test_path_search.py
 
-spec_verdict: null
+spec_verdict: spec-correta
 
-change_set: []
+approval:
+  spec_verdict:
+    decided_by: Adriano
+    decided_at: 2026-10-10
+    document: _reversa_sdd/addenda/011-escolher-arquivo-da-lista.md
+
+change_set:
+  - id: CHG-001
+    kind: code
+    artifact: src/utils/validate.py
+    purpose: >-
+      `chave_recebida_e_valida` deixa de exigir o alfabeto fechado e passa a exigir que a
+      referência seja um NOME: prefixo de 16 hexadecimais, e a parte visível validada por
+      `referencia_de_arquivo_da_pasta` — sem barra, sem barra invertida, sem byte nulo,
+      sem `.` nem `..`. A defesa contra escape NÃO era o alfabeto, e sim a exigência de
+      ser um nome.
+  - id: CHG-002
+    kind: test
+    artifact: tests/test_forma_da_referencia.py
+    purpose: >-
+      Prova as DUAS metades: as formas que o gravador produz são aceitas (acento, espaço,
+      apóstrofo, parênteses, chave dupla), e o escape continua recusado — os cinco casos
+      do `BUG-20260929-QMLY` mais dez tentativas de escapar COM o prefixo da chave.
+  - id: CHG-003
+    kind: code
+    artifact: src/app.py
+    purpose: >-
+      Conserto do SEGUNDO defeito, que este registro deixou em aberto na seção de Agent
+      Notes e que foi tratado como `T042` da feature 011: `_arvore_do_formulario` ganha
+      guarda em volta do parse, o traceback vai para o LOG, e as mensagens de erro passam
+      a mostrar o rótulo em vez da referência com a chave dentro (`D-09`).
 
 closure:
   policy: local-software
-  satisfied: false
-resolution_kind: null
+  satisfied: true
+resolution_kind: fixed
 ---
 
 # Nome armazenado com acento ou espaço não pode ser resolvido
@@ -190,7 +258,74 @@ e deve virar adendo versionado conforme o protocolo do registro.
 
 ## Resolution
 
-A preencher pelo `/reversa-debugger-fix`. Este registro nunca corrige.
+**Corrigido em 2026-10-10.** `resolution_kind: fixed`, `closure.satisfied: true`.
+
+### Causa raiz, confirmada
+
+A defesa contra escape de caminho foi escrita como um **alfabeto fechado**
+(`^[0-9a-f]{16}__[A-Za-z0-9._-]+$`) no mesmo arquivo em que o gravador **preserva acento e
+espaço** no nome visível. As duas regras vivem em `src/utils/validate.py` e nunca foram
+confrontadas: o gravador produz `94e2402671702cac__Famílias_Sergipanas.csv` e o resolvedor
+recusa esse mesmo nome. Medido: **7 dos 19 arquivos** da pasta ficavam inalcançáveis, e a tela
+dizia "não existe mais" sobre arquivos que existiam.
+
+### Veredito de spec: `spec-correta`
+
+A spec **estava certa**. O `RF-06` exige preservar acentos e espaços no nome visível, e é o
+gravador que cumpre esse requisito; quem divergia era o resolvedor. Por isso o lado que cedeu
+foi o **código** — decisão do operador, registrada em `approval.spec_verdict` e declarada como
+`RN-20` no adendo da feature 011.
+
+### O argumento de segurança, e por que ele não se sustenta
+
+Este registro proibia enfraquecer a forma fechada, porque ela era tida como a defesa contra
+escape. **A defesa nunca foi o alfabeto** — era a exigência de a referência ser um **NOME**, e
+não um caminho. A prova é que os cinco casos do `BUG-20260929-QMLY` continuam recusados por
+construção, e não por acaso:
+
+| caso | por que continua recusado |
+|---|---|
+| `../etc/passwd` | não tem o prefixo de 16 hexadecimais |
+| `uploads\..\x.ged` | idem |
+| `nome_do_cliente.ged` | idem |
+| `""` | sai na primeira linha |
+| `None` | idem |
+| `<chave>__../fora.ged` | tem o prefixo, e o separador barra na parte visível |
+| `<chave>__a\b.ged` | idem |
+| `<chave>__a\x00b.ged` | byte nulo |
+| `<chave>__..` e `<chave>__` | `..` e vazio |
+
+### Change set
+
+| id | tipo | artefato | o que faz |
+|---|---|---|---|
+| `CHG-001` | code | `src/utils/validate.py` | `chave_recebida_e_valida` passa a exigir um NOME, com a parte visível validada por `referencia_de_arquivo_da_pasta` |
+| `CHG-002` | test | `tests/test_forma_da_referencia.py` | 32 testes: 9 formas aceitas, o cruzamento gravador × resolvedor, os 5 casos originais de escape, 10 tentativas **com** o prefixo, 6 fora da forma da chave, e o contrapeso contra `return False` fixo |
+| `CHG-003` | code | `src/app.py` | o **segundo defeito** desta pasta, que o registro deixou em aberto: parse sem guarda (§ Agent Notes). Tratado como `T042` da feature 011 |
+
+### Testes
+
+- **Reprodução** (`reproduction_tests`): `tests/test_forma_da_referencia.py`. Antes do conserto,
+  `TestFormasAceitas` falhava para acento e espaço. Depois dele, o mesmo arquivo mede o
+  comportamento correto — e é por isso que ele aparece também como regressão.
+- **Regressão** (`regression_tests`): o mesmo arquivo (escape), mais `tests/test_upload_seguranca.py`
+  (os cinco casos originais), `tests/test_lista_de_arquivos.py` (o item indisponível que resta é o
+  arquivo **sem chave**) e `tests/test_path_search.py` (recusa sem `500`).
+
+### Prova no conteúdo real
+
+A sonda `evidence/_sonda_forma_do_nome.py`, rodada contra a pasta do operador **depois** do
+conserto: **13 de 13 aceitos, 0 recusados** pelo validador de forma. A suíte fecha em
+**517 passed, 9 skipped, zero falhas**.
+
+### O que este conserto NÃO faz
+
+- **Não repara o passado.** Os arquivos que a mitigação de 2026-10-09 renomeou continuam com os
+  nomes ASCII; nada é renomeado de volta.
+- **Não torna alcançável o arquivo sem chave.** Ele continua indisponível, e agora é o **único**
+  caso de indisponibilidade — a `RN-11` ficou sem objeto para acento e espaço.
+- **Não fecha o `A008` como parte deste bug.** Ele foi corrigido, e está em `CHG-003`, mas o
+  crédito é da `T042` da feature 011, que o encontrou pela rota e o reproduziu.
 
 ## Agent Notes
 
@@ -208,6 +343,10 @@ A preencher pelo `/reversa-debugger-fix`. Este registro nunca corrige.
   alcançável por arquivo colocado na pasta fora da aplicação. Está registrado em
   `_reversa_forward/011-escolher-arquivo-da-lista/audit/cross-check.md` como `A008`. **Decidir se entra
   neste bug ou vira um segundo.**
+  - **DECIDIDO E CORRIGIDO em 2026-10-10:** virou a `T042` da feature 011, que o reproduziu pela rota
+    (`POST` com `gedcom_filename` apontando para um `.csv`) e mediu que **10 dos 13 arquivos da pasta
+    real** derrubavam o parser. Está em `CHG-003` e na `## Resolution`. Fica registrado aqui porque a
+    instrução de decidir nasceu nesta linha.
 - **Prioridade.** Mantida em P2 porque os outros 12 arquivos funcionam. Se `Famílias_Sergipanas.csv` for o
   dado de trabalho do operador, sobe para P1: são 3 dos 10 arquivos de DNA, e um deles aparece duas vezes
   na lista da feature 011.

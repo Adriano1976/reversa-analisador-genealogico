@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-09T15:30:33-03:00 a partir de 2 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-10T03:28:36-03:00 a partir de 2 bugs -->
 
 # Grafo de bugs · upload-gedcom
 
@@ -10,13 +10,16 @@ graph LR
   style QMLY fill:#2b1b1b,stroke:#e05252,color:#f5f5f5
   BJJH["#1 BJJH<br/>restrito<br/>critical · upload<br/>contexto: busca-caminho"]
   style BJJH fill:#1b1b22,stroke:#5a5a7a,color:#c9c9c9,stroke-dasharray:4 3
-  SIX -.->|related-to proposed| QMLY
+  SIX -->|related-to confirmed| QMLY
   QMLY -->|related-to confirmed| BJJH
 ```
 
 Estilo: aresta cheia é `supported` ou `confirmed`; aresta tracejada é `proposed`, isto é, hipótese.
 Nó com borda vermelha tem severidade `high` ou `critical`; amarela, `medium`. Nós de outros contextos
 aparecem com borda tracejada e o contexto declarado.
+
+**As duas arestas deste grafo estão cheias.** A única que era tracejada — `6RKP -> QMLY` — foi
+confirmada pelo fix de 2026-10-10 e deixou de ser hipótese.
 
 ## Clusters
 
@@ -31,15 +34,14 @@ correção tirou do cliente o controle do caminho e passou a compor
 `^[0-9a-f]{16}__[A-Za-z0-9._-]+$` como defesa, sem lista negra.
 
 O `BUG-20261009-6RKP` é uma **contradição dentro** dessa forma: a metade que grava preserva acento e
-espaço no nome visível, e a metade que lê recusa os dois. As duas metades vivem no mesmo arquivo
+espaço no nome visível, e a metade que lê recusava os dois. As duas metades vivem no mesmo arquivo
 (`src/utils/validate.py`), e a spec que as manda conviver (`_reversa_sdd/upload-gedcom/contracts.md`,
-linhas 51 e 53) se contradiz nas duas linhas vizinhas.
+linhas 51 e 53) se contradizia nas duas linhas vizinhas.
 
-Leitura de triagem: **não são dois defeitos independentes, são duas camadas do mesmo movimento.** Quem
-for corrigir o `6RKP` mexe exatamente no contrato que o `QMLY` estabeleceu, e a decisão de qual lado cede
-(parar de gravar o acento, ou passar a aceitá-lo na leitura) é uma revisão daquele contrato, não um
-conserto local. Por isso a aresta entre os dois está gravada como `proposed`: é hipótese de quem escreveu
-este grafo, e o fix tem de confirmá-la ou rejeitá-la com evidência.
+Leitura de triagem, **confirmada pelo fix**: não são dois defeitos independentes, são duas camadas do
+mesmo movimento. Quem corrigiu o `6RKP` mexeu exatamente no contrato que o `QMLY` estabeleceu, e a
+decisão de qual lado cede foi uma revisão daquele contrato, e não um conserto local. O operador decidiu
+que **o código cede** — o resolvedor passa a aceitar o que o gravador produz —, e isso virou a `RN-20`.
 
 A aresta para `busca-caminho` continua sendo outra história: ela liga os dois bugs pelo mecanismo da
 pasta de upload única com o nome controlado pelo cliente.
@@ -52,11 +54,10 @@ Não substitui `priority` nem `severity`.
 
 | Bug aberto | causados ×3 | bloqueados ×2 | regressões ×4 | relacionados ×1 | Score |
 |------------|-------------|---------------|---------------|-----------------|-------|
-| `BUG-20261009-6RKP` | 0 | 0 | 0 | 0 | **0** |
+| (nenhum) | 0 | 0 | 0 | 0 | — |
 
-O `6RKP` é o único bug aberto do contexto, e a única aresta dele está em estado `proposed`, que **não
-conta**. Score 0 aqui **não** significa "impacto baixo": significa que as relações dele ainda não foram
-apuradas. É o `priority: P2` e o `severity: high` que valem, e a relação com o `QMLY` é o primeiro item a
-confirmar ou descartar no fix.
+**Nenhum bug aberto neste contexto**, então não há impacto a pontuar: os 2 bugs estão `resolved`. Enquanto
+o `6RKP` estava aberto o score dele era **0**, porque a única aresta estava em `proposed`; o fix
+confirmou essa aresta, e ela teria levado o score a 1.
 
 O `BUG-20260929-QMLY` está `resolved`, e a aresta dele já está contada no lado que a gravou.
