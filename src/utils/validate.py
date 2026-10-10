@@ -18,6 +18,7 @@ reenviada gera a mesma chave.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 
 # Declaracao que abre todo GEDCOM valido. A validacao e de CONTEUDO, e nao de
@@ -181,3 +182,37 @@ def pode_ser_usado(nome) -> bool:
     dizer "disponivel" para um arquivo que o resolvedor recusa.
     """
     return chave_recebida_e_valida(nome)
+
+
+def referencia_de_arquivo_da_pasta(nome) -> bool:
+    """`True` quando `nome` e um NOME DE ARQUIVO simples, e nao um caminho (`RN-14`).
+
+    ## Por que esta validacao existe, e por que ela NAO reusa a do resolvedor
+
+    Aposentar um arquivo tambem compoe caminho, entao precisa de defesa contra
+    escape de pasta. Mas ela **nao pode** aplicar `chave_recebida_e_valida`: a
+    forma fechada exige os 16 hexadecimais da chave, e os arquivos **sem chave** do
+    nome — os tres medidos na pasta do operador — seriam exatamente os que nao
+    poderiam ser aposentados. Sao justamente os que ele mais quer tirar da lista,
+    porque sao os inalcancaveis.
+
+    Entao a defesa aqui e de outra natureza, e de outro escopo: em vez de exigir a
+    forma canonica, ela exige que o valor seja um **nome**, e nao um caminho. Nao
+    ha barra, nao ha barra invertida, nao ha byte nulo, nao ha `..`, nao ha string
+    vazia e o valor tem de ser igual ao seu proprio `basename`. Um nome que passa
+    aqui so pode apontar para um arquivo **dentro** da pasta de upload, e a
+    confirmacao final do diretorio pai e feita pelo adaptador, com o caminho ja
+    resolvido.
+
+    Isto **nao** afrouxa `resolver`. As duas funcoes respondem perguntas diferentes
+    — "posso LER por referencia?" e "posso MOVER este nome?" —, e `resolver`
+    continua sendo a unica autoridade sobre a primeira.
+    """
+    if not nome or not isinstance(nome, str):
+        return False
+    if nome in (".", ".."):
+        return False
+    for separador in _SEPARADORES:
+        if separador in nome:
+            return False
+    return os.path.basename(nome) == nome

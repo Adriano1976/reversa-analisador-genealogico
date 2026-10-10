@@ -96,9 +96,20 @@
                                                             <form method="POST" class="m-0">
                                                                 <input type="hidden" name="action" value="selecionar_arvore">
                                                                 <input type="hidden" name="gedcom_filename" value="{{ item.nome_armazenado }}">
-                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Usar esta árvore</button>
+                                                                <button type="submit" class="btn btn-sm btn-success">Abrir</button>
                                                             </form>
                                                         {% endif %}
+                                                        {# RN-14: o botao de aposentar aparece em TODO item, inclusive no
+                                                           indisponivel — e justamente nele que ele e mais util, porque
+                                                           sao os arquivos que nao servem para nada e poluem a lista.
+                                                           Vermelho porque e a acao destrutiva da tela; mas nada e
+                                                           apagado: o arquivo sai da lista e continua no disco. #}
+                                                        <form method="POST" class="m-0"
+                                                              onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
+                                                            <input type="hidden" name="action" value="aposentar_arquivo">
+                                                            <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
+                                                            <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                                                        </form>
                                                     </span>
                                                 </li>
                                             {% endfor %}
@@ -135,7 +146,21 @@
                                                             <span class="badge bg-warning text-dark">{{ item.motivo_indisponivel }}</span>
                                                         {% endif %}
                                                     </span>
-                                                    <span class="text-muted small">{{ item.bytes | inteiro_br }} bytes</span>
+                                                    <span class="d-flex align-items-center gap-2">
+                                                        <span class="text-muted small">{{ item.bytes | inteiro_br }} bytes</span>
+                                                        {# RN-14: esta aba NAO ganha botao "Abrir", e nao por esquecimento.
+                                                           Nao existe acao que carregue um CSV sozinho: o relatorio de
+                                                           matches entra pela analise de DNA, que exige uma arvore — o
+                                                           mesmo motivo pelo qual a `T022` recusou um formulario de
+                                                           envio aqui. Oferecer "Abrir" prometeria o que a rota nao
+                                                           atende. Aposentar, sim, porque nao depende de arvore. #}
+                                                        <form method="POST" class="m-0"
+                                                              onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
+                                                            <input type="hidden" name="action" value="aposentar_arquivo">
+                                                            <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
+                                                            <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                                                        </form>
+                                                    </span>
                                                 </li>
                                             {% endfor %}
                                         </ul>

@@ -29,8 +29,14 @@ from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
     nome_do_arquivo_armazenado,
+    referencia_de_arquivo_da_pasta,
     validar_conteudo_gedcom,
 )
+
+# Subpasta para onde `aposentar` move o arquivo (`RN-14`). Fica DENTRO da pasta de upload de
+# proposito: `listar` ja ignora subdiretorio, entao o arquivo sai da lista sem que nenhum
+# filtro novo precise ser escrito — e sem uma lista de excecoes que alguem teria de manter.
+PASTA_DE_APOSENTADOS = "_aposentados"
 
 if TYPE_CHECKING:
     # Import so para o checador de tipos. Em execucao a anotacao e string
@@ -126,7 +132,9 @@ class ArmazenamentoEmDisco:
         desaparecer.
 
         Subdiretorio e ignorado: a pasta guarda arquivo, e um diretorio ali dentro nao
-        tem referencia que o alcance.
+        tem referencia que o alcance. Desde a `RN-14` isso deixou de ser so higiene: e
+        o que faz `aposentar` funcionar, porque o arquivo aposentado vai para
+        `_aposentados/` e deixa de ser um arquivo desta pasta.
 
         `dono` e recebido e **ignorado**, como no `guardar` e no `resolver`. Ele nao
         filtra nada: as dividas #3 e #4 seguem abertas (`RN-06`), e a assimetria entre
@@ -152,6 +160,61 @@ class ArmazenamentoEmDisco:
                 modificado_em=atributos.st_mtime,
             ))
         return entradas
+
+    def aposentar(self, referencia: str | None, dono: str) -> bool:
+        """Move o arquivo para `<pasta>/_aposentados/` e devolve se moveu (`RN-14`).
+
+        **Nao apaga nada**: o arquivo sai da lista e permanece no disco, inteiro e com
+        o mesmo nome. Desfazer e mover de volta, e a pasta de aposentados fica dentro
+        da propria pasta de upload justamente para isso.
+
+        ## A defesa contra escape, em duas camadas
+
+        1. `referencia_de_arquivo_da_pasta` recusa qualquer coisa que seja um CAMINHO
+           em vez de um NOME (barra, barra invertida, byte nulo, `..`, vazio). Ela e
+           deliberadamente mais permissiva que `chave_recebida_e_valida`: os arquivos
+           **sem chave** da pasta real sao os inalcancaveis, e sao os que o operador
+           mais quer tirar da lista — exigir a chave aqui os tornaria inapagaveis.
+        2. `os.path.dirname` do caminho ja resolvido tem de ser **exatamente** a pasta
+           de upload. A primeira camada ja garante isso; a segunda nao confia nela.
+           E o mesmo espirito do `resolver`, que valida a forma antes de qualquer
+           `os.path.exists` (`BUG-20260929-QMLY`, criterio 5).
+
+        ## Nao sobrescreve um aposentado
+
+        Se ja existir um aposentado com o mesmo nome, um sufixo numerico e acrescentado
+        em vez de sobrescrever. Para os nomes COM chave isso seria inofensivo — o nome
+        carrega o conteudo, entao os dois arquivos sao o mesmo dado —, mas para os nomes
+        SEM chave o nome nao carrega conteudo nenhum, e sobrescrever apagaria um arquivo
+        diferente. Como a `RN-07` proibe apagar, a escolha segura vale para os dois casos.
+
+        `dono` e recebido e **ignorado**, como nos outros tres metodos da porta.
+        """
+        if not referencia_de_arquivo_da_pasta(referencia):
+            return False
+
+        origem = os.path.join(self._pasta, referencia)
+        if os.path.dirname(os.path.abspath(origem)) != os.path.abspath(self._pasta):
+            return False
+        if not os.path.isfile(origem):
+            return False
+
+        destino_pasta = os.path.join(self._pasta, PASTA_DE_APOSENTADOS)
+        os.makedirs(destino_pasta, exist_ok=True)
+        destino = os.path.join(destino_pasta, referencia)
+        if os.path.exists(destino):
+            for sufixo in range(1, 100):
+                alternativa = os.path.join(destino_pasta, f"{referencia}.{sufixo}")
+                if not os.path.exists(alternativa):
+                    destino = alternativa
+                    break
+            else:
+                # Cem aposentados com o mesmo nome: desistir e melhor do que
+                # sobrescrever um deles.
+                return False
+
+        os.replace(origem, destino)
+        return True
 
 
 class CarregadorDeArvoresGedcom:

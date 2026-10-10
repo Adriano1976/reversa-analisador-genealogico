@@ -8,7 +8,7 @@ parametro, sem nunca instanciar a implementacao concreta. Quem implementa mora e
 
 | Porta | O que a fronteira consome | Metodos |
 |-------|---------------------------|---------|
-| `ArmazenamentoDeArquivos` | gravar o upload, resolver a referencia recebida e LISTAR a pasta | 3 |
+| `ArmazenamentoDeArquivos` | gravar o upload, resolver a referencia recebida, LISTAR a pasta e APOSENTAR um arquivo | 4 |
 | `CarregadorDeArvores` | entregar a arvore a partir da referencia | 1 |
 | `RepositorioDeArvores` | persistencia da arvore — **Onda 3, sem implementacao** | 2 |
 | `RegistroDeAnalises` | persistencia HISTORICA da analise — **feature 008** | 1 |
@@ -51,6 +51,11 @@ as entradas da pasta para a tela montar a lista de escolha. O motivo de ele
 tambem receber `dono` e o mesmo do paragrafo acima, e nao simetria decorativa:
 deixar o parametro de fora agora obrigaria a reabrir esta assinatura e todos os
 chamadores depois, que e exatamente o custo que a feature 007 pagou para nao ter.
+
+A `T033`/`T034` da mesma feature criou o **segundo**: `aposentar`, que tira o
+arquivo da lista movendo-o para `<pasta>/_aposentados/`. Ele **nao** contraria a
+`RN-07` — nada e apagado, e o arquivo continua no disco —, e o `dono` entra com o
+mesmo alcance de sempre: sem comportamento.
 """
 from __future__ import annotations
 
@@ -147,6 +152,43 @@ class ArmazenamentoDeArquivos(Protocol):
         `dono` entra pela mesma razao e com o mesmo alcance dos outros metodos:
         **nao filtra nada** (dividas #3 e #4 abertas). Quem decide se uma entrada
         pode ser usada e a forma do nome, aplicada na leitura — e nao a identidade.
+        """
+        ...
+
+    def aposentar(self, referencia: str | None, dono: str) -> bool:
+        """Tira o arquivo da LISTA movendo-o para uma subpasta. **Nao apaga nada.**
+
+        `True` significa que o arquivo saiu da pasta de upload; `False`, que nada foi
+        movido — referencia em forma de caminho, arquivo inexistente, ou ja haver um
+        aposentado com o mesmo nome.
+
+        ## Aposentar, e nao apagar (`RN-14`)
+
+        A `RN-07` diz que a aplicacao **nunca apaga** arquivo enviado, e ela continua
+        valendo: o que este metodo faz e MOVER o arquivo para `<pasta>/_aposentados/`,
+        onde ele permanece inteiro, com o mesmo nome e o mesmo conteudo. O operador
+        deixa de ve-lo na lista, e o dado nao some. Desfazer e mover de volta.
+
+        ## Por que a lista nao precisa de filtro novo
+
+        Quem le a pasta e `listar`, e ela **ja** ignora subdiretorio, porque so aceita
+        `os.path.isfile`. Aposentar para dentro da propria pasta aproveita isso: o
+        arquivo sai da tela sem que nenhuma regra de filtragem precise ser acrescentada
+        — e sem uma lista de excecoes que alguem teria de manter.
+
+        ## A referencia e mais permissiva aqui do que em `resolver`, e isso e
+        ## deliberado
+
+        A defesa contra escape continua existindo, mas com outro criterio
+        (`utils.validate.referencia_de_arquivo_da_pasta`): qualquer NOME simples, e nao
+        apenas a forma canonica com chave. O motivo e medido — os arquivos **sem chave**
+        da pasta real sao os inalcancaveis, e sao exatamente os que o operador quer
+        tirar da lista. Exigir a chave aqui tornaria impossivel aposentar os tres que
+        mais incomodam. `resolver` **nao** afrouxa: ler por referencia continua exigindo
+        a forma fechada.
+
+        `dono` entra pela mesma razao dos outros metodos: **nao filtra nada**. A pasta
+        de aposentados nao e separada por dono.
         """
         ...
 

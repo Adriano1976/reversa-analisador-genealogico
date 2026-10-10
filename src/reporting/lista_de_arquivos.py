@@ -27,10 +27,16 @@ atributos. Quem le o diretorio e a porta (`ArmazenamentoDeArquivos.listar`).
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Iterable, Protocol
 
 from utils.validate import decompor_nome_armazenado, motivo_de_indisponibilidade, pode_ser_usado
+
+# Tudo o que NAO e letra, digito ou sublinhado -- e o sublinhado entra na lista de
+# proposito, porque na pratica ele separa palavras (`arvore_sem_chave`). `\w` em Python
+# 3 ja e sensivel a acento, entao `Familias` e `Famílias` sobrevivem inteiros.
+_SIMBOLOS = re.compile(r"[\W_]+")
 
 
 class Entrada(Protocol):
@@ -52,7 +58,10 @@ class ItemDaLista:
 
     `nome_exibido` e o rotulo, e `nome_armazenado` e a referencia que o formulario
     devolve. Os dois **nunca** sao a mesma string, e a tela usa o primeiro: a chave de
-    conteudo nao e assunto do operador (`D-09`).
+    conteudo nao e assunto do operador (`D-09`). O rotulo ainda passa por
+    `rotulo_limpo`, que tira a extensao e troca os simbolos por espaco (`RN-13`) — mas
+    **so na tela**: a particao por aba e o alcance por referencia continuam lendo o nome
+    visivel cru.
 
     `disponivel` e `motivo_indisponivel` vem de `utils.validate` e sao o que impede a
     tela de oferecer, como se funcionasse, um item que a referencia nao alcanca.
@@ -66,6 +75,47 @@ class ItemDaLista:
     modificado_em: float
     disponivel: bool
     motivo_indisponivel: str | None = None
+
+
+def rotulo_limpo(nome_visivel: str) -> str:
+    """O nome do arquivo como o operador o le: sem a extensao e sem os simbolos (`RN-13`).
+
+    `Backup-Arvore-Sandro-12-11-2024.ged` vira `Backup Arvore Sandro 12 11 2024`, e
+    `Famílias_Sergipanas.csv` vira `Famílias Sergipanas`.
+
+    ## Duas decisoes, e por que cada uma
+
+    1. **So a ULTIMA extensao sai.** `planilha.csv.ged` vira `planilha csv`, e nao
+       `planilha`. O `.csv` do meio e informacao: e o unico sinal que sobra de que
+       aquele `.ged` e, no conteudo, um relatorio de DNA. Apagar tudo o que parece
+       extensao tiraria do operador o que `D-08` decidiu NAO esconder.
+    2. **Ponto inicial nao e extensao.** Num nome como `.ged` nao ha raiz antes do
+       ponto, entao nada e retirado -- a alternativa devolveria rotulo VAZIO, que e
+       pior do que um rotulo feio. `rpartition` faz essa distincao de graca.
+
+    ## O que esta funcao NAO decide
+
+    Ela nao escolhe a aba, e nao decide se o item e alcancavel. As duas coisas olham o
+    nome VISIVEL **cru** (`RN-03`, `D-10`, `RN-12`), e nao o rotulo: o `D-08` mantem
+    `planilha.csv.ged` na aba de arvore justamente pelo nome, e esconder a extensao na
+    tela nao pode mudar isso. Por isso a formatacao acontece no FIM, depois de tudo o
+    que o nome decide.
+    """
+    raiz, ponto, _extensao = nome_visivel.rpartition(".")
+    base = raiz if (ponto and raiz) else nome_visivel
+    return _SIMBOLOS.sub(" ", base).strip()
+
+
+def rotulo_de_referencia(nome_armazenado: str) -> str:
+    """Rotulo de tela a partir do NOME ARMAZENADO, sem passar pela lista (`D-09`).
+
+    A rota precisa disto para as mensagens — "o arquivo X foi aposentado" — sem vazar
+    a chave de conteudo para os olhos do operador, e sem montar uma lista inteira so
+    para formatar um nome. E a mesma formatacao do item, pelo mesmo caminho: decompor a
+    chave e limpar o resto.
+    """
+    _, visivel = decompor_nome_armazenado(nome_armazenado)
+    return rotulo_limpo(visivel)
 
 
 def itens_da_aba(entradas: Iterable[Entrada], extensao: str) -> list[ItemDaLista]:
@@ -134,6 +184,6 @@ def _rotulo_do_grupo(grupo: list[Entrada]) -> str:
 
     limpos = sorted(v for v in visiveis if decompor_nome_armazenado(v)[0] is None)
     if limpos:
-        return limpos[0]
+        return rotulo_limpo(limpos[0])
     _, sem_chave = decompor_nome_armazenado(sorted(visiveis)[0])
-    return sem_chave
+    return rotulo_limpo(sem_chave)

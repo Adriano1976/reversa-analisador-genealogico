@@ -46,8 +46,10 @@ for _caminho in (_RAIZ, os.path.join(_RAIZ, "src")):
 #      teste chama `itens_da_aba(...)` igual, e a falha sai como falha.
 try:
     from reporting.lista_de_arquivos import itens_da_aba as _funcao_pura
+    from reporting.lista_de_arquivos import rotulo_limpo as _rotulo_limpo
 except ImportError as _erro:  # pragma: no cover - o ramo verde e o que roda depois da T015
     _funcao_pura = None
+    _rotulo_limpo = None
     _FALTA = str(_erro)
 
 
@@ -56,6 +58,13 @@ def itens_da_aba(*args, **kwargs):
     if _funcao_pura is None:
         pytest.fail("a funcao pura ainda nao existe (T015): " + _FALTA)
     return _funcao_pura(*args, **kwargs)
+
+
+def rotulo_limpo(*args, **kwargs):
+    """Idem, para a formatacao do rotulo (`RN-13`)."""
+    if _rotulo_limpo is None:
+        pytest.fail("a formatacao do rotulo ainda nao existe (RN-13): " + _FALTA)
+    return _rotulo_limpo(*args, **kwargs)
 
 
 @dataclass(frozen=True)
@@ -144,7 +153,7 @@ class TestMarcasEClassificacao:
         itens = itens_da_aba([e(f"{CHAVE_C}__planilha.csv.ged")], ".ged")
 
         assert len(itens) == 1
-        assert itens[0].nome_exibido == "planilha.csv.ged"
+        assert itens[0].nome_exibido == "planilha csv"
 
     def test_arquivo_sem_chave_vira_item_proprio_e_marcado(self):
         """`RN-10`: sem chave no nome, item proprio, nunca agrupado."""
@@ -155,7 +164,7 @@ class TestMarcasEClassificacao:
         assert len(itens) == 2, "o sem chave nao pode ser agrupado com ninguem"
         sem_chave = [i for i in itens if i.chave is None]
         assert len(sem_chave) == 1
-        assert sem_chave[0].nome_exibido == "arvore_sem_chave.ged"
+        assert sem_chave[0].nome_exibido == "arvore sem chave"
 
     def test_item_com_chave_ascii_e_disponivel(self):
         itens = itens_da_aba([e(f"{CHAVE_A}__arvore.ged")], ".ged")
@@ -210,7 +219,7 @@ class TestNomeExibido:
     def test_nome_armazenado_nunca_e_o_exibido(self):
         itens = itens_da_aba([e(f"{CHAVE_A}__arvore.ged")], ".ged")
 
-        assert itens[0].nome_exibido == "arvore.ged"
+        assert itens[0].nome_exibido == "arvore"
         assert itens[0].nome_armazenado == f"{CHAVE_A}__arvore.ged"
 
     def test_grupo_com_nomes_diferentes_nao_exibe_a_chave_vazada(self):
@@ -225,7 +234,7 @@ class TestNomeExibido:
         )
 
         assert len(itens) == 1
-        assert itens[0].nome_exibido == "arvore.ged", (
+        assert itens[0].nome_exibido == "arvore", (
             "o nome exibido nao pode carregar a chave, nem a do grupo nem a vazada"
         )
 
@@ -235,6 +244,97 @@ class TestNomeExibido:
         )
 
         assert itens[0].quantidade == 2
+
+
+class TestFormatoDoRotulo:
+    """`RN-13`: o rotulo sai sem extensao e sem simbolos -- e SO o rotulo.
+
+    ## Por que esta classe existe separada
+
+    A formatacao e a ultima coisa que acontece com o nome, e ela e a unica parte da
+    apresentacao que mexe no que o operador LE sem mexer em nada do que a aplicacao
+    DECIDE. Os dois ultimos testes desta classe prendem exatamente essa fronteira: a
+    extensao desaparece da tela e continua decidindo a aba, e o alcance por referencia
+    nao melhora nem piora porque o rotulo ficou bonito.
+    """
+
+    def test_a_extensao_sai_do_rotulo(self):
+        assert rotulo_limpo("arvore.ged") == "arvore"
+
+    def test_os_simbolos_viram_espaco(self):
+        """Caso MEDIDO: e o nome real de um arquivo da pasta do operador."""
+        assert rotulo_limpo("Backup-Arvore-Sandro-12-11-2024.ged") == (
+            "Backup Arvore Sandro 12 11 2024"
+        )
+
+    def test_o_acento_e_preservado(self):
+        """O `\\w` de Python 3 e sensivel a acento: a limpeza nao pode virar transliteracao."""
+        assert rotulo_limpo("Famílias_Sergipanas.csv") == "Famílias Sergipanas"
+
+    def test_so_a_ultima_extensao_sai(self):
+        """`planilha.csv.ged` -> `planilha csv`: o `.csv` do meio e o unico sinal do tipo real.
+
+        Apagar tudo o que parece extensao devolveria `planilha`, e o operador perderia a
+        pista de que aquele `.ged` e, no conteudo, um relatorio de DNA -- que e justamente
+        o que `D-08` decidiu nao esconder.
+        """
+        assert rotulo_limpo("planilha.csv.ged") == "planilha csv"
+
+    def test_nome_sem_ponto_nao_e_comido(self):
+        assert rotulo_limpo("sem_ponto") == "sem ponto"
+
+    def test_nome_apenas_de_extensao_nao_vira_rotulo_vazio(self):
+        """Sem raiz antes do ponto, nao ha extensao a retirar.
+
+        A implementacao ingenua (`corta no ultimo ponto`) devolveria string VAZIA aqui, e
+        a tela mostraria uma linha em branco -- pior do que um rotulo feio.
+        """
+        assert rotulo_limpo(".ged") == "ged"
+        assert rotulo_limpo(".ged") != ""
+
+    def test_rotulos_de_arquivos_distintos_continuam_distintos(self):
+        """Dois `.ged` diferentes nao podem colidir so porque a extensao saiu."""
+        itens = itens_da_aba(
+            [e(f"{CHAVE_A}__arvore.ged", quando=9_000.0),
+             e(f"{CHAVE_C}__arvore.csv.ged", quando=1_000.0)],
+            ".ged",
+        )
+
+        assert [i.nome_exibido for i in itens] == ["arvore", "arvore csv"]
+
+    def test_a_aba_continua_decidida_pela_extensao_que_o_rotulo_esconde(self):
+        """A fronteira: a extensao sai da TELA e continua decidindo a ABA.
+
+        Se a formatacao tivesse sido aplicada antes da particao, o `Famílias_Sergipanas.csv`
+        nao entraria em aba nenhuma -- e este teste falharia.
+        """
+        entradas = [e(f"{CHAVE_C}__Famílias_Sergipanas.csv"),
+                    e(f"{CHAVE_A}__arvore.ged")]
+
+        relatorios = itens_da_aba(entradas, ".csv")
+        arvores = itens_da_aba(entradas, ".ged")
+
+        assert [i.nome_exibido for i in relatorios] == ["Famílias Sergipanas"]
+        assert [i.nome_exibido for i in arvores] == ["arvore"]
+
+    def test_o_rotulo_bonito_nao_melhora_o_alcance_do_arquivo(self):
+        """`D-11`: o acento e o que torna o arquivo inalcancavel, e o rotulo nao muda isso.
+
+        O arquivo tem nome bonito depois da formatacao, e continua INDISPONIVEL -- porque
+        quem decide o alcance e o nome visivel **cru**, que segue com acento.
+        """
+        itens = itens_da_aba([e(f"{CHAVE_C}__Famílias_Sergipanas.csv")], ".csv")
+
+        assert itens[0].nome_exibido == "Famílias Sergipanas"
+        assert itens[0].disponivel is False
+        assert itens[0].motivo_indisponivel is not None
+
+    def test_a_referencia_entregue_ao_formulario_continua_sendo_o_nome_armazenado(self):
+        """A formatacao nao pode tocar o que viaja entre requisicoes."""
+        itens = itens_da_aba([e(f"{CHAVE_A}__Backup-Arvore-12-11-2024.ged")], ".ged")
+
+        assert itens[0].nome_exibido == "Backup Arvore 12 11 2024"
+        assert itens[0].nome_armazenado == f"{CHAVE_A}__Backup-Arvore-12-11-2024.ged"
 
 
 class TestOrdemEDatas:
@@ -248,7 +348,7 @@ class TestOrdemEDatas:
             ".ged",
         )
 
-        assert [i.nome_exibido for i in itens] == ["recente.ged", "meio.ged", "antiga.ged"]
+        assert [i.nome_exibido for i in itens] == ["recente", "meio", "antiga"]
 
     def test_a_data_do_item_e_a_mais_recente_do_grupo(self):
         itens = itens_da_aba(

@@ -4,7 +4,7 @@ import socket
 import sys
 
 from flask import Flask, render_template, request, send_file
-from reporting.lista_de_arquivos import itens_da_aba
+from reporting.lista_de_arquivos import itens_da_aba, rotulo_de_referencia
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
@@ -295,6 +295,31 @@ def index():
                 return render_template("index.html", message=traduzir(erro_de_dominio).mensagem, success=False)
             except Exception as e:
                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
+
+        if action == "aposentar_arquivo":
+            # Aposentar um arquivo da lista (`RN-14`, `T034`).
+            #
+            # Este ramo vem ANTES de `_arvore_do_formulario`, e a ordem e a regra, nao
+            # estilo: `_arvore_do_formulario` resolve e PARSEIA a arvore escolhida, e a
+            # arvore escolhida pode ser exatamente a que se esta aposentando. Depois do
+            # move, o parse falharia e o operador veria "arquivo nao existe mais" no
+            # lugar da confirmacao — a acao teria funcionado e a tela diria que nao.
+            #
+            # Nada e apagado: o arquivo sai da lista e continua no disco, em
+            # `_aposentados/`. A mensagem diz isso, porque "apagar" e o que o botao
+            # parece fazer e o operador precisa saber que da para voltar.
+            referencia = request.form.get("arquivo_a_aposentar")
+            if _ARMAZENAMENTO.aposentar(referencia, DONO_DO_PROCESSO):
+                return render_template(
+                    "index.html",
+                    message=(f"'{rotulo_de_referencia(referencia)}' saiu da lista. "
+                             "O arquivo não foi apagado: ele continua guardado, inteiro, "
+                             "na pasta de aposentados."),
+                    success=True)
+            return render_template(
+                "index.html",
+                message="Não foi possível aposentar o arquivo: ele não está mais na pasta.",
+                success=False)
 
         gedcom_filename, arvore, erro = _arvore_do_formulario()
         if erro is not None:

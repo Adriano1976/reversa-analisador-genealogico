@@ -63,6 +63,20 @@ def _corpo(cliente) -> str:
     return cliente.get("/").get_data(as_text=True)
 
 
+def _visivel(corpo: str) -> str:
+    """So o TEXTO que o operador le: o que fica entre `>` e `<`.
+
+    ## Por que nao usar o corpo inteiro para medir o rotulo
+
+    Depois da `RN-13` o rotulo de `arvore.ged` virou a palavra `arvore` -- e essa palavra
+    aparece no corpo mesmo quando a lista esta VAZIA, dentro de `value="selecionar_arvore"`.
+    Procurar no corpo inteiro daria um teste verde e vazio, que e exatamente o defeito que
+    ja apareceu duas vezes nesta feature. A extracao de texto visivel separa as duas coisas:
+    no corpo, `selecionar_arvore` e um valor de campo; na tela, `arvore` e uma linha da lista.
+    """
+    return " ".join(re.findall(r">([^<]+)<", corpo))
+
+
 class TestTelaDeEntradaComArquivos:
     """T007 (`RF-06`): o `GET /` sem envio previo entrega as duas abas com as listas."""
 
@@ -83,13 +97,19 @@ class TestTelaDeEntradaComArquivos:
         assert ROTULO_DNA in corpo
 
     def test_o_nome_visivel_do_arquivo_armazenado_aparece_na_lista(self, cliente_de_upload):
-        """`RF-01`: o operador tem de reconhecer o arquivo pelo nome que ele mesmo deu."""
+        """`RF-01`: o operador tem de reconhecer o arquivo pelo nome que ele mesmo deu.
+
+        Depois da `RN-13` o rotulo perde a extensao e os simbolos, entao o nome exibido de
+        `arvore.ged` e `arvore`. A assercao e sobre o TEXTO visivel, e nao sobre o corpo: a
+        palavra `arvore` circula no corpo como valor de campo (`selecionar_arvore`) mesmo
+        com a lista vazia, e procura-la ali mediria nada.
+        """
         _app, cliente, pasta = cliente_de_upload
         _guardar(pasta, f"{CHAVE_ARVORE}__arvore.ged", GEDCOM.encode("utf-8"))
 
-        corpo = _corpo(cliente)
+        visivel = _visivel(_corpo(cliente))
 
-        assert "arvore.ged" in corpo, (
+        assert "arvore" in visivel, (
             "o arquivo armazenado nao apareceu na lista: o GET / ainda nao monta as listas (T017)"
         )
 
@@ -98,7 +118,7 @@ class TestTelaDeEntradaComArquivos:
         _app, cliente, pasta = cliente_de_upload
         _guardar(pasta, f"{CHAVE_DNA}__relatorio.csv", CSV.encode("utf-8"))
 
-        assert "relatorio.csv" in _corpo(cliente)
+        assert "relatorio" in _visivel(_corpo(cliente))
 
     def test_a_chave_nao_vaza_para_o_corpo_da_tela(self, cliente_de_upload):
         """`D-09`: o operador ve o NOME, nunca a chave de conteudo.
@@ -115,9 +135,9 @@ class TestTelaDeEntradaComArquivos:
         # inteiro, e por isso passou a falhar quando o item virou controle de escolha: o nome
         # armazenado circula no campo oculto, e isso e CORRETO — e assim que a referencia viaja entre
         # requisicoes. O que o `D-09` proibe e a chave chegar aos OLHOS do operador.
-        visivel = " ".join(re.findall(r">([^<]+)<", corpo))
+        visivel = _visivel(corpo)
 
-        assert "arvore.ged" in visivel, (
+        assert "arvore" in visivel, (
             "pre-condicao: a lista tem de estar no ar para a assercao medir algo"
         )
         assert CHAVE_ARVORE not in visivel, (
@@ -150,6 +170,32 @@ class TestTelaDeEntradaComArquivos:
             "renderizacao final SEM gedcom_filename, e a escolha seria descartada"
         )
 
+    def test_o_rotulo_na_tela_sai_sem_extensao_e_sem_simbolos(self, cliente_de_upload):
+        """`RN-13` ponta a ponta: a formatacao vale na TELA, e nao so na funcao pura.
+
+        As tres assercoes andam juntas de proposito. Sozinha, "o nome cru nao aparece" seria
+        verde mesmo com a lista vazia; emparelhada com o rotulo formatado E com a referencia
+        no campo oculto, ela mede as duas metades da `RN-13`: o que o operador LE muda, e o
+        que a aplicacao RECEBE nao.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        armazenado = f"{CHAVE_ARVORE}__Backup-Arvore-Sandro-12-11-2024.ged"
+        _guardar(pasta, armazenado, GEDCOM.encode("utf-8"))
+
+        corpo = _corpo(cliente)
+        visivel = _visivel(corpo)
+
+        assert "Backup Arvore Sandro 12 11 2024" in visivel, (
+            "o rotulo nao foi formatado na tela: a extensao e os simbolos continuam visiveis"
+        )
+        assert "Backup-Arvore-Sandro-12-11-2024" not in visivel, (
+            "o nome cru continua sendo exibido como texto"
+        )
+        assert f'value="{armazenado}"' in corpo, (
+            "a formatacao vazou para a referencia: o formulario tem de continuar recebendo o "
+            "nome ARMAZENADO, senao a escolha deixa de resolver o arquivo"
+        )
+
     def test_escolher_a_arvore_da_lista_entrega_o_estado_de_arvore_escolhida(self, cliente_de_upload):
         """`RF-02`: o POST da escolha tem de renderizar as abas COM a arvore escolhida."""
         _app, cliente, pasta = cliente_de_upload
@@ -169,16 +215,32 @@ class TestTelaDeEntradaComArquivos:
         )
 
     def test_o_item_indisponivel_nao_ganha_botao_de_escolha(self, cliente_de_upload):
-        """`D-11`: oferecer o que nao funciona e o defeito que a marca existe para evitar."""
+        """`D-11` + `RN-14`: o indisponivel nao ganha ABRIR, e ganha APAGAR.
+
+        ## Correcao de 2026-10-10: a assercao de ausencia era larga demais
+
+        A versao anterior assertava que `value="arvore_sem_chave.ged"` nao aparecia no
+        corpo. Isso deixou de medir o `D-11` quando o botao `Apagar` entrou: o campo
+        OCULTO DELE carrega o mesmo nome, entao a assercao passou a falhar **com o
+        comportamento correto** — o item nao tem botao de escolha e tem botao de
+        aposentar. Agora cada metade e presa pelo SEU campo: a ausencia pelo
+        `gedcom_filename` (o campo do "Abrir") e a presenca pelo `arquivo_a_aposentar`
+        (o campo do "Apagar"). Presenca e ausencia emparelhadas, como nas outras
+        assercoes negativas deste arquivo.
+        """
         _app, cliente, pasta = cliente_de_upload
         _guardar(pasta, "arvore_sem_chave.ged", GEDCOM.encode("utf-8"))
 
         corpo = _corpo(cliente)
 
-        assert "arvore_sem_chave.ged" in corpo, "pre-condicao: o indisponivel continua na lista"
-        assert 'value="arvore_sem_chave.ged"' not in corpo, (
-            "o item indisponivel ganhou botao de escolha: clicar nele so produziria a mensagem falsa "
-            "de arquivo inexistente"
+        assert "arvore sem chave" in corpo, "pre-condicao: o indisponivel continua na lista"
+        assert 'name="gedcom_filename" value="arvore_sem_chave.ged"' not in corpo, (
+            "o item indisponivel ganhou botao de ABRIR: clicar nele so produziria a mensagem falsa "
+            "de arquivo inexistente (D-11)"
+        )
+        assert 'name="arquivo_a_aposentar" value="arvore_sem_chave.ged"' in corpo, (
+            "o item indisponivel perdeu o botao de APAGAR: e justamente nele que o botao e mais "
+            "util, porque o arquivo nao serve para nada e so polui a lista (RN-14)"
         )
 
     def test_arquivo_de_outra_extensao_nao_aparece_em_aba_nenhuma(self, cliente_de_upload):
@@ -194,8 +256,10 @@ class TestTelaDeEntradaComArquivos:
 
         corpo = _corpo(cliente)
 
-        assert "arvore.ged" in corpo, "pre-condicao: a lista tem de estar no ar para a particao medir algo"
-        assert "planilha.xlsx" not in corpo, (
+        assert "arvore" in _visivel(corpo), (
+            "pre-condicao: a lista tem de estar no ar para a particao medir algo"
+        )
+        assert "planilha" not in corpo, (
             "o .xlsx entrou em alguma aba: a particao por extensao (RN-03, D-10) nao esta valendo"
         )
         assert os.path.isfile(os.path.join(pasta, f"{CHAVE_PLANILHA}__planilha.xlsx")), (
