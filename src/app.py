@@ -4,12 +4,13 @@ import socket
 import sys
 
 from flask import Flask, render_template, request, send_file
-from reporting.lista_de_arquivos import itens_da_aba, rotulo_de_referencia
+from reporting.lista_de_arquivos import formatar_data_br, itens_da_aba, rotulo_de_referencia
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
 from application.path_search import path_search as caso_de_uso_de_busca
+from application.reenvio import guardar_com_substituicao
 from application.traducao import traduzir
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
 from core.dna_analysis import Dependencias
@@ -97,6 +98,16 @@ app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
 app.add_template_filter(formatar_cm, "cm_br")
 app.add_template_filter(formatar_inteiro, "inteiro_br")
+# T035: a data da coluna "Enviado em". A conversao e a mesma autoridade unica de
+# `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template.
+app.add_template_filter(formatar_data_br, "data_br")
+# T040: o nome VISIVEL da arvore aberta, a partir do `gedcom_filename` que a rota ja passa em
+# todas as renderizacoes. E filtro, e nao parametro de contexto, de proposito: a rota tem oito
+# `render_template` com `gedcom_filename`, e acrescentar um argumento em cada um seria oito
+# lugares para esquecer um — o mesmo defeito que o processador de contexto resolveu para as
+# listas. O filtro reusa `rotulo_de_referencia`, que ja existia para as mensagens, entao o
+# nome sai SEM a chave de conteudo (`D-09`) pelo mesmo caminho de sempre.
+app.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
 
 UPLOAD_FOLDER = "uploads"
 
@@ -236,6 +247,43 @@ def icone_de_atalho():
     return send_file(caminho, mimetype="image/png")
 
 
+# --- Arte do topo da tela (feature 011, T036) ---
+#
+# Substitui o `<h1>Analisador Genealógico e de DNA</h1>` por uma imagem, a pedido do
+# operador. Mesmo desenho de rota do icone acima, e pelas mesmas razoes: `GET` sozinho, para
+# a recusa de escrita sair do roteador com `405`; `ETag` do `send_file` para a rebusca
+# responder `304` sem corpo; e **arte ausente devolve `404` e nada mais muda**, para a tela
+# continuar de pe (o `alt` da imagem e o texto do `<h1>` que ela substitui).
+#
+# A ARTE SERVIDA NAO E A QUE O OPERADOR ENVIOU. O arquivo que ele mandou em 2026-10-10 e
+# `RGB`, sem alfa, com o quadriculado de transparencia GRAVADO no bitmap — servir aquilo
+# desenharia uma grade cinza atras do logo. O que esta rota serve e uma RENDERIZACAO
+# DERIVADA, com o fundo removido, e a receita que a produz tem fonte unica em
+# `tests/banner_da_tela.py`, ao lado do teste de regressao da arte.
+#
+# `src/assets/`, e nao `docs/assets/`: o `.dockerignore` e lista de PERMISSAO (`*`, depois
+# `!src/`, `!src/**`), entao arte em `docs/` responderia 200 aqui e 404 no container.
+ARTE_DO_TOPO = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "banner-da-tela.png"
+)
+# Em `config` pelo mesmo motivo do icone: o caso de ausencia e testavel apontando a chave
+# para um caminho inexistente, sem tocar no repositorio.
+app.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
+
+
+@app.route("/banner.png", methods=["GET"])
+def banner_do_topo():
+    """Serve a arte do topo da tela (`T036`).
+
+    Sem validade longa de cache, como o icone: e a mesma arte que muda com o pedido do
+    operador, e o `ETag` ja da a revalidacao barata sem prender o cliente.
+    """
+    caminho = app.config["ARTE_DO_TOPO"]
+    if not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype="image/png")
+
+
 # --- As listas da tela (feature 011, T017) ---
 #
 # A `D-04` fez o `GET /` entregar as duas abas com as listas **sempre**, e nao apenas
@@ -358,6 +406,10 @@ def index():
                 # que o caminho antigo continua igual, e e essa prova que a paridade e os
                 # testes de rota consomem.
                 referencia_do_csv = request.form.get("matches_csv_filename")
+                # `None` enquanto nao houver substituicao de versao do CSV (`T038`, `RN-17`).
+                # Inicializado aqui porque os TRES caminhos abaixo (CSV da lista, CSV enviado e
+                # CSV substituido) chegam ao mesmo `render_template` do fim.
+                aviso_de_substituicao = None
                 if referencia_do_csv:
                     caminho_do_csv = _ARMAZENAMENTO.resolver(referencia_do_csv, DONO_DO_PROCESSO)
                     if caminho_do_csv is None:
@@ -373,21 +425,41 @@ def index():
                     # A gravação do CSV passa pela MESMA porta do GEDCOM. O tipo
                     # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
                     # divida #10, preservada de proposito (`RF-10`, `RN-01`).
-                    caminho_do_csv, motivo = _ARMAZENAMENTO.guardar(
-                        matches_file.read(), matches_file.filename, "csv", DONO_DO_PROCESSO)
-                    if motivo is not None:
-                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=motivo, success=False)
+                    #
+                    # `T038`: e a MESMA regra de reenvio do GEDCOM (`RN-17`), pela mesma
+                    # funcao — nao um segundo bloco parecido. Antes desta acao, reenviar um
+                    # CSV com conteudo novo deixava DUAS linhas de mesmo rotulo na aba de
+                    # DNA: medido na pasta do operador, com dois `Familias_Sergipanas.csv`.
+                    armazenado = guardar_com_substituicao(
+                        _ARMAZENAMENTO, matches_file.read(), matches_file.filename,
+                        "csv", DONO_DO_PROCESSO)
+                    caminho_do_csv = armazenado.caminho
+                    if armazenado.motivo is not None:
+                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=armazenado.motivo, success=False)
+                    if armazenado.desfecho == "substituido":
+                        # O aviso entra DEPOIS da analise, junto do resultado: a analise e o
+                        # assunto da tela, e a substituicao e uma nota sobre o insumo dela.
+                        # Ele nao pode substituir a mensagem do resultado.
+                        aviso_de_substituicao = (
+                            f"O CSV '{armazenado.visivel}' substituiu a versão anterior, que "
+                            "saiu da lista e continua guardada na pasta de aposentados."
+                        )
 
                 resultado = caso_de_uso_dna(
                     caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO,
                     gedcom_filename, _REGISTRO)
+                # O aviso da substituicao do CSV acompanha a mensagem do resultado, e nao a
+                # substitui: a analise e o assunto da tela (`T038`).
+                mensagem_final = resultado.mensagem
+                if aviso_de_substituicao:
+                    mensagem_final = f"{mensagem_final} {aviso_de_substituicao}"
                 return render_template(
                     "index.html",
                     gedcom_filename=gedcom_filename,
                     all_names=all_names,
                     dna_results=resultado.resultados,
                     skipped_matches=resultado.descartados,
-                    message=resultado.mensagem,
+                    message=mensagem_final,
                     aviso_de_persistencia=resultado.aviso_de_persistencia,
                     success=True
                 )

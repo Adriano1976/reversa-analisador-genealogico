@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Iterable, Protocol
 
 from utils.validate import decompor_nome_armazenado, motivo_de_indisponibilidade, pode_ser_usado
@@ -116,6 +117,30 @@ def rotulo_de_referencia(nome_armazenado: str) -> str:
     """
     _, visivel = decompor_nome_armazenado(nome_armazenado)
     return rotulo_limpo(visivel)
+
+
+def formatar_data_br(modificado_em: float) -> str:
+    """Data do arquivo em `dd/mm/aaaa`, para a coluna "Enviado em" (`T035`).
+
+    ## De onde o valor vem, e por que a coluna se chama "Enviado em"
+
+    Ele vem do `os.stat` da pasta (`EntradaArmazenada.modificado_em`), entao e a data de
+    **modificacao do arquivo no disco**. Para um arquivo guardado pela aplicacao, essa e
+    a data do envio, porque a gravacao e a unica coisa que toca o arquivo. Quem copia um
+    arquivo para a pasta a mao muda essa data — e por isso o cabecalho da coluna carrega
+    um `title` dizendo de onde o numero vem, em vez de o rotulo prometer mais do que ele
+    entrega.
+
+    ## Instante que o sistema nao converte devolve celula vazia, e nao excecao
+
+    Um `OverflowError` ou `OSError` aqui viraria `500` na TELA DE ENTRADA — a tela que
+    lista tudo — por causa de uma celula de data. O custo disso e desproporcional ao
+    valor da informacao, entao a conversao falha para uma string vazia.
+    """
+    try:
+        return datetime.fromtimestamp(modificado_em).strftime("%d/%m/%Y")
+    except (OverflowError, OSError, ValueError):
+        return ""
 
 
 def itens_da_aba(entradas: Iterable[Entrada], extensao: str) -> list[ItemDaLista]:

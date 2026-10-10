@@ -37,7 +37,13 @@ TAMANHO_ESPERADO = 16504
 #: criterio: "qualquer mudanca aqui e mudanca de tela, e nao desta feature". Foi o que aconteceu.
 #: O teste continua prendendo o que ele existe para prender — que nenhuma mudanca de tela passe
 #: despercebida. Era 23.906 bytes em 2026-10-08; sao 25.825 agora.
-SHA_DA_TELA = "e18d174930572778d74677b9019b1d52367fac8ea6b8ea855a14954da78fd78d"
+#:
+#: **Atualizado de novo em 2026-10-10, pela `T036` da mesma feature.** O operador pediu que o
+#: titulo em texto virasse a arte do topo, e o `<h1>` aparece nos DOIS ramos da tela — com e sem
+#: arquivo —, entao a troca muda ate a tela vazia que este teste mede. Era `e18d1749…`, 25.825
+#: bytes; e `c1048cef…`, 26.007. O paragrafo acima continua sendo a justificativa, e nao uma
+#: licenca: a mudanca esta declarada na `RN-16` do adendo vigente.
+SHA_DA_TELA = "c1048cef6fbd7a2e421f4d028ad615c3e0a9f58d4f0f27729547799c1f229748"
 
 
 def _cabecalho_png(corpo: bytes):

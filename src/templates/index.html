@@ -40,7 +40,16 @@
             <div class="col-lg-10">
                 <div class="card shadow-sm main-card">
                     <div class="card-body">
-                        <h1 class="card-title text-center mb-4">Analisador Genealógico e de DNA</h1>
+                        {# T036: o titulo em texto virou a arte do topo, a pedido do operador. O
+                           `<h1>` fica, com a imagem dentro, para o documento nao perder o
+                           titulo de nivel 1 — e o `alt` carrega o texto que saiu da tela, que
+                           e o que um leitor de tela anuncia e o que aparece se a rota da arte
+                           responder 404. `img-fluid` limita a largura ao cartao. #}
+                        <h1 class="text-center mb-4">
+                            <img src="/banner.png"
+                                 alt="Analisador Genealógico e de DNA"
+                                 class="img-fluid">
+                        </h1>
 
                         {% if message %}
                             <div class="alert alert-{{ 'success' if success else 'danger' }} alert-dismissible fade show" role="alert">
@@ -70,50 +79,79 @@
                                     <p class="text-muted">Escolha uma árvore que já está armazenada, ou envie uma nova.</p>
 
                                     {% if arvores_da_lista %}
-                                        <ul class="list-group mb-3">
-                                            {% for item in arvores_da_lista %}
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>
-                                                        {{ item.nome_exibido }}
-                                                        {% if item.quantidade > 1 %}
-                                                            <span class="badge bg-secondary">{{ item.quantidade }} arquivos</span>
-                                                        {% endif %}
-                                                        {% if not item.disponivel %}
+                                        {# T035: a lista virou TABELA, com linha de cabecalho e uma coluna por
+                                           informacao. O agrupamento pela chave ja existia (`RN-01`), e a coluna
+                                           "Arquivos" e o que o torna legivel sem um badge de texto solto.
+
+                                           A tabela de referencia tem uma coluna "Numero" com link. Aqui ela NAO
+                                           existe, e a ausencia e deliberada: esta aplicacao nao tem identificador
+                                           publico de arvore, e a chave de conteudo NAO pode ocupar esse lugar —
+                                           ela e exatamente o que o `D-09` proibe mostrar ao operador.
+
+                                           "Tamanho" e "Enviado em" nao sao decoracao. O nome exibido NAO e unico
+                                           (ha tres itens "Arvore Unificada Oficial V1 2" na pasta real), e sao a
+                                           data e o tamanho que distinguem um do outro — e o que a `D-09` diz. #}
+                                        <div class="table-responsive mb-3">
+                                            <table class="table table-sm align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Nome</th>
+                                                        <th scope="col">Situação</th>
+                                                        <th scope="col" class="text-end">Arquivos</th>
+                                                        <th scope="col" class="text-end">Tamanho</th>
+                                                        <th scope="col">Enviado em</th>
+                                                        <th scope="col" class="text-center">Gerenciar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in arvores_da_lista %}
+                                                        <tr>
+                                                            <td>{{ item.nome_exibido }}</td>
                                                             {# RN-11 / D-11: o item indisponivel NAO e escondido, e
-                                                               tambem nao e oferecido como se funcionasse. #}
-                                                            <span class="badge bg-warning text-dark">{{ item.motivo_indisponivel }}</span>
-                                                        {% endif %}
-                                                    </span>
-                                                    <span class="d-flex align-items-center gap-2">
-                                                        <span class="text-muted small">{{ item.bytes | inteiro_br }} bytes</span>
-                                                        {% if item.disponivel %}
-                                                            {# A ESCOLHA, que faltava: o item era texto e nao havia
-                                                               como selecionar arvore nenhuma (RF-02). Um formulario
-                                                               por item, com o nome armazenado no campo oculto — o
-                                                               MESMO campo que o resto da aplicacao ja devolve entre
-                                                               requisicoes. Item indisponivel nao ganha botao, e
-                                                               continua na lista com o motivo. #}
-                                                            <form method="POST" class="m-0">
-                                                                <input type="hidden" name="action" value="selecionar_arvore">
-                                                                <input type="hidden" name="gedcom_filename" value="{{ item.nome_armazenado }}">
-                                                                <button type="submit" class="btn btn-sm btn-success">Abrir</button>
-                                                            </form>
-                                                        {% endif %}
-                                                        {# RN-14: o botao de aposentar aparece em TODO item, inclusive no
-                                                           indisponivel — e justamente nele que ele e mais util, porque
-                                                           sao os arquivos que nao servem para nada e poluem a lista.
-                                                           Vermelho porque e a acao destrutiva da tela; mas nada e
-                                                           apagado: o arquivo sai da lista e continua no disco. #}
-                                                        <form method="POST" class="m-0"
-                                                              onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
-                                                            <input type="hidden" name="action" value="aposentar_arquivo">
-                                                            <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
-                                                            <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
-                                                        </form>
-                                                    </span>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
+                                                               tambem nao e oferecido como se funcionasse. Na tabela
+                                                               ele ganha a coluna de situacao, com o motivo. #}
+                                                            <td class="text-nowrap">
+                                                                {% if item.disponivel %}
+                                                                    <span class="text-success fw-bold" title="Pode ser aberta">&#10003;</span>
+                                                                {% else %}
+                                                                    <span class="text-warning fw-bold" title="{{ item.motivo_indisponivel }}">&#9888;</span>
+                                                                    <span class="text-muted small">{{ item.motivo_indisponivel }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="text-end">{{ item.quantidade }}</td>
+                                                            <td class="text-end text-muted small text-nowrap">{{ item.bytes | inteiro_br }} bytes</td>
+                                                            <td class="text-muted small text-nowrap" title="Data de modificação do arquivo no disco">{{ item.modificado_em | data_br }}</td>
+                                                            <td class="text-center">
+                                                                <span class="d-inline-flex align-items-center gap-2">
+                                                                    {% if item.disponivel %}
+                                                                        {# A ESCOLHA, que faltava: o item era texto e nao
+                                                                           havia como selecionar arvore nenhuma (RF-02).
+                                                                           Um formulario por item, com o nome armazenado
+                                                                           no campo oculto que o resto da aplicacao ja
+                                                                           devolve entre requisicoes. #}
+                                                                        <form method="POST" class="m-0">
+                                                                            <input type="hidden" name="action" value="selecionar_arvore">
+                                                                            <input type="hidden" name="gedcom_filename" value="{{ item.nome_armazenado }}">
+                                                                            <button type="submit" class="btn btn-sm btn-success">Abrir</button>
+                                                                        </form>
+                                                                    {% endif %}
+                                                                    {# RN-14: o botao de aposentar aparece em TODO
+                                                                       item, inclusive no indisponivel — e justamente
+                                                                       nele que ele e mais util. Vermelho porque e a
+                                                                       acao destrutiva da tela; mas nada e apagado. #}
+                                                                    <form method="POST" class="m-0"
+                                                                          onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
+                                                                        <input type="hidden" name="action" value="aposentar_arquivo">
+                                                                        <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
+                                                                        <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                                                                    </form>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     {% else %}
                                         <p class="text-muted">Nenhuma árvore armazenada ainda. Envie uma para começar.</p>
                                     {% endif %}
@@ -134,36 +172,57 @@
                                     <p class="text-muted">Escolha um relatório de matches que já está armazenado.</p>
 
                                     {% if relatorios_da_lista %}
-                                        <ul class="list-group mb-3">
-                                            {% for item in relatorios_da_lista %}
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span>
-                                                        {{ item.nome_exibido }}
-                                                        {% if item.quantidade > 1 %}
-                                                            <span class="badge bg-secondary">{{ item.quantidade }} arquivos</span>
-                                                        {% endif %}
-                                                        {% if not item.disponivel %}
-                                                            <span class="badge bg-warning text-dark">{{ item.motivo_indisponivel }}</span>
-                                                        {% endif %}
-                                                    </span>
-                                                    <span class="d-flex align-items-center gap-2">
-                                                        <span class="text-muted small">{{ item.bytes | inteiro_br }} bytes</span>
-                                                        {# RN-14: esta aba NAO ganha botao "Abrir", e nao por esquecimento.
-                                                           Nao existe acao que carregue um CSV sozinho: o relatorio de
-                                                           matches entra pela analise de DNA, que exige uma arvore — o
-                                                           mesmo motivo pelo qual a `T022` recusou um formulario de
-                                                           envio aqui. Oferecer "Abrir" prometeria o que a rota nao
-                                                           atende. Aposentar, sim, porque nao depende de arvore. #}
-                                                        <form method="POST" class="m-0"
-                                                              onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
-                                                            <input type="hidden" name="action" value="aposentar_arquivo">
-                                                            <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
-                                                            <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
-                                                        </form>
-                                                    </span>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
+                                        {# T035: mesma tabela da aba de arvore, com as MESMAS colunas, para as
+                                           duas abas se lerem do mesmo jeito. A coluna "Gerenciar" e que difere,
+                                           e so ela: aqui nao existe botao "Abrir", e a ausencia esta explicada
+                                           logo abaixo. #}
+                                        <div class="table-responsive mb-3">
+                                            <table class="table table-sm align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Nome</th>
+                                                        <th scope="col">Situação</th>
+                                                        <th scope="col" class="text-end">Arquivos</th>
+                                                        <th scope="col" class="text-end">Tamanho</th>
+                                                        <th scope="col">Enviado em</th>
+                                                        <th scope="col" class="text-center">Gerenciar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in relatorios_da_lista %}
+                                                        <tr>
+                                                            <td>{{ item.nome_exibido }}</td>
+                                                            <td class="text-nowrap">
+                                                                {% if item.disponivel %}
+                                                                    <span class="text-success fw-bold" title="Pode ser usado">&#10003;</span>
+                                                                {% else %}
+                                                                    <span class="text-warning fw-bold" title="{{ item.motivo_indisponivel }}">&#9888;</span>
+                                                                    <span class="text-muted small">{{ item.motivo_indisponivel }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="text-end">{{ item.quantidade }}</td>
+                                                            <td class="text-end text-muted small text-nowrap">{{ item.bytes | inteiro_br }} bytes</td>
+                                                            <td class="text-muted small text-nowrap" title="Data de modificação do arquivo no disco">{{ item.modificado_em | data_br }}</td>
+                                                            <td class="text-center">
+                                                                {# RN-14: esta aba NAO ganha botao "Abrir", e nao por
+                                                                   esquecimento. Nao existe acao que carregue um CSV
+                                                                   sozinho: o relatorio de matches entra pela analise de
+                                                                   DNA, que exige uma arvore — o mesmo motivo pelo qual
+                                                                   a `T022` recusou um formulario de envio aqui.
+                                                                   Oferecer "Abrir" prometeria o que a rota nao atende.
+                                                                   Aposentar, sim, porque nao depende de arvore. #}
+                                                                <form method="POST" class="m-0"
+                                                                      onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
+                                                                    <input type="hidden" name="action" value="aposentar_arquivo">
+                                                                    <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
+                                                                    <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     {% else %}
                                         {# T022 (RF-07, D-07). Aqui NAO entra formulario de envio, e a razao
                                            esta no contrato: nao existe acao que guarde um CSV sozinho. O CSV
@@ -176,6 +235,22 @@
                                 </div>
                             </div>
                         {% else %}
+                            {# T040: o caminho de VOLTA, e a identificacao da arvore aberta.
+                               Antes desta acao a tela de busca nao tinha link nenhum (medido:
+                               zero `<a href>`), e nao dizia SOBRE QUAL arquivo a busca ia
+                               rodar — o aviso do topo so nomeia a arvore em envio ou reenvio.
+
+                               E um LINK, e nao um botao com `action`, por tres razoes: ele
+                               volta por `GET /`, que ja e o caminho verificado e que sempre
+                               entrega a tela inicial (`D-04`); nao passa pelo despacho de
+                               `action`, entao nao corre o risco de cair no `render_template`
+                               do fim e descartar o estado — o defeito que o `selecionar_arvore`
+                               teve; e nao reenvia formulario nenhum. #}
+                            <p class="text-muted">
+                                Árvore aberta: <b>{{ gedcom_filename | rotulo_do_arquivo }}</b>
+                                — <a href="/">escolher outra árvore</a>
+                            </p>
+
                             <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" type="button" role="tab">Buscar Conexão no GEDCOM</button>

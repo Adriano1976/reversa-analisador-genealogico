@@ -17,10 +17,13 @@ pode passar a distinguir casos pela MENSAGEM — a distincao e sempre pelo TIPO.
 
 A moldura de apresentacao fica na tabela de traducao do adaptador de entrada
 (`application/traducao.py`), nunca aqui. Exemplo medido: o adaptador monta hoje
-`f"Arquivo nao reconhecido como GEDCOM: {motivo}."`, mas
-`utils.validate.validar_conteudo_gedcom` devolve so o `motivo`. A excecao carrega
+`"Arquivo nao reconhecido como GEDCOM. Favor, enviar o arquivo correto."` — frase FIXA
+desde a `RN-18`, sem o motivo dentro —, enquanto
+`utils.validate.validar_conteudo_gedcom` continua devolvendo so o `motivo`. A excecao carrega
 o motivo; a moldura e da traducao. Sem essa separacao, texto de tela vazaria para
-dentro do nucleo — o inverso do objetivo da Onda 2.
+dentro do nucleo — o inverso do objetivo da Onda 2. E e essa separacao que permite a
+`RN-18` esconder o motivo da tela **sem perde-lo**: ele segue na excecao, a um `str(erro)`
+de distancia de quem depura.
 
 ## Por que NAO existe um quinto tipo
 

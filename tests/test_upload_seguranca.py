@@ -226,7 +226,20 @@ class TestReproducao:
         assert restaram == []
 
     def test_dois_envios_de_mesmo_nome_nao_se_perdem(self, app_cliente):
-        """Critério 4. Hoje o segundo envio sobrescreve o primeiro, em silêncio."""
+        """Critério 4. Antes do armazenamento por conteudo, o segundo envio sobrescrevia o primeiro.
+
+        ## O que mudou em 2026-10-10, e por que o criterio continua valendo
+
+        A `RN-17` (feature `011`) fez o segundo envio de MESMO nome **aposentar** o primeiro em
+        vez de deixar os dois lado a lado na pasta de upload. O criterio deste teste e
+        "o conteudo do primeiro envio **nao se perde**", e ele continua satisfeito: o arquivo
+        vai inteiro para `_aposentados/`. O que mudou foi onde ele esta.
+
+        Por isso a busca passou a ser **recursiva**, e nao apenas no nivel de cima. A assercao
+        NAO foi afrouxada — ela continua exigindo os DOIS conteudos no disco, e continua
+        falhando se qualquer um deles sumir. Buscar so no nivel de cima passaria a medir a
+        localizacao do arquivo, que nao e o que o criterio protege.
+        """
         _, client, base = app_cliente
         primeiro = b"0 HEAD\n1 SOUR PRIMEIRO\n1 GEDC\n2 VERS 5.5.1\n0 TRLR\n"
         segundo = b"0 HEAD\n1 SOUR SEGUNDO\n1 GEDC\n2 VERS 5.5.1\n0 TRLR\n"
@@ -235,7 +248,10 @@ class TestReproducao:
         assert _enviar(client, "colisao.ged", segundo).status_code == 200
 
         uploads = _pasta_uploads(base)
-        conteudos = [p.read_bytes() for p in uploads.iterdir()] if uploads.exists() else []
+        conteudos = (
+            [p.read_bytes() for p in uploads.rglob("*") if p.is_file()]
+            if uploads.exists() else []
+        )
         assert primeiro in conteudos, "o conteúdo do primeiro envio foi perdido"
         assert segundo in conteudos, "o conteúdo do segundo envio não foi gravado"
 

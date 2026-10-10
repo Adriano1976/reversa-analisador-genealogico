@@ -76,14 +76,28 @@ def _csv_ilegivel(erro: CsvIlegivel) -> RespostaDeErro:
 
 
 def _gedcom_nao_suportado(erro: GedcomNaoSuportado) -> RespostaDeErro:
-    """`422` e a moldura literal — a excecao carrega so o motivo (`A002`).
+    """`422` e a mensagem UNICA de conteudo recusado (`RN-18`, `T039`).
 
-    Este e o ponto exato onde a moldura de apresentacao vive: `validate.py`
-    devolve `"nao comeca com a declaracao 0 HEAD"`, e o texto que o operador le
-    acrescenta `"Arquivo nao reconhecido como GEDCOM: "` na frente e o ponto final
-    no fim. Nada disso esta dentro da excecao.
+    Pedido do operador em 2026-10-10. Ate aqui o texto era montado com o motivo dentro
+    (`"Arquivo nao reconhecido como GEDCOM: <motivo>."`), e o operador lia o motivo tecnico do
+    validador — "nao comeca com a declaracao 0 HEAD". Agora a tela diz sempre a mesma frase,
+    que e o que ele pediu.
+
+    ## O motivo NAO se perdeu, e isso e deliberado
+
+    Ele continua dentro da excecao (`erro`), que e quem o carrega desde a feature 006
+    (`A002`): `validate.py` devolve o motivo, a excecao o transporta, e **so a apresentacao**
+    deixou de exibi-lo. Quem depurar tem o motivo a um `str(erro)` de distancia, e o
+    `except` do ramo de envio pode voltar a mostra-lo sem tocar no validador.
+
+    ## O que esta mensagem custa, declarado
+
+    As TRES recusas de conteudo — arquivo vazio, byte nulo e cabecalho ausente — passam a ter
+    o MESMO texto. O operador perde a pista de qual foi o problema. A troca foi pedida com
+    essa consequencia a vista; se algum dia o arquivo vazio precisar de texto proprio, e uma
+    linha aqui, e o motivo para isso ja esta na excecao.
     """
-    return RespostaDeErro(f"Arquivo não reconhecido como GEDCOM: {erro}.", 422)
+    return RespostaDeErro("Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.", 422)
 
 
 def _erro_de_dominio_sem_moldura_propria(erro: ErroDeDominio) -> RespostaDeErro:

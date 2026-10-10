@@ -48,7 +48,11 @@ CAMINHO_DO_APP = os.path.join(PROJETO, "src", "app.py")
 # generico do ramo, que montava exatamente este texto. O `GedcomNaoSuportado`
 # sai sem ele porque nasce no caminho de gravacao, que respondia direto.
 PREFIXO_GENERICO = "Ocorreu um erro: "
-MOLDURA_GEDCOM = "Arquivo não reconhecido como GEDCOM: "
+# `RN-18` (2026-10-10): a mensagem de conteudo recusado deixou de ser uma MOLDURA com o motivo
+# tecnico dentro e passou a ser uma frase unica, pedida pelo operador. O nome da constante
+# mudou junto, de `MOLDURA_GEDCOM` para `MENSAGEM_GEDCOM`: ela nao e mais uma moldura em volta
+# de um motivo, e sim o texto inteiro que a tela mostra.
+MENSAGEM_GEDCOM = "Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto."
 
 # Motivos EXATOS que `utils.validate.validar_conteudo_gedcom` devolve hoje
 # (`src/utils/validate.py:98`, `:100` e `:104`). Cada linha da tabela e o texto
@@ -102,7 +106,7 @@ TABELA_MEDIDA = [
     ),
     pytest.param(
         GedcomNaoSuportado("arquivo vazio"),
-        MOLDURA_GEDCOM + "arquivo vazio.",
+        MENSAGEM_GEDCOM,
         422,
         id="GedcomNaoSuportado",
     ),
@@ -232,7 +236,7 @@ def test_excecao_carrega_apenas_o_motivo(entrada):
     erro = GedcomNaoSuportado(motivo)
 
     assert str(erro) == motivo, "a excecao deixou de carregar so o motivo"
-    assert MOLDURA_GEDCOM.strip() not in str(erro), (
+    assert MENSAGEM_GEDCOM not in str(erro), (
         "a moldura vazou para dentro da excecao; a traducao vai duplica-la"
     )
     assert "GEDCOM" not in str(erro).replace(motivo, ""), (
@@ -253,8 +257,13 @@ def test_traducao_e_quem_monta_a_moldura_em_volta_do_motivo(entrada):
 
     resposta = traduzir(GedcomNaoSuportado(motivo))
 
-    assert resposta.mensagem == MOLDURA_GEDCOM + motivo + "."
-    assert resposta.mensagem.count(MOLDURA_GEDCOM.strip()) == 1
+    assert resposta.mensagem == MENSAGEM_GEDCOM, (
+        "a mensagem de conteudo recusado mudou: a `RN-18` fixa UMA frase para os tres motivos"
+    )
+    assert motivo not in resposta.mensagem, (
+        f"o motivo tecnico ({motivo!r}) voltou para a tela: a `RN-18` o esconde do operador, e "
+        "ele continua disponivel dentro da excecao para quem depura"
+    )
     assert resposta.mensagem.endswith(".")
     assert resposta.status == 422
 
