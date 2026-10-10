@@ -8,8 +8,8 @@
 
 | Métrica | Valor |
 |---------|-------|
-| Total de ações | 32 |
-| Paralelizáveis (`[//]`) | 22 |
+| Total de ações | 34 |
+| Paralelizáveis (`[//]`) | 24 |
 | Maior cadeia de dependência | 12 (`T001 → T005 → T014 → T015 → T016 → T019 → T020 → T021 → T022 → T023 → T031 → T032`) |
 
 > **Três notas de leitura.** (1) Onde a coluna "Arquivo alvo" nomeia `evidence/…`, a ação é de
@@ -75,6 +75,8 @@
 | T030 | Escrever o `regression-watch.md` com os itens de vigilância, o que cada um vigia e o sintoma que o dispara | T018, T022 | `[//]` | `_reversa_forward/011-escolher-arquivo-da-lista/regression-watch.md` | 🟢 | [X] |
 | T031 | Revisar o `onboarding.md` desta feature e preencher a tabela de resultados medidos com o que cada passo efetivamente produziu | T023, T024, T025, T027 | - | `_reversa_forward/011-escolher-arquivo-da-lista/onboarding.md` | 🟢 | [X] |
 | T032 | Escrever o adendo `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md`: o campo opcional novo do contrato, a **pré-condição 🟢 de `_reversa_sdd/domain.md` §4 como `regra-alterada`**, a tela nova das duas abas e a divergência declarada. **Estágio `/reversa-sync`** (`D-06`) | T029, T030, T031 | - | `_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md` | 🟢 | [X] |
+| T033 | Formatar o rótulo da lista: tirar a **última extensão** e trocar os **símbolos por espaço**, sem tocar na partição por aba nem na referência enviada ao formulário (`RN-13`) | T016 | `[//]` | `src/reporting/lista_de_arquivos.py` | 🟢 | [X] |
+| T034 | Botão verde **"Abrir"** e botão vermelho **"Apagar"** em cada item; "Apagar" **aposenta** (move para `<pasta>/_aposentados/`, não apaga), com **confirmação** que cita o arquivo, e ganha `aposentar` na porta de armazenamento, validação de nome simples e ramo de rota (`RN-14`) | T016, T018, T019 | `[//]` | `src/ports/adaptadores.py`, `src/app.py`, `src/templates/index.html` | 🟢 | [X] |
 
 ## Notas de execução
 
@@ -135,3 +137,5 @@
 | 2026-10-09 | Versão inicial gerada por `/reversa-to-do` | reversa |
 | 2026-10-09 | Correção vinda do `/reversa-audit`: `RN-03`/`D-10` citados em `T005` e `T015` (`A001`); `D-08` citado em `T013` e o caso negativo entrou na `T010` (`A002`); `domain.md` §4 declarado na `T032` (`A003`) | reversa |
 | 2026-10-09 | Correção vinda do `/reversa-audit` (`A007`, `CRITICAL`): `T005`, `T015` e `T020` passam a cobrir o **item indisponível** (`RN-11`, `RF-09`, `D-11`). Nenhum ID novo, nenhuma dependência nova — as contagens do resumo seguem 32 / 22 / 12 | reversa |
+| 2026-10-10 | `T034` acrescentada por **pedido do operador**: botão verde "Abrir" e botão vermelho "Apagar", com `aposentar` na porta de armazenamento (`RN-14`). Total 33 → 34 e paralelizáveis 23 → 24. A aplicação passa a MOVER arquivo, o que nenhum caminho do código fazia; a `RN-07` (nunca apagar) ganhou teste próprio | reversa |
+| 2026-10-10 | `T033` acrescentada por **pedido do operador**: o rótulo da lista passa a sair sem a última extensão e sem os símbolos (`RN-13`). Total 32 → 33 e paralelizáveis 22 → 23 (a ação é `[//]`, e depende só da `T016`); a maior cadeia não muda, porque a `T033` é folha | reversa |

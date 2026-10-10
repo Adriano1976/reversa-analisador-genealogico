@@ -40,6 +40,8 @@ tres contratos ao mesmo tempo. O nucleo nao e tocado.
 | `RN-10` | Arquivo **sem chave** no nome vira item proprio, marcado | decisao da §9 |
 | `RN-11` | Item cujo arquivo **nao pode ser usado por referencia** e exibido com a marca de indisponivel e o motivo, e **continua na lista** | **auditoria de 2026-10-09**, apos medir 7 de 19 arquivos inalcancaveis |
 | `RN-12` | O item da lista de arvores e um **controle submetivel** (`action=selecionar_arvore`); o item indisponivel continua listado e **nao** ganha botao de escolha | **medicao no navegador em 2026-10-09**: a lista era texto puro, sem `select`, radio, link ou formulario, e o `RF-02` nao estava satisfeito |
+| `RN-13` | O rotulo exibido sai **sem a ultima extensao** e com os **simbolos trocados por espaco** (`Backup-Arvore-Sandro-12-11-2024.ged` → `Backup Arvore Sandro 12 11 2024`). A particao por aba, a marca de indisponivel e a referencia enviada ao formulario continuam lendo o nome visivel **cru** | **pedido do operador em 2026-10-09** |
+| `RN-14` | O botao **"Apagar" aposenta**, e nao apaga: o arquivo sai da lista e continua inteiro no disco, em `<pasta>/_aposentados/`. A referencia aceita e um **nome simples**, e nao a forma canonica com chave — os arquivos sem chave sao justamente os que o operador mais quer tirar da lista. O botao verde **"Abrir"** e o `selecionar_arvore` de sempre, com rotulo e cor novos | **pedido do operador em 2026-10-10** |
 | `RF-09` | A lista marca o item inalcancavel, com o motivo, sem esconde-lo | idem |
 
 ## 4. Divergencias declaradas
@@ -52,6 +54,29 @@ tres contratos ao mesmo tempo. O nucleo nao e tocado.
    para 25.825 bytes), com o comentario registrando quem mudou a tela e por que. Nao foi afrouxamento: o
    comentario anterior da propria constante declarava o criterio — "qualquer mudanca aqui e mudanca de
    tela, e nao desta feature". A suite final e **381 passed, 9 skipped, zero falhas**.
+3. **O rotulo deixa de anunciar o tipo do arquivo, e isso foi MEDIDO e aceito em 2026-10-09.** A `RN-13`
+   foi pedida pelo operador, e eu recomendei preservar a extensao; a decisao dele foi tirar as duas
+   coisas. A consequencia medida na pasta real (19 arquivos): `Familias_Sergipanas.csv.ged`, que esta na
+   aba de arvore porque o nome termina em `.ged`, passa a exibir `Familias Sergipanas csv` — o `csv`
+   sobrevive como palavra, e **esse** e o unico sinal que resta do tipo real. Na aba de DNA, os itens
+   `Familias_Sergipanas.csv` (usavel) e `Famílias_Sergipanas.csv` (inalcancavel, `BUG-20261009-6RKP`)
+   ficam com rotulos que diferem **so pelo acento do `i`**, e a marca de indisponivel passa a ser o
+   diferenciador principal. Nenhuma das duas coisas e defeito novo — antes da `RN-13` os nomes tambem
+   diferiam so pelo acento —, mas o rotulo agora e uma frase, e nao um nome de arquivo, entao a
+   diferenca fica mais discreta. Reverter e uma linha: a formatacao esta isolada em `rotulo_limpo`.
+   A suite final e **395 passed, 9 skipped, zero falhas**.
+4. **A aplicacao passou a MOVER arquivo do operador, e isso e novo em 2026-10-10.** Ate a `RN-14`, nenhum
+   caminho do codigo movia nem apagava nada depois da gravacao: `grep` por `os.remove`, `unlink`,
+   `rmtree` e `shutil.move` em `src/` nao encontrava **nenhuma** ocorrencia. Agora `aposentar` usa
+   `os.replace` para levar o arquivo a `<pasta>/_aposentados/`. E o ponto de maior risco desta feature, e
+   por isso: a `RN-07` ("a aplicacao nunca apaga arquivo enviado") **continua valendo** e ganhou teste
+   proprio (`test_aposentar_nao_apaga_e_o_conteudo_esta_intacto`); a subpasta fica **dentro** da pasta de
+   upload justamente para a operacao ser reversivel por um `mv` de volta; e a gravacao **nao sobrescreve**
+   um aposentado de mesmo nome — acrescenta sufixo. A operacao **tem confirmacao na tela**, pedida pelo
+   operador na mesma sessao: a caixa cita o arquivo daquela linha e avisa que ele continua guardado no
+   disco. **Limite honesto:** a suite prende o atributo `onsubmit` no markup entregue, e isso e menos do
+   que provar que a caixa aparece — `confirm` e do navegador, e nao ha motor de JavaScript na suite. A
+   suite final e **430 passed, 9 skipped, zero falhas**.
 
 ## 5. O que este adendo NAO faz
 

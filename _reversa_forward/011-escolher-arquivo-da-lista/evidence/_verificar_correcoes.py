@@ -68,9 +68,9 @@ for linha in linhas:
         c = [x.strip() for x in linha.strip().strip("|").split("|")]
         if len(c) == 7:
             acoes.append(c)
-conferir(len(acoes) == 32, f"32 acoes reconhecidas pelo detector (achei {len(acoes)})")
+conferir(len(acoes) == 34, f"34 acoes reconhecidas pelo detector (achei {len(acoes)})")
 marcadas = [c[0] for c in acoes if c[3].strip("`") == "[//]"]
-conferir(len(marcadas) == 22, f"22 marcadas [//] (achei {len(marcadas)})")
+conferir(len(marcadas) == 24, f"24 marcadas [//] (achei {len(marcadas)})")
 
 deps = {c[0]: ([] if c[2].strip() in ("-", "") else [d.strip() for d in c[2].split(",")]) for c in acoes}
 ids = {c[0] for c in acoes}
