@@ -27,11 +27,14 @@ import re
 CABECALHO_GEDCOM = "0 HEAD"
 
 # A chave e 16 hexadecimais, um separador de dois underscores e o nome visivel.
-# A forma e fechada de proposito: exclui `/`, `\` e `..`, de modo que um valor
-# vindo do formulario nunca pode escapar da pasta de upload.
+#
+# `_FORMATO_CHAVE` VIVEU AQUI ate 2026-10-10, e foi REMOVIDA: era o alfabeto fechado
+# `^[0-9a-f]{16}__[A-Za-z0-9._-]+$`, que recusava o acento e o espaco que o gravador
+# PRESERVA de proposito (`RF-06`). Ela nao era a defesa contra escape -- a defesa e a
+# exigencia de a referencia ser um NOME, e ela esta em `chave_recebida_e_valida`. O
+# `BUG-20261009-6RKP` e o registro da contradicao, e a `RN-20` e a regra que a substituiu.
 _SEPARADOR = "__"
 _HEX16 = r"[0-9a-f]{16}"
-_FORMATO_CHAVE = re.compile(r"^" + _HEX16 + _SEPARADOR + r"[A-Za-z0-9._-]+$")
 
 # O PREFIXO da chave, sem exigir que o nome INTEIRO seja valido. Existe porque as
 # duas perguntas sao diferentes, e a feature 011 precisa das duas:
@@ -91,15 +94,41 @@ def nome_do_arquivo_armazenado(chave: str, nome_original) -> str:
 
 
 def chave_recebida_e_valida(nome_recebido) -> bool:
-    """Aceita apenas valor na forma `<16 hex>__<nome visivel>`.
+    """Aceita `<16 hex>__<nome visivel>`, com o visivel sendo um NOME, e nao um caminho.
 
-    Valor ausente, vazio, com separador de caminho ou com nome escolhido pelo
-    cliente e recusado. E esta funcao que impede o escape por caminho, sem
-    precisar de lista negra.
+    ## O que mudou em 2026-10-10, e por que (`BUG-20261009-6RKP`, `RN-20`)
+
+    Ate aqui a forma era um ALFABETO FECHADO: `^[0-9a-f]{16}__[A-Za-z0-9._-]+$`. O gravador,
+    porem, **preserva acento e espaco** no nome visivel — e isso e requisito (`RF-06`), nao
+    descuido. Os dois lados se contradiziam: o arquivo era gravado como
+    `94e2402671702cac__Famílias_Sergipanas.csv` e RECUSADO na leitura. Medido na pasta do
+    operador: 3 arquivos com acento e 1 com espaco ficavam inalcancaveis, e a tela respondia
+    `Erro: Arquivo '...' nao existe mais.` — que era **falso**, porque o arquivo existia.
+
+    ## A defesa contra escape NAO era o alfabeto
+
+    Era a exigencia de a referencia ser um NOME, e nao um caminho. Por isso o criterio novo e
+    o mesmo que `referencia_de_arquivo_da_pasta` ja aplica: sem barra, sem barra invertida, sem
+    byte nulo, sem `.` nem `..`, e o valor igual ao proprio `basename` da parte visivel.
+
+    **Os cinco casos de escape do `BUG-20260929-QMLY` continuam recusados**, e por construcao:
+    `../etc/passwd`, `uploads\\..\\x.ged` e `nome_do_cliente.ged` nao tem o prefixo da chave;
+    vazio e `None` saem na primeira linha. Quem tiver o prefixo e tentar escapar
+    (`<chave>__../x`) e barrado pelo separador na parte visivel. Ha teste para cada um.
+
+    ## O que esta funcao NAO responde
+
+    Ela responde "posso RESOLVER este nome?", e nao "este arquivo existe" — quem faz a segunda
+    pergunta e o `os.path.exists` do adaptador. E ela continua sendo a **unica** autoridade
+    sobre a primeira: a lista de tela e o botao de aposentar perguntam a ela, e nao a um teste
+    proprio, para a marca da tela nunca divergir do resolvedor (`D-11`).
     """
     if not isinstance(nome_recebido, str) or not nome_recebido:
         return False
-    return _FORMATO_CHAVE.match(nome_recebido) is not None
+    if _PREFIXO_CHAVE.match(nome_recebido) is None:
+        return False
+    _chave, visivel = decompor_nome_armazenado(nome_recebido)
+    return referencia_de_arquivo_da_pasta(visivel)
 
 
 def validar_conteudo_gedcom(conteudo: bytes) -> str | None:

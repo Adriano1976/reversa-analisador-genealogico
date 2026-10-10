@@ -191,13 +191,47 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     A uniao e explicita de proposito, e o chamador repete a guarda de `None`. O
     checador nao estreita o segundo elemento da tupla por `erro is not None`,
     entao sem as duas a chamada do carregador recebe `str | None`.
+
+    ## O parse tem guarda, e o motivo foi MEDIDO (`A008`, `T042`)
+
+    Ate 2026-10-10 esta funcao chamava `_CARREGADOR.carregar` **fora de qualquer `try`**, e os
+    `except` de `index()` comecam depois da chamada dela. Um arquivo que a referencia ALCANCA e
+    cujo conteudo o `ged4py` nao consegue ler derrubava a requisicao com `500` e traceback, no
+    lugar de dizer ao operador o que houve. Reproduzido pela rota:
+
+        POST / com gedcom_filename=0e85a4f3052e19e3__Genealogia_Mineira.csv  ->  500
+        OSError: Unexpected EOF while reading GEDCOM header
+
+    E nao era um caso de laboratorio: **10 dos 13 arquivos da pasta real** derrubavam o parser.
+    Eles nao sao GEDCOM, e o `guardar` nunca os aceitaria como tal — mas o `guardar` e o caminho
+    de ENVIO, e a pasta pode receber arquivo por fora da aplicacao. O `A008` da auditoria
+    registrou isso como "nao alcancavel com os arquivos de hoje"; o que se mediu depois e que o
+    caminho de CLIQUE nao chega la (a aba de DNA nao oferece "Abrir"), mas a REQUISICAO chega,
+    e a aplicacao nao tem autenticacao.
+
+    ## As mensagens usam o rotulo, e nao a referencia (`D-09`)
+
+    As duas mensagens de erro montavam `f"... '{referencia}' ..."`, e `referencia` e o nome
+    ARMAZENADO — que comeca com os 16 hexadecimais da chave de conteudo. O `D-09` diz que o
+    operador ve o NOME, nunca a chave, e o erro era o unico lugar da tela que ainda a mostrava.
+    Agora as duas passam por `rotulo_de_referencia`, o mesmo formatador das outras mensagens.
     """
     referencia = request.form.get("gedcom_filename")
     if not referencia:
         return None, None, "Erro: Arquivo GEDCOM não encontrado."
-    arvore = _CARREGADOR.carregar(referencia, DONO_DO_PROCESSO)
+    try:
+        arvore = _CARREGADOR.carregar(referencia, DONO_DO_PROCESSO)
+    except Exception:
+        # O traceback vai para o LOG, e nao para a tela: o operador precisa de uma frase que
+        # diga o que aconteceu, e quem depura precisa do rastro. Antes desta guarda os dois
+        # ficavam sem nada — a tela mostrava o traceback e ninguem o registrava.
+        app.logger.exception("GEDCOM alcancado pela referencia nao pode ser lido")
+        return None, None, (
+            f"Erro: o arquivo '{rotulo_de_referencia(referencia)}' não pôde ser lido como GEDCOM. "
+            "Ele pode estar corrompido, vazio, ou não ser um GEDCOM de verdade."
+        )
     if arvore is None:
-        return None, None, f"Erro: Arquivo '{referencia}' não existe mais."
+        return None, None, f"Erro: Arquivo '{rotulo_de_referencia(referencia)}' não existe mais."
     return referencia, arvore, None
 
 

@@ -179,32 +179,38 @@ class TestMarcasEClassificacao:
         assert itens[0].disponivel is False
         assert "chave" in (itens[0].motivo_indisponivel or "").lower()
 
-    def test_item_com_acento_no_nome_visivel_e_indisponivel_com_o_motivo(self):
-        """`D-11`, caso MEDIDO na pasta real: o gravador preserva acento, o resolvedor o recusa."""
+    def test_item_com_acento_no_nome_visivel_E_DISPONIVEL(self):
+        """`RN-20`, correcao de 2026-10-10: acento no nome visivel deixou de tornar o arquivo inalcancavel.
+
+        Este teste prendia o CONTRARIO ate hoje, e prendia um defeito: o gravador preserva acento
+        porque e requisito (`RF-06`), e o resolvedor exigia um alfabeto que nao o admite. O arquivo
+        `94e2402671702cac__Famílias_Sergipanas.csv` existia na pasta do operador e a tela dizia
+        "nao existe mais" — falso. Ver o `BUG-20261009-6RKP`.
+        """
         itens = itens_da_aba([e(f"{CHAVE_C}__Famílias_Sergipanas.csv")], ".csv")
 
-        assert itens[0].disponivel is False
-        assert itens[0].motivo_indisponivel is not None
-        assert "chave" not in itens[0].motivo_indisponivel.lower(), (
-            "o motivo tem de distinguir os dois casos: este TEM chave, e o problema e outro"
+        assert itens[0].disponivel is True, (
+            "o acento voltou a tornar o arquivo inalcancavel: o resolvedor precisa aceitar o que o "
+            "gravador produz (`RF-06`, `RN-20`)"
         )
+        assert itens[0].motivo_indisponivel is None
 
-    def test_item_com_espaco_no_nome_visivel_e_indisponivel(self):
-        """Espaco cai na mesma forma fechada que o acento, e a mitigacao de 2026-10-09 tratou disso."""
+    def test_item_com_espaco_no_nome_visivel_E_DISPONIVEL(self):
+        """O espaco cai no mesmo caso do acento, e pela mesma razao (`RN-20`)."""
         itens = itens_da_aba([e("b70889273a505a5d__planilha de dna.xlsx")], ".xlsx")
 
-        assert itens[0].disponivel is False
+        assert itens[0].disponivel is True
 
     def test_nenhum_item_e_escondido_por_estar_indisponivel(self):
         """`D-08` + `RN-11`: o item indisponivel CONTINUA na lista. Nao se esconde dado do operador.
 
-        Correcao de 2026-10-09: a primeira versao desta fixture punha um arquivo `.csv` numa
-        chamada com extensao `.ged`, e esperava ve-lo na lista. Ele **nao** devia aparecer — e era o
-        proprio `RN-03` funcionando. O arquivo foi trocado por um `.ged` com acento, que e o caso
-        indisponivel que pertence a esta aba.
+        Correcao de 2026-10-10: a fixture usava um arquivo COM chave e com acento como caso
+        indisponivel. Depois da `RN-20` ele passou a ser alcancavel — e o caso indisponivel que
+        resta e o arquivo **sem chave**, que a referencia nao alcanca de jeito nenhum. Sao usados
+        DOIS deles para a contagem continuar exercitando "mais de um item marcado", e nao um so.
         """
         itens = itens_da_aba(
-            [e("arvore_sem_chave.ged"), e(f"{CHAVE_C}__Famílias.ged"),
+            [e("arvore_sem_chave.ged"), e("outra_sem_chave.ged"),
              e(f"{CHAVE_A}__arvore.ged")],
             ".ged",
         )
@@ -318,12 +324,14 @@ class TestFormatoDoRotulo:
         assert [i.nome_exibido for i in arvores] == ["arvore"]
 
     def test_o_rotulo_bonito_nao_melhora_o_alcance_do_arquivo(self):
-        """`D-11`: o acento e o que torna o arquivo inalcancavel, e o rotulo nao muda isso.
+        """`D-11`: o rotulo e cosmetico e nao concede alcance nenhum.
 
-        O arquivo tem nome bonito depois da formatacao, e continua INDISPONIVEL -- porque
-        quem decide o alcance e o nome visivel **cru**, que segue com acento.
+        Correcao de 2026-10-10 (`RN-20`): este teste usava um arquivo COM chave e com acento, que
+        era inalcancavel — e o acento deixou de bloquear. O caso que sustenta a assercao passou a
+        ser o arquivo **sem chave**: o rotulo dele tambem fica bonito depois da formatacao, e ele
+        continua indisponivel, porque o que falta nao e beleza, e a chave.
         """
-        itens = itens_da_aba([e(f"{CHAVE_C}__Famílias_Sergipanas.csv")], ".csv")
+        itens = itens_da_aba([e("Famílias_Sergipanas.csv")], ".csv")
 
         assert itens[0].nome_exibido == "Famílias Sergipanas"
         assert itens[0].disponivel is False

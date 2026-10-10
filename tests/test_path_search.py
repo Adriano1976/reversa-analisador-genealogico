@@ -175,13 +175,14 @@ class TestEscolherArvoreDaLista:
     def test_item_indisponivel_e_recusado_sem_500_e_sem_carregar_arvore(self, cliente_de_upload):
         """`D-08`, `RN-11`: a recusa acontece no USO, com mensagem, e a tela continua utilizavel.
 
-        O arquivo tem os 16 hexadecimais no inicio do nome, entao ele passa no prefixo; o que a forma
-        fechada recusa e o **acento** no nome visivel. E o caso real medido, so que construido em pasta
-        temporaria, porque a mitigacao de 2026-10-09 tirou os acentos da pasta de verdade.
+        Correcao de 2026-10-10 (`RN-20`): a referencia inalcancavel usada aqui era um arquivo COM
+        chave e com **acento** no nome visivel, porque a forma fechada recusava o acento. O acento
+        deixou de bloquear — o resolvedor agora aceita o que o gravador produz. O caso que resta
+        inalcancavel e o arquivo **sem chave**, e e ele que esta fixture usa agora: sem os 16
+        hexadecimais no inicio, a referencia nao alcanca o arquivo por nenhum caminho.
         """
         _app, cliente, pasta = cliente_de_upload
-        chave = chave_de_armazenamento(SAMPLE_GED.encode("utf-8"))
-        armazenado = self._guardar(pasta, f"{chave}__Famílias.ged", SAMPLE_GED)
+        armazenado = self._guardar(pasta, "Famílias.ged", SAMPLE_GED)
 
         resposta = cliente.post("/", data={
             "action": "path_search",
