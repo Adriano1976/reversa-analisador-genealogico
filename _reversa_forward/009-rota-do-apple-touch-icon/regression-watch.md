@@ -44,6 +44,18 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W026 | 🟡 amarelo | **A essência vale; a forma mudou por reorganização deliberada.** A afirmação *"não há contrato JSON, redirect, `201`, `400` ou `409`"* continua **verdadeira** e está declarada em três artefatos regenerados (`upload-gedcom/contracts.md` §1, `tela-de-entrada/contracts.md` §1 e `recursos-da-tela/contracts.md` §1). O que mudou é que as **duas rotas de arte deixaram de ser uma linha do contrato de upload**: viraram uma **unit própria** (`recursos-da-tela`), com `contracts.md` e entrada no `openapi/index.yaml`. A contagem "quatro linhas" descreve a organização anterior. **Não é regressão.** |
+| W027 | 🟡 amarelo | **A regra substantiva vale; o literal está superado por decisão.** Medido: o template **não** declara o ícone de atalho (zero ocorrências de `apple-touch-icon`). Mas o `GET /` **não** é mais o de 23.906 bytes: a tela mudou **três vezes em 2026-10-10**, por decisões registradas (`T036`→`T044` da masthead), e o `sha256` de referência do teste é hoje `17240e5a…`. A "tentação futura" que este item vigia — acrescentar um `<link rel="apple-touch-icon">` — **não** aconteceu. |
+| W028 | 🟢 verde | `src/static/` **não existe** e a arte mora em `src/assets/` (medido). `recursos-da-tela/requirements.md` (`BR-E-22`, `BR-E-23`) e o teste de deriva guardam a proibição. |
+| W029 | 🟢 verde | Nenhuma rota para `favicon.ico` nem para `apple-touch-icon-precomposed.png` (zero ocorrências em `src/app.py`). `BR-E-09`; `TT-08`. |
+| W030 | 🟢 verde | **Medido no arquivo:** 180×180, **tipo de cor 2** (truecolor sem alfa) e **16.504 bytes**. A deriva é comparada por **pixel**, nunca por bytes (`BR-E-27`). |
+
 > Preenchido pelo agente reverso quando o `/reversa` rodar de novo. Vazio por enquanto.
 
 | Data | Re-extração | `W026` | `W027` | `W028` | `W029` | `W030` |

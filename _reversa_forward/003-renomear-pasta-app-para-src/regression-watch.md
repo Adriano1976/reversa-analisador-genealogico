@@ -29,6 +29,22 @@ Itens sem peso de regressão. Não eram regras confirmadas antes da mudança, ou
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Segunda verificação real destes watch items**, contra o `_reversa_sdd/` regenerado em 2026-10-10 e contra o código, por medição. Suíte: **527 passam / 9 pulados / 0 falham**. Paridade: **100 % em 6/6 fixtures, exit 0**.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `src/` é a raiz, com `application/`, `core/`, `parsers/`, `ports/`, `reporting/`, `utils/` (mais `assets/`, `templates/`, `uploads/`). **`src/reconstructed/` não existe** (medido). Registrado em `code-spec-matrix.md` §2 e `c4-components.md`. |
+| W002 | 🟢 verde | `requirements.txt` na raiz; **9 linhas de dependência, todas com `==`** (medido). Registrado em `dependencies.md` §1. |
+| W003 | 🟢 verde | `src/uploads` existe e `_pasta_uploads()` é ancorada em `os.path.dirname(os.path.abspath(__file__))`, com `ANALISADOR_UPLOAD_FOLDER` como sobreposição (medido em `src/app.py:127-130`). Contratado em `upload-gedcom/contracts.md` §2.3. As features 010 e 012 quebraram e restauraram a condição — o valor de hoje é o mesmo da publicação. |
+| W004 | 🟢 verde | Ausências confirmadas no disco: `src/README.md`, `src/.gitignore.txt` e `src/static/` **não existem** (medido). Registrado em `inventory.md` §2. |
+| W005 | 🟢 verde | **Paridade remedida em 2026-10-10: 100 % (zero divergência) em 6/6 fixtures, exit 0.** A suíte cresceu de 179 itens (2026-10-05) para **536 itens** (527 passam, 9 pulados, 0 falham) — **nenhum teste removido ou desabilitado**. |
+
+> ⚠️ **A paridade continua NÃO medida em árvore real.** A execução sobre `Arvore_Unificada_Oficial_V1_2.ged` estourou o teto de 600 s do harness em 2026-10-05 e não foi repetida nesta passagem. O resultado de 2026-09-28 (5/5 árvores reais) segue como referência **histórica**, não como verificação desta rodada.
+>
+> **Nota operacional que continua valendo:** o `--gedcom` do harness exige **caminho absoluto** — o oráculo roda em diretório isolado e um caminho relativo resolve contra lá, produzindo um `FileNotFoundError` que é artefato do probe, não divergência.
+
 ### Re-extração 2026-10-05 03:05
 
 **Primeira verificação real destes watch items.** Eles foram publicados em 2026-10-03, depois do congelamento do SDD de 2026-09-30; a extração de **2026-10-05** é a primeira que regenera o `_reversa_sdd/` a partir do código atual.

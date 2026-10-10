@@ -45,6 +45,19 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.** Medição no código, nas specs regeneradas e no script de evidência da feature.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W020 | 🟢 verde | O dono **não** entra na chave nem no caminho: `upload-gedcom/contracts.md` §2.3, `upload-gedcom/requirements.md` (`RF-24`), `analise-dna/requirements.md` (`BR-D-67`), `busca-caminho/requirements.md` (`BR-C-63`). `test_porta_de_armazenamento.py` (18 testes). |
+| W021 | 🟢 verde | `tests/test_ambiente_temporario_da_suite.py` presente (3 testes); a suíte rodou **sem um único erro de `setup`** nesta passagem — **527 passam, 9 pulados, 0 falham**. |
+| W022 | 🟢 verde | `dono` obrigatório, sem valor padrão, na última posição nas três portas; `CarregadorDeArvores` com **um único** método. Contratado em `upload-gedcom/contracts.md` §1.1 e coberto por `TT-16`. |
+| W023 | 🟢 verde | A comparação é por **conjunto**: esta passagem reporta **536 itens (527 passam, 9 pulados, 0 falham)** e não compara contra os totais históricos como se medissem o mesmo conjunto. |
+| W024 | 🟢 verde | **`git diff` de `tests/test_upload_seguranca.py` VAZIO** (medido) e o arquivo tem **36 testes** executando. Nenhum `skip`/`xfail` novo. |
+| W025 | 🟢 verde | **`_t011_varredura.py` reexecutado: APROVADO** — **1** atribuição de constante de dono (`src/app.py:70`), o bloco acima dela declara a ausência de isolamento, e todos os chamadores de produção passam o dono sem literal no local. |
+
 > Preenchido pelo agente reverso quando `/reversa` rodar de novo. Vazio nesta data.
 
 ## Arquivadas

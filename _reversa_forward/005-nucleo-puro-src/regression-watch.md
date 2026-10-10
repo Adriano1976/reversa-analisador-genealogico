@@ -73,6 +73,17 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items** (a rodada de 2026-10-05 verificou apenas as features 001 a 004). Medição no código, nas specs regeneradas e nos instrumentos.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | O harness continua apontando o **oráculo congelado** — a execução desta passagem imprime `oraculo: _reversa_sdd\oracle\app_legacy_e43ca22.py` e `candidato: src/`. Nenhuma validação circular. O `sha256` do oráculo segue `44370b23…`, o mesmo do manifesto dos goldens. |
+| W002 | 🟢 verde | **A árvore é valor, não estado.** Nenhum módulo de `src/core/` declara `people`/`families`/`graph`/`child_to_family`/`versao` em nível de módulo (medido), e `carregar_arvore` **devolve** a tupla. `ADR-24`; provado por `tests/test_arvore_devolvida.py` e `test_dependencias_nucleo.py`. |
+| W003 | 🟢 verde | **A ressalva foi preservada, e o `ADR-24` a tornou mais precisa.** O vetor "estado global reescrito por requisição + 4 threads" deixou de existir; o que **permanece** é a corrida de **disco**, e as specs regeneradas a declaram em **linha separada** de `upload-gedcom/contracts.md` §7 ("sobre a árvore ✅ garantido" / "sobre o disco — não há garantia"). Nenhum artefato declara thread-safety geral resolvida. |
+| W004 | 🟢 verde | A entidade `ESTADO_VERSAO` não existe e o cache **não** é chaveado por `id(people)`: medido, `_chave_de` devolve `(len(people), primeira chave, última chave)`. ⚠️ **Ressalva nova:** essa chave tem **colisão possível** — o achado `L-24`/`E-05`, **confirmado por execução** em 2026-10-10, com correção **aceita** e agendada para depois do Passo 4. O defeito que este item vigia (chave por `id()`) **não** voltou. |
+
 > Preenchido pelo agente reverso quando `/reversa` rodar de novo. Vazio nesta data.
 
 ## Arquivadas

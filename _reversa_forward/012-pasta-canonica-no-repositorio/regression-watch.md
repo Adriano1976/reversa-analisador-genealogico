@@ -38,6 +38,21 @@ medidos nesta feature, declarados para não se perderem.
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pasta canônica é `<diretório do app>/uploads`, dentro do repositório, ancorada em `__file__` (`src/app.py:127-130`, medido). `upload-gedcom/contracts.md` §2.3; `ADR-35`. |
+| W002 | 🟢 verde | O `README.md` apresenta `ANALISADOR_UPLOAD_FOLDER` como **sobreposição de processo** (linhas 278 e 307), e ela segue na tabela de configuração — a suíte depende dela. `inventory.md` §4. |
+| W003 | 🟢 verde | `.gitignore` cobre `uploads/` (2 ocorrências, medido) — o dado real não é versionável. `ADR-35`. |
+| W004 | 🟢 verde | `.dockerignore` reexclui `src/uploads/` **depois** de `!src/**` (medido: a linha de reexclusão vem após a permissão, e a última regra que casa vence). `recursos-da-tela/contracts.md` §4. |
+| W005 | 🟢 verde | `docker-compose.yml` monta `./src/uploads:/app/src/uploads` (medido): caminho relativo de host, alvo interno igual ao derivado por `__file__`, e **sem** variável de pasta declarada no serviço. |
+| W006 | 🟢 verde | O caminho documentado de execução da paridade é o **invólucro** (`README.md:644`, `tests/rodar_paridade.py`) e o `README.md:647` declara explicitamente que o `harness.py` **não** deve ser executado direto. ⚠️ **Nota:** o `harness.py` **não** é byte a byte o da publicação — foi atualizado por commit da feature 006 (`ffa835e`), sem drift não commitado. Ver a verificação da 010. |
+| W007 | 🟢 verde | `tests/test_guardas_do_armazenamento.py` existe, com **8 testes**, e o `_t020_varredura.py` confirma que a ordem das guardas continua sendo verificada por varredura própria. |
+| W008 | 🟡 amarelo | **A essência vale; uma expressão do enunciado está superada.** Segue verdadeiro que o sistema **nunca** apaga arquivo enviado (zero `os.remove`/`unlink`/`rmtree` em `src/`) e que a **extensão original é preservada** no nome em disco (`upload-gedcom/contracts.md` §2.1). O que mudou é que o nome **não** é mais "forma fechada" no sentido de alfabeto: a elegibilidade passou a ser por **forma de nome** (`RN-20`/`ADR-32`). A **gravação** não afrouxou — quem afrouxou foi a aceitação da referência. |
+
 *(vazio — preenchido pelo agente reverso quando o `/reversa` rodar de novo)*
 
 | Data | Extração | W001 | W002 | W003 | W004 | W005 | W006 | W007 | W008 |

@@ -20,6 +20,14 @@ Itens sem peso de regressão (mudanças estruturais/refactor que uma futura extr
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**`## Watch principal` vazia nesta feature** — nenhum watch item (`W001`…) foi criado. As três observações foram reverificadas e continuam resolvidas: `OBS-01` (o `architecture.md` regenerado descreve a rota como camada fina, e o `app.py` cresceu para 559 linhas úteis **sem** regra de negócio), `OBS-02` (nenhum artefato regenerado cita `reconstructed/` como estrutura atual) e `OBS-03` (`HARD_MIN`/`GIVEN_MIN` explicitamente em `Won't`).
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| — | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item foi criado. |
+
 ### Re-extração 2026-10-05 03:05
 
 | ID | Veredito | Observação |

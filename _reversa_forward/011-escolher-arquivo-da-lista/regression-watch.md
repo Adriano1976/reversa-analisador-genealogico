@@ -33,6 +33,23 @@ do legado. **Nao entram em priorizacao automatica.**
 
 ## 3. Historico de re-extracoes
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pré-condição é "CSV **ou** referência": `RF-01` de `analise-dna/requirements.md` e `analise-dna/contracts.md` §1.1. O literal `"Por favor, carregue o arquivo CSV de matches."` presente (medido). |
+| W002 | 🟢 verde | A **precedência da referência** é contrato de estabilidade **Alta** em `analise-dna/contracts.md` §1.1 e §9, com a justificativa de que inverter reintroduz o CSV duplicado na lista. `BR-D-89`. |
+| W003 | 🟢 verde | `GET /` entrega as **duas abas sem envio prévio**: `tela-de-entrada/contracts.md` §1 e §2 (as listas vêm por processador de contexto, em **toda** renderização). `BR-T-01`; o estado "envie antes de tudo" não existe. |
+| W004 | 🟢 verde | Confirmado: a elegibilidade é por **forma de nome** e o alfabeto fechado **não** existe mais. As duas funções estão em `upload-gedcom/contracts.md` §2.2 e a **defesa não afrouxou em `resolver`**. `RN-20`/`ADR-32`. |
+| W005 | 🟢 verde | O literal continua exatamente `"Por favor, carregue o arquivo CSV de matches."` (1 ocorrência em `src/app.py`, medido) e está tabelado em `analise-dna/contracts.md` §7.1. |
+| W006 | 🟢 verde | **`SCR-001-initial-upload.html.txt` tem `sha256 ec07f71b4084269a…`** — exatamente o esperado (medido). E a **substância** foi conferida: o arquivo **não** contém nenhum marcador do app atual (`banner.png`, `arvores_da_lista`, `Apagar`, `selecionar_arvore`, `Enviado em` — todos com **zero** ocorrências), isto é, continua sendo o HTML do **oráculo**, não uma recaptura da aplicação. ⚠️ Ver o achado novo sobre o **manifesto**, na observação abaixo. |
+| W007 | 🟢 verde | O harness continua **insensível ao template**: `tela-de-entrada/design.md` § Riscos e `contracts.md` §7 registram que ele substitui `render_template` por captura de contexto e que o processador de contexto **não roda** — a cobertura das listas é da suíte, por construção. |
+| W008 | 🟢 verde | A aplicação continua **sem estado entre requisições**: medido, **zero** ocorrências de `session`/`cookie`/`flask.session` no template, e a escolha viaja por campo oculto. `ADR-24` removeu até o estado de árvore. |
+
+> ⚠️ **Achado novo desta verificação, registrado sem alterar a tabela principal:** o `manifest.yaml` dos goldens declara, para `SCR-001-initial-upload.html.txt`, o `sha256 2e2a5c02…` — **diferente** do hash dos bytes em disco (`ec07f71b…`). O mesmo ocorre em `SCR-G01` e `SCR-G02`. Como o oráculo **não** mudou (sha256 `44370b23…`), a explicação provável é que o texto foi recapturado sobre uma **revisão intermediária do template** — que não é congelado —, e o manifesto nunca foi atualizado. **O conteúdo está certo** (é o oráculo, conferido acima); o que está quebrado é a **cadeia de integridade do manifesto**. Decisão humana necessária: atualizar o manifesto, ou documentar a convenção de hash dos `.html.txt`.
+
 *(vazio: sera preenchido pelo agente reverso quando `/reversa` rodar de novo)*
 
 ## 4. Arquivadas

@@ -58,6 +58,21 @@ Observações novas, acrescentadas sem reescrever as anteriores. A `O15` **corri
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Segunda verificação real destes watch items.** Medição direta no código, na suíte (527 passam / 9 pulados / 0 falham) e na paridade (100 % em 6/6 fixtures, exit 0).
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `from waitress import serve` presente (1 ocorrência); **`app.run(` e `debug=` têm ZERO ocorrências em todo o `src/`** (medido). Registrado em `architecture.md` e `adrs/12`. |
+| W002 | 🟢 verde | Os três nomes de ambiente lidos com o padrão declarado na própria chamada (medido em `src/app.py`). Registrado em `inventory.md` §4, `data-dictionary.md` §9.1 e `c4-containers.md`. |
+| W003 | 🟡 amarelo | **A essência vale; o número do enunciado está superado por acréscimo deliberado.** Medido hoje: **3 rotas** e **5 valores de `action`** — a nota da própria tabela principal já registra isso. A parte que importa para a paridade (**mesmos nomes de campo e mesmas mensagens literais**) foi conferida: `"Por favor, carregue o arquivo CSV de matches."`, `"Arquivo maior que o limite de 16 MB."` e as mensagens de contrato continuam presentes e tabeladas em `domain.md` §5 e em `upload-gedcom/contracts.md` §6. **Não é regressão.** |
+| W004 | 🟢 verde | `requirements.txt` registra `waitress==3.0.2` e **não** lista `gunicorn` (zero ocorrências, medido). |
+| W005 | 🟢 verde | **Paridade remedida: 100 % em 6/6 fixtures, exit 0.** A suíte está em **536 itens** (527 passam, 9 pulados, 0 falham) — cresceu, e **nenhum teste foi removido ou desabilitado**. `test_servidor_producao.py` presente. |
+| W006 | 🟢 verde | Guarda intacta, ponto por ponto: socket criado pela aplicação, `SO_EXCLUSIVEADDRUSE` presente (2 ocorrências), `bind` + `listen` antes de `serve(` com o socket pronto e sem `host`/`port` na mesma chamada. |
+| W007 | 🟢 verde | Padrão `127.0.0.1` com o motivo escrito no código; as rotas novas (009/011) não tocaram o padrão. `permissions.md` §5. |
+| W008 | 🟡 amarelo | **A primeira metade vale integralmente, e agora com o número atualizado: 9 linhas, todas com `==`** (medido). A segunda metade — "nas versões validadas" — continua **superada por decisão humana** registrada em `adrs/13` e `questions.md#pergunta-11`: o `.venv` é o interpretador oficial e o pin foi realinhado a ele (`ged4py 0.5.5`, `networkx 3.7`, `pandas 3.0.6`, mais `rapidfuzz` e `python-Levenshtein` declarados). A lista de versões citada nesta linha deve ser lida com essa ressalva. |
+
 ### Re-extração 2026-10-05 03:05
 
 **Primeira verificação real destes watch items** (publicados em 2026-10-03, depois do congelamento do SDD anterior). Verificados contra o código, contra o `_reversa_sdd/` regenerado em 2026-10-05 e por execução da suíte e do harness de paridade.

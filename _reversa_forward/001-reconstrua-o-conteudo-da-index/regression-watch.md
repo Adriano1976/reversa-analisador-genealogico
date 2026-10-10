@@ -21,6 +21,14 @@ Itens sem peso de regressão (originalmente 🟡/🔴 ou não derivados de regra
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**`## Watch principal` vazia nesta feature** — nenhum watch item (`W001`…) foi criado, portanto não há regra sob vigilância a conferir. As duas observações da feature foram reverificadas: `OBS-01` continua resolvido (`HARD_MIN`/`GIVEN_MIN` com zero ocorrências em `src/`, documentados como `Won't` em `analise-dna/requirements.md`) e `OBS-02` continua resolvido (`securityLevel: 'strict'` presente no template e registrado em `inventory.md` §4, `c4-context.md` e `c4-containers.md`).
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| — | ⚪ n/a | `## Watch principal` vazia nesta feature: nenhum watch item foi criado. |
+
 ### Re-extração 2026-10-05 03:05
 
 | ID | Veredito | Observação |

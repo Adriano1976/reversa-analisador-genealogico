@@ -48,6 +48,14 @@ atribuam à feature o que é do ambiente.
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Watch principal vazio nesta feature** — a execução parou no `T001` antes de escrever qualquer arquivo, e não havia regra 🟢 nova a vigiar. **O que esta rodada acrescenta é que a entrega foi concluída depois**, e as specs regeneradas a descrevem: `init.sql` com **6 tabelas idempotentes e sem `DROP`** (`erd-complete.md` Diagrama E, `analise-dna/contracts.md` §6.4), persistência **opcional que nunca bloqueia o resultado** (`ADR-27`, `BR-D-78`–`BR-D-88`) e a cobertura medida de `ports/adaptadores.py` em **73 % — a pior do projeto**, que é o número da lacuna `L-28`/`X-05` (sem teste do caminho feliz de INSERT). Nenhuma linha do watch principal foi criada por esta rodada.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| — | ⚪ n/a | Watch principal vazio: nenhuma regra sob vigilância foi publicada por esta feature. |
+
 *(Preenchido pelo agente reverso quando `/reversa` rodar de novo.)*
 
 | Data | Extração | Veredito | Observação |

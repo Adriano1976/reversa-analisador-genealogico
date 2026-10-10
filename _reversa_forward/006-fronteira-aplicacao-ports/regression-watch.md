@@ -54,6 +54,28 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.** Medição no código, nas specs regeneradas, na suíte (527 passam / 9 pulados / 0 falham) e nos scripts de evidência da própria feature.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W005 | 🟢 verde | Mensagens da camada de rota em `domain.md` §5.1 e congeladas em §5.2, ambas regeneradas; literais conferidos um a um nos `contracts.md` das units. Nenhuma "melhoria de redação". |
+| W006 | 🟢 verde | `ErroDeDominio(ValueError)` presente (medido). `test_erros_de_dominio.py` (10) e `test_traducao_de_erros.py` (8). |
+| W007 | 🟢 verde | "Nenhuma conexão" continua **sucesso** e pessoa não encontrada **erro de entrada**, distinguidos pelo desfecho tipado (`BR-C-29`, `BR-C-60`). `test_desfecho_do_resultado.py` (9). |
+| W008 | 🟢 verde | `AVISO_AFINIDADE` presente (3 ocorrências) e a frase com **`NÃO` em maiúsculas** presente (medido em `src/core/path_search.py`). |
+| W009 | 🟢 verde | **A casca não existe.** As 3 ocorrências de `load_gedcom_and_build_graph` em `src/` são **todas comentário ou docstring dizendo que ela foi removida** (`gedcom_parser.py:11`, `documentary_relationship.py:54`, `application/__init__.py:23`). Nenhuma chamada, nenhum import. |
+| W010 | 🟢 verde | **`_t020_varredura.py` reexecutado: APROVADO** — 41 chamadas em `index()`, **0 símbolos proibidos**, **1 ponto de montagem** de `Dependencias`. |
+| W011 | 🟢 verde | `TETO_DE_UPLOAD_EM_BYTES = 16 * 1024 * 1024` e `"Arquivo maior que o limite de 16 MB."` presentes (medidos). |
+| W012 | 🟢 verde | Chave do conteúdo, gravação idempotente, caminho completo e validação antes de gravar — `upload-gedcom/contracts.md` §2.1, §2.3 e §5. |
+| W013 | 🟢 verde | O fallback `latin-1` continua no código (2 ocorrências em `csv_ingest.py`) e nenhuma exceção de domínio o intercepta (`BR-D-01`). |
+| W014 | 🟢 verde | **Medido nesta rodada:** 301 nomes vazios em 35.460 pessoas e **0 ocorrências** do literal `"Sem Nome"` nas três cópias da árvore real. `BR-U-20`. |
+| W015 | 🟢 verde | **1 ponto de montagem** de `Dependencias` (medido pelo `_t020_varredura.py`), em `_DEPENDENCIAS` no import da borda. |
+| W016 | 🟢 verde | A **tupla de três** e a árvore de **quatro** posições seguem contratadas em `busca-caminho/contracts.md` §1.3 e `upload-gedcom/contracts.md` §3. O desfecho vive no caso de uso. |
+| W017 | 🟢 verde | **Nenhum teste removido ou desabilitado:** a suíte foi de 178 (baseline da 005) para **536 itens**, 9 pulados, **0 falhas**. |
+| W018 | 🟢 verde | **Paridade remedida: 100 %, exit 0, em 6/6 fixtures.** |
+| W019 | 🟡 amarelo | **A divergência conhecida continua aberta e sem decisão.** Medido: o template renderiza `Resultado da Análise` (1) e **não** contém `Resultados da Análise de DNA` (0). Nada mudou nesta rodada — aguarda quem decida qual dos dois é a autoridade. |
+
 > Preenchido pelo agente reverso quando `/reversa` rodar de novo. Vazio nesta data.
 
 ## Arquivadas

@@ -39,6 +39,21 @@ foram confirmadas por uma re-extração:
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-10 21:40
+
+**Primeira verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pasta é resolvida **uma vez** e ancorada no arquivo do app (`src/app.py:127-130`, medido), com `ANALISADOR_UPLOAD_FOLDER` como sobreposição de processo. `upload-gedcom/contracts.md` §2.3. |
+| W002 | 🟢 verde | **Zero ocorrências** de `os.remove`, `os.unlink` ou `shutil.rmtree` em todo o `src/` (medido). `upload-gedcom/contracts.md` §2.3, linha "Remoção". |
+| W003 | 🟢 verde | Forma `<16 hex>__<nome visível>` com a chave vinda do conteúdo — `upload-gedcom/contracts.md` §2.1. ⚠️ **Atenção à leitura:** a *elegibilidade* deixou de ser alfabeto fechado (`RN-20`), mas a **forma gravada não afrouxou** — mudou o critério de aceitação da referência, não o nome escrito em disco. |
+| W004 | 🟢 verde | `docker-compose.yml` monta `./src/uploads:/app/src/uploads` (medido) e o `.dockerignore` reexclui `src/uploads/` **depois** de `!src/**`. O alvo interno é o mesmo que `src/app.py` deriva de `__file__`. |
+| W005 | 🟢 verde | O `README.md` lista `ANALISADOR_UPLOAD_FOLDER` na tabela de configuração (linha 278), declara que ela é sobreposição de processo (linha 307), e a paridade é executada por `tests/rodar_paridade.py` (linha 644), com o `harness.py` marcado como "não deve ser executado direto" (linha 647). |
+| W006 | 🟡 amarelo | **O instrumento não é byte a byte o da publicação — e a mudança é deliberada, commitada e sem drift.** O `harness.py` de hoje tem `sha256 33e45b05…`; o último commit que o tocou é `ffa835e test(parity): atualiza o harness para a fronteira sem a casca`, da **própria feature 006**. O `git diff` contra o HEAD é **vazio**. A regra que este item protege — *a régua não pode mudar em silêncio* — está satisfeita: ela mudou **com mensagem que diz por quê**. |
+| W007 | 🟢 verde | `tests/manutencao_de_uploads.py` presente: expurgo por manifesto, conferência de `sha256` e simulação (`D-06`). |
+| W008 | 🔴 vermelho | **A expectativa NÃO bate, e a causa é registrada: 4 arquivos do operador FORAM renomeados em 2026-10-09.** A mitigação da feature **011** tirou acento e espaço do nome visível de 4 arquivos, preservando a chave (`OBS-05` da 011, `temporary: true`). **Nenhum arquivo foi removido ou perdido** — o conteúdo é o mesmo e a chave foi preservada —, e a premissa da renomeação foi depois **resolvida em sentido contrário** (o conserto decidiu aceitar acento na leitura, `RN-20`), mas o conserto **não desfaz** as renomeações, e o operador renomeou outros por conta própria depois. **Triagem necessária:** ou o item passa a vigiar a **integridade** (nada removido, conteúdo preservado) em vez do **nome**, ou permanece vermelho a cada rodada por um fato histórico que não se desfaz. **O Reversa não altera a tabela principal** — a decisão é humana. |
+
 | Data | Extração | Veredito |
 |------|----------|----------|
 | — | — | Nenhuma re-extração executada desde esta entrega |
