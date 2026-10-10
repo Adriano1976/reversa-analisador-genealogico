@@ -471,6 +471,11 @@ envio prévio**. É a tela que o operador vê antes de qualquer análise.
        width="520">
 </p>
 
+Acima das abas, o topo traz o subtítulo *Genetic Genealogy Path Analyzer*, o título **Analisador
+Genealógico** e dois parágrafos de apresentação. Na tela, a arte aparece com **metade** da largura do
+cartão e o texto fica **centralizado, em coluna mais estreita** que o cartão — abaixo do ponto de
+quebra `lg` a coluna volta a ocupar tudo, que é o que uma tela estreita precisa.
+
 ### As duas abas
 
 | Aba | O que lista | Seleciona por |

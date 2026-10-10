@@ -37,7 +37,14 @@ for _caminho in (_RAIZ, os.path.join(_RAIZ, "src")):
 from tests.banner_da_tela import ARTE_DE_RUNTIME, FONTE, residuo_de_fundo  # noqa: E402
 
 CAMINHO = "/banner.png"
-TEXTO_DO_TITULO = "Analisador Genealógico e de DNA"
+# `RN-16` (T036) dizia que o titulo vivia no `alt`, e NAO como texto na tela. A `RN-23` (T044)
+# inverte isso, a pedido do operador: o topo passa a ter arte, subtitulo, titulo em texto e o
+# texto de apresentacao. As constantes guardam os DOIS estados, porque o teste do titulo antigo
+# continua valendo — o que ele prende agora e que o texto ANTIGO nao voltou.
+TEXTO_DO_TITULO = "Analisador Genealógico e de DNA"   # o titulo da era `RN-16`, que saiu de cena
+TITULO_NA_TELA = "Analisador Genealógico"             # o titulo de hoje (`RN-23`)
+SUBTITULO = "Genetic Genealogy Path Analyzer"
+ALT_DA_ARTE = "Ilustração: árvore genealógica, livro aberto e hélice de DNA"
 
 # A caixa MEDIDA do bloco de quadriculado que ficou gravado na arte quando o limite de
 # saturacao estava em 14 e depois em 30.
@@ -100,8 +107,9 @@ class TestRotaDaArte:
     def test_arte_ausente_devolve_404_e_a_tela_continua_de_pe(self, cliente_de_upload, monkeypatch):
         """`RN-08`: a arte pode faltar, e a tela nao pode cair por causa dela.
 
-        E o `alt` da imagem e o que garante que o operador ainda le o titulo — o `h1` perdeu
-        o texto visivel, mas nao o significado.
+        Depois da `RN-23` o titulo e **texto**, e nao mais o `alt` da imagem: entao ele sobrevive
+        a arte ausente por construcao, e nao por depender do atributo. O que este teste prende
+        agora e isso — o operador nao fica sem titulo quando a imagem nao carrega.
         """
         app, cliente, _pasta = cliente_de_upload
         monkeypatch.setitem(app.config, "ARTE_DO_TOPO", os.path.join(_RAIZ, "nao-existe.png"))
@@ -109,46 +117,151 @@ class TestRotaDaArte:
         assert cliente.get(CAMINHO).status_code == 404
         tela = cliente.get("/")
         assert tela.status_code == 200
-        assert TEXTO_DO_TITULO in tela.get_data(as_text=True), (
-            "o titulo sumiu da tela quando a arte falta: sem o `alt`, o operador fica sem titulo"
+        assert TITULO_NA_TELA in tela.get_data(as_text=True), (
+            "o titulo sumiu da tela quando a arte falta: ele e texto, e nao pode depender da imagem"
         )
 
 
-class TestArteNoLugarDoTitulo:
-    """O pedido: a imagem ocupa o lugar do titulo em texto."""
+class TestTopoDaTela:
+    """`RN-23` (`T044`): arte reduzida, subtitulo, titulo em texto e o texto de apresentacao.
 
-    def test_a_tela_mostra_a_arte(self, cliente_de_upload):
+    ## Por que a ORDEM tem teste proprio
+
+    O pedido foi uma **sequencia**: imagem, subtitulo abaixo dela, titulo em seguida, e o texto.
+    Prender so a presenca das quatro coisas deixaria passar uma tela com elas fora de ordem — e
+    ordem errada aqui nao e detalhe: o subtitulo e o titulo sao a identificacao do produto, e
+    eles vem DEPOIS da arte de proposito.
+    """
+
+    @staticmethod
+    def _corpo(cliente) -> str:
+        return cliente.get("/").get_data(as_text=True)
+
+    @staticmethod
+    def _achatado(corpo: str) -> str:
+        """O corpo com todo espaco em branco colapsado.
+
+        Necessario porque o template QUEBRA as frases em varias linhas: procurar
+        `"ajudar os usuarios a compreender"` no HTML cru falharia por causa da quebra, e nao por
+        falta do texto. Medido: a frase fica partida entre `a` e `compreender`.
+        """
+        return re.sub(r"\s+", " ", corpo)
+
+    def test_a_imagem_foi_reduzida_a_metade(self, cliente_de_upload):
         _app, cliente, _pasta = cliente_de_upload
 
-        corpo = cliente.get("/").get_data(as_text=True)
+        corpo = self._corpo(cliente)
 
-        assert 'src="/banner.png"' in corpo, "a arte do topo nao esta na tela"
-        assert "img-fluid" in corpo, "a imagem nao foi limitada a largura do cartao"
+        assert re.search(r'<img[^>]*src="/banner\.png"[^>]*class="[^"]*\bw-50\b', corpo), (
+            "a arte nao foi reduzida a 50% da largura do cartao (`w-50`)"
+        )
 
-    def test_o_titulo_em_texto_saiu_da_tela_visivel(self, cliente_de_upload):
-        """Emparelhado com a presenca da arte, para nao passar vazio."""
+    def test_a_ordem_e_imagem_subtitulo_titulo_texto(self, cliente_de_upload):
         _app, cliente, _pasta = cliente_de_upload
 
-        corpo = cliente.get("/").get_data(as_text=True)
-        visivel = _visivel(corpo)
+        corpo = self._corpo(cliente)
+        i_imagem = corpo.index('src="/banner.png"')
+        i_subtitulo = corpo.index(SUBTITULO)
+        i_titulo = corpo.index(TITULO_NA_TELA)
+        i_texto = corpo.index("Este aplicativo web foi desenvolvido")
 
-        assert 'src="/banner.png"' in corpo, "pre-condicao: a arte tem de estar na tela"
+        assert i_imagem < i_subtitulo < i_titulo < i_texto, (
+            "a ordem pedida era imagem, subtitulo, titulo e texto — a tela entregou outra"
+        )
+
+    def test_o_subtitulo_esta_na_tela(self, cliente_de_upload):
+        _app, cliente, _pasta = cliente_de_upload
+
+        assert SUBTITULO in self._corpo(cliente)
+
+    def test_o_titulo_e_TEXTO_visivel_e_o_antigo_nao_voltou(self, cliente_de_upload):
+        """Inverte a `RN-16`: o titulo volta a ser texto, e o texto antigo nao ressuscita."""
+        _app, cliente, _pasta = cliente_de_upload
+
+        visivel = _visivel(self._corpo(cliente))
+
+        assert TITULO_NA_TELA in visivel, "o titulo deixou de ser texto visivel"
         assert TEXTO_DO_TITULO not in visivel, (
-            "o titulo continua escrito na tela, alem da arte: era para ele SAIR"
+            "o titulo ANTIGO voltou para a tela: era para ele ter saido na `RN-16` e nao voltar"
         )
 
-    def test_o_titulo_continua_no_alt_e_no_documento(self, cliente_de_upload):
-        """O `h1` fica, com a imagem dentro: o documento nao perde o titulo de nivel 1."""
+    def test_o_h1_carrega_o_titulo_em_texto(self, cliente_de_upload):
+        """O documento nao perde o titulo de nivel 1, e ele agora tem CONTEUDO textual."""
         _app, cliente, _pasta = cliente_de_upload
 
-        corpo = cliente.get("/").get_data(as_text=True)
+        corpo = self._corpo(cliente)
 
-        assert f'alt="{TEXTO_DO_TITULO}"' in corpo, (
-            "a imagem perdeu o `alt`: um leitor de tela nao teria o que anunciar"
+        assert re.search(rf"<h1[^>]*>\s*{re.escape(TITULO_NA_TELA)}\s*</h1>", corpo), (
+            "o `h1` nao carrega o titulo como texto"
         )
-        assert re.search(r"<h1[^>]*>\s*<img", corpo), (
-            "o `h1` deixou de envolver a imagem"
+        assert not re.search(r"<h1[^>]*>\s*<img", corpo), (
+            "o `h1` voltou a envolver so a imagem: o titulo de nivel 1 ficaria sem texto"
         )
+
+    def test_a_arte_tem_alt_proprio_e_nao_repete_o_titulo(self, cliente_de_upload):
+        """`RN-23`: o `alt` descreve a ILUSTRACAO.
+
+        Com o titulo escrito logo abaixo, repetir o titulo no `alt` faria o leitor de tela
+        anunciar a mesma coisa duas vezes, uma delas como se fosse uma imagem.
+        """
+        _app, cliente, _pasta = cliente_de_upload
+
+        corpo = self._corpo(cliente)
+
+        assert f'alt="{ALT_DA_ARTE}"' in corpo, "a arte perdeu o `alt` que a descreve"
+        assert f'alt="{TITULO_NA_TELA}"' not in corpo, (
+            "o `alt` da arte virou o titulo: o leitor de tela anuncia duas vezes"
+        )
+
+    def test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita(self, cliente_de_upload):
+        """`RN-24` (`T045`): o texto vai centralizado, em coluna mais estreita que o cartao.
+
+        O operador pediu a mesma **forma organizada da documentacao**: paragrafo centrado, com a
+        linha curta. Antes o texto era `text-start` e corria de ponta a ponta do cartao.
+
+        ## Por que a assercao e estrutural, e nao "contem `text-center`"
+
+        `text-center` sozinho nao prova nada: o `div` que envolve a masthead inteira ja o tem, e
+        a assercao passaria **vazia** mesmo com o paragrafo alinhado a esquerda. O que esta preso
+        aqui e a ESTRUTURA que produz a coluna — a linha de grade com `justify-content-center` e
+        a coluna `col-lg-*` dentro dela —, mais a ausencia do alinhamento a esquerda que existia.
+        """
+        _app, cliente, _pasta = cliente_de_upload
+
+        corpo = self._corpo(cliente)
+        inicio = corpo.index("Este aplicativo web")
+        bloco = corpo[:inicio]
+
+        assert "text-start" not in corpo, (
+            "o texto de apresentacao voltou a ser alinhado a esquerda"
+        )
+        assert re.search(r'class="row justify-content-center"', corpo), (
+            "o texto perdeu a linha de grade que o centra e o estreita"
+        )
+        assert re.search(r'class="col-lg-\d+"', corpo), (
+            "o texto perdeu a coluna que o estreita: ele volta a correr de ponta a ponta"
+        )
+        # A coluna tem de vir DEPOIS do titulo e ANTES do texto: a organizacao e a ordem juntas.
+        assert bloco.rindex('class="col-lg-') < inicio, "a coluna nao envolve o texto"
+        assert bloco.rindex('class="row justify-content-center"') < bloco.rindex('class="col-lg-')
+
+    def test_o_texto_de_apresentacao_esta_na_tela_com_as_enfases(self, cliente_de_upload):
+        """As duas frases pedidas, e as tres partes que o operador marcou em negrito."""
+        _app, cliente, _pasta = cliente_de_upload
+
+        corpo = self._achatado(self._corpo(cliente))
+
+        for trecho in (
+            "Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em genealogia "
+            "documental e genética.",
+            "<b>ajudar os usuários a compreender como se relacionam com outras pessoas por meio da "
+            "análise da árvore genealógica e de dados de DNA</b>.",
+            "<b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em formato "
+            "GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em formato CSV.",
+            "<b>A partir do cruzamento desses dados, o aplicativo identifica possíveis conexões "
+            "genealógicas entre duas pessoas.</b>",
+        ):
+            assert trecho in corpo, f"nao achei na tela: {trecho[:60]!r}..."
 
 
 class TestArteDerivada:

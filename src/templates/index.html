@@ -40,16 +40,51 @@
             <div class="col-lg-10">
                 <div class="card shadow-sm main-card">
                     <div class="card-body">
-                        {# T036: o titulo em texto virou a arte do topo, a pedido do operador. O
-                           `<h1>` fica, com a imagem dentro, para o documento nao perder o
-                           titulo de nivel 1 — e o `alt` carrega o texto que saiu da tela, que
-                           e o que um leitor de tela anuncia e o que aparece se a rota da arte
-                           responder 404. `img-fluid` limita a largura ao cartao. #}
-                        <h1 class="text-center mb-4">
+                        {# T044 (`RN-23`): o topo da tela ganha a composicao pedida pelo operador —
+                           arte, subtitulo, titulo e o texto de apresentacao.
+
+                           DUAS COISAS INVERTEM em relacao a `RN-16`: a imagem cai para METADE da
+                           largura (`w-50`, que e 50% do cartao), e o `<h1>` passa a ter **texto**,
+                           em vez de envolver a imagem. O `alt` volta a descrever a ILUSTRACAO: com
+                           o titulo escrito logo abaixo, repetir o titulo no `alt` faria o leitor de
+                           tela anuncia-lo duas vezes.
+
+                           A masthead (arte, subtitulo e titulo) fica centralizada; os dois
+                           paragrafos ficam alinhados a esquerda, porque texto corrido centralizado
+                           e mais dificil de ler. #}
+                        <div class="text-center mb-4">
                             <img src="/banner.png"
-                                 alt="Analisador Genealógico e de DNA"
-                                 class="img-fluid">
-                        </h1>
+                                 alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
+                                 class="img-fluid w-50">
+                            <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
+                            <h1 class="card-title mb-3">Analisador Genealógico</h1>
+                            {# T045 (`RN-24`): o texto de apresentacao passa a ficar CENTRALIZADO e
+                               numa coluna mais estreita que o cartao.
+
+                               Antes ele era alinhado a esquerda (`text-start`) e corria de ponta a
+                               ponta. O operador pediu a mesma **forma organizada da documentacao**:
+                               paragrafo centrado, com a linha curta o bastante para nao cansar a
+                               leitura. `col-lg-9` dentro de um `row justify-content-center` da a
+                               largura e o centramento sem CSS proprio — e sem largura FIXA: abaixo
+                               do ponto de quebra `lg` a coluna volta a ocupar o cartao inteiro, que
+                               e o que um telefone precisa. #}
+                            <div class="row justify-content-center">
+                                <div class="col-lg-9">
+                                    <p>
+                                        Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em
+                                        genealogia documental e genética. Seu objetivo é <b>ajudar os usuários a
+                                        compreender como se relacionam com outras pessoas por meio da análise da
+                                        árvore genealógica e de dados de DNA</b>.
+                                    </p>
+                                    <p class="mb-0">
+                                        <b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em
+                                        formato GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em
+                                        formato CSV. <b>A partir do cruzamento desses dados, o aplicativo identifica
+                                        possíveis conexões genealógicas entre duas pessoas.</b>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
                         {% if message %}
                             <div class="alert alert-{{ 'success' if success else 'danger' }} alert-dismissible fade show" role="alert">

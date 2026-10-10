@@ -38,12 +38,24 @@ TAMANHO_ESPERADO = 16504
 #: O teste continua prendendo o que ele existe para prender — que nenhuma mudanca de tela passe
 #: despercebida. Era 23.906 bytes em 2026-10-08; sao 25.825 agora.
 #:
-#: **Atualizado de novo em 2026-10-10, pela `T036` da mesma feature.** O operador pediu que o
-#: titulo em texto virasse a arte do topo, e o `<h1>` aparece nos DOIS ramos da tela — com e sem
-#: arquivo —, entao a troca muda ate a tela vazia que este teste mede. Era `e18d1749…`, 25.825
-#: bytes; e `c1048cef…`, 26.007. O paragrafo acima continua sendo a justificativa, e nao uma
-#: licenca: a mudanca esta declarada na `RN-16` do adendo vigente.
-SHA_DA_TELA = "c1048cef6fbd7a2e421f4d028ad615c3e0a9f58d4f0f27729547799c1f229748"
+#: **Atualizado em 2026-10-10 pela `T036` da mesma feature.** O operador pediu que o titulo em
+#: texto virasse a arte do topo, e o `<h1>` aparece nos DOIS ramos da tela — com e sem arquivo —,
+#: entao a troca muda ate a tela vazia que este teste mede. Era `e18d1749…`, 25.825 bytes; e
+#: `c1048cef…`, 26.007. O paragrafo acima continua sendo a justificativa, e nao uma licenca: a
+#: mudanca esta declarada na `RN-16` do adendo vigente.
+#:
+#: **Atualizado de novo em 2026-10-10, pela `T044` da mesma feature.** O operador pediu uma
+#: composicao nova para o topo da tela — arte reduzida a metade, subtitulo, titulo em texto e o
+#: texto de apresentacao —, e o topo aparece nos DOIS ramos, com e sem arquivo, entao a mudanca
+#: alcanca ate a tela vazia que este teste mede. Era `c1048cef…`, 26.007 bytes; e `36070ae0…`,
+#: 27.209. Mais uma vez o paragrafo acima e a justificativa, e nao uma licenca: a mudanca esta
+#: declarada na `RN-23` do adendo vigente.
+#:
+#: **Atualizado de novo em 2026-10-10, pela `T045` da mesma feature.** O operador pediu que o
+#: texto de apresentacao ficasse na mesma forma organizada da documentacao — centralizado e em
+#: coluna mais estreita —, e ele aparece nos DOIS ramos da tela. Era `36070ae0…`, 27.209 bytes;
+#: e `17240e5a…`, 27.502. A mudanca esta declarada na `RN-24` do adendo vigente.
+SHA_DA_TELA = "17240e5a29e800a6bbeca5e5c9e0e0c79e97ba61d469428b261e1cf769efe2bf"
 
 
 def _cabecalho_png(corpo: bytes):
