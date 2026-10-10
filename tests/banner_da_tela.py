@@ -44,33 +44,67 @@ FONTE = os.path.join(_RAIZ, "docs", "assets", "img", "banner-analisador.png")
 ARTE_DE_RUNTIME = os.path.join(_RAIZ, "src", "assets", "banner-da-tela.png")
 
 # Um pixel e FUNDO quando e claro e quase sem cor. Os limites saem de MEDICAO, e nao de
-# estimativa:
+# estimativa. A composicao atual (arvore, livro e texto) foi medida em 2026-10-10:
 #
-#   - o cinza do quadriculado e `c7` (199) e o branco e `ff`, com ruido de compressao
-#     (`c3`..`fe`). Dai `CLARO_MINIMO = 190`;
-#   - a tinta clara da arte que chega perto do fundo e CLARA E SATURADA: as paginas do livro
-#     medem `(230,203,158)` sat=72, `(239,217,176)` sat=63 e `(187,153,108)` sat=79. Dai o
-#     teto de saturacao ficar bem abaixo disso.
+#   fundo, cinza do quadriculado   max 185..194  (e 213..233 na faixa de baixo)
+#   fundo, branco do quadriculado  max 253..255
+#   ARTE escura                    capa (92,66,39) sat=53; sombra (141,111,79) sat=62
+#   ARTE clara e saturada          paginas (219,197,149) sat=70; tronco (212,187,149) sat=63
 #
-# `SATURACAO_MAXIMA = 50` e a correcao de 2026-10-10, e ela vem de um defeito medido DUAS
-# vezes. Sob o cone de luz do abajur a luz ambar tinge o quadriculado, e um BLOCO INTEIRO de
-# fundo ficou gravado na arte: com o limite em 14, e depois ainda com 30. O composto sobre
-# magenta mostrou o bloco nas duas vezes; a metrica que dizia "zero residuo" usava o MESMO
-# limite da regra e por isso nao podia acusa-lo.
+# ## `CLARO_MINIMO = 160` e a correcao de 2026-10-10, e o defeito foi MEDIDO
 #
-# O limite saiu de medir os dois lados, e nao de tentativa:
+# O valor anterior era 190, e ele cortava **no meio do cinza do fundo**: o quadriculado vivo
+# esta em 191..194, mas a compressao empurra uma parte dele para 185..189, e esses pixels
+# ficavam OPACOS. O resultado visivel, medido no composto sobre magenta, foi um chuvisco de
+# milhares de fragmentos cinza por todo o fundo -- 22.275 pixels de residuo no limite estrito.
 #
-#   bloco residual (FUNDO)  max 206..253  min 171..220  sat 29..42
-#   paginas do livro (ARTE) max 187..239  min 108..176  sat 63..79
+# O limite novo (160) fica ABAIXO do cinza mais escuro do fundo (185) e ACIMA do tom mais
+# claro da arte que e dessaturado o bastante para correr risco (a sombra do livro, max=141).
+# A folga e de 19 para baixo e de 25 para cima, e as duas pontas foram medidas.
 #
-# A saturacao separa sem ambiguidade — o fundo para em 42 e a arte comeca em 63 —, enquanto
-# `min` NAO separa (171 contra 176, sobrepostos). Dai o corte em 50, no meio da folga.
-CLARO_MINIMO = 190
+# A `SATURACAO_MAXIMA` continua 50, e a medicao que a fixou esta na historia abaixo: o fundo
+# tingido pela luz do abajur para em sat=42 e as paginas do livro comecam em sat=63. Esta
+# composicao nao tem abajur, mas o limite segue valendo para as duas.
+CLARO_MINIMO = 160
 SATURACAO_MAXIMA = 50
+# Teto ESTREITO para a faixa de brilho que vai de `CLARO_MINIMO` ate 190, onde o fundo e sempre
+# cinza neutro (medido: sat 0..7) e a tinta clara da arte e levemente quente (sat >= 20). O teto
+# largo acima faria o texto dourado perder o preenchimento. Ver `_e_fundo`.
+SATURACAO_MINIMA_ESCURA = 12
 
 
 def _e_fundo(pixel: tuple[int, int, int]) -> bool:
-    return max(pixel) >= CLARO_MINIMO and (max(pixel) - min(pixel)) <= SATURACAO_MAXIMA
+    """Fundo do quadriculado, em DUAS faixas de brilho (`T043`).
+
+    ## Por que duas faixas, e nao um limite so
+
+    Um limite unico de brilho com teto de saturacao largo nao separa o fundo da ARTE CLARA E
+    QUASE NEUTRA. Medido nesta composicao:
+
+        fundo, cinza escuro do quadriculado   max 185..194   sat 0..7
+        ARTE, brilho claro do texto dourado   max ~212       sat 24
+
+    Com `max >= 160 and sat <= 50` os dois caem no fundo, e o texto perde o preenchimento claro:
+    medido no composto sobre magenta, as letras ficaram OCAS em partes. Foi o defeito que esta
+    faixa corrige.
+
+    A separacao existe porque o quadriculado e NEUTRO (sat 0..7) e a tinta clara da arte e
+    levemente QUENTE (sat >= 20). Entao:
+
+    - acima de 190 o teto de saturacao e largo (50), porque ali o fundo pode estar TINGIDO —
+      na composicao anterior a luz do abajur levava o quadriculado a sat=42;
+    - entre 160 e 190 o teto e ESTREITO (12), porque nessa faixa o fundo e sempre cinza neutro,
+      e qualquer coisa com cor e tinta.
+
+    A folga e de 7 contra 24, e as duas pontas foram medidas.
+    """
+    mx, mn = max(pixel), min(pixel)
+    sat = mx - mn
+    if mx >= 190:
+        return sat <= SATURACAO_MAXIMA
+    if mx >= CLARO_MINIMO:
+        return sat <= SATURACAO_MINIMA_ESCURA
+    return False
 
 
 def mascara_do_fundo(imagem) -> bytearray:

@@ -169,53 +169,72 @@ class TestArteDerivada:
         assert arte.mode == "RGBA", f"a arte de runtime esta em {arte.mode}"
 
     def test_a_arte_transparente_e_uma_fatia_util_da_imagem(self, arte):
-        """Nem zero (quadriculado intacto) nem quase tudo (arte comida)."""
+        """Nem zero (quadriculado intacto) nem quase tudo (arte comida).
+
+        O limite e LARGO de proposito, e a segunda metade da prova e o teste das partes claras:
+        aqui se prende que houve remocao, la se prende que a arte sobreviveu. A composicao atual
+        (arvore, livro e texto, sem microscopio nem abajur) ocupa menos da tela e mede **71,8 %**
+        transparente — o limite antigo, de 60 %, valia para a composicao anterior, que era mais
+        larga. Ajustar o teto NAO afrouxa a prova: quem responde "a arte continua la" e o teste
+        seguinte, ponto a ponto.
+        """
         total = arte.size[0] * arte.size[1]
         opacos = arte.convert("RGBA").getchannel("A").histogram()[255]
         transparentes = 100 * (total - opacos) / total
 
-        assert 10 <= transparentes <= 60, (
+        assert 10 <= transparentes <= 90, (
             f"{transparentes:.1f} % transparente. Zero significa quadriculado nao removido; "
             "quase tudo significa que a regra comeu a arte"
         )
 
     def test_a_arte_nao_tem_bloco_de_quadriculado(self, arte):
-        """A regressao exata: o bloco sob o cone de luz, medido com limite ESTRITO.
+        """A regressao exata: um bloco de fundo que ficou gravado na composicao ANTERIOR.
+
+        A caixa `(778,232)` a `(918,338)` era o bloco sob o cone de luz do abajur, onde a luz
+        ambar tingia o quadriculado e a saturacao passava do limite. A composicao de hoje nao tem
+        abajur, e essa caixa e FUNDO — mas ela fica como caixa de regressao: qualquer pixel de
+        fundo opaco ali significa que o quadriculado voltou a sobreviver a remocao.
 
         `residuo_de_fundo` usa `SATURACAO_MAXIMA - 5`, mais apertado que a regra de remocao.
-        Medir o residuo com o mesmo limite da regra devolveria sempre zero, e foi esse erro
-        que deixou o bloco passar duas vezes.
+        Medir o residuo com o mesmo limite da regra devolveria sempre zero, e foi esse erro que
+        deixou o bloco passar duas vezes.
         """
         bloco = arte.convert("RGBA").crop(CAIXA_DO_BLOCO)
 
         assert residuo_de_fundo(bloco) == 0, (
-            f"voltou a haver quadriculado gravado em {CAIXA_DO_BLOCO}: o bloco sob o cone de luz "
-            "do abajur. A luz ambar tinge o fundo, e o limite de saturacao precisa alcancar "
-            "esses tons"
+            f"voltou a haver fundo opaco em {CAIXA_DO_BLOCO}: o quadriculado sobreviveu a remocao"
         )
 
     def test_a_arte_nao_perdeu_as_partes_claras_que_sao_arte(self, arte):
         """O outro lado do risco: a regra que remove fundo claro nao pode furar a pintura.
 
-        Os pontos abaixo foram MEDIDOS na fonte. As paginas do livro sao claras — `max` 187 a
-        239 — e sobrevivem porque sao **saturadas** (63 a 79), enquanto o fundo tingido para em
-        42. Se alguem subir o limite de saturacao para "resolver" o fundo, estes pontos viram
-        buracos e este teste cai.
+        ## Estes pontos foram MEDIDOS na composicao de 2026-10-10
+
+        Todos verificados como opacos no arquivo de runtime. Eles cobrem as duas famílias de risco:
+
+        - **arte ESCURA e pouco saturada** (capa `sat=53`, lombada `sat=35`, base do livro
+          `sat=22`) — o que um limite de brilho baixo demais comecaria a comer;
+        - **arte CLARA e quase neutra** (o preenchimento do texto dourado, `sat~24`) — o que um
+          teto de saturacao largo demais come, e foi o defeito MEDIDO: com um unico limite de
+          brilho, as letras de "Analisador Genealogico" ficaram OCAS. A correcao esta em
+          `_e_fundo`, que usa teto estreito na faixa de 160 a 190.
+
+        Se alguem "resolver" um residuo de fundo baixando o brilho ou alargando a saturacao, um
+        destes pontos vira buraco e este teste cai.
         """
         rgba = arte.convert("RGBA")
         for rotulo, (x, y) in {
-            "pagina esquerda": (400, 320),
-            "pagina direita": (600, 320),
-            "pagina inferior": (500, 450),
-            "pagina media": (430, 380),
+            "folha alta esquerda": (170, 75),
+            "folha alta direita": (860, 75),
+            "galho esquerdo": (300, 130),
+            "galho direito": (700, 130),
+            "preenchimento do texto (A)": (270, 212),
+            "pagina esquerda": (430, 360),
+            "pagina direita": (600, 360),
             "lombada": (512, 420),
-            "placa de Petri": (800, 505),
-            "folhas na placa": (840, 470),
-            "bulbo do abajur": (900, 250),
-            "microscopio": (150, 360),
-            "mesa": (100, 520),
-            "folha da arvore": (400, 60),
-            "texto dourado": (300, 215),
+            "capa esquerda": (370, 470),
+            "capa direita": (660, 470),
+            "base do livro": (512, 500),
         }.items():
             assert rgba.getpixel((x, y))[3] == 255, (
                 f"a arte perdeu {rotulo} em ({x}, {y}): a remocao de fundo comeu tinta"
