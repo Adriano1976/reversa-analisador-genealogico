@@ -24,9 +24,40 @@
     "escavacao (re-extracao 2026-10-05)",
     "interpretacao (re-extracao 2026-10-05)",
     "geracao (re-extracao 2026-10-05)",
-    "revisao (re-extracao 2026-10-05)"
+    "revisao (re-extracao 2026-10-05)",
+    "reconhecimento (re-extracao 2026-10-10)",
+    "escavacao (re-extracao 2026-10-10)",
+    "interpretacao (re-extracao 2026-10-10)",
+    "geracao (re-extracao 2026-10-10)",
+    "revisao (re-extracao 2026-10-10)"
   ],
-  "pending": [],
+  "pending": [
+    "interpretacao",
+    "geracao",
+    "revisao"
+  ],
+  "reextraction_2026_10_10": {
+    "started_at": "2026-10-10T17:34:44Z",
+    "kind": "abertura da quarta rodada de re-extracao (re-extração NOVA, nao retomada)",
+    "authorized_by": "Adriano, 2026-10-10 - pedido registrado em .reversa/pedido-reextracao-2026-10-10.md e apresentado nesta sessao",
+    "trigger": "o _reversa_sdd/ e de 2026-10-05 e depois dele entraram 9 features em _reversa_forward/ (005 a 012) mais os adendos correspondentes. Nesse intervalo nasceram src/ports/ (fronteira de aplicacao), a persistencia Postgres/Docker, o armazenamento por conteudo com 'aposentar' e a substituicao no reenvio, a lista de arquivos da tela de entrada, a traducao de erros e o registro de analises. Os adendos registram o trabalho, mas o _reversa_sdd/ nao o reflete.",
+    "doc_level": "completo (ja decidido; igual a config.toml [analysis] - sem conflito nesta rodada)",
+    "doc_level_confirmed_by_user": "2026-10-10, checkpoint bloqueante pos-Scout: escolha '2 - Completo, seguir com os 5 modulos' (upload-gedcom, tela-de-entrada, analise-dna, busca-caminho, recursos-da-tela). Sem conflito com config.toml [analysis] nem com state.json.doc_level.",
+    "specs_organization": "secao [specs] de config.toml ja decidida (feature-folder / endpoint, 2026-08-03); passo-03 pulado automaticamente conforme a regra. config.user.toml nao tem secao [specs].",
+    "snapshot_of_previous": ".reversa/snapshots/2026-10-10-pre-reextracao/ (83 arquivos, 967193 bytes, sha256 por arquivo em _MANIFEST.txt) - copia de _reversa_sdd/ exceto migration/, oracle/, parity/ e screens/, mais .reversa/context/",
+    "preserved_not_regenerated": [
+      "_reversa_sdd/migration/",
+      "_reversa_sdd/oracle/",
+      "_reversa_sdd/parity/",
+      "_reversa_sdd/screens/",
+      "_reversa_sdd/addenda/",
+      "_reversa_sdd/design-system/",
+      "_reversa_sdd/traceability/bugs.md"
+    ],
+    "entrada_do_passo4": "limpa: os 13 itens de watch de 003 e 004 estao datados de 2026-10-10, e o 004/W003 foi corrigido",
+    "head_do_git_na_abertura": "980502c 2026-10-10",
+    "pos_extracao": "1) /reversa-docs e depois python publicar_docs.py (o gerador nao le _reversa_sdd/addenda/); 2) /reversa-debugger-graph por ultimo (o spec-matrix.md ancora em _reversa_sdd/upload-gedcom/contracts.md#2.1 e _reversa_sdd/domain.md#3.5, que esta rodada reescreve)"
+  },
   "reextraction_2026_10_05": {
     "started_at": "2026-10-05T15:42:15Z",
     "authorized_by": "Adriano (escolha explicita do caminho 'A - Re-extracao integral + mini-site' e confirmacao CONTINUAR nesta sessao)",
@@ -60,6 +91,630 @@
     "motivo_do_preservado": "Sao produtos de pipelines posteriores ao congelamento. Regenerar as specs de feature nao invalida o oraculo, o harness de paridade nem os goldens."
   },
   "checkpoints": {
+    "scout_reextracao_2026_10_10": {
+      "completed_at": "2026-10-10T17:34:44Z",
+      "reextraction": true,
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/dependencies.md",
+        ".reversa/context/surface.json"
+      ],
+      "snapshot_of_previous": ".reversa/snapshots/2026-10-10-pre-reextracao/ (83 arquivos, 967193 bytes, sha256 por arquivo em _MANIFEST.txt)",
+      "summary": {
+        "primary_language": "Python 3.14.6 (.venv e o interpretador oficial)",
+        "main_framework": "Flask 3.1.3 servido por waitress 3.0.2",
+        "architecture": "hexagonal: app.py (borda) -> application/ (casos de uso) -> ports/ (adaptadores) -> core/ (dominio puro)",
+        "modules_identified": ["upload-gedcom", "tela-de-entrada", "analise-dna", "busca-caminho", "recursos-da-tela"],
+        "surface": "8 rotas/acoes: GET / + 5 actions de POST (upload_gedcom, aposentar_arquivo, selecionar_arvore, dna_analysis, path_search) + GET /banner.png + GET /apple-touch-icon.png",
+        "surface_changed": "SIM - entraram 2 rotas de arte e 2 actions desde 2026-10-05",
+        "database": "presente e OPCIONAL: PostgreSQL 16 em docker-compose, init.sql com 6 tabelas; sem DATABASE_URL o registrador e nulo",
+        "docker": "presente: docker/Dockerfile + docker-compose.yml + .dockerignore + .env",
+        "ci_cd": "AUSENTE - o workflow de GitHub Pages foi removido em 2026-10-08; a publicacao virou passo manual",
+        "test_files": 39,
+        "test_support_files": 9,
+        "test_functions": 418,
+        "test_items_collected": 536,
+        "test_result": "527 passam, 9 pulados, 0 falham (66 s) SEM DATABASE_URL no ambiente; 525/9/2 COM a variavel (ver finding 2)",
+        "python_lines_src": 5130,
+        "python_lines_tests": 8959,
+        "app_py_lines": 559,
+        "template_lines": 731,
+        "src_py_files": 35,
+        "defs_and_classes_in_src": 182,
+        "total_files_system_scope": 103,
+        "commits": 246,
+        "external_integrations": "nenhuma API externa; Bootstrap 5.3.3 e Mermaid 10 por CDN no navegador"
+      },
+      "findings": [
+        "psycopg2-binary==2.9.13 esta declarado no pin e NAO esta instalado no .venv (interpretador oficial): a persistencia fica desligada no ambiente oficial, sem quebrar nada (import preguicoso + RN-13). E o INVERSO da divergencia da rodada anterior, que era de versao.",
+        "O resultado da suite depende do ambiente: com DATABASE_URL presente (o shell desta sessao herdou a variavel do processo pai) e sem o driver, 2 testes de tests/test_persistencia_desabilitada.py falham, porque o aviso nao bloqueante aparece onde o contrato de tela congelado exige silencio. Removendo a variavel: 3 passam.",
+        ".env tem credencial em claro (usuario, senha, banco e DATABASE_URL); esta no .gitignore e NENHUM valor foi transcrito para os artefatos.",
+        "src/core/gedcom_state.py nao existe mais (apagado no T023 da feature 007), mas sobrou o .pyc em src/core/__pycache__/.",
+        "O mini-site (_reversa_docs/ e docs/) e de 2026-10-08, anterior as features 009 a 012; o gerador nao le addenda/.",
+        "As matrizes de _reversa_bugs/*/generated/ derivam das specs de 2026-10-05 e ancoram em contratos que esta rodada reescreve.",
+        "O README.md esta em dia (2026-10-10) e documenta o .venv como oficial - a pendencia de documentacao registrada em 2026-10-05 esta FECHADA.",
+        "Zero marcadores TODO/FIXME/XXX/HACK em src/."
+      ],
+      "organization_suggestion": "endpoint (confirma a decisao ja persistida em config.toml [specs]; scout_suggestion NAO foi reescrito, regra de imutabilidade do surface-schema.md; passo 3 pulado automaticamente, e config.user.toml NAO tem secao [specs])",
+      "docs_level": "completo (ja decidido: state.json e config.toml [analysis] concordam; resposta '2' pre-registrada no pedido de 2026-10-10)",
+      "legacy_untouched": true,
+      "next_step": "checkpoint bloqueante pos-Scout: apresentar o resumo e as 3 opcoes de nivel de documentacao; depois, com a decisao persistida, ativar o Arqueologo por modulo (Fase 2 do plan.md)"
+    },
+    "archaeologist_reextracao_2026_10_10": {
+      "reextraction": true,
+      "doc_level": "completo",
+      "phase": "escavacao",
+      "phase_completed": true,
+      "modules_total": 5,
+      "modules_analyzed": ["upload-gedcom", "tela-de-entrada", "analise-dna", "busca-caminho", "recursos-da-tela"],
+      "modules_pending": [],
+      "next_module": "transversais (code-analysis.md, data-dictionary.md, .reversa/context/modules.json)",
+      "paused_at": "2026-10-10 - pausa pedida pelo usuario apos o modulo tela-de-entrada, para retomar com contexto limpo; retomada na mesma data seguiu por analise-dna, busca-caminho e recursos-da-tela",
+      "resume_note": "RETOMADA: os 5 modulos estao analisados. Falta o item transversal do plan.md: reescrever _reversa_sdd/code-analysis.md, _reversa_sdd/data-dictionary.md e .reversa/context/modules.json (LER os tres antes de sobrescrever; o modules.json segue references/modules-schema.md do skill do Arqueologo). Contagem desta rodada: 22+19+95+67+30 = 233 regras. Depois: checkpoint de fim da Fase 2 e Fase 3 (Detetive + Arquiteto).",
+      "files_generated": [
+        "_reversa_sdd/flowcharts/upload-gedcom.md (reescrito: RN-17, aposentar/substituir, defesa por forma de nome)",
+        "_reversa_sdd/flowcharts/tela-de-entrada.md (NOVO: duas abas, agrupamento pela chave, aposentar, selecionar)",
+        "_reversa_sdd/flowcharts/analise-dna.md (reescrito: 95 regras; fechou a divergencia viva do determinismo de 2026-10-05)",
+        "_reversa_sdd/flowcharts/busca-caminho.md (reescrito: 67 regras; achado novo da colisao de chave do cache de nomes)",
+        "_reversa_sdd/flowcharts/recursos-da-tela.md (NOVO: 30 regras; as duas rotas de arte e as receitas derivadas)",
+        "_reversa_sdd/code-analysis.md (REESCRITO: 9 secoes, 233 regras em 5 unidades, 28 dividas consolidadas)",
+        "_reversa_sdd/data-dictionary.md (REESCRITO: 12 secoes, agora com a arvore por parametro, a fronteira de aplicacao e o esquema PostgreSQL de 6 tabelas)",
+        ".reversa/context/modules.json (REESCRITO: 5 modulos, 81 funcoes, 38 entidades, 37 algoritmos, 233 regras e 1 revogada; confianca no formato do schema)"
+      ],
+      "files_pending": [],
+      "totals": {
+        "modules": 5,
+        "business_rules": 233,
+        "revoked_rules": 1,
+        "functions_documented": 81,
+        "entities_documented": 38,
+        "algorithms": 37,
+        "flowcharts": 5,
+        "lines_useful_src": 5130,
+        "count_note": "233 = 22 (upload-gedcom) + 19 (tela-de-entrada) + 95 (analise-dna) + 67 (busca-caminho) + 30 (recursos-da-tela). A regra revogada (BR-U-REVOGADA) NAO entra na contagem.",
+        "id_policy": "Os IDs BR-U/BR-D/BR-C das rodadas anteriores foram PRESERVADOS porque _reversa_forward/005 e 006 os citam; as regras novas continuam a numeracao (BR-U-21..22, BR-D-63..95, BR-C-37..67) e as unidades novas usam BR-T-xx e BR-E-xx. Um ID revogado nao e reaproveitado."
+      },
+      "next_step_after_this": "Fase 3 (Interpretacao): Detetive (arqueologia Git e ADRs, regras implicitas e maquinas de estado, matriz de permissoes) e depois Arquiteto (C4, ERD, Spec Impact Matrix). O Detetive precisa tratar os dois achados NOVOS desta fase: a colisao da chave do cache de nomes (flowcharts/busca-caminho.md secao 13) e a ordem sensivel ao PYTHONHASHSEED em common_ancestors.",
+      "per_module": {
+        "upload-gedcom": {
+          "files_read": [
+            "src/application/upload_gedcom.py",
+            "src/application/reenvio.py",
+            "src/utils/validate.py",
+            "src/parsers/gedcom_parser.py",
+            "src/utils/text_cleaning.py",
+            "src/ports/adaptadores.py (ArmazenamentoEmDisco + CarregadorDeArvoresGedcom)",
+            "src/app.py (ramo upload_gedcom)"
+          ],
+          "lines_read": 1050,
+          "business_rules": 22,
+          "notable_findings": [
+            "RN-17 (reenvio) e NOVA: identico / substituido / novo, com mensagem propria, e o literal congelado 'Arquivo X carregado!' preservado no caminho comum.",
+            "A foto de ANTES (listar antes de guardar) e o que permite distinguir 'ja existia' de 'acabou de nascer': guardar nao sobrescreve.",
+            "BUG-20261009-6RKP / RN-20: _FORMATO_CHAVE foi REMOVIDA em 2026-10-10. O alfabeto fechado recusava acento e espaco que o gravador PRESERVA de proposito (RF-06); 3 arquivos com acento e 1 com espaco estavam inalcancaveis e a tela dizia que nao existiam.",
+            "A defesa contra escape de pasta e a exigencia de a referencia ser um NOME (sem barra, barra invertida, NUL, . ou .., e basename de si mesma) - nao um alfabeto fechado. As duas perguntas ('tem chave?' e 'posso resolver?') agora tem funcoes distintas.",
+            "carregar_arvore devolve a arvore como VALOR; src/core/gedcom_state.py nao existe mais e o grafo nao e mais reatribuido."
+          ]
+        },
+        "tela-de-entrada": {
+          "files_read": [
+            "src/reporting/lista_de_arquivos.py",
+            "src/app.py (_listas_da_tela, index GET, aposentar_arquivo, selecionar_arvore, _arvore_do_formulario)",
+            "src/ports/adaptadores.py (listar, aposentar)"
+          ],
+          "lines_read": 400,
+          "business_rules": 19,
+          "notable_findings": [
+            "Modulo NOVO nesta rodada (features 011 e 012): a tela de entrada passou a listar as duas abas SEMPRE, por processador de contexto - a rota tem oito render_template.",
+            "A ordem dos ramos e a regra: aposentar_arquivo vem ANTES de _arvore_do_formulario, porque essa funcao parseia a arvore escolhida e a arvore escolhida pode ser exatamente a que se esta aposentando.",
+            "O item indisponivel APARECE marcado, com motivo distinto para 'sem chave' e 'fora da forma' (D-11/RN-11): esconder o inalcancavel tiraria do operador justamente o arquivo que ele mais quer aposentar.",
+            "A tela pergunta a MESMA funcao que o resolvedor (pode_ser_usado -> chave_recebida_e_valida), para a marca nunca divergir do resolvedor.",
+            "O ramo selecionar_arvore existe porque sem ele o action cairia no return final, que renderiza index.html SEM gedcom_filename: a arvore resolvida seria descartada e o clique nao faria nada (defeito medido em 2026-10-09).",
+            "O harness de paridade nao enxerga as listas: ele substitui render_template por captura de contexto, entao o processador nem roda."
+          ]
+        },
+        "analise-dna": {
+          "files_read": [
+            "src/application/dna_analysis.py",
+            "src/core/dna_analysis.py",
+            "src/core/genetic_evidence.py",
+            "src/core/relationship_hypotheses.py",
+            "src/core/evidence_comparison.py",
+            "src/core/matching.py",
+            "src/core/name_normalization.py",
+            "src/core/registro.py",
+            "src/core/cm_estimator.py",
+            "src/core/erros.py",
+            "src/parsers/csv_ingest.py",
+            "src/ports/__init__.py (as quatro portas e os cinco tipos de payload)",
+            "src/ports/adaptadores.py (RegistroDeAnalisesPostgres)",
+            "src/application/traducao.py",
+            "src/app.py (ramo dna_analysis, _DEPENDENCIAS, _REGISTRO)",
+            "src/templates/index.html (secao de DNA)"
+          ],
+          "lines_read": 3400,
+          "business_rules": 95,
+          "notable_findings": [
+            "A DIVERGENCIA VIVA DE 2026-10-05 FOI FECHADA: o RF-26/T-31 (determinismo do desempate) que o Detetive de 2026-10-05 mediu como violado ESTA IMPLEMENTADO em matching.py:116-125 como 4o criterio (menor xref_id), e tests/test_characterization_matching.py:188-247 o congela nas duas direcoes. Nao ha mais divida de determinismo.",
+            "A unidade absorveu tres camadas que nao existiam em 2026-10-05: a fronteira de aplicacao (application/dna_analysis.py, projecao pura D-15), a persistencia historica (RegistroDeAnalises, feature 008) e o registro puro (core/registro.py, para onde get_name foi quando gedcom_state.py foi apagado).",
+            "A projecao pareia kit e veredito POR INDICE, e nao por rotulo: e o que sustenta dois kits de mesmo nome (ou ambos sem kit) sem trocar o cM de um com o estado do outro.",
+            "INCONCLUSIVO e o ULTIMO da ordem de conservadorismo declarada; consequencia: um kit sem cM utilizavel nao rebaixa o resultado quando outro kit e COMPATIVEL. Escolha do codigo, nao acidente, e sem teste que a fixe.",
+            "_avaliar_kit recebe `meioses_documental` e NAO o usa: superficie morta deixada pelo criterio de sobreposicao de faixas que substituiu o criterio por meioses.",
+            "Os quatro estados sao tambem nomes de classe CSS (badge estado-{{ status }} no template): renomear um estado quebra a cor do selo em silencio.",
+            "O import de psycopg2 e PREGUICOSO e nada acontece na construcao do adaptador - sem isso, `import app` cairia no .venv (que e o interpretador oficial) e derrubaria a suite e o harness de paridade.",
+            "Continuam abertos: o CSV sem validacao de conteudo (divida #10) e a ausencia de teste de caminho feliz de INSERT (o driver nao esta no .venv, entao erro de SQL ou de ordem de FK so apareceria no conteiner)."
+          ]
+        },
+        "busca-caminho": {
+          "files_read": [
+            "src/application/path_search.py",
+            "src/application/__init__.py",
+            "src/core/path_search.py",
+            "src/core/path_finding.py",
+            "src/core/family_navigation.py",
+            "src/core/documentary_relationship.py",
+            "src/core/diagram_domain.py",
+            "src/core/registro.py",
+            "src/reporting/mermaid_render.py",
+            "src/app.py (ramo path_search)",
+            "src/templates/index.html (secao de busca)"
+          ],
+          "lines_read": 1750,
+          "business_rules": 67,
+          "notable_findings": [
+            "ACHADO NOVO (candidato a LACUNA/bloqueante): _chave_de usa (len(people), primeira chave, ultima chave) como chave de invalidacao do cache de modulo _INDICE_DE_NOMES. Dois GEDCOMs com o MESMO numero de pessoas e os mesmos xrefs extremos produzem a mesma chave, e o indice de nomes da arvore ANTERIOR e reaproveitado - o dossie de homonimos passa a listar xrefs de outra arvore, sem excecao (degradacao silenciosa). Inferido, nao executado: exige dois GEDCOMs reais do mesmo tamanho com a mesma assinatura de xrefs no mesmo processo. Registrado em flowcharts/busca-caminho.md secao 13 para a Fase 3 e o Revisor.",
+            "A ordenacao de find_all_common_ancestors parte de set(de_a) & set(de_b) e ordena por (meioses, maior distancia, nome): quando dois ancestrais empatam nos TRES criterios, a ordem relativa vem da iteracao do set e varia com o PYTHONHASHSEED. Mesma classe do defeito que o matching fechou em 2026-10-05; aqui segue ABERTA, e afeta a ordem de common_ancestors e additional_paths na tela.",
+            "MAX_HOPS=40 e comparado contra ARESTAS do grafo pessoa-familia, nao contra passos pessoa-a-pessoa: como o caminho alterna pessoa->familia->pessoa, o teto efetivo em vinculos entre pessoas e aproximadamente metade (20).",
+            "_cadeias_ate para no teto LIMITE_DE_CADEIAS=8, entao o aviso de colapso de pedigree exibe um PISO, nao o total de cadeias.",
+            "_diferencas e chamado DUAS vezes em homonym_dossier (uma para `differences`, outra dentro de `identical_data`), e cada chamada remonta person_summary de todos os ids, varrendo as familias do arquivo. O comentario do codigo diz que as fichas sao montadas 'UMA vez' - vale dentro de uma chamada, nao entre as duas.",
+            "O nucleo encolheu nesta rodada: o bloco que reexportava 17 nomes (OPP-20261006-ESKO) foi removido e __all__ passou a declarar so `path_search`. A varredura mostrou que app.py importa apenas path_search e que core/dna_analysis.py nao importa nada daqui.",
+            "reporting/ deixou de importar core (OPP-20261006-ULVW): o ciclo foi fechado com o resolvedor de diagrama, um dict de funcoes ligadas a arvore por functools.partial; as decisoes de layout continuam no renderizador por decisao (ADR-11).",
+            "A fronteira de aplicacao ganhou application/path_search.py com ResultadoDeBusca e o enum Desfecho (RESULTADO, SEM_RESULTADO, ERRO_DE_ENTRADA), que substitui o booleano success na travessia - existe para o literal de tela nao ganhar autoridade semantica (RF-20)."
+          ]
+        },
+        "recursos-da-tela": {
+          "files_read": [
+            "src/app.py (ARTE_DO_ICONE/icone_de_atalho e ARTE_DO_TOPO/banner_do_topo)",
+            "src/templates/index.html (masthead: img /banner.png, subtitulo, h1 e texto de apresentacao)",
+            "tests/icone_de_atalho.py (receita do icone)",
+            "tests/banner_da_tela.py (receita do banner)",
+            "tests/test_deriva_da_arte.py",
+            "tests/test_icone_de_atalho.py",
+            "tests/test_banner_do_topo.py",
+            ".dockerignore"
+          ],
+          "lines_read": 1450,
+          "business_rules": 30,
+          "notable_findings": [
+            "Unidade NOVA nesta rodada (features 009 e 011) e com ZERO linhas proprias de modulo: as duas rotas moram em src/app.py, no balde transversal. Ela existe como unidade porque sao dois contratos HTTP distintos, com degradacao (404), cache (ETag/304) e derivacao de arte proprios, e porque docs/assets/ publica a FONTE canonica enquanto src/assets/ guarda a DERIVADA de runtime.",
+            "A arte servida NAO e a arte canonica: o icone e a canonica composta sobre BRANCO e reamostrada para 180x180 (32,5% da arte e transparente e o sistema movel compoe transparencia sobre PRETO, o que daria um quadrado preto); o banner e a fonte com o quadriculado de transparencia GRAVADO no bitmap (a fonte chegou em RGB, sem alfa) e o fundo removido.",
+            "A remocao de fundo do banner e GLOBAL, e nao por inundacao a partir da borda: a arvore, o livro e o texto formam anuncios fechados, e a inundacao deixava 8.379 pixels de fundo opacos numa amostra de 1/9 da imagem. E a regra usa DUAS faixas de brilho porque um limite unico comia o preenchimento do texto dourado (letras ocas - defeito medido).",
+            "O residuo de fundo e medido com limite MAIS ESTRITO que o da regra (SATURACAO_MAXIMA-5): medir com o mesmo limite devolve sempre zero, e foi esse erro que deixou um bloco de quadriculado passar duas vezes.",
+            "A deriva da arte e comparada PIXEL a pixel, nunca por sha256: o MESMO desenho existe em disco com 32.317 e com 44.069 bytes com diferenca de pixel ZERO, entao a comparacao por hash daria alarme falso.",
+            "src/assets/ e escolha forcada pelo .dockerignore, que e lista de PERMISSAO (*, !requirements.txt, !src/, !src/**): arte em docs/ responderia 200 no host e 404 DENTRO do container. src/static/ continua proibida (W004) e ha teste que falha se a arte cair la.",
+            "A biblioteca de imagem NAO entra em requirements.txt (que e lista de runtime) e ha teste que falha se 'pillow'/'PIL==' aparecer la; a receita e codigo de TESTE, com import preguicoso.",
+            "O sha256 do HTML de GET / em test_icone_de_atalho.py e um invariante mantido A MAO, atualizado tres vezes em 2026-10-10, cada atualizacao amarrada a uma RN de um adendo vigente. O comentario declara que ele mede 'a tela nao mudou DESDE a ultima mudanca declarada', e nao 'a tela nunca muda'."
+          ]
+        }
+      },
+      "legacy_untouched": true
+    },
+    "detective_reextracao_2026_10_10": {
+      "completed_at": "2026-10-10T22:40:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "files_generated": [
+        "_reversa_sdd/domain.md (REESCRITO: 8 secoes, glossario com 10 termos novos, 10 familias de regras, 19 decisoes humanas verificadas, 6 lacunas abertas L-24..L-29)",
+        "_reversa_sdd/state-machines.md (REESCRITO: 1 ciclo de vida de verdade, 4 maquinas de decisao, 11 codigos de aviso, 7 lacunas M-01..M-07)",
+        "_reversa_sdd/permissions.md (REESCRITO: a corrida entre threads DEIXOU DE EXISTIR; o dono existe e nao isola; 4 lacunas novas P-05..P-08)",
+        "_reversa_sdd/adrs/24-nucleo-puro-arvore-por-parametro.md (NOVO)",
+        "_reversa_sdd/adrs/25-fronteira-de-aplicacao-portas.md (NOVO)",
+        "_reversa_sdd/adrs/26-dono-no-port-como-costura.md (NOVO)",
+        "_reversa_sdd/adrs/27-persistencia-postgres-opcional.md (NOVO)",
+        "_reversa_sdd/adrs/28-docker-dois-servicos-dockerignore-permissao.md (NOVO)",
+        "_reversa_sdd/adrs/29-arte-derivada-com-receita-unica.md (NOVO)",
+        "_reversa_sdd/adrs/30-aposentar-em-vez-de-apagar.md (NOVO)",
+        "_reversa_sdd/adrs/31-reenvio-com-substituicao.md (NOVO)",
+        "_reversa_sdd/adrs/32-elegibilidade-por-forma-de-nome.md (NOVO)",
+        "_reversa_sdd/adrs/33-desfecho-em-tres-valores-e-projecao-pura.md (NOVO)",
+        "_reversa_sdd/adrs/34-ciclos-quebrados-e-superficies-removidas.md (NOVO)",
+        "_reversa_sdd/adrs/35-pasta-de-uploads-dentro-do-repositorio.md (NOVO)",
+        "_reversa_sdd/adrs/36-revalidacao-das-decisoes-herdadas.md (NOVO: quadro de revalidacao das 23 herdadas)"
+      ],
+      "summary": {
+        "commits_analisados": 246,
+        "commits_novos_desde_2026_10_05": 126,
+        "adrs_totais": 36,
+        "adrs_herdadas_revalidadas": 23,
+        "adrs_novas": 13,
+        "adrs_revertidas": 1,
+        "maquinas_de_ciclo_de_vida": 1,
+        "maquinas_de_decisao": 4,
+        "codigos_de_aviso_catalogados": 11,
+        "mensagens_de_contrato": 29,
+        "decisoes_humanas_verificadas": 19,
+        "lacunas_novas": "domain.md L-24..L-29 (6), state-machines.md M-05..M-07 (3), permissions.md P-05..P-08 (4)"
+      },
+      "notable_findings": [
+        "A CORRIDA ENTRE THREADS DEIXOU DE EXISTIR. O state-machines.md de 2026-10-05 e o permissions.md registravam, como vetor VIVO, a sequencia em que a thread A segue lendo a arvore que a thread B acabou de carregar. Com a arvore por parametro (feature 005) nao ha mais variavel de modulo que uma thread possa sobrescrever. A guarda de instancia unica PERMANECE, mas por outro motivo: o armazenamento em disco. E a L-16 do domain.md esta FECHADA.",
+        "O DONO EXISTE E NAO ISOLA: `dono` e parametro obrigatorio em todos os metodos das portas e virou coluna `owner_id TEXT NOT NULL` no Postgres. Nenhuma consulta filtra por ele e nenhum indice comeca por ele. A Onda 3 tem onde ancorar, e nenhuma entrega pode ser citada como tendo implementado isolamento (dividas #3 e #4 abertas).",
+        "'O SISTEMA NAO TEM BANCO DE DADOS' deixou de ser verdade: 6 tabelas, driver ainda ausente do .venv. E, pela primeira vez, o sistema PERSISTE DADO PESSOAL que antes era efemero (`analysis_person`: xref, nome, sexo, nascimento, local, falecimento, inclusive de pessoas vivas) sem retencao, expurgo nem consentimento (L-29 / P-07).",
+        "O SISTEMA GANHOU SEU PRIMEIRO CICLO DE VIDA DE VERDADE: a POSICAO do arquivo armazenado (na pasta <-> aposentado), que sobrevive ao processo. A rodada anterior concluia que nenhuma entidade persistente tinha ciclo de vida; isso deixou de valer pelo `aposentar` (RN-14). O estado 'aposentado' NAO e consultavel pela aplicacao (M-05).",
+        "UNICA DECISAO REVERTIDA DO PROJETO, registrada nos dois sentidos: a feature 010 poe os uploads FORA do repositorio e a 012 desfaz no MESMO DIA, voltando para src/uploads/. A garantia material da decisao vigente e o `.gitignore`, cujo padrao `uploads/` com barra final casa em qualquer profundidade - verificado nesta rodada: 0 arquivos de src/uploads rastreados pelo Git, 13 em disco (ADR-35).",
+        "O ADR-17 (upload por chave de conteudo) continua vigente no PRINCIPIO e teve a DEFESA reescrita pelo ADR-32: o alfabeto fechado recusava acento e espaco que o gravador preserva, e 4 arquivos reais ficaram inalcancaveis com a tela dizendo que nao existiam (BUG-20261009-6RKP / RN-20).",
+        "A REVALIDACAO DAS 23 DECISOES HERDADAS esta no ADR-36, com quadro completo: nenhuma foi declarada superada, e SEIS precisam ser lidas com ressalva (02, 06, 12, 13, 17, 23). O ADR-02 tem a afirmacao 'nenhuma regra catalogada vive em app.py' MATERIALMENTE VENCIDA: as duas rotas de arte e a orquestracao da lista levam regras ao adaptador (BR-E-*, BR-T-12..17).",
+        "Os estados do confronto sao TAMBEM nomes de classe CSS (`badge estado-{{ status }}`): renomear um estado muda o texto e quebra a cor do selo em silencio, sem teste que prenda o par."
+      ],
+      "legacy_untouched": true,
+      "next_step": "Arquiteto (Fase 3, restante): C4 (contexto, containers, componentes), ERD e integracao externa, e a Spec Impact Matrix. Os artefatos a reescrever sao architecture.md, c4-context.md, c4-containers.md, c4-components.md, erd-complete.md e traceability/spec-impact-matrix.md - LER antes de sobrescrever. Entrada nova para o Arquiteto: as 4 portas, os 5 tipos de payload, o resolvedor de diagrama, as duas rotas de arte e as 6 tabelas do init.sql."
+    },
+    "architect_reextracao_2026_10_10": {
+      "completed_at": "2026-10-10T23:35:00Z",
+      "reextraction": true,
+      "doc_level": "completo",
+      "files_generated": [
+        "_reversa_sdd/architecture.md (REESCRITO: 9 secoes, 7 unidades, 4 containers, 42 estruturas, 28 dividas consolidadas, 36 ADRs)",
+        "_reversa_sdd/c4-context.md (REESCRITO: 4 rotas de sistema e 5 actions, o Postgres opcional no contexto, e a defesa por forma de nome)",
+        "_reversa_sdd/c4-containers.md (REESCRITO: 4 CONTAINERS - entrou o PostgreSQL 16 opcional; empacotamento Docker por lista de permissao)",
+        "_reversa_sdd/c4-components.md (REESCRITO: 31 componentes em 7 unidades; os DOIS CICLOS DE PACOTE estao fechados)",
+        "_reversa_sdd/erd-complete.md (REESCRITO: 5 diagramas, 42 estruturas, e o Diagrama E que e o PRIMEIRO esquema FISICO do projeto - 6 tabelas)",
+        "_reversa_sdd/traceability/spec-impact-matrix.md (REESCRITO: 5 unidades, matrizes A a E, 3 achados novos e 7 lacunas X-01..X-07)"
+      ],
+      "summary": {
+        "containers": 4,
+        "unidades_funcionais": 5,
+        "componentes": 31,
+        "estruturas_no_erd": 42,
+        "tabelas_postgres": 6,
+        "integracoes_de_rede_com_terceiros": 0,
+        "dividas_consolidadas": 28,
+        "dividas_de_gravidade_alta": 5
+      },
+      "notable_findings": [
+        "OS DOIS CICLOS DE PACOTE ESTAO FECHADOS. O architecture.md e o c4-components.md de 2026-10-05 registravam como achado vermelho `core/ <-> reporting/` e `core/ <-> parsers/`. O primeiro foi fechado pelo resolvedor de diagrama (o renderizador recebe as 7 consultas por parametro e NAO importa core) e o segundo pela mudanca de `norm_name` para utils e pela injecao das dependencias de borda. O grafo agora e estritamente descendente.",
+        "O MECANISMO DE INTEGRACAO MUDOU DE NATUREZA: era estado global mutavel, hoje e passagem de parametro e injecao explicita. A afirmacao 'o sistema nao tem banco de dados' deixou de valer - o ERD ganhou o Diagrama E, que e o PRIMEIRO esquema FISICO do projeto, com 6 tabelas, FOREIGN KEY real e CHECK de dominio fechado.",
+        "O ERD passou de 27 para 42 estruturas: entraram os 5 payloads da porta, EntradaArmazenada, Armazenado (desfecho), ResultadoDeAnalise, ResultadoDeBusca + Desfecho, ArquivoAposentado e as 6 tabelas. Saiu ESTADO_VERSAO (o contador `versao` morreu com o modulo de estado) e entrou CACHE_DE_NOMES, que e a origem da lacuna L-24 / E-05.",
+        "E-02 (o resultado nao referenciava a pessoa escolhida por chave) esta FECHADA NO BANCO: `match_result.matched_person_xref` e FK COMPOSTA para analysis_person(analysis_id, xref), e match_path_node.person_xref tambem. No payload em memoria a lacuna persiste, porque match_name continua sendo texto.",
+        "CINCO DIVIDAS DE GRAVIDADE ALTA, e QUATRO delas sao consequencia direta do ciclo forward: a colisao da chave do cache de nomes (L-24/E-05), o psycopg2 pinado e ausente do .venv (L-26), o dado pessoal persistido sem retencao (L-29/P-07) e a ausencia de teste do caminho de gravacao no banco (L-28/X-05). A quinta e a ausencia de identidade e isolamento, que ja vinha de antes.",
+        "Na Matriz C, a coluna 'area de teste' substituiu uma coluna por arquivo: com 39 arquivos de teste, a matriz anterior deixou de ser legivel. O mapa area -> arquivos esta na secao 4 do artefato.",
+        "A Matriz D ganhou as constantes novas: SEM_KIT (o espaco a esquerda e a defesa contra colisao), PASTA_DE_APOSENTADOS (o nome da subpasta e o que faz o arquivo sumir da lista), as duas chaves de arte em app.config, e as tres constantes da receita do banner que decidem o que e fundo."
+      ],
+      "legacy_untouched": true,
+      "phase_3_complete": true,
+      "next_step": "Fase 4 (Geracao): Redator. 5 unidades (upload-gedcom, tela-de-entrada, analise-dna, busca-caminho, recursos-da-tela), cada uma com requirements.md, design.md, tasks.md e contracts.md, mais os globais do nivel completo (openapi/index.yaml, user-stories/ e traceability/code-spec-matrix.md). As units de 2026-10-05 existem e serao sobrescritas - LER antes. O code-spec-matrix.md tambem existe (104 linhas uteis)."
+    },
+    "redator_progress_2026_10_10": {
+      "phase": "geracao",
+      "reextraction": "2026-10-10",
+      "doc_level": "completo",
+      "granularity": "endpoint",
+      "layout": "feature-folder",
+      "started_at": "2026-10-10T23:55:00Z",
+      "units_total": 5,
+      "files_planned": 27,
+      "files_done": 27,
+      "rhythm": "pausa por unit (4 arquivos por vez), escolha do usuario nesta sessao",
+      "non_destructive_override": "O usuario autorizou explicitamente REGENERAR os 18 arquivos canonicos e globais que ja existiam da rodada de 2026-10-05, sobrepondo a diretiva non-destructive do SKILL do Redator. Snapshot integral em .reversa/snapshots/2026-10-10-pre-reextracao/.",
+      "units": [
+        {
+          "unit": "upload-gedcom",
+          "status": "concluida",
+          "completed_at": "2026-10-10T23:55:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 24,
+          "tarefas": 26,
+          "testes": 20,
+          "mudancas_da_rodada": "A unit DEIXOU de publicar estado: a arvore e o RETORNO do parse e entra por parametro (ADR-24). Ganhou o reenvio com substituicao (RF-20 a RF-22 / RN-17), a validacao da referencia por FORMA DE NOME em duas funcoes (RF-23 / RN-20 / BUG-20261009-6RKP) e o `dono` sem comportamento em todas as assinaturas de porta (RF-24 / ADR-26). A mensagem de recusa de conteudo passou a ser FIXA (RN-18)."
+        },
+        {
+          "unit": "tela-de-entrada",
+          "status": "concluida",
+          "completed_at": "2026-10-11T00:40:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 24,
+          "tarefas": 22,
+          "testes": 14,
+          "mudancas_da_rodada": "Unidade NOVA, sem antecessor. Cobre GET / (as duas abas por processador de contexto), POST / action=aposentar_arquivo e POST / action=selecionar_arvore. 19 regras BR-T-01..BR-T-19 preservadas como estao no catalogo do Arqueologo.",
+          "achados_do_redator": [
+            "L-30 (NOVO, 🔴): motivo_de_indisponibilidade (utils/validate.py:183-202) justifica o motivo FORA_DA_FORMA dizendo que e 'o caso do acento e do espaco, medido na pasta real' - mas a _FORMATO_CHAVE foi REMOVIDA em 2026-10-10 (RN-20/ADR-32) e acento e espaco agora PASSAM. O ramo ficou praticamente inalcancavel e a docstring esta desatualizada. REQUER DECISAO HUMANA.",
+            "L-31 (NOVO, 🟡): _montar_item deriva disponivel e motivo_indisponivel APENAS do representante do grupo (lista_de_arquivos.py:192-193); nada garante que a elegibilidade seja a mesma para todos os membros de um grupo 'com chave' que tenha nomes visiveis diferentes.",
+            "MEDIDO (🟢): app.py tem 23 render_template e 12 deles passam gedcom_filename. O comentario em app.py:105-106 afirma 'oito' - numero DESATUALIZADO, e a conclusao a que ele serve (usar filtro de template em vez de parametro repetido) continua correta e fica mais forte.",
+            "L-32 (🟡, ja registrado pelo Arqueologo): a quantidade do grupo conta ARQUIVOS, e nao versoes uteis.",
+            "🟡 _arvore_do_formulario e dependencia compartilhada sem dono declarado: vive em app.py e e a fonte unica das guardas de entrada de tela-de-entrada, analise-dna e busca-caminho."
+          ],
+          "atestado_de_execucao": "markdown_lint exit 0 / nenhum problema nos 4 arquivos. A unit nao toca o legado: git status mostra apenas .reversa/** e _reversa_sdd/**."
+        },
+        {
+          "unit": "analise-dna",
+          "status": "concluida",
+          "completed_at": "2026-10-11T01:30:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 34,
+          "tarefas": 46,
+          "testes": 27,
+          "mudancas_da_rodada": "A unit ganhou FRONTEIRA DE APLICACAO (application/dna_analysis.py + application/traducao.py + porta RegistroDeAnalises, ADR-25), PERSISTENCIA POSTGRES OPCIONAL que nunca pode bloquear o resultado (ADR-27) e PROJECAO PURA do resultado para o payload da porta (ADR-33). Os erros deixaram de ser ValueError generico: sao 5 excecoes de dominio IRMAS com tabela de traducao. O CSV passou a poder vir da LISTA (com precedencia sobre o arquivo enviado) e a SUBSTITUIR a versao anterior no reenvio. E o determinismo do desempate (era RF-26 e divergencia viva) esta IMPLEMENTADO e congelado por teste (BR-D-63). 62 regras -> 95.",
+          "achados_do_redator": [
+            "MEDIDO (🟢) CORRECAO: CAUSAS_POSSIVEL tem 8 itens, e nao 9. Medido por importacao: CAUSAS_POSSIVEIS[:1] + [3:8] + [10:] = 1+5+2 = 8. O catalogo do Arqueologo (code-analysis.md 4.4 e modules.json BR-D-35) afirma 9 e esta ERRADO. Registrado em requirements/design/tasks/contracts e com teste dedicado (TT-19).",
+            "MEDIDO (🟢) CORRECAO: o design.md de 2026-10-05 afirmava 'COMMON_SURNAMES 15 entradas, 14 efetivas'. O literal e um SET com 'souza' DUAS VEZES: 16 literais, 15 efetivas - o catalogo esta certo e o artefato antigo errado. Contar em execucao da 15 unicos porque o set colapsa a duplicata NA CONSTRUCAO; so a leitura do fonte revela os 16 (name_normalization.py:38-39).",
+            "MEDIDO (🟢): SCP40_ROWS = 27, SCP40_NOT_PUBLISHED = 6, SEM_KIT = ' SEM-KIT' (com espaco), LIMITE_SEGMENTO_FRACO = 15.0, GENERIC_GIVENS = 20, SURNAME_SUFFIXES = 5, STOP_WORDS = 6.",
+            "L-29 / P-07 (🔴, carregado do Arqueologo e agora com consequencia de contrato): analysis_person persiste nome, sexo, nascimento, local e falecimento de pessoas VIVAS, sem retencao, expurgo nem consentimento. Virou TM-04, BLOQUEANTE para uso real com dado de terceiros.",
+            "L-28 / X-05 (🔴): nao ha teste de caminho feliz de INSERT; virou TT-27, que nao pode existir no .venv enquanto o driver estiver ausente.",
+            "NOVO (🟡): duas analises iguais gravam DUAS linhas no historico - nada deduplica analise repetida. Marcado [Verificar] em design.md e nas lacunas.",
+            "L-24 / E-05 (🟡) alcance AMPLIADO: esta unit CONSOME o dossie de homonimos alimentado pelo cache de nomes do modulo documental (BR-D-22 na raiz ambigua e BR-D-32 na identidade ambigua). Marcado [Verificar] se a contaminacao entre arvores alcanca os avisos desta unit."
+          ],
+          "atestado_de_execucao": "markdown_lint exit 0 / nenhum problema nos 4 arquivos. Snapshot do artefato de 2026-10-05 em .reversa/snapshots/2026-10-10-pre-reextracao/analise-dna/. O legado nao foi tocado: git status mostra apenas .reversa/** e _reversa_sdd/**."
+        },
+        {
+          "unit": "busca-caminho",
+          "status": "concluida",
+          "completed_at": "2026-10-11T02:20:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 43,
+          "tarefas": 38,
+          "testes": 24,
+          "mudancas_da_rodada": "36 regras -> 67. DUAS regras foram REESCRITAS porque o comportamento mudou: BR-C-08 (o grafo vem da ARVORE RECEBIDA por parametro - o import tardio da global 'graph' deixou de existir, ADR-24) e BR-C-22 (o indice de nomes e invalidado por uma CHAVE DERIVADA DO CONTEUDO - o gedcom_state.versao nao existe mais). A unit ganhou fronteira completa: Desfecho em tres valores + ResultadoDeBusca congelado (ADR-33), erro tipado com a tabela de traducao compartilhada, e dono sem comportamento. O CICLO core/ <-> reporting/ FOI FECHADO pelo resolvedor de diagrama (ADR-34): o renderizador NAO importa mais core. O __all__ do nucleo passou a declarar so path_search (17 reexportacoes removidas, OPP-20261006-ESKO).",
+          "achados_do_redator": [
+            "L-24 / E-05 (🔴, NOVO e o achado mais grave da unit): a chave do cache de nomes e (len(people), chaves[0], chaves[-1]) com chaves = sorted(people). Dois GEDCOMs do MESMO TAMANHO com os MESMOS xrefs extremos reaproveitam o indice da arvore anterior; _indice_por_nome devolve xrefs que nao existem na arvore carregada e o dossie de homonimos lista fichas de OUTRA arvore, SEM EXCECAO (get_name(None) devolve 'Sem Nome' e as consultas devolvem []/None - degrada em silencio). Cenario INFERIDO, nao executado. id() NAO serve como chave - e reciclado. Detalhe em flowcharts/busca-caminho.md 13. Tem teste que HOJE FALHARIA (TT-20) e exige DECISAO HUMANA.",
+            "L-25 (🟡): a ordem de common_ancestors e additional_paths pode variar com o PYTHONHASHSEED quando dois ancestrais empatam em meioses, distancia E nome (a varredura parte de set(de_a) & set(de_b)). E a MESMA CLASSE do defeito que o matching de analise-dna fechou em 2026-10-05 com o menor xref_id; aqui segue ABERTA (TT-21).",
+            "L-20 (🔴, carregado): get_children varre TODAS as familias sem indice, e person_a/person_b sao fichas completas em cada resultado - 142 fichas no caso real de 71 conexoes.",
+            "MEDIDO/CORRECAO (🟢): o artefato de 2026-10-05 declarava networkx 3.6.1. O requirements.txt fixa networkx==3.7 (realinhado ao .venv em 2026-10-05, encerrando L-19 nas diretas). Corrigido nas 4 specs desta unit.",
+            "FECHADO (🟢): a inversao de camada registrada em 2026-10-05 - 'reporting/ depende de core' - NAO existe mais. O resolvedor de diagrama entrega 7 consultas ja ligadas a arvore e o renderizador nao importa core (ADR-34). O que PERMANECE e a decisao de negocio no layout (ADR-11), declarada.",
+            "FECHADO (🟢): 'o grafo e lido por import tardio' e 'versao global invalida o indice' - as duas afirmacoes das NFRs de 2026-10-05 que a rodada de 2026-10-10 tornou FALSAS.",
+            "M-01/M-02 (🟡, carregados): a afinidade e atribuida a uma COPIA do dicionario (o original segue not_found), e a ambiguidade rebaixa found->ambiguous mas NAO rebaixa not_found."
+          ],
+          "atestado_de_execucao": "markdown_lint exit 0 / nenhum problema nos 4 arquivos. Snapshot do artefato de 2026-10-05 em .reversa/snapshots/2026-10-10-pre-reextracao/busca-caminho/. O legado nao foi tocado."
+        },
+        {
+          "unit": "recursos-da-tela",
+          "status": "concluida",
+          "completed_at": "2026-10-11T03:00:00Z",
+          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "rfs": 25,
+          "tarefas": 22,
+          "testes": 17,
+          "mudancas_da_rodada": "Unidade NOVA, sem antecessor, e a UNICA sem dependencias declaradas (modules.json: dependencies: []). Tem ZERO linhas uteis proprias de modulo: as duas rotas (GET /apple-touch-icon.png e GET /banner.png) moram em src/app.py e as RECEITAS de derivacao moram em tests/. Especificada como unidade de CONTRATO, com 30 regras BR-E-01..BR-E-30 preservadas.",
+          "achados_do_redator": [
+            "L-33 (🔴, NOVO e o mais relevante da unit): nao ha verificacao de que a arte servida e a derivada correta DENTRO DO CONTAINER. Os testes rodam no host, onde docs/ existe. Se a arte falhar dentro da imagem a degradacao e o 404 - silenciosa, sem log e sem teste - que e exatamente o caso que a escolha de src/assets/ existe para evitar (a lista de PERMISSAO do .dockerignore).",
+            "L-34 (🟡, NOVO): o sha256 do HTML de GET / em test_icone_de_atalho.py e um invariante mantido A MAO, atualizado TRES VEZES em 2026-10-10. Enquanto cada atualizacao for decisao humana registrada, ele prende o que promete; se virar rotina, deixa de prender.",
+            "🟡 Nao ha cache em memoria e nao ha medicao do custo de servir 317 KB por requisicao. [Verificar]",
+            "🟡 A folga dos limites (CLARO_MINIMO=160, SATURACAO_MAXIMA=50, teto 12 da faixa media) e DECLARADA, nao medida por experimento controlado. Os 11 pontos sao a rede contra aperto indevido.",
+            "🟡 A receita que produz a ARTE ENTREGUE AO OPERADOR e codigo de teste (tests/). E o preco de manter PIL fora do requirements.txt.",
+            "🟢 Confirmada a simetria do contrato: as duas rotas sao o MESMO desenho (GET sozinho, ETag, 404 vazio, caminho ancorado no arquivo do app, mimetype image/png). Nao ha diferenca de contrato entre elas."
+          ],
+          "atestado_de_execucao": "markdown_lint exit 0 / nenhum problema nos 4 arquivos. Unit nova: nenhum artefato anterior foi sobrescrito, e nao ha snapshot a preservar dela. O legado nao foi tocado."
+        }
+      ],
+      "units_pending": [],
+      "globais_gerados": [
+        "openapi/index.yaml - REGENERADO (era de 2026-10-05, UMA acao pos-upload; agora 5 acoes, as 2 rotas de arte, o schema por FORMA DE NOME em vez de alfabeto fechado, o CSV por referencia e o aviso de persistencia)",
+        "user-stories/upload-gedcom.md - REGENERADO (a arvore deixou de ser estado global; reenvio com substituicao; mensagem de recusa FIXA)",
+        "user-stories/tela-de-entrada.md - NOVO",
+        "user-stories/analise-dna.md - REGENERADO (historico opcional que nao bloqueia; determinismo fechado; referencia de CSV)",
+        "user-stories/busca-caminho.md - REGENERADO (arvore por parametro; desfecho tipado; L-24 registrado)",
+        "user-stories/recursos-da-tela.md - NOVO",
+        "traceability/code-spec-matrix.md - REGENERADO (3 units -> 5; src/ 24 -> 35 arquivos; cobertura de src/ 83,3% -> 88,6%; CS-05 SUPERADA e CS-06/CS-07/CS-08 novas)"
+      ],
+      "globais_pendentes": [],
+      "next_file": null,
+      "geracao_completa": true,
+      "fase_4_concluida_em": "2026-10-11T03:40:00Z",
+      "proximo_passo": "Fase 5 (Revisor): revisao de consistencia, resolucao de lacunas com o usuario e relatorio de confianca final. Depois o Passo 4 (verificacao de regressao semantica contra _reversa_forward/*/regression-watch.md + reconciliacao dos 17 adendos).",
+      "recomendacao_para_a_retomada": {
+        "registrada_em": "2026-10-11T03:55:00Z",
+        "registrada_a_pedido_do_usuario": "Adriano pediu a recomendacao antes de pausar, e autorizou registra-la para a proxima sessao nao perde-la.",
+        "ordem_recomendada": [
+          "1. Fase 5 - Revisor. NAO pular para o /reversa-docs: os 27 artefatos escritos nesta sessao nunca foram lidos por outro agente, e o Revisor e a unica etapa que confronta as specs entre si.",
+          "2. Passo 4 - regressao semantica (13 watch items de 003/004) + reconciliacao dos 17 adendos.",
+          "3. /reversa-docs + python publicar_docs.py (o mini-site e de 2026-10-08 e o gerador NAO le addenda/).",
+          "4. Regenerar as matrizes de _reversa_bugs/*/generated/ (derivam das specs de 2026-09-30 e estao defasadas).",
+          "5. /reversa-debugger-graph por ULTIMO (o spec-matrix.md dele ancora em upload-gedcom/contracts.md#2.1 e domain.md#3.5, que esta rodada reescreveu)."
+        ],
+        "nao_fazer_agora": "Nao corrigir codigo do legado antes da Fase 5 e do Passo 4. O Revisor pode levantar contradicoes que mudam O QUE deve ser corrigido, e o Passo 4 confere regressao contra as features 003/004 - mexer no codigo antes disso e trabalhar com duas variaveis ao mesmo tempo.",
+        "medir_antes_de_decidir": {
+          "achado": "L-24 / E-05",
+          "por_que": "E o UNICO achado de gravidade alta desta rodada que e INFERIDO, e nao medido. Os outros quatro sao decisoes; este e um EXPERIMENTO.",
+          "experimento": "Carregar dois GEDCOMs REAIS do mesmo tamanho e com os mesmos xrefs extremos no MESMO processo e verificar se o dossie de homonimos da segunda arvore lista xrefs que nao existem nela. Existe teste escrito que HOJE FALHARIA (TT-20 em busca-caminho/tasks.md).",
+          "precedente_do_projeto": "O oraculo de 2026-09-28 achou no primeiro minuto um erro de spec que sobreviveu a 6 agentes e 7 gates humanos, porque todos operavam no nivel das specs. Medir primeiro e a licao registrada em .reversa do proprio projeto."
+        },
+        "decisoes_pendentes_e_recomendacao": [
+          {"achado": "L-29 / P-07", "tema": "dado pessoal de pessoas vivas sem retencao, expurgo ou consentimento", "recomendacao": "DECLARAR A PROIBICAO AGORA (uso restrito a propria arvore do operador) e levar retencao/expurgo como REQUISITO DO ALVO, como ja foi feito com os 4 requisitos encaminhados em 2026-10-05. Nao construir retencao no legado durante uma extracao."},
+          {"achado": "L-24 / E-05", "tema": "colisao da chave do cache de nomes", "recomendacao": "MEDIR PRIMEIRO (ver acima); depois corrigir no legado como feature forward. A correcao e pequena (acrescentar a chave algo derivado do conteudo), NAO muda comportamento nenhum, e o TT-20 ja esta escrito. id() NAO serve como chave - e reciclado."},
+          {"achado": "L-28 / X-05", "tema": "nao ha teste do caminho feliz de escrita no banco", "recomendacao": "Criar um ambiente de teste COM o driver: venv dedicado ou alvo de teste dentro do container. NAO mexer no .venv/ oficial - ele e o interpretador da paridade e foi realinhado de proposito em 2026-10-05."},
+          {"achado": "L-33", "tema": "a arte servida nao e verificada dentro do container", "recomendacao": "Um teste que rode NA IMAGEM, ou um health check no arranque. E exatamente o caso que a escolha de src/assets/ existe para evitar, e hoje nada o pega."},
+          {"achado": "L-30", "tema": "o motivo 'fora da forma' ficou inalcancavel e a docstring descreve uma validacao removida", "recomendacao": "CORRIGIR A DOCSTRING E MANTER O RAMO. Custo mais baixo e mais honesto: zero mudanca de comportamento, uma linha de comentario que hoje descreve a _FORMATO_CHAVE removida em 2026-10-10."},
+          {"achado": "L-25", "tema": "ordem de common_ancestors sensivel ao PYTHONHASHSEED", "recomendacao": "Dar a ela o mesmo tratamento que o matching recebeu em 2026-10-05: um quarto criterio deterministico. Mesma classe de defeito, e o desenho ja existe no projeto."}
+        ],
+        "correcoes_de_catalogo_a_confirmar_pelo_revisor": [
+          "CAUSAS_POSSIVEL tem 8 itens, e nao 9 (medido por importacao: [0] + [3:8] + [10:] = 1+5+2). code-analysis.md 4.4 e modules.json BR-D-35 afirmam 9 e estao ERRADOS. Ha teste dedicado (TT-19).",
+          "COMMON_SURNAMES tem 16 literais com 'souza' DUAS VEZES (15 efetivas), e nao '15 entradas / 14 efetivas' como dizia o design de 2026-10-05. O catalogo esta certo e o artefato antigo errado. Contar em execucao da 15 unicos porque o set colapsa a duplicata NA CONSTRUCAO.",
+          "O artefato de 2026-10-05 declarava networkx 3.6.1; o requirements.txt fixa networkx==3.7 desde o realinhamento ao .venv em 2026-10-05."
+        ],
+        "limitacoes_de_verificacao_registradas": [
+          "O _reversa_sdd/openapi/index.yaml NAO passou por parser YAML: nao ha PyYAML em nenhum interpretador da maquina (.venv, global ou py), e a stack do projeto nao le YAML. Foi feita verificacao ESTRUTURAL (426 linhas, zero TABs, indentacao multipla de 2, chaves de topo na ordem esperada). Caminho barato para validar de verdade: npx js-yaml, ja que o Node existe no repositorio (plugins/dsh-markdownlint).",
+          "CS-06: sobrou bytecode orfao em src/core/__pycache__/gedcom_state.cpython-314.pyc, SEM o .py correspondente. Inofensivo em execucao, mas sugere que o modulo existe. Vale apagar (src/** esta em allowedPaths)."
+        ]
+      },
+      "note": "Unidade NOVA (nao existia em 2026-10-05): tela-de-entrada e recursos-da-tela nao tem nenhum arquivo em disco. As outras tres existem e foram sobrescritas por decisao explicita do usuario."
+    },
+    "passo4_regressao_2026_10_10": {
+      "phase": "passo4",
+      "reextraction": "2026-10-10",
+      "concluido_em": "2026-10-11T06:40:00Z",
+      "features_verificadas": 12,
+      "features_com_watch_items": 9,
+      "features_sem_watch_items": 3,
+      "watch_items_verificados": 67,
+      "quebra_por_veredito": {
+        "verde": 59,
+        "amarelo": 7,
+        "vermelho": 1
+      },
+      "watch_items_por_feature": {
+        "001-reconstrua-o-conteudo-da-index": "0 itens (Watch principal vazia) - bloco ⚪ n/a gravado",
+        "002-integrar-rota-app-modulos": "0 itens - bloco ⚪ n/a gravado",
+        "003-renomear-pasta-app-para-src": "5 itens (W001-W005) - 5 verdes",
+        "004-servidor-waitress": "8 itens (W001-W008) - 6 verdes, 2 amarelos",
+        "005-nucleo-puro-src": "4 itens (W001-W004) - 4 verdes",
+        "006-fronteira-aplicacao-ports": "15 itens (W005-W019) - 14 verdes, 1 amarelo",
+        "007-dono-no-port-e-baseline": "6 itens (W020-W025) - 6 verdes",
+        "008-persistencia-postgres-docker": "0 itens - bloco ⚪ n/a gravado",
+        "009-rota-do-apple-touch-icon": "5 itens (W026-W030) - 3 verdes, 2 amarelos",
+        "010-uploads-fora-do-repositorio": "8 itens (W001-W008) - 6 verdes, 1 amarelo, 1 VERMELHO",
+        "011-escolher-arquivo-da-lista": "8 itens (W001-W008) - 8 verdes",
+        "012-pasta-canonica-no-repositorio": "8 itens (W001-W008) - 7 verdes, 1 amarelo"
+      },
+      "o_vermelho": {
+        "id": "010/W008",
+        "feature": "010-uploads-fora-do-repositorio",
+        "regra": "Os adendos 006/007/008 continuam validos: o leiaute em disco nao mudou e nenhum arquivo do operador foi renomeado ou removido",
+        "motivo": "A mitigacao da feature 011 renomeou 4 arquivos da pasta real em 2026-10-09 (tirou acento e espaco do nome visivel, preservando a chave) - registrado no OBS-05 da 011 como temporary: true. NENHUM arquivo foi removido e o conteudo e o mesmo, mas a expectativa literal do item ('nenhum arquivo renomeado') e FALSA. O conserto posterior (RN-20) decidiu aceitar acento na leitura, tornando as renomeacoes desnecessarias, mas NAO as desfaz.",
+        "triagem_necessaria": "Ou o item passa a vigiar a INTEGRIDADE (nada removido, conteudo preservado) em vez do NOME, ou permanece vermelho a cada rodada por um fato historico que nao se desfaz. A tabela principal NAO foi alterada - a decisao e humana."
+      },
+      "os_7_amarelos": [
+        "004/W008 - a essencia vale (9 linhas, todas com ==) mas a lista de versoes do enunciado esta superada por decisao humana (adrs/13, pergunta 11 de 2026-10-05)",
+        "004/W003 - a essencia vale (mesmos campos e mesmas mensagens literais) mas a contagem de rotas/actions do enunciado esta superada por acrescimo deliberado (features 009 e 011)",
+        "006/W019 - divergencia conhecida e PRE-EXISTENTE entre o Gherkin ('Resultados da Analise de DNA') e o template ('Resultado da Analise'); medida agora: 1 e 0 ocorrencias; segue aguardando quem decida qual e a autoridade",
+        "009/W026 - a essencia vale ('nao ha contrato JSON, redirect, 201, 400 ou 409') mas as duas rotas de arte deixaram de ser uma linha do contrato de upload e viraram a unit recursos-da-tela",
+        "009/W027 - a regra substantiva vale (o template NAO declara o icone de atalho, medido: zero ocorrencias) mas o GET / mudou tres vezes em 2026-10-10 por decisao registrada, entao o sha256 de 23.906 bytes esta superado",
+        "010/W006 - o harness.py NAO e byte a byte o da publicacao: foi atualizado pelo commit ffa835e da propria feature 006. Sem drift nao commitado (git diff vazio). A regra que o item protege - a regua nao muda em silencio - esta satisfeita",
+        "012/W008 - a essencia vale (nunca apaga; extensao preservada) mas 'forma fechada' no sentido de alfabeto esta superada pela RN-20; a GRAVACAO nao afrouxou, o que afrouxou foi a aceitacao da referencia"
+      ],
+      "verificacoes_por_execucao": [
+        "PARIDADE: 100% (zero divergencia) em 6/6 fixtures, exit 0 - rodada nesta sessao com tests/rodar_paridade.py, oraculo congelado e candidato src/",
+        "SUITE: 527 passam / 9 pulados / 0 falham (com DATABASE_URL limpa)",
+        "006/W010: _t020_varredura.py reexecutado - APROVADO (41 chamadas em index(), 0 simbolos proibidos, 1 ponto de montagem de Dependencias)",
+        "007/W025: _t011_varredura.py reexecutado - APROVADO (1 atribuicao de constante de dono em src/app.py:70)",
+        "011/W006: SCR-001-initial-upload.html.txt tem sha256 ec07f71b4084269a... - exatamente o esperado - E a substancia foi conferida: zero marcadores do app atual no arquivo (banner.png, arvores_da_lista, Apagar, selecionar_arvore, Enviado em)",
+        "003/W002 e 004/W008: requirements.txt com 9 linhas de dependencia, TODAS com ==; sem gunicorn",
+        "004/W001: app.run( e debug= com ZERO ocorrencias em src/; from waitress import serve presente",
+        "010/W002: ZERO os.remove/os.unlink/shutil.rmtree em src/",
+        "009/W030: icone 180x180, tipo de cor 2, 16504 bytes, lido do IHDR",
+        "007/W024: git diff de tests/test_upload_seguranca.py VAZIO; 36 testes no arquivo",
+        "006/W009: as 3 ocorrencias de load_gedcom_and_build_graph em src/ sao TODAS comentario/docstring dizendo que a casca foi removida"
+      ],
+      "achado_novo_registrado": {
+        "id": "manifesto_dos_goldens",
+        "descricao": "O _reversa_sdd/screens/golden/manifest.yaml declara, para SCR-001-initial-upload.html.txt, o sha256 2e2a5c02..., DIFERENTE do hash dos bytes em disco (ec07f71b...). O mesmo ocorre em SCR-G01 e SCR-G02. Como o oraculo NAO mudou (sha256 44370b23...), a explicacao provavel e que o texto foi recapturado sobre uma revisao INTERMEDIARIA do template - que nao e congelado - e o manifesto nunca foi atualizado.",
+        "consequencia": "O conteudo esta certo (e o HTML do oraculo, conferido por ausencia de marcadores do app atual). O que esta quebrado e a CADEIA DE INTEGRIDADE do manifesto: qualquer consumidor que verifique o manifesto contra o disco vai falhar.",
+        "decisao_humana": "Atualizar o manifesto, ou documentar a convencao de hash dos arquivos .html.txt (a _verify_hashes.py usa a convencao por sufixo: .md -> corpo abaixo do front-matter; .py/.json/.yaml -> arquivo inteiro; .html.txt nao esta nessa lista)."
+      },
+      "achado_operacional": {
+        "descricao": "O script de evidencia _reversa_forward/007-dono-no-port-e-baseline/evidence/_t011_varredura.py REGRAVA o arquivo T011-varredura.txt ao rodar.",
+        "o_que_aconteceu": "Ao reexecuta-lo nesta passagem, o Reversa sobrescreveu esse arquivo - que esta FORA dos caminhos em que o Reversa pode escrever (apenas .reversa/, _reversa_sdd/ e o regression-watch.md de cada feature).",
+        "acao": "O arquivo foi REVERTIDO ao conteudo commitado (git checkout -- no arquivo unico). Verificado antes de reverter: ele estava limpo no inicio da sessao e o diff era apenas a regeneracao - 8 linhas, '33' -> '35' arquivos varridos e numeros de linha atualizados. Nenhum trabalho do usuario foi perdido.",
+        "valor_da_evidencia": "O texto commitado esta DESATUALIZADO: diz '33 arquivos de producao varridos' e aponta numeros de linha antigos (src/app.py:64, :163, :212). O resultado substantivo e o mesmo (APROVADO, 5 chamadores, 1 constante). Cabe ao usuario decidir se regenera o arquivo deliberadamente."
+      },
+      "tabela_principal_intocada": true,
+      "ids_nao_reciclados": true,
+      "arquivamento": "Nenhum item foi arquivado automaticamente. O setup.json permite archive-after: 3, e nenhum item tem tres verdes consecutivos: os de 003/004 tem DUAS verificacoes no historico (2026-10-05 e 2026-10-10), e os das features 005-012 tem UMA. O primeiro candidato a arquivamento sera na proxima re-extracao.",
+      "adendos": {
+        "total": 17,
+        "marcados_nesta_rodada": 8,
+        "ids_marcados": ["005-nucleo-puro-src", "006-fronteira-aplicacao-ports", "007-dono-no-port-e-baseline", "008-persistencia-postgres-docker", "009-rota-do-apple-touch-icon", "010-uploads-fora-do-repositorio", "011-escolher-arquivo-da-lista", "012-pasta-canonica-no-repositorio"],
+        "ja_superados_em_rodadas_anteriores": 9,
+        "caso_especial": "O adendo 011 NAO tinha secao '## Vigencia' - usa estrutura numerada de secoes 1 a 5. A secao foi ACRESCENTADA AO FINAL (append-only: nenhuma linha anterior tocada, nenhuma outra secao alterada), com nota explicando o motivo.",
+        "nada_apagado": true
+      },
+      "legacy_untouched": true,
+      "next_step": "Extracao concluida. Pos-extracao, na ordem registrada: (1) /reversa-docs + python publicar_docs.py; (2) regenerar as matrizes de _reversa_bugs/*/generated/; (3) /reversa-debugger-graph por ULTIMO (ancora em upload-gedcom/contracts.md#2.1 e domain.md#3.5, reescritos nesta rodada). E executar as 5 correcoes de codigo agendadas, agora desbloqueadas pelo Passo 4."
+    },
+    "revisor_progress_2026_10_10": {
+      "phase": "revisao",
+      "reextraction": "2026-10-10",
+      "doc_level": "completo",
+      "revisao_cruzada_codex": "NAO realizada: nenhuma ferramenta com prefixo 'codex:' esta ativa nesta sessao. Passo 0 do SKILL do Revisor pulado, sem mencao ao usuario, conforme a instrucao do proprio passo.",
+      "tarefa_1_revisao_de_consistencia": {
+        "status": "concluida",
+        "concluida_em": "2026-10-11T05:20:00Z",
+        "escopo_lido": "os 20 arquivos canonicos das 5 units (requirements, design, tasks, contracts) + traceability/code-spec-matrix.md + traceability/spec-impact-matrix.md + openapi/index.yaml + os 5 user-stories",
+        "verificacoes_de_existencia": [
+          "As 3 canonicas + contracts.md existem nas 5 units; nenhuma unit incompleta.",
+          "Units geradas == surface.json.modules (5 modulos + a entrada 'transversal'); nada faltando nem sobrando.",
+          "code-spec-matrix.md cobre os 35 .py de src/ mais index.html e as 2 artes (38 linhas) - conferido contra a arvore real do sistema de arquivos.",
+          "As 5 user-stories e os 5 flowcharts existem e nao tem numero defasado."
+        ],
+        "medicoes_executadas": [
+          "MEDIDO CAUSAS_POSSIVEL = 8 (nao 9): medido por importacao, CAUSAS_POSSIVEIS[:1] + [3:8] + [10:] = 1+5+2. CAUSAS_POSSIVEIS = 12.",
+          "MEDIDO COMMON_SURNAMES: o conjunto tem 15 unicos em execucao porque 'souza' aparece duas vezes nos 16 literais do fonte. O catalogo estava certo.",
+          "MEDIDO SCP40_ROWS = 27, SCP40_NOT_PUBLISHED = 6, SEM_KIT = ' SEM-KIT', LIMITE_SEGMENTO_FRACO = 15.0, GENERIC_GIVENS = 20, SURNAME_SUFFIXES = 5, STOP_WORDS = 6.",
+          "MEDIDO app.py tem 23 render_template(...) e 12 deles passam gedcom_filename (a 13a ocorrencia de 'gedcom_filename=' e um comentario na docstring).",
+          "MEDIDO person_summary devolve 13 campos, e nao 12: id, name, sex, birth, birth_year, birth_place, death, death_year, parents, parent_names, spouses, children, family_as_child.",
+          "MEDIDO _chave_de = (len(people), chaves[0], chaves[-1]) com chaves = sorted(people).",
+          "MEDIDO get_name vazio: 301 de 35.460 pessoas em Arvore_Unificada_Oficial_V1_2.ged, nas TRES copias da arvore (src/uploads e as duas de _aposentados). O 'Sem Nome' literal: 0 ocorrencias. O numero 296 que circulava e outra grandeza - a contagem de pessoas DIVERGENTES do DIV-001 medida pelo harness de paridade em 2026-09-28 (migration/parity_harness.md).",
+          "MEDIDO src/uploads: 13 arquivos + 1 subpasta com 4 aposentados (17 arquivos recursivos). Nenhuma leitura da pasta da 33.",
+          "MEDIDO src/: 35 arquivos .py; exatamente 1 bytecode orfao (src/core/__pycache__/gedcom_state.cpython-314.pyc, sem .py correspondente).",
+          "VALIDADO _reversa_sdd/openapi/index.yaml com parser YAML REAL (js-yaml, que JA EXISTE no repositorio em plugins/dsh-markdownlint/node_modules/js-yaml): o arquivo estava INVALIDO e agora valida.",
+          "markdown_lint: exit 0 / nenhum problema apos todas as correcoes."
+        ],
+        "defeitos_encontrados_e_corrigidos": [
+          "GRAVE - openapi/index.yaml NAO ERA YAML VALIDO: o js-yaml falhava na linha 414 com 'bad indentation of a mapping entry'. Causa: um escalar simples nao citado comecando com '*', que em YAML inicia um alias (description: **Soma** dos bytes do grupo.). Um unico escalar derrubava o documento inteiro, que tem 426 linhas. CORRIGIDO (o valor passou a ser citado) e REVALIDADO: openapi 3.0.3, version 2.0.0, 3 rotas, 9 schemas, pattern de ReferenciaDeArquivo compila como regex.",
+          "CAUSAS_POSSIVEL = 9 -> 8, em code-analysis.md (BR-D-35), modules.json (BR-D-35) e traceability/spec-impact-matrix.md (Matriz D). O valor certo e 8.",
+          "'person_summary com 12 campos' -> 13, em code-analysis.md (BR-C-45), modules.json e nos 4 arquivos de busca-caminho.",
+          "'a rota tem oito render_template' -> 23 (12 com gedcom_filename), em code-analysis.md (BR-T-17), modules.json (BR-T-17), domain.md, flowcharts/tela-de-entrada.md e upload-gedcom/tasks.md. O numero 'oito' vinha de um comentario do proprio app.py que a tela-de-entrada ja declarava desatualizado.",
+          "'entre 33 entradas' -> 13 arquivos (mais 4 aposentados), em recursos-da-tela/{requirements,contracts}.md e flowcharts/recursos-da-tela.md.",
+          "'296 pessoas em 35.460' -> 301, com a proveniencia do 296 registrada, em upload-gedcom/requirements.md e data-dictionary.md.",
+          "tela-de-entrada dizia '126 testes em 7 arquivos', omitindo test_gedcom_ilegivel_nao_derruba.py que a propria tasks.md cita (TT-12) e que a code-spec-matrix.md atribui a esta unit: corrigido para 132 testes em 8 arquivos nos 3 arquivos.",
+          "busca-caminho/design.md dizia que o indice 'nao e invalidado por id(), nem por tamanho' - mas a chave USA a contagem (len(people)). Reescrito para descrever a chave real.",
+          "analise-dna e busca-caminho declaravam dependencies sem 'tela-de-entrada' em modules.json, embora os proprios design.md listem a unit como dependencia (o _arvore_do_formulario e a lista de escolha do CSV vem dela). Corrigido em modules.json.",
+          "adrs/21 dizia 'subconjunto de 9' de POSSIVEL -> 8."
+        ],
+        "limitacao_levantada": "A limitacao #1 registrada pelo Redator na sessao anterior ('nao ha PyYAML em nenhum interpretador da maquina, entao o openapi nao pode ser validado por parser') fica RESOLVIDA e o resultado foi pior do que a verificacao estrutural sugeria: nao era questao de falta de parser - havia um parser disponivel (js-yaml dentro do plugin de markdownlint) e o arquivo estava de fato invalido. A verificacao estrutural (426 linhas, zero TABs, indentacao de 2) aprovava um documento que nenhum leitor YAML aceitaria.",
+        "o_que_nao_mudou": "Nenhum arquivo do legado foi tocado. As correcoes sao todas em .reversa/context/modules.json e em _reversa_sdd/. Os 296 de migration/parity_harness.md ficaram como estao: naquele contexto eles estao CERTOS (medem divergencias do DIV-001), e aquele diretorio e preservado sem regeneracao.",
+        "legacy_untouched": true
+      },
+      "tarefa_2_resolucao_de_lacunas": {
+        "status": "concluida",
+        "concluida_em": "2026-10-11T05:45:00Z",
+        "pergunta_para_o_usuario_feita_em": "2026-10-11T05:20:00Z",
+        "resposta_do_usuario": "RECOMENDACOES - aceitou as 18 recomendacoes de uma vez, em 2026-10-11",
+        "perguntas_geradas": 18,
+        "respondidas": 18,
+        "arquivo": "_reversa_sdd/questions.md",
+        "por_que_18": "Uma unica passada, a pedido do usuario: as 6 decisoes ja registradas na recomendacao de retomada MAIS as 12 que a revisao de consistencia levantou nas duas units novas e nos globais. As 16 perguntas de 2026-10-05 nao foram reabertas - todas estao decididas e verificadas.",
+        "experimentos_executados": [
+          "L-24 - CONFIRMADO POR EXECUCAO. Duas arvores sinteticas de 4 pessoas com a MESMA chave (4, '@I1@', '@I9@') e xrefs interiores DIFERENTES, carregadas no mesmo processo. O dossie de homonimos da SEGUNDA arvore respondeu exact_count=1 citando '@I2@', que NAO EXISTE nela, e person_summary degradou para name='Sem Nome' sem levantar nada. A segunda arvore nao continha nenhum 'Joao'. ACHADO NOVO DA MEDICAO: o gatilho nao depende do conteudo, depende so da CONTAGEM - as duas arvores reais pequenas da pasta do operador ja compartilham os dois extremos ('@I1000@' e '@I9@') e diferem apenas no tamanho (4.313 e 5.436). O cenario saiu de INFERIDO para CONFIRMADO.",
+          "L-31 - NEGATIVO. Na pasta real do operador: 13 grupos, NENHUM com mais de um membro. A divergencia de elegibilidade entre membros de um mesmo grupo NAO PODE ocorrer nos dados atuais. Decisao mantida (disponibilidade pelo representante), agora com medicao.",
+          "L-20 - MEDIDO. person_summary custa 15,4 ms por ficha; as 142 fichas do caso real de 71 conexoes custam ~2,2 s. Para comparacao no mesmo ambiente: o parse da arvore custa 20,9 s e UMA chamada de homonym_dossier custa 1,73 s. O gargalo e o PARSE, nao as fichas. Decisao: nao otimizar agora (a otimizacao mexeria em get_children, que alimenta tambem a deteccao de colapso, e a ordem das arestas e contrato de paridade).",
+          "COBERTURA - REMEDIDA com pytest-cov no .venv e DATABASE_URL limpa: src/ = 89% (2.081 instrucoes, 228 nao cobertas; eram 83% em 2026-10-05). A pior cobertura TROCOU DE DONO: ports/adaptadores.py 73%, que e exatamente o modulo do caminho de gravacao sem teste (L-28/X-05). Depois: app.py 77%, relationship_hypotheses 78%, mermaid_render 78%, name_normalization 81%, matching 86%, number_format 87% (era 53%, a pior da rodada anterior), evidence_comparison 89%. Suite: 527 passam / 9 pulados / 0 falham."
+        ],
+        "executado_nesta_rodada": [
+          "CS-06 - o bytecode orfao src/core/__pycache__/gedcom_state.cpython-314.pyc foi REMOVIDO por decisao humana. Reverificado: nenhum dos 35 .pyc de src/ ficou sem .py correspondente."
+        ],
+        "agendado_para_depois_do_passo_4": [
+          "L-24 - acrescentar a chave do cache de nomes algo derivado do conteudo (TT-20 ja escrito). id() NAO serve: e reciclado.",
+          "L-25 - quarto criterio deterministico (menor xref_id) em find_all_common_ancestors, como o matching recebeu em 2026-10-05.",
+          "L-30 - corrigir a docstring de motivo_de_indisponibilidade e MANTER o ramo.",
+          "L-33 - health check no arranque conferindo as duas artes.",
+          "Log de servidor nas duas tentativas de aposentar (sucesso e fracasso), em tela-de-entrada."
+        ],
+        "por_que_agendado": "Decisao registrada pelo proprio projeto em .reversa/state.json: nao corrigir codigo do legado antes da Fase 5 e do Passo 4, porque o Passo 4 confere regressao contra as features 003/004 e mexer no codigo antes disso e trabalhar com duas variaveis ao mesmo tempo. A Fase 5 esta concluida; o Passo 4 e o proximo item do plano."
+      },
+      "tarefa_3_relatorio_de_confianca": {
+        "status": "concluida",
+        "concluida_em": "2026-10-11T06:00:00Z",
+        "arquivo": "_reversa_sdd/confidence-report.md",
+        "numeros": {
+          "5_units_20_arquivos": "1.746 verdes / 108 amarelos / 69 vermelhos = 1.923 (93,6%)",
+          "25_transversais": "1.098 / 136 / 99 = 1.333 (87,5%)",
+          "36_adrs": "113 / 26 / 25 = 164 (76,8%)",
+          "total": "2.957 / 270 / 193 = 3.420 (90,4%)"
+        },
+        "comparacao_com_2026_10_05": "1.922 marcadores e 92,8% -> 3.420 marcadores e 90,4%. O escopo cresceu 1,8x (3 -> 5 units, 23 -> 36 ADRs, 3 -> 5 flowcharts, 3 -> 5 user-stories) e as duas units novas entraram COM as lacunas abertas, que e o comportamento correto.",
+        "lacunas": "gaps.md com 22 itens em aberto: 0 criticos, 12 moderados, 10 cosmeticos. A UNICA lacuna critica das duas rodadas anteriores (L-16/M-03/P-02, corrida entre threads) esta FECHADA POR CONSTRUCAO pelo ADR-24, provada por test_arvore_devolvida.py e test_dependencias_nucleo.py.",
+        "requisitos_encaminhados_ao_alvo": 6,
+        "revisao_cruzada_codex": "nao realizada - nenhuma ferramenta com prefixo codex: nesta sessao"
+      },
+      "fase_5_concluida_em": "2026-10-11T06:00:00Z",
+      "marcadores_medidos_antes_das_correcoes": {
+        "metodo": "ocorrencia dos marcadores por arquivo, excluindo as linhas de legenda (as que citam os tres ao mesmo tempo) - mesma convencao das rodadas anteriores.",
+        "5_units": "1.739 verdes / 106 amarelos / 76 vermelhos = 1.921 (93,3%)",
+        "transversais_25": "1.097 / 137 / 99 = 1.333 (87,4%)",
+        "adrs_36": "113 / 26 / 25 = 164 (76,8%)",
+        "total": "2.949 / 269 / 200 = 3.418 (90,2%)",
+        "nota": "Estes sao os numeros ANTES das correcoes de consistencia e das reclassificacoes por medicao. Depois delas, os numeros finais estao em tarefa_3_relatorio_de_confianca.numeros. A diferenca e exatamente o efeito desta revisao."
+      },
+      "next_step": "Passo 4 (verificacao de regressao semantica): ler _reversa_forward/*/regression-watch.md (13 itens de watch de 003/004, datados de 2026-10-10) e reconciliar os 17 adendos de _reversa_sdd/addenda/. Depois do Passo 4, executar as 5 correcoes de codigo agendadas."
+    },
     "scout": {
       "completed_at": "2026-08-03T11:48:40Z",
       "files": [

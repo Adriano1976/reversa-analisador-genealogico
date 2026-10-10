@@ -6,6 +6,73 @@
 
 ---
 
+## Re-extração de 2026-10-10 🔁
+
+> **Re-extração nova, não retomada.** Disparada porque o `_reversa_sdd/` está congelado em 2026-10-05 e depois dele entraram 9 features em `_reversa_forward/` (005 a 012) mais os adendos correspondentes: nasceram `src/ports/`, a persistência Postgres/Docker, o armazenamento por conteúdo com `aposentar` e a substituição no reenvio, a lista de arquivos da tela de entrada, a tradução de erros e o registro de análises. Os adendos registram o trabalho, mas o `_reversa_sdd/` não o reflete.
+> Autorização: Adriano, 2026-10-10 (`.reversa/pedido-reextracao-2026-10-10.md`).
+> Nível de documentação: **completo** (já decidido; igual a `config.toml [analysis]`, sem conflito nesta rodada).
+> Organização das specs: seção `[specs]` já decidida (feature-folder / endpoint, 2026-08-03) — passo 3 pulado automaticamente.
+> Snapshot da extração anterior: `.reversa/snapshots/2026-10-10-pre-reextracao/` (83 arquivos, 967 KB, sha256 por arquivo no `_MANIFEST.txt`).
+> Preservados sem regeneração: `migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`, `design-system/` e `traceability/bugs.md`.
+
+### Fase 1: Reconhecimento 🔍
+
+- [x] **Scout** — Estrutura, tecnologias, entry points, dependências e cobertura de testes ✅ 8 rotas/ações, 5.130 linhas em `src/`, 536 itens de teste (527 passam)
+- [x] **Scout** — Sugestão de organização das specs ✅ confirmou `endpoint` já persistido; passo 3 pulado (sem override em `config.user.toml`)
+
+### Fase 2: Escavação 🏗️
+
+- [x] **Arqueólogo** — Análise do módulo `upload-gedcom` (envio, validação de conteúdo, chave por conteúdo, reenvio com substituição) ✅ 22 regras, `flowcharts/upload-gedcom.md`
+- [x] **Arqueólogo** — Análise do módulo `tela-de-entrada` (as duas abas, escolher da lista, aposentar) ✅ 19 regras, `flowcharts/tela-de-entrada.md`
+- [x] **Arqueólogo** — Análise do módulo `analise-dna` (três eixos + confronto + registro histórico) ✅ 95 regras, `flowcharts/analise-dna.md`; **fechou a divergência viva do determinismo** de 2026-10-05
+- [x] **Arqueólogo** — Análise do módulo `busca-caminho` (parentesco documental e diagrama Mermaid) ✅ 67 regras, `flowcharts/busca-caminho.md`; achado novo da colisão de chave do cache de nomes
+- [x] **Arqueólogo** — Análise do módulo `recursos-da-tela` (`GET /banner.png` e `GET /apple-touch-icon.png`) ✅ 30 regras, `flowcharts/recursos-da-tela.md` (unit nova, zero linhas próprias — as duas rotas vivem em `app.py`)
+- [x] **Arqueólogo** — Artefatos transversais do nível completo: `code-analysis.md`, `data-dictionary.md`, `flowcharts/` (5) e `.reversa/context/modules.json` ✅ 233 regras em 5 unidades, 81 funções, 38 entidades, 37 algoritmos, 28 dívidas consolidadas
+
+### Fase 3: Interpretação 🧠
+
+- [x] **Detetive** — Arqueologia Git e ADRs retroativos ✅ 13 ADRs novos (24 a 36), sobre 126 commits desde 2026-10-05; inclui a revalidação das 23 herdadas e a única decisão revertida do projeto (010 → 012)
+- [x] **Detetive** — Regras de negócio implícitas e máquinas de estado ✅ `state-machines.md`: **1 ciclo de vida de verdade** (a posição do arquivo), 4 máquinas de decisão e 11 códigos de aviso
+- [x] **Detetive** — Matriz de permissões (RBAC/ACL) ✅ `permissions.md`: nenhum papel; o `dono` existe e não isola; a **corrida entre threads deixou de existir** estruturalmente
+- [x] **Arquiteto** — Diagramas C4 (Contexto, Containers, Componentes) ✅ 4 containers (entrou o Postgres opcional), 31 componentes em 7 unidades, e os **dois ciclos de pacote fechados**
+- [x] **Arquiteto** — ERD e integrações externas ✅ 42 estruturas em 5 diagramas, incluindo o **Diagrama E — o primeiro esquema físico do projeto** (6 tabelas, FK real); zero integrações de rede com terceiros
+- [x] **Arquiteto** — Spec Impact Matrix ✅ 5 unidades, matrizes A a E, 3 achados novos e 7 lacunas (`X-01`..`X-07`)
+
+### Fase 4: Geração 📝
+
+- [x] **Redator** — Specs SDD da unit `upload-gedcom` ✅ 24 RF, 26 tarefas, 20 testes e `contracts.md` (a unit deixou de publicar estado; ganhou reenvio e a forma de nome)
+- [x] **Redator** — Specs SDD da unit `tela-de-entrada` (unit nova: as duas abas, escolher da lista, aposentar) ✅ 24 RF, 22 tarefas, 14 testes e `contracts.md`; achado novo `L-30` (o motivo "fora da forma" ficou inalcançável depois da `RN-20`)
+- [x] **Redator** — Specs SDD da unit `analise-dna` (três eixos + projeção + registro histórico) ✅ 34 RF, 46 tarefas, 27 testes e `contracts.md`; a unit ganhou fronteira, projeção pura e persistência opcional, e **o catálogo foi corrigido em duas contagens** (causas de `POSSIVEL` = 8, não 9; `COMMON_SURNAMES` = 16 literais / 15 efetivas)
+- [x] **Redator** — Specs SDD da unit `busca-caminho` (parentesco documental e diagrama) ✅ 43 RF, 38 tarefas, 24 testes e `contracts.md`; **duas regras reescritas** (o grafo vem da árvore por parâmetro; o índice é invalidado por chave de conteúdo) e o achado `L-24` da colisão do cache ganhou teste que hoje falharia
+- [x] **Redator** — Specs SDD da unit `recursos-da-tela` (unit nova: as duas rotas de arte) ✅ 25 RF, 22 tarefas, 17 testes e `contracts.md`; achado novo `L-33` (não há verificação de que a arte servida é a correta **dentro do container**)
+- [x] **Redator** — Artefatos globais do nível completo (`openapi/index.yaml`, 5 `user-stories/` e `traceability/code-spec-matrix.md`) ✅ `openapi` regenerado (5 ações + as 2 rotas de arte + schema por forma de nome); 2 user-stories **novas** e 3 regeneradas; matriz de **5 units** e **35 arquivos** com `CS-05` superada
+
+### Fase 5: Revisão 🔄
+
+- [x] **Revisor** — Revisão de consistência ✅ 20 canônicos + 3 globais lidos; **13 medições** contra o código; **10 defeitos corrigidos** em 11 arquivos — incluindo o `openapi/index.yaml`, que **não era YAML válido**; `L-24` alcança `analise-dna`
+- [x] **Revisor** — Resolução de lacunas com o usuário ✅ **18 de 18 respondidas** com a recomendação do Revisor — **uma passada única**; 4 delas eram **experimentos** e foram executados: `L-24` **confirmado por execução**, `L-31` **negativo**, `L-20` **medido**, cobertura **remedida** (89 %)
+- [x] **Revisor** — Relatório de confiança final ✅ **90,4 %** em **3.420** marcadores; **zero lacunas críticas** — a corrida entre threads (`L-16`) foi **eliminada por construção** (`ADR-24`); `gaps.md` com **22 itens em aberto**, nenhum crítico
+
+### Passo 4 — Verificação de regressão semântica 🔁
+
+- [x] **Reversa** — Verificação contra `_reversa_forward/*/regression-watch.md` ✅ **12 features, 67 watch items: 59 🟢 · 7 🟡 · 1 🔴**; paridade remedida em **100 % (6/6, exit 0)** e suíte em **527 passam / 9 pulados / 0 falham**
+- [x] **Reversa** — Reconciliação de adendos ✅ **8 adendos** marcados como superados pela re-extração de 2026-10-10 (17 no total; 9 já estavam de rodadas anteriores)
+
+---
+
+## ✅ Re-extração concluída em 2026-10-10
+
+> 6 agentes, nível **completo**, **3.420 afirmações e 90,4 % de confiança geral**.
+> Snapshot da extração anterior: `.reversa/snapshots/2026-10-10-pre-reextracao/` (83 arquivos, 967 KB, sha256 por arquivo)
+> Preservados: `migration/`, `oracle/`, `parity/`, `screens/`, `addenda/`, `design-system/`, `traceability/bugs.md`
+> **18 perguntas de validação humana, todas respondidas** — 4 eram **experimentos** e foram executados
+> Verificação por execução: suíte **527 passam / 9 pulados / 0 falham**; paridade **100 % (6/6 fixtures)**; cobertura de `src/` **89 %**
+> Lacunas: **0 críticas**, 12 moderadas, 10 cosméticas — a única crítica das rodadas anteriores (`L-16`) foi **eliminada por construção** (`ADR-24`)
+> **10 defeitos de consistência corrigidos**, incluindo o `openapi/index.yaml`, que **não era YAML válido**
+> Próximos passos: `/reversa-docs` + `python publicar_docs.py`; regenerar as matrizes de `_reversa_bugs/*/generated/`; `/reversa-debugger-graph` **por último**; e as **5 correções de código agendadas** (ver `state.json`)
+
+---
+
 ## Re-extração de 2026-10-05 🔁
 
 > Disparada porque o `_reversa_sdd/` estava congelado em 2026-09-30 e o código andou muito desde então: a raiz `analisador-genealogico/` virou `src/`, o pacote `reconstructed/` foi substituído por `core/` + `parsers/` + `reporting/` + `utils/`, o `app.py` passou de 84 para 227 linhas, e a capacidade de **confronto GEDCOM × DNA** (quatro estados) nasceu sem nenhuma spec. Nenhuma feature 005+ existe em `_reversa_forward/`, então não há adendo que registre esse trabalho.

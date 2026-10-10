@@ -1,134 +1,186 @@
 {
-  "generated_at": "2026-10-05T15:42:15Z",
+  "generated_at": "2026-10-10T17:34:44Z",
   "project_root": "D:/Projetos/reversa_analisador_gelealogico",
   "project_name": "analisador-genealogico",
   "extraction": {
     "kind": "re-extraction",
-    "previous_extraction": "2026-09-30",
+    "ordinal": 4,
+    "previous_extraction": "2026-10-05",
     "doc_level": "completo",
-    "snapshot_of_previous": ".reversa/snapshots/2026-10-05-pre-reextracao/",
-    "note": "Re-extracao sobre o codigo posterior a 2026-09-30: a raiz analisador-genealogico/ virou src/, o pacote reconstructed/ foi substituido por core/ + parsers/ + reporting/ + utils/, o app.py passou de 84 para 262 linhas, e nasceu a regra final da analise (confronto GEDCOM x DNA com quatro estados)."
+    "snapshot_of_previous": ".reversa/snapshots/2026-10-10-pre-reextracao/ (83 arquivos, 967193 bytes, sha256 por arquivo em _MANIFEST.txt)",
+    "authorized_by": "Adriano, 2026-10-10 (.reversa/pedido-reextracao-2026-10-10.md)",
+    "note": "Re-extracao sobre o codigo posterior a 2026-10-05. Nasceram, sem spec principal: a fronteira de aplicacao (src/application/ + src/ports/), a persistencia Postgres com Docker, o armazenamento por conteudo com aposentadoria e substituicao no reenvio, a lista de arquivos da tela de entrada, a traducao de erros de dominio e o registro da analise. O estado global do processo (core/gedcom_state.py) deixou de existir."
   },
   "languages": [
-    { "name": "Python", "extensions": [".py"], "file_count": 36, "scope": "src/ (23) + tests/ (13)" },
-    { "name": "HTML", "extensions": [".html"], "file_count": 1, "scope": "src/templates/index.html" }
+    { "name": "Python", "extensions": [".py"], "file_count": 84, "scope": "src/ (35) + tests/ (48) + publicar_docs.py (1). Contagem fora do escopo: 5 scripts .py em .github/skills/*/scripts/" },
+    { "name": "HTML", "extensions": [".html"], "file_count": 1, "scope": "src/templates/index.html (o mini-site publicado em docs/ e _reversa_docs/ esta fora do escopo do sistema)" },
+    { "name": "Markdown", "extensions": [".md"], "file_count": 3, "scope": "README.md, AGENTS.md, GEMINI.md (o repositorio tem 167 .md no total; a diferenca e framework Reversa e artefatos _reversa_*)" },
+    { "name": "JavaScript", "extensions": [".js", ".mjs"], "file_count": 5, "scope": "plugins/dsh-markdownlint/ - sub-projeto Node fora do runtime (5 arquivos, sem node_modules)" }
   ],
   "primary_language": "Python",
-  "language_runtime": { "name": "Python", "version": "3.14.6", "source": "execucao verificada (python --version e .venv/Scripts/python.exe --version)" },
+  "language_runtime": { "name": "Python", "version": "3.14.6", "source": "execucao verificada em .venv/Scripts/python.exe --version; o .venv e o interpretador OFICIAL desde 2026-10-05 (questions.md#pergunta-11)" },
   "frameworks": [
-    { "name": "Flask", "version": "3.1.3", "source": "requirements.txt (fixado) + instalacao verificada" },
-    { "name": "ged4py", "version": "0.5.2", "source": "requirements.txt (fixado) + instalacao verificada" },
-    { "name": "networkx", "version": "3.6.1", "source": "requirements.txt (fixado) + instalacao verificada" },
-    { "name": "pandas", "version": "3.0.3", "source": "requirements.txt (fixado) + instalacao verificada" },
-    { "name": "thefuzz", "version": "0.22.1", "source": "requirements.txt (fixado) + instalacao verificada" },
-    { "name": "waitress", "version": "3.0.2", "source": "requirements.txt (fixado) + instalacao verificada; servidor WSGI do bloco de entrada" },
-    { "name": "RapidFuzz", "version": "3.14.5", "source": "transitiva do thefuzz - backend real do matching" },
-    { "name": "python-Levenshtein", "version": "0.27.3", "source": "transitiva do thefuzz - aceleracao C" },
-    { "name": "pytest", "version": "9.1.1", "source": "instalacao verificada; configurado em pytest.ini" }
+    { "name": "Flask", "version": "3.1.3", "source": "requirements.txt (fixado) + instalacao verificada no .venv" },
+    { "name": "ged4py", "version": "0.5.5", "source": "requirements.txt (fixado) + instalacao verificada no .venv" },
+    { "name": "networkx", "version": "3.7", "source": "requirements.txt (fixado) + instalacao verificada no .venv" },
+    { "name": "pandas", "version": "3.0.6", "source": "requirements.txt (fixado) + instalacao verificada no .venv" },
+    { "name": "thefuzz", "version": "0.22.1", "source": "requirements.txt (fixado) + instalacao verificada no .venv" },
+    { "name": "waitress", "version": "3.0.2", "source": "requirements.txt (fixado); servidor WSGI do bloco de entrada" },
+    { "name": "RapidFuzz", "version": "3.14.6", "source": "requirements.txt (fixado) - backend REAL do matching difuso (RISK-006)" },
+    { "name": "python-Levenshtein", "version": "0.27.5", "source": "requirements.txt (fixado) - aceleracao em C do thefuzz" },
+    { "name": "psycopg2-binary", "version": "2.9.13", "source": "requirements.txt (fixado) e NAO instalado no .venv - unico consumidor: src/ports/adaptadores.py" },
+    { "name": "pytest", "version": "9.1.1", "source": "instalacao verificada no .venv; configurado em pytest.ini" },
+    { "name": "pytest-cov", "version": "7.1.0", "source": "instalacao verificada no .venv (medicao de cobertura)" },
+    { "name": "PostgreSQL", "version": "16-alpine", "source": "docker-compose.yml (imagem do servico db); esquema em init.sql" }
   ],
   "pinned_versions": true,
-  "pinned_versions_note": "As seis dependencias diretas usam '=='. A lacuna anterior ('nenhuma versao declarada') esta fechada.",
+  "pinned_versions_note": "As NOVE dependencias diretas usam '=='. Duas delas (rapidfuzz e python-Levenshtein) sao declaradas apesar de nao serem importadas por nenhum arquivo do projeto: sao o backend real do matching difuso.",
   "virtualenv_present": true,
   "virtualenv_divergence": {
     "severity": "lacuna",
-    "what": "O .venv/ existe e NAO reproduz o pin do requirements.txt.",
-    "divergent": {
-      "ged4py": { "pin": "0.5.2", "venv": "0.5.5" },
-      "networkx": { "pin": "3.6.1", "venv": "3.7" },
-      "pandas": { "pin": "3.0.3", "venv": "3.0.6" },
-      "RapidFuzz": { "pin": "3.14.5 (global, transitiva)", "venv": "3.14.6" },
-      "python-Levenshtein": { "pin": "0.27.3 (global, transitiva)", "venv": "0.27.5" }
-    },
-    "equal": ["Flask 3.1.3", "thefuzz 0.22.1", "waitress 3.0.2"],
-    "why_it_matters": "RapidFuzz decide o matching difuso de nomes; trocar a versao altera o resultado sem alterar uma linha de codigo (RISK-006 em migration/risk_register.md). Execucoes nos dois interpretadores podem divergir em casos-limite.",
-    "documented_flow": "O README.md documenta o interpretador GLOBAL (pip install -r requirements.txt; python src/app.py), sem ativar ambiente virtual."
+    "what": "O .venv/ (interpretador oficial) confere com o pin em 8 das 9 diretas; psycopg2-binary==2.9.13 esta declarado e NAO esta instalado.",
+    "missing_in_venv": { "psycopg2-binary": { "pin": "2.9.13" } },
+    "equal": ["Flask 3.1.3", "ged4py 0.5.5", "networkx 3.7", "pandas 3.0.6", "thefuzz 0.22.1", "waitress 3.0.2", "RapidFuzz 3.14.6", "python-Levenshtein 0.27.5"],
+    "global_vs_pin": "O interpretador global continua divergente (ged4py 0.5.2, networkx 3.6.1, pandas 3.0.3, RapidFuzz 3.14.5, python-Levenshtein 0.27.3). Nao tem consequencia: o .venv e o oficial e o README documenta assim.",
+    "measured_consequence": "Com DATABASE_URL no ambiente e sem o driver, o registro historico nao grava e o aviso nao bloqueante aparece; a suite vai a 525 passam / 9 pulados / 2 falham (tests/test_persistencia_desabilitada.py). Sem DATABASE_URL: 527 / 9 / 0.",
+    "why_it_matters": "E o INVERSO da divergencia da rodada anterior (que era versao diferente; agora e pacote ausente). O codigo degrada por desenho (import preguicoso + RN-13), entao nao ha regressao - ha capacidade desligada no ambiente oficial e um resultado de suite que muda com o ambiente."
   },
   "package_manager": "pip",
   "entry_points": [
-    { "path": "src/app.py", "type": "server_entry", "detail": "app = Flask(__name__); sob __main__ sobe por waitress com socket ligado antes de servir (guarda de instancia unica)" },
-    { "path": "src/templates/index.html", "type": "template_entry" }
+    { "path": "src/app.py", "type": "server_entry", "detail": "app = Flask(__name__); importar devolve o objeto app (suite e harness de paridade fazem isso); sob __main__ sobe por waitress com socket ligado antes de servir (guarda de instancia unica, SO_EXCLUSIVEADDRUSE no Windows)" },
+    { "path": "src/templates/index.html", "type": "template_entry", "detail": "tela unica, 731 linhas uteis, Bootstrap 5.3.3 e Mermaid 10 por CDN" },
+    { "path": "publicar_docs.py", "type": "tooling_entry", "detail": "publica _reversa_docs/ em docs/ (GitHub Pages); substitui o workflow removido em 2026-10-08" }
   ],
   "routes": [
-    { "methods": ["GET"], "rule": "/", "action": null, "handler": "index", "file": "src/app.py", "line": 107 },
-    { "methods": ["POST"], "rule": "/", "action": "upload_gedcom", "handler": "index", "file": "src/app.py", "line": 111 },
-    { "methods": ["POST"], "rule": "/", "action": "dna_analysis", "handler": "index", "file": "src/app.py", "line": 134 },
-    { "methods": ["POST"], "rule": "/", "action": "path_search", "handler": "index", "file": "src/app.py", "line": 156 }
+    { "methods": ["GET"], "rule": "/", "action": null, "handler": "index", "file": "src/app.py", "note": "tela de entrada; as duas listas entram por processador de contexto em TODA renderizacao" },
+    { "methods": ["POST"], "rule": "/", "action": "upload_gedcom", "handler": "index", "file": "src/app.py" },
+    { "methods": ["POST"], "rule": "/", "action": "aposentar_arquivo", "handler": "index", "file": "src/app.py", "note": "ramo ANTES de _arvore_do_formulario, e a ordem e a regra: a arvore escolhida pode ser a que se esta aposentando" },
+    { "methods": ["POST"], "rule": "/", "action": "selecionar_arvore", "handler": "index", "file": "src/app.py" },
+    { "methods": ["POST"], "rule": "/", "action": "dna_analysis", "handler": "index", "file": "src/app.py", "note": "o CSV pode vir do formulario ou da lista, com precedencia para a lista" },
+    { "methods": ["POST"], "rule": "/", "action": "path_search", "handler": "index", "file": "src/app.py" },
+    { "methods": ["GET"], "rule": "/banner.png", "action": null, "handler": "banner_do_topo", "file": "src/app.py", "note": "arte DERIVADA (fundo removido); ausente devolve 404 e nada mais muda; ETag do send_file" },
+    { "methods": ["GET"], "rule": "/apple-touch-icon.png", "action": null, "handler": "icone_de_atalho", "file": "src/app.py", "note": "arte DERIVADA (opaca, 180x180); escrita recusada com 405 pelo roteador" }
   ],
-  "surface_unchanged": "A superficie HTTP e a MESMA da extracao anterior: nenhuma rota ou valor de action criado, renomeado ou removido. O que cresceu foi o conteudo do resultado de dna_analysis (quatro secoes + confronto).",
+  "surface_unchanged": "NAO. A superficie cresceu desde 2026-10-05: entraram as duas rotas de arte (GET /banner.png e GET /apple-touch-icon.png), o POST action=aposentar_arquivo e o POST action=selecionar_arvore. As tres actions de analise e a rota GET / permanecem com os mesmos nomes.",
   "env_vars": [
     { "name": "ANALISADOR_HOST", "default": "127.0.0.1", "effect": "endereco de escuta; abrir para a rede e ato explicito" },
     { "name": "ANALISADOR_PORT", "default": "5000", "effect": "porta de escuta" },
-    { "name": "ANALISADOR_THREADS", "default": "4", "effect": "threads do servidor" },
-    { "name": "ANALISADOR_UPLOAD_FOLDER", "default": null, "effect": "redireciona a pasta de upload; usado pelos testes" }
+    { "name": "ANALISADOR_THREADS", "default": "4", "effect": "threads do waitress; relevante para a lacuna de concorrencia (L-16/M-03/P-02)" },
+    { "name": "ANALISADOR_UPLOAD_FOLDER", "default": null, "effect": "redireciona a pasta de uploads; usada pelos testes para nao escrever na pasta real" },
+    { "name": "DATABASE_URL", "default": null, "effect": "presente liga o registro historico (Postgres); ausente mantem o registrador NULO e a tela inalterada (D-02)" }
   ],
   "internal_config": {
-    "max_content_length": "16 MB, com handler de 413 em portugues",
-    "template_filters": ["cm_br -> utils/number_format.formatar_cm", "inteiro_br -> utils/number_format.formatar_inteiro"],
-    "upload_folder": "resolvido por _pasta_uploads(), ancorado no arquivo do app; escrita e leitura usam o MESMO caminho",
-    "single_instance_guard": "socket criado, marcado (SO_EXCLUSIVEADDRUSE no Windows) e ligado antes de servir; serve(..., sockets=[...])",
-    "secret_key": "embutido no codigo ('f@milyse@rch_dna_edition_v16') - divida herdada"
+    "max_content_length": "16 MB (TETO_DE_UPLOAD_EM_BYTES, nomeado em T004), com handler de 413 em portugues e o valor em MB derivado da mesma origem",
+    "template_filters": ["cm_br -> utils/number_format.formatar_cm", "inteiro_br -> utils/number_format.formatar_inteiro", "data_br -> reporting/lista_de_arquivos.formatar_data_br", "rotulo_do_arquivo -> reporting/lista_de_arquivos.rotulo_de_referencia"],
+    "upload_folder": "resolvido E criado por _pasta_uploads(), ancorado em __file__; escrita e leitura usam o MESMO caminho",
+    "single_instance_guard": "socket criado, marcado (SO_EXCLUSIVEADDRUSE no Windows; SO_REUSEADDR=0 fora dele) e ligado antes de servir; serve(..., sockets=[...])",
+    "secret_key": "REMOVIDO em 2026-10-05 (questions.md#pergunta-2) - nao tinha consumidor; flask.session nunca foi importado",
+    "dono": "DONO_DO_PROCESSO = 'unico' - marcador de costura de assinatura, declarado explicitamente como NAO sendo mecanismo de seguranca"
   },
   "config_files": [
     "requirements.txt",
     "pytest.ini",
     "pyrefly.toml",
-    ".vscode/settings.json",
     ".markdownlint-cli2.jsonc",
+    ".dockerignore",
     ".gitignore",
-    ".gitattributes"
+    ".gitattributes",
+    ".env",
+    "docker/Dockerfile",
+    "docker-compose.yml",
+    "init.sql",
+    ".vscode/settings.json",
+    "plugins/dsh-markdownlint/package.json"
   ],
-  "ci_cd": [
-    ".github/workflows/deploy-pages.yml"
+  "ci_cd": [],
+  "ci_cd_note": "AUSENTE. O .github/workflows/deploy-pages.yml foi criado em 2026-10-05 e REMOVIDO em 2026-10-08; .github/ hoje contem apenas skills de agente. Quem publica o mini-site e o passo manual `python publicar_docs.py`. Nao ha pipeline de teste, build ou analise estatica.",
+  "docker": {
+    "dockerfile": "docker/Dockerfile",
+    "compose": "docker-compose.yml",
+    "ignore": ".dockerignore",
+    "base_image": "python:3.14-slim",
+    "services": ["db (postgres:16-alpine)", "app"],
+    "ports": ["127.0.0.1:5080:5000 (app)", "127.0.0.1:5432:5432 (db, so loopback)"],
+    "regimes": "uploads em BIND MOUNT; dados do banco em VOLUME NOMEADO (D-08); nenhuma credencial com valor padrao (${VAR:?}, RF-11)"
+  },
+  "database_hints": [
+    { "path": "init.sql", "type": "ddl_schema", "note": "189 linhas, idempotente (CREATE TABLE IF NOT EXISTS, nenhum DROP); 6 tabelas" },
+    { "path": "docker-compose.yml", "type": "service_definition", "note": "monta init.sql em /docker-entrypoint-initdb.d/ somente-leitura" }
   ],
-  "ci_cd_note": "PASSou a existir: publica _reversa_docs/ no GitHub Pages a cada push em main. Nao ha pipeline de teste, build ou analise estatica.",
-  "docker": {},
-  "database_hints": [],
-  "database_present": false,
+  "database_present": true,
   "persistence": {
-    "kind": "memoria + arquivos enviados",
-    "state_module": "src/core/gedcom_state.py",
-    "state_fields": ["people", "families", "graph", "child_to_family", "versao"],
-    "note": "people/families/child_to_family sao mutados in place para o binding importado no topo continuar apontando para o objeto vivo; graph e REATRIBUIDO, e por isso quem o consome o importa dentro da funcao. O contador 'versao' e o sinal de invalidacao de indices derivados, porque id() nao muda com mutacao in place.",
+    "kind": "arquivos (entrada) + PostgreSQL 16 opcional (historico)",
+    "state_module": "REMOVIDO - src/core/gedcom_state.py foi apagado no T023 da feature 007; a arvore passou a ser parametro",
+    "registro_module": "src/core/registro.py (projecao) + src/ports/adaptadores.py (RegistroDeAnalisesPostgres)",
+    "tables": ["dna_analysis", "analysis_person", "match_result", "match_path_node", "match_kit", "skipped_match"],
+    "ddl_heritage": "parcialmente herdado de _reversa_sdd/migration/target_data_model.md (congelado em 2026-09-28, ANTERIOR ao confronto); quatro extensoes marcadas no proprio init.sql",
+    "three_states": "sem DATABASE_URL -> registrador nulo e tela inalterada; com a variavel e o banco respondendo -> grava; com a variavel e falha -> a analise conclui e e exibida, com aviso NAO bloqueante (RN-13)",
+    "no_orm": true,
+    "no_migration_runner": true,
     "upload_folder": "src/uploads (ou ANALISADOR_UPLOAD_FOLDER)",
-    "upload_naming": "chave derivada do CONTEUDO do arquivo, com a extensao original preservada",
-    "user_data": "15 arquivos em src/uploads/ e 4 em uploads/ (local legado da raiz); nenhum versionado"
+    "upload_naming": "chave derivada do CONTEUDO: ^[0-9a-f]{16}__[A-Za-z0-9._-]+$ (16 hexadecimais do sha256 + nome visivel)",
+    "aposentadoria": "aposentar() MOVE para src/uploads/_aposentados/; nada e apagado; o reenvio com conteudo novo SUBSTITUI a versao anterior, que tambem vai para la",
+    "user_data": "13 arquivos em src/uploads/ + 3 em src/uploads/_aposentados/; nenhum versionado (Principio I)"
   },
   "test_framework": "pytest",
   "test_framework_version": "9.1.1",
-  "test_file_count": 11,
-  "test_fixture_generators": 2,
-  "test_function_count": 129,
-  "test_items_collected": 179,
+  "test_file_count": 39,
+  "test_support_file_count": 9,
+  "test_function_count": 418,
+  "test_items_collected": 536,
+  "test_result_measured": {
+    "command": ".venv/Scripts/python.exe -m pytest -q -p no:cacheprovider",
+    "without_DATABASE_URL": "527 passam, 9 pulados, 0 falham (66 s)",
+    "with_DATABASE_URL_in_env": "525 passam, 9 pulados, 2 falham (tests/test_persistencia_desabilitada.py)",
+    "cause": "psycopg2-binary nao instalado + variavel presente no ambiente; o teste assume que a variavel nao existe"
+  },
   "test_coverage_measured": false,
   "test_types": [
-    "unitarios por modulo (domain, upload, path_search, dna_analysis, formatacao_cm)",
+    "unitarios por modulo (domain, upload, path_search, dna_analysis, formatacao_cm, erros de dominio)",
     "caracterizacao de matching e de Mermaid (congelam saida observavel)",
-    "contrato de escape do rotulo Mermaid",
-    "regra final do confronto GEDCOM x DNA (test_confrontacao_gedcom_dna.py: 922 linhas, 27 funcoes)",
-    "seguranca do upload (test_upload_seguranca.py: 425 linhas, 33 funcoes)",
+    "contrato de escape do rotulo Mermaid (J6PQ e T4ZM)",
+    "confronto GEDCOM x DNA (test_confrontacao_gedcom_dna.py: 28 funcoes)",
+    "seguranca do upload (test_upload_seguranca.py: 36 funcoes)",
+    "armazenamento por conteudo, lista, aposentadoria e reenvio (test_lista_de_arquivos.py 31, test_aposentar_arquivo.py 25, test_manutencao_de_uploads.py 19, test_reenvio_do_arquivo.py 11, test_reenvio_do_csv.py 5)",
+    "persistencia (test_registro_de_analises.py, test_persistencia_desabilitada.py, test_persistencia_indisponivel.py) - os tres rodam SEM banco",
+    "interface (test_banner_do_topo.py 18, test_tabela_da_tela.py 14, test_lista_na_tela.py 14, test_icone_de_atalho.py 14, test_voltar_para_a_lista.py 5)",
     "bloco de entrada (test_servidor_producao.py: servidor de producao, instancia unica, padrao do endereco)"
   ],
   "modules": [
     "upload-gedcom",
+    "tela-de-entrada",
     "analise-dna",
-    "busca-caminho"
+    "busca-caminho",
+    "recursos-da-tela"
   ],
   "module_details": [
     {
       "name": "upload-gedcom",
       "endpoints": ["POST / action=upload_gedcom"],
       "implementation": [
+        "src/application/upload_gedcom.py",
+        "src/application/reenvio.py",
         "src/parsers/gedcom_parser.py",
-        "src/core/gedcom_state.py",
-        "src/utils/text_cleaning.py",
-        "src/utils/validate.py"
+        "src/utils/validate.py",
+        "src/utils/text_cleaning.py"
       ],
-      "lines": 312
+      "lines": 512
+    },
+    {
+      "name": "tela-de-entrada",
+      "endpoints": ["GET /", "POST / action=selecionar_arvore", "POST / action=aposentar_arquivo"],
+      "implementation": [
+        "src/reporting/lista_de_arquivos.py",
+        "src/app.py (index, _listas_da_tela)"
+      ],
+      "lines": 168,
+      "nota": "src/core/diagram_domain.py foi REATRIBUIDO ao bucket transversal na Fase 2: ele serve os dois fluxos que desenham Mermaid (analise-dna e busca-caminho), e nao a tela de entrada"
     },
     {
       "name": "analise-dna",
       "endpoints": ["POST / action=dna_analysis"],
       "implementation": [
+        "src/application/dna_analysis.py",
         "src/core/dna_analysis.py",
         "src/core/genetic_evidence.py",
         "src/core/relationship_hypotheses.py",
@@ -138,96 +190,128 @@
         "src/core/cm_estimator.py",
         "src/parsers/csv_ingest.py"
       ],
-      "lines": 1566
+      "lines": 1622,
+      "nota": "O registro historico (ports/adaptadores.py + init.sql + core/registro.py) e consumido apenas por este caso de uso; o esquema fisico vai para erd-complete.md"
     },
     {
       "name": "busca-caminho",
       "endpoints": ["POST / action=path_search"],
       "implementation": [
+        "src/application/path_search.py",
         "src/core/path_search.py",
         "src/core/path_finding.py",
         "src/core/family_navigation.py",
         "src/core/documentary_relationship.py",
         "src/reporting/mermaid_render.py"
       ],
-      "lines": 1275
+      "lines": 1213
+    },
+    {
+      "name": "recursos-da-tela",
+      "endpoints": ["GET /banner.png", "GET /apple-touch-icon.png"],
+      "implementation": [
+        "src/app.py (banner_do_topo, icone_de_atalho)"
+      ],
+      "lines": 0,
+      "nota": "As duas rotas vivem em app.py, contabilizado no bucket transversal; as artes servidas sao RENDERIZACOES DERIVADAS, e a receita que as produz tem fonte unica em tests/banner_da_tela.py e tests/icone_de_atalho.py, com teste de deriva ao lado"
     },
     {
       "name": "transversal",
-      "endpoints": ["GET / (render) e os tres ramos POST"],
+      "endpoints": ["borda, portas, utilitarios e erros compartilhados"],
       "implementation": [
         "src/app.py",
+        "src/application/__init__.py",
+        "src/application/traducao.py",
+        "src/core/erros.py",
+        "src/core/registro.py",
+        "src/core/diagram_domain.py",
+        "src/ports/adaptadores.py",
+        "src/ports/__init__.py",
+        "src/utils/__init__.py",
+        "src/utils/name_keys.py",
         "src/utils/number_format.py",
         "src/core/__init__.py",
         "src/parsers/__init__.py",
-        "src/reporting/__init__.py",
-        "src/utils/__init__.py"
+        "src/reporting/__init__.py"
       ],
-      "lines": 320
+      "lines": 1615
     }
   ],
-  "module_attribution_note": "A atribuicao de arquivo a unidade funcional e do Scout e esta sujeita a revisao do Arqueologo: os modulos de core/ sao de responsabilidade unica e alguns servem a mais de um fluxo. A soma das quatro linhas (312 + 1566 + 1275 + 320) e exatamente o total de linhas Python de src/ (3473).",
+  "module_attribution_note": "A atribuicao de arquivo a unidade funcional e do Scout e esta sujeita a revisao do Arqueologo. A soma das seis linhas (512 + 168 + 1622 + 1213 + 0 + 1615) e exatamente o total de linhas Python uteis de src/ (5130). A unit `recursos-da-tela` nao tem arquivo proprio; ela existe porque as duas rotas de arte sao contratos HTTP distintos, com regras proprias de degradacao (404) e de cache (ETag).",
   "code_size": {
-    "app_py_lines": 267,
-    "core_lines": 2389,
-    "parsers_lines": 297,
-    "reporting_lines": 290,
-    "utils_lines": 246,
-    "src_python_total": 3489,
-    "template_lines": 525,
-    "tests_lines": 3060,
-    "counting_method": "[System.IO.File]::ReadAllLines - conta linhas em branco. NAO usar Get-Content | Measure-Object -Line, que as ignora e truncou contagens de artefatos anteriores (app.py aparecia com 227 em vez de 262).",
+    "measure_unit": "linhas uteis (nao vazias)",
+    "app_py_lines": 559,
+    "application_lines": 627,
+    "core_lines": 2257,
+    "parsers_lines": 256,
+    "ports_lines": 669,
+    "reporting_lines": 421,
+    "utils_lines": 341,
+    "src_python_total": 5130,
+    "src_python_raw_lines": 6199,
+    "src_python_file_count": 35,
+    "src_defs_and_classes": 182,
+    "template_lines": 731,
+    "tests_lines": 8959,
+    "tests_raw_lines": 11256,
+    "counting_method": "linhas uteis = Get-Content | Measure-Object -Line (ignora vazias); linhas cruas = .Count (conta vazias). Os DOIS numeros sao declarados de proposito: a rodada de 2026-10-05 registrou que o contador ingenuo reportava app.py com 227 em vez de 262.",
     "previous_extraction": {
-      "app_py_lines": 84,
-      "reconstructed_lines": 1086,
-      "tests_lines": 1134,
-      "template_lines": 200,
-      "total_python_lines": 1170,
-      "test_file_count": 7,
-      "test_function_count": 52,
-      "test_items_collected": 86
+      "app_py_lines": 559,
+      "src_python_total": 3489,
+      "core_lines": 2389,
+      "parsers_lines": 297,
+      "reporting_lines": 290,
+      "utils_lines": 246,
+      "template_lines": 525,
+      "tests_lines": 3060,
+      "test_file_count": 11,
+      "test_function_count": 129,
+      "test_items_collected": 179,
+      "note": "numeros POS-REVISAO de 2026-10-05 (incluem as 6 mudancas de codigo decididas nas respostas as perguntas)"
     }
   },
   "notable_changes_since_previous_extraction": [
-    "A raiz de codigo deixou de ser analisador-genealogico/ e passou a ser src/ (feature 003).",
-    "O pacote reconstructed/ deixou de existir: hoje sao quatro pacotes de primeiro nivel em src/ - core/ (12 modulos + __init__), parsers/ (2 + __init__), reporting/ (1 + __init__) e utils/ (3 + __init__).",
-    "app.py passou de 84 para 262 linhas: teto de corpo (16 MB) com handler de 413, filtros de template cm_br/inteiro_br, upload ancorado no arquivo do app, resolucao de caminho validada por forma, guarda de instancia unica e bloco de entrada com waitress.",
-    "Nasceu a regra final da analise: parentesco documental, evidencia genetica e confronto (quatro estados: COMPATIVEL, POSSIVEL, CONFLITANTE, INCONCLUSIVO), com 8 modulos novos em core/ e test_confrontacao_gedcom_dna.py (922 linhas).",
-    "csv_ingest.py passou a tolerar separador, preambulo e linha torta, com erro acionavel em portugues.",
-    "cm_estimator.py esta declarado como LEGADO fora do fluxo, mantido como superficie de compatibilidade.",
-    "As dependencias passaram a ter versao fixada e o gunicorn saiu do lugar do waitress.",
-    "A suite cresceu de 7 para 11 arquivos, de 52 para 126 funcoes e de 86 para 175 itens coletados.",
-    "A pasta static/ continua inexistente; o README herdado do modulo e o .gitignore.txt do modulo foram removidos.",
-    "O repositorio passou a ter CI/CD (deploy do mini-site no GitHub Pages) e um sub-projeto Node (plugins/dsh-markdownlint) fora do escopo do runtime."
+    "Nasceu src/application/ (5 casos de uso + __init__): a borda deixou de conter regra de negocio.",
+    "Nasceu src/ports/ (669 linhas): protocolos e adaptadores concretos - ArmazenamentoEmDisco, CarregadorDeArvoresGedcom e RegistroDeAnalisesPostgres.",
+    "src/core/gedcom_state.py foi APAGADO: nao ha mais estado global do processo; a arvore e parametro.",
+    "Nasceu a persistencia historica: init.sql com 6 tabelas, psycopg2-binary no pin e o registro em tres estados (RN-13).",
+    "Nasceu Docker: docker/Dockerfile + docker-compose.yml + .dockerignore + .env, com uploads em bind mount e banco em volume nomeado.",
+    "A pasta de uploads passou a ser canonica em src/uploads/ (features 010 e 012), com armazenamento por conteudo, aposentadoria por MOVE e substituicao no reenvio.",
+    "A tela de entrada passou a listar os arquivos em duas abas, com 'Abrir' e 'Aposentar' (features 011 e 012).",
+    "Entraram duas rotas de arte (GET /banner.png e GET /apple-touch-icon.png), ambas servindo RENDERIZACOES DERIVADAS e degradando com 404.",
+    "Nasceram src/core/erros.py e src/application/traducao.py: os erros de dominio passaram a ser tipados e traduzidos por tabela.",
+    "src/core/diagram_domain.py isolou o que o renderizador precisa saber do dominio.",
+    "O app.py passou de 267 para 559 linhas uteis; o template, de 525 para 731.",
+    "A suite cresceu de 11 para 39 arquivos de teste, de 129 para 418 funcoes e de 179 para 536 itens coletados.",
+    "O CI/CD DESAPARECEU: o workflow de GitHub Pages foi removido em 2026-10-08 e a publicacao virou passo manual.",
+    "O README.md foi reescrito (2026-10-08 a 2026-10-10) e passou a documentar o .venv como interpretador oficial - a pendencia de documentacao de 2026-10-05 esta FECHADA."
   ],
   "documentation_debt": [
-    "O mini-site _reversa_docs/ foi gerado em 2026-10-01 e descreve a raiz analisador-genealogico/, o pacote reconstructed/ e apenas tres features: nao conhece src/, o confronto nem a suite atual. E o alvo do /reversa-docs apos esta re-extracao (fecha T021/O4 da feature 003).",
-    "O dashboard do vault Obsidian (docs/00 - Dashboard.md) tem 12 de 13 links quebrados: aponta para arquivos como _reversa_sdd/sdd-spec.md, _reversa_forward/plan.md, _reversa_bugs/bug-graph.md e docs/Mapa-Geral.canvas, que nao existem com esses nomes.",
-    "As matrizes SPEC<->CODE<->TEST<->BUG em _reversa_bugs/*/generated/ derivam das specs de 2026-09-30 e precisam ser regeradas depois desta rodada.",
-    "README.md da raiz esta EM DIA (atualizado em 2026-10-05) - e a unica superficie de documentacao do repositorio que descreve o sistema atual."
+    "O mini-site _reversa_docs/ (e a copia docs/) foi regenerado em 2026-10-08, ANTES das features 009 a 012, e o gerador NAO le _reversa_sdd/addenda/. E o primeiro passo pos-extracao previsto no pedido: /reversa-docs e depois `python publicar_docs.py`.",
+    "As matrizes SPEC<->CODE<->TEST<->BUG em _reversa_bugs/*/generated/ derivam das specs de 2026-10-05 e ancoram em _reversa_sdd/upload-gedcom/contracts.md#2.1 e _reversa_sdd/domain.md#3.5, que esta rodada reescreve. Por isso /reversa-debugger-graph deve ser o ULTIMO passo.",
+    "README.md da raiz esta EM DIA (2026-10-10) e e a superficie de documentacao mais confiavel do repositorio."
   ],
   "out_of_scope": [
-    { "path": "plugins/dsh-markdownlint/", "kind": "sub-projeto Node/JavaScript", "note": "Plugin host do harness DSH que expoe a ferramenta markdown_lint sobre o markdownlint-cli2 (package.json, node_modules/, smoke proprio). Nao e importado pela aplicacao Python." },
-    { "path": "docs/", "kind": "vault Obsidian", "note": "Dashboard central e cinco canvas que mapeiam as pastas do Reversa. Indice de navegacao, nao sistema." },
-    { "path": ".github/skills/", "kind": "skills de apoio ao desenvolvimento", "note": "git-naming-conventions, jsdoc-documenter, python-docstring-generator, readme-blueprint-generator, security-code-audit." },
-    { "path": ".pytest-tmp/", "kind": "residuo de execucao", "note": "Gitignored, nao versionado." },
-    { "path": "uploads/", "kind": "dado do usuario", "note": "Local de upload anterior a ancoragem no arquivo do app; a aplicacao usa src/uploads/." },
-    { "path": "_reversa_sdd/ | _reversa_forward/ | _reversa_bugs/ | _reversa_refactor/ | _reversa_docs/ | .reversa/ | .agents/", "kind": "framework Reversa", "note": "Artefatos do framework, incluindo migration/, oracle/, parity/ e screens/, que NAO sao regerados por esta rodada." }
+    { "path": "plugins/dsh-markdownlint/", "kind": "sub-projeto Node/JavaScript", "note": "Plugin host do harness DSH que expoe markdown_lint sobre o markdownlint-cli2 (package.json, smoke proprio). Nao e importado pela aplicacao Python." },
+    { "path": "docs/", "kind": "copia publicada do mini-site", "note": "Gerada por publicar_docs.py a partir de _reversa_docs/; e a pasta publicada no GitHub Pages." },
+    { "path": ".github/skills/", "kind": "skills de apoio ao desenvolvimento", "note": "create-readme, git-naming-conventions, jsdoc-documenter, python-docstring-generator, readme-blueprint-generator, security-code-audit. Sem nenhum workflow." },
+    { "path": ".agents/skills/", "kind": "instalacao do framework Reversa", "note": "Responsavel pela maior parte dos 167 .md do repositorio." },
+    { "path": ".venv/ | node_modules/ | __pycache__/ | .pytest_cache/ | .parity-run-*/ | .parity-tmp/ | .coverage", "kind": "ambientes e residuos de execucao" },
+    { "path": "src/uploads/ (conteudo)", "kind": "dado real do operador", "note": "O Principio I proibe versionar ou expor; 13 arquivos + 3 aposentados." },
+    { "path": "_reversa_sdd/ | _reversa_forward/ | _reversa_bugs/ | _reversa_refactor/ | _reversa_docs/ | .reversa/", "kind": "framework Reversa", "note": "Inclui migration/, oracle/, parity/, screens/, addenda/ e design-system/, que NAO sao regerados por esta rodada." }
   ],
-  "total_files": 47,
-  "total_files_composition": "src/ 24 (23 .py + index.html) + tests/ 13 (11 testes + 2 fixtures) + raiz 10 (versionados)",
+  "total_files": 103,
+  "total_files_composition": "src/ 38 (35 .py + index.html + 2 .png) + tests/ 48 + docker/Dockerfile 1 + raiz 15 (requirements.txt, pytest.ini, pyrefly.toml, .markdownlint-cli2.jsonc, .dockerignore, .gitignore, .gitattributes, .env, docker-compose.yml, init.sql, publicar_docs.py, README.md, LICENSE, AGENTS.md, GEMINI.md) + .vscode/settings.json 1. Fora da conta: os 16 arquivos de dado em src/uploads/.",
   "organization_suggestion": {
     "granularity": "endpoint",
-    "rationale": "A aplicacao tem roteamento centralizado numa rota unica com despacho pelo campo action; os tres valores distintos de action delimitam exatamente tres unidades funcionais. A refatoracao mudou onde o codigo mora, nao a superficie.",
+    "rationale": "A aplicacao tem roteamento centralizado numa rota unica com despacho pelo campo action, mais duas rotas GET de arte; o contrato observavel de cada fluxo e a acao HTTP, nao o pacote por onde ela passa. A refatoracao mudou onde o codigo mora, nao a superficie.",
     "signals": [
       {
         "type": "centralized_routing",
         "evidence": [
-          "src/app.py:107",
-          "src/app.py:110",
-          "src/app.py:111",
-          "src/app.py:134",
-          "src/app.py:156"
+          "src/app.py @app.route(\"/\", methods=[\"GET\", \"POST\"]) com despacho por request.form.get(\"action\") em 5 ramos",
+          "src/app.py @app.route(\"/banner.png\", methods=[\"GET\"])",
+          "src/app.py @app.route(\"/apple-touch-icon.png\", methods=[\"GET\"])"
         ]
       }
     ],
@@ -238,35 +322,45 @@
       "granularity": "endpoint",
       "scout_suggestion": "endpoint",
       "decided_at": "2026-08-03T12:18:50Z",
-      "config_user_override": "nenhum (.reversa/config.user.toml nao tem secao [specs])",
-      "note": "Decisao ja persistida; conforme a regra de imutabilidade o orquestrador NAO reescreve scout_suggestion. Esta sugestao apenas confirma a escolha existente, e o passo de organizacao das specs e pulado nesta rodada."
+      "config_user_override": "nenhum (.reversa/config.user.toml NAO tem secao [specs] - verificado nesta rodada)",
+      "note": "Decisao ja persistida; pela regra de imutabilidade o orquestrador NAO reescreve scout_suggestion. Esta sugestao confirma a escolha existente e o passo 3 e pulado nesta rodada."
     }
   },
   "git_context": {
-    "commits_total": 125,
+    "commits_total": 246,
     "first_commit": "6b6483d 2026-08-03 chore: inicializa projeto reversa do app analisador genealogico",
-    "head": "d845ef8 2026-10-05 feat(plugins): hospeda a ferramenta markdown_lint sobre o markdownlint-cli2",
-    "previous_extraction_commits": 66
+    "head": "980502c 2026-10-10 docs(reversa): registra o pedido de reextracao de 2026-10-10",
+    "previous_extraction_commits": 125,
+    "working_tree_clean": true,
+    "last_commits": [
+      "a994694 2026-10-10 fecha os 13 itens de watch de 003 e 004 com veredito datado",
+      "ad46bea 2026-10-10 corrige o status do no BJJH na view do grafo",
+      "eabea98 2026-10-10 corrige coerencia do plano e fecha o OBS-01 com testes",
+      "3f71c49 2026-10-10 feat(web): masthead do topo com arte a 50 por cento",
+      "926a488 2026-10-10 feat(upload): reenvia gedcom e csv com substituicao e melhora a tela",
+      "f20a818 2026-10-10 feat(upload): aposenta um arquivo da lista"
+    ]
   },
   "confidence": {
     "confirmed": [
-      "estrutura de diretorios",
-      "linguagem, versoes instaladas e divergencia do .venv",
-      "entry point, superficie de rotas e variaveis de ambiente",
-      "ausencia de banco e de Docker",
-      "existencia de CI/CD (deploy do mini-site)",
-      "contagem de arquivos, funcoes e itens de teste",
-      "dependencias diretas com versao fixada",
-      "ausencia de pyvis e matplotlib no codigo"
+      "estrutura de diretorios, pacotes e contagem de linhas (uteis e cruas) de src/ e tests/",
+      "linguagem, versoes instaladas no .venv e no global, e a ausencia do psycopg2-binary",
+      "entry points, superficie HTTP completa (8 rotas/acoes) e variaveis de ambiente",
+      "PRESENCA de banco (Postgres opcional, 6 tabelas em init.sql) e de Docker",
+      "AUSENCIA de CI/CD (workflow removido em 2026-10-08)",
+      "contagem de arquivos, funcoes e itens de teste, e o resultado da suite nos dois cenarios de ambiente",
+      "dependencias diretas com versao fixada (9) e quais sao importadas",
+      "estado da arvore de trabalho (limpa) e do legado (nao tocado nesta fase)"
     ],
     "inferred": [
       "que app.py e a unica origem das rotas (nenhum Blueprint registrado em outro arquivo)",
-      "a atribuicao de cada arquivo de core/ a uma unidade funcional"
+      "a atribuicao de cada arquivo de core/, ports/ e reporting/ a uma unidade funcional",
+      "que a presenca de DATABASE_URL no ambiente desta sessao veio do processo pai (nao ha a variavel no escopo User nem Machine)"
     ],
     "gaps": [
-      "cobertura de testes nao medida",
-      "qual interpretador (global ou .venv) e o oficial do projeto - o README documenta o global, mas o .venv existe e diverge",
-      "se a divergencia de RapidFuzz entre os dois interpretadores ja produziu resultado diferente em dado real"
+      "cobertura de testes nao remedida nesta fase (a revisao de 2026-10-05 mediu 83% de src/)",
+      "por que o .venv nao tem o psycopg2-binary declarado no pin - instalacao incompleta ou remocao deliberada; nao ha registro em nenhum adendo",
+      "se a ausencia do driver esconde defeito no caminho de gravacao: os testes de persistencia rodam SEM banco por desenho, entao o caminho feliz de INSERT nao e exercitado pela suite"
     ]
   }
 }

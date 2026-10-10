@@ -1,1546 +1,555 @@
 {
-  "generated_at": "2026-10-05T16:45:00Z",
+  "generated_at": "2026-10-10T21:10:00Z",
   "extraction": {
     "kind": "re-extraction",
-    "previous_extraction": "2026-09-30",
+    "previous_extraction": "2026-10-05",
     "doc_level": "completo",
-    "snapshot_of_previous": ".reversa/snapshots/2026-10-05-pre-reextracao/",
-    "source": "leitura integral de src/app.py (262 linhas) + src/core (2378) + src/parsers (297) + src/reporting (290) + src/utils (246) + src/templates/index.html (525) = 3473 linhas de Python",
-    "transcription": "gerado por transcricao mecanica das tabelas de _reversa_sdd/code-analysis.md (§2.1, §2.2, §2.4, §2.5, §3.1, §3.2, §3.4, §3.5, §4.1, §4.2, §4.4 e §4.5); nenhuma regra foi redigitada a mao"
+    "snapshot_of_previous": ".reversa/snapshots/2026-10-10-pre-reextracao/",
+    "source": "leitura integral de src/app.py (559 linhas uteis) + src/application (523) + src/core (2160) + src/parsers (268) + src/ports (669) + src/reporting (420) + src/utils (340) + src/templates/index.html (731) + init.sql (189) + .dockerignore = 5130 linhas uteis de Python em src/",
+    "transcription": "gerado por transcricao das tabelas de _reversa_sdd/code-analysis.md (secoes 2.4, 2.5, 3.4, 4.4, 4.5, 5.4, 5.5, 6.3); a descricao de cada regra foi encurtada para caber no campo, sem alterar o sentido",
+    "confidence_format": "CORRECAO DE CONTRATO nesta rodada: o campo `confidence` passa a usar os valores do schema (confirmed/inferred/unknown) em vez do emoji das rodadas anteriores. O schema de references/modules-schema.md e o contrato do artefato, e as duas rodadas anteriores o haviam desviado.",
+    "counting": "linhas uteis = linhas nao vazias (Get-Content | Measure-Object -Line); linhas cruas = .Count. As duas sao declaradas porque o contador ingenuo ja reportou app.py com 227 linhas quando ele tem 262 cruas / 559 uteis.",
+    "location_format": "localizacao por ARQUIVO + SIMBOLO, e nao por numero de linha: a citacao de linha envelhece a cada commit. Os numeros de linha vivos estao em _reversa_sdd/flowcharts/."
   },
   "totals": {
-    "modules": 4,
-    "functions": 77,
-    "business_rules": 118,
-    "note": "total de regras unicas: as 16 regras transversais (BR-U-01 a BR-U-16) ja estao contadas em upload-gedcom e aparecem repetidas no modulo transversal apenas como ponteiro"
+    "modules": 5,
+    "functions_documented": 81,
+    "entities_documented": 38,
+    "business_rules": 233,
+    "algorithms": 37,
+    "revoked_rules": 1,
+    "note": "total de regras unicas: cada regra aparece em UM modulo. As regras transversais (ports, traducao, assets) ficam no modulo que as consome com mais peso e estao marcadas como transversais no campo `path`. A regra revogada (BR-U-REVOGADA) fica em `revoked_rules` e NAO entra na contagem: um ID revogado nao e reaproveitado para outra afirmacao, para que as citacoes historicas de _reversa_forward/ continuem apontando para o mesmo sentido."
   },
   "modules": [
     {
       "name": "upload-gedcom",
-      "path": "src/parsers + src/core/gedcom_state.py + src/utils",
-      "purpose": "Receber o arquivo GEDCOM, validar o conteudo, grava-lo sob chave derivada do conteudo, parsear registros INDI/FAM, construir o grafo bidirecional pessoa-familia e substituir o estado do processo que os demais fluxos consomem.",
+      "path": "src/application/upload_gedcom.py + src/application/reenvio.py + src/utils/validate.py + src/parsers/gedcom_parser.py + src/utils/text_cleaning.py (+ transversal: src/ports/adaptadores.py)",
+      "purpose": "Receber o arquivo GEDCOM, validar o CONTEUDO, grava-lo sob chave derivada do conteudo, aposentar as versoes anteriores de mesmo nome visivel, parsear os registros INDI/FAM e devolver a arvore como VALOR ao chamador.",
       "primary_files": [
-        "src/parsers/gedcom_parser.py",
-        "src/core/gedcom_state.py",
+        "src/application/upload_gedcom.py",
+        "src/application/reenvio.py",
         "src/utils/validate.py",
+        "src/parsers/gedcom_parser.py",
         "src/utils/text_cleaning.py",
-        "*(transversal)* `src/app.py"
+        "(transversal) src/ports/adaptadores.py"
       ],
-      "endpoints": [
-        "POST / action=upload_gedcom"
-      ],
+      "endpoints": ["POST / action=upload_gedcom"],
+      "lines_useful": 678,
+      "rules_id_prefix": "BR-U",
       "functions": [
-        {
-          "name": "index",
-          "file_line": "`app.py:108`",
-          "params": "— (lê `request`)",
-          "returns": "HTML renderizado (ou 413)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_pasta_uploads",
-          "file_line": "`app.py:37`",
-          "params": "—",
-          "returns": "`str` (caminho absoluto da pasta)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_guardar_upload",
-          "file_line": "`app.py:70`",
-          "params": "`arquivo`, `kind: str`",
-          "returns": "`(caminho, motivo)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_resolver_caminho_armazenado",
-          "file_line": "`app.py:94`",
-          "params": "`nome_recebido`",
-          "returns": "`str \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "_requisicao_grande",
-          "file_line": "`app.py:61`",
-          "params": "`_erro`",
-          "returns": "`(HTML, 413)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "load_gedcom_and_build_graph",
-          "file_line": "`gedcom_parser.py:50`",
-          "params": "`file_path: str`",
-          "returns": "`list[str]` (nomes ordenados)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "build_graph_from_parser",
-          "file_line": "`gedcom_parser.py:18`",
-          "params": "`people_dict: dict`, `parser`",
-          "returns": "`(nx.Graph, dict)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "ref_id",
-          "file_line": "`gedcom_state.py:33`",
-          "params": "`val`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "get_name",
-          "file_line": "`gedcom_state.py:38`",
-          "params": "`person`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "nome_visivel_seguro",
-          "file_line": "`validate.py:40`",
-          "params": "`nome_original`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "chave_de_armazenamento",
-          "file_line": "`validate.py:68`",
-          "params": "`conteudo: bytes`",
-          "returns": "`str` (16 hex)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "nome_do_arquivo_armazenado",
-          "file_line": "`validate.py:73`",
-          "params": "`chave: str`, `nome_original`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "chave_recebida_e_valida",
-          "file_line": "`validate.py:78`",
-          "params": "`nome_recebido`",
-          "returns": "`bool`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "validar_conteudo_gedcom",
-          "file_line": "`validate.py:90`",
-          "params": "`conteudo: bytes`",
-          "returns": "`str \\",
-          "confidence": "None` (motivo ou aceite)"
-        },
-        {
-          "name": "strip_bad_utf",
-          "file_line": "`text_cleaning.py:37`",
-          "params": "`s`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "demojibake",
-          "file_line": "`text_cleaning.py:56`",
-          "params": "`s`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "formatar_cm",
-          "file_line": "`number_format.py:17`",
-          "params": "`valor`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "formatar_inteiro",
-          "file_line": "`number_format.py:41`",
-          "params": "`valor`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        }
+        {"name": "upload_gedcom", "file": "src/application/upload_gedcom.py", "params": ["conteudo: bytes", "nome_original", "dono", "armazenamento", "carregador"], "returns": "ResultadoDeUpload", "confidence": "confirmed"},
+        {"name": "guardar_com_substituicao", "file": "src/application/reenvio.py", "params": ["armazenamento", "conteudo", "nome_original", "tipo", "dono"], "returns": "Armazenado(caminho, motivo, desfecho, visivel)", "confidence": "confirmed"},
+        {"name": "nome_visivel_seguro", "file": "src/utils/validate.py", "params": ["nome_original"], "returns": "str", "confidence": "confirmed"},
+        {"name": "chave_de_armazenamento", "file": "src/utils/validate.py", "params": ["conteudo: bytes"], "returns": "str (16 hex)", "confidence": "confirmed"},
+        {"name": "nome_do_arquivo_armazenado", "file": "src/utils/validate.py", "params": ["chave", "nome_original"], "returns": "str", "confidence": "confirmed"},
+        {"name": "chave_recebida_e_valida", "file": "src/utils/validate.py", "params": ["referencia"], "returns": "bool", "confidence": "confirmed"},
+        {"name": "referencia_de_arquivo_da_pasta", "file": "src/utils/validate.py", "params": ["referencia"], "returns": "bool", "confidence": "confirmed"},
+        {"name": "pode_ser_usado", "file": "src/utils/validate.py", "params": ["nome"], "returns": "bool", "confidence": "confirmed"},
+        {"name": "motivo_de_indisponibilidade", "file": "src/utils/validate.py", "params": ["nome"], "returns": "str | None", "confidence": "confirmed"},
+        {"name": "validar_conteudo_gedcom", "file": "src/utils/validate.py", "params": ["conteudo: bytes"], "returns": "str | None", "confidence": "confirmed"},
+        {"name": "carregar_arvore", "file": "src/parsers/gedcom_parser.py", "params": ["caminho: str"], "returns": "(people, families, graph, child_to_family)", "confidence": "confirmed"},
+        {"name": "strip_bad_utf", "file": "src/utils/text_cleaning.py", "params": ["s"], "returns": "str", "confidence": "confirmed"},
+        {"name": "demojibake", "file": "src/utils/text_cleaning.py", "params": ["s"], "returns": "str", "confidence": "confirmed"},
+        {"name": "guardar", "file": "src/ports/adaptadores.py", "params": ["conteudo", "nome_original", "tipo", "dono"], "returns": "(caminho, motivo)", "confidence": "confirmed"},
+        {"name": "resolver", "file": "src/ports/adaptadores.py", "params": ["referencia", "dono"], "returns": "str | None", "confidence": "confirmed"},
+        {"name": "listar", "file": "src/ports/adaptadores.py", "params": ["dono"], "returns": "list[EntradaArmazenada]", "confidence": "confirmed"},
+        {"name": "aposentar", "file": "src/ports/adaptadores.py", "params": ["referencia", "dono"], "returns": "bool", "confidence": "confirmed"}
       ],
       "entities": [
-        {
-          "name": "people",
-          "where": "`gedcom_state.py:20`",
-          "shape": "`dict[str, registro ged4py INDI]` indexado por `xref_id`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "families",
-          "where": "`gedcom_state.py:21`",
-          "shape": "`dict[str, registro ged4py FAM]` indexado por `xref_id`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "graph",
-          "where": "`gedcom_state.py:22`",
-          "shape": "`networkx.Graph` não direcionado, bipartido pessoa↔família",
-          "confidence": "🟢"
-        },
-        {
-          "name": "child_to_family",
-          "where": "`gedcom_state.py:23`",
-          "shape": "`dict[str, list[str]]` — filho → famílias onde aparece como CHIL",
-          "confidence": "🟢"
-        },
-        {
-          "name": "versao",
-          "where": "`gedcom_state.py:30`",
-          "shape": "`int`, contador de carregamentos (sinal de invalidação)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Mapa de mojibake",
-          "where": "`text_cleaning.py:41-50`",
-          "shape": "`dict[str, str]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Tupla de retorno do upload",
-          "where": "`app.py:70`",
-          "shape": "`(caminho_completo, motivo)` — `motivo` é `None` no sucesso",
-          "confidence": "🟢"
-        }
+        {"name": "Arvore", "where": "src/parsers/gedcom_parser.py", "shape": "tuple (people, families, graph, child_to_family) - entra por PARAMETRO em todo o nucleo", "confidence": "confirmed"},
+        {"name": "people", "where": "src/parsers/gedcom_parser.py", "shape": "dict[str, registro ged4py INDI] indexado por xref_id", "confidence": "confirmed"},
+        {"name": "families", "where": "src/parsers/gedcom_parser.py", "shape": "dict[str, registro ged4py FAM] indexado por xref_id", "confidence": "confirmed"},
+        {"name": "graph", "where": "src/parsers/gedcom_parser.py", "shape": "networkx.Graph nao direcionado, bipartido pessoa-familia", "confidence": "confirmed"},
+        {"name": "child_to_family", "where": "src/parsers/gedcom_parser.py", "shape": "dict[str, list[str]] - filho -> familias onde aparece como CHIL", "confidence": "confirmed"},
+        {"name": "EntradaArmazenada", "where": "src/ports/__init__.py", "shape": "dataclass congelada: nome, bytes, modificado_em", "confidence": "confirmed"},
+        {"name": "Mapa de mojibake", "where": "src/utils/text_cleaning.py", "shape": "dict[str, str] com 18 entradas e 17 chaves efetivas", "confidence": "confirmed"}
       ],
       "business_rules": [
-        {
-          "id": "BR-U-01",
-          "description": "O upload só ocorre em `POST` com `action=upload_gedcom`; qualquer outro `action` cai nos ramos de análise ou de busca.",
-          "location": "`app.py:110-111`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-02",
-          "description": "Sem o campo `gedcom` na requisição: `Nenhum arquivo GEDCOM enviado.`",
-          "location": "`app.py:112-113`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-03",
-          "description": "Com `filename` vazio: `Nenhum arquivo selecionado.`",
-          "location": "`app.py:115-116`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-04",
-          "description": "O conteúdo é lido **inteiro** e validado **antes** de qualquer gravação em disco.",
-          "location": "`app.py:80-83`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-05",
-          "description": "GEDCOM aceitável = após remover BOM UTF-8 e espaços à esquerda, começa com `0 HEAD`.",
-          "location": "`validate.py:97-104`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-06",
-          "description": "Conteúdo vazio é recusado com o motivo `arquivo vazio`.",
-          "location": "`validate.py:97-98`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-07",
-          "description": "Conteúdo com byte NUL é recusado com o motivo `conteudo binario`.",
-          "location": "`validate.py:99-100`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-08",
-          "description": "A chave de armazenamento é o sha256 do conteúdo truncado em 16 hexadecimais: mesmo conteúdo, mesma chave.",
-          "location": "`validate.py:68-70`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-09",
-          "description": "O nome final é `<chave>__<nome visível>`; o nome do cliente **nunca** compõe o caminho.",
-          "location": "`validate.py:73-75`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-10",
-          "description": "No nome visível, `/`, `\\` e NUL viram `_`; acentos, espaços e a extensão original são preservados.",
-          "location": "`validate.py:40-65`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-11",
-          "description": "Nome visível vazio (ou só pontos) vira `arvore.ged`; nome sem extensão recebe `.ged`.",
-          "location": "`validate.py:52-65`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-12",
-          "description": "Arquivo já existente com a mesma chave **não** é reescrito.",
-          "location": "`app.py:88-90`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-13",
-          "description": "O valor devolvido pelo armazenamento é o **caminho completo**; quem lê depois usa exatamente o que foi escrito.",
-          "location": "`app.py:70-91`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-14",
-          "description": "`gedcom_filename` recebido do formulário é aceito apenas na forma `<16 hex>__<nome>`; fora disso: `Erro: Arquivo 'X' não existe mais.`",
-          "location": "`app.py:126-131`, `validate.py:78-87`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-15",
-          "description": "Requisição sem `gedcom_filename`: `Erro: Arquivo GEDCOM não encontrado.`",
-          "location": "`app.py:127-128`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-16",
-          "description": "Corpo de requisição acima de 16 MB é recusado pelo Flask com 413 e a mensagem `Arquivo maior que o limite de 16 MB.`",
-          "location": "`app.py:27`, `app.py:60-67`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-17",
-          "description": "Falha de parse vira `Erro ao processar GEDCOM: <exceção>` na tela; nada é persistido.",
-          "location": "`app.py:123-124`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-18",
-          "description": "Família sem `xref_id` é ignorada; arestas só são criadas para nós existentes no grafo.",
-          "location": "`gedcom_parser.py:26-27`, `:40-46`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-19",
-          "description": "A lista de nomes devolvida é **ordenada** e tem exatamente um item por pessoa carregada.",
-          "location": "`gedcom_parser.py:68`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-U-20",
-          "description": "`get_name` devolve string vazia quando o registro tem `Name` mas o formato resulta vazio; o literal `Sem Nome` só aparece quando não há `name`.",
-          "location": "`gedcom_state.py:38-52`",
-          "confidence": "🟢"
-        }
+        {"id": "BR-U-01", "description": "O upload so ocorre em POST com action=upload_gedcom.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-U-02", "description": "Sem o campo gedcom: 'Nenhum arquivo GEDCOM enviado.'.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-U-03", "description": "Com filename vazio: 'Nenhum arquivo selecionado.'.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-U-04", "description": "O conteudo e lido inteiro e validado ANTES de qualquer gravacao.", "location": "src/ports/adaptadores.py:guardar", "confidence": "confirmed"},
+        {"id": "BR-U-05", "description": "GEDCOM aceitavel = apos remover BOM UTF-8 e espacos a esquerda, comeca com '0 HEAD'.", "location": "src/utils/validate.py:validar_conteudo_gedcom", "confidence": "confirmed"},
+        {"id": "BR-U-06", "description": "Conteudo vazio e recusado com o motivo 'arquivo vazio'.", "location": "src/utils/validate.py:validar_conteudo_gedcom", "confidence": "confirmed"},
+        {"id": "BR-U-07", "description": "Conteudo com byte NUL e recusado com o motivo 'conteudo binario'.", "location": "src/utils/validate.py:validar_conteudo_gedcom", "confidence": "confirmed"},
+        {"id": "BR-U-08", "description": "A chave e o sha256 do conteudo truncado em 16 hexadecimais.", "location": "src/utils/validate.py:chave_de_armazenamento", "confidence": "confirmed"},
+        {"id": "BR-U-09", "description": "O nome final e <chave>__<nome visivel>; o nome do cliente nunca compoe o caminho.", "location": "src/utils/validate.py:nome_do_arquivo_armazenado", "confidence": "confirmed"},
+        {"id": "BR-U-10", "description": "No nome visivel, /, \\ e NUL viram _; acentos, espacos e a extensao sao preservados.", "location": "src/utils/validate.py:nome_visivel_seguro", "confidence": "confirmed"},
+        {"id": "BR-U-11", "description": "Nome visivel vazio (ou so pontos) vira 'arvore.ged'; sem extensao recebe .ged.", "location": "src/utils/validate.py:nome_visivel_seguro", "confidence": "confirmed"},
+        {"id": "BR-U-12", "description": "Arquivo ja existente com a mesma chave NAO e reescrito.", "location": "src/ports/adaptadores.py:guardar", "confidence": "confirmed"},
+        {"id": "BR-U-13", "description": "O armazenamento devolve o CAMINHO COMPLETO; quem le depois usa exatamente o que foi escrito.", "location": "src/ports/adaptadores.py:guardar", "confidence": "confirmed"},
+        {"id": "BR-U-14", "description": "REESCRITA em 2026-10-10 (RN-20): a referencia e aceita pela FORMA DE NOME (sem separador de caminho, NUL, . ou ..) e pela existencia do arquivo; fora disso, 'Erro: Arquivo X nao existe mais.'. Antes exigia o alfabeto com chave.", "location": "src/utils/validate.py:chave_recebida_e_valida", "confidence": "confirmed"},
+        {"id": "BR-U-15", "description": "Requisicao sem gedcom_filename: 'Erro: Arquivo GEDCOM nao encontrado.'.", "location": "src/app.py:_arvore_do_formulario", "confidence": "confirmed"},
+        {"id": "BR-U-16", "description": "Corpo acima de 16 MB e recusado pelo Flask com 413 e a mensagem do teto em MB.", "location": "src/app.py:TETO_DE_UPLOAD_EM_BYTES", "confidence": "confirmed"},
+        {"id": "BR-U-17", "description": "Falha de parse vira 'Erro: o arquivo X nao pode ser lido como GEDCOM.'.", "location": "src/app.py:_arvore_do_formulario", "confidence": "confirmed"},
+        {"id": "BR-U-18", "description": "Familia sem xref_id e ignorada; arestas so sao criadas para nos existentes no grafo.", "location": "src/parsers/gedcom_parser.py", "confidence": "confirmed"},
+        {"id": "BR-U-19", "description": "A lista de nomes devolvida e ORDENADA e tem exatamente um item por pessoa carregada.", "location": "src/application/__init__.py:nomes_de_exibicao", "confidence": "confirmed"},
+        {"id": "BR-U-20", "description": "get_name devolve string VAZIA quando o registro tem Name mas o formato resulta vazio; 'Sem Nome' so quando nao ha name.", "location": "src/core/registro.py:get_name", "confidence": "confirmed"},
+        {"id": "BR-U-21", "description": "NOVA: o reenvio tem tres desfechos com mensagem propria - identico, substituido e novo (literal congelado \"Arquivo 'X' carregado!\").", "location": "src/application/reenvio.py:guardar_com_substituicao", "confidence": "confirmed"},
+        {"id": "BR-U-22", "description": "NOVA: a versao nova e gravada ANTES de aposentar, e toda versao anterior de mesmo nome visivel e aposentada - podem ser varias.", "location": "src/application/reenvio.py:guardar_com_substituicao", "confidence": "confirmed"}
+      ],
+      "revoked_rules": [
+        {"id": "BR-U-REVOGADA", "description": "REVOGADA em 2026-10-10: _FORMATO_CHAVE (^[0-9a-f]{16}__[A-Za-z0-9._-]+$) como defesa unica contra escape de caminho. O simbolo nao existe mais no codigo; o ID nao foi reaproveitado para outra afirmacao.", "location": "src/utils/validate.py", "confidence": "confirmed"}
       ],
       "dependencies": [],
       "algorithms": [
-        "Derivacao da chave de armazenamento por sha256 do conteudo, truncado em 16 hexadecimais",
-        "Validacao de conteudo pela declaracao de cabecalho 0 HEAD, apos remover BOM UTF-8",
-        "Composicao do nome armazenado como chave do servidor + separador + nome visivel saneado",
-        "Construcao do grafo bipartido pessoa-familia com indice filho para familias",
-        "Substituicao de estado assimetrica: dicionarios in place, grafo reatribuido, contador de versao",
-        "Limpeza de mojibake em dois estagios com descarte do palpite pior"
+        {"name": "Chave de armazenamento por conteudo", "description": "sha256(conteudo) truncado em 16 hex. O formulario devolve gedcom_filename no POST seguinte, entao a mesma arvore precisa produzir a mesma chave; guardar NAO sobrescreve.", "confidence": "confirmed"},
+        {"name": "Validacao de conteudo estreita", "description": "So o cabecalho 0 HEAD e verificado, apos remover BOM UTF-8 e espacos a esquerda. Conteudo vazio e byte NUL tem motivo proprio.", "confidence": "confirmed"},
+        {"name": "Defesa contra escape por FORMA de nome", "description": "Nao e mais alfabeto fechado: a referencia tem de ser um NOME (sem barra, barra invertida, NUL, . ou .., e basename de si mesma). Duas perguntas, duas funcoes.", "confidence": "confirmed"},
+        {"name": "Reenvio com foto de antes (RN-17)", "description": "listar ANTES de guardar; depois aposentar as versoes anteriores de mesmo nome visivel; desfecho identico, substituido ou novo.", "confidence": "confirmed"},
+        {"name": "Aposentar move em vez de apagar", "description": "os.replace para _aposentados/, com sufixo .1 a .99 e desistencia em vez de sobrescrever.", "confidence": "confirmed"},
+        {"name": "Listagem sem abrir conteudo", "description": "os.listdir + os.stat, nenhum open: e o que permite montar a tela sem reler os 29 MB da pasta.", "confidence": "confirmed"},
+        {"name": "Limpeza de mojibake em dois estagios", "description": "strip_bad_utf aplica o mapa e depois troca por espaco o que nao casa com [\\w\\sA-u'-]; demojibake so tenta o round-trip latin1->utf-8 com indício e descarta o resultado pior.", "confidence": "confirmed"}
       ],
-      "complexity": "medium",
-      "counts": {
-        "files": 5,
-        "functions": 18,
-        "entities": 7,
-        "business_rules": 20
-      }
+      "complexity": "medium"
+    },
+    {
+      "name": "tela-de-entrada",
+      "path": "src/reporting/lista_de_arquivos.py + src/app.py (_listas_da_tela, index GET, aposentar_arquivo, selecionar_arvore, _arvore_do_formulario)",
+      "purpose": "Entregar as duas abas com as listas de arquivos armazenados em TODA renderizacao, agrupar por chave de conteudo, marcar o item indisponivel com o motivo, e tratar as duas acoes da lista (aposentar e escolher).",
+      "primary_files": [
+        "src/reporting/lista_de_arquivos.py",
+        "src/app.py",
+        "src/templates/index.html"
+      ],
+      "endpoints": ["GET /", "POST / action=aposentar_arquivo", "POST / action=selecionar_arvore"],
+      "lines_useful": 512,
+      "rules_id_prefix": "BR-T",
+      "functions": [
+        {"name": "_listas_da_tela", "file": "src/app.py", "params": [], "returns": "dict (processador de contexto)", "confidence": "confirmed"},
+        {"name": "itens_da_aba", "file": "src/reporting/lista_de_arquivos.py", "params": ["entradas", "extensao"], "returns": "list[dict]", "confidence": "confirmed"},
+        {"name": "decompor_nome_armazenado", "file": "src/reporting/lista_de_arquivos.py", "params": ["nome"], "returns": "(chave|None, visivel, marca)", "confidence": "confirmed"},
+        {"name": "rotulo_de_referencia", "file": "src/reporting/lista_de_arquivos.py", "params": ["referencia"], "returns": "str", "confidence": "confirmed"},
+        {"name": "rotulo_limpo", "file": "src/reporting/lista_de_arquivos.py", "params": ["visivel"], "returns": "str", "confidence": "confirmed"},
+        {"name": "formatar_data_br", "file": "src/reporting/lista_de_arquivos.py", "params": ["segundos"], "returns": "str (celula vazia se nao converter)", "confidence": "confirmed"},
+        {"name": "_arvore_do_formulario", "file": "src/app.py", "params": [], "returns": "(referencia, arvore, erro)", "confidence": "confirmed"}
+      ],
+      "entities": [
+        {"name": "Item de aba", "where": "src/reporting/lista_de_arquivos.py", "shape": "rotulo, quantidade, bytes, modificado_em, referencia, disponivel, motivo_indisponivel", "confidence": "confirmed"},
+        {"name": "arvores_da_lista / relatorios_da_lista", "where": "src/app.py", "shape": "chaves de contexto do template, uma por aba", "confidence": "confirmed"}
+      ],
+      "business_rules": [
+        {"id": "BR-T-01", "description": "As duas abas com as listas sao entregues em TODA renderizacao, por processador de contexto.", "location": "src/app.py:_listas_da_tela", "confidence": "confirmed"},
+        {"id": "BR-T-02", "description": "Quem le a pasta e a PORTA (listar); nao ha os.listdir na rota.", "location": "src/app.py:_listas_da_tela", "confidence": "confirmed"},
+        {"id": "BR-T-03", "description": "A aba e decidida pela extensao do NOME VISIVEL CRU, e nao pelo conteudo.", "location": "src/reporting/lista_de_arquivos.py:itens_da_aba", "confidence": "confirmed"},
+        {"id": "BR-T-04", "description": "Arquivos com a mesma chave de conteudo viram UM item; o representante e o de maior mtime.", "location": "src/reporting/lista_de_arquivos.py:itens_da_aba", "confidence": "confirmed"},
+        {"id": "BR-T-05", "description": "Arquivo SEM chave vira item proprio e NUNCA e agrupado.", "location": "src/reporting/lista_de_arquivos.py:itens_da_aba", "confidence": "confirmed"},
+        {"id": "BR-T-06", "description": "O rotulo do grupo prefere um nome visivel SEM chave, para nao vazar a chave na tela.", "location": "src/reporting/lista_de_arquivos.py:_rotulo_do_grupo", "confidence": "confirmed"},
+        {"id": "BR-T-07", "description": "O rotulo remove apenas a ULTIMA extensao: planilha.csv.ged vira 'planilha csv'.", "location": "src/reporting/lista_de_arquivos.py:rotulo_limpo", "confidence": "confirmed"},
+        {"id": "BR-T-08", "description": "A ordem dos itens e mtime decrescente, com empate pelo nome exibido.", "location": "src/reporting/lista_de_arquivos.py:itens_da_aba", "confidence": "confirmed"},
+        {"id": "BR-T-09", "description": "A data vem de os.stat (coluna 'Enviado em'); data que o sistema nao converte devolve CELULA VAZIA, e nao 500.", "location": "src/reporting/lista_de_arquivos.py:formatar_data_br", "confidence": "confirmed"},
+        {"id": "BR-T-10", "description": "A disponibilidade do item e decidida pela MESMA funcao que o resolvedor usa.", "location": "src/utils/validate.py:pode_ser_usado", "confidence": "confirmed"},
+        {"id": "BR-T-11", "description": "O item indisponivel APARECE marcado, com motivo distinto para 'sem chave' e 'fora da forma'.", "location": "src/utils/validate.py:motivo_de_indisponibilidade", "confidence": "confirmed"},
+        {"id": "BR-T-12", "description": "A acao aposentar_arquivo e tratada ANTES da resolucao da arvore do formulario.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-T-13", "description": "Aposentar bem-sucedido responde que o arquivo saiu da lista e NAO foi apagado; o fracasso diz que ele nao esta mais na pasta.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-T-14", "description": "A acao selecionar_arvore renderiza o MESMO estado do envio, com gedcom_filename e all_names.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-T-15", "description": "Referencia de arvore que nao resolve: 'Erro: Arquivo ROTULO nao existe mais.'.", "location": "src/app.py:_arvore_do_formulario", "confidence": "confirmed"},
+        {"id": "BR-T-16", "description": "Nenhuma acao da lista escreve arquivo alem do move de aposentar.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-T-17", "description": "O nome visivel da arvore aberta vem por FILTRO de template, nao por parametro repetido nas 23 renderizacoes (medidas em 2026-10-10; 12 delas passam gedcom_filename).", "location": "src/app.py:app.add_template_filter", "confidence": "confirmed"},
+        {"id": "BR-T-18", "description": "O rotulo exibido NAO contem a chave de conteudo (D-09).", "location": "src/reporting/lista_de_arquivos.py:rotulo_de_referencia", "confidence": "confirmed"},
+        {"id": "BR-T-19", "description": "A quantidade do grupo e o numero de ARQUIVOS nele, e o tamanho exibido e a SOMA dos bytes do grupo.", "location": "src/reporting/lista_de_arquivos.py:_montar_item", "confidence": "confirmed"}
+      ],
+      "dependencies": ["upload-gedcom"],
+      "algorithms": [
+        {"name": "Agrupamento pela chave de conteudo", "description": "Arquivos com a mesma chave viram um item; o representante e o de maior mtime. Arquivo SEM chave vira item proprio e nunca e agrupado, porque a chave nao o alcanca.", "confidence": "confirmed"},
+        {"name": "Rotulo sem vazar a chave", "description": "O rotulo do grupo prefere um nome visivel SEM chave, e remove apenas a ULTIMA extensao (planilha.csv.ged vira 'planilha csv').", "confidence": "confirmed"},
+        {"name": "Ordem por data decrescente", "description": "mtime decrescente, empate pelo nome exibido: o nome exibido nao e unico (ha tres arquivos de mesmo nome na pasta real).", "confidence": "confirmed"},
+        {"name": "Item indisponivel marcado, com dois motivos", "description": "'sem chave' e 'fora da forma' sao motivos distintos; esconder o inalcancavel tiraria do operador o arquivo que ele mais quer aposentar.", "confidence": "confirmed"},
+        {"name": "A tela pergunta a MESMA funcao do resolvedor", "description": "pode_ser_usado -> chave_recebida_e_valida; dois testes equivalentes divergem com o tempo.", "confidence": "confirmed"},
+        {"name": "Ordem dos ramos: aposentar antes de resolver a arvore", "description": "_arvore_do_formulario parseia a arvore escolhida, e a arvore escolhida pode ser exatamente a que se esta aposentando.", "confidence": "confirmed"}
+      ],
+      "complexity": "medium"
     },
     {
       "name": "analise-dna",
-      "path": "src/core + src/parsers/csv_ingest.py",
-      "purpose": "Cruzar o GEDCOM carregado com o CSV de matches em tres etapas que nunca se misturam: parentesco documental (o que o GEDCOM afirma), evidencia genetica (o que o DNA informa) e o confronto entre as duas, que devolve COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO.",
+      "path": "src/application/dna_analysis.py + src/application/traducao.py + src/core/{dna_analysis,genetic_evidence,relationship_hypotheses,evidence_comparison,matching,name_normalization,registro,cm_estimator,erros}.py + src/parsers/csv_ingest.py + src/ports (RegistroDeAnalises)",
+      "purpose": "Orquestrar os tres eixos que nao se misturam - parentesco documental (GEDCOM), evidencia genetica (CSV) e confronto - projetar o resultado no payload da porta e registrar o historico sem que a persistencia possa impedir o resultado de chegar a tela.",
       "primary_files": [
-        "src/parsers/csv_ingest.py",
+        "src/application/dna_analysis.py",
+        "src/core/dna_analysis.py",
         "src/core/genetic_evidence.py",
         "src/core/relationship_hypotheses.py",
         "src/core/evidence_comparison.py",
-        "src/core/dna_analysis.py",
         "src/core/matching.py",
         "src/core/name_normalization.py",
-        "src/core/cm_estimator.py"
+        "src/core/registro.py",
+        "src/core/cm_estimator.py",
+        "src/core/erros.py",
+        "src/parsers/csv_ingest.py",
+        "src/ports/__init__.py",
+        "src/ports/adaptadores.py (RegistroDeAnalisesPostgres)",
+        "src/application/traducao.py"
       ],
-      "endpoints": [
-        "POST / action=dna_analysis"
-      ],
+      "endpoints": ["POST / action=dna_analysis"],
+      "lines_useful": 1622,
+      "rules_id_prefix": "BR-D",
       "functions": [
-        {
-          "name": "dna_analysis",
-          "file_line": "`dna_analysis.py:83`",
-          "params": "`csv_path: str`, `root_name: str`",
-          "returns": "`(results_sorted, skipped, message)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_montar_diagrama",
-          "file_line": "`dna_analysis.py:56`",
-          "params": "`documentary`, `root_id`, `pid`",
-          "returns": "`str \\",
-          "confidence": "None` (Mermaid)"
-        },
-        {
-          "name": "_observacoes",
-          "file_line": "`dna_analysis.py:65`",
-          "params": "`documentary`, `evidence`, `comparison`, `extra`",
-          "returns": "`list[str]` deduplicada",
-          "confidence": "🟢"
-        },
-        {
-          "name": "read_csv_with_fallback",
-          "file_line": "`csv_ingest.py:140`",
-          "params": "`path`",
-          "returns": "`DataFrame` (com `attrs`)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "detectar_separador",
-          "file_line": "`csv_ingest.py:76`",
-          "params": "`path`, `encoding`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "localizar_cabecalho",
-          "file_line": "`csv_ingest.py:93`",
-          "params": "`path`, `sep`, `encoding`",
-          "returns": "`int` (índice 0-based)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "linhas_irregulares",
-          "file_line": "`csv_ingest.py:126`",
-          "params": "`path`, `sep`, `encoding`, `cabecalho`",
-          "returns": "`list[int]` (1-based)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "detect_columns",
-          "file_line": "`csv_ingest.py:185`",
-          "params": "`df`",
-          "returns": "`(name, cm, match_id, email)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "aggregate_matches",
-          "file_line": "`csv_ingest.py:198`",
-          "params": "`df`, `name_col`, `cm_col`, `match_id_col`, `match_email_col`",
-          "returns": "`DataFrame`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "build_genetic_evidence",
-          "file_line": "`genetic_evidence.py:110`",
-          "params": "`df`",
-          "returns": "`(evidencias, avisos)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "detect_segment_columns",
-          "file_line": "`genetic_evidence.py:41`",
-          "params": "`df`",
-          "returns": "`dict` de colunas por papel",
-          "confidence": "🟢"
-        },
-        {
-          "name": "evidence_for",
-          "file_line": "`genetic_evidence.py:209`",
-          "params": "`dossie`, `avisos`, `kit_key`",
-          "returns": "`dict` de evidência",
-          "confidence": "🟢"
-        },
-        {
-          "name": "possible_relationships",
-          "file_line": "`relationship_hypotheses.py:161`",
-          "params": "`total_cm`",
-          "returns": "`dict` (lista + confiança + leitura)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "hypotheses_for_evidence",
-          "file_line": "`relationship_hypotheses.py:208`",
-          "params": "`evidence`",
-          "returns": "`list[dict]` (uma por kit)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "row_for_key",
-          "file_line": "`relationship_hypotheses.py:106`",
-          "params": "`key: str`",
-          "returns": "`dict \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "rows_by_meioses",
-          "file_line": "`relationship_hypotheses.py:115`",
-          "params": "`meioses: int`",
-          "returns": "`list[dict]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "meioses_window",
-          "file_line": "`relationship_hypotheses.py:120`",
-          "params": "`meioses: int`",
-          "returns": "`dict \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "compare",
-          "file_line": "`evidence_comparison.py:150`",
-          "params": "`documentary`, `hypotheses`, `evidence`",
-          "returns": "`dict` (estado + causas + detalhe)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_avaliar_kit",
-          "file_line": "`evidence_comparison.py:75`",
-          "params": "`bloco`, `janela`, `meioses_documental`",
-          "returns": "`dict` (status + note)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_janela_do_documental",
-          "file_line": "`evidence_comparison.py:116`",
-          "params": "`documentary`",
-          "returns": "`(janela, motivo)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "build_ged_indexes",
-          "file_line": "`matching.py:27`",
-          "params": "—",
-          "returns": "`(ged_index, surname_index, features)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "match_candidates",
-          "file_line": "`matching.py:62`",
-          "params": "`match_name`, `cm_value`, `ged_index`, `surname_index`, `features`",
-          "returns": "`(candidate_pids, reason)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "norm_name",
-          "file_line": "`name_normalization.py:52`",
-          "params": "`s`",
-          "returns": "`str` (forma comparável)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "split_name_pt",
-          "file_line": "`name_normalization.py:77`",
-          "params": "`s`",
-          "returns": "`(given, surnames, suffixes)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "surname_core_tokens",
-          "file_line": "`name_normalization.py:66`",
-          "params": "`name`, `keep_last=3`",
-          "returns": "`(base, suffixes)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "soft_prefix_jaccard",
-          "file_line": "`name_normalization.py:106`",
-          "params": "`a`, `b`, `min_pref=4`, `min_len=2`",
-          "returns": "`float`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "get_relationships_by_cm",
-          "file_line": "`cm_estimator.py:53`",
-          "params": "`cm_value`",
-          "returns": "`list[str]`",
-          "confidence": "🟢"
-        }
+        {"name": "dna_analysis (caso de uso)", "file": "src/application/dna_analysis.py", "params": ["caminho_do_csv", "root_name", "arvore", "deps", "dono", "referencia_da_arvore", "registro"], "returns": "ResultadoDeAnalise", "confidence": "confirmed"},
+        {"name": "projetar_analise", "file": "src/application/dna_analysis.py", "params": ["resultados", "descartados", "mensagem", "referencia_da_arvore", "referencia_do_csv", "root_name"], "returns": "AnaliseParaRegistrar", "confidence": "confirmed"},
+        {"name": "_juntar / _ficha / _pessoas", "file": "src/application/dna_analysis.py", "params": ["por_xref", "pessoa / ficha, completa / resultados"], "returns": "None / PessoaDaAnalise|None / (pessoas, raiz)", "confidence": "confirmed"},
+        {"name": "_papeis_do_caminho", "file": "src/application/dna_analysis.py", "params": ["documentary"], "returns": "tuple[(xref, papel)]", "confidence": "confirmed"},
+        {"name": "_kits / _conexao", "file": "src/application/dna_analysis.py", "params": ["evidence, comparison / ordinal, resultado"], "returns": "tuple[KitDaAnalise] / ConexaoDaAnalise", "confidence": "confirmed"},
+        {"name": "dna_analysis (nucleo)", "file": "src/core/dna_analysis.py", "params": ["csv_path", "root_name", "deps", "arvore"], "returns": "(results_sorted, skipped, message)", "confidence": "confirmed"},
+        {"name": "_montar_diagrama / _observacoes", "file": "src/core/dna_analysis.py", "params": ["deps, documentary, root_id, pid, dominio / documentary, evidence, comparison, extra"], "returns": "str|None / list[str]", "confidence": "confirmed"},
+        {"name": "read_csv_with_fallback", "file": "src/parsers/csv_ingest.py", "params": ["path"], "returns": "DataFrame com attrs", "confidence": "confirmed"},
+        {"name": "detectar_separador / localizar_cabecalho / linhas_irregulares", "file": "src/parsers/csv_ingest.py", "params": ["path, ..."], "returns": "str / int / list[int]", "confidence": "confirmed"},
+        {"name": "detect_columns / aggregate_matches", "file": "src/parsers/csv_ingest.py", "params": ["df, ..."], "returns": "(name, cm, id, email) / DataFrame", "confidence": "confirmed"},
+        {"name": "detect_segment_columns", "file": "src/core/genetic_evidence.py", "params": ["df"], "returns": "dict de colunas por papel", "confidence": "confirmed"},
+        {"name": "build_genetic_evidence", "file": "src/core/genetic_evidence.py", "params": ["df"], "returns": "(evidencias, avisos)", "confidence": "confirmed"},
+        {"name": "evidence_for", "file": "src/core/genetic_evidence.py", "params": ["dossie", "avisos", "kit_key"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "possible_relationships", "file": "src/core/relationship_hypotheses.py", "params": ["total_cm"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "hypotheses_for_evidence", "file": "src/core/relationship_hypotheses.py", "params": ["evidence"], "returns": "list[dict] (uma por kit)", "confidence": "confirmed"},
+        {"name": "row_for_key / rows_by_meioses / meioses_window", "file": "src/core/relationship_hypotheses.py", "params": ["key / meioses"], "returns": "dict|None / list / dict|None", "confidence": "confirmed"},
+        {"name": "compare / _avaliar_kit / _janela_do_documental", "file": "src/core/evidence_comparison.py", "params": ["documentary, hypotheses, evidence / bloco, janela, meioses_documental / documentary"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "build_ged_indexes", "file": "src/core/matching.py", "params": ["arvore"], "returns": "(ged_index, surname_index, features)", "confidence": "confirmed"},
+        {"name": "match_candidates", "file": "src/core/matching.py", "params": ["arvore", "match_name", "cm_value", "ged_index", "surname_index", "features"], "returns": "(candidate_pids, reason)", "confidence": "confirmed"},
+        {"name": "norm_name", "file": "src/utils/name_keys.py", "params": ["s"], "returns": "str", "confidence": "confirmed"},
+        {"name": "split_name_pt", "file": "src/core/name_normalization.py", "params": ["s"], "returns": "(given, surnames, suffixes)", "confidence": "confirmed"},
+        {"name": "surname_core_tokens", "file": "src/core/name_normalization.py", "params": ["name", "keep_last=3"], "returns": "(base, suffixes)", "confidence": "confirmed"},
+        {"name": "soft_prefix_jaccard", "file": "src/core/name_normalization.py", "params": ["a", "b", "min_pref=4", "min_len=2"], "returns": "float", "confidence": "confirmed"},
+        {"name": "get_name / ref_id", "file": "src/core/registro.py", "params": ["person / val"], "returns": "str", "confidence": "confirmed"},
+        {"name": "traduzir", "file": "src/application/traducao.py", "params": ["erro: ErroDeDominio"], "returns": "RespostaDeErro(mensagem, status)", "confidence": "confirmed"},
+        {"name": "RegistroDeAnalisesPostgres.registrar", "file": "src/ports/adaptadores.py", "params": ["analise", "dono"], "returns": "(referencia, aviso)", "confidence": "confirmed"},
+        {"name": "get_relationships_by_cm", "file": "src/core/cm_estimator.py", "params": ["cm_value"], "returns": "list[str] (LEGADO, fora do fluxo)", "confidence": "confirmed"}
       ],
       "entities": [
-        {
-          "name": "ged_index",
-          "where": "`matching.py:36`",
-          "shape": "`dict[str, list[str]]` — nome normalizado → ids",
-          "confidence": "🟢"
-        },
-        {
-          "name": "surname_index",
-          "where": "`matching.py:37`",
-          "shape": "`dict[str, list[str]]` — sobrenome → ids",
-          "confidence": "🟢"
-        },
-        {
-          "name": "features",
-          "where": "`matching.py:38`",
-          "shape": "`dict[str, dict]` com `norm`, `given_tokens`, `surnames` (set), `surnames_list`, `tokens` (set)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "evidencias",
-          "where": "`genetic_evidence.py:123`",
-          "shape": "`dict[str, dict[str, dict]]` — nome normalizado → kit → evidência",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Evidência de kit",
-          "where": "`genetic_evidence.py:149-156`",
-          "shape": "`kit`, `person_name_csv`, `source`, `total_cm`, `segments`, `records_used` (+ derivados: `segment_count`, `largest_segment_cm`, `snps_total`, `snps_largest_segment`, `chromosomes`, `method`, `weak_segment`)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Segmento",
-          "where": "`genetic_evidence.py:163-169`",
-          "shape": "`chromosome`, `start`, `end`, `cm`, `snps`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Aviso",
-          "where": "`genetic_evidence.py:177`",
-          "shape": "`{code, message}` — códigos: `multiplos_kits`, `kit_ausente`, `segmento_fraco`, `sem_evidencia`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "df.attrs",
-          "where": "`csv_ingest.py:170-174`",
-          "shape": "`separador`, `encoding`, `linhas_antes_do_cabecalho`, `linhas_ignoradas`, `erro_de_leitura`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Bloco de hipótese",
-          "where": "`relationship_hypotheses.py:198-205`",
-          "shape": "`total_cm`, `possible_relationships`, `confidence`, `confidence_note`, `interpretation`, `reference` (+ `kit`, `segment_count`, `largest_segment_cm`)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Linha SCP 4.0",
-          "where": "`relationship_hypotheses.py:64-92`",
-          "shape": "tupla `(key, nome_en, nome_pt, meioses, average, range_low, range_high)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Confronto",
-          "where": "`evidence_comparison.py:161-171`",
-          "shape": "`status`, `label`, `message`, `causes`, `per_kit`, `method`, `expected_range`, `detail`, `observations`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Resultado da análise",
-          "where": "`dna_analysis.py:204-218`",
-          "shape": "`match_name`, `csv_name`, `cm`, `kit`, `text_path`, `mermaid_data`, `documentary`, `genetic_evidence`, `hypotheses`, `comparison`, `observations`, `warnings`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Descartado",
-          "where": "`dna_analysis.py:174-179`",
-          "shape": "`csv_name`, `kit`, `cm`, `motivo`",
-          "confidence": "🟢"
-        }
+        {"name": "ResultadoDeAnalise", "where": "src/application/dna_analysis.py", "shape": "dataclass congelada: resultados, descartados, mensagem, aviso_de_persistencia", "confidence": "confirmed"},
+        {"name": "AnaliseParaRegistrar", "where": "src/ports/__init__.py", "shape": "dado PLANO: tree_ref, match_file_ref, root_name_input, message, pessoas, conexoes, descartados, root_person_xref, accepted_count, skipped_count", "confidence": "confirmed"},
+        {"name": "PessoaDaAnalise", "where": "src/ports/__init__.py", "shape": "xref, nome, sexo, nascimento, local_nascimento, falecimento, completa", "confidence": "confirmed"},
+        {"name": "KitDaAnalise", "where": "src/ports/__init__.py", "shape": "ordinal, kit, source, total_cm, segment_count, largest_segment_cm, status, status_note", "confidence": "confirmed"},
+        {"name": "ConexaoDaAnalise", "where": "src/ports/__init__.py", "shape": "21 campos, com kits e caminho como tuplas; caminho = pares (xref, papel)", "confidence": "confirmed"},
+        {"name": "DescartadoDaAnalise", "where": "src/ports/__init__.py", "shape": "ordinal, csv_name, reason (TEXTO), kit, total_cm", "confidence": "confirmed"},
+        {"name": "Evidencia genetica por (nome, kit)", "where": "src/core/genetic_evidence.py", "shape": "kit, person_name_csv, source, total_cm, segments, records_used + derivados", "confidence": "confirmed"},
+        {"name": "Segmento", "where": "src/core/genetic_evidence.py", "shape": "chromosome, start, end, cm, snps", "confidence": "confirmed"},
+        {"name": "Aviso", "where": "src/core/genetic_evidence.py", "shape": "{code, message} - multiplos_kits, kit_ausente, segmento_fraco, sem_evidencia", "confidence": "confirmed"},
+        {"name": "df.attrs", "where": "src/parsers/csv_ingest.py", "shape": "separador, encoding, linhas_antes_do_cabecalho, linhas_ignoradas, erro_de_leitura", "confidence": "confirmed"},
+        {"name": "Bloco de hipotese", "where": "src/core/relationship_hypotheses.py", "shape": "total_cm, possible_relationships (sempre lista), confidence, confidence_note, interpretation, reference, kit", "confidence": "confirmed"},
+        {"name": "Linha SCP 4.0", "where": "src/core/relationship_hypotheses.py", "shape": "tupla (key, nome_en, nome_pt, meioses, average, range_low, range_high) - 27 linhas publicadas", "confidence": "confirmed"},
+        {"name": "Resultado do confronto", "where": "src/core/evidence_comparison.py", "shape": "status, label, message, causes, per_kit, method, expected_range, detail, observations", "confidence": "confirmed"},
+        {"name": "Excecoes de dominio", "where": "src/core/erros.py", "shape": "ErroDeDominio(ValueError) + PessoaNaoEncontrada, GedcomNaoSuportado, DnaCsvSemColunas, CsvIlegivel (irmas)", "confidence": "confirmed"}
       ],
       "business_rules": [
-        {
-          "id": "BR-D-01",
-          "description": "O CSV é lido primeiro como `utf-8`; na falha, como `latin-1`.",
-          "location": "`csv_ingest.py:147`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-02",
-          "description": "O separador é decidido pelo cabeçalho, entre vírgula, ponto e vírgula, TAB e barra vertical: vence a maior contagem; empate fica com a vírgula.",
-          "location": "`csv_ingest.py:46`, `:88-90`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-03",
-          "description": "O cabeçalho é a primeira linha cujo número de campos é o modal entre linhas com 2 ou mais campos, exigindo frequência ≥ 2, primeira linha divergente e posição dentro das 10 primeiras linhas.",
-          "location": "`csv_ingest.py:93-123`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-04",
-          "description": "Linhas antes do cabeçalho são preâmbulo, reportadas à parte; não contam como linha torta.",
-          "location": "`csv_ingest.py:134-137`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-05",
-          "description": "Linha com número de campos diferente do cabeçalho **não** derruba a análise: o arquivo é relido descartando essas linhas, e elas são reportadas.",
-          "location": "`csv_ingest.py:157-167`, `:173`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-06",
-          "description": "Se nenhuma tentativa produz tabela utilizável, o erro é um `ValueError` em português que lista as tentativas e diz o que conferir.",
-          "location": "`csv_ingest.py:177-182`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-07",
-          "description": "Os nomes das colunas são normalizados com `strip`.",
-          "location": "`csv_ingest.py:169`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-08",
-          "description": "Coluna de nome: `Name`, `MatchedName` ou `Nome`. Coluna de cM: `cM`, `TotalCM` ou `Total cM`.",
-          "location": "`csv_ingest.py:186-187`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-09",
-          "description": "Coluna de ID de match: a primeira em que mais de 30% dos valores casam `[A-Z]{2}\\d{7}`.",
-          "location": "`csv_ingest.py:190-192`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-10",
-          "description": "Coluna de e-mail: a **última** cujo nome contém `mail`.",
-          "location": "`csv_ingest.py:193-194`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-11",
-          "description": "O agrupamento soma cM por `nome normalizado + cauda`, com a cauda sendo id, e-mail ou nada.",
-          "location": "`csv_ingest.py:204-222`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-12",
-          "description": "A evidência é agrupada por **(nome, kit)**; linhas com o mesmo nome e kits diferentes são evidências separadas.",
-          "location": "`genetic_evidence.py:149`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-13",
-          "description": "Sem coluna de kit, o e-mail assume o papel de kit; sem ambos, a chave é `SEM-KIT` e sai o aviso `kit_ausente`.",
-          "location": "`genetic_evidence.py:134-140`, `:184-191`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-14",
-          "description": "Mais de um kit para o mesmo nome gera o aviso `multiplos_kits`, e nenhum total é somado entre kits.",
-          "location": "`genetic_evidence.py:175-183`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-15",
-          "description": "O cM acumulado **não** é arredondado; o arredondamento é só de apresentação.",
-          "location": "`genetic_evidence.py:157-161`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-16",
-          "description": "A coluna de kit é a que tem nome casando `kit",
-          "location": "gedmatch",
-          "confidence": "teste"
-        },
-        {
-          "id": "BR-D-17",
-          "description": "O maior segmento abaixo de **15 cM** marca a evidência como fraca e gera o aviso `segmento_fraco`.",
-          "location": "`genetic_evidence.py:31`, `:203-204`, `:238-245`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-18",
-          "description": "Os segmentos são ordenados por cM decrescente; os cromossomos, por tamanho e depois por valor.",
-          "location": "`genetic_evidence.py:193`, `:199-200`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-19",
-          "description": "Sem kit informado, `evidence_for` reúne os kits **sem somar** cM e deixa `totals.cm` como `None` quando há mais de um.",
-          "location": "`genetic_evidence.py:227-229`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-20",
-          "description": "Sem evidência genética, o retorno é `available: False` com o aviso `sem_evidencia`.",
-          "location": "`genetic_evidence.py:216-225`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-21",
-          "description": "cM vira **lista** de possibilidades pela tabela do Shared cM Project 4.0; nunca um parentesco único.",
-          "location": "`relationship_hypotheses.py:161-205`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-22",
-          "description": "As candidatas são ordenadas por distância da média (e, em empate, pelo nome).",
-          "location": "`relationship_hypotheses.py:184`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-23",
-          "description": "A confiança da lista é heurística do projeto: 0 candidatas → indeterminada; 1 a 3 → baixa; 4 a 6 → muito baixa; mais de 6 → muito baixa.",
-          "location": "`relationship_hypotheses.py:140-158`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-24",
-          "description": "Valor sem cobertura publicada devolve lista vazia e a leitura de que **isso não descarta parentesco**.",
-          "location": "`relationship_hypotheses.py:193-196`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-25",
-          "description": "Seis relações não são publicadas na 4.0 e não recebem número inventado: `1C4R`, `1C5R`, `1C6R`, `3C2R`, 2º bisavô/avó, 3º bisavô/avó.",
-          "location": "`relationship_hypotheses.py:96-103`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-26",
-          "description": "Sem faixa publicada para a relação exata, a janela é a envoltória das relações publicadas com o mesmo número de meioses.",
-          "location": "`relationship_hypotheses.py:120-137`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-27",
-          "description": "O confronto devolve sempre um de quatro estados: `COMPATIVEL`, `POSSIVEL`, `CONFLITANTE`, `INCONCLUSIVO`, cada um com mensagem própria.",
-          "location": "`evidence_comparison.py:34-51`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-28",
-          "description": "cM dentro da janela esperada → `COMPATIVEL`.",
-          "location": "`evidence_comparison.py:85-87`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-29",
-          "description": "cM fora da janela → `POSSIVEL` quando alguma relação publicada que contém o valor tem faixa que se sobrepõe à janela; caso contrário → `CONFLITANTE`.",
-          "location": "`evidence_comparison.py:89-113`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-30",
-          "description": "Sem evidência genética → `INCONCLUSIVO`, com o registro de que o parentesco documental continua valendo por si.",
-          "location": "`evidence_comparison.py:177-181`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-31",
-          "description": "Com DNA mas sem caminho documental → `INCONCLUSIVO`: nenhum caminho é inventado a partir do DNA.",
-          "location": "`evidence_comparison.py:183-190`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-32",
-          "description": "Identidade ambígua → `INCONCLUSIVO`, listando os registros homônimos.",
-          "location": "`evidence_comparison.py:192-201`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-33",
-          "description": "Sem faixa publicada (nem por meioses) → `INCONCLUSIVO`, dizendo que o parentesco documental segue registrado mas não é confrontável.",
-          "location": "`evidence_comparison.py:203-208`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-34",
-          "description": "Com mais de um kit, o estado final é o mais conservador na ordem `CONFLITANTE > POSSIVEL > COMPATIVEL > INCONCLUSIVO`.",
-          "location": "`evidence_comparison.py:225-238`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-35",
-          "description": "`CONFLITANTE` recebe o rol completo de 12 causas possíveis; `POSSIVEL` recebe um subconjunto de 9.",
-          "location": "`evidence_comparison.py:55-72`, `:232-235`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-36",
-          "description": "A raiz é resolvida por substring do nome, sem diferenciar maiúsculas; não encontrada → `Seu nome 'X' não foi encontrado no GEDCOM.`",
-          "location": "`dna_analysis.py:90-92`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-37",
-          "description": "Raiz ambígua usa o **primeiro** registro e avisa quantos e quais são.",
-          "location": "`dna_analysis.py:146-153`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-38",
-          "description": "O matching recebe o cM **do kit**, nunca a soma de kits diferentes.",
-          "location": "`dna_analysis.py:170-171`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-39",
-          "description": "Entre os candidatos, é escolhido o primeiro que tenha caminho documental; se nenhum tiver, o primeiro da lista.",
-          "location": "`dna_analysis.py:194-196`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-40",
-          "description": "O dossiê de homônimos é calculado uma vez por nome, e não uma vez por candidato.",
-          "location": "`dna_analysis.py:160-164`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-41",
-          "description": "A ordem de apresentação é: primeiro os que têm caminho documental, depois cM decrescente.",
-          "location": "`dna_analysis.py:226-230`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-42",
-          "description": "A mensagem final tem a forma `N conexões encontradas. M descartadas.`",
-          "location": "`dna_analysis.py:231`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-43",
-          "description": "Sem nenhum resultado, os avisos do arquivo são anexados à mensagem, porque não há cartão na tela onde eles apareçam.",
-          "location": "`dna_analysis.py:232-235`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-44",
-          "description": "O matching exato é por `norm_name` sobre o índice de nomes do GEDCOM.",
-          "location": "`matching.py:64-65`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-45",
-          "description": "Sem acerto exato, o candidato é buscado por sobrenome; sem nenhum, por prefixo de 3 letras dos sobrenomes do CSV.",
-          "location": "`matching.py:69-84`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-46",
-          "description": "`score = 0.55·token_sort_ratio + 0.25·partial_ratio + 0.20·similaridade_do_prenome + (8·interseção − 4·sobrenomes_comuns)`, arredondado em 2 casas.",
-          "location": "`matching.py:99-101`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-47",
-          "description": "O melhor candidato é escolhido por: mais sobrenomes em comum, depois melhor prenome, depois melhor score.",
-          "location": "`matching.py:103-106`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-48",
-          "description": "Sem sobrenome em comum e sem sufixo coincidente, o candidato é descartado (filtro anti-falso-positivo).",
-          "location": "`matching.py:115-118`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-49",
-          "description": "Com 2 ou mais sobrenomes no CSV, exige-se Jaccard de prefixo ≥ 0,50 — e ≥ 0,33 quando o cM é ≥ 150 e o prenome não é genérico.",
-          "location": "`matching.py:124-130`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-50",
-          "description": "Prenome genérico exige pelo menos 2 sobrenomes em comum; prenome não genérico exige pelo menos 1.",
-          "location": "`matching.py:120-122`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-51",
-          "description": "Aceitação por cinco ramos alternativos, com limiares explícitos de `given`, `score`, interseção e Jaccard.",
-          "location": "`matching.py:134-143`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-52",
-          "description": "Ramo adicional: prefixo de sobrenome do CSV coincidindo com sobrenome do GEDCOM e `given ≥ 90`, `score ≥ 86`, interseção ≥ 1.",
-          "location": "`matching.py:145-149`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-53",
-          "description": "Tokens do meio do nome ausentes no GEDCOM exigem `score ≥ 96` e `given ≥ 92` para manter a aceitação; o motivo da recusa é registrado.",
-          "location": "`matching.py:151-160`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-54",
-          "description": "`norm_name`: limpa mojibake, decompõe NFKD, remove diacríticos, troca `/` e pontuação por espaço, minúsculas e colapsa espaços.",
-          "location": "`name_normalization.py:52-59`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-55",
-          "description": "`STOP_WORDS` = `de`, `da`, `do`, `das`, `dos`, `e`.",
-          "location": "`name_normalization.py:22`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-56",
-          "description": "`GENERIC_GIVENS` = 20 prenomes comuns (com variantes acentuadas).",
-          "location": "`name_normalization.py:25-29`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-57",
-          "description": "`SURNAME_SUFFIXES` = `filho`, `neto`, `junior`, `júnior`, `sobrinho`.",
-          "location": "`name_normalization.py:32`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-58",
-          "description": "`COMMON_SURNAMES` = 15 sobrenomes únicos; `souza` aparece duas vezes na lista literal.",
-          "location": "`name_normalization.py:35-38`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-59",
-          "description": "`SURNAME_EQUIV` unifica `netto→neto` e `gouvea`/`gouvêa`/`gouvéia→gouveia`.",
-          "location": "`name_normalization.py:41-46`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-60",
-          "description": "O prenome é o primeiro token que não é stop word nem genérico; os sobrenomes são os **últimos 3** tokens úteis, sem genéricos, com equivalências aplicadas; sufixos são separados.",
-          "location": "`name_normalization.py:66-83`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-61",
-          "description": "`soft_prefix_jaccard` compara conjuntos de prefixos de 4 caracteres quando algum lado tem token curto (≤ 4) ou terminando em ponto.",
-          "location": "`name_normalization.py:106-122`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-D-62",
-          "description": "`get_relationships_by_cm` (legado) devolve **lista**; cM ≤ 0 ou não numérico devolvem lista vazia; o literal de relação distante só aparece para positivo fora de todas as faixas.",
-          "location": "`cm_estimator.py:53-65`",
-          "confidence": "🟢"
-        }
+        {"id": "BR-D-01", "description": "O CSV e lido como utf-8 e, na falha, como latin-1.", "location": "src/parsers/csv_ingest.py:read_csv_with_fallback", "confidence": "confirmed"},
+        {"id": "BR-D-02", "description": "O separador vence pela maior contagem no cabecalho; empate fica com a virgula. Nunca csv.Sniffer.", "location": "src/parsers/csv_ingest.py:detectar_separador", "confidence": "confirmed"},
+        {"id": "BR-D-03", "description": "O cabecalho e a primeira linha com o numero de campos MODAL, exigindo frequencia >= 2, primeira linha divergente e posicao entre as 10 primeiras.", "location": "src/parsers/csv_ingest.py:localizar_cabecalho", "confidence": "confirmed"},
+        {"id": "BR-D-04", "description": "Linhas antes do cabecalho sao preambulo, reportadas a parte.", "location": "src/parsers/csv_ingest.py:read_csv_with_fallback", "confidence": "confirmed"},
+        {"id": "BR-D-05", "description": "Linha com numero de campos diferente NAO derruba a analise: o arquivo e relido descartando-a, e ela e reportada.", "location": "src/parsers/csv_ingest.py:linhas_irregulares", "confidence": "confirmed"},
+        {"id": "BR-D-06", "description": "Sem nenhuma tentativa utilizavel, o erro e CsvIlegivel, em portugues, listando as tentativas.", "location": "src/parsers/csv_ingest.py:read_csv_with_fallback", "confidence": "confirmed"},
+        {"id": "BR-D-07", "description": "Os nomes das colunas sao normalizados com strip.", "location": "src/parsers/csv_ingest.py:read_csv_with_fallback", "confidence": "confirmed"},
+        {"id": "BR-D-08", "description": "Coluna de nome: Name/MatchedName/Nome; de cM: cM/TotalCM/Total cM.", "location": "src/parsers/csv_ingest.py:detect_columns", "confidence": "confirmed"},
+        {"id": "BR-D-09", "description": "Coluna de ID de match: a primeira em que >30% dos valores casam [A-Z]{2}\\d{7}.", "location": "src/parsers/csv_ingest.py:detect_columns", "confidence": "confirmed"},
+        {"id": "BR-D-10", "description": "Coluna de e-mail: a ULTIMA cujo nome contem 'mail'.", "location": "src/parsers/csv_ingest.py:detect_columns", "confidence": "confirmed"},
+        {"id": "BR-D-11", "description": "A agregacao legada soma cM por nome normalizado + cauda (id, e-mail ou nada), vetorizada.", "location": "src/parsers/csv_ingest.py:aggregate_matches", "confidence": "confirmed"},
+        {"id": "BR-D-12", "description": "A evidencia e agrupada por (NOME, KIT); mesmo nome com kits diferentes sao evidencias separadas.", "location": "src/core/genetic_evidence.py:build_genetic_evidence", "confidence": "confirmed"},
+        {"id": "BR-D-13", "description": "Sem coluna de kit, o e-mail assume o papel; sem ambos, a chave e a sentinela ' SEM-KIT' e sai o aviso kit_ausente.", "location": "src/core/genetic_evidence.py:build_genetic_evidence", "confidence": "confirmed"},
+        {"id": "BR-D-14", "description": "Mais de um kit para o mesmo nome gera o aviso multiplos_kits, e nenhum total e somado entre kits.", "location": "src/core/genetic_evidence.py:build_genetic_evidence", "confidence": "confirmed"},
+        {"id": "BR-D-15", "description": "O cM acumulado NAO e arredondado (contrato em tests/test_formatacao_cm.py).", "location": "src/core/genetic_evidence.py:build_genetic_evidence", "confidence": "confirmed"},
+        {"id": "BR-D-16", "description": "A coluna de kit e a que tem nome casando kit|gedmatch|teste|test com >50% em [A-Z]{1,3}\\d{4,8}; senao, a que tem >30% em [A-Z]{2}\\d{7}.", "location": "src/core/genetic_evidence.py:detect_segment_columns", "confidence": "confirmed"},
+        {"id": "BR-D-17", "description": "O maior segmento abaixo de 15 cM marca a evidencia como fraca e gera o aviso segmento_fraco (criterio DO PROJETO).", "location": "src/core/genetic_evidence.py:LIMITE_SEGMENTO_FRACO", "confidence": "confirmed"},
+        {"id": "BR-D-18", "description": "Os segmentos sao ordenados por cM decrescente; os cromossomos, por tamanho e depois por valor.", "location": "src/core/genetic_evidence.py:build_genetic_evidence", "confidence": "confirmed"},
+        {"id": "BR-D-19", "description": "Sem kit informado, evidence_for reune os kits SEM SOMAR e deixa totals.cm como None quando ha mais de um.", "location": "src/core/genetic_evidence.py:evidence_for", "confidence": "confirmed"},
+        {"id": "BR-D-20", "description": "Sem evidencia genetica, available: False com o aviso sem_evidencia.", "location": "src/core/genetic_evidence.py:evidence_for", "confidence": "confirmed"},
+        {"id": "BR-D-21", "description": "cM vira LISTA de possibilidades pelo SCP 4.0; nunca um parentesco unico.", "location": "src/core/relationship_hypotheses.py:possible_relationships", "confidence": "confirmed"},
+        {"id": "BR-D-22", "description": "As candidatas sao ordenadas por distancia da media e, em empate, pelo nome em ingles.", "location": "src/core/relationship_hypotheses.py:possible_relationships", "confidence": "confirmed"},
+        {"id": "BR-D-23", "description": "A confianca da lista e heuristica declarada do projeto: 0 indeterminada; 1 e 2-3 baixa; 4-6 e >6 muito baixa.", "location": "src/core/relationship_hypotheses.py:_confianca", "confidence": "confirmed"},
+        {"id": "BR-D-24", "description": "Valor sem cobertura publicada devolve lista vazia e a leitura de que ISSO NAO DESCARTA PARENTESCO.", "location": "src/core/relationship_hypotheses.py:possible_relationships", "confidence": "confirmed"},
+        {"id": "BR-D-25", "description": "Seis relacoes nao publicadas na 4.0 nao recebem numero inventado (1C4R, 1C5R, 1C6R, 3C2R, 2o e 3o bisavos).", "location": "src/core/relationship_hypotheses.py:SCP40_NOT_PUBLISHED", "confidence": "confirmed"},
+        {"id": "BR-D-26", "description": "Sem faixa publicada para a relacao exata, a janela e a ENVOLTORIA das publicadas com o mesmo numero de meioses.", "location": "src/core/relationship_hypotheses.py:meioses_window", "confidence": "confirmed"},
+        {"id": "BR-D-27", "description": "O confronto devolve sempre um de quatro estados, cada um com mensagem propria.", "location": "src/core/evidence_comparison.py:MENSAGENS", "confidence": "confirmed"},
+        {"id": "BR-D-28", "description": "cM dentro da janela -> COMPATIVEL.", "location": "src/core/evidence_comparison.py:_avaliar_kit", "confidence": "confirmed"},
+        {"id": "BR-D-29", "description": "cM fora da janela -> POSSIVEL com SOBREPOSICAO de faixas; senao CONFLITANTE.", "location": "src/core/evidence_comparison.py:_avaliar_kit", "confidence": "confirmed"},
+        {"id": "BR-D-30", "description": "Sem evidencia genetica -> INCONCLUSIVO, registrando que o parentesco documental continua valendo por si.", "location": "src/core/evidence_comparison.py:compare", "confidence": "confirmed"},
+        {"id": "BR-D-31", "description": "Com DNA e sem caminho documental -> INCONCLUSIVO: nenhum caminho e inventado a partir do DNA.", "location": "src/core/evidence_comparison.py:compare", "confidence": "confirmed"},
+        {"id": "BR-D-32", "description": "Identidade ambigua -> INCONCLUSIVO, listando os registros homonimos.", "location": "src/core/evidence_comparison.py:compare", "confidence": "confirmed"},
+        {"id": "BR-D-33", "description": "Sem faixa publicada (nem por meioses) -> INCONCLUSIVO.", "location": "src/core/evidence_comparison.py:compare", "confidence": "confirmed"},
+        {"id": "BR-D-34", "description": "Com mais de um kit, o estado final e o mais conservador: CONFLITANTE > POSSIVEL > COMPATIVEL > INCONCLUSIVO.", "location": "src/core/evidence_comparison.py:compare", "confidence": "confirmed"},
+        {"id": "BR-D-35", "description": "CONFLITANTE recebe o rol de 12 causas; POSSIVEL, um subconjunto de 8 (CORRIGIDO em 2026-10-10 pelo Revisor: dizia 9; medido por importacao, [0]+[3:8]+[10:] = 1+5+2).", "location": "src/core/evidence_comparison.py:CAUSAS_POSSIVEIS", "confidence": "confirmed"},
+        {"id": "BR-D-36", "description": "A raiz e resolvida por substring sem diferenciar maiusculas; ausente -> PessoaNaoEncontrada.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-37", "description": "Raiz ambigua usa o PRIMEIRO registro e AVISA quantos e quais sao.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-38", "description": "O matching recebe o cM DO KIT, nunca a soma.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-39", "description": "Entre os candidatos, vence o primeiro que tenha caminho documental; sem nenhum, o primeiro da lista.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-40", "description": "O dossie de homonimos e calculado uma vez por nome, e o parentesco uma vez por pessoa.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-41", "description": "A ordem de apresentacao e: primeiro quem tem caminho documental, depois cM decrescente.", "location": "src/core/dna_analysis.py:_ordem", "confidence": "confirmed"},
+        {"id": "BR-D-42", "description": "A mensagem final e 'N conexoes encontradas. M descartadas.'.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-43", "description": "Sem nenhum resultado, os avisos do arquivo sao anexados a mensagem.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-44", "description": "O matching exato e por norm_name sobre o indice de nomes do GEDCOM.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-45", "description": "Sem acerto exato, busca por sobrenome; sem nenhum, por prefixo de 3 letras.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-46", "description": "score = 0.55*token_sort + 0.25*partial + 0.20*given + (8*intersecao - 4*comuns), em 2 casas.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-47", "description": "O melhor candidato e escolhido por: mais sobrenomes em comum, depois melhor prenome, depois melhor score.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-48", "description": "Sem sobrenome em comum e sem sufixo coincidente, o candidato e descartado (filtro anti-falso-positivo).", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-49", "description": "Com 2+ sobrenomes no CSV, exige-se Jaccard de prefixo >= 0,50 - e >= 0,33 quando o cM >= 150 e o prenome nao e generico.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-50", "description": "Prenome generico exige 2+ sobrenomes em comum; nao generico exige 1+.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-51", "description": "Aceitacao por cinco ramos alternativos, com limiares explicitos de given, score, intersecao e Jaccard.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-52", "description": "Ramo adicional: prefixo de sobrenome coincidente com given >= 90, score >= 86 e intersecao >= 1.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-53", "description": "Tokens do meio ausentes no GEDCOM exigem score >= 96 e given >= 92; o motivo da recusa e registrado.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-54", "description": "norm_name: limpa mojibake, decompoe NFKD, remove diacriticos, troca / e pontuacao por espaco, minusculas, colapsa espacos.", "location": "src/utils/name_keys.py:norm_name", "confidence": "confirmed"},
+        {"id": "BR-D-55", "description": "STOP_WORDS = de, da, do, das, dos, e.", "location": "src/core/name_normalization.py:STOP_WORDS", "confidence": "confirmed"},
+        {"id": "BR-D-56", "description": "GENERIC_GIVENS = 20 prenomes comuns, com variantes acentuadas.", "location": "src/core/name_normalization.py:GENERIC_GIVENS", "confidence": "confirmed"},
+        {"id": "BR-D-57", "description": "SURNAME_SUFFIXES = filho, neto, junior, junior (acentuado), sobrinho.", "location": "src/core/name_normalization.py:SURNAME_SUFFIXES", "confidence": "confirmed"},
+        {"id": "BR-D-58", "description": "COMMON_SURNAMES = 16 entradas com 'souza' duplicada (15 efetivas).", "location": "src/core/name_normalization.py:COMMON_SURNAMES", "confidence": "confirmed"},
+        {"id": "BR-D-59", "description": "SURNAME_EQUIV unifica netto->neto e gouvea/gouvea (acentuado)/gouveia->gouveia.", "location": "src/core/name_normalization.py:SURNAME_EQUIV", "confidence": "confirmed"},
+        {"id": "BR-D-60", "description": "O prenome e o primeiro token que nao e stop word nem generico; os sobrenomes sao os ULTIMOS 3 tokens uteis, sem genericos, com equivalencias; sufixos sao separados.", "location": "src/core/name_normalization.py:split_name_pt", "confidence": "confirmed"},
+        {"id": "BR-D-61", "description": "soft_prefix_jaccard compara prefixos de 4 quando algum lado tem token curto (<=4) ou terminando em ponto.", "location": "src/core/name_normalization.py:soft_prefix_jaccard", "confidence": "confirmed"},
+        {"id": "BR-D-62", "description": "get_relationships_by_cm (LEGADO) devolve lista; cM <= 0 ou nao numerico devolvem lista vazia.", "location": "src/core/cm_estimator.py:get_relationships_by_cm", "confidence": "confirmed"},
+        {"id": "BR-D-63", "description": "NOVA: o 4o criterio de desempate e o MENOR xref_id, tornando a escolha entre empatados independente da ordem do set.", "location": "src/core/matching.py:match_candidates", "confidence": "confirmed"},
+        {"id": "BR-D-64", "description": "NOVA: o resolvedor de diagrama e montado UMA vez por analise, fora do laco de evidencias.", "location": "src/core/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-65", "description": "NOVA: as observacoes sao DEDUPLICADAS preservando a ordem: documental -> genetica -> confronto -> avisos da raiz e do arquivo.", "location": "src/core/dna_analysis.py:_observacoes", "confidence": "confirmed"},
+        {"id": "BR-D-66", "description": "NOVA: o diagrama so e montado quando ha caminho documental; sem caminho, o campo e None.", "location": "src/core/dna_analysis.py:_montar_diagrama", "confidence": "confirmed"},
+        {"id": "BR-D-67", "description": "NOVA: dono esta na assinatura do caso de uso e NAO participa de decisao nenhuma.", "location": "src/application/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-68", "description": "NOVA: a ficha COMPLETA vence a identificacao ao juntar pessoas, e uma identificacao sem nome cede lugar a uma com nome.", "location": "src/application/dna_analysis.py:_juntar", "confidence": "confirmed"},
+        {"id": "BR-D-69", "description": "NOVA: ficha sem id e descartada - nao ha pessoa sem xref.", "location": "src/application/dna_analysis.py:_ficha", "confidence": "confirmed"},
+        {"id": "BR-D-70", "description": "NOVA: o papel de cada no do caminho e DERIVADO, com corte no ancestral comum; sem MRCA, o corte cai no PENULTIMO no.", "location": "src/application/dna_analysis.py:_papeis_do_caminho", "confidence": "confirmed"},
+        {"id": "BR-D-71", "description": "NOVA: 'afinidade' NUNCA e atribuida pela projecao da analise de DNA.", "location": "src/application/dna_analysis.py:_papeis_do_caminho", "confidence": "confirmed"},
+        {"id": "BR-D-72", "description": "NOVA: o pareamento entre metadados de kit e veredito e POR INDICE; kit sem avaliacao herda o estado final com status_note nulo.", "location": "src/application/dna_analysis.py:_kits", "confidence": "confirmed"},
+        {"id": "BR-D-73", "description": "NOVA: a raiz do retrato e documentary.person_a.id da PRIMEIRA conexao.", "location": "src/application/dna_analysis.py:_pessoas", "confidence": "confirmed"},
+        {"id": "BR-D-74", "description": "NOVA: ordinal e a posicao na ordem APRESENTADA; defaults INCONCLUSIVO, not_found e string vazia.", "location": "src/application/dna_analysis.py:_conexao", "confidence": "confirmed"},
+        {"id": "BR-D-75", "description": "NOVA: projetar_analise e PURA - nao reordena, nao recalcula cM, nao formata e nao chama o nucleo.", "location": "src/application/dna_analysis.py:projetar_analise", "confidence": "confirmed"},
+        {"id": "BR-D-76", "description": "NOVA: o motivo do descarte e transportado como TEXTO, sem virar codigo.", "location": "src/ports/__init__.py:DescartadoDaAnalise", "confidence": "confirmed"},
+        {"id": "BR-D-77", "description": "NOVA: match_file_ref e o NOME DO ARQUIVO ARMAZENADO, derivado do caminho do CSV.", "location": "src/application/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-78", "description": "NOVA: sem registro OU sem referencia da arvore, a analise NAO e registrada - estado desabilitado (D-02).", "location": "src/application/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-79", "description": "NOVA: sem DATABASE_URL a borda monta registrador NULO.", "location": "src/app.py:_REGISTRO", "confidence": "confirmed"},
+        {"id": "BR-D-80", "description": "NOVA: a gravacao acontece DEPOIS do nucleo, e nenhum modulo de core/ conhece o registro.", "location": "src/ports/__init__.py:RegistroDeAnalises", "confidence": "confirmed"},
+        {"id": "BR-D-81", "description": "NOVA: excecao na projecao OU na gravacao vira aviso 'Historico nao registrado: ...', e o resultado chega a tela.", "location": "src/application/dna_analysis.py:dna_analysis", "confidence": "confirmed"},
+        {"id": "BR-D-82", "description": "NOVA: o adaptador faz import PREGUICOSO de psycopg2; driver ausente -> aviso, nunca excecao.", "location": "src/ports/adaptadores.py:RegistroDeAnalisesPostgres.registrar", "confidence": "confirmed"},
+        {"id": "BR-D-83", "description": "NOVA: nada acontece na CONSTRUCAO do adaptador - nao abre conexao, nao valida a URL e nao toca a rede.", "location": "src/ports/adaptadores.py:RegistroDeAnalisesPostgres.__init__", "confidence": "confirmed"},
+        {"id": "BR-D-84", "description": "NOVA: uma conexao por analise (sem pool) e UMA transacao por analise; o finally fecha a conexao.", "location": "src/ports/adaptadores.py:RegistroDeAnalisesPostgres.registrar", "confidence": "confirmed"},
+        {"id": "BR-D-85", "description": "NOVA: a ordem de escrita respeita as FKs: dna_analysis -> analysis_person -> match_result -> match_kit/match_path_node -> skipped_match.", "location": "src/ports/adaptadores.py:_escrever", "confidence": "confirmed"},
+        {"id": "BR-D-86", "description": "NOVA: is_affinity_anchor e SEMPRE FALSE na escrita da analise de DNA.", "location": "src/ports/adaptadores.py:_escrever", "confidence": "confirmed"},
+        {"id": "BR-D-87", "description": "NOVA: dono vira a coluna owner_id, e NENHUMA consulta filtra por ele.", "location": "src/ports/adaptadores.py:_escrever", "confidence": "confirmed"},
+        {"id": "BR-D-88", "description": "NOVA: aviso_de_persistencia nulo significa 'nada a avisar', e a tela nao renderiza nada.", "location": "src/application/dna_analysis.py:ResultadoDeAnalise", "confidence": "confirmed"},
+        {"id": "BR-D-89", "description": "NOVA: a referencia de CSV escolhida na LISTA tem precedencia sobre o arquivo enviado, e o campo e opcional.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-D-90", "description": "NOVA: referencia de CSV que nao resolve -> 'Erro: Arquivo X nao existe mais.'.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-D-91", "description": "NOVA: o CSV passa pela MESMA porta do GEDCOM com tipo=csv (sem validacao de conteudo) e pela MESMA regra de reenvio.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-D-92", "description": "NOVA: o aviso de substituicao do CSV e ACRESCENTADO a mensagem do resultado, nunca a substitui.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-D-93", "description": "NOVA: erro de dominio -> tabela de traducao (mensagem + status); falha inesperada -> 'Ocorreu um erro: {e}' com success=False.", "location": "src/application/traducao.py:traduzir", "confidence": "confirmed"},
+        {"id": "BR-D-94", "description": "NOVA: as cinco excecoes de dominio sao IRMAS (nao uma cadeia); ErroDeDominio herda de ValueError para preservar assercoes existentes.", "location": "src/core/erros.py:ErroDeDominio", "confidence": "confirmed"},
+        {"id": "BR-D-95", "description": "NOVA: o status HTTP da traducao NAO TEM CONSUMIDOR nesta onda - vale so para a API nova, que nao existe.", "location": "src/application/traducao.py:RespostaDeErro", "confidence": "confirmed"}
       ],
-      "dependencies": [
-        "upload-gedcom",
-        "busca-caminho"
-      ],
+      "dependencies": ["busca-caminho", "tela-de-entrada", "upload-gedcom"],
       "algorithms": [
-        "Leitura tolerante do CSV: encoding, separador, preambulo e linha torta, com relato do descartado",
-        "Localizacao do cabecalho pelo numero modal de campos, com tres guardas contra falso positivo",
-        "Agregacao de cM por chave composta (nome normalizado + id ou e-mail)",
-        "Agrupamento de evidencia genetica por pessoa e kit, nunca somando kits diferentes",
-        "Traducao de cM em lista de possibilidades pela tabela publicada do Shared cM Project 4.0",
-        "Janela por envoltoria de meioses quando a relacao exata nao e publicada",
-        "Maquina de estados do confronto com sobreposicao de faixas como criterio de POSSIVEL",
-        "Scoring do matching difuso com bonus de sobrenome e filtro anti-falso-positivo",
-        "Cache de atributos normalizados por analise"
+        {"name": "Leitura tolerante do CSV", "description": "encoding utf-8 e latin-1; separador por contagem no cabecalho; cabecalho localizado por moda com tres guardas; releitura com on_bad_lines=skip e reporte das linhas descartadas em attrs.", "confidence": "confirmed"},
+        {"name": "Chave da evidencia e (nome, kit)", "description": "Duas linhas com o mesmo nome e kits diferentes sao duas evidencias. SEM_KIT tem espaco a esquerda porque _clean faz strip em todo valor.", "confidence": "confirmed"},
+        {"name": "Soma de cM sem arredondamento", "description": "Contrato congelado em tests/test_formatacao_cm.py: 19.200000000000003 e o valor esperado; arredondar quebraria a paridade.", "confidence": "confirmed"},
+        {"name": "Scoring do matching com desempate deterministico", "description": "score = 0.55*token_sort + 0.25*partial + 0.20*given + (8*intersecao - 4*comuns). Desempate em 4 niveis, o ultimo sendo o MENOR xref_id - implementa a decisao de 2026-10-05.", "confidence": "confirmed"},
+        {"name": "cM vira LISTA de possibilidades", "description": "27 relacoes publicadas do SCP 4.0; a resposta e sempre lista, inclusive vazia. A confianca e heuristica declarada do projeto.", "confidence": "confirmed"},
+        {"name": "Envoltoria de meioses para relacao nao publicada", "description": "Seis relacoes nao publicadas na 4.0 nao recebem numero inventado: a janela e a envoltoria das publicadas com o mesmo numero de meioses, ou nao ha janela.", "confidence": "confirmed"},
+        {"name": "Maquina de estados do confronto", "description": "COMPATIVEL dentro da janela; POSSIVEL com SOBREPOSICAO de faixas; CONFLITANTE sem ela; INCONCLUSIVO sem DNA, sem caminho, com identidade ambigua ou sem faixa. Estado final entre kits e o mais conservador.", "confidence": "confirmed"},
+        {"name": "Projecao pura para a porta", "description": "projetar_analise le o resultado do nucleo e nada mais: nao reordena, nao recalcula cM, nao formata. Pareamento kit-veredito por INDICE.", "confidence": "confirmed"},
+        {"name": "Persistencia fora da decisao (RN-13)", "description": "Falha na projecao ou na gravacao vira AVISO, nunca interrupcao. Import preguicoso de psycopg2; nada acontece na construcao; uma transacao por analise.", "confidence": "confirmed"}
       ],
-      "complexity": "high",
-      "counts": {
-        "files": 8,
-        "functions": 27,
-        "entities": 13,
-        "business_rules": 62
-      }
+      "complexity": "high"
     },
     {
       "name": "busca-caminho",
-      "path": "src/core + src/reporting/mermaid_render.py",
-      "purpose": "Responder o que o GEDCOM afirma sobre duas pessoas: caminho por ancestral comum (BFS bidirecional), conexao indireta por afinidade, rotulo de parentesco, homonimos, caminhos multiplos, colapso de pedigree e a evidencia de cada salto, com o diagrama Mermaid.",
+      "path": "src/application/path_search.py + src/application/__init__.py + src/core/{path_search,path_finding,family_navigation,documentary_relationship,diagram_domain}.py + src/reporting/mermaid_render.py",
+      "purpose": "Responder o que o GEDCOM afirma entre duas pessoas: resolver os nomes, escolher entre homonimos, achar o caminho por ancestral comum ou por afinidade, e desenhar o diagrama - sem nunca apresentar afinidade como parentesco consanguineo.",
       "primary_files": [
-        "src/core/documentary_relationship.py",
-        "src/reporting/mermaid_render.py",
+        "src/application/path_search.py",
+        "src/application/__init__.py",
         "src/core/path_search.py",
+        "src/core/path_finding.py",
         "src/core/family_navigation.py",
-        "src/core/path_finding.py"
+        "src/core/documentary_relationship.py",
+        "src/core/diagram_domain.py",
+        "src/reporting/mermaid_render.py"
       ],
-      "endpoints": [
-        "POST / action=path_search"
-      ],
+      "endpoints": ["POST / action=path_search"],
+      "lines_useful": 1213,
+      "rules_id_prefix": "BR-C",
       "functions": [
-        {
-          "name": "path_search",
-          "file_line": "`path_search.py:126`",
-          "params": "`person1_name: str`, `person2_name: str`",
-          "returns": "`(path_result, msg, success)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_candidatos",
-          "file_line": "`path_search.py:74`",
-          "params": "`nome`, `ids_do_legado`",
-          "returns": "`(dossie, candidatos)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_homonimos",
-          "file_line": "`path_search.py:92`",
-          "params": "`person1_name`, `person2_name`, `p1_ids`, `p2_ids`",
-          "returns": "`dict`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "documentary_relationship",
-          "file_line": "`documentary_relationship.py:436`",
-          "params": "`a_id`, `b_id`, `homonyms`",
-          "returns": "`dict`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "documentary_label",
-          "file_line": "`documentary_relationship.py:290`",
-          "params": "`deg_a: int`, `deg_b: int`",
-          "returns": "`dict` (key, label, meioses)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "person_summary",
-          "file_line": "`documentary_relationship.py:127`",
-          "params": "`person_id`",
-          "returns": "`dict` (ficha)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "homonym_dossier",
-          "file_line": "`documentary_relationship.py:205`",
-          "params": "`name_query`, `similar_ids`",
-          "returns": "`dict`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "hop_evidence",
-          "file_line": "`documentary_relationship.py:233`",
-          "params": "`child_id`, `parent_id`",
-          "returns": "`dict`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "find_all_common_ancestors",
-          "file_line": "`documentary_relationship.py:408`",
-          "params": "`a_id`, `b_id`, `max_depth=12`, `limit=12`",
-          "returns": "`list[dict]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "parse_year",
-          "file_line": "`documentary_relationship.py:58`",
-          "params": "`date_value`",
-          "returns": "`int \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "birth_date` / `death_date",
-          "file_line": "`documentary_relationship.py:84`, `:88`",
-          "params": "`pid`",
-          "returns": "`str \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "get_children",
-          "file_line": "`documentary_relationship.py:112`",
-          "params": "`person_id`",
-          "returns": "`list[str]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "normalizar",
-          "file_line": "`documentary_relationship.py:150`",
-          "params": "`nome: str`",
-          "returns": "`str`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "find_person_by_name",
-          "file_line": "`family_navigation.py:21`",
-          "params": "`name_query`",
-          "returns": "`list[str]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "get_parents",
-          "file_line": "`family_navigation.py:29`",
-          "params": "`person_id`",
-          "returns": "`list[str]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "get_spouses",
-          "file_line": "`family_navigation.py:51`",
-          "params": "`person_id`",
-          "returns": "`list[str]`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "are_spouses",
-          "file_line": "`family_navigation.py:78`",
-          "params": "`a_id`, `b_id`",
-          "returns": "`bool`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "split_path_by_marriage",
-          "file_line": "`family_navigation.py:82`",
-          "params": "`person_path`",
-          "returns": "`(left, right, par)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "pick_spouse_for_couple",
-          "file_line": "`family_navigation.py:93`",
-          "params": "`person_id`, `candidate_path`",
-          "returns": "`str \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "exclude_tail",
-          "file_line": "`family_navigation.py:104`",
-          "params": "`seq`, `n=1`",
-          "returns": "`list`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "find_ancestral_path",
-          "file_line": "`path_finding.py:51`",
-          "params": "`start_id`, `end_id`, `max_depth=20`",
-          "returns": "`(path, ancestral)`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "find_indirect_path",
-          "file_line": "`path_finding.py:31`",
-          "params": "`start_id`, `end_id`, `max_hops=40`",
-          "returns": "`list[str] \\",
-          "confidence": "None`"
-        },
-        {
-          "name": "_mermaid_sid",
-          "file_line": "`mermaid_render.py:26`",
-          "params": "`raw`",
-          "returns": "`str` (id de nó)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "_mermaid_label",
-          "file_line": "`mermaid_render.py:50`",
-          "params": "`txt`",
-          "returns": "`str` (rótulo seguro)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "generate_mermaid_graph",
-          "file_line": "`mermaid_render.py:63`",
-          "params": "`path`, `p1_id`, `p2_id`, `common_ancestor_id`",
-          "returns": "`str` (Mermaid)",
-          "confidence": "🟢"
-        },
-        {
-          "name": "generate_mermaid_graph_indirect_bridge",
-          "file_line": "`mermaid_render.py:112`",
-          "params": "`p1_id`, `p2_id`, `person_path`",
-          "returns": "`str` (Mermaid)",
-          "confidence": "🟢"
-        }
+        {"name": "path_search (caso de uso)", "file": "src/application/path_search.py", "params": ["person1_name", "person2_name", "arvore", "deps", "dono"], "returns": "ResultadoDeBusca", "confidence": "confirmed"},
+        {"name": "_desfecho", "file": "src/application/path_search.py", "params": ["dados", "sucesso"], "returns": "Desfecho", "confidence": "confirmed"},
+        {"name": "nomes_de_exibicao", "file": "src/application/__init__.py", "params": ["arvore"], "returns": "list[str] ordenada", "confidence": "confirmed"},
+        {"name": "path_search (nucleo)", "file": "src/core/path_search.py", "params": ["person1_name", "person2_name", "deps", "arvore"], "returns": "(path_result, msg, success) - contrato de paridade", "confidence": "confirmed"},
+        {"name": "_candidatos", "file": "src/core/path_search.py", "params": ["arvore", "nome", "ids_do_legado"], "returns": "(dossie, candidatos)", "confidence": "confirmed"},
+        {"name": "_homonimos", "file": "src/core/path_search.py", "params": ["arvore", "person1_name", "person2_name", "p1_ids", "p2_ids"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "documentary_relationship", "file": "src/core/documentary_relationship.py", "params": ["arvore", "a_id", "b_id", "homonyms"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "documentary_label", "file": "src/core/documentary_relationship.py", "params": ["deg_a", "deg_b"], "returns": "dict (key, label, meioses, degrees)", "confidence": "confirmed"},
+        {"name": "person_summary", "file": "src/core/documentary_relationship.py", "params": ["arvore", "person_id"], "returns": "dict (13 campos - CORRIGIDO em 2026-10-10 pelo Revisor: dizia 12)", "confidence": "confirmed"},
+        {"name": "homonym_dossier", "file": "src/core/documentary_relationship.py", "params": ["arvore", "name_query", "similar_ids"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "hop_evidence", "file": "src/core/documentary_relationship.py", "params": ["arvore", "child_id", "parent_id"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "find_all_common_ancestors", "file": "src/core/documentary_relationship.py", "params": ["arvore", "a_id", "b_id", "max_depth=12", "limit=12"], "returns": "list[dict]", "confidence": "confirmed"},
+        {"name": "normalizar / parse_year / get_children", "file": "src/core/documentary_relationship.py", "params": ["nome / date_value / arvore, person_id"], "returns": "str / int|None / list[str]", "confidence": "confirmed"},
+        {"name": "_chave_de / _indice_por_nome", "file": "src/core/documentary_relationship.py", "params": ["people / arvore"], "returns": "tuple / dict", "confidence": "confirmed"},
+        {"name": "find_person_by_name / get_parents / get_spouses", "file": "src/core/family_navigation.py", "params": ["arvore", "..."], "returns": "list[str]", "confidence": "confirmed"},
+        {"name": "are_spouses / split_path_by_marriage / pick_spouse_for_couple / exclude_tail", "file": "src/core/family_navigation.py", "params": ["arvore", "..."], "returns": "bool / (left, right, par) / str|None / list", "confidence": "confirmed"},
+        {"name": "find_ancestral_path", "file": "src/core/path_finding.py", "params": ["arvore", "start_id", "end_id", "max_depth=20"], "returns": "(path, ancestral)", "confidence": "confirmed"},
+        {"name": "find_indirect_path", "file": "src/core/path_finding.py", "params": ["arvore", "start_id", "end_id", "max_hops=40"], "returns": "list[str] | None", "confidence": "confirmed"},
+        {"name": "resolvedor_de_diagrama", "file": "src/core/diagram_domain.py", "params": ["arvore"], "returns": "dict de 7 consultas ligadas a arvore", "confidence": "confirmed"},
+        {"name": "_mermaid_sid / _mermaid_label", "file": "src/reporting/mermaid_render.py", "params": ["raw / txt"], "returns": "str", "confidence": "confirmed"},
+        {"name": "generate_mermaid_graph", "file": "src/reporting/mermaid_render.py", "params": ["path", "p1_id", "p2_id", "common_ancestor_id", "dominio"], "returns": "str (Mermaid)", "confidence": "confirmed"},
+        {"name": "generate_mermaid_graph_indirect_bridge", "file": "src/reporting/mermaid_render.py", "params": ["p1_id", "p2_id", "person_path", "dominio"], "returns": "str (Mermaid)", "confidence": "confirmed"}
       ],
       "entities": [
-        {
-          "name": "Resultado do parentesco",
-          "where": "`documentary_relationship.py:551-568`",
-          "shape": "`status`, `source`, `label`, `relationship_key`, `meioses`, `degrees`, `person_a`, `person_b`, `common_ancestor`, `common_ancestors`, `path`, `additional_paths`, `evidence`, `homonyms`, `ambiguous_identity`, `warnings`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Ficha de pessoa",
-          "where": "`documentary_relationship.py:129-143`",
-          "shape": "`id`, `name`, `sex`, `birth`, `birth_year`, `birth_place`, `death`, `death_year`, `parents`, `parent_names`, `spouses`, `children`, `family_as_child`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Evidência de salto",
-          "where": "`documentary_relationship.py:267-280`",
-          "shape": "`child_id`, `child_name`, `child_birth`, `parent_id`, `parent_name`, `parent_birth`, `family_id`, `family_husband`, `family_wife`, `age_at_birth`, `plausible`, `link_source`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Dossiê de homônimos",
-          "where": "`documentary_relationship.py:217-226`",
-          "shape": "`query`, `exact_count`, `exact_matches`, `similar_count`, `similar_matches`, `ambiguous`, `differences`, `identical_data`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Ancestral comum",
-          "where": "`documentary_relationship.py:415-422`",
-          "shape": "`id`, `name`, `distance_a`, `distance_b`, `total_meioses`, `birth`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Índice de nomes",
-          "where": "`documentary_relationship.py:185-202`",
-          "shape": "`{\"versao\": int, \"mapa\": dict}` — cache invalidado por `gedcom_state.versao`",
-          "confidence": "🟢"
-        },
-        {
-          "name": "Resultado da busca",
-          "where": "`path_search.py:194-201`",
-          "shape": "`person1_name`, `person2_name`, `text_path`, `mermaid_data`, `documentary`, `observations`",
-          "confidence": "🟢"
-        }
+        {"name": "ResultadoDeBusca", "where": "src/application/path_search.py", "shape": "dataclass congelada: desfecho, dados, mensagem", "confidence": "confirmed"},
+        {"name": "Desfecho", "where": "src/application/__init__.py", "shape": "Enum: RESULTADO, SEM_RESULTADO, ERRO_DE_ENTRADA", "confidence": "confirmed"},
+        {"name": "Resultado do parentesco", "where": "src/core/documentary_relationship.py", "shape": "status, source, label, relationship_key, meioses, degrees, person_a, person_b, common_ancestor(s), path, additional_paths, evidence, homonyms, ambiguous_identity, warnings", "confidence": "confirmed"},
+        {"name": "Ficha de pessoa", "where": "src/core/documentary_relationship.py", "shape": "id, name, sex, birth, birth_year, birth_place, death, death_year, parents, parent_names, spouses, children, family_as_child", "confidence": "confirmed"},
+        {"name": "Evidencia de salto", "where": "src/core/documentary_relationship.py", "shape": "child_*, parent_*, family_id, family_husband, family_wife, age_at_birth, plausible, link_source", "confidence": "confirmed"},
+        {"name": "Dossie de homonimos", "where": "src/core/documentary_relationship.py", "shape": "query, exact_count, exact_matches, similar_count, similar_matches, ambiguous, differences, identical_data", "confidence": "confirmed"},
+        {"name": "Ancestral comum", "where": "src/core/documentary_relationship.py", "shape": "id, name, distance_a, distance_b, total_meioses, birth", "confidence": "confirmed"},
+        {"name": "Caminho alternativo", "where": "src/core/documentary_relationship.py", "shape": "ids, names, via, distance_a, distance_b, total_meioses, ancestor_name", "confidence": "confirmed"},
+        {"name": "Cache de nomes", "where": "src/core/documentary_relationship.py", "shape": "modulo-level {chave, mapa}; chave = (len(people), primeira chave, ultima chave)", "confidence": "confirmed"},
+        {"name": "Resultado da busca", "where": "src/core/path_search.py", "shape": "person1_name, person2_name, text_path, mermaid_data, documentary, observations", "confidence": "confirmed"}
       ],
       "business_rules": [
-        {
-          "id": "BR-C-01",
-          "description": "A pessoa é resolvida por nome: match **exato** sem diferenciar maiúsculas; sem exato, por **substring**.",
-          "location": "`family_navigation.py:21-26`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-02",
-          "description": "Os pais vêm do `FAMC` da pessoa; sem `FAMC`, do índice `child_to_family`. Pais duplicados são removidos.",
-          "location": "`family_navigation.py:29-48`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-03",
-          "description": "Os cônjuges vêm dos `FAMS`; **só quando essa lista fica vazia** roda a varredura global de todas as famílias.",
-          "location": "`family_navigation.py:51-75`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-04",
-          "description": "A busca direta é BFS **bidirecional** subindo por pais, com teto de **20 iterações de profundidade**.",
-          "location": "`path_finding.py:51-85`, `:25`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-05",
-          "description": "Se as duas pessoas são a mesma, o caminho é ela própria e ela é o ancestral.",
-          "location": "`path_finding.py:58-59`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-06",
-          "description": "A cada iteração, **um** nível de **um** dos lados é expandido, alternadamente; o encontro é o nó que já consta no conjunto visitado do outro lado.",
-          "location": "`path_finding.py:60-84`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-07",
-          "description": "A busca indireta usa o caminho mais curto no grafo pessoa↔família, com teto de **40 arestas**; os nós de família são comprimidos e restam só pessoas (2 ou mais).",
-          "location": "`path_finding.py:31-48`, `:28`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-08",
-          "description": "O grafo é importado **dentro** da função, porque é reatribuído a cada parse.",
-          "location": "`path_finding.py:38`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-09",
-          "description": "Sem os dois registros no GEDCOM, o parentesco devolve `status: not_found` com o aviso `pessoa_ausente`.",
-          "location": "`documentary_relationship.py:443-446`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-10",
-          "description": "Sem caminho dentro do teto, o aviso diz explicitamente que isso **não prova** ausência de parentesco.",
-          "location": "`documentary_relationship.py:452-466`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-11",
-          "description": "Os graus são as posições do ancestral comum no caminho: subidas de A até ele, e dele até B.",
-          "location": "`documentary_relationship.py:486-488`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-12",
-          "description": "Linha direta (um dos graus é 0): 1 → pai/mãe; 2 → avô/avó; n → com prefixo `bis` repetido `n−2` vezes.",
-          "location": "`documentary_relationship.py:302-313`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-13",
-          "description": "Colateral com menor grau 1: (1,1) irmãos; (1,2) tio/tia; (1,n) tio/tia com `bis` repetido `n−3` vezes.",
-          "location": "`documentary_relationship.py:317-330`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-14",
-          "description": "Demais colaterais: chave `gC` ou `gCrR`, com grau `= menor−1` e remoções `= maior−menor`.",
-          "location": "`documentary_relationship.py:332-340`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-15",
-          "description": "Cada salto do caminho carrega a evidência do registro que o sustenta: família, casal declarado, datas e idade implícita.",
-          "location": "`documentary_relationship.py:233-280`, `:490-495`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-16",
-          "description": "Idade do genitor no nascimento do filho fora da faixa **12–70** marca `plausible: False` e gera o aviso `data_impossivel`; **o vínculo não é invalidado**.",
-          "location": "`documentary_relationship.py:41-42`, `:265`, `:497-507`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-17",
-          "description": "Sem data para julgar, `plausible` é `None` (não é falso).",
-          "location": "`documentary_relationship.py:265`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-18",
-          "description": "O ano é o primeiro número de 3 ou 4 dígitos da data; `ABOUT`/`BEFORE` são tolerados e **não** normalizados, e o texto original fica na evidência.",
-          "location": "`documentary_relationship.py:55-69`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-19",
-          "description": "Todos os ancestrais comuns são enumerados até **12** níveis, limitados a **12**, ordenados por meioses totais, depois maior distância, depois nome.",
-          "location": "`documentary_relationship.py:408-424`, `:47`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-20",
-          "description": "Caminhos alternativos são listados e **nenhum é descartado**; a existência gera o aviso `caminhos_multiplos`.",
-          "location": "`documentary_relationship.py:509-525`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-21",
-          "description": "Mais de uma cadeia de pais até o mesmo ancestral gera o aviso `colapso_de_pedigree`, com o ancestral e a contagem (teto de 8 cadeias).",
-          "location": "`documentary_relationship.py:361-382`, `:527-539`, `:48`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-22",
-          "description": "O índice nome→ids é reconstruído apenas quando `gedcom_state.versao` muda, e não pelo tamanho de `people`.",
-          "location": "`documentary_relationship.py:185-202`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-23",
-          "description": "A comparação de nomes ignora acento e aplica a correção de mojibake antes de comparar.",
-          "location": "`documentary_relationship.py:150-161`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-24",
-          "description": "O dossiê devolve **todos** os registros possíveis, sem escolher; `ambiguous` é verdadeiro com mais de um nome exato.",
-          "location": "`documentary_relationship.py:205-226`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-25",
-          "description": "Com identidade ambígua, o parentesco sai com `status: ambiguous` e o aviso `homonimo`, pedindo conferência das fichas.",
-          "location": "`documentary_relationship.py:541-549`, `:552`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-26",
-          "description": "Pessoa 1 ou 2 não encontrada: mensagem `Pessoa N 'X' não encontrada.` e `success = False`.",
-          "location": "`path_search.py:138-141`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-27",
-          "description": "Com homônimos, até **5 × 5** combinações são testadas (em cache) e vence a **primeira que tiver caminho**; sem nenhuma, usa-se o primeiro id de cada lado.",
-          "location": "`path_search.py:150-167`, `:71`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-28",
-          "description": "Caminho por ancestral comum: mensagem `Conexão direta encontrada (ancestral comum).`",
-          "location": "`path_search.py:176`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-29",
-          "description": "Sem caminho direto, tenta-se o indireto; sem indireto, `Nenhuma conexão encontrada entre 'X' e 'Y'.` com `success = True`.",
-          "location": "`path_search.py:178-182`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-30",
-          "description": "Conexão indireta vira `status: affinity`, com rótulo \"Sem ancestral comum: conexão por afinidade (casamento)\" e o aviso de afinidade.",
-          "location": "`path_search.py:183-192`, `:66-67`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-31",
-          "description": "A conexão por afinidade **nunca** é apresentada como parentesco consanguíneo — o aviso é explícito e em maiúsculas.",
-          "location": "`path_search.py:66-67`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-32",
-          "description": "O rótulo Mermaid passa por NFC, converte espaço inquebrável, travessões e aspas curvas, troca aspa dupla por apóstrofo e achata quebras de linha.",
-          "location": "`mermaid_render.py:50-58`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-33",
-          "description": "O rótulo usa **lista branca** de caracteres: o que não está nela é removido, e `&`, `<`, `>` viram entidades HTML.",
-          "location": "`mermaid_render.py:47`, `:59-60`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-34",
-          "description": "O id de nó Mermaid mantém apenas `[A-Za-z0-9_]`, remove `@`, troca `+` por `_` e recebe o prefixo `N_`.",
-          "location": "`mermaid_render.py:26-31`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-35",
-          "description": "No diagrama direto, o casal do ancestral comum (ancestral + primeiro cônjuge) vira **um** nó quando o ancestral não está numa das pontas do caminho.",
-          "location": "`mermaid_render.py:69-86`",
-          "confidence": "🟢"
-        },
-        {
-          "id": "BR-C-36",
-          "description": "Cada `subgraph` do diagrama indireto é fechado pelo fim de um `contextmanager`, e não por linha posicionada à mão.",
-          "location": "`mermaid_render.py:160-175`",
-          "confidence": "🟢"
-        }
+        {"id": "BR-C-01", "description": "A pessoa e resolvida por match EXATO sem diferenciar maiusculas; sem exato, por SUBSTRING.", "location": "src/core/family_navigation.py:find_person_by_name", "confidence": "confirmed"},
+        {"id": "BR-C-02", "description": "Os pais vem do FAMC; sem FAMC, do indice child_to_family. Duplicados sao removidos.", "location": "src/core/family_navigation.py:get_parents", "confidence": "confirmed"},
+        {"id": "BR-C-03", "description": "Os conjuges vem dos FAMS; SO quando essa lista fica vazia roda a varredura global.", "location": "src/core/family_navigation.py:get_spouses", "confidence": "confirmed"},
+        {"id": "BR-C-04", "description": "A busca direta e BFS BIDIRECIONAL subindo por pais, com teto de 20 ITERACOES.", "location": "src/core/path_finding.py:find_ancestral_path", "confidence": "confirmed"},
+        {"id": "BR-C-05", "description": "Se as duas pessoas sao a mesma, o caminho e ela propria e ela e o ancestral.", "location": "src/core/path_finding.py:find_ancestral_path", "confidence": "confirmed"},
+        {"id": "BR-C-06", "description": "A cada iteracao, UM nivel de UM dos lados e expandido, alternadamente.", "location": "src/core/path_finding.py:find_ancestral_path", "confidence": "confirmed"},
+        {"id": "BR-C-07", "description": "A busca indireta usa o caminho mais curto no grafo pessoa-familia, com teto de 40 ARESTAS; os nos de familia sao comprimidos.", "location": "src/core/path_finding.py:find_indirect_path", "confidence": "confirmed"},
+        {"id": "BR-C-08", "description": "REESCRITA em 2026-10-10: o grafo vem da ARVORE RECEBIDA por parametro - nao ha mais import tardio nem estado de processo.", "location": "src/core/path_finding.py:find_indirect_path", "confidence": "confirmed"},
+        {"id": "BR-C-09", "description": "Sem os dois registros no GEDCOM, status not_found com o aviso pessoa_ausente.", "location": "src/core/documentary_relationship.py:documentary_relationship", "confidence": "confirmed"},
+        {"id": "BR-C-10", "description": "Sem caminho dentro do teto, o aviso diz que isso NAO PROVA ausencia de parentesco.", "location": "src/core/documentary_relationship.py:documentary_relationship", "confidence": "confirmed"},
+        {"id": "BR-C-11", "description": "Os graus sao as posicoes do ancestral comum no caminho.", "location": "src/core/documentary_relationship.py:documentary_relationship", "confidence": "confirmed"},
+        {"id": "BR-C-12", "description": "Linha direta: 1 pai/mae; 2 avo/avo; n com 'bis' repetido n-2 vezes.", "location": "src/core/documentary_relationship.py:documentary_label", "confidence": "confirmed"},
+        {"id": "BR-C-13", "description": "Colateral com menor grau 1: (1,1) irmaos; (1,2) tio/tia; (1,n) tio/tia-avo com 'bis' repetido.", "location": "src/core/documentary_relationship.py:documentary_label", "confidence": "confirmed"},
+        {"id": "BR-C-14", "description": "Demais colaterais: chave gC ou gCrR, com grau = menor-1 e remocoes = maior-menor.", "location": "src/core/documentary_relationship.py:documentary_label", "confidence": "confirmed"},
+        {"id": "BR-C-15", "description": "Cada salto carrega a evidencia do registro que o sustenta: familia, casal declarado, datas e idade implicita.", "location": "src/core/documentary_relationship.py:hop_evidence", "confidence": "confirmed"},
+        {"id": "BR-C-16", "description": "Idade do genitor fora de 12-70 marca plausible=False e gera o aviso data_impossivel; O VINCULO NAO E INVALIDADO.", "location": "src/core/documentary_relationship.py:hop_evidence", "confidence": "confirmed"},
+        {"id": "BR-C-17", "description": "Sem data para julgar, plausible e None (nao e falso).", "location": "src/core/documentary_relationship.py:hop_evidence", "confidence": "confirmed"},
+        {"id": "BR-C-18", "description": "O ano e o primeiro numero de 3 ou 4 digitos; ABOUT/BEFORE sao tolerados e NAO normalizados.", "location": "src/core/documentary_relationship.py:parse_year", "confidence": "confirmed"},
+        {"id": "BR-C-19", "description": "Todos os ancestrais comuns sao enumerados ate 12 niveis, limitados a 12, ordenados por meioses totais, depois maior distancia, depois nome.", "location": "src/core/documentary_relationship.py:find_all_common_ancestors", "confidence": "confirmed"},
+        {"id": "BR-C-20", "description": "Caminhos alternativos sao listados e NENHUM e descartado; a existencia gera caminhos_multiplos.", "location": "src/core/documentary_relationship.py:documentary_relationship", "confidence": "confirmed"},
+        {"id": "BR-C-21", "description": "Mais de uma cadeia de pais ate o mesmo ancestral gera colapso_de_pedigree, com teto de 8 cadeias.", "location": "src/core/documentary_relationship.py:_cadeias_ate", "confidence": "confirmed"},
+        {"id": "BR-C-22", "description": "REESCRITA em 2026-10-10: o indice nome->ids e reconstruido quando a CHAVE DERIVADA DO CONTEUDO da arvore muda - antes era gedcom_state.versao, que nao existe mais.", "location": "src/core/documentary_relationship.py:_chave_de", "confidence": "confirmed"},
+        {"id": "BR-C-23", "description": "A comparacao de nomes ignora acento e aplica a correcao de mojibake antes de comparar.", "location": "src/core/documentary_relationship.py:normalizar", "confidence": "confirmed"},
+        {"id": "BR-C-24", "description": "O dossie devolve TODOS os registros possiveis, sem escolher; ambiguous e verdadeiro com mais de um nome exato, OU com similar_ids nao vazio.", "location": "src/core/documentary_relationship.py:homonym_dossier", "confidence": "confirmed"},
+        {"id": "BR-C-25", "description": "Com identidade ambigua, o parentesco sai com status ambiguous e o aviso homonimo.", "location": "src/core/documentary_relationship.py:documentary_relationship", "confidence": "confirmed"},
+        {"id": "BR-C-26", "description": "Pessoa 1 ou 2 nao encontrada: 'Pessoa N X nao encontrada.' e success = False.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-27", "description": "Com homonimos, ate 5 x 5 combinacoes sao testadas (em cache) e vence a PRIMEIRA que tiver caminho; sem nenhuma, usa-se o primeiro id de cada lado.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-28", "description": "Caminho por ancestral comum: 'Conexao direta encontrada (ancestral comum).'.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-29", "description": "Sem caminho direto, tenta-se o indireto; sem indireto, 'Nenhuma conexao encontrada entre X e Y.' com success = True.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-30", "description": "Conexao indireta vira status affinity, com rotulo proprio e o aviso de afinidade.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-31", "description": "A conexao por afinidade NUNCA e apresentada como parentesco consanguineo.", "location": "src/core/path_search.py:AVISO_AFINIDADE", "confidence": "confirmed"},
+        {"id": "BR-C-32", "description": "O rotulo Mermaid passa por NFC, converte espaco inquebravel, travessoes e aspas curvas, troca aspa dupla por apostrofo e achata quebras de linha.", "location": "src/reporting/mermaid_render.py:_mermaid_label", "confidence": "confirmed"},
+        {"id": "BR-C-33", "description": "O rotulo usa LISTA BRANCA: o que nao esta nela e removido, e &, < e > viram entidades HTML.", "location": "src/reporting/mermaid_render.py:_LABEL_SEGURO", "confidence": "confirmed"},
+        {"id": "BR-C-34", "description": "O id de no Mermaid mantem apenas [A-Za-z0-9_], remove @, troca + por _ e recebe o prefixo N_.", "location": "src/reporting/mermaid_render.py:_mermaid_sid", "confidence": "confirmed"},
+        {"id": "BR-C-35", "description": "No diagrama direto, o casal do ancestral comum vira UM no quando o ancestral nao esta numa das pontas do caminho.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph", "confidence": "confirmed"},
+        {"id": "BR-C-36", "description": "Cada subgraph do diagrama indireto e fechado pelo fim de um contextmanager.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph_indirect_bridge", "confidence": "confirmed"},
+        {"id": "BR-C-37", "description": "NOVA: os dois nomes recebem strip antes de qualquer coisa.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-38", "description": "NOVA: os candidatos unem os ids do legado aos EXATOS do dossie, sem repetir e preservando a ordem; os parecidos entram so como similar_matches, limitados a 5.", "location": "src/core/path_search.py:_candidatos", "confidence": "confirmed"},
+        {"id": "BR-C-39", "description": "NOVA: o dossie agregado so e ambiguo se ALGUM LADO for ambiguo; contagem e fichas vem so dos lados ambiguos.", "location": "src/core/path_search.py:_homonimos", "confidence": "confirmed"},
+        {"id": "BR-C-40", "description": "NOVA: sem ambiguidade e sem parecidos, o dossie e vazio e a secao nao aparece na tela.", "location": "src/core/path_search.py:_homonimos", "confidence": "confirmed"},
+        {"id": "BR-C-41", "description": "NOVA: os pares (cand1, cand2) ja calculados sao reaproveitados por cache local.", "location": "src/core/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-42", "description": "NOVA: o teto de combinacoes e LIMITE_DE_CANDIDATOS = 5 por lado.", "location": "src/core/path_search.py:LIMITE_DE_CANDIDATOS", "confidence": "confirmed"},
+        {"id": "BR-C-43", "description": "NOVA: o set de ancestrais comuns e ordenado por (meioses, maior distancia, nome) - e o EMPATE nos tres criterios herda a ordem do set (risco de PYTHONHASHSEED).", "location": "src/core/documentary_relationship.py:find_all_common_ancestors", "confidence": "inferred"},
+        {"id": "BR-C-44", "description": "NOVA: a contagem de cadeias devolve um PISO - ela para no teto de 8.", "location": "src/core/documentary_relationship.py:_cadeias_ate", "confidence": "confirmed"},
+        {"id": "BR-C-45", "description": "NOVA: person_summary monta a ficha comparavel com 12 campos, incluindo pais, nomes dos pais, conjuges, filhos e familia como filho.", "location": "src/core/documentary_relationship.py:person_summary", "confidence": "confirmed"},
+        {"id": "BR-C-46", "description": "NOVA: _diferencas compara data e local de nascimento, data de falecimento, pais, filhos e sexo entre homonimos.", "location": "src/core/documentary_relationship.py:_diferencas", "confidence": "confirmed"},
+        {"id": "BR-C-47", "description": "NOVA: identical_data e verdadeiro quando ha mais de um registro e NENHUM campo diverge.", "location": "src/core/documentary_relationship.py:homonym_dossier", "confidence": "confirmed"},
+        {"id": "BR-C-48", "description": "NOVA: hop_evidence resolve a familia por FAMC e, sem ele, pelo indice filho->familias; sem familia localizada, link_source diz isso.", "location": "src/core/documentary_relationship.py:hop_evidence", "confidence": "confirmed"},
+        {"id": "BR-C-49", "description": "NOVA: split_path_by_marriage devolve o PRIMEIRO par adjacente de conjuges e as duas metades do caminho.", "location": "src/core/family_navigation.py:split_path_by_marriage", "confidence": "confirmed"},
+        {"id": "BR-C-50", "description": "NOVA: pick_spouse_for_couple prefere o conjuge que aparece no caminho candidato; senao, o primeiro.", "location": "src/core/family_navigation.py:pick_spouse_for_couple", "confidence": "confirmed"},
+        {"id": "BR-C-51", "description": "NOVA: exclude_tail(seq, n=1) corta a cauda para nao duplicar o ancestral na ponta.", "location": "src/core/family_navigation.py:exclude_tail", "confidence": "confirmed"},
+        {"id": "BR-C-52", "description": "NOVA: o sid do par de conjuges e o dos dois ids ORDENADOS unidos por + - logo, independente da ordem recebida.", "location": "src/reporting/mermaid_render.py", "confidence": "confirmed"},
+        {"id": "BR-C-53", "description": "NOVA: linhagem direta e ac_idx em -1, 0 ou no ultimo no; so fora disso o MRCA vira no de casal.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph", "confidence": "confirmed"},
+        {"id": "BR-C-54", "description": "NOVA: os dois membros do casal sao OMITIDOS como nos proprios quando o casal e emitido.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph", "confidence": "confirmed"},
+        {"id": "BR-C-55", "description": "NOVA: o diagrama indireto abre subgraphs aninhados (COLUMNS, ESQ/DIR, *_COLS, *_L, *_R), todos com direction BT.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph_indirect_bridge", "confidence": "confirmed"},
+        {"id": "BR-C-56", "description": "NOVA: sem par de conjuges, sem caminho ate A, ou sem caminho ate B, o diagrama indireto CAI NO DIRETO com mrca=None.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph_indirect_bridge", "confidence": "confirmed"},
+        {"id": "BR-C-57", "description": "NOVA: o casamento e uma aresta rotulada entre duas ANCORAS INVISIVEIS, e nao uma seta de filiacao.", "location": "src/reporting/mermaid_render.py:generate_mermaid_graph_indirect_bridge", "confidence": "confirmed"},
+        {"id": "BR-C-58", "description": "NOVA: as cores sao fixas por papel - p1 verde, p2 vermelho, MRCA/casal amarelo e o casal da afinidade laranja.", "location": "src/reporting/mermaid_render.py", "confidence": "confirmed"},
+        {"id": "BR-C-59", "description": "NOVA: resolvedor_de_diagrama devolve sete consultas LIGADAS A ARVORE, e o renderizador NAO importa core.", "location": "src/core/diagram_domain.py:resolvedor_de_diagrama", "confidence": "confirmed"},
+        {"id": "BR-C-60", "description": "NOVA: o desfecho e derivado de (payload, sucesso), nunca do texto - payload presente RESULTADO; sem payload e com sucesso SEM_RESULTADO; sem payload e sem sucesso ERRO_DE_ENTRADA.", "location": "src/application/path_search.py:_desfecho", "confidence": "confirmed"},
+        {"id": "BR-C-61", "description": "NOVA: o campo de template NAO atravessa a fronteira - 'dados' e o payload do nucleo sem renomear nada.", "location": "src/application/path_search.py:ResultadoDeBusca", "confidence": "confirmed"},
+        {"id": "BR-C-62", "description": "NOVA: o caso de uso NAO monta as dependencias de diagrama por requisicao - elas chegam por parametro, montadas uma vez na borda.", "location": "src/application/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-63", "description": "NOVA: dono esta na assinatura e NAO participa de decisao nenhuma.", "location": "src/application/path_search.py:path_search", "confidence": "confirmed"},
+        {"id": "BR-C-64", "description": "NOVA: a rota escolhe o modo de renderizacao pelo DESFECHO, nunca pelo texto da mensagem.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-C-65", "description": "NOVA: erro de dominio passa pela tabela de traducao; falha inesperada vira 'Ocorreu um erro: {e}' com success=False.", "location": "src/app.py:index", "confidence": "confirmed"},
+        {"id": "BR-C-66", "description": "NOVA: __all__ de core/path_search.py declara APENAS path_search - o bloco que reexportava 17 nomes foi removido (OPP-20261006-ESKO).", "location": "src/core/path_search.py:__all__", "confidence": "confirmed"},
+        {"id": "BR-C-67", "description": "NOVA: nomes_de_exibicao e a lista ORDENADA de get_name sobre a arvore, compartilhada pelos tres fluxos.", "location": "src/application/__init__.py:nomes_de_exibicao", "confidence": "confirmed"}
       ],
-      "dependencies": [
-        "upload-gedcom"
-      ],
+      "dependencies": ["upload-gedcom", "tela-de-entrada"],
       "algorithms": [
-        "BFS bidirecional subindo por pais, alternando a expansao entre os dois lados",
-        "Caminho mais curto no grafo pessoa-familia com compressao dos nos de familia",
-        "Traducao de graus (subidas de cada lado) em rotulo, chave canonica e meioses",
-        "Evidencia por salto com idade implicita do genitor e faixa de plausibilidade",
-        "Contagem de cadeias distintas ate o mesmo ancestral para detectar colapso de pedigree",
-        "Dossie de homonimos por nome normalizado sem acento, com cache invalidado por versao",
-        "Escolha entre homonimos por combinacao limitada, vencendo a primeira com caminho",
-        "Contrato de escape de rotulo Mermaid por lista branca",
-        "Emissao de subgrafos com fechamento garantido por context manager"
+        {"name": "BFS bidirecional por pais", "description": "Duas fronteiras sobem por get_parents, alternando um nivel de cada lado. Teto de 20 ITERACOES, nao de geracoes; o corte e silencioso e o aviso diz que nao prova ausencia de parentesco.", "confidence": "confirmed"},
+        {"name": "Caminho indireto com compressao de familias", "description": "nx.shortest_path no grafo bipartido com teto de 40 ARESTAS (aprox. 20 vinculos pessoa-a-pessoa); depois os nos de familia sao removidos.", "confidence": "confirmed"},
+        {"name": "Escolha entre homonimos por 5x5", "description": "O dossie compara nomes SEM ACENTO e com demojibake; ate 5x5 combinacoes sao testadas em cache e vence a primeira com caminho.", "confidence": "confirmed"},
+        {"name": "Traducao de graus em parentesco", "description": "documentary_label devolve chave canonica (casa com o SCP 4.0), rotulo e meioses. Linha direta usa 'bis' repetido n-2 vezes.", "confidence": "confirmed"},
+        {"name": "Evidencia de cada salto com idade implicita", "description": "Idade de genitor fora de 12-70 marca plausible=False e avisa data_impossivel, SEM invalidar o vinculo. Sem data, plausible e None.", "confidence": "confirmed"},
+        {"name": "Colapso de pedigree por contagem de cadeias", "description": "Mais de uma cadeia de pais ate o mesmo ancestral, com teto de 8 - o numero exibido e um PISO.", "confidence": "confirmed"},
+        {"name": "Contrato de dominio do renderizador", "description": "mermaid_render NAO importa core: recebe o resolvedor de diagrama, um dict de 7 consultas ligadas a arvore por functools.partial. As decisoes de layout continuam no renderizador (ADR-11).", "confidence": "confirmed"},
+        {"name": "Subgrafo com fechamento garantido", "description": "O 'end' de cada subgraph e o fim de um contextmanager: um end a mais ou a menos muda a arvore do diagrama SEM levantar erro.", "confidence": "confirmed"},
+        {"name": "Desfecho em tres valores", "description": "Payload presente -> RESULTADO; sem payload e com sucesso -> SEM_RESULTADO; sem payload e sem sucesso -> ERRO_DE_ENTRADA. Nunca do texto da mensagem.", "confidence": "confirmed"}
       ],
-      "complexity": "high",
-      "counts": {
-        "files": 5,
-        "functions": 26,
-        "entities": 7,
-        "business_rules": 36
-      }
+      "complexity": "high"
     },
     {
-      "name": "transversal",
-      "path": "src/app.py + src/utils/number_format.py",
-      "purpose": "Camada de rota e apresentacao: despacho por action, teto de requisicao, resolucao da pasta de upload ancorada no arquivo, filtros de formatacao numerica e o bloco de entrada com servidor de producao e guarda de instancia unica.",
+      "name": "recursos-da-tela",
+      "path": "src/app.py (as duas rotas de arte) + src/assets/* + tests/{icone_de_atalho,banner_da_tela}.py (as receitas)",
+      "purpose": "Servir as duas artes de runtime - icone de atalho e banner do topo - como RENDERIZACOES DERIVADAS das fontes canonicas, com degradacao em 404 e revalidacao por ETag.",
       "primary_files": [
         "src/app.py",
-        "src/utils/number_format.py"
+        "src/assets/apple-touch-icon.png",
+        "src/assets/banner-da-tela.png",
+        "tests/icone_de_atalho.py",
+        "tests/banner_da_tela.py",
+        "tests/test_deriva_da_arte.py"
       ],
-      "endpoints": [
-        "GET /",
-        "POST / (despacho por action)"
+      "endpoints": ["GET /apple-touch-icon.png", "GET /banner.png"],
+      "lines_useful": 0,
+      "lines_note": "ZERO linhas uteis proprias: as duas rotas moram em src/app.py, dentro do balde transversal. A unidade existe como unidade de CONTRATO, e nao de arquivo.",
+      "rules_id_prefix": "BR-E",
+      "functions": [
+        {"name": "icone_de_atalho", "file": "src/app.py", "params": [], "returns": "PNG 200 | (\"\", 404)", "confidence": "confirmed"},
+        {"name": "banner_do_topo", "file": "src/app.py", "params": [], "returns": "PNG 200 | (\"\", 404)", "confidence": "confirmed"},
+        {"name": "arte_derivada", "file": "tests/icone_de_atalho.py", "params": ["caminho_canonico"], "returns": "Image 180x180 RGB", "confidence": "confirmed"},
+        {"name": "bytes_da_arte / gravar_arte", "file": "tests/icone_de_atalho.py", "params": ["caminhos"], "returns": "bytes / int", "confidence": "confirmed"},
+        {"name": "_e_fundo / mascara_do_fundo", "file": "tests/banner_da_tela.py", "params": ["pixel / imagem"], "returns": "bool / bytearray", "confidence": "confirmed"},
+        {"name": "arte_limpa", "file": "tests/banner_da_tela.py", "params": [], "returns": "Image RGBA", "confidence": "confirmed"},
+        {"name": "residuo_de_fundo", "file": "tests/banner_da_tela.py", "params": ["imagem"], "returns": "int", "confidence": "confirmed"},
+        {"name": "_imagens_diferem", "file": "tests/test_deriva_da_arte.py", "params": ["caminho"], "returns": "bool (compara PIXEL)", "confidence": "confirmed"}
       ],
-      "functions": [],
-      "entities": [],
-      "business_rules": [],
-      "business_rules_note": "As regras de porta de entrada e de formatacao estao catalogadas como BR-U-01 a BR-U-16 em _reversa_sdd/code-analysis.md §2.5.",
-      "dependencies": [
-        "upload-gedcom",
-        "analise-dna",
-        "busca-caminho"
+      "entities": [
+        {"name": "ARTE_DO_ICONE / ARTE_DO_TOPO", "where": "src/app.py", "shape": "chaves de app.config com o caminho absoluto da arte; existem para o caso de AUSENCIA ser testavel sem tocar no repositorio", "confidence": "confirmed"},
+        {"name": "src/assets/apple-touch-icon.png", "where": "src/assets/", "shape": "PNG 16504 bytes, 180x180, tipo de cor 2 (truecolor SEM alfa)", "confidence": "confirmed"},
+        {"name": "src/assets/banner-da-tela.png", "where": "src/assets/", "shape": "PNG RGBA 317058 bytes, fundo quadriculado removido", "confidence": "confirmed"},
+        {"name": "ARTE_CANONICA / ARTE_DE_RUNTIME", "where": "tests/icone_de_atalho.py", "shape": "docs/assets/img/logo.png e src/assets/apple-touch-icon.png", "confidence": "confirmed"},
+        {"name": "FONTE / ARTE_DE_RUNTIME (banner)", "where": "tests/banner_da_tela.py", "shape": "docs/assets/img/banner-analisador.png e src/assets/banner-da-tela.png", "confidence": "confirmed"}
       ],
+      "business_rules": [
+        {"id": "BR-E-01", "description": "As duas rotas sao registradas SOMENTE com GET; a escrita e recusada pelo roteador com 405.", "location": "src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-02", "description": "A rota do icone serve app.config['ARTE_DO_ICONE']; a do banner, 'ARTE_DO_TOPO'.", "location": "src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-03", "description": "Arte ausente devolve resposta VAZIA com 404, e nada mais muda.", "location": "src/app.py:icone_de_atalho, banner_do_topo", "confidence": "confirmed"},
+        {"id": "BR-E-04", "description": "As duas rotas declaram mimetype='image/png'.", "location": "src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-05", "description": "Os caminhos sao ancorados no ARQUIVO DO APP, e nao no diretorio corrente.", "location": "src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-06", "description": "Nao ha Cache-Control de validade longa; a revalidacao e o ETag do send_file, que responde 304 sem corpo.", "location": "src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-07", "description": "O icone de atalho e descoberto por CAMINHO CONVENCIONAL; o template NAO o declara.", "location": "tests/test_icone_de_atalho.py", "confidence": "confirmed"},
+        {"id": "BR-E-08", "description": "O icone da aba continua sendo um data URI embutido, e nao uma segunda rota.", "location": "src/templates/index.html", "confidence": "confirmed"},
+        {"id": "BR-E-09", "description": "favicon.ico e apple-touch-icon-precomposed.png NAO tem rota (superficie sem consumidor).", "location": "tests/test_icone_de_atalho.py", "confidence": "confirmed"},
+        {"id": "BR-E-10", "description": "O icone e a canonica composta sobre branco e reamostrada para 180x180 com LANCZOS.", "location": "tests/icone_de_atalho.py:arte_derivada", "confidence": "confirmed"},
+        {"id": "BR-E-11", "description": "O fundo do icone e BRANCO: a arte tem 51,5% de creme em duas tonalidades e eleger uma faria a outra parecer errada.", "location": "tests/icone_de_atalho.py:FUNDO", "confidence": "confirmed"},
+        {"id": "BR-E-12", "description": "Os cantos do icone ficam RETOS: o sistema aplica a propria mascara arredondada.", "location": "tests/icone_de_atalho.py", "confidence": "confirmed"},
+        {"id": "BR-E-13", "description": "O PNG do icone tem 16.504 bytes, e esse numero e a ancora contra reamostragem, fundo ou compressao diferentes.", "location": "tests/icone_de_atalho.py:TAMANHO_ESPERADO", "confidence": "confirmed"},
+        {"id": "BR-E-14", "description": "A opacidade do icone e provada pelo TIPO DE COR 2 do IHDR, sem biblioteca de imagem.", "location": "tests/test_icone_de_atalho.py", "confidence": "confirmed"},
+        {"id": "BR-E-15", "description": "O banner e a fonte com o fundo removido, porque a fonte chegou em RGB com o quadriculado gravado no bitmap.", "location": "src/app.py, tests/banner_da_tela.py", "confidence": "confirmed"},
+        {"id": "BR-E-16", "description": "A remocao de fundo e GLOBAL, e nao por inundacao a partir da borda.", "location": "tests/banner_da_tela.py:mascara_do_fundo", "confidence": "confirmed"},
+        {"id": "BR-E-17", "description": "Um pixel e fundo em DUAS FAIXAS: brilho >=190 com saturacao <=50, e 160-190 com saturacao <=12; abaixo de 160 nunca.", "location": "tests/banner_da_tela.py:_e_fundo", "confidence": "confirmed"},
+        {"id": "BR-E-18", "description": "CLARO_MINIMO=160 e SATURACAO_MAXIMA=50 saem de MEDICAO, com folga declarada nos dois lados.", "location": "tests/banner_da_tela.py", "confidence": "confirmed"},
+        {"id": "BR-E-19", "description": "A fronteira recebe ALFA PROPORCIONAL a distancia do fundo, para o serrilhado nao virar halo.", "location": "tests/banner_da_tela.py:arte_limpa", "confidence": "confirmed"},
+        {"id": "BR-E-20", "description": "O residuo e medido com limite MAIS ESTRITO que o da regra, e precisa ser ZERO na caixa de regressao.", "location": "tests/banner_da_tela.py:residuo_de_fundo", "confidence": "confirmed"},
+        {"id": "BR-E-21", "description": "Onze pontos da arte tem de continuar opacos, cobrindo arte escura pouco saturada e arte clara quase neutra.", "location": "tests/test_banner_do_topo.py", "confidence": "confirmed"},
+        {"id": "BR-E-22", "description": "A arte de runtime mora em src/assets/, porque o .dockerignore e lista de PERMISSAO (*, !requirements.txt, !src/, !src/**).", "location": ".dockerignore, src/app.py", "confidence": "confirmed"},
+        {"id": "BR-E-23", "description": "src/static/ e proibida (W004), com teste que falha se a arte cair numa pasta estatica.", "location": "tests/test_deriva_da_arte.py", "confidence": "confirmed"},
+        {"id": "BR-E-24", "description": "src/uploads/ e reexcluido do contexto de build DEPOIS de !src/**, porque carrega dado real do operador.", "location": ".dockerignore", "confidence": "confirmed"},
+        {"id": "BR-E-25", "description": "A arte derivada e COMMITADA, e nao gerada em tempo de execucao: a fonte canonica nao entra na imagem.", "location": "tests/icone_de_atalho.py", "confidence": "confirmed"},
+        {"id": "BR-E-26", "description": "A receita tem FONTE UNICA em tests/, e o teste de deriva a importa e compara PIXEL com o arquivo commitado.", "location": "tests/test_deriva_da_arte.py", "confidence": "confirmed"},
+        {"id": "BR-E-27", "description": "A comparacao por sha256 entre canonica e derivada e proibida na pratica: recompressao muda bytes e nao pixels.", "location": "tests/test_deriva_da_arte.py", "confidence": "confirmed"},
+        {"id": "BR-E-28", "description": "A biblioteca de imagem NAO entra em requirements.txt, que e lista de RUNTIME.", "location": "tests/test_deriva_da_arte.py", "confidence": "confirmed"},
+        {"id": "BR-E-29", "description": "A masthead segue a ordem imagem -> subtitulo -> titulo em texto -> texto de apresentacao.", "location": "src/templates/index.html", "confidence": "confirmed"},
+        {"id": "BR-E-30", "description": "A arte do topo e reduzida a w-50, e o alt descreve a ILUSTRACAO, nunca o titulo.", "location": "src/templates/index.html", "confidence": "confirmed"}
+      ],
+      "dependencies": [],
       "algorithms": [
-        "Despacho de acao por campo action do formulario",
-        "Resolucao da pasta de upload ancorada no arquivo do app, com override por ambiente",
-        "Guarda de instancia unica por socket ligado antes de servir, com SO_EXCLUSIVEADDRUSE no Windows",
-        "Formatacao numerica de apresentacao sem arredondar o valor armazenado"
+        {"name": "Derivacao do icone", "description": "Canonica (32,5% transparente) composta sobre BRANCO e reamostrada para 180x180 com LANCZOS e cantos RETOS: o sistema movel compoe transparencia sobre PRETO e aplica a propria mascara arredondada.", "confidence": "confirmed"},
+        {"name": "Remocao de fundo GLOBAL do banner", "description": "Nao e inundacao a partir da borda: a arvore, o livro e o texto formam anuncios fechados e a inundacao deixava 8.379 pixels de fundo opacos numa amostra de 1/9 da imagem.", "confidence": "confirmed"},
+        {"name": "Duas faixas de brilho em _e_fundo", "description": ">=190 com saturacao <=50 e 160-190 com saturacao <=12; abaixo de 160 nunca e fundo. Um limite unico deixava as letras do texto dourado OCAS.", "confidence": "confirmed"},
+        {"name": "Alfa proporcional na fronteira", "description": "Quanto mais claro o pixel, mais transparente - evita o halo do serrilhado de 1-2 pixels entre a arte e o xadrez.", "confidence": "confirmed"},
+        {"name": "Metrica de residuo nao-circular", "description": "residuo_de_fundo usa SATURACAO_MAXIMA-5, mais apertado que a regra: medir com o mesmo limite devolve sempre zero, e foi esse erro que deixou o bloco passar duas vezes.", "confidence": "confirmed"},
+        {"name": "Comparacao de deriva por PIXEL", "description": "Nunca por sha256: o mesmo desenho existe com 32.317 e 44.069 bytes com diferenca de pixel ZERO. O teste regenera a derivada e compara com o arquivo commitado, e prova ser sensivel a UM pixel.", "confidence": "confirmed"}
       ],
-      "complexity": "medium",
-      "counts": {
-        "files": 2,
-        "functions": 6,
-        "entities": 0,
-        "business_rules": 16
-      }
+      "complexity": "medium"
     }
   ]
 }
