@@ -68,7 +68,7 @@ for linha in linhas:
         c = [x.strip() for x in linha.strip().strip("|").split("|")]
         if len(c) == 7:
             acoes.append(c)
-conferir(len(acoes) == 34, f"34 acoes reconhecidas pelo detector (achei {len(acoes)})")
+conferir(len(acoes) == 40, f"40 acoes reconhecidas pelo detector (achei {len(acoes)})")
 marcadas = [c[0] for c in acoes if c[3].strip("`") == "[//]"]
 conferir(len(marcadas) == 24, f"24 marcadas [//] (achei {len(marcadas)})")
 
