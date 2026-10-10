@@ -28,10 +28,16 @@ Nada é apagado, renomeado ou alterado por esta feature.
 | `_reversa_sdd/upload-gedcom/contracts.md#1.1` | O contrato da requisição: rota única com despacho por `action` e `enctype` de formulário | 🟢 |
 | `_reversa_sdd/analise-dna/contracts.md#1.1` | Hoje o CSV entra **na requisição da análise**; escolher de uma lista cria uma referência que precisa viajar entre requisições | 🟢 |
 | `_reversa_sdd/user-stories/upload-gedcom.md#us-u-04--continuidade-entre-requisições` | A continuidade é história de usuário declarada, não detalhe de implementação | 🟢 |
-| `_reversa_sdd/architecture.md#7` | Dívida 8: "nada é persistido entre requisições" — propriedade deliberada, que esta feature não pode quebrar | 🟢 |
+| `_reversa_sdd/architecture.md#7` | Dívida 8: "nada é persistido entre requisições". O artefato dá a ela gravidade **🟡 Média** e registra que **não há decisão de negócio** sobre isso. Esta feature **não** a quebra — e **não** a promove a propriedade deliberada, que é o que a `A004` da auditoria corrigiu | 🟢 |
 | `_reversa_sdd/inventory.md#4` | A pasta de upload é resolvida por `ANALISADOR_UPLOAD_FOLDER` e é a fonte da lista | 🟢 |
 | `_reversa_sdd/screens/golden/SCR-001-initial-upload.html.txt` | O golden da tela de entrada — **do oráculo legado congelado**, não da aplicação atual. Medido no plano: a mudança do `GET /` **não** o invalida; o que fica é uma divergência declarada | 🟢 |
 | `_reversa_forward/010-uploads-fora-do-repositorio/onboarding.md#16` | A pasta canônica está fora do repositório e tem duas cópias idênticas de 36 arquivos | 🟢 |
+> **Vocabulário, fixado pela `A005` da auditoria.** Os rótulos literais das abas — **"Buscar Conexão no
+> GEDCOM"** e **"Analisador de DNA"** — são **texto de contrato congelado** (`RN-22`), e há teste que os
+> prende no corpo da resposta. Ao longo deste plano, "aba de árvore" e "aba de DNA" são **apelidos
+> internos** para essas duas abas, e não rótulos alternativos: onde o plano diz "aba de árvore", leia-se a
+> aba cujo rótulo na tela é "Buscar Conexão no GEDCOM".
+
 | Medição desta feature (2026-10-09) | Na pasta canônica: **36 arquivos**, dos quais **19 `.csv`**, **16 `.ged`** e **1 `.xlsx`**. Aplicando a regra de agrupar pela chave do nome: a aba de árvore dá **15 itens para 16 arquivos** e a de DNA dá **19 itens para 19 arquivos** — o agrupamento quase não reduz. Dos 36, **18 são resíduo de instrumento** (9 na aba de árvore, 9 na de DNA), e é a remoção deles que leva as abas a 7 e 10 arquivos. **3 arquivos não têm chave no nome** (`Adriano_Santos.ged`, `Arvore_Unificada_Oficial_V1_2.ged` e `Famílias_Sergipanas.csv`), e o `.xlsx` não aparece em aba nenhuma | 🟢 |
 
 ## 3. Personas e cenários de uso
@@ -63,8 +69,11 @@ Nada é apagado, renomeado ou alterado por esta feature.
    - Tipo: **alterada** para o CSV (o contrato da árvore não muda)
 5. **RN-05:** A lista é lida do disco no momento de renderizar a tela; **nada** é mantido em memória entre
    requisições. 🟢
-   - Origem no legado: `_reversa_sdd/architecture.md#7` (dívida 8) — propriedade preservada
-   - Tipo: **preservada** — confirmada na §9: a escolha do operador também **não** sobrevive ao fechamento
+   - Origem no legado: `_reversa_sdd/architecture.md#7` (dívida 8) — gravidade **🟡 Média**, e o artefato
+     registra que **não há decisão de negócio** sobre isso. "Preservada" aqui significa **não piorada por
+     esta feature**, e não propriedade deliberada do projeto: a `A004` da auditoria corrigiu a
+     qualificação, que atribuía ao artefato uma intenção que ele não declara
+   - Tipo: **preservada** — confirmado na §9: a escolha do operador também **não** sobrevive ao fechamento
      da página
 6. **RN-06:** Escolher um arquivo não o altera, não o copia e não cria arquivo novo. 🟢
    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.2`
