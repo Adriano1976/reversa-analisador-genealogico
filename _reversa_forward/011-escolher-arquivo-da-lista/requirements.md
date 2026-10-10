@@ -82,6 +82,14 @@ Nada é apagado, renomeado ou alterado por esta feature.
    remove, renomeia ou move arquivo. 🟢
    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#2.2`, `_reversa_sdd/state-machines.md#5`
    - Tipo: **preservada** — a remoção pela tela é decisão adiada para outra feature
+   - **DESATUALIZADA em 2026-10-10, e a leitura correta é esta.** A segunda metade da frase — "nenhuma
+     ação desta feature remove, renomeia ou **move** arquivo" — **deixou de ser verdade** quando a `RN-14`
+     (o botão **Apagar** aposenta, movendo o arquivo para `_aposentados/`) e a `RN-17` (o reenvio de mesmo
+     nome com conteúdo novo **substitui**, aposentando a versão anterior) entraram. **O que continua de
+     pé, e é a parte que importa, é a primeira metade:** a aplicação **nunca apaga** arquivo enviado. O que
+     ela passou a fazer é **mover** — e todo movimento é reversível. Esta linha fica como está, por ser
+     registro do plano; o contrato vigente está nas `RN-14` e `RN-17` do adendo
+   - Origem da correção: a `RN-07` foi lida contra o código em 2026-10-10 e a contradição ficou visível
 8. **RN-08:** As ações HTTP existentes (`upload_gedcom`, `path_search`, `dna_analysis`) mantêm nome e
    campos, para a paridade diferencial e os testes de rota continuarem válidos. 🟢
    - Origem no legado: `_reversa_sdd/upload-gedcom/contracts.md#1.1`, `_reversa_sdd/analise-dna/contracts.md#1`
@@ -119,6 +127,23 @@ Nada é apagado, renomeado ou alterado por esta feature.
 | RF-07 | Estado vazio: sem arquivo do tipo na pasta, a aba orienta o envio e não falha | Must | Com a pasta vazia, a aba mostra a orientação de envio e responde `200` | 🟢 |
 | RF-08 | Nenhuma ação da feature remove, renomeia ou altera arquivo armazenado | Must | Inventário por `sha256` da pasta antes e depois de percorrer todas as telas: idêntico | 🟢 |
 | RF-09 | A lista marca o item cujo arquivo **não pode ser usado por referência**, com o motivo, sem escondê-lo | Must | Medido em 2026-10-09: **3 dos 7 itens** da aba de árvore e **3 dos 10** da de DNA são marcados como indisponíveis, com o motivo, e nenhum arquivo desaparece da lista | 🟢 |
+
+## 5.1 Nota de leitura: `RF-08` e `RN-07`, conferidos contra o codigo em 2026-10-10
+
+Os dois enunciados dizem que nenhuma acao desta feature "remove, renomeia ou **move**" arquivo armazenado.
+Isso **deixou de ser verdade** quando a `RN-14` (o botao **Apagar** aposenta) e a `RN-17` (o reenvio
+substitui) entraram: as duas **movem** arquivo, para `_aposentados/`.
+
+**O criterio do `RF-08` continua satisfeito**, e vale ver por que: ele fala de "percorrer todas as
+**telas**", e navegar continua sendo leitura pura. Medido: os instrumentos de inventario desta feature
+(`_fase1_linha_de_base.py`, `_fase5_escopo.py`) enumeram com `iterdir()`, **sem recursao** — entao um
+inventario rodado **depois** de usar o botao Apagar divergiria no nivel de cima, enquanto um inventario
+**recursivo** continuaria identico, porque o arquivo **nao sai de `src/uploads`**: ele muda de posicao,
+dentro dela.
+
+**O que sobrevive, e e a garantia que importa:** a aplicacao **nunca apaga** arquivo enviado. As linhas
+originais de `RF-08` e `RN-07` ficam como estao, por serem registro do plano; o contrato vigente esta nas
+`RN-14` e `RN-17` do adendo.
 
 ## 6. Requisitos Não Funcionais
 

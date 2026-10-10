@@ -35,9 +35,9 @@ para que a paridade e os testes de rota continuem exercitando o contrato de hoje
 
 ## 3. Preservadas (regras 🟢 de `domain.md` que continuam intactas)
 
-- `domain.md:139` — a **forma fechada** do nome (`^[0-9a-f]{16}__[A-Za-z0-9._-]+$`) continua sendo a
-  defesa contra escape da pasta, e continua **sem lista negra**. A `011` a **reusa** em vez de
-  reimplementar.
+- `domain.md:139` — **MOVIDA para a §4 em 2026-10-10.** O criterio da defesa contra escape mudou com a
+  `RN-20`, entao a regra deixou de ser "preservada". O leitor que chegou aqui procurando por ela encontra o
+  registro completo na secao seguinte.
 - `domain.md:140` — a extensao original e preservada no nome visivel. E a base factual de `RN-03`/`RN-09`.
 - `domain.md:141` — a chave de conteudo e o identificador que circula entre requisicoes. A `011`
   **estende** o mecanismo ao CSV; nao inventa um segundo.
@@ -54,6 +54,15 @@ para que a paridade e os testes de rota continuem exercitando o contrato de hoje
   **"CSV presente ou referencia presente"**. O caminho antigo continua valido; o que deixa de valer e a
   leitura **literal** da linha, que vira uma disjuncao. Declarada no `roadmap.md` §5 como
   `regra-alterada`, e levada ao adendo pela `T032`.
+- **`domain.md:139`, a defesa contra escape do nome — MOVIDA para ca em 2026-10-10.** Ela estava na §3
+  acima como **preservada**, e deixou de ser: o que se preservou foi a **defesa, sem lista negra** — a
+  exigencia de que a referencia seja um **NOME**. O que mudou foi o *criterio* dela. Ate a `RN-20` era um
+  **alfabeto fechado** (`^[0-9a-f]{16}__[A-Za-z0-9._-]+$`) que recusava o acento e o espaco que o gravador
+  PRESERVA (`RF-06`) — o defeito de raiz que virou o `BUG-20261009-6RKP`, hoje **encerrado** com `DONE.md`.
+  O criterio passou a ser o mesmo de `referencia_de_arquivo_da_pasta`: sem barra, sem barra invertida, sem
+  byte nulo, sem `.` nem `..`, e igual ao proprio `basename`. **Os cinco casos de escape do
+  `BUG-20260929-QMLY` continuam recusados, com teste para cada um** — a reclassificacao e do criterio, e
+  nao da garantia. Registro completo na `RN-20` do adendo vigente.
 
 ## 5. Divergencia declarada, e o que NAO foi resolvido
 

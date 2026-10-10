@@ -163,6 +163,43 @@ class TestTabelaComColunas:
         assert CHAVE_A not in visivel, "a chave de conteudo virou TEXTO na tabela"
 
 
+    def test_a_coluna_tamanho_traz_o_valor_formatado(self, cliente_de_upload):
+        """`T020`: o item mostra o TAMANHO, e nao so o rotulo da coluna.
+
+        Lacuna medida em 2026-10-10: o cabecalho `Tamanho` era assertado, e o **valor** nao era
+        assertado em lugar nenhum. Um arquivo de 1200 bytes da um literal conhecido (`1.200
+        bytes`, com o separador de milhar brasileiro), entao a assercao nao depende do proprio
+        filtro para saber o que esperar.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        _guardar(pasta, f"{CHAVE_A}__arvore.ged", b"x" * 1200)
+
+        corpo = _corpo(cliente)
+
+        assert "1.200 bytes" in corpo, "a coluna Tamanho nao trouxe o valor do arquivo"
+
+    def test_a_aba_de_dna_tem_as_mesmas_colunas(self, cliente_de_upload):
+        """`T020` diz "as duas listas", e o teste so olhava a de arvore.
+
+        Lacuna medida em 2026-10-10: da aba de DNA so se assertava o NOME do relatorio. As
+        colunas de situacao, tamanho, data e gerenciar dela nao tinham prova.
+
+        O arquivo de ARVORE e necessario ALÉM do CSV, e a primeira versao deste teste o esqueceu:
+        cada tabela vive dentro do ramo da sua lista, entao sem arvore na pasta a aba de arvore
+        nao desenha tabela nenhuma — e a contagem de tabelas media isso, e nao o cabecalho.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        _guardar(pasta, f"{CHAVE_A}__arvore.ged")
+        _guardar(pasta, f"{CHAVE_B}__relatorio.csv", b"nome,cm\nMaria,100\n")
+
+        corpo = _corpo(cliente)
+        tabelas = re.findall(r"(?s)<table.*?</table>", corpo)
+
+        assert len(tabelas) == 2, "esperava uma tabela por aba"
+        cabecalho = re.findall(r"<th[^>]*>([^<]*)</th>", tabelas[1])
+        assert cabecalho == COLUNAS, f"o cabecalho da aba de DNA e {cabecalho}"
+
+
 class TestTelaVazia:
     """A decisao de a tabela viver dentro do `{% if %}` da lista."""
 

@@ -8,7 +8,7 @@
 
 | Métrica | Valor |
 |---------|-------|
-| Total de ações | 43 |
+| Total de ações | 45 |
 | Paralelizáveis (`[//]`) | 24 |
 | Maior cadeia de dependência | 12 (`T001 → T005 → T014 → T015 → T016 → T019 → T020 → T021 → T022 → T023 → T031 → T032`) |
 
@@ -86,6 +86,8 @@
 | T041 | Conserto de RAIZ do `BUG-20261009-6RKP`: `chave_recebida_e_valida` deixa de exigir o alfabeto fechado e passa a exigir que a referencia seja um **NOME** (o mesmo criterio de `referencia_de_arquivo_da_pasta`), aceitando acento e espaco que o gravador produz (`RF-06`, `RN-20`) | T014 | - | `src/utils/validate.py` | 🟢 | [X] |
 | T042 | Conserto do `A008`: o parse de `_arvore_do_formulario` ganha guarda, o traceback vai para o LOG e a tela devolve mensagem; as duas mensagens de erro passam a usar o rotulo, e nao a referencia com a chave (`D-09`) | T018 | - | `src/app.py` | 🟢 | [X] |
 | T043 | A arte do topo passa a ser a **composicao nova** enviada pelo operador (arvore, livro e texto), e a remocao do quadriculado gravado ganha **duas faixas de brilho**: teto de saturacao largo acima de 190 e estreito entre 160 e 190, para o preenchimento claro do texto nao virar buraco | T036 | - | `tests/banner_da_tela.py`, `docs/assets/img/banner-analisador.png` | 🟢 | [X] |
+| T044 | O topo da tela passa a ser a **masthead** pedida: arte a 50%, subtitulo, titulo em texto e o texto de apresentacao em dois paragrafos, com o `alt` da arte descrevendo a ilustracao (`RN-23`) | T036 | - | `src/templates/index.html` | 🟢 | [X] |
+| T045 | O texto de apresentacao do topo fica centralizado e em coluna estreita (`col-lg-9`), na forma organizada da documentacao, em vez de alinhado a esquerda na largura do cartao (`RN-24`) | T044 | - | `src/templates/index.html` | 🟢 | [X] |
 
 ## Notas de execução
 
@@ -149,6 +151,8 @@
 | 2026-10-10 | **`T028` FECHADO, e a premissa dele era falsa.** A ação dizia que "a tela de entrada descrita deixa de existir", mas o `README` **nunca a descreveu**: ele trata de arquitetura, caminho do dado, pasta canônica, configuração e árvore de arquivos. Não havia o que corrigir, e sim o que **acrescentar** — que é o que foi feito: a seção `## A tela de entrada`, com as duas abas, a tabela de arquivos, os botões, os três desfechos do envio, o caminho de volta e as mensagens de recusa, mais uma referência a `_aposentados/` na seção de pastas. Nêmhuma linha de código mudou | reversa |
 | 2026-10-10 | Correção das três da auditoria: `A004` (a dívida 8 não é propriedade deliberada), `A005` (`RN-23` fixa os rótulos literais das abas) e `A006` (os IDs `RN-06`, `RN-07`, `RN-09`, `RF-01` e `RF-03` passam a ser citados nas ações que os cobrem). **Nenhuma linha de código mudou** | reversa |
 | 2026-10-10 | `T043` acrescentada: a arte do topo troca de composicao e a remocao de fundo passa a usar duas faixas de brilho. Total 42 → 43. Dois defeitos MEDIDOS na mesma receita: o limite de brilho em 190 cortava no meio do cinza do fundo (185..194) e deixava 22.275 px de chuvisco; e o teto de saturacao largo na faixa escura deixava o texto dourado OCO. Os dois foram vistos no composto sobre magenta, nao na metrica | reversa |
+| 2026-10-10 | `T044` acrescentada por **pedido do operador**: o topo vira masthead com a arte a 50%, subtítulo, título em texto e o texto de apresentação. Total 43 → 44. **Inverte a `RN-16`**: o título volta a ser texto visível, e o `alt` da arte passa a descrever a ilustração. O `SHA_DA_TELA` foi atualizado de `c1048cef…` (26.007 bytes) para `36070ae0…` (27.209) | reversa |
+| 2026-10-10 | `T045` acrescentada por **pedido do operador**: o texto de apresentação passa a ficar centralizado e em coluna estreita (`RN-24`). Total 44 → 45. O `SHA_DA_TELA` foi de `36070ae0…` (27.209 bytes) para `17240e5a…` (27.502) | reversa |
 | 2026-10-10 | `T042` acrescentada: **conserto do `A008`** (`MEDIUM`), o unico item pendente que produzia `500` com traceback na tela do operador. Total 41 → 42. O `A008` dizia "nao alcancavel com os 19 arquivos de hoje"; medido agora, o caminho de CLIQUE nao chega la, mas a REQUISICAO chega, e **10 dos 13 arquivos da pasta real** derrubavam o parser | reversa |
 | 2026-10-10 | `T041` acrescentada: **conserto de raiz** do `BUG-20261009-6RKP`, decidido pelo operador ("o código cede"). Total 40 → 41. A defesa contra escape NÃO era o alfabeto fechado, e sim a exigência de a referência ser um NOME: os cinco casos do `BUG-20260929-QMLY` continuam recusados, e há teste para cada um | reversa |
 | 2026-10-10 | `T040` acrescentada por **pergunta do operador** ("como voltar para a tela inicial?"). Total 39 → 40. Medido antes de decidir: a tela de busca tinha ZERO `<a href>` e nao dizia qual arvore estava aberta. Escolhido LINK e nao `action`, para nao passar pelo despacho da rota | reversa |
