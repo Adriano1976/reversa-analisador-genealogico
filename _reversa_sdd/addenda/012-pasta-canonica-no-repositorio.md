@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-09.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 Esta feature **reverte**, em parte, a decisão de operação que o adendo `010-uploads-fora-do-repositorio`

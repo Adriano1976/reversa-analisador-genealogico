@@ -96,3 +96,14 @@ tres contratos ao mesmo tempo. O nucleo nao e tocado.
   caminho, e isso e trabalho do bug, com auditoria propria.
 - **Nao recaptura golden nenhum.**
 - **Nao fecha a divida 8** (`architecture.md` §7): a aplicacao continua sem estado entre requisicoes.
+
+## Vigência
+
+Vigente desde 2026-10-09.
+
+Superado pela re-extração de 2026-10-10.
+
+> ⚠️ **Nota do Reversa, 2026-10-10:** este adendo **não tinha** seção `## Vigência` — ele usa a estrutura
+> numerada de seções 1 a 5. A seção foi **acrescentada ao final** (append-only: nenhuma linha anterior foi
+> tocada e nenhuma outra seção foi alterada), para que o consumidor encontre o mesmo marcador de vigência
+> que os demais adendos usam.

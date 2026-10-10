@@ -1,101 +1,103 @@
 # Arquitetura — analisador-genealogico
 
-> Nível de documentação: **Completo** (`state.json` → `doc_level`, decidido em 2026-10-05)
-> Re-extração de **2026-10-05**. Substitui o `architecture.md` de 2026-09-30, que descrevia a raiz `analisador-genealogico/`, o pacote `reconstructed/` (1.117 linhas) e **não conhecia** a regra final da análise nem as três dívidas que ela fechou.
-> Snapshot da versão substituída: `.reversa/snapshots/2026-10-05-pre-reextracao/architecture.md`
+> Nível de documentação: **Completo** (`state.json` → `doc_level`)
+> Re-extração de **2026-10-10**. Substitui o `architecture.md` de 2026-10-05, que descrevia **3 containers**, o estado global em `core/gedcom_state.py`, **dois ciclos de pacote** e a ausência de banco de dados.
+> Snapshot da versão substituída: `.reversa/snapshots/2026-10-10-pre-reextracao/architecture.md`
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
-> Detalhamento: `c4-context.md` (nível 1) · `c4-containers.md` (nível 2) · `c4-components.md` (nível 3) · `erd-complete.md` · `adrs/` (23 decisões) · `domain.md` · `state-machines.md` · `permissions.md`
+> Detalhamento: `c4-context.md` (nível 1) · `c4-containers.md` (nível 2) · `c4-components.md` (nível 3) · `erd-complete.md` · `adrs/` (**36** decisões) · `domain.md` · `state-machines.md` · `permissions.md`
 
 ---
 
 ## 1. Visão Geral da Arquitetura
 
-Aplicação **web monolítica de um único processo**, com renderização **server-side** (Flask 3.1.3 + Jinja2) servida por **waitress 3.0.2**, **sem banco de dados**, **sem persistência de resultados** e **sem autenticação**.
+Aplicação **web monolítica de um único processo**, com renderização **server-side** (Flask 3.1.3 + Jinja2) servida por **waitress 3.0.2**, **sem autenticação**, com **persistência de arquivos em disco** e **histórico opcional em PostgreSQL**.
 
-O que define a arquitetura atual é a separação entre uma **camada de rota fina** e um **núcleo de domínio organizado por responsabilidade**:
+O que define a arquitetura de hoje **não é o que definia a de 2026-10-05**. A separação em camadas existe desde então, mas o **mecanismo de integração mudou de natureza**: era **estado global mutável**, e hoje é **passagem de parâmetro e injeção explícita**.
 
-| Camada | Onde | Linhas | Contrato |
+| Camada | Onde | Linhas úteis | Contrato |
 | --- | --- | ---: | --- |
-| **Rota** | `src/app.py` | 267 | Valida entrada HTTP, despacha por `action`, renderiza, aplica filtros e **sobe o servidor** com a guarda de instância única. **Zero regra de negócio de domínio.** 🟢 |
-| **Núcleo** | `src/core/` + `parsers/` + `reporting/` + `utils/` | 3.489 (com o `app.py`) | Toda a decisão de domínio. **Não conhece HTTP.** 🟢 |
-| **Apresentação** | `src/templates/index.html` | 525 | Única tela: upload, abas de busca e de análise, **quatro seções de resultado** e o confronto. Bootstrap 5.3.3 e Mermaid 10 por CDN. 🟢 |
+| **Borda HTTP** | `src/app.py` | 559 | Valida entrada, despacha por `action`, **escolhe o render pelo desfecho**, monta as duas listas por processador de contexto, serve as **duas artes**, sobe o servidor com guarda de instância única. **Nenhuma regra de domínio**; **19 regras de superfície** (`BR-T-12..17`, `BR-E-01..06`) 🟢 |
+| **Aplicação** | `src/application/` (6 módulos) | 523 | Um **caso de uso por fluxo**, que **orquestra e não decide**: chama o núcleo, projeta o resultado, registra o histórico e traduz exceções 🟢 |
+| **Portas** | `src/ports/` (2 módulos) | 669 | **Quatro `Protocol`** e **três adaptadores concretos**. É a fronteira que a Onda 3 vai estender 🟢 |
+| **Núcleo** | `src/core/` (15) + `parsers/` (3) + `reporting/` (3) + `utils/` (5) | ~3.300 | Toda a decisão de domínio. **Não conhece HTTP** 🟢 |
+| **Apresentação** | `src/templates/index.html` | 731 | Tela única: upload, **duas abas de lista**, busca, análise, **quatro seções de resultado**, confronto e a masthead com arte. Bootstrap 5.3.3 e Mermaid 10 por CDN 🟢 |
 
-> **Nota sobre a contagem da rota:** o `app.py` **cresceu** de 84 para 267 linhas, e isso **não** contradiz a decisão de rota fina (ADR-02). As linhas acrescentadas são **infraestrutura de entrada** — teto de corpo com handler de `413`, filtros de template, ancoragem do caminho de upload, guarda de instância única e bloco waitress. Nenhuma das **118 regras de negócio** catalogadas vive ali.
+**O que substituiu o estado global.** A árvore do GEDCOM é uma **tupla de quatro posições** `(people, families, graph, child_to_family)` que **entra por parâmetro em toda função do núcleo**. Três consequências diretas, todas verificáveis no código:
 
-**O mecanismo de integração entre as camadas é estado global mutável**, e não injeção de dependência. `core/gedcom_state.py` mantém `people`, `families`, `graph` e `child_to_family`, e os demais módulos os importam. Duas assimetrias deliberadas, e ambas importam para quem reimplementar:
+| Antes (até 2026-10-05) | Agora |
+| --- | --- |
+| `core/gedcom_state.py` mantinha o estado e era importado por 8 de 19 módulos | O módulo **não existe**; `core/registro.py` guarda só `get_name` e `ref_id`, que **nunca foram estado** |
+| `people`/`families`/`child_to_family` eram mutados *in place*, e `graph` era reatribuído — o que obrigava import **dentro da função** | A árvore é um **valor**; não há mutação de global nem import tardio |
+| O contador `versao` sinalizava a invalidação de índices derivados | Não existe mais: o cache de nomes deriva a chave do **conteúdo** recebido |
 
-| Estrutura | Como é substituída | Consequência no código |
-| --- | --- | --- |
-| `people`, `families`, `child_to_family` | **Mutação *in place*** (`clear()` + `update()`) | Os bindings importados **no topo** continuam apontando para o objeto vivo |
-| `graph` | **Reatribuição** | Quem o consome precisa importá-lo **dentro da função** (`path_finding.py:38`) — um import no topo ficaria preso ao grafo antigo |
-| `versao` | Incremento a cada carga | Sinal de invalidação de índices derivados; existe porque `id()` **não** muda com mutação *in place* |
-
-**O funcionamento é de análise sob demanda:** a cada `POST` de análise, o GEDCOM é **re-parseado integralmente** a partir da chave de conteúdo recebida no formulário, o grafo é reconstruído e só então o fluxo roda. Não há cache entre requisições. 🟢
+**O funcionamento é de análise sob demanda:** a cada `POST`, o GEDCOM é **re-parseado integralmente** a partir da referência recebida no formulário, e a árvore resultante viaja como argumento até o fim da requisição. **Não há cache entre requisições** — e isso deixou de ser uma escolha discutível: sem estado global, não há alternativa.
 
 ---
 
 ## 2. Containers
 
-**Três containers**, todos no mesmo host — detalhamento em `c4-containers.md`:
+**Quatro containers** — detalhamento em `c4-containers.md`:
 
-1. **Aplicação web** — o único processo (Python 3.14.6, Flask, waitress). Estado em memória.
-2. **Navegador do usuário** — HTML/Jinja2 + Bootstrap + **Mermaid renderizado no cliente**. Deixou de ser cliente burro quando o diagrama foi movido para o cliente (ADR-03).
-3. **Sistema de arquivos local** (`src/uploads/`) — o único estado persistente, com arquivos **imutáveis** sob chave de conteúdo.
+1. **Aplicação web** — o único processo (Python 3.14.6, Flask, waitress). **Nenhum estado de domínio em memória.**
+2. **Navegador do usuário** — HTML/Jinja2 + Bootstrap + **Mermaid renderizado no cliente**, e cliente de **duas artes** servidas com `ETag`.
+3. **Sistema de arquivos local** (`src/uploads/` e `src/uploads/_aposentados/`) — arquivos **imutáveis no conteúdo** e **mutáveis na posição**.
+4. **PostgreSQL 16** *(novo)* — o **histórico das análises**, em 6 tabelas. **Opcional:** sem `DATABASE_URL` o registrador é nulo e a tela não muda um byte.
 
-**Não há** container de banco, fila, cache, worker assíncrono, serviço externo ou container de aplicação adicional. 🟢
+**Não há** container de fila, cache, worker assíncrono ou API externa. 🟢
 
-**Concorrência:** o processo é **single-instance por construção** (socket exclusivo ligado antes de servir) e **multi-thread** (`ANALISADOR_THREADS = 4`). 🔴 **A exclusividade é de processo, não de thread** — e o estado do GEDCOM é global de processo. É a lacuna `L-16` (`domain.md` §7) e `M-03` (`state-machines.md` §7). 🟡
+**Concorrência:** o processo é **single-instance por construção** (socket exclusivo ligado antes de servir) e **multi-thread** (`ANALISADOR_THREADS = 4`). 🟢 **A corrida que a rodada anterior registrava como vetor vivo desapareceu:** não há estado de domínio compartilhado entre threads. O que resta é a concorrência sobre o **armazenamento em disco** — mecanismo 🟢, alcance não medido 🟡.
 
 ---
 
 ## 3. Componentes e estrutura de pacotes
 
-**19 módulos** em quatro pacotes, mais a rota. Inventário completo em `c4-components.md`.
+**31 componentes** em sete unidades — inventário completo em `c4-components.md`.
 
 | Pacote | Módulos | Papel declarado |
 | --- | ---: | --- |
-| `core/` | 12 (+`__init__`) | Decisão de domínio, sem saber de HTTP |
-| `parsers/` | 2 (+`__init__`) | Leitura do mundo de fora |
-| `reporting/` | 1 (+`__init__`) | Emissão do diagrama e contrato de escape |
-| `utils/` | 3 (+`__init__`) | Autoridades únicas transversais |
+| *(raiz)* | 1 | `app.py`: a borda HTTP |
+| `application/` | 6 | Casos de uso, desfecho, reenvio, tradução |
+| `ports/` | 2 | Os quatro `Protocol` e os três adaptadores |
+| `core/` | 15 | Decisão de domínio, sem saber de HTTP |
+| `parsers/` | 3 | Leitura do mundo de fora — **devolve valor** |
+| `reporting/` | 3 | Emissão do diagrama e as funções puras da lista |
+| `utils/` | 5 | Autoridades únicas transversais |
 
-### 🔴 Os pacotes **não** formam camadas acíclicas
+### 🟢 Os ciclos de pacote FORAM QUEBRADOS
 
-A intenção da reorganização (ADR-11) era uma pilha. O grafo real de importações tem **dois ciclos no nível de pacote**:
+A rodada anterior registrava **dois ciclos** como achado vermelho. **Os dois foram fechados em 2026-10-06** (`ADR-34`):
 
-| Ciclo | Ida | Volta |
-| --- | --- | --- |
-| **`core/` ↔ `reporting/`** | `core/path_search.py:51`, `core/dna_analysis.py:51` → `reporting.mermaid_render` | `reporting/mermaid_render.py:16-23` → `core.family_navigation`, `core.path_finding`, `core.gedcom_state` |
-| **`core/` ↔ `parsers/`** | `core/dna_analysis.py:50` → `parsers.csv_ingest` | `parsers/gedcom_parser.py:15-16` e `parsers/csv_ingest.py:41-42` → `core.gedcom_state`, `core.name_normalization`, `utils.text_cleaning` |
+| Ciclo | Como foi quebrado |
+| --- | --- |
+| **`core/` ↔ `reporting/`** | `core/diagram_domain.py` expõe `resolvedor_de_diagrama(arvore)` — sete consultas **ligadas à árvore** por `functools.partial` — e o renderizador a recebe **por parâmetro**. Ele **não importa `core`** |
+| **`core/` ↔ `parsers/`** | `norm_name` foi para `utils/name_keys.py`, e as funções de leitura de CSV entram **por injeção** (a classe `Dependencias`, montada na borda). `core/` **não importa `parsers/`** |
 
-**Não há ciclo em nível de módulo** — o sistema importa e a suíte passa. As consequências são outras:
-
-1. **`reporting/` não é folha, e não pode ser.** O renderizador navega o domínio para decidir *como desenhar* (`get_spouses`, `pick_spouse_for_couple`, `split_path_by_marriage`, `exclude_tail`, `find_ancestral_path`). Há **decisão de negócio dentro da apresentação** — o mesmo ponto que a análise de migração registrou ao tratar o Mermaid no cliente.
-2. **`parsers/` não devolve valor: ele escreve o estado do domínio.** `gedcom_parser` substitui as quatro estruturas globais. É a origem do contador `versao` e do import dentro de função.
-3. **`utils/` é o único pacote folha real** — nenhum de seus módulos importa outro módulo do projeto.
-
-🔴 **Não há decisão humana registrada** sobre manter ou desfazer essa fronteira.
+**`reporting/` continua não sendo folha, e isso é decisão declarada** (`ADR-11`): decidir o casal do ancestral comum, o ancestral que ancora o ramo e o ponto de corte por casamento é decisão de **negócio**. O que mudou foi **quem busca o dado**, não onde a decisão mora. **`utils/` continua sendo o único pacote folha real**, e ganhou `name_keys.py` justamente para continuar sendo.
 
 ---
 
 ## 4. Modelo de Dados
 
-**Sem banco de dados.** Não há DDL, migration, schema, ORM nem arquivo de configuração de persistência. O ERD completo (27 estruturas, com PK/FK lógicos e cardinalidades) está em `erd-complete.md`; os campos, tipos, padrões e sentinelas, em `data-dictionary.md`.
+**Há banco de dados, e ele é opcional.** O ERD completo (**42 estruturas**, com PK/FK lógicos e — no banco — **reais**) está em `erd-complete.md`; os campos, tipos, padrões e sentinelas, em `data-dictionary.md`.
 
 | Onde o dado vive | Estruturas | Persiste? |
 | --- | ---: | --- |
-| Memória do processo | 21 | Não — morre com o processo |
-| Disco (`src/uploads/`) | 2 | **Sim**, e o arquivo é imutável (mesma chave não é reescrita) |
-| Requisição / payload da tela | 4 | Não — uma requisição |
+| Memória, por requisição | 24 | Não — morre com a requisição |
+| Memória, de módulo | 1 (o cache de nomes) | Vive com o processo, chaveado por conteúdo |
+| Disco | 2 (na pasta e aposentado) | **Sim** — conteúdo imutável, **posição mutável** |
+| Payload de fronteira | 9 | Não — uma requisição |
+| **PostgreSQL** | **6 tabelas** | **Sim, e é opcional** |
 
-> ⚠️ **`None` significa "não sei / não existe", nunca zero.** É invariante do sistema e vale para `totals.cm` com múltiplos kits, `largest_segment_cm`, `plausible` e `age_birth`.
-> ⚠️ **`PK`/`FK` do ERD são lógicos.** Não existe constraint: uma referência GEDCOM pendente é **aceita** e a aresta simplesmente não é criada. O alvo da migração quer o inverso.
+> ⚠️ **`None` significa "não sei / não existe", nunca zero.** É invariante do sistema.
+> ⚠️ **A árvore NÃO é duplicada no banco.** Ela continua sendo o arquivo imutável de `src/uploads/`, referenciado por `tree_ref`; o que se grava é o **retrato** das pessoas daquela análise.
+> 🔴 **Nenhum código de `src/` lê as tabelas.** A persistência só escreve — não há como reconstruir uma análise pela aplicação.
+> 🔴 **O banco persiste dado pessoal sem política de retenção** (`L-29`): nome, sexo, datas e local de nascimento, inclusive de pessoas vivas.
 
 ---
 
 ## 5. O Fluxo que Define o Sistema
 
-A decisão de arquitetura mais consequente **não** é estrutural, é de domínio: o fluxo de análise foi separado em **três eixos que não se contaminam** e um **confronto** que os compara sem alterá-los (ADR-14).
+A decisão de arquitetura mais consequente **não** é estrutural, é de domínio: o fluxo de análise está separado em **três eixos que não se contaminam** e um **confronto** que os compara sem alterá-los (`ADR-14`). **Nenhuma das features 005 a 012 tocou nisso.**
 
 ```text
 Parentesco documental (GEDCOM)  ─┐
@@ -108,7 +110,17 @@ Evidência genética (CSV)  ───────┤
 - O DNA **não** altera o parentesco documental: conflito vira **aviso e rol de causas**, nunca reescrita de vínculo. 🟢
 - O cM **nunca** é usado sozinho para afirmar parentesco. 🟢
 
-Detalhamento das regras em `domain.md` §2 e §3; as máquinas de decisão com diagramas, em `state-machines.md`. As **118 regras** catalogadas linha a linha estão em `code-analysis.md`; os fluxos por unidade, em `flowcharts/`.
+**O que a estrutura ganhou em volta desse fluxo**, e que é a marca desta rodada:
+
+| Ganho | Efeito arquitetural |
+| --- | --- |
+| **Fronteira de aplicação** com quatro portas | O núcleo não conhece disco, banco nem HTTP; a Onda 3 tem onde ancorar |
+| **Projeção pura** do resultado | O adaptador de banco recebe dado **plano** e só escreve — é o que permite a persistência ser opcional |
+| **Desfecho em três valores** | O modo de renderização deixou de ser inferido do texto da mensagem |
+| **Armazenamento por conteúdo com aposentadoria** | O sistema passou a ter seu **primeiro ciclo de vida** durável (a posição do arquivo) |
+| **Arte derivada com receita única** | A apresentação ganhou um contrato verificável por pixel |
+
+Detalhamento das regras em `domain.md` §2 e §3; as máquinas de decisão, em `state-machines.md`. As **233 regras** catalogadas estão em `code-analysis.md` e em `.reversa/context/modules.json`; os fluxos por unidade, em `flowcharts/`.
 
 ---
 
@@ -118,83 +130,94 @@ Detalhamento das regras em `domain.md` §2 e §3; as máquinas de decisão com d
 | --- | --- | --- | --- | --- |
 | **Nenhuma API REST/GraphQL** consumida ou produzida | — | — | A aplicação é standalone | 🟢 |
 | **Nenhum webhook, fila, evento ou mensageria** | — | — | Não há integração assíncrona | 🟢 |
-| **GEDCOM (`.ged`)** | Arquivo | Formato GEDCOM, lido por `ged4py` 0.5.2 | Parsing da árvore; **re-parseado a cada requisição** | 🟢 |
+| **PostgreSQL 16** | Banco | TCP local (`127.0.0.1:5432`), driver `psycopg2`, **sem TLS** | Histórico das análises. **Opcional** | 🟢 |
+| **GEDCOM (`.ged`)** | Arquivo | Formato GEDCOM, lido por `ged4py` | Parsing da árvore; **parseado a cada requisição** | 🟢 |
 | **CSV de matches de DNA** | Arquivo | CSV com colunas de Nome, cM, kit/ID/e-mail; `utf-8` com recuo para `latin-1` | Agregação de segmentos | 🟢 |
 | **CDN de assets web** | Assets | HTTPS | Bootstrap 5.3.3 e Mermaid 10, carregados pelo navegador | 🟢 |
-| **Exportadores de CSV** | Indireto | GEDmatch, MyHeritage, FamilyTreeDNA e similares | A detecção de coluna de ID depende do padrão `[A-Z]{2}\d{7}`; a leitura foi tornada tolerante a separador, preâmbulo e linha torta (ADR-16) | 🟡 |
-| **Fonte estatística** | Dado embutido | Tabela publicada do **Shared cM Project 4.0** (março/2020, 59.714 envios) | 27 relações publicadas, em `relationship_hypotheses.py` | 🟢 |
+| **Exportadores de CSV** | Indireto | GEDmatch, MyHeritage, FamilyTreeDNA e similares | A detecção de coluna de ID depende do padrão `[A-Z]{2}\d{7}`; a leitura é tolerante a separador, preâmbulo e linha torta | 🟡 |
+| **Fonte estatística** | Dado embutido | Tabela publicada do **Shared cM Project 4.0** (março/2020, 59.714 envios) | 27 relações publicadas | 🟢 |
+| **Bibliotecas de imagem** | Dependência **de teste** | `PIL` no `.venv`, **fora de `requirements.txt`** | Gerar as duas artes derivadas. **O container não precisa dela** | 🟢 |
 
-**Zero integrações de rede.** O único tráfego de saída é o **download dos assets de CDN feito pelo navegador do próprio usuário**. 🟢
+**Nenhuma integração de rede com terceiros.** O único tráfego de saída é o download dos assets de CDN feito pelo navegador do próprio usuário, e o `INSERT` no Postgres local. 🟢
 
 ---
 
 ## 7. Dívidas Técnicas Consolidadas
 
-Consolidação das 16 dívidas do `code-analysis.md` §6 com os achados desta fase (`L-15`, `L-16`, `L-19` e os ciclos de pacote). Ordenadas por **gravidade × probabilidade de morder quem reimplementar**.
+Consolidação das **28** dívidas do `code-analysis.md` §9 com os achados desta fase. Ordenadas por **gravidade × probabilidade de morder quem reimplementar**.
 
-| # | Dívida | Gravidade | Evidência | Referência |
-| ---: | --- | --- | --- | --- |
-| 1 | ✅ **FECHADA em 2026-10-05 — desempate determinístico.** Era "decisão humana não implementada"; o legado foi corrigido com um **quarto critério** (menor `xref_id`) e **2 testes** de regressão. **É a única divergência deliberada que muda comportamento** em toda a extração. | 🟢 Resolvida | `matching.py:107-111`; `tests/test_characterization_matching.py` | `adrs/23` |
-| 2 | ✅ **FECHADA em 2026-10-05 — divergência de ambiente realinhada.** O `.venv/` é o interpretador **oficial**; o `requirements.txt` foi atualizado para as versões dele (`ged4py==0.5.5`, `networkx==3.7`, `pandas==3.0.6`) e passou a **declarar o `rapidfuzz` e o `python-Levenshtein`**, que decidem o matching. Verificado: a suíte passa **igual nos dois interpretadores**. | 🟢 Resolvida | `requirements.txt`; `.venv/` | `adrs/13` |
-| 3 | **Contaminação entre requisições concorrentes.** Estado global reescrito por requisição + 4 threads; a guarda de instância única é de processo, não de thread. | 🔴 **Alta** | `app.py:126`, `:137`, `:188`; `core/gedcom_state.py` | `L-16`, `M-03` |
-| 4 | **Ausência de identidade e de isolamento.** Sem `owner_id`, sem sessão, sem autorização; a chave de conteúdo é **identificador, não segredo**. Mantido por **aceite de risco** com condição de reabertura nomeada. | 🔴 **Alta** | `BUG-20260929-BJJH`; `permissions.md` §4 | `adrs/18` |
-| 5 | **Ciclos de pacote `core/` ↔ `reporting/` e `core/` ↔ `parsers/`.** Sem ciclo de módulo, mas a fronteira entre decisão e apresentação não é acionável por importação. | 🟡 Média | `path_search.py:51`, `mermaid_render.py:16-23`, `csv_ingest.py:41-42` | `§3` desta página |
-| 6 | **`get_children` varre todas as famílias, sem índice.** Diferente de `get_parents`, que usa `child_to_family`. | 🟡 Média | `documentary_relationship.py:112-124` | `L-20` |
-| 7 | **Fichas completas por pessoa em cada resultado** (142 fichas nos 71 casos reais), para uma tela que exibe poucas. | 🟡 Média | `documentary_relationship.py:127-143` | `L-20` |
-| 8 | **Nada é persistido entre requisições** e não há decisão de negócio sobre isso. | 🟡 Média | `app.py:137`; `L-21` | `E-04` |
-| 9 | **Caminho indireto não passa pela checagem de plausibilidade de datas** (12–70 anos só no caminho direto). | 🟡 Média | `path_search.py:178-192` | `domain.md` §3.1 |
-| 10 | **O CSV de DNA não tem validação de conteúdo** — só a forma do nome; é gravado antes de qualquer verificação. | 🟡 Média | `app.py:86` | `P-05` |
-| 11 | **Endogamia e colapso de pedigree não são corrigidos**: o colapso é detectado no lado documental, mas **não altera o veredito**; o cM lido é teto otimista. | 🟡 Média | `evidence_comparison.py:55-68` | `L-17`, `adrs/21` |
-| 12 | **Relações mais distantes não publicadas na SCP 4.0** — justamente onde o caso real cai. Mitigado por envoltória de meioses, sem substituir a fonte. | 🟡 Média | `relationship_hypotheses.py:96-103` | `L-18` |
-| 13 | ✅ **FECHADA em 2026-10-05 — cobertura medida: 83 %** de `src/` (1.520 instruções, 253 descobertas). Os piores índices dão nome ao risco: `number_format` 53 %, `relationship_hypotheses` 76 %, `mermaid_render` 78 % | 🟢 Resolvida | `pytest-cov` no `.venv` | `X-03` |
-| 14 | **Teto de 20 iterações do BFS corta em silêncio.** Contrato **aceito** por decisão humana, com aviso de que não prova ausência de parentesco. | 🟡 Média (aceita) | `path_finding.py:25` | `adrs/` — decisão 1 de 2026-09-30 |
-| 15 | **`get_spouses` esconde cônjuges** quando o primeiro `FAMS` resolve. Contrato **aceito** e documentado. | 🟡 Média (aceita) | `family_navigation.py:66-75` | `adrs/` — decisão 2 de 2026-09-30 |
-| 16 | ✅ **FECHADA em 2026-10-05 — `app.secret_key` removido.** Não havia consumidor (`flask.session` nunca importado); o literal versionado deixou de existir. | 🟢 Resolvida | `app.py:22` (comentário da remoção) | `permissions.md` (`P-04`) |
-| 17 | **Superfícies de compatibilidade** reexportando nomes históricos que ninguém usa (`path_search.__all__`, `dna_analysis.__all__`). Dívida de teste, não de produção. | 🟢 Baixa | `path_search.py:61-64` | `c4-components.md` §7 |
-| 18 | **`cm_estimator` segue no repositório como legado fora do fluxo**, com faixas sem fonte verificável. Declarado e reexportado. | 🟢 Baixa | `cm_estimator.py:1`, `:21` | `adrs/19` |
-| 19 | **Duplicatas literais:** `COMMON_SURNAMES` tem `souza` duas vezes; o mapa de mojibake tem chave duplicada e um mapeamento identidade. | 🟢 Baixa | `name_normalization.py:36`; `text_cleaning.py:41-50` | `code-analysis.md` §2.7, §3.7 |
-| 20 | **`LIMITE_SEGMENTO_FRACO` (15 cM) é heurística do projeto** apresentada ao lado de números publicados; a verificação de que a tela a apresenta como tal é da interface. | 🟢 Baixa | `genetic_evidence.py:31` | `adrs/19` |
+| # | Dívida | Gravidade | Referência |
+| ---: | --- | --- | --- |
+| 1 | 🔴 **Colisão possível da chave do cache de nomes.** `(len, primeira chave, última chave)` é igual para duas árvores do mesmo tamanho; o dossiê de homônimos passa a listar xrefs de **outra** árvore, sem exceção | 🔴 **Alta** | `documentary_relationship._chave_de`; `L-24`, `E-05` |
+| 2 | 🔴 **Ausência de identidade e de isolamento.** Sem `owner_id` **funcional**, sem sessão e sem autorização. A chave de conteúdo é **identificador, não segredo**. Mitigado por aceite de risco | 🔴 **Alta** | `BUG-20260929-BJJH`; `permissions.md` §4; `adrs/18`, `adrs/26` |
+| 3 | 🔴 **`psycopg2-binary` pinado e ausente do `.venv`** — a persistência fica desligada no interpretador oficial por ambiente, e não por decisão | 🔴 **Alta** | `L-26`; `adrs/13`, `adrs/27` |
+| 4 | 🔴 **O histórico persiste dado pessoal sem retenção, expurgo nem consentimento** — inclusive de pessoas vivas. Apagar a árvore já não apaga o retrato | 🔴 **Alta** | `L-29`, `P-07`; `adrs/27` |
+| 5 | 🔴 **Não há teste do caminho de gravação no banco.** Erro de SQL, de ordem de FK ou de tipo só apareceria no contêiner | 🔴 Alta | `L-28`, `X-05` |
+| 6 | 🟡 **Ordem de `common_ancestors` e `additional_paths` sensível ao `PYTHONHASHSEED`** em empate triplo — mesma classe do defeito que o `matching` fechou | 🟡 Média | `L-25`; `adrs/23`, `adrs/36` |
+| 7 | 🟡 **O resultado da suíte depende do ambiente:** com `DATABASE_URL` presente e sem o driver, 2 testes falham | 🟡 Média | `L-27` |
+| 8 | 🟡 **`get_children` varre todas as famílias, sem índice**, e `person_summary` a chama em cada ficha | 🟡 Média | `L-20` |
+| 9 | 🟡 **Fichas completas por pessoa em cada resultado** (142 no caso real de 71 conexões) | 🟡 Média | `L-20` |
+| 10 | 🟡 **O caminho indireto não passa pela checagem de plausibilidade de datas** (12–70 só no direto) | 🟡 Média | `domain.md` §3.1 |
+| 11 | 🟡 **O CSV de DNA não tem validação de conteúdo** — só a forma do nome | 🟡 Média | `P-05` |
+| 12 | 🟡 **Endogamia e colapso de pedigree não são corrigidos**: o colapso é detectado, mas **não altera o veredito** | 🟡 Média | `L-17`; `adrs/21` |
+| 13 | 🟡 **Relações mais distantes não publicadas na SCP 4.0** — justamente onde o caso real cai | 🟡 Média | `L-18` |
+| 14 | 🟡 **O estado "aposentado" não é consultável pela aplicação** — não há coluna nem índice; quem sabe é o sistema de arquivos | 🟡 Média | `M-05` |
+| 15 | 🟡 **"gravado" e "inativo" são indistinguíveis na tela** — os dois produzem aviso nulo | 🟡 Média | `M-06` |
+| 16 | 🟡 **A corrida sobre o armazenamento em disco permanece** (`guardar` e `aposentar` verificam e depois agem) | 🟡 Média | `M-03`, `P-02` |
+| 17 | 🟡 **Os quatro estados do confronto são também nomes de classe CSS**, sem teste que prenda o par | 🟡 Média | `code-analysis.md` §4.7 |
+| 18 | 🟡 **`_diferencas` é chamado duas vezes** em `homonym_dossier`, remontando as fichas | 🟡 Baixa | `flowcharts/busca-caminho.md` §12 |
+| 19 | 🟡 **`_avaliar_kit` recebe `meioses_documental` e não o usa** — superfície morta que convida a reintroduzir o critério por meioses | 🟡 Baixa | `flowcharts/analise-dna.md` §6 |
+| 20 | 🟡 **`INCONCLUSIVO` é o último da ordem de conservadorismo** — um kit sem cM não rebaixa o resultado de outro kit | 🟡 Baixa | `flowcharts/analise-dna.md` §6 |
+| 21 | 🟡 **`sha256` da tela mantido à mão** (três atualizações em 2026-10-10) e **caixa de regressão de arte** que descreve composição extinta | 🟡 Baixa | `adrs/29` |
+| 22 | 🟡 **A arte derivada não é verificada dentro do container** | 🟡 Baixa | `X-06` |
+| 23 | 🟡 **A coluna "área de teste" da matriz perdeu granularidade por arquivo** (39 arquivos) | 🟡 Baixa | `X-07` |
+| 24 | 🟢 **Teto de 20 iterações do BFS corta em silêncio.** Contrato **aceito** | 🟢 Baixa (aceita) | decisão de 2026-09-30 |
+| 25 | 🟢 **`get_spouses` esconde cônjuges** quando o primeiro `FAMS` resolve. Contrato **aceito** | 🟢 Baixa (aceita) | decisão de 2026-09-30 |
+| 26 | 🟢 **`cm_estimator` segue como legado fora do fluxo**, com faixas sem fonte verificável | 🟢 Baixa | `adrs/19` |
+| 27 | 🟢 **Duplicatas literais** em `COMMON_SURNAMES` e no mapa de mojibake | 🟢 Baixa | `code-analysis.md` §4.6 |
+| 28 | 🟢 **Ausência de CI/CD.** O workflow de GitHub Pages foi **removido em 2026-10-08**; a publicação virou passo manual. **Não há pipeline de teste, build ou análise estática** | 🟢 Baixa | `c4-containers.md` |
 
 ### Dívidas **fechadas** desde a extração anterior
 
-| Dívida de 2026-09-30 | Como foi fechada |
+| Dívida de 2026-10-05 | Como foi fechada |
 | --- | --- |
-| "Código monolítico com rotas + lógica acopladas" | ✅ `app.py` é camada de rota fina; a lógica vive em quatro pacotes (ADR-02, ADR-11) |
-| "Ausência total de testes" | ✅ 11 arquivos, 126 funções, 175 itens, incluindo caracterização, segurança de upload e a regra do confronto |
-| "Correções de mojibake heurísticas e fragmentadas" | ✅ autoridade única em `utils/text_cleaning.py` (ADR-07) |
-| "Dependências sem versão fixada" | ✅ seis diretas pinadas (ADR-13) — **ressalva da dívida #2 desta tabela** |
-| "Upload sem validação de extensão, tipo ou tamanho" | ✅ teto de 16 MB, validação de conteúdo e chave derivada do conteúdo (ADR-17) |
-| "Entidades declaradas que o fluxo não usa" | ✅ removidas (ADR-09) |
-| "`README.md` do módulo anuncia Pyvis" | ✅ o README herdado foi removido; o README da raiz está em dia |
-| "Ausência de CI/CD" | ⚠️ **parcialmente**: existe deploy do mini-site no GitHub Pages, **não** há pipeline de teste, build ou análise estática |
+| **Ciclos de pacote `core/` ↔ `reporting/` e `core/` ↔ `parsers/`** (era #5, Média) | ✅ ✅ **fechadas em 2026-10-06** pelo `ADR-34`, com o resolvedor de diagrama e a injeção das dependências de borda |
+| **Contaminação entre requisições concorrentes** (era #3, **Alta**) | ✅ **fechada em 2026-10-07** pelo `ADR-24`: a árvore entra por parâmetro e **não há estado global** |
+| **Nada é persistido entre requisições** (era #8, Média) | ✅ **executada em 2026-10-08** pela feature 008 — e com duas dívidas **novas** em troca (#3 e #4 desta tabela) |
+| **Superfícies de compatibilidade** reexportando nomes que ninguém usa (era #17) | ✅ **removidas** (`path_search` com 17 nomes, `dna_analysis` com os dois blocos), restando uma exceção declarada: `norm_name` |
+| **Desempate não determinístico** (era #1, Alta) | ✅ **implementado em 2026-10-06** e congelado por teste |
+| **Divergência de ambiente de versões** (era #2) | 🔄 **substituída** pela divergência **de presença** do `psycopg2` (#3 desta tabela) |
 
 ---
 
 ## 8. Decisões Arquiteturais
 
-**23 decisões** documentadas em `adrs/`, reconstruídas de **125 commits** e dos registros de bug e de mitigação:
+**36 decisões** documentadas em `adrs/`, reconstruídas de **246 commits** e dos registros de bug e de mitigação:
 
 | Faixa | Assunto |
 | --- | --- |
 | `01`–`08` | Fundação: reconstrução em módulos, rota fina, Mermaid no cliente, oráculo congelado, escape do rótulo, política de edição do legado, autoridade de limpeza, `HARD_MIN`/`GIVEN_MIN` |
 | `09`–`13` | Estrutura: remoção das entidades decorativas, `/src`, pacotes por responsabilidade, waitress + instância única, pinagem de dependências |
 | `14`–`17` | Domínio: **separação dos três eixos**, sobreposição de faixas, leitura tolerante do CSV, upload por chave de conteúdo |
-| `18`–`23` | Operação e contrato: single-tenant por aceite de risco, heurísticas declaradas, formatação só na apresentação, endogamia, ordem de apresentação, **desempate determinístico (decidido e NÃO implementado)** |
+| `18`–`23` | Operação e contrato: single-tenant por aceite de risco, heurísticas declaradas, formatação só na apresentação, endogamia, ordem de apresentação, desempate determinístico |
+| **`24`–`35`** | **O ciclo forward 005 a 012:** núcleo puro, fronteira de aplicação, dono como costura, persistência opcional, Docker por permissão, arte derivada, aposentar, reenvio com substituição, elegibilidade por forma de nome, desfecho e projeção pura, ciclos quebrados, pasta de uploads |
+| **`36`** | **Revalidação das 23 herdadas** — quadro completo, com as **seis** que precisam de ressalva (`02`, `06`, `12`, `13`, `17`, `23`) |
 
 ---
 
 ## 9. Resumo para o Reversa
 
-- **Containers:** **3** — aplicação web (único processo), navegador do usuário (renderiza Mermaid) e sistema de arquivos local. Sem banco, fila, cache ou API. 🟢
-- **Camadas:** 2 com contratos opostos — rota de **267 linhas** (zero regra de negócio) e núcleo de **3.489 linhas**, integrados por **estado global mutável**. 🔴 **Os quatro pacotes do núcleo não formam camadas acíclicas** (dois ciclos de pacote). 🟢
-- **Componentes:** **19 módulos**; `utils/` é o único pacote folha real; `reporting/` contém decisão de negócio de apresentação. 🟢
-- **Integrações externas:** **zero** de rede. Entrada por arquivo (`.ged`, `.csv`), assets por CDN no navegador e uma tabela estatística publicada embutida. 🟢
-- **Modelo de dados:** **27 estruturas**, **nenhuma tabela**. Sem constraint, sem `owner_id`, sem histórico. Persistência apenas de arquivos imutáveis. 🟢
-- **Regra central:** os **três eixos que não se contaminam** + confronto em quatro estados — capacidade que **não existe em nenhum artefato da extração anterior**. 🟢
-- **Dívidas técnicas:** **20 consolidadas**, sendo **4 de gravidade alta** — e **três delas são achados desta rodada** (determinismo não implementado, divergência de ambiente, corrida entre threads). 🟢
-- **Decisões:** **23 ADRs**; **13 decisões humanas verificadas**, das quais **1 não está honrada** pelo código. 🟢
-- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%** em 6 fixtures e 5 árvores reais (`parity/`), 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 23 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages (cópia do mini-site). **Nada disso faz parte do sistema em execução.** 🟢
+- **Containers:** **4** — aplicação web (único processo, **sem estado de domínio**), navegador (renderiza Mermaid e busca as duas artes), sistema de arquivos (conteúdo imutável, **posição mutável**) e **PostgreSQL 16 opcional**. Sem fila, cache ou API externa. 🟢
+- **Camadas:** **7 unidades**, com **dependência estritamente descendente** — os dois ciclos de pacote da rodada anterior estão **fechados**. A integração deixou de ser estado global e passou a ser **passagem de parâmetro e injeção**. 🟢
+- **Componentes:** **31**; `utils/` é o único pacote folha real; `reporting/` contém decisão de negócio de apresentação, **por decisão declarada**. 🟢
+- **Integrações externas:** **zero** de rede com terceiros. Entrada por arquivo (`.ged`, `.csv`), assets por CDN no navegador, uma tabela estatística embutida e **um banco local opcional**. 🟢
+- **Modelo de dados:** **42 estruturas**, das quais **6 são tabelas Postgres reais** com FK e `CHECK`. Sem constraint no GEDCOM em memória; **com** constraint onde foi implementado. 🟢
+- **Regra central:** os **três eixos que não se contaminam** + confronto em quatro estados — **intocada** pelas features 005 a 012. 🟢
+- **Dívidas técnicas:** **28 consolidadas**, sendo **5 de gravidade alta** — e **quatro delas são consequência direta do ciclo forward** (colisão do cache, driver ausente, dado pessoal sem retenção, ausência de teste de gravação). 🟢
+- **Decisões:** **36 ADRs** (13 novas + 1 de revalidação); **19 decisões humanas verificadas**, das quais **1 revertida** (010 → 012). 🟢
+- **Máquinas de estado:** **1 ciclo de vida real** (a posição do arquivo) e **4 máquinas de decisão** — detalhamento em `state-machines.md`. 🟢
+- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%**, 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 36 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages. **Nada disso faz parte do sistema em execução.** 🟢
 
 ---
 
-*Gerado pelo Reversa-Architect em 2026-10-05 (re-extração, nível completo).*
+*Gerado pelo Reversa-Architect em 2026-10-10 (re-extração, nível completo).*

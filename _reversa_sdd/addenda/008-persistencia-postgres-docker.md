@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-08.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 Entrega o **histórico das análises de DNA**: o que morria ao fim da requisição passa a ser

@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-09.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 A extração descreve o armazenamento como `<raiz do repositório>/src/uploads` — o único estado persistente

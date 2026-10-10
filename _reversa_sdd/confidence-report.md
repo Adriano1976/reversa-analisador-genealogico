@@ -1,10 +1,10 @@
 # Relatório de Confiança — teste_reversa
 
-> Gerado pelo **Reversa-Reviewer** na re-extração de **2026-10-05** (nível **Completo**). Substitui integralmente o relatório de 2026-09-30.
-> **Atualizado em 2026-10-05** após o processamento de **16 de 16 perguntas** de `questions.md`. **Quatro decisões mudaram código** (`matching.py`, `app.py`, `genetic_evidence.py` e os testes) e uma **mudou o pin** (`requirements.txt`).
-> Revisão cruzada por engine externa: **não realizada** — nenhuma ferramenta `codex:` está ativa nesta sessão, conforme o Passo 0 do agente.
-> Este relatório cobre: **3 units** (9 canônicos + 3 `contracts.md`), **17 artefatos transversais com marcadores** (mais o `openapi/index.yaml`, que não usa marcadores), **23 ADRs**.
-> Método de contagem: ocorrência dos marcadores 🟢/🟡/🔴 por arquivo, **excluindo as linhas de legenda** (aquelas que citam os três nomes ao mesmo tempo). É a mesma convenção das rodadas anteriores.
+> Gerado pelo **Reversa-Reviewer** na re-extração de **2026-10-10** (nível **Completo**). Substitui integralmente o relatório de 2026-10-05.
+> **Atualizado em 2026-10-10** após o processamento de **18 de 18 perguntas** de `questions.md` — todas respondidas com a recomendação do Revisor.
+> Revisão cruzada por engine externa: **não realizada** — nenhuma ferramenta com prefixo `codex:` está ativa nesta sessão, conforme o Passo 0 do agente. Não foi oferecida ao usuário.
+> Este relatório cobre: **5 units** (20 canônicos, incluindo os 5 `contracts.md`), **25 artefatos transversais com marcadores** (mais o `openapi/index.yaml`, que não usa marcadores) e **36 ADRs**.
+> Método de contagem: ocorrência dos marcadores 🟢/🟡/🔴 por arquivo, **excluindo as linhas de legenda** (aquelas que citam os três nomes ao mesmo tempo). É a mesma convenção das rodadas anteriores, para que os números sejam comparáveis.
 
 ---
 
@@ -12,18 +12,18 @@
 
 | Escopo | 🟢 | 🟡 | 🔴 | Total | Confiança |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| **3 units** (requirements+design+tasks+contracts) | 941 | 35 | 34 | 1.010 | **94,9 %** |
-| **Artefatos transversais** (17) | 751 | 54 | 41 | 846 | **92,0 %** |
-| **ADRs** (23) | 45 | 6 | 15 | 66 | 72,7 % |
-| **Extração completa** | **1.737** | **95** | **90** | **1.922** | **92,8 %** |
+| **5 units** (requirements + design + tasks + contracts) | 1.746 | 108 | 69 | 1.923 | **93,6 %** |
+| **Artefatos transversais** (25) | 1.098 | 136 | 99 | 1.333 | **87,5 %** |
+| **ADRs** (36) | 113 | 26 | 25 | 164 | 76,8 % |
+| **Extração completa** | **2.957** | **270** | **193** | **3.420** | **90,4 %** |
 
-**Confiança geral: 92,8 %** — `(1.737 + 95×0,5) / 1.922`
+**Confiança geral: 90,4 %** — `(2.957 + 270×0,5) / 3.420`
 
-> **Evolução dentro desta própria revisão.** O relatório nasceu com **1.923 afirmações**, **91,5 %** e **109 🔴**. As 16 decisões humanas elevaram para **92,8 %** e derrubaram os 🔴 para **90** — porque **quatro lacunas foram executadas no código** e uma **mediu o que era suposto**: a cobertura, que passou de "não medida" a **83 %** apurados.
+> **Comparação com a re-extração anterior:** 2026-10-05 fechou com **1.922** marcadores e **92,8 %**. Hoje são **3.420** — **1,8× mais** — com **90,4 %**. A queda de 2,4 pontos é **esperada e saudável**: o escopo cresceu em tudo o que o nível `completo` exige sobre um sistema que dobrou de tamanho (3 → **5 units**, 23 → **36 ADRs**, 3 → **5 flowcharts**, 3 → **5 user-stories**), e as **duas units novas** (`tela-de-entrada` e `recursos-da-tela`) entraram nesta rodada já **com** as suas lacunas abertas — que é o comportamento correto de uma extração que não inventa confirmação.
 >
-> **Comparação com a re-extração anterior:** 819 afirmações com **90,5 %**. Hoje são **1.918** — 2,3× mais — com **92,4 %**. O volume cresceu porque a rodada gerou o que o nível `completo` exige e que o `essencial` não gerava: os **23 ADRs**, o **ERD completo**, os **níveis 2 e 3 do C4**, a **matriz de impacto**, as **3 specs de contrato**, as **user stories** e o **OpenAPI**.
+> **Os ADRs continuam com a menor confiança do conjunto (76,8 %), e isso é esperado:** eles são reconstrução de decisão a partir de commit, código e registro de bug — não leitura de comportamento. Onde não há prosa de decisão, a ADR **declara a ausência** em vez de preencher.
 >
-> **Os ADRs têm a menor confiança do conjunto (69,9 %), e isso é esperado:** eles são reconstrução de decisão a partir de commit, código e registro de bug — não leitura de comportamento. Onde não há prosa de decisão, a ADR **declara a ausência** em vez de preencher (ADR-03, ADR-07, ADR-12, ADR-14, ADR-22).
+> **O que mudou de qualidade, e não de número:** a revisão **mediu quatro coisas** que a rodada anterior tinha declarado sem medir (o `L-24`, o `L-31`, o `L-20` e a cobertura) e **corrigiu dez defeitos de consistência** entre artefatos — incluindo um global que **não era YAML válido**.
 
 ---
 
@@ -33,38 +33,51 @@
 
 | Spec | 🟢 | 🟡 | 🔴 | Total | Confiança |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `upload-gedcom/` | 222 | 9 | 8 | 239 | **94,8 %** |
-| `analise-dna/` | 374 | 14 | 10 | 398 | **95,7 %** |
-| `busca-caminho/` | 345 | 12 | 16 | 373 | **94,1 %** |
+| `tela-de-entrada/` | 251 | 11 | 6 | 268 | **95,7 %** |
+| `recursos-da-tela/` | 303 | 15 | 11 | 329 | **94,4 %** |
+| `upload-gedcom/` | 257 | 13 | 10 | 280 | **94,1 %** |
+| `analise-dna/` | 507 | 33 | 18 | 558 | **93,8 %** |
+| `busca-caminho/` | 428 | 36 | 24 | 488 | **91,4 %** |
 
-> **`analise-dna` deixou de ser a unidade com mais 🔴** (de 20 para **10**): era onde estava a divergência viva, agora executada. A distribuição ficou mais uniforme — e `busca-caminho` passou a concentrar os vermelhos que restam no núcleo de domínio.
+> **A unit com mais 🔴 é `busca-caminho` (24), e a razão é específica:** ela concentra o `L-24` (confirmado por execução nesta rodada), o `L-25` (determinismo) e o `L-20` (custo medido) — os três achados que a revisão **mediu** e cujas correções estão **agendadas**. As duas units **novas** ficaram acima de 94 %: elas nasceram de features recentes, com teste ao lado, e a revisão não encontrou nelas nenhuma contradição com o código.
+>
+> **`analise-dna` continua sendo a maior unit** (558 marcadores, 95 regras `BR-D-*`) e subiu de 95,7 % para 93,8 % **em número absoluto de confiança** — porque ganhou a fronteira de aplicação, a persistência opcional e a projeção pura, e com elas as lacunas `L-28` e `L-29`.
 
 ### Artefatos transversais
 
 | Artefato | 🟢 | 🟡 | 🔴 | Total | Confiança |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `inventory.md` | 33 | 2 | 0 | 35 | 97,1 % |
-| `dependencies.md` | 21 | 4 | 2 | 27 | 85,2 % |
-| `code-analysis.md` | 262 | 12 | 3 | 277 | 96,8 % |
-| `data-dictionary.md` | 37 | 0 | 0 | 37 | **100,0 %** |
-| `domain.md` | 96 | 8 | 1 | 105 | 95,2 % |
-| `state-machines.md` | 31 | 1 | 1 | 33 | 95,5 % |
-| `permissions.md` | 30 | 4 | 1 | 35 | 91,4 % |
-| `architecture.md` | 32 | 12 | 6 | 50 | 76,0 % |
-| `c4-context.md` | 12 | 1 | 0 | 13 | 96,2 % |
-| `c4-containers.md` | 19 | 1 | 2 | 22 | 88,6 % |
-| `c4-components.md` | 25 | 0 | 3 | 28 | 89,3 % |
-| `erd-complete.md` | 65 | 0 | 1 | 66 | 98,5 % |
+| `c4-components.md` | 45 | 2 | 0 | 47 | **97,9 %** |
+| `user-stories/recursos-da-tela.md` | 19 | 0 | 3 | 22 | 86,4 % |
+| `user-stories/upload-gedcom.md` | 26 | 0 | 4 | 30 | 86,7 % |
+| `inventory.md` | 45 | 3 | 1 | 49 | 94,9 % |
+| `flowcharts/recursos-da-tela.md` | 52 | 3 | 1 | 56 | **95,5 %** |
+| `flowcharts/analise-dna.md` | 122 | 8 | 3 | 133 | 94,7 % |
+| `flowcharts/busca-caminho.md` | 94 | 12 | 1 | 107 | 93,5 % |
+| `flowcharts/tela-de-entrada.md` | 3 | 1 | 1 | 5 | 70,0 % |
+| `flowcharts/upload-gedcom.md` | 2 | 1 | 3 | 6 | 41,7 % |
+| `domain.md` | 156 | 9 | 5 | 170 | 94,4 % |
+| `code-spec-matrix.md` | 73 | 5 | 3 | 81 | 93,2 % |
+| `erd-complete.md` | 85 | 2 | 6 | 93 | 92,5 % |
+| `data-dictionary.md` | 39 | 3 | 2 | 44 | 92,0 % |
+| `c4-containers.md` | 26 | 3 | 1 | 30 | 91,7 % |
+| `state-machines.md` | 59 | 7 | 4 | 70 | 89,3 % |
+| `permissions.md` | 36 | 4 | 3 | 43 | 88,4 % |
+| `c4-context.md` | 14 | 2 | 1 | 17 | 88,2 % |
+| `dependencies.md` | 27 | 6 | 4 | 37 | 81,1 % |
+| `code-analysis.md` | 75 | 19 | 11 | 105 | 80,5 % |
+| `user-stories/tela-de-entrada.md` | 13 | 0 | 4 | 17 | 76,5 % |
+| `user-stories/busca-caminho.md` | 7 | 3 | 2 | 12 | 70,8 % |
+| `architecture.md` | 41 | 38 | 12 | 91 | 65,9 % |
+| `traceability/spec-impact-matrix.md` | 30 | 3 | 17 | 50 | 63,0 % |
+| `user-stories/analise-dna.md` | 9 | 2 | 7 | 18 | 55,6 % |
 | `openapi/index.yaml` | — | — | — | — | *sem marcadores* |
-| `traceability/code-spec-matrix.md` | 38 | 3 | 3 | 44 | 89,8 % |
-| `traceability/spec-impact-matrix.md` | 20 | 2 | 11 | 33 | 63,6 % |
-| `user-stories/upload-gedcom.md` | 20 | 0 | 3 | 23 | 87,0 % |
-| `user-stories/analise-dna.md` | 5 | 2 | 2 | 9 | 66,7 % |
-| `user-stories/busca-caminho.md` | 5 | 2 | 2 | 9 | 66,7 % |
 
-> **Os dois artefatos com menor confiança são os que existem para expor risco**, e não para descrever comportamento: `spec-impact-matrix.md` (63,6 %) concentra as lacunas de **ordem determinística**, de **constantes embutidas em mensagens** e de **cobertura desigual de teste**; `architecture.md` (70,0 %) consolida as **20 dívidas técnicas**. Confiança baixa ali significa que o documento está fazendo o trabalho dele.
+> **Os artefatos com menor confiança são os que existem para expor risco**, e não para descrever comportamento: `spec-impact-matrix.md` (63,0 %) concentra as lacunas de **ordem determinística**, de **constantes embutidas em mensagens** e de **cobertura desigual**; `architecture.md` (65,9 %) consolida as **28 dívidas técnicas**. Confiança baixa ali significa que o documento está fazendo o trabalho dele.
 >
-> **`openapi/index.yaml` não usa marcadores** — é contrato, e o próprio cabeçalho declara a natureza e os limites. Foi validado por parsing (js-yaml): 1 path, 5 schemas, 3 ações, status `200` e `413`.
+> **Os dois `flowcharts` com menos de 6 marcadores** (`upload-gedcom.md`, 6; `tela-de-entrada.md`, 5) **não são artefatos rasos**: eles usam diagrama Mermaid como corpo e reservam o marcador para as decisões não triviais. O número baixo é **forma**, não cobertura — e é uma limitação honesta deste método de contagem.
+>
+> **`openapi/index.yaml` não usa marcadores** — é contrato. **Foi validado por parser YAML real** (`js-yaml`, que existe no repositório dentro de `plugins/dsh-markdownlint/node_modules/`): `openapi 3.0.3`, `version 2.0.0`, **3 rotas** (`/`, `/apple-touch-icon.png`, `/banner.png`), **9 schemas**, e o `pattern` de `ReferenciaDeArquivo` **compila como regex**. ⚠️ **Na primeira validação o arquivo estava INVÁLIDO** — ver §4.
 
 ---
 
@@ -72,124 +85,114 @@
 
 | # | Verificação | Método | Resultado |
 | ---: | --- | --- | --- |
-| 1 | Os 3 canônicos + opcionais existem em cada unit | varredura do sistema de arquivos | ✅ **9 canônicos + 3 `contracts.md`** presentes; nenhuma unit incompleta |
-| 2 | Units geradas == `surface.json.modules` | comparação de conjuntos | ✅ **3/3** — `upload-gedcom`, `analise-dna`, `busca-caminho`; nada faltando nem sobrando |
-| 3 | Nenhuma afirmação funcional sobre símbolo extinto | varredura de `HARD_MIN`, `GIVEN_MIN`, `process_dna`, `given_index`, `Pyvis`, `STATIC_FOLDER`, `ensure_dirs` | ✅ **todas** as ocorrências são **avisos de "não fazer isso"** ou registro histórico em ADR. `process_dna` e `ensure_dirs`: **zero**. |
-| 4 | Globais do nível `completo` presentes | verificação de existência | ✅ `code-spec-matrix.md`, `spec-impact-matrix.md`, `gaps.md`, `openapi/index.yaml` e 3 `user-stories/` |
-| 5 | Constantes de contrato coerentes entre units | busca de `MAX_DEPTH`, `MAX_HOPS`, `LIMITE_SEGMENTO_FRACO`, `MAX_CONTENT_LENGTH`, Jaccard, faixa 12–70 | ✅ cada constante declarada com **um** valor e referenciada, nunca redefinida: 20 · 40 · 15 cM · 16 MB · 0,50 / 0,33 · 12–70 |
-| 6 | Contagem de RFs confere com o publicado | contagem de linhas de tabela `\| RF-nn \|` | ✅ **19 / 26 / 24 = 69** (a contagem bruta por regex dá 39 nas units 2 e 3 porque as tabelas **MoSCoW** também começam com `\| RF-`; conferido linha a linha) |
-| 7 | Dependências entre units são reais | confronto com o grafo de importações | ✅ `analise-dna` → `busca-caminho` → `upload-gedcom`; **sem ciclo de módulo** |
-| 8 | Referências a `adrs/NN` resolvem | extração das referências e teste de existência | ✅ **10 números referenciados** (05, 09, 13, 14, 15, 18, 19, 21, 22, 23), todos entre os **23 arquivos existentes** |
-| 9 | O `L-06` se confirma? | leitura do template | ❌ **NÃO se confirma** — ver reclassificação abaixo |
-| 10 | Afirmações 🟡 reclassificáveis por evidência direta | releitura de `matching.py`, `evidence_comparison.py`, `path_search.py`, `mermaid_render.py` | ✅ 4 upgrades aplicados (abaixo) |
+| 1 | Os 3 canônicos + opcionais existem em cada unit | varredura do sistema de arquivos | ✅ **20 canônicos + 5 `contracts.md`** presentes; nenhuma unit incompleta |
+| 2 | Units geradas == `surface.json.modules` | comparação de conjuntos | ✅ **5/5** — `upload-gedcom`, `tela-de-entrada`, `analise-dna`, `busca-caminho`, `recursos-da-tela`; nada faltando nem sobrando |
+| 3 | A matriz de código cobre o `src/` real | confronto com a árvore do sistema de arquivos | ✅ **38 linhas** para **35 `.py`** + `index.html` + 2 artes; contagem de `.py` bate exatamente |
+| 4 | Globais do nível `completo` presentes | verificação de existência | ✅ `openapi/index.yaml`, **5** `user-stories/`, `code-spec-matrix.md`, `spec-impact-matrix.md`, `gaps.md` |
+| 5 | Constantes de contrato coerentes entre units | **importação e medição**, não leitura | ✅ 13 medidas: `CAUSAS_POSSIVEIS`=12, `CAUSAS_POSSIVEL`=**8**, `SCP40_ROWS`=27, `SCP40_NOT_PUBLISHED`=6, `SEM_KIT`=`' SEM-KIT'`, `LIMITE_SEGMENTO_FRACO`=15.0, `GENERIC_GIVENS`=20, `SURNAME_SUFFIXES`=5, `STOP_WORDS`=6, `LIMITE_DE_PREAMBULO`=10, `COMMON_SURNAMES`=16 literais/15 efetivas, `TAMANHO_ESPERADO`=16504, `_chave_de`=`(len, 1ª, última)` |
+| 6 | Contagem de RFs confere com o publicado | contagem de linhas de tabela `\| RF-nn \|` | ✅ **24 / 24 / 34 / 43 / 25 = 150** nas 5 units |
+| 7 | Dependências declaradas batem com as reais | confronto de `modules.json` com os `design.md` | ❌ **NÃO batiam em duas units** — `analise-dna` e `busca-caminho` omitiam `tela-de-entrada`, de que ambos dependem (`_arvore_do_formulario` + lista de escolha do CSV). **Corrigido em `modules.json`** |
+| 8 | Contagem de `render_template` e de `gedcom_filename` | contagem por linha em `src/app.py` | ❌ **"oito" era falso em 4 artefatos.** Medido: **23** `render_template`, **12** com `gedcom_filename`. **Corrigido** |
+| 9 | `person_summary` tem os campos que a spec declara | leitura do fonte | ❌ **12 era falso.** São **13** (`id`, `name`, `sex`, `birth`, `birth_year`, `birth_place`, `death`, `death_year`, `parents`, `parent_names`, `spouses`, `children`, `family_as_child`). **Corrigido em 5 arquivos** |
+| 10 | O número de nomes vazios do `get_name` | **execução** do parser sobre as **três** cópias reais da árvore | ❌ **296 era falso — e era outra grandeza.** Medido: **301** em 35.460, `"Sem Nome"` = **0**. O 296 é a contagem de pessoas **divergentes do `DIV-001`** medida pelo harness de paridade em 2026-09-28. **Corrigido, com a proveniência registrada** |
+| 11 | O `openapi/index.yaml` é YAML válido | **parser real** (`js-yaml`) | ❌ **NÃO era.** Erro na linha 414: escalar não citado começando com `*` (que em YAML inicia um alias) derrubava as 426 linhas. **Corrigido e revalidado** |
+| 12 | Referências a `adrs/NN` resolvem | extração das referências e teste de existência | ✅ todas entre os **36 arquivos existentes** |
+| 13 | Afirmações 🟡 reclassificáveis por medição | execução de 4 experimentos | ✅ **4 medições**: `L-24` (confirmado), `L-31` (negativo), `L-20` (custo), cobertura (**89 %**) |
 
 ---
 
 ## Histórico de Reclassificações
 
-### Nesta rodada
+### Defeitos de consistência corrigidos nesta rodada (10, em 11 arquivos)
+
+| # | O que dizia | O que é | Onde | Como foi decidido |
+| ---: | --- | --- | --- | --- |
+| 1 | `openapi/index.yaml` válido | **YAML inválido** — 1 escalar com `*` inicial derrubava 426 linhas | `openapi/index.yaml:414` | **parser real** (`js-yaml`) |
+| 2 | `CAUSAS_POSSIVEL` = 9 | **8** (`[0]+[3:8]+[10:]` = 1+5+2) | `code-analysis.md` `BR-D-35` · `modules.json` · `spec-impact-matrix.md` Matriz D | importação |
+| 3 | `person_summary` = 12 campos | **13** | `code-analysis.md` `BR-C-45` · `modules.json` · 4 arquivos de `busca-caminho` | leitura do fonte |
+| 4 | "a rota tem **oito** `render_template`" | **23** (12 com `gedcom_filename`) | `code-analysis.md` `BR-T-17` · `modules.json` · `domain.md` · `flowcharts/tela-de-entrada.md` · `upload-gedcom/tasks.md` | contagem por linha |
+| 5 | `uploads` com "33 entradas" | **13 arquivos** + 4 aposentados | `recursos-da-tela/{requirements,contracts}.md` · `flowcharts/recursos-da-tela.md` | contagem do diretório |
+| 6 | "296 pessoas em 35.460" | **301** — e o 296 é outra grandeza | `upload-gedcom/requirements.md` · `data-dictionary.md` | execução do parser nas 3 cópias |
+| 7 | `tela-de-entrada` com "126 testes em 7 arquivos" | **132 em 8** — faltava `test_gedcom_ilegivel_nao_derruba.py` | `tela-de-entrada/{requirements,design,contracts}.md` | o próprio `tasks.md` (`TT-12`) e a `code-spec-matrix.md` o citavam |
+| 8 | O índice "não é invalidado por `id()`, **nem por tamanho**" | A chave **usa** a contagem: `(len(people), 1ª, última)` | `busca-caminho/design.md` | leitura de `_chave_de` |
+| 9 | `analise-dna` e `busca-caminho` dependem de 2 units | **3** — falta `tela-de-entrada` | `modules.json` | os próprios `design.md` a listam |
+| 10 | `adrs/21`: "subconjunto de 9" | **8** | `adrs/21` | importação |
+
+### Reclassificações por medição (4)
 
 | De | Para | Afirmação | Evidência |
 | --- | --- | --- | --- |
-| 🔴 | 🟢 | **`L-06`: "sem conexão" e "erro" seriam indistinguíveis no template** | **Falso.** `index.html:43-45` decide a **cor do alerta** por `success` (`'success' if success else 'danger'`); `:457` decide se o **cartão de resultado** aparece, por `path_result`. Os três desfechos — conexão, sem conexão, erro — produzem telas distintas. Lacuna **fechada por verificação**. |
-| 🟡 | 🟢 | Mapa de mojibake com 18 entradas e 17 chaves efetivas | medido por AST na escavação; confirmado na spec de contrato |
-| 🟡 | 🟢 | `get_spouses` faz varredura global **apenas** quando `FAMS` fica vazio | `family_navigation.py:66-75` — o código confirma a condicional |
-| 🟡 | 🟢 | O teto do BFS conta **iterações de profundidade**, não gerações | `path_finding.py:51-85` — o laço alterna um nível por lado |
-| 🟡 | 🟢 | O escape do rótulo aplica entidades **depois** do filtro | `mermaid_render.py:59-60`; `tests/test_mermaid_escape.py` |
+| 🔴 | 🟢 | **`L-24`: "a colisão do cache de nomes é possível"** | **Confirmada por experimento.** Duas árvores de 4 pessoas com a mesma chave `(4,'@I1@','@I9@')` e xrefs interiores diferentes: o dossiê da **segunda** respondeu `exact_count: 1` citando **`@I2@`, que não existe nela**, e `person_summary` degradou para `"Sem Nome"` **sem levantar nada**. O gatilho medido é a **contagem**, não o conteúdo |
+| 🟡 | 🟢 | **`L-31`: "a disponibilidade do grupo é a do representante"** | **Medição negativa:** 13 grupos na pasta real, **nenhum** com mais de um membro → a divergência **não pode ocorrer**. Decisão: manter |
+| 🔴 | 🟡 | **`L-20`: "custo real, sem limite medido"** | **Medido:** 15,4 ms/ficha → 142 fichas ≈ **2,2 s**, contra **20,9 s** de parse e **1,73 s** de dossiê. O gargalo é o parse. Decisão: **não** otimizar |
+| 🟡 | 🟢 | **`X-03`: "a medição não foi refeita"** | **Remedida: `src/` = 89 %** (era 83 %). A pior cobertura trocou de dono: `ports/adaptadores.py` **73 %** — exatamente o módulo do `L-28` |
 
-### Decisões humanas aplicadas em 2026-10-05 (as 16 perguntas)
+### Fechadas por construção (2)
 
-Você respondeu **todas as 16**. **Quatro decisões mudaram código** e uma **mudou o pin** — o que exigiu editar o legado, autorizado por `.reversa/reversa-config.json` (`allowedPaths` cobre `src/**`, `tests/**`, `requirements.txt` e `README.md`).
+| ID | Como |
+| --- | --- |
+| **`L-16` / `M-03` / `P-02`** | **A corrida entre requisições concorrentes deixou de existir** (`ADR-24`): a árvore é valor de retorno e entra por parâmetro; `gedcom_state.py` não existe mais. **Era a única lacuna crítica das duas rodadas anteriores.** Provado por `test_arvore_devolvida.py` e `test_dependencias_nucleo.py` |
+| **`CS-06`** | **Bytecode órfão removido** (decisão humana). Reverificado: nenhum dos 35 `.pyc` de `src/` ficou sem `.py` |
 
-| # | Resposta | O que mudou | Lacuna |
-| ---: | --- | --- | --- |
-| **1** | Corrigir o legado agora | `matching.py`: **quarto critério** de desempate (menor `xref_id`, `:107-110`). 2 testes novos | ✅ `L-15` fechada |
-| **2** | Remover a linha | `app.py`: `app.secret_key` **removido** | ✅ `P-04` fechada |
-| **3** | É omissão — Onda 3 | Registrado em `permissions.md`; **sem** mudança no legado (correção é inverificável sem identidade) | ✅ `P-01` decidida |
-| **4** | Herança — quero histórico no alvo | `domain.md`, `erd-complete.md`; **requisito encaminhado ao alvo nº 1** | ✅ `L-21` / `E-04` |
-| **5** | Discartes são **acionáveis** | `RF-23` sobe para `Must`; **nova seção** em `analise-dna/design.md` com a ação por motivo | ✅ `L-22` fechada |
-| **6** | **Restringir** a lista de nomes | `permissions.md`; **requisito encaminhado ao alvo nº 3** (busca no servidor, Onda 4) | ✅ `P-03` decidida |
-| **7** | Avisar basta | `domain.md`, `adrs/21` com status confirmado | ✅ `L-17` fechada |
-| **8** | **É requisito** — registrar veredito | `state-machines.md`; **requisito encaminhado ao alvo nº 2** | ✅ `M-04` decidida |
-| **9** | Foi um **chute** que funcionou | O `0,33` passa a **heurístico e ajustável** | ✅ `L-14` fechada |
-| **10** | Só **GEDmatch** | `analise-dna/contracts.md`: cobertura **declarada** | ✅ `L-08` fechada |
-| **11** | O **`.venv`** é o oficial | `requirements.txt` realinhado + **`rapidfuzz` e `python-Levenshtein` declarados**; `pytest` instalado no `.venv` | ✅ `L-19` fechada |
-| **12** | **Medir** a cobertura | `pytest-cov` no `.venv`: **83 %** de `src/`, com detalhe por módulo | ✅ `L-23` fechada |
-| **13** | **Intencional** | `state-machines.md`: a assimetria vira **contrato** | ✅ `M-02` fechada |
-| **14** | **Herdado** — corrigir no alvo | `permissions.md`; **requisito encaminhado ao alvo nº 4** | ✅ `P-05` decidida |
-| **15** | **Trocar** a sentinela | `genetic_evidence.py`: `SEM_KIT = " SEM-KIT"` (espaço à esquerda); **1 teste novo** prova 3 grupos separados | ✅ `E-03` fechada |
-| **16** | **Nunca vi** resultado cruzado | `gaps.md`: a lacuna **permanece aberta** — nunca observada, mas o mecanismo é confirmado | ⚠️ `L-16` / `M-03` |
+### Decisões humanas aplicadas nesta rodada (18)
 
-> **Duas notas de honestidade sobre esta tabela:**
->
-> 1. **A pergunta 11 foi a de maior consequência**, e não a 1. Encerrar a divergência de ambiente eliminou o risco de duas execuções do **mesmo código** darem resultados diferentes — algo que nenhuma quantidade de testes detecta, porque o código está certo.
-> 2. **A pergunta 16 não fechou nada.** Ela mudou a **probabilidade percebida**, não a existência da janela de corrida. Registrar isso é mais útil do que tratá-la como resolvida.
+Ver `questions.md` e `gaps.md` §5. **Quinze** foram registradas como decisão em spec; **uma** foi executada nesta rodada (a remoção do bytecode); **cinco** viraram mudança de código **agendada para depois do Passo 4** — `L-24` (chave do cache), `L-25` (4º critério), `L-30` (docstring), `L-33` (health check) e o log das tentativas de aposentar. O motivo do agendamento é a decisão registrada pelo próprio projeto: *não mexer no código antes do Passo 4, para não verificar regressão com o código mudando ao mesmo tempo*.
 
-**Verificação das mudanças de código** 🟢
+**Nenhuma mudança de comportamento foi feita nesta revisão.** O único arquivo do legado tocado foi um `.pyc` órfão.
+
+---
+
+## Verificação por execução
 
 | Verificação | Comando | Resultado |
 | --- | --- | --- |
-| Testes do matching | `pytest tests/test_characterization_matching.py -q` | **24 passam** (incluindo os 2 novos) |
-| Testes do confronto | `pytest tests/test_confrontacao_gedcom_dna.py -q` | **30 passam** (incluindo o de não-colisão da sentinela) |
-| Testes sem `tmp_path` | 9 arquivos, incluindo `test_servidor_producao.py` e `test_formatacao_cm.py` | **121 passam** |
-| **Suíte completa — global** | `python -m pytest -q` | **164 passam, 15 erros** |
-| **Suíte completa — `.venv`** | `.venv/Scripts/python.exe -m pytest -q` | **164 passam, 15 erros** — **idêntico** |
-| Cobertura | `.venv/Scripts/python.exe -m pytest --cov=src` | **83 %** (1.520 instruções, 253 descobertas) |
-| `app` importável | `import app` | OK; `app.secret_key` deixou de ter valor |
+| Suíte completa | `.venv/Scripts/python.exe -m pytest -q` (com `DATABASE_URL` limpa) | ✅ **527 passam · 9 pulados · 0 falham** |
+| Cobertura de `src/` | `-m pytest --cov=src` no `.venv` | ✅ **89 %** (2.081 instruções, 228 não cobertas) |
+| Parser do `openapi` | `node` + `js-yaml` do repositório | ✅ **válido** — 3 rotas, 9 schemas, regex compila |
+| `markdown_lint` | todos os `_reversa_sdd/**` e `.reversa/**` | ✅ **exit 0 / nenhum problema** |
+| `state.json` | `json.load` | ✅ **válido** |
+| `modules.json` | `json.load` | ✅ **válido** — 233 regras em 5 módulos |
 
-> ⚠️ **Os 15 erros da suíte completa não são regressão.** São todos de `tests/test_upload_seguranca.py`, **em `setup`**, causados por `PermissionError [WinError 5]` quando o pytest cria/limpa o diretório temporário. Reproduzem com **qualquer** `--basetemp` — inclusive dentro do workspace — e **já haviam sido registrados em 2026-09-30** como restrição do ambiente. A conta fecha: **164 + 15 = 179 itens**, contra 175 antes desta rodada (4 testes acrescentados).
-
-### Contra a extração anterior — correções aplicadas nas specs desta rodada
-
-| De | Para | Afirmação da spec antiga | O que o código de 2026-10-05 mostra |
-| --- | --- | --- | --- |
-| 🟢 | 🔴 | "Upload sem validação de extensão/tamanho é decisão vigente do usuário" | **Superada.** Há teto de 16 MB, validação de conteúdo e chave derivada do conteúdo (`BUG-20260929-QMLY`) |
-| 🟢 | 🔴 | "Homônimos usam o 1º ID, sem desempate e sem aviso" | **Ampliada.** Testa até 5×5 combinações; a ambiguidade é **avisada**. O 1º ID virou recuo |
-| 🟢 | 🔴 | "A previsão de parentesco vem de 9 faixas de cM" | **Substituída.** Vem da tabela publicada do SCP 4.0, com envoltória por meioses; as faixas saíram do fluxo |
-| 🟢 | 🔴 | "`get_relationships_by_cm` é o núcleo da previsão" | **Fora do fluxo.** `cm_estimator` existe só por compatibilidade (`RF-25`, `T-32`) |
-| 🟢 | 🟡 | "6 ramos de aceitação" | São **5** ramos + o de prefixo + o rebaixamento por nome do meio |
-| 🟢 | 🟢 | **Todas** as referências de linha das specs antigas | Apontavam para `analisador-genealogico/` e `reconstructed/`, que **deixaram de existir**. Reescritas contra `src/` |
-| 🔴 | 🟢 | "`RF-14`: desempate determinístico é requisito novo" | **Continua requisito e continua NÃO implementado.** Renumerado para **`RF-26`** nesta rodada, com nota de herança preservada |
-
-> ⚠️ **A renumeração do `RF-14` → `RF-26` é a única perda potencial de rastreabilidade desta rodada.** Ela está **declarada na própria spec** (`analise-dna/requirements.md`, bloco "Herança de numeração") e repetida em `tasks.md` (`T-31`) e `contracts.md` §8, para que quem procurar `RF-14` encontre a nota em vez do silêncio.
+> ⚠️ **A suíte exige `DATABASE_URL` limpa.** Com a variável definida no ambiente e **sem** o `psycopg2` instalado, 2 testes de `test_persistencia_desabilitada.py` falham — não é regressão: é o teste medindo um estado que o ambiente não pode produzir. Registrado aqui porque é uma armadilha real para quem rodar a suíte numa shell que exporte a variável.
 
 ---
 
 ## Lacunas Pendentes 🔴
 
-Consolidadas de todos os artefatos desta rodada. O detalhamento com pergunta correspondente está em `gaps.md`; as 16 perguntas para o usuário, em `questions.md`.
+**A contagem consolidada está em `gaps.md` §8**, que é a fonte da verdade.
 
-**A contagem consolidada está em `gaps.md` §8**, que é a fonte da verdade das lacunas. Resumo depois das 16 decisões:
+| Severidade | Itens |
+| --- | ---: |
+| 🔴 Crítico | **0** |
+| 🟠 Moderado | 12 |
+| ⚪ Cosmético | 10 |
+| **Total em aberto** | **22** |
 
-| Severidade | Linhas | IDs distintos |
-| --- | ---: | ---: |
-| 🔴 Crítico | 1 | 3 |
-| 🟠 Moderado | 8 | 9 |
-| ⚪ Cosmético | 5 | 5 |
-| **Total em aberto** | **14** | **17** |
+**Nenhuma lacuna crítica restou.** A única das duas rodadas anteriores — a corrida entre threads — foi **eliminada estruturalmente** pelo `ADR-24`, não mitigada.
 
-**Fechadas nesta rodada: 16** — 3 por execução no código (`L-15`, `P-04`, `E-03`), 9 por decisão sua, 2 por verificação (`L-06`, `M-04`), mais `P-03` e `P-05` encaminhadas como requisito do alvo.
+**Fechadas nesta rodada: 21** — 4 por medição/experimento (`L-24`, `L-31`, `L-20`, cobertura), 2 por construção (`L-16`, `CS-06`), 1 por releitura de matriz (`X-01`), e 14 registradas como decisão com efeito em spec.
 
-### A lacuna crítica que restou
-
-**`L-16` / `M-03` / `P-02` — corrida entre requisições concorrentes.** O estado do GEDCOM é global de processo e é reescrito a cada requisição, enquanto o servidor atende com **4 threads**. Duas requisições simultâneas podem intercalar. A guarda de instância única impede dois **processos**, não duas **threads**.
-
-**Você respondeu que nunca observou resultado cruzado** — o que rebaixa a probabilidade, mas **não fecha a lacuna**: o mecanismo é confirmado por leitura, e o alcance nunca foi medido. O uso single-user tende a não disparar a janela. Nenhuma mitigação no legado foi autorizada, porque o isolamento real pertence à Onda 3 (`P-01`).
-
-> **Nenhuma das 14 lacunas em aberto depende de decisão sua.** São limitação da fonte (`L-18`), custo (`L-20`) e trabalho de rastreabilidade e teste (`X-*`, `CS-*`, `E-*`).
+> **Três das 22 em aberto são limitação da fonte e não são resolvíveis por decisão humana:** as 6 relações não publicadas na versão 4.0 (`L-18`), a endogamia que não é detectada (`L-17`, resíduo) e a ordem de inserção das arestas do grafo (`E-01`/`X-04`), que é semântica do `networkx` e contrato de paridade com o oráculo.
+>
+> **O que sobra depois disso é trabalho de engenharia declarado e com dono:** cobertura (`L-28`, 73 % no módulo do INSERT), custo (`L-20`, medido e não prioritário), rastreabilidade (`X-02`/`CS-03`) e as cinco correções agendadas.
 
 ---
 
 ## Recomendações
 
-- [ ] **Levar os 4 requisitos encaminhados ao próximo ciclo forward** (`_reversa_forward/`): persistir histórico (1), registrar o veredito do operador (2), restringir a lista de nomes (3) e validar o conteúdo do CSV (4). **Eles não estão em nenhum artefato de migração**, porque o pipeline de migração foi concluído em 2026-09-28 e está preservado sem regeneração.
-- [ ] **Atualizar o `README.md`, que agora contradiz o pin.** Ele documenta o fluxo pelo interpretador **global**, e o oficial passou a ser o `.venv/`. Uma linha resolve — **não editei por ser documento seu**.
-- [ ] **Priorizar a Onda 3 da migração para o isolamento entre usuários.** Por sua decisão (`P-01`), a ausência de autenticação é **omissão**, e a correção já está especificada na migração — não no legado.
-- [ ] **Olhar a `number_format.py`: 53 % de cobertura, a pior do projeto.** É a autoridade de **todo** número exibido na tela, e o `BUG-20261004-EWSJ` (badge com ruído de ponto flutuante) nasceu exatamente ali. É o melhor candidato a teste dedicado.
-- [ ] **Regerar `_reversa_docs/` e as matrizes de `_reversa_bugs/*/generated/`.** Ambas derivam de artefatos de 2026-09-30 e hoje descrevem código que não existe mais.
-- [ ] **Promover o fuzz do `BUG-20260929-J6PQ` a teste permanente.** A evidência de 288 payloads combinados vive em arquivo de adendo, fora da suíte. O contrato de escape é a **única** defesa contra o diagrama inteiro deixar de renderizar.
-- [ ] **Conferir o estado do repositório antes de commitar.** Esta rodada editou **5 arquivos do legado** (`matching.py`, `app.py`, `genetic_evidence.py`, `requirements.txt` e 2 arquivos de teste), todos por decisão sua registrada em `questions.md`. As 9 specs substituídas estão em `.reversa/snapshots/2026-10-05-pre-reextracao/`.
+- [ ] **Executar as 5 correções agendadas, na ordem:** (1) `L-24` — acrescentar à chave do cache algo derivado do conteúdo, com o `TT-20` que já existe; (2) `L-25` — quarto critério determinístico em `common_ancestors`, com teste nas duas ordens de *pool*; (3) `L-30` — corrigir a docstring de `motivo_de_indisponibilidade`; (4) `L-33` — health check das duas artes no arranque; (5) log das duas tentativas de aposentar. **Todas depois do Passo 4.** Nenhuma muda comportamento observável, exceto a do `L-24` (que corrige um defeito silencioso) e a do `L-25` (que torna determinístico o que hoje depende do `PYTHONHASHSEED`).
+- [ ] **Levar os 6 requisitos encaminhados ao alvo para o próximo ciclo forward** (`_reversa_forward/`): persistir histórico (1, já parcialmente atendido no legado), registrar o veredito do operador (2), restringir a lista de nomes (3), validar o CSV (4), **retenção/expurgo/consentimento (5 — novo)** e a política de deduplicação do histórico (6 — novo). **Enquanto o nº 5 não existir, o uso do legado com dado de terceiros está declarado PROIBIDO.**
+- [ ] **Observar a `L-31` sem instrumento não é suficiente.** A medição deu negativo *hoje*; o gatilho (mesmo conteúdo reenviado com outro nome) é observável. Um teste que **falhe quando um grupo passar a ter dois membros** é a forma barata de não depender de ninguém lembrar disto.
+- [ ] **Regenerar `_reversa_docs/` e as matrizes de `_reversa_bugs/*/generated/`** — ambas derivam de artefatos de 2026-09-30/10-05, e o `_reversa_docs` é de 2026-10-08. O gerador **não lê** `_reversa_sdd/addenda/`.
+- [ ] **Atualizar o `README.md`, que continua contradizendo o pin** (documenta o interpretador **global**; o oficial é o `.venv/`). Uma linha resolve — **não editei por ser documento seu**.
+- [ ] **Conferir o estado do repositório antes de commitar.** Esta revisão tocou **apenas arquivos do Reversa**: `.reversa/context/modules.json`, `.reversa/state.json`, `.reversa/plan.md` e 15 arquivos de `_reversa_sdd/`. Do legado, **um** arquivo foi tocado: o `.pyc` órfão, removido por decisão sua. Os artefatos substituídos estão em `.reversa/snapshots/2026-10-10-pre-reextracao/`.
 
 ---
 
-*Gerado pelo Reversa-Reviewer em 2026-10-05 (re-extração, nível completo).*
+## Revisão Cruzada
+
+**Não realizada** — nenhuma ferramenta com prefixo `codex:` está ativa nesta sessão. O Passo 0 do agente determina, nesse caso, pular o passo sem mencioná-lo ao usuário; o registro fica aqui, como nas rodadas anteriores, para que a ausência seja auditável.
+
+---
+
+*Gerado pelo Reversa-Reviewer em 2026-10-10 (re-extração, nível completo). Atualizado após as 18 respostas.*

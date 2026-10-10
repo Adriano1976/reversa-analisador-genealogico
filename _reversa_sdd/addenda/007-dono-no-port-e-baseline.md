@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-07.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 A feature fecha os **dois desvios declarados** que a Onda 2 deixou fora do escopo.

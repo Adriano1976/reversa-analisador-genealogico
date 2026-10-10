@@ -16,7 +16,7 @@ O sistema novo tem como detectar colapso no lado **documental** — e o faz.
 **Detectar e avisar no lado documental; NÃO corrigir o valor genético nem alterar o veredito.**
 
 1. O lado documental detecta colapso por **contagem de cadeias** até o mesmo ancestral (teto de **8** cadeias) e emite o aviso `colapso_de_pedigree`, nomeando o ancestral e o número de cadeias.
-2. O lado do confronto **lista** "colapso de pedigree" e "endogamia" entre as **causas possíveis** de conflito — na lista de 12 causas de `CONFLITANTE` e no subconjunto de 9 de `POSSIVEL`.
+2. O lado do confronto **lista** "colapso de pedigree" e "endogamia" entre as **causas possíveis** de conflito — na lista de 12 causas de `CONFLITANTE` e no subconjunto de **8** de `POSSIVEL`.
 3. **O veredito não é alterado pelo aviso de colapso.**
 
 ## Evidência

@@ -1,10 +1,10 @@
 # Perguntas para Validação — teste_reversa
 
-> Gerado pelo **Reversa-Reviewer** na re-extração de **2026-10-05**. Substitui integralmente o `questions.md` de 2026-09-30.
+> Gerado pelo **Reversa-Reviewer** na re-extração de **2026-10-10**. Substitui integralmente o `questions.md` de 2026-10-05.
 > Nível de documentação: **Completo** → **todos os 🔴** são apresentados, e não apenas os que bloqueiam a reimplementação.
-> `answer_mode = "chat"` — pode responder aqui mesmo, numerando as respostas. As **4 primeiras** são as de maior consequência.
+> `answer_mode = "chat"` — pode responder aqui mesmo, numerando as respostas.
 >
-> **STATUS: 16 de 16 respondidas e aplicadas em 2026-10-05.** Três delas **mudaram código** (`matching.py`, `app.py`, `genetic_evidence.py`) e uma **mudou o pin** (`requirements.txt`) — todas com autorização explícita e cobertura de `reversa-config.json`. Quatro decisões geraram **requisitos encaminhados ao sistema alvo** (`gaps.md` §6).
+> **Esta é uma passada ÚNICA.** As **16 perguntas de 2026-10-05 não foram reabertas**: todas estão decididas, aplicadas e verificadas. As **6 primeiras** desta lista são as que já estavam registradas em `.reversa/state.json → recomendacao_para_a_retomada`; as **12 seguintes** nasceram da revisão de consistência desta rodada, nas duas units novas (`tela-de-entrada`, `recursos-da-tela`) e nos globais.
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 
 ---
@@ -13,276 +13,273 @@
 
 | Grupo | Tema | Perguntas |
 | --- | --- | --- |
-| **A** | Decisões que podem mudar **código** | 1 a 3 |
-| **B** | Decisões de **produto** | 4 a 8 |
-| **C** | **Dados e ambiente** | 9 a 12 |
-| **D** | Detalhes técnicos que só o dono sabe | 13 a 16 |
+| **A** | Decisões que podem mudar **código do legado** | 1 a 4 |
+| **B** | **Dado pessoal** e persistência | 5 a 6 |
+| **C** | A **arte** e o ambiente do container | 7 a 10 |
+| **D** | A **tela de entrada** | 11 a 15 |
+| **E** | **Custo**, cobertura e histórico | 16 a 18 |
 
-**A pergunta 9 é a única herdada da rodada anterior** e continua aberta há mais de um mês: a medição do `0,33` nunca foi fornecida.
-
----
-
-## Grupo A — Decisões que podem mudar código
-
-### Pergunta 1 — O determinismo do desempate deve ser corrigido **no legado** ou apenas exigido do alvo?
-
-**Contexto:** Unit `analise-dna` — `match_candidates` em `src/core/matching.py`. O laço de candidatos percorre um `set` (`:73`, `:91`) e o desempate usa comparação **estrita** (`:103-105`), de modo que empate exato nos três critérios mantém **o primeiro candidato da ordem de iteração do conjunto**. Essa ordem muda a cada execução do processo (medido em três sementes de `PYTHONHASHSEED`: nenhuma posição em comum).
-**Spec afetada:** [`_reversa_sdd/analise-dna/requirements.md`] (`RF-26`), [`_reversa_sdd/analise-dna/tasks.md`] (`T-31`), [`_reversa_sdd/adrs/23-desempate-deterministico.md`]
-**Pergunta:** Você já decidiu em **2026-09-30** que "precisa ser determinístico" (critério sugerido: menor `xref_id`). O código **nunca implementou** isso — a reescrita das três etapas em 2026-10-04 não passou pelo ciclo forward. O que fazer agora: (a) **corrigir o legado** nesta rodada (mudança de código autorizada por `reversa-config.json`), ou (b) **manter apenas como requisito** do sistema alvo, sem tocar no código atual?
-**Impacto:** Em (a), eu edito `matching.py`, adiciono teste de determinismo e a suíte passa a proteger o comportamento. Em (b), a divergência entre decisão humana e código permanece registrada como lacuna aberta — e é a **única** das 13 decisões verificadas que o código viola.
-
-**Resposta:** ✅ **(a) Corrigir o legado agora — EXECUTADO em 2026-10-05.**
-**Aplicado em:**
-
-- `src/core/matching.py` → **quarto critério** no desempate (`:107-110`): em empate triplo, vence o **menor `xref_id`** lexicográfico. Comentário no código registra a decisão e o motivo
-- `tests/test_characterization_matching.py` → **2 testes novos**: `test_desempate_escolhe_o_menor_xref_id` (parametrizado nas duas ordens de *pool*) e `test_desempate_nao_depende_da_ordem_do_pool`
-- `analise-dna/requirements.md` (`RF-26`) · `analise-dna/design.md` · `analise-dna/tasks.md` (`T-31`, `TT-15`) · `analise-dna/contracts.md` · `domain.md` (`L-15`) · `adrs/23` · `architecture.md` (dívida 1)
-- **Verificação:** `pytest tests/test_characterization_matching.py -q` → **24 passam**; suíte completa **163 passam + 15 erros de ambiente** = **178 itens** (eram 175)
-- ⚠️ **Segunda divergência deliberada do legado, e a primeira que muda comportamento.** Nos casos de empate triplo o vencedor pode ser outro; fora do empate, nada muda
+**A pergunta 1 é a única desta lista cujo veredito é um EXPERIMENTO, e não uma decisão.** Foi por isso que ela ficou em primeiro lugar: as outras dezessete podem ser respondidas de memória, e esta exige uma medição que ainda não foi feita.
 
 ---
 
-### Pergunta 2 — `app.secret_key`: remover, externalizar ou manter?
+## Grupo A — Decisões que podem mudar código do legado
 
-**Contexto:** `src/app.py:22` define `app.secret_key = 'f@milyse@rch_dna_edition_v16'`, **embutido no código e versionado**. Ele **não tem consumidor**: `flask.session` nunca é importado, nenhum cookie é emitido, nada o lê.
-**Spec afetada:** [`_reversa_sdd/permissions.md`] §1.1 e §6 (`P-04`); [`_reversa_sdd/upload-gedcom/design.md`] (Riscos)
-**Pergunta:** Remover a linha (não há sessão), externalizar para variável de ambiente, ou preservar por fidelidade ao legado?
-**Impacto:** Hoje é passivo de higiene, sem risco explorável. Mas no instante em que alguém introduzir `session` para resolver o isolamento entre usuários (a Rota 2 descartada do `BUG-20260929-BJJH`), esse literal **versionado** passa a ser a chave de forja de sessão de todo usuário.
+### Pergunta 1 — A colisão da chave do cache de nomes (`L-24` / `E-05`): medir primeiro?
 
-**Resposta:** ✅ **Remover a linha — EXECUTADO em 2026-10-05.**
-**Aplicado em:**
+**Contexto:** Unit `busca-caminho` — `_chave_de` em `src/core/documentary_relationship.py` devolve `(len(people), chaves[0], chaves[-1])` com `chaves = sorted(people)`. O índice `nome → ids` é um **cache de módulo**: ele só é reconstruído quando essa chave muda. Dois GEDCOMs de **mesmo tamanho** e com os **mesmos xrefs extremos** reaproveitam o índice da árvore anterior, e o dossiê de homônimos passa a listar xrefs que **não existem** na árvore carregada — sem exceção nenhuma, porque `get_name(None)` devolve `Sem Nome` e as consultas devolvem `[]`/`None`. Nada é levantado, nada é logado. Esta unit **alimenta** com esse dossiê os avisos de identidade ambígua da unit `analise-dna`.
+**Spec afetada:** [`_reversa_sdd/busca-caminho/design.md`] § Riscos (`L-24`), [`_reversa_sdd/busca-caminho/tasks.md`] (`T-24`, `TT-20`), [`_reversa_sdd/analise-dna/design.md`] § Riscos, [`_reversa_sdd/flowcharts/busca-caminho.md`] §13
+**Pergunta:** O cenário é **inferido, não executado**. Como proceder:
+(a) **medir primeiro** — carregar dois GEDCOMs reais do mesmo tamanho com os mesmos xrefs extremos no mesmo processo e verificar se o dossiê da segunda árvore lista xrefs inexistentes — e só depois decidir a correção;
+(b) **corrigir já**, acrescentando à chave algo derivado do conteúdo;
+(c) **aceitar o risco**, declarando-o, sem medir nem corrigir?
+**Impacto:** Em (a) e (b), a lacuna fecha no legado ou vira feature forward. Em (c), ela passa a ser dívida declarada — e é a única lacuna de gravidade alta desta rodada cujo alcance **ninguém mediu**.
+**Recomendação do Revisor:** **(a) medir primeiro.** É o único achado de gravidade alta desta rodada que é **inferido** e não medido. Existe precedente no próprio projeto: o oráculo de 2026-09-28 achou no primeiro minuto um erro de spec que sobreviveu a 6 agentes e 7 gates humanos, porque todos operavam no nível das specs. O teste que hoje falharia (`TT-20`) já está escrito. E a correção, quando vier, é pequena e **não muda comportamento nenhum** — só o custo de reconstrução. ⚠️ `id()` **não** serve como chave: é reciclado.
 
-- `src/app.py` → a linha `app.secret_key = ...` foi **removida**; em seu lugar ficou um comentário registrando a decisão, o motivo e o ponteiro para `permissions.md`
-- `permissions.md` §1.1 e §6 (`P-04`) · `upload-gedcom/design.md` · `upload-gedcom/requirements.md` · `architecture.md` (dívida 16)
-- `inventory.md` → a linha de configurações internas foi corrigida, com marcação de correção do Revisor
-- **Verificação:** nenhum consumidor afetado — `flask.session` não é importado em nenhum arquivo, não há `flash()` e nenhum teste referencia `secret_key`. `import app` continua funcionando, e `app.secret_key` deixou de ter valor
-
----
-
-### Pergunta 3 — A ausência de autenticação é requisito ou omissão?
-
-**Contexto:** Não existe `session`, `login`, `logout`, `password`, `current_user`, `role` ou `permission` em `src/`. Não há usuário, papel, permissão nem `owner_id`. O aceite de risco do `BUG-20260929-BJJH` (2026-10-04) foi dado sobre um uso de **uma pessoa só**, com a condição de reabertura nomeada: *"se qualquer pessoa além de Adriano passar a ter acesso antes da Onda 3"*.
-**Spec afetada:** [`_reversa_sdd/permissions.md`] §5 e §6 (`P-01`)
-**Pergunta:** Para o **produto**, a ausência de autenticação é (a) **omissão** a corrigir — como a Onda 3 da migração já especifica com `owner_id` e teste negativo de 404 —, ou (b) **requisito aceito** de uma ferramenta local de uso pessoal?
-**Impacto:** Em (a), as specs de unidade ganham requisito de isolamento e a recomendação final prioriza a Onda 3. Em (b), registra-se como decisão de produto e o assunto sai da lista de lacunas.
-
-**Resposta:** ✅ **(a) É OMISSÃO — corrigir na Onda 3.**
-**Aplicado em:**
-
-- `permissions.md` §5 e §6 (`P-01`) → a decisão está registrada: é **omissão**, e a correção pertence à **Onda 3** da migração, que já a especifica com `owner_id` como invariante do aggregate, repositório sempre escopado e **teste negativo de 404** como portão de go-live
-- **Nenhuma mudança de código no legado, e isso é deliberado:** sem identidade, qualquer correção de isolamento aqui é **inverificável** — o próprio critério de aceite do `BUG-20260929-BJJH` é declarado inaplicável ao legado (`adrs/18`)
-- **Consequência de priorização:** a recomendação do projeto passa a ser **priorizar a Onda 3 da migração**, e não corrigir autenticação no legado
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-## Grupo B — Decisões de produto
+### Pergunta 2 — A ordem de `common_ancestors` sensível ao `PYTHONHASHSEED` (`L-25`)
 
-### Pergunta 4 — Nada é persistido entre requisições: isso é desejado?
+**Contexto:** Unit `busca-caminho` — `find_all_common_ancestors` em `src/core/documentary_relationship.py` varre `set(de_a) & set(de_b)` e ordena por `(meioses totais, maior distância, nome)`. Quando **dois ancestrais empatam nos três critérios**, a ordem final é a da iteração do `set` — que muda a cada processo. O mesmo vale para `additional_paths`. É **exatamente a mesma classe** do defeito que o `matching` de `analise-dna` fechou em 2026-10-05 com um quarto critério determinístico (o menor `xref_id`).
+**Spec afetada:** [`_reversa_sdd/busca-caminho/requirements.md`] (`RF-25`, `BR-C-43`), [`_reversa_sdd/busca-caminho/design.md`] § Riscos, [`_reversa_sdd/busca-caminho/tasks.md`] (`T-22`, `TT-21`)
+**Pergunta:** (a) dar a esta unit o **mesmo tratamento** que o `matching` recebeu — um quarto critério determinístico, o menor `xref_id`; (b) aceitar e declarar como contrato que a ordem só é estável até o empate triplo; (c) registrar apenas como requisito do alvo?
+**Impacto:** Em (a), o legado ganha código novo e um teste de caracterização nas duas ordens de *pool* — como foi feito no `matching`. Em (b) e (c), a lacuna permanece aberta e **auditável**: quem reimplementar precisa saber que o desempate não é reprodutível.
+**Recomendação do Revisor:** **(a)**. O desenho já existe no projeto, o custo é de poucas linhas e a assimetria atual é difícil de justificar: o mesmo projeto resolveu o mesmo problema em um lugar e não no outro. Se a resposta for (b) ou (c), o registro precisa dizer **por que** aqui é aceitável.
 
-**Contexto:** O GEDCOM é **re-parseado integralmente a cada `POST`**, e nenhum resultado de análise é gravado. Não há histórico, nem como comparar duas execuções. Registrado como `L-21` (`domain.md` §7) e `E-04` (`erd-complete.md` §8).
-**Spec afetada:** [`_reversa_sdd/domain.md`], [`_reversa_sdd/erd-complete.md`], [`_reversa_sdd/architecture.md`] (dívida 8)
-**Pergunta:** É requisito (ferramenta efêmera, sem estado) ou herança do legado que você gostaria de mudar?
-**Impacto:** Se for herança a mudar, isso é escopo do sistema alvo, não do legado — mas precisa constar como requisito, porque hoje **nenhum artefato** afirma qual dos dois é.
-
-**Resposta:** ✅ **Herança — quero histórico no alvo.**
-**Aplicado em:** `domain.md` (`L-21`) · `erd-complete.md` (`E-04`) · `gaps.md` §6 como **requisito encaminhado ao alvo nº 1**. **Nada muda no legado**: criar persistência aqui seria construir o que a Onda 3 substitui.
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 5 — O operador deve **agir** sobre os matches descartados?
+### Pergunta 3 — O motivo "fora da forma" ficou inalcançável (`L-30`)
 
-**Contexto:** O match que não casa com nenhum registro vai para `skipped_matches` com o motivo textual (um de quatro). A tela os exibe. Não há indicação de negócio sobre se o operador deve fazer algo com eles, nem qual taxa de descarte seria aceitável. Registrado como `L-22`.
-**Spec afetada:** [`_reversa_sdd/analise-dna/requirements.md`] (`RF-23`), [`_reversa_sdd/user-stories/analise-dna.md`] (`US-D-05`)
-**Pergunta:** A lista de descartados é **informativa** (auditoria de que nada foi truncado) ou **acionável** (você revisa nomes para descobrir por que não casaram)?
-**Impacto:** Se for acionável, a spec precisa dizer o que o operador faz com cada motivo — e talvez o próprio motivo precise de mais contexto (ex.: sugerir a grafia mais próxima).
+**Contexto:** Unit `tela-de-entrada` — `motivo_de_indisponibilidade` em `src/utils/validate.py:183-202`. A docstring justifica o segundo motivo (`FORA_DA_FORMA` = `nome com caractere que a referência não aceita`) dizendo que é *"o caso do acento e do espaço, medido na pasta real"*. Mas a `_FORMATO_CHAVE` que recusava acento e espaço foi **removida em 2026-10-10** (`RN-20`, `ADR-32`): `chave_recebida_e_valida` passou a exigir apenas que a parte visível seja um **nome**. Verificado por leitura: `94e2402671702cac__Famílias_Sergipanas.csv` é **disponível** hoje. O ramo do template continua correto — ele apenas quase nunca será exercido.
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/design.md`] § Riscos, [`_reversa_sdd/tela-de-entrada/tasks.md`] (`T-06`), [`_reversa_sdd/tela-de-entrada/contracts.md`] §2.4, [`_reversa_sdd/tela-de-entrada/requirements.md`] (`BR-T-11`)
+**Pergunta:** (a) **corrigir a docstring e manter o ramo** como defesa em profundidade; (b) **remover o ramo** e o literal, junto com a entrada correspondente na tabela de indisponibilidade; (c) deixar como está?
+**Impacto:** Em (a), zero mudança de comportamento — uma linha de comentário que hoje descreve uma validação que não existe mais. Em (b), o contrato perde um motivo que ainda pode ocorrer para valores que **não podem existir como entrada de diretório** (barra, NUL) ou para o caso degenerado de parte visível vazia.
+**Recomendação do Revisor:** **(a) corrigir a docstring e manter o ramo.** Custo mais baixo e mais honesto: o ramo é uma segunda camada legítima, e o defeito é o **comentário**, não o código. A tarefa `T-06` não pode ser fechada sem esta resposta.
 
-**Resposta:** ✅ **ACIONÁVEL — você age sobre os motivos.**
-**Aplicado em:** `analise-dna/requirements.md` → `RF-23` subiu de `Should` para **`Must`**, com o critério de aceite exigindo a ação por motivo · `analise-dna/design.md` → **nova seção "Discartes — o que o operador faz com cada motivo"**, com a ação esperada para cada um dos quatro motivos · `gaps.md` (`L-22` fechada). **Consequência de design:** o motivo **não pode ser encurtado na tela** — os quatro números do motivo de score são o que permite julgar o caso.
-
----
-
-### Pergunta 6 — A lista completa de nomes da árvore pode continuar sendo embutida na página?
-
-**Contexto:** `all_names` — **todos** os nomes da árvore carregada — é renderizado no HTML de cada resposta (`index.html:112`), inclusive nos erros. Ela alimenta os campos de busca. Contém nomes de **pessoas vivas**. Registrado como `P-03`.
-**Spec afetada:** [`_reversa_sdd/permissions.md`] §4.2 e §6
-**Pergunta:** Manter como está, ou restringir (ex.: busca com autocomplete no servidor, sem expor a lista inteira)?
-**Impacto:** Como o sistema não tem autenticação, qualquer um que alcance a porta recebe a lista completa. Não há indício de que alguém tenha decidido mantê-la assim — é uma consequência, não uma escolha.
-
-**Resposta:** ✅ **RESTRINGIR — não expor a lista completa.**
-**Aplicado em:** `permissions.md` (`P-03`) · `gaps.md` §6 como **requisito encaminhado ao alvo nº 3**. **O legado não foi alterado**, e o motivo é prático: `all_names` alimenta os campos de busca (`index.html:112`), e removê-la hoje **quebraria a busca sem substituto**. A restrição exige **busca no servidor**, que é trabalho da Onda 4 (SPA). Enquanto isso, a exposição segue coberta pelo aceite de risco single-tenant.
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 7 — Para endogamia e colapso de pedigree, **avisar** é suficiente?
+### Pergunta 4 — O bytecode órfão do módulo removido (`CS-06`)
 
-**Contexto:** A fonte estatística (Shared cM Project 4.0) declara que não atende colapso de pedigree nem endogamia. O código **detecta** colapso no lado documental (aviso `colapso_de_pedigree`, contagem de cadeias até 8) e **lista** as duas entre as causas possíveis de conflito — mas **o veredito do confronto não muda** por causa disso. Registrado como `L-17`.
-**Spec afetada:** [`_reversa_sdd/domain.md`] §7, [`_reversa_sdd/adrs/21-endogamia-avisar-nao-corrigir.md`], [`_reversa_sdd/analise-dna/design.md`]
-**Pergunta:** Avisar (com o cM sendo, nesses casos, um **teto otimista**) é suficiente, ou o veredito deveria ser rebaixado quando há colapso detectado?
-**Impacto:** Rebaixar exigiria definir **quanto** rebaixar — e não há modelo de correção no projeto. A ADR-21 registra que avisar foi a escolha, mas com confiança 🟡 justamente por falta de decisão explícita.
+**Contexto:** `src/core/__pycache__/gedcom_state.cpython-314.pyc` continua em disco **sem** o `.py` correspondente. É o resíduo do módulo que a `ADR-24` eliminou. Medido: é o **único** bytecode órfão de `src/` (os outros 34 conferem com um `.py` existente). Inofensivo em execução, mas sugere que o módulo existe.
+**Spec afetada:** [`_reversa_sdd/traceability/code-spec-matrix.md`] (`CS-06`)
+**Pergunta:** (a) **apagar** o arquivo; (b) manter e deixar a matriz como registro?
+**Impacto:** Apagar `src/**` está dentro de `allowedPaths` de `.reversa/reversa-config.json`, então a limpeza é tecnicamente autorizada. É o único item desta lista que é **higiene**, sem consequência de contrato.
+**Recomendação do Revisor:** **(a) apagar.** É bytecode, não fonte: nenhuma linha de código do projeto se perde, e a alternativa é deixar no repositório um arquivo que documenta um módulo que não existe. Se preferir que eu não toque em nada sob `src/` nesta rodada, a resposta (b) é perfeitamente defensável — a matriz já o registra.
 
-**Resposta:** ✅ **AVISAR BASTA.**
-**Aplicado em:** `domain.md` (`L-17` fechada) · `adrs/21-endogamia-avisar-nao-corrigir.md` → status passa a **"confirmado pelo usuário"** · `gaps.md`. O colapso continua detectado no lado documental e **sem alterar o veredito**; o cM permanece declarado como **teto otimista** nesses casos. A incerteza que a ADR registrava em 🟡 está resolvida.
-
----
-
-### Pergunta 8 — O veredito do operador sobre uma conexão precisa ser registrado?
-
-**Contexto:** Não existe estado para "aceitei", "rejeitei" ou "corrigi" uma conexão. Como nada é persistido, nenhum julgamento humano pode ser gravado. Registrado como `M-04` (`state-machines.md` §7).
-**Spec afetada:** [`_reversa_sdd/state-machines.md`]
-**Pergunta:** Registrar a decisão do operador é requisito do produto, ou a ferramenta é deliberadamente só-leitura sobre o GEDCOM?
-**Impacto:** Se for requisito, ele **não está no sistema** e precisa entrar no alvo — e `M-04` deixa de ser lacuna.
-
-**Resposta:** ✅ **É REQUISITO — e pertence ao ALVO.**
-**Aplicado em:** `state-machines.md` (`M-04`) · `gaps.md` §6 como **requisito encaminhado ao alvo nº 2**. **Nada muda no legado**: sem persistência (`E-04`), um veredito não teria onde viver — este requisito **depende** do nº 1. No alvo, vira uma máquina de estados nova, com transições por ação humana.
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-## Grupo C — Dados e ambiente
+## Grupo B — Dado pessoal e persistência
 
-### Pergunta 9 — ✅ A medição do `0,33` (herdada de 2026-09-30)
+### Pergunta 5 — Dado pessoal de **pessoas vivas** sem retenção, expurgo ou consentimento (`L-29` / `P-07`)
 
-**Contexto:** O limiar de Jaccard cai de **0,50 para 0,33** quando `cM ≥ 150` e o prenome não é genérico (`matching.py:130-136`). A decisão de **manter** o relaxamento é sua, de 2026-08-03, e continua 🟢. O que nunca foi fornecido é a **origem do número**. Você indicou ter a medição em 2026-09-30, mas ela não foi colada.
-**Spec afetada:** [`_reversa_sdd/analise-dna/design.md`], [`_reversa_sdd/analise-dna/requirements.md`]
-**Pergunta:** O `0,33` foi **calibrado** contra dados reais (existe a medição de quantos falsos positivos ele introduz, e contra que conjunto?) ou foi um **chute** que funcionou na prática?
-**Impacto:** Se calibrado, a medição entra como evidência e a lacuna `L-14` fecha. Se foi chute, o número passa a 🟡 **ajustável**, e a reimplementação pode tratá-lo como parâmetro em vez de literal. **É a pergunta mais antiga em aberto.**
+**Contexto:** A tabela `analysis_person` do histórico Postgres persiste `xref`, `nome`, `sexo`, `nascimento`, `local_nascimento` e `falecimento` de **todas** as pessoas que a análise tocou — inclusive **pessoas vivas**. Não há expurgo, não há prazo de retenção, não há consentimento registrado. **Desde que a persistência existe, o dado sobrevive ao arquivo de origem:** apagar o GEDCOM não apaga o retrato. É a única lacuna desta rodada que é **bloqueante para uso real com dado de terceiros**.
+**Spec afetada:** [`_reversa_sdd/analise-dna/requirements.md`] (RNF Privacidade, `TM-04`), [`_reversa_sdd/analise-dna/design.md`] § Riscos, [`_reversa_sdd/erd-complete.md`], [`_reversa_sdd/init.sql`]
+**Pergunta:** (a) **declarar a proibição agora** — uso restrito à própria árvore do operador — e levar retenção, expurgo e consentimento como **requisitos do sistema alvo**; (b) construir retenção/expurgo **no legado** nesta rodada; (c) registrar como dívida sem restrição de uso?
+**Impacto:** Em (a), o legado ganha uma restrição de uso declarada e o alvo ganha um requisito rastreável — sem uma linha de código executada. Em (b), a rodada deixa de ser extração e vira construção de feature. Em (c), o sistema segue **sem** dizer o que não se pode fazer com ele.
+**Recomendação do Revisor:** **(a)**. É a mesma solução que o projeto já adotou quatro vezes em 2026-10-05 (persistir histórico, registrar veredito, restringir a lista de nomes, validar o CSV): o requisito vai para o alvo, porque construir retenção no legado significaria construir o que a Onda 3/5 da migração substitui.
 
-**Resposta:** ✅ **Foi um CHUTE que funcionou na prática — NÃO foi calibrado.**
-**Aplicado em:**
-
-- `analise-dna/design.md` → a lacuna `L-14` é declarada fechada, com o número passando a **heurístico e ajustável**
-- `analise-dna/requirements.md` → a regra do Jaccard ganha a nota de que o `0,33` é heurística sem medição de calibração
-- `analise-dna/contracts.md` §9 → a linha do limiar separa a **decisão** (alta estabilidade: relaxar é intencional) do **número** (média: ajustável)
-- **O que NÃO muda:** a decisão de **manter** o relaxamento segue 🟢 desde 2026-08-03, e a mecânica (limiar 0,50 por padrão; 0,33 apenas com `cM ≥ 150` e prenome não genérico) permanece intacta. O que mudou foi a **autoridade do número**
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 10 — Quais exportadores de CSV precisam ser suportados?
+### Pergunta 6 — Não há teste do caminho **feliz** de gravação no banco (`L-28` / `X-05`)
 
-**Contexto:** A coluna de kit é detectada por regex (`[A-Z]{2}\d{7}` e `[A-Z]{1,3}\d{4,8}`), que é específica de um padrão de exportador (GEDmatch). A leitura foi tornada tolerante a separador, preâmbulo e linha torta (ADR-16), mas a **identificação de colunas por papel** é heurística. Registrado como `L-08`.
-**Spec afetada:** [`_reversa_sdd/analise-dna/contracts.md`] §2.1
-**Pergunta:** Quais exportadores você usa de fato (GEDmatch, MyHeritage, FamilyTreeDNA, outro)? A lista define o que precisa ser testado com fixture real.
-**Impacto:** Se houver um exportador com formato diferente, a detecção por papel precisa de coluna de apoio — e hoje só existe teste com o formato conhecido.
+**Contexto:** `RegistroDeAnalisesPostgres._escrever` grava 6 tabelas numa transação, em ordem de chave estrangeira. Os testes de persistência exercitam, **por desenho**, só os estados **desabilitado** e **indisponível** — porque `psycopg2-binary` está **pinado e ausente do `.venv/`**. Ou seja: erro de SQL, de ordem de FK ou de tipo só apareceria **dentro do container**, que é onde ninguém roda a suíte.
+**Spec afetada:** [`_reversa_sdd/analise-dna/tasks.md`] (`TT-27`), [`_reversa_sdd/analise-dna/design.md`] § Riscos, [`_reversa_sdd/traceability/spec-impact-matrix.md`] (`X-05`)
+**Pergunta:** (a) criar um **ambiente de teste com o driver** — venv dedicado, ou alvo de teste dentro do `docker-compose`; (b) manter como dívida declarada e levar a verificação para o alvo; (c) instalar o driver **no `.venv/` oficial**?
+**Impacto:** Em (a), o caminho de escrita passa a ter cobertura real e o histórico deixa de ser o subsistema menos verificado do projeto. Em (c), o `.venv/` deixa de reproduzir o estado que a paridade mediu.
+**Recomendação do Revisor:** **(a)**, com uma ressalva explícita: **não mexer no `.venv/` oficial.** Ele é o interpretador da paridade e foi realinhado de propósito em 2026-10-05; instalar o driver lá mudaria o ambiente que a decisão `L-19` fixou.
 
-**Resposta:** ✅ **Apenas o GEDmatch.**
-**Aplicado em:** `analise-dna/contracts.md` §2.1 → nota de **cobertura declarada** · `gaps.md` (`L-08` fechada). A lacuna deixa de ser incerteza e passa a ser **escopo declarado**: as regras de detecção são as do formato testado, e **não há prova de generalidade** para os outros exportadores — nem precisa haver enquanto o uso for este.
-
----
-
-### Pergunta 11 — Qual interpretador é o oficial: o global ou o `.venv`?
-
-**Contexto:** O `.venv/` do projeto **não reproduz** o pin do `requirements.txt` em **5 pacotes**: `ged4py` 0.5.5 (pin 0.5.2), `networkx` 3.7 (3.6.1), `pandas` 3.0.6 (3.0.3), `RapidFuzz` 3.14.6 (3.14.5) e `python-Levenshtein` 0.27.5 (0.27.3). O `RapidFuzz` é o **backend real do matching difuso**. O `README.md` documenta o interpretador **global**. Registrado como `L-19`.
-**Spec afetada:** [`_reversa_sdd/analise-dna/design.md`], [`_reversa_sdd/architecture.md`] (dívida 2), [`_reversa_sdd/adrs/13-fixar-dependencias-diretas.md`]
-**Pergunta:** O oficial é o **global** (e o `.venv` é resíduo que pode ser removido/realinhado) ou o **`.venv`** (e o `requirements.txt` precisa ser atualizado para as versões de lá)?
-**Impacto:** Duas execuções, uma em cada interpretador, podem produzir **matching diferente sem uma linha de código mudar**. É a divergência de maior risco silencioso do projeto.
-
-**Resposta:** ✅ **O `.venv` é o OFICIAL — atualizar o pin.**
-**Aplicado em — e esta foi a resposta de maior consequência da rodada:**
-
-- `requirements.txt` → realinhado: **`ged4py==0.5.5`**, **`networkx==3.7`**, **`pandas==3.0.6`** (Flask, thefuzz e waitress já coincidiam)
-- `requirements.txt` → **`rapidfuzz==3.14.6`** e **`python-Levenshtein==0.27.5`** promovidos a **dependência declarada**. Eram transitivas do `thefuzz`, e o `RapidFuzz` é o **backend real do matching**: deixá-lo livre permitiria que uma instalação nova trouxesse outra versão. A alternativa anterior (nomear as transitivas para tornar a divergência *detectável*) foi substituída por torná-la **impossível**
-- `.venv/` → **instalado o `pytest`** (que não existia lá) e o `pytest-cov`, para que o interpretador oficial consiga rodar a suíte
-- **Verificação:** a suíte passa **igual nos dois interpretadores** — **163 passam + 15 erros de ambiente** em cada um. Depois do teste da sentinela: **164 passam**
-- ⚠️ **Pendência declarada:** o `README.md` documenta o fluxo pelo **global** e agora contradiz o pin. **Não editei o README** por ser documento do usuário
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 12 — Vale medir a cobertura de testes?
+## Grupo C — A arte e o ambiente do container
 
-**Contexto:** Não há `pytest-cov` nem configuração de cobertura. A suíte tem **11 arquivos, 126 funções e 175 itens coletados**, mas isso não diz que proporção do comportamento está congelada. Registrado como `L-23`.
-**Spec afetada:** [`_reversa_sdd/architecture.md`] (dívida 13)
-**Pergunta:** Medir a cobertura agora (ferramenta nova, execução local) ou deixar como está?
-**Impacto:** A cobertura mediria **linhas**, não comportamento — e há 4 componentes de alto risco sem teste de unidade dedicado (`csv_ingest`, `family_navigation`, `path_finding` e a rota do `app.py`). O número ajudaria a priorizar.
+### Pergunta 7 — A arte servida não é verificada **dentro do container** (`L-33`)
 
-**Resposta:** ✅ **MEDIR AGORA — medido.**
-**Aplicado em:** `pytest-cov` instalado no `.venv` · `domain.md` (`L-23` fechada) · `architecture.md` (dívida 13) · `spec-impact-matrix.md` (`X-03` com números reais) · `gaps.md`.
-**Resultado: cobertura de `src/` = 83 %** (1.520 instruções, 253 descobertas). Destaques, que **confirmam** o que a Matriz C já apontava por inspeção:
+**Contexto:** Unit `recursos-da-tela` — as duas rotas servem `src/assets/*.png`. Os testes rodam **no host**, onde `docs/` (as fontes canônicas) existe. Se a arte falhar **dentro da imagem**, a degradação é o `404` — **silencioso**: sem log, sem teste, e a tela continua de pé, agora sem banner e com o ícone genérico. É exatamente o caso que a escolha de `src/assets/` (por causa da lista de **permissão** do `.dockerignore`) existe para evitar.
+**Spec afetada:** [`_reversa_sdd/recursos-da-tela/design.md`] § Riscos, [`_reversa_sdd/recursos-da-tela/tasks.md`] (`TT-17`), [`_reversa_sdd/traceability/spec-impact-matrix.md`] (`X-06`)
+**Pergunta:** (a) um **teste que rode na imagem**; (b) um **health check no arranque** que confira a presença (e o tamanho) das duas artes; (c) declarar e aceitar?
+**Impacto:** Em (a), a verificação passa a existir no ambiente do operador. Em (b), a falha deixa de ser silenciosa **em produção**, e não só no CI. Em (c), o modo de falha continua invisível por construção.
+**Recomendação do Revisor:** **(b) um health check no arranque** — é a única das três que protege o ambiente que o operador realmente usa, e não o ambiente de quem desenvolve. Um teste na imagem protege o CI; o arranque protege a operação.
 
-| Módulo | Cobertura |
-| --- | ---: |
-| `number_format.py` | **53 %** ← a pior, e é a autoridade de **todo** número exibido |
-| `relationship_hypotheses.py` | 76 % |
-| `mermaid_render.py` | 78 % |
-| `evidence_comparison.py` | 83 % |
-| `csv_ingest.py` · `name_normalization.py` · `matching.py` | 84 % · 84 % · 86 % |
-| `validate.py` · `dna_analysis.py` · `gedcom_parser.py` | 98 % · 97 % · 98 % |
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-## Grupo D — Detalhes técnicos que só o dono sabe
+### Pergunta 8 — O `sha256` do HTML mantido à mão (`L-34`)
 
-### Pergunta 13 — A assimetria da ambiguidade é intencional?
+**Contexto:** `tests/test_icone_de_atalho.py:58` guarda `SHA_DA_TELA = "17240e5a…"`, o hash do HTML de `GET /`. A rota de arte é um acréscimo **puro**, então o hash é o que prova que a tela não mudou. Ele foi **atualizado três vezes em 2026-10-10**.
+**Spec afetada:** [`_reversa_sdd/recursos-da-tela/design.md`] § Riscos, [`_reversa_sdd/recursos-da-tela/tasks.md`] (lacuna 2), [`_reversa_sdd/traceability/spec-impact-matrix.md`] (`SHA_DA_TELA`)
+**Pergunta:** (a) manter o hash, com cada atualização sendo decisão humana registrada; (b) trocá-lo por uma **âncora estrutural** (presença/ausência das marcas da masthead e do ícone, em vez do documento inteiro)?
+**Impacto:** Enquanto cada atualização for uma decisão registrada, o hash prende o que promete. Se virar rotina, ele deixa de prender — um invariante que se atualiza sozinho não protege nada.
+**Recomendação do Revisor:** **(b)**, mas sem pressa: o hash **funcionou** nesta rodada e o fato de ter sido atualizado três vezes foi consequência de três decisões humanas legítimas sobre a tela. A âncora estrutural é mais durável; o hash é mais estrito. Se preferir mantê-lo, registre na spec **quem** pode atualizá-lo e sob que condição.
 
-**Contexto:** A identidade ambígua **rebaixa** `found` para `ambiguous`, mas **não** rebaixa `not_found`: quando não há caminho **e** há homônimos, o status permanece `not_found` e a ambiguidade aparece apenas como aviso adicional. Registrado como `M-02`.
-**Spec afetada:** [`_reversa_sdd/state-machines.md`] §4.3, [`_reversa_sdd/busca-caminho/contracts.md`] §2.1
-**Pergunta:** A ambiguidade ter **dois pesos diferentes** conforme o estado é intencional, ou herdado sem decisão?
-**Impacto:** Sendo intencional, vira contrato documentado. Sendo herdado, quem reimplementar precisa saber que pode unificar.
-
-**Resposta:** ✅ **INTENCIONAL — vira contrato.**
-**Aplicado em:** `state-machines.md` (`M-02`) · `gaps.md`. O motivo registrado: `not_found` **já é** um resultado mais fraco que `ambiguous` — quando não há caminho, não existe afirmação de parentesco a qualificar. Quem reimplementar deve **preservar** a assimetria.
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 14 — O CSV não ter validação de conteúdo é deliberado?
+### Pergunta 9 — O custo de servir 317 KB por requisição, sem cache em memória
 
-**Contexto:** `app.py:86` valida o conteúdo **apenas** para o GEDCOM (`kind == "gedcom"`). O CSV de DNA tem só a **forma do nome** validada, e é gravado em disco **antes** de qualquer verificação. Registrado como `P-05`.
-**Spec afetada:** [`_reversa_sdd/permissions.md`] §6, [`_reversa_sdd/upload-gedcom/requirements.md`] (RNF)
-**Pergunta:** É coerente com a leitura tolerante (ADR-16) por decisão, ou é assimetria herdada?
-**Impacto:** Sendo herdada, é uma decisão de segurança pendente; sendo deliberada, vira contrato explícito.
+**Contexto:** Unit `recursos-da-tela` — as duas rotas **não** têm cache em memória: `send_file` entrega o arquivo do disco a cada requisição, e o banner tem **317.058 bytes**. Não há medição de impacto no repositório. É uma escolha **implícita**, não uma decisão registrada.
+**Spec afetada:** [`_reversa_sdd/recursos-da-tela/design.md`] § Estado Interno, [`_reversa_sdd/recursos-da-tela/tasks.md`] (lacuna 3)
+**Pergunta:** (a) **medir** o custo antes de decidir; (b) aceitar como está — o `ETag` já evita o tráfego repetido, e o custo é do sistema operacional via `send_file`; (c) acrescentar cache em memória?
+**Impacto:** Em (c), o cache introduz um problema novo: a arte **muda com o pedido do operador**, e é justamente por isso que não há validade longa. Um cache em memória precisaria de invalidação — exatamente o tipo de estado que a `ADR-24` acabou de remover do projeto.
+**Recomendação do Revisor:** **(b) aceitar, com a decisão registrada.** Para dois arquivos estáticos servidos por `send_file`, o `ETag` já resolve o caso real; e a alternativa reintroduz estado de processo no único lugar do sistema que hoje não tem nenhum. Se quiser o número, (a) é barato.
 
-**Resposta:** ✅ **HERDADO — assimetria a corrigir no ALVO.**
-**Aplicado em:** `permissions.md` (`P-05`) · `gaps.md` §6 como **requisito encaminhado ao alvo nº 4**. **Nada muda no legado**: validar o CSV agora **rejeitaria** arquivos que a leitura tolerante (ADR-16) aceita — mudaria comportamento sem substituto. No alvo, o CSV passa a ter validação de conteúdo como o GEDCOM tem.
-
----
-
-### Pergunta 15 — A sentinela `SEM-KIT` pode colidir com um kit real?
-
-**Contexto:** Quando o CSV não tem coluna de kit **nem** e-mail, a evidência usa a chave literal `SEM-KIT`. Um CSV que trouxesse um kit literalmente chamado `SEM-KIT` seria agrupado junto. Registrado como `E-03`.
-**Spec afetada:** [`_reversa_sdd/erd-complete.md`] §8, [`_reversa_sdd/analise-dna/contracts.md`] §3.1
-**Pergunta:** Risco aceito, ou vale trocar a sentinela por algo que não possa colidir (ex.: prefixo impossível)?
-**Impacto:** Trocar a sentinela muda a chave de agrupamento e, portanto, o resultado — é mudança de comportamento, não de forma.
-
-**Resposta:** ✅ **TROCAR — EXECUTADO em 2026-10-05.**
-**Aplicado em:**
-
-- `src/core/genetic_evidence.py` → nova constante **`SEM_KIT = " SEM-KIT"`**, com o **espaço à esquerda** como defesa: `_clean` aplica `str(valor).strip()` em **todo** valor vindo do CSV, então nenhum kit real — nem e-mail — pode começar com espaço. Era o que tornava a colisão possível
-- `src/core/genetic_evidence.py` → os **4 usos** do literal passaram a usar a constante (`:140`, `:180`, `:184`, `:253`), e ela entrou no `__all__`
-- `tests/test_confrontacao_gedcom_dna.py` → teste existente atualizado + **teste novo** `test_8c_kit_chamado_SEM_KIT_nao_colide_com_a_ausencia_de_kit`, que prova **três grupos separados**: kit real (150 cM), ausência de kit (25 cM) e um kit literalmente chamado `SEM-KIT` (10 cM)
-- `data-dictionary.md` · `erd-complete.md` (`E-03`) · `analise-dna/contracts.md` §3.1
-- **Verificação:** `test_confrontacao_gedcom_dna.py` → **30 passam** (eram 29); suíte completa → **164 passam + 15 erros de ambiente = 179 itens**
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
-### Pergunta 16 — Você já observou resultado cruzado entre análises simultâneas?
+### Pergunta 10 — A caixa de regressão do banner descreve uma composição que não existe mais
 
-**Contexto:** O estado do GEDCOM é **global de processo** e é reescrito a cada requisição (`app.py:137`), enquanto o servidor atende com **4 threads** (`ANALISADOR_THREADS`). Duas requisições simultâneas podem intercalar: A parseia a árvore A, B parseia a árvore B, e A segue lendo o estado que agora é o de B. A guarda de instância única impede dois **processos**, não duas **threads**. Registrado como `L-16` e `M-03`.
-**Spec afetada:** [`_reversa_sdd/permissions.md`] §4.3, [`_reversa_sdd/state-machines.md`] §7
-**Pergunta:** Você já viu um resultado que parecia pertencer a outra árvore? (O mecanismo está confirmado por leitura de código; a **frequência** não foi medida.)
-**Impacto:** Se já ocorreu, deixa de ser risco teórico e passa a justificar mitigação no legado. Se nunca ocorreu, permanece como condição de corrida latente — que o uso single-user tende a não disparar.
+**Contexto:** Unit `recursos-da-tela` — o teste do banner exige **resíduo zero** na caixa `(778,232)–(918,338)`. Essa caixa foi escolhida sobre uma composição **anterior** (a que tinha um abajur). A composição atual é outra; ali é fundo hoje, então o teste continua válido — e o comentário do teste registra a origem.
+**Spec afetada:** [`_reversa_sdd/recursos-da-tela/tasks.md`] (lacuna 5), [`_reversa_sdd/recursos-da-tela/design.md`] § Constantes
+**Pergunta:** (a) **redefinir a caixa** sobre a composição atual; (b) manter a caixa e o comentário de origem, como está?
+**Impacto:** A caixa é a **única** prova não-circular de que a remoção de fundo está correta naquela região. Redefini-la sobre a arte de hoje a torna mais forte; mantê-la preserva a memória do defeito que ela pegou.
+**Recomendação do Revisor:** **(b) manter como está.** A caixa prende o que promete (ali é fundo, e o resíduo tem de ser zero) e o comentário impede que alguém a leia como medida da arte atual. Trocar a caixa **enfraqueceria** a prova: a nova seria escolhida olhando o resultado que se quer aprovar.
 
-**Resposta:** ✅ **NUNCA VI resultado cruzado.**
-**Aplicado em:** `gaps.md` (`L-16` / `M-03` / `P-02`) · `permissions.md` §4.3 · `state-machines.md` §7.
-**A lacuna NÃO fecha, e o registro é honesto:** o mecanismo está confirmado por leitura de código, mas o **alcance nunca foi medido**. O que a sua resposta muda é a **probabilidade percebida**, não a existência da janela: com uso single-user, a janela raramente é disparada. **É a única lacuna crítica que restou** — e nenhuma mitigação no legado foi autorizada, porque o isolamento real pertence à Onda 3 (`P-01`).
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+## Grupo D — A tela de entrada
+
+### Pergunta 11 — Os arquivos **sem chave** da pasta real (`TM-02`)
+
+**Contexto:** Unit `tela-de-entrada` — a pasta do operador tem **13 arquivos** (mais 4 aposentados). Os arquivos anteriores à chave por conteúdo **não são alcançáveis pela leitura** (`resolver` exige a chave canônica), mas **são** aposentáveis, e aparecem na lista marcados com o motivo `sem chave de conteúdo no nome`. São justamente os que o operador mais quer tirar da lista.
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/tasks.md`] (`TM-02`), [`_reversa_sdd/upload-gedcom/contracts.md`] §2.2
+**Pergunta:** (a) a aplicação deve oferecer alguma forma de **regularizá-los** (regravá-los com a chave do próprio conteúdo, passando a serem legíveis); (b) eles continuam sendo movidos à mão pelo operador; (c) vira requisito do alvo?
+**Impacto:** Em (a), a aplicação ganha uma ação nova — e ela **grava arquivo**, o que hoje nenhuma ação da lista faz além do `os.replace` de aposentar. Em (b), o comportamento atual está **correto e declarado**; o que falta é dizer que é definitivo.
+**Recomendação do Revisor:** **(b) declarar como definitivo**, e (c) para o alvo. A ação de regularizar é tentadora, mas ela mudaria a única garantia forte da unit — *"nenhuma ação da lista escreve arquivo além do move"* (`BR-T-16`) — e o ganho é de conveniência, não de correção.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 12 — A disponibilidade do grupo é a do **representante** (`L-31`)
+
+**Contexto:** Unit `tela-de-entrada` — `_montar_item` calcula `disponivel` e `motivo_indisponivel` a partir do **representante** do grupo apenas (`lista_de_arquivos.py:192-193`). Um grupo "com chave" pode conter nomes visíveis **diferentes** (o operador reenviou o mesmo conteúdo com outro nome), e nada garante que a elegibilidade seja a mesma para todos os membros. Nenhum caso real foi medido.
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/design.md`] § Riscos (`L-31`)
+**Pergunta:** (a) decidir a disponibilidade pelo **conjunto** (o item só é disponível se todos os membros forem); (b) manter a decisão pelo representante; (c) **[medir]**: verificar em dado real se algum grupo tem membros com elegibilidade divergente e decidir com o número.
+**Impacto:** Hoje o item anuncia disponível e a referência exibida (`nome_armazenado`) é a do representante — que **é** elegível. A consequência de (a) seria esconder o botão "Abrir" de grupos que funcionam. A consequência de (b) é que a decisão depende de um membro que pode não ser representativo.
+**Recomendação do Revisor:** **(c) medir**. É uma pergunta de uma linha de código: agrupar por chave e comparar `pode_ser_usado(nome)` entre os membros. Se nenhum grupo divergir no dado real, (b) está provado; se divergir, (a) passa a ter caso concreto. Decidir sem o número é escolher entre dois comportamentos sem saber se a diferença existe.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 13 — `_arvore_do_formulario`: dependência compartilhada **sem dono declarado**
+
+**Contexto:** A função vive em `src/app.py:173-235` e é a **fonte única das guardas de entrada** de **três** units (`tela-de-entrada`, `analise-dna` e `busca-caminho`): ela lê o `gedcom_filename`, resolve pela porta, parseia a árvore e converte a falha em mensagem. A `tela-de-entrada` a declara como sua responsabilidade, mas ela também é o primeiro passo dos outros dois fluxos — e mudar nela altera o contrato das três.
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/design.md`] § Riscos, [`_reversa_sdd/tela-de-entrada/tasks.md`] (`T-17`, lacuna 4)
+**Pergunta:** (a) **nomear** esse ponto em módulo próprio antes de `analise-dna` e `busca-caminho` serem reimplementadas; (b) declará-lo em `contracts.md` como ponto compartilhado e mantê-lo em `app.py`?
+**Impacto:** É a mesma classe de problema que a `CS-01` já registra para o `app.py` inteiro ("o único arquivo com cinco donos"). Em (a), a fronteira ganha um dono e uma assinatura própria. Em (b), nada muda no código e a fronteira fica apenas documentada.
+**Recomendação do Revisor:** **(b)**, por coerência com a decisão de arquitetura já tomada: a `ADR-25` pôs a fronteira em `ports/`, e `_arvore_do_formulario` é uma **borda HTTP** (lê `request.form`), não uma porta. Movê-la para um módulo próprio seria extrair a borda — uma decisão de arquitetura maior do que uma re-extração autoriza. Declarar em contrato resolve o risco real, que é **mudar sem saber que se mudou o contrato de três units**.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 14 — A aposentadoria não deixa **rastro nenhum** no servidor
+
+**Contexto:** Unit `tela-de-entrada` — a única ação da tela que **move arquivo do operador** não emite log, métrica nem trace. Uma tentativa de aposentar arquivo ausente responde na tela e não deixa nada no servidor. A unit tem **um** log no total (`app.logger.exception`, quando o GEDCOM alcançado não parseia).
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/requirements.md`] (RNF Observabilidade), [`_reversa_sdd/tela-de-entrada/tasks.md`] (lacuna 5)
+**Pergunta:** (a) acrescentar log de servidor nas duas tentativas (sucesso e fracasso); (b) aceitar — a pasta **é** o registro, e o operador vê o resultado na tela; (c) logar só o fracasso?
+**Impacto:** É uma ação **destrutiva do ponto de vista do operador** (o arquivo sai da lista, ainda que nada seja apagado). Sem rastro, não há como responder depois "quando isso saiu da lista e por quê".
+**Recomendação do Revisor:** **(a)**, e é a mais barata desta lista: uma linha em cada ramo, sem mudar comportamento nem contrato. O projeto inteiro tem **um** log — e a única ação que move dado do operador não é ele. Uma ação que o operador percebe como destrutiva merece um rastro no servidor.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 15 — A listagem **não filtra nada**, por decisão
+
+**Contexto:** Unit `tela-de-entrada` — a pasta é a superfície de confiança da tela: a listagem não filtra por nome, extensão nem forma da chave. O efeito medido: o `.xlsx` da pasta real é listado como entrada da pasta (e **não** aparece em aba nenhuma, porque a aba é decidida pela extensão). Um arquivo colocado ali por fora da aplicação também aparece.
+**Spec afetada:** [`_reversa_sdd/tela-de-entrada/requirements.md`] (`BR-T-03`, RNF), [`_reversa_sdd/tela-de-entrada/tasks.md`] (lacuna 2)
+**Pergunta:** (a) **confirmar** que a decisão continua valendo agora que a pasta passou a ser alimentada pela própria aplicação; (b) passar a filtrar (por extensão, ou por forma da chave), escondendo o que não é de nenhum tipo conhecido?
+**Impacto:** Em (b), o `.xlsx` do operador **desapareceria** da tela — e com ele a informação de que ele está lá. Em (a), nada muda e a decisão passa a estar declarada como vigente.
+**Recomendação do Revisor:** **(a) confirmar.** A decisão é coerente com a `BR-T-11` (o item indisponível **aparece** marcado, em vez de escondido) e com a ideia de que a pasta é o inventário do operador, não uma visão curada pela aplicação. Filtrar reintroduziria o defeito que a `L-30` acabou de expor: a tela escondendo o que existe.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+## Grupo E — Custo, cobertura e histórico
+
+### Pergunta 16 — O custo do dossiê de homônimos (`L-20`)
+
+**Contexto:** Unit `busca-caminho` — `get_children` **varre todas as famílias** do arquivo, sem índice, a cada chamada; `person_summary` o chama uma vez por ficha; e `_diferencas` é chamado **duas vezes** em `homonym_dossier`, remontando as fichas de todos os ids. Além disso, `person_a` e `person_b` são **fichas completas** em cada resultado: no caso real de **71 conexões**, são **142 fichas** para uma tela que exibe poucas.
+**Spec afetada:** [`_reversa_sdd/busca-caminho/design.md`] § Riscos, [`_reversa_sdd/busca-caminho/tasks.md`] (`T-20`, `T-21`, lacuna 3)
+**Pergunta:** (a) **medir** o custo com a árvore real antes de otimizar; (b) otimizar agora (índice de filhos, uma chamada de `_diferencas`, ficha preguiçosa); (c) aceitar e declarar?
+**Impacto:** (b) é a mudança de maior risco desta lista: `get_children` alimenta tanto a ficha quanto a detecção de colapso, e a ordem de inserção das arestas é **contrato de paridade** com o oráculo. Otimizar sem medir pode trocar um custo invisível por uma divergência de comportamento.
+**Recomendação do Revisor:** **(a) medir**. É o mesmo raciocínio da pergunta 1, e aqui pesa mais: o projeto tem um oráculo congelado e um harness diferencial, então o custo e o efeito da otimização são **ambos** mensuráveis. Sem o número, "está lento" é impressão.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 17 — Duas análises iguais gravam **duas linhas** no histórico
+
+**Contexto:** Unit `analise-dna` — nada deduplica uma análise repetida: o mesmo CSV com o mesmo `root_name` produz um **segundo** registro em `dna_analysis`, com todo o retrato de pessoas de novo. Não há decisão registrada sobre isso em lugar nenhum.
+**Spec afetada:** [`_reversa_sdd/analise-dna/design.md`] § Estado Interno, [`_reversa_sdd/analise-dna/tasks.md`] § Lacunas
+**Pergunta:** (a) **deduplicar** (mesma árvore + mesmo CSV + mesma raiz não grava de novo); (b) aceitar — o histórico é o **log de execuções**, e repetir uma análise é um evento legítimo que se quer registrar; (c) requisito do alvo?
+**Impacto:** Em (a), o histórico deixa de responder "quantas vezes eu rodei isso". Em (b), ele deixa de ser um conjunto e passa a ser uma trilha — e o dado pessoal da pergunta 5 é **duplicado a cada repetição**.
+**Recomendação do Revisor:** **(b) aceitar e declarar**, com uma consequência explícita: o histórico é uma **trilha de execuções**, não um catálogo de análises. É a leitura mais coerente com o nome das tabelas e com o fato de a gravação acontecer **depois** do núcleo, sem consultar o que já existe. Mas a interação com a pergunta 5 é real: sem retenção, cada repetição multiplica o dado pessoal persistido.
+
+**Resposta:** <!-- preencha aqui -->
+
+---
+
+### Pergunta 18 — Remedir a cobertura agora (`CS-04`)
+
+**Contexto:** A cobertura de `src/` foi medida em **83 %** em 2026-10-05, e a matriz registra que ela é **de arquivo, não de comportamento**: "🟢 coberto" significa que há requisito, design e tarefa para o arquivo, e **não** que todo caminho de execução dele esteja especificado. A medição **de linha não foi refeita** nesta rodada, e `src/` quase dobrou de tamanho (24 → 35 arquivos).
+**Spec afetada:** [`_reversa_sdd/traceability/spec-impact-matrix.md`] (`X-03`), [`_reversa_sdd/traceability/code-spec-matrix.md`] (`CS-04`)
+**Pergunta:** (a) **remedir** agora com `pytest-cov` (a ferramenta já está no `.venv/`); (b) deixar a medição de 2026-10-05 como referência, declarando a defasagem?
+**Impacto:** Em (a), a `X-03` deixa de citar números de uma medição que não corresponde mais ao `src/` atual — e o `number_format.py`, que era a pior cobertura do projeto (53 %), é justamente o tipo de módulo que pode ter mudado. Em (b), a matriz continua afirmando "a medição não foi refeita nesta rodada" — o que é **honesto**, e é o que ela já diz.
+**Recomendação do Revisor:** **(a) remedir.** É uma execução, a ferramenta já está instalada, e o número velho sobre um `src/` que dobrou de tamanho é pior do que número nenhum: ele dá a impressão de estar medindo o código atual.
+
+**Resposta:** <!-- preencha aqui -->
 
 ---
 
 ## Perguntas **já decididas** — NÃO são pendências
 
-Verificadas contra o código de 2026-10-05. Nenhuma precisa ser refeita.
+Verificadas contra o código de 2026-10-10. Nenhuma precisa ser refeita, e nenhuma é reperguntada nesta rodada.
 
 | Assunto | Resposta vigente | Verificação no código | Conf. |
 | --- | --- | --- | --- |
-| Regras de aceitação do matching são definitivas | Preservar com fidelidade | 5 ramos + prefixo + rebaixamento intactos (`matching.py:138-166`) | 🟢 |
-| Homônimos usam o 1º ID | Aceitável — **hoje é apenas o recuo** | `path_search.py:154-167` amplia para 5×5 combinações com caminho | 🟢 |
-| Upload sem validação de extensão/tamanho | **Superada** pelo `BUG-20260929-QMLY` | teto de 16 MB, validação de conteúdo e chave de conteúdo (`app.py:32`, `validate.py:90-105`) | 🟢 |
-| Relaxamento de Jaccard é intencional | Mantém-se | `matching.py:132-136` | 🟢 |
-| Teto de 20 iterações do BFS | Preservar fidelidade, sem sinalização | `path_finding.py:25` | 🟢 |
-| Varredura de `get_spouses` é condicional | Contrato explícito | `family_navigation.py:66-75` | 🟢 |
-| Entidades decorativas | Arquitetura abandonada — **removidas** | nenhuma existe em `src/` | 🟢 |
-| Faixas de cM escritas à mão | Declarar como heurística | `cm_estimator.py:1`, `:21` — fora do fluxo | 🟢 |
-| Legado permanece single-tenant | Aceite de risco, temporário | `BUG-20260929-BJJH`, bloco `mitigation` | 🟢 |
-
-> A **Pergunta 1** não reabre a decisão de tornar o desempate determinístico — ela pergunta **onde** aplicá-la. A **Pergunta 9** não reabre a decisão de manter o `0,33` — pergunta pela **origem do número**.
+| Desempate do matching é determinístico | **Implementado** (menor `xref_id`) | `matching.py:116-125`; `test_characterization_matching.py` | 🟢 |
+| `app.secret_key` | **Removido** | nenhuma atribuição existe em `src/app.py` | 🟢 |
+| Ausência de autenticação | **Omissão** — corrigir na Onda 3 | `permissions.md` §5-6 (`P-01`) | 🟢 |
+| Histórico de análises | **Requisito do alvo nº 1** — e **implementado** no legado na feature 008 | `init.sql` (6 tabelas), `ports/adaptadores.py` | 🟢 |
+| Descartes são **acionáveis** | `RF-27` é **Must** | `analise-dna/design.md` § Descartes | 🟢 |
+| Restringir a lista de nomes | **Requisito do alvo nº 3** | `permissions.md` (`P-03`) | 🟢 |
+| Endogamia e colapso: **avisar basta** | Confirmado; veredito **não** muda | `adrs/21`; `evidence_comparison.py` | 🟢 |
+| Veredito do operador | **Requisito do alvo nº 2** | `state-machines.md` (`M-04`) | 🟢 |
+| O `0,33` do Jaccard | **Chute** que funcionou — heurístico e ajustável | `matching.py`; `analise-dna/requirements.md` (`BR-D-49`) | 🟢 |
+| Exportadores de CSV | **Só o GEDmatch** — cobertura declarada | `analise-dna/contracts.md` §2.1 | 🟢 |
+| `.venv/` é o interpretador oficial | Pin realinhado; transitivas declaradas | `requirements.txt` | 🟢 |
+| Cobertura medida | 83 % em 2026-10-05 (a remedição é a pergunta 18) | `spec-impact-matrix.md` (`X-03`) | 🟢 |
+| Assimetria da ambiguidade | **Intencional** — vira contrato | `state-machines.md` (`M-02`) | 🟢 |
+| CSV sem validação de conteúdo | **Herdado** — corrigir no alvo nº 4 | `validate.py:76`; `analise-dna/requirements.md` | 🟢 |
+| Sentinela `SEM-KIT` | **Corrigida**: `" SEM-KIT"`, com espaço | `genetic_evidence.py`; medido | 🟢 |
+| Corrida entre threads sobre a **árvore** | **Deixou de existir** estruturalmente (`ADR-24`) | `test_arvore_devolvida.py`, `test_dependencias_nucleo.py` | 🟢 |
+| Homônimos: 1º ID | **Recuo**, não comportamento principal | `core/path_search.py` (5×5 combinações) | 🟢 |
+| Teto de 20 iterações do BFS | Preservar fidelidade, **sem sinalização** | `path_finding.py`; `BR-C-04` | 🟢 |
+| Varredura de `get_spouses` | **Condicional** é contrato | `family_navigation.py`; `BR-C-03` | 🟢 |
+| Faixas de cM escritas à mão | Declaradas **fora do fluxo** (`cm_estimator`) | `cm_estimator.py`; `BR-D-62` | 🟢 |
+| Legado permanece single-tenant | Aceite de risco, temporário | `adrs/18`; `BUG-20260929-BJJH` | 🟢 |
 
 ---
 
-*Gerado pelo Reversa-Reviewer em 2026-10-05 (re-extração, nível completo).*
+*Gerado pelo Reversa-Reviewer em 2026-10-10 (re-extração, nível completo).*

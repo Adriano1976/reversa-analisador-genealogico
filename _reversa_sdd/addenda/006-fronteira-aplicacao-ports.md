@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-07.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 A Onda 2 do `cutover_plan.md` exigia uma fronteira de aplicação com contrato

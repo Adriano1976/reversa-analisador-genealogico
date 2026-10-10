@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-08.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 Acrescenta a **quarta linha** do contrato HTTP: uma rota de leitura em `src/app.py` que

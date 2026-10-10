@@ -8,6 +8,8 @@
 
 Vigente desde 2026-10-07.
 
+Superado pela re-extração de 2026-10-10.
+
 ## Resumo da entrega
 
 A Onda 1 do `cutover_plan.md` exigia um núcleo de funções puras, sem estado global,

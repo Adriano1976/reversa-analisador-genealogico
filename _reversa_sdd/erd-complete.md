@@ -1,39 +1,52 @@
 # ERD Completo — analisador-genealogico
 
 > Nível de documentação: **Completo** (`state.json` → `doc_level`)
-> Re-extração de **2026-10-05**. Artefato **novo** — o nível `essencial` embutia um ERD resumido no `architecture.md`.
+> Re-extração de **2026-10-10**. Substitui o artefato de 2026-10-05, que afirmava que **o sistema não tem banco de dados** e descrevia 27 estruturas em memória, disco e payload.
+> Snapshot da versão substituída: `.reversa/snapshots/2026-10-10-pre-reextracao/erd-complete.md`
 > Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
-> Fonte dos campos, tipos, padrões e sentinelas: `data-dictionary.md` (441 linhas). Visão geral: `architecture.md`.
+> Fonte dos campos, tipos, padrões e sentinelas: `data-dictionary.md`. Visão geral: `architecture.md`.
 
 ---
 
 ## 1. Como ler este ERD
 
-**Este sistema não tem banco de dados.** Não há DDL, migration, schema, ORM nem arquivo de configuração de persistência. As **27 estruturas** abaixo existem em três lugares, e a notação de ERD é usada como **modelo lógico**, não como esquema físico:
+**A afirmação da rodada anterior — "este sistema não tem banco de dados" — deixou de valer.** A feature 008 introduziu **PostgreSQL 16 opcional** para o histórico das análises. As **42 estruturas** abaixo existem em **cinco** lugares, e a notação de ERD é usada como **modelo lógico** nos quatro primeiros e como **esquema físico real** no quinto:
 
-| Onde | Quantas estruturas | Vida útil | Dono |
-| --- | ---: | --- | --- |
-| **Memória do processo** | 21 | Morre com o processo | `core/gedcom_state.py` e os módulos de `core/` |
-| **Disco** | 2 | Persistente, imutável | `app.py` + `utils/validate.py` |
-| **Corpo da requisição / payload da tela** | 4 | Uma requisição | `app.py` + Jinja2 |
+| Onde | Quantas | Vida útil | Dono | Notação |
+| --- | ---: | --- | --- | --- |
+| **Memória, por requisição** | 24 | Morre com a requisição | `core/*`, `parsers/*`, `reporting/*` | lógica |
+| **Memória, de módulo** | 1 | Vive com o processo, chaveada por conteúdo | `documentary_relationship._INDICE_DE_NOMES` | lógica |
+| **Disco** | 2 | Persistente; conteúdo imutável, posição mutável | `ports/adaptadores.py` | lógica |
+| **Payload de fronteira** | 9 | Uma requisição | `application/*` e `ports/*` | lógica |
+| **PostgreSQL** | 6 | **Persistente e opcional** | `init.sql` + `RegistroDeAnalisesPostgres` | **física** |
 
-> ⚠️ **`PK` e `FK` aqui são lógicos.** Onde a tabela diz `FK`, significa "este campo referencia um `xref_id` de outro registro" — **não** que exista constraint. Não existe nenhuma. Uma referência GEDCOM pendente (`CHIL` apontando para xref inexistente) **não é rejeitada**: a aresta simplesmente não é criada (`BR-U-18`). É exatamente o comportamento que o alvo da migração pretende mudar com `FK` real (`migration/target_data_model.md`).
+> ⚠️ **`PK` e `FK` são lógicos nos quatro primeiros grupos e REAIS no quinto.** No GEDCOM em memória, uma referência pendente (`CHIL` apontando para xref inexistente) **não é rejeitada**: a aresta simplesmente não é criada (`BR-U-18`). No banco, ao contrário, há `FOREIGN KEY` de verdade com `ON DELETE CASCADE` e `CHECK` de domínio fechado — a integridade que o alvo da migração exigia **já existe** onde foi implementada.
 >
-> ⚠️ **`None` significa "não sei / não existe", nunca zero.** A regra é invariante do sistema e está anotada campo a campo no `data-dictionary.md` §10.
+> ⚠️ **`None` significa "não sei / não existe", nunca zero.** A regra é invariante do sistema e está anotada campo a campo no `data-dictionary.md` §11.
 
 ---
 
-## 2. Diagrama A — Árvore do GEDCOM em memória
+## 2. Diagrama A — A árvore do GEDCOM
 
 ```mermaid
 erDiagram
-    PESSOA ||--o{ FAMILIA : "filho - via CHIL e FAMC"
-    PESSOA }o--o{ FAMILIA : "conjuge - via FAMS HUSB e WIFE"
-    PESSOA ||--o{ CHILD_TO_FAMILY : "indexado por xref_id"
-    PESSOA ||--|| GRAFO_BIPARTIDO : "no com type person"
-    FAMILIA ||--|| GRAFO_BIPARTIDO : "no com type family"
+    ARVORE ||--|| PESSOAS : "posicao 0"
+    ARVORE ||--|| FAMILIAS : "posicao 1"
+    ARVORE ||--|| GRAFO_BIPARTIDO : "posicao 2"
+    ARVORE ||--|| CHILD_TO_FAMILY : "posicao 3"
+    PESSOAS ||--o{ FAMILIAS : "filho - via CHIL e FAMC"
+    PESSOAS }o--o{ FAMILIAS : "conjuge - via FAMS HUSB e WIFE"
+    PESSOAS ||--o{ CHILD_TO_FAMILY : "indexado por xref_id"
+    PESSOAS ||--|| GRAFO_BIPARTIDO : "no com type person"
+    FAMILIAS ||--|| GRAFO_BIPARTIDO : "no com type family"
 
-    PESSOA {
+    ARVORE {
+        dict people "posicao 0"
+        dict families "posicao 1"
+        graph grafo "posicao 2"
+        dict child_to_family "posicao 3"
+    }
+    PESSOAS {
         string xref_id PK "exemplo @I123@"
         string name "formatado ou Sem Nome"
         string sex
@@ -43,7 +56,7 @@ erDiagram
         list famc "familias como filho"
         list fams "familias como conjuge"
     }
-    FAMILIA {
+    FAMILIAS {
         string xref_id PK "exemplo @F6@"
         string husb FK "opcional"
         string wife FK "opcional"
@@ -59,21 +72,19 @@ erDiagram
         string label "nome formatado ou Familia"
         list edges "pessoa a familia"
     }
-    ESTADO_VERSAO {
-        int versao "contador de cargas do processo"
-    }
 ```
 
 | Relacionamento | Cardinalidade | Regra | Conf. |
 | --- | --- | --- | --- |
-| `PESSOA` → `FAMILIA` (como filho) | `0..N` | `FAMC` é preferido; sem ele, o índice `child_to_family` acumula **todas** as famílias em que a pessoa aparece como `CHIL` | 🟢 |
-| `PESSOA` → `FAMILIA` (como cônjuge) | `0..N` | pelos sub-registros `FAMS` | 🟢 |
-| `FAMILIA` → `PESSOA` | `0..2` cônjuges + `0..N` filhos | `HUSB` e `WIFE` são **opcionais** | 🟢 |
-| `PESSOA`/`FAMILIA` → `GRAFO_BIPARTIDO` | `1..1` por nó | Aresta só é criada se **os dois** nós existirem; família sem `xref_id` é ignorada por completo | 🟢 |
-| `ESTADO_VERSAO` → índices derivados | `1..N` | **Sem FK.** `versao` é o sinal de invalidação do índice `norm_name → ids` de `documentary_relationship`; existe porque `id()` não muda com mutação *in place* e dois GEDCOMs podem ter a mesma contagem de pessoas | 🟢 |
+| `ARVORE` → as quatro partes | `1..1` cada | A árvore é uma **tupla de quatro posições**, e é assim que entra em **toda** função do núcleo. **Não há estado de processo** | 🟢 |
+| `PESSOAS` → `FAMILIAS` (como filho) | `0..N` | `FAMC` é preferido; sem ele, o índice `child_to_family` acumula todas as famílias em que a pessoa aparece como `CHIL` | 🟢 |
+| `PESSOAS` → `FAMILIAS` (como cônjuge) | `0..N` | pelos sub-registros `FAMS` | 🟢 |
+| `FAMILIAS` → `PESSOAS` | `0..2` cônjuges + `0..N` filhos | `HUSB` e `WIFE` são **opcionais** | 🟢 |
+| `PESSOAS`/`FAMILIAS` → `GRAFO_BIPARTIDO` | `1..1` por nó | Aresta só é criada se **os dois** nós existirem; família sem `xref_id` é ignorada por completo | 🟢 |
 
-> **O grafo é `networkx.Graph` não-direcionado, e não `MultiGraph`.** A direção parental **não** está no grafo — é derivada por `get_parents`/`get_children`, que leem `FAMC`/`FAMS`/`CHIL` diretamente dos registros. 🟢
-> **`graph` é reatribuído**, enquanto `people`, `families` e `child_to_family` são mutados *in place*. É a razão de `path_finding.py:38` importar `graph` **dentro da função** enquanto os outros são importados no topo. 🟢
+> 🟢 **`ESTADO_VERSAO` deixou de existir.** O contador `versao` saiu com o módulo de estado (`ADR-24`). O sinal de invalidação do cache de nomes passou a ser **derivado do conteúdo** — ver o diagrama E.
+> 🟢 **O grafo é `networkx.Graph` não-direcionado, e não `MultiGraph`.** A direção parental **não** está no grafo: é derivada por `get_parents`/`get_children`, que leem `FAMC`/`FAMS`/`CHIL` diretamente dos registros.
+> 🟢 **O import tardio do grafo desapareceu.** Ele era reatribuído a cada parse; hoje é um **valor** da tupla, e quem precisa dele o pega dela.
 
 ---
 
@@ -88,6 +99,7 @@ erDiagram
     RESULTADO_DOCUMENTAL ||--o{ ANCESTRAL_COMUM : "ate 12 niveis"
     RESULTADO_DOCUMENTAL ||--o{ CAMINHO_ALTERNATIVO : "nenhum descartado"
     RESULTADO_DOCUMENTAL ||--o{ AVISO : "warnings"
+    CACHE_DE_NOMES ||--o{ FICHA_PESSOA : "alimenta o dossie"
 
     RESULTADO_DOCUMENTAL {
         string status "found ambiguous not_found affinity"
@@ -131,7 +143,7 @@ erDiagram
         list exact_matches
         int similar_count
         list similar_matches
-        bool ambiguous "mais de um exato"
+        bool ambiguous "mais de um exato OU similar_ids"
         list differences
         bool identical_data
     }
@@ -152,6 +164,10 @@ erDiagram
         int total_meioses
         string ancestor_name
     }
+    CACHE_DE_NOMES {
+        tuple chave PK "len people primeira e ultima chave"
+        dict mapa "nome normalizado para ids"
+    }
     AVISO {
         string code PK "ex pessoa_ausente colapso_de_pedigree"
         string message "texto em portugues"
@@ -163,10 +179,9 @@ erDiagram
 | --- | --- | --- | --- |
 | `RESULTADO_DOCUMENTAL` → `FICHA_PESSOA` | `1..1` × 2 | **Sempre duas fichas completas** — inclusive quando não há caminho. É o custo registrado em `L-20` | 🟢 |
 | `RESULTADO_DOCUMENTAL` → `EVIDENCIA_SALTO` | `0..N` | Um por aresta do caminho; **zero** quando não há caminho | 🟢 |
-| `RESULTADO_DOCUMENTAL` → `DOSSIE_HOMONIMOS` | `0..1` | Preenchido quando o chamador informa homônimos; `{}` caso contrário | 🟢 |
-| `RESULTADO_DOCUMENTAL` → `ANCESTRAL_COMUM` | `0..12` | Enumerados até **12 níveis**, limitados a **12**, ordenados por meioses totais | 🟢 |
-| `RESULTADO_DOCUMENTAL` → `CAMINHO_ALTERNATIVO` | `0..N` | Todos os caminhos alternativos são listados; **nenhum é descartado** | 🟢 |
-| `ANCESTRAL_COMUM` → colapso | `0..N` cadeias | Mais de uma cadeia de pais até o mesmo ancestral gera o aviso `colapso_de_pedigree` (teto de **8** cadeias) | 🟢 |
+| `RESULTADO_DOCUMENTAL` → `ANCESTRAL_COMUM` | `0..12` | Enumerados até **12 níveis**, limitados a **12**, ordenados por `(meioses totais, maior distância, nome)` | 🟢 |
+| `ANCESTRAL_COMUM` → colapso | `0..N` cadeias | Mais de uma cadeia de pais até o mesmo ancestral gera `colapso_de_pedigree` (teto de **8** cadeias) | 🟢 |
+| `CACHE_DE_NOMES` → `FICHA_PESSOA` | `1..N` | Cache **de módulo**, com chave derivada do **conteúdo** da árvore. Ver a lacuna `E-05` | 🟡 |
 
 ---
 
@@ -195,7 +210,7 @@ erDiagram
         int totals_records_used
     }
     EVIDENCIA_KIT {
-        string kit PK "ou SEM-KIT"
+        string kit PK "ou a sentinela com espaco a esquerda"
         string person_name_csv
         string source
         float total_cm "soma sem arredondamento"
@@ -226,7 +241,7 @@ erDiagram
         float largest_segment_cm
     }
     LINHA_SCP40 {
-        string key PK "ex SIBLINGS 1C1R PARENT_CHILD"
+        string key PK "ex SIBLINGS 1C1R GREAT_AUNT_1 DIRECT_3"
         string name_en
         string name_pt
         int meioses "saltos pai e filho"
@@ -242,7 +257,7 @@ erDiagram
     }
     CONFRONTO {
         string status "COMPATIVEL POSSIVEL CONFLITANTE INCONCLUSIVO"
-        string label "rotulo em portugues"
+        string label "rotulo em portugues - TAMBEM classe CSS"
         string message "mensagem fixa do estado"
         list causes "12 em CONFLITANTE 9 em POSSIVEL"
         list per_kit "kit status cm e note"
@@ -257,66 +272,75 @@ erDiagram
 | --- | --- | --- | --- |
 | `EVIDENCIA_PESSOA` → `EVIDENCIA_KIT` | `0..N` | Chave de evidência é **(nome, kit)**. **Nunca somados entre si** | 🟢 |
 | `EVIDENCIA_KIT` → `SEGMENTO` | `0..N` | Ordenados por cM decrescente, com `None` por último | 🟢 |
-| `EVIDENCIA_KIT` → `HIPOTESE_KIT` | `1..1` | Um bloco de hipótese por kit; o cM do bloco é o **do kit** | 🟢 |
 | `HIPOTESE_KIT` → `LINHA_SCP40` | `0..27` | 27 relações publicadas; **lista vazia é resposta válida** e significa "não descarta parentesco" | 🟢 |
 | `LINHA_SCP40` → ausência | 6 relações | `1C4R`, `1C5R`, `1C6R`, `3C2R`, 2º e 3º bisavós **não são publicadas** e **não recebem número inventado** — a janela passa a ser a envoltória por meioses | 🟢 |
-| `CONFRONTO` → `HIPOTESE_KIT` | `0..N` | Avalia cada kit; sem kit utilizável, o estado é `INCONCLUSIVO` | 🟢 |
-| `CONFRONTO` → `SCP40_META` | `1..1` | A janela é derivada da relação exata (`scp40:<nome>`) ou da envoltória por meioses (`scp40:meioses=<n>`) | 🟢 |
+| `CONFRONTO` → `HIPOTESE_KIT` | `0..N` | Avalia cada kit; o estado final é o **mais conservador** | 🟢 |
 
-> **O `status` do confronto é derivado, não armazenado.** Ele é o resultado de uma função sobre os três eixos — ver a máquina de decisão em `state-machines.md` §3.
-> **`totals.cm` nulo com múltiplos kits é contrato, não ausência de dado**: é a resposta honesta quando não se sabe qual kit corresponde à pessoa do GEDCOM. 🟢
+> **O `status` do confronto é derivado, não armazenado em memória** — ver a máquina de decisão em `state-machines.md` §3. **No banco ele É armazenado** (`match_result.comparison_status`), com `CHECK` de domínio fechado.
 
 ---
 
-## 5. Diagrama D — Entrada, disco e payload da tela
+## 5. Diagrama D — Payload da fronteira e armazenamento
 
 ```mermaid
 erDiagram
-    FORMULARIO ||--|| ARQUIVO_ARMAZENADO : "gedcom_filename aponta para"
-    FORMULARIO }o--|| CSV_LEITURA : "matches_csv"
-    CSV_LEITURA ||--o{ GRUPO_CM : "agrega por chave composta"
-    RESULTADO_ANALISE ||--|| FORMULARIO : "e alimentado por"
+    FORMULARIO ||--|| ENTRADA_ARMAZENADA : "referencia aponta para"
+    FORMULARIO }o--|| CSV_LEITURA : "arquivo ou referencia da lista"
+    ENTRADA_ARMAZENADA ||--o| ITEM_DE_ABA : "a funcao pura deriva"
+    ARMAZENADO ||--|| ENTRADA_ARMAZENADA : "desfecho do reenvio"
     RESULTADO_ANALISE ||--o{ DESCARTADO : "lista de descartados"
-    RESULTADO_ANALISE ||--|| MENSAGEM_FINAL : "contagem final"
+    ANALISE_PARA_REGISTRAR ||--o{ PESSOA_DA_ANALISE : "pessoas"
+    ANALISE_PARA_REGISTRAR ||--o{ CONEXAO_DA_ANALISE : "conexoes"
+    ANALISE_PARA_REGISTRAR ||--o{ DESCARTADO_DA_ANALISE : "descartados"
+    CONEXAO_DA_ANALISE ||--o{ KIT_DA_ANALISE : "kits"
+    RESULTADO_ANALISE ||--|| ANALISE_PARA_REGISTRAR : "a projecao PURA produz"
 
     FORMULARIO {
-        string action PK "upload_gedcom dna_analysis path_search"
-        string gedcom_filename FK "chave de conteudo validada por forma"
+        string action PK "5 valores"
+        string gedcom_filename FK "forma de nome validada"
+        string arquivo_a_aposentar
+        string matches_csv_filename "OPCIONAL - tem precedencia"
         string person1_name
         string person2_name
         string root_name
         file gedcom
         file matches_csv
     }
-    ARQUIVO_ARMAZENADO {
-        string chave PK "sha256 do conteudo truncado em 16 hex"
-        string separador "dois underscores"
-        string nome_visivel "extensao original preservada"
-        string caminho "ancorado no arquivo do app"
+    ENTRADA_ARMAZENADA {
+        string nome PK "chave + dois underscores + nome visivel"
+        int bytes
+        float modificado_em "ordem decrescente"
+    }
+    ITEM_DE_ABA {
+        string rotulo "sem a chave"
+        int quantidade "numero de ARQUIVOS"
+        int bytes "SOMA do grupo"
+        float modificado_em
+        bool disponivel
+        string motivo_indisponivel "sem chave ou fora da forma"
+    }
+    ARMAZENADO {
+        string caminho
+        string motivo "nulo no aceite"
+        string desfecho "identico substituido novo"
+        string visivel
     }
     CSV_LEITURA {
-        string separador "virgula ponto-e-virgula TAB ou barra"
+        string separador
         string encoding "utf-8 ou latin-1"
         int linhas_antes_do_cabecalho
         list linhas_ignoradas "numeros 1-based"
-        string erro_de_leitura "texto do erro do pandas"
-    }
-    GRUPO_CM {
-        string group_key PK "norm_name + id ou email ou nada"
-        float cm "soma dos segmentos"
-        string matched_name
-        string match_id "padrao duas letras e sete digitos"
-        string match_email "ultima coluna com mail"
+        string erro_de_leitura
     }
     RESULTADO_ANALISE {
-        string match_name "registro do GEDCOM escolhido"
+        string match_name
         string csv_name
-        float cm "do kit nunca a soma de kits"
+        float cm "do kit nunca a soma"
         string kit
-        string text_path "nomes separados por seta"
+        string text_path
         string mermaid_data "diagrama ou nulo"
         list observations "deduplicadas"
-        list warnings "documental mais evidencia"
+        list warnings
     }
     DESCARTADO {
         string csv_name PK
@@ -324,98 +348,243 @@ erDiagram
         float cm
         string motivo "nunca vazio"
     }
-    MENSAGEM_FINAL {
-        int conexoes
-        int descartadas
-        string texto "N conexoes encontradas M descartadas"
+    ANALISE_PARA_REGISTRAR {
+        string tree_ref "chave de conteudo do GEDCOM"
+        string match_file_ref "idem para o CSV"
+        string root_name_input
+        string message
+        string root_person_xref "nulo sem resultado"
+        int accepted_count
+        int skipped_count
     }
-    CONSTANTE {
-        string nome PK "MAX_DEPTH MAX_HOPS e outras"
-        string valor
-        string papel
+    PESSOA_DA_ANALISE {
+        string xref PK
+        string nome
+        string sexo
+        string nascimento
+        string local_nascimento
+        string falecimento
+        bool completa "ficha inteira ou so identificacao"
+    }
+    CONEXAO_DA_ANALISE {
+        int ordinal PK "posicao na ordem APRESENTADA"
+        string csv_name
+        string matched_name
+        string matched_person_xref FK
+        string comparison_status
+        string documentary_status
+        float total_cm
+        string relationship_key
+        int meioses
+        string mrca_xref
+        string comparison_method
+        tuple caminho "pares xref e papel"
+    }
+    KIT_DA_ANALISE {
+        int ordinal PK
+        string kit
+        float total_cm "o cM DESTE kit"
+        string status
+        string status_note
+    }
+    DESCARTADO_DA_ANALISE {
+        int ordinal PK
+        string csv_name
+        string reason "TEXTO - nunca codigo"
+        string kit
+        float total_cm
     }
 ```
 
 | Relacionamento | Cardinalidade | Regra | Conf. |
 | --- | --- | --- | --- |
-| `FORMULARIO` → `ARQUIVO_ARMAZENADO` | `1..1` por requisição pós-upload | O valor é validado **por forma fechada** antes de virar caminho; fora da forma, a resposta é `"Erro: Arquivo 'X' não existe mais."` | 🟢 |
-| `ARQUIVO_ARMAZENADO` → conteúdo | `1..1` | Chave derivada do **conteúdo**: mesmo conteúdo, mesma chave; arquivo existente **não é reescrito** | 🟢 |
-| `FORMULARIO` → `CSV_LEITURA` | `0..1` | Só no fluxo `dna_analysis` | 🟢 |
-| `CSV_LEITURA` → `GRUPO_CM` | `0..N` | Agrupamento vetorizado por chave composta; nome normalizado **uma vez por nome distinto** | 🟢 |
-| `RESULTADO_ANALISE` → `DESCARTADO` | `0..N` | Disjuntos: um match ou vira resultado, ou vira descartado — **nunca os dois** | 🟢 |
-| `RESULTADO_ANALISE` → `MENSAGEM_FINAL` | `1..1` | `"{N} conexões encontradas. {M} descartadas."`; sem resultados, os avisos de arquivo são **anexados à mensagem** | 🟢 |
-| `CONSTANTE` | sem aresta | Parâmetros de domínio e configuração (§9 do dicionário) | 🟢 |
-
-### Composição do item de resultado
-
-`RESULTADO_ANALISE` **agrega os quatro eixos** — é o único ponto do modelo em que eles aparecem lado a lado **sem se misturar**:
-
-| Campo do item | Estrutura agregada | Eixo |
-| --- | --- | --- |
-| `documentary` | `RESULTADO_DOCUMENTAL` (§3) | 🧬 documental |
-| `genetic_evidence` | `EVIDENCIA_PESSOA` (§4) | 🧪 genético |
-| `hypotheses` | lista de `HIPOTESE_KIT` (§4) | 📊 possibilidades |
-| `comparison` | `CONFRONTO` (§4) | ⚖️ confronto |
-| `cm` | cM **do kit** | 🧪 genético |
+| `FORMULARIO` → `ENTRADA_ARMAZENADA` | `1..1` por requisição pós-upload | A referência é validada **por forma de nome** antes de virar caminho; fora da forma, `"Erro: Arquivo 'X' não existe mais."` | 🟢 |
+| `ARMAZENADO` → `ENTRADA_ARMAZENADA` | `1..1` | O desfecho é **derivado da foto de antes** e **não persiste**: existe só para escolher a mensagem (`M-07`) | 🟢 |
+| `RESULTADO_ANALISE` → `DESCARTADO` | `0..N` | **Disjuntos:** um match ou vira resultado, ou vira descartado — nunca os dois | 🟢 |
+| `RESULTADO_ANALISE` → `ANALISE_PARA_REGISTRAR` | `1..1` | A projeção é **pura**: não reordena, não recalcula cM, não formata e não chama o núcleo | 🟢 |
+| `ANALISE_PARA_REGISTRAR` → `PESSOA_DA_ANALISE` | `0..N` | Uma vez por pessoa, com a **ficha completa vencendo** a mera identificação | 🟢 |
+| `CONEXAO_DA_ANALISE` → `KIT_DA_ANALISE` | `0..N` | Pareamento com o veredito **por índice**, e não por rótulo | 🟢 |
+| `CONEXAO_DA_ANALISE` → `caminho` | `0..N` pares | Cada par é `(xref, papel)`, com papel **derivado** pela projeção. `afinidade` **nunca** aparece aqui | 🟢 |
 
 ---
 
-## 6. Inventário das 27 estruturas
+## 6. Diagrama E — Esquema PostgreSQL (**novo, e o único físico**)
 
-| # | Estrutura (ERD) | Nome no código | Diagrama | PK / FK | Conf. |
+```mermaid
+erDiagram
+    DNA_ANALYSIS ||--o{ ANALYSIS_PERSON : "snapshot das pessoas"
+    DNA_ANALYSIS ||--o{ MATCH_RESULT : "conexoes"
+    DNA_ANALYSIS ||--o{ SKIPPED_MATCH : "descartados"
+    MATCH_RESULT ||--o{ MATCH_KIT : "veredito POR kit"
+    MATCH_RESULT ||--o{ MATCH_PATH_NODE : "nos do caminho"
+    ANALYSIS_PERSON ||--o{ MATCH_RESULT : "FK composta - matched_person_xref"
+    ANALYSIS_PERSON ||--o{ MATCH_PATH_NODE : "FK composta - person_xref"
+
+    DNA_ANALYSIS {
+        uuid analysis_id PK "gen_random_uuid()"
+        text owner_id "NAO FILTRA NADA - sem indice"
+        text tree_ref "GEDCOM: chave + nome visivel"
+        text match_file_ref "CSV: chave + nome visivel"
+        text root_name_input "auditoria"
+        text root_person_xref "nulo sem resultado aceito"
+        integer accepted_count
+        integer skipped_count
+        text message "a mensagem de contrato"
+        timestamptz created_at "ix_dna_analysis_created"
+    }
+    ANALYSIS_PERSON {
+        uuid analysis_id PK "FK dna_analysis CASCADE"
+        text xref PK
+        text nome
+        text sexo
+        text nascimento
+        text local_nascimento
+        text falecimento
+        boolean completa "ficha inteira ou identificacao"
+    }
+    MATCH_RESULT {
+        uuid match_id PK
+        uuid analysis_id FK
+        integer result_ordinal "A ORDEM E DADO"
+        text csv_name
+        text matched_name
+        text matched_person_xref FK "composta com analysis_person"
+        numeric total_cm "12 4 - nunca reagregado"
+        text relationship_key
+        text relationship_label
+        integer meioses
+        text documentary_status "CHECK 4 valores"
+        text mrca_xref
+        text_array causes
+        text_array observations
+        text comparison_status "CHECK 4 estados"
+        text comparison_label
+        text comparison_method "nulo e legitimo"
+        numeric expected_low
+        numeric expected_high
+        numeric expected_average
+        text comparison_detail
+    }
+    MATCH_KIT {
+        uuid match_kit_id PK
+        uuid match_id FK
+        integer ordinal "UNIQUE por match"
+        text kit "nulo e legitimo"
+        text source
+        numeric total_cm "o cM DESTE kit"
+        integer segment_count
+        numeric largest_segment_cm
+        text status "CHECK 4 estados"
+        text status_note
+    }
+    MATCH_PATH_NODE {
+        uuid match_id PK "FK match_result CASCADE"
+        integer ordinal PK
+        text person_xref FK "composta com analysis_person"
+        text role "CHECK ascendente descendente afinidade"
+        boolean is_affinity_anchor "sempre FALSE na escrita"
+        uuid analysis_id "REDUNDANTE - so para a FK composta"
+    }
+    SKIPPED_MATCH {
+        uuid skipped_id PK
+        uuid analysis_id FK
+        integer ordinal "UNIQUE por analysis"
+        text csv_name
+        text kit
+        numeric total_cm
+        text reason "TEXTO LIVRE - nao enum"
+    }
+```
+
+| Relacionamento | Cardinalidade | Regra | Conf. |
+| --- | --- | --- | --- |
+| `DNA_ANALYSIS` → `ANALYSIS_PERSON` | `0..N` | A **árvore não é duplicada**: `tree_ref` referencia o arquivo imutável de `src/uploads/`. O que se grava é o **retrato** desta análise | 🟢 |
+| `DNA_ANALYSIS` → `MATCH_RESULT` | `0..N` | `result_ordinal` é o **único campo que reproduz a ordem do núcleo**, que é `(tem_caminho, -cM)` | 🟢 |
+| `MATCH_RESULT` → `MATCH_KIT` | `0..N` | O veredito **por kit** é o que explica por que dois kits do mesmo nome chegaram a estados diferentes | 🟢 |
+| `MATCH_RESULT` → `MATCH_PATH_NODE` | `0..N` | Um por nó; `role` tem domínio fechado | 🟢 |
+| `ANALYSIS_PERSON` → `MATCH_RESULT` e `MATCH_PATH_NODE` | `1..N` | **FK composta** com `ON DELETE CASCADE`: garante que **todo nó do caminho tem retrato** no snapshot. `RESTRICT` foi testado e **quebrado** — impediria apagar a análise | 🟢 |
+| *ausência de índice por `owner_id`* | — | `RN-10`: nenhuma consulta filtra por dono, e um índice sugeriria escopo. O isolamento segue **aberto** | 🟢 |
+
+> 🟢 **É integridade real, ao contrário do legado em memória**, onde a referência pendente era aceita e a aresta simplesmente não era criada. O `CHECK` de `comparison_status` **não é autoridade**: a autoridade da regra continua sendo `core/evidence_comparison.py`; o banco só recusa lixo.
+> 🔴 **Cinco tabelas do alvo NÃO foram criadas** — `app_user`, `consent_record`, `data_retention_policy`, `access_audit` e `uploaded_file`. A ausência de `data_retention_policy` é a que mais pesa hoje (`L-29`).
+
+---
+
+## 7. Inventário das 42 estruturas
+
+| # | Estrutura (ERD) | Nome no código | Diagrama | Onde vive | Conf. |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | `PESSOA` | registro `ged4py` INDI em `gedcom_state.people` | A | `xref_id` | 🟢 |
-| 2 | `FAMILIA` | registro `ged4py` FAM em `gedcom_state.families` | A | `xref_id`; `husb`/`wife`/`chil` → `PESSOA` | 🟢 |
-| 3 | `GRAFO_BIPARTIDO` | `gedcom_state.graph` (`networkx.Graph`) | A | nó por `xref_id` | 🟢 |
-| 4 | `CHILD_TO_FAMILY` | `gedcom_state.child_to_family` | A | `person_id` → lista de famílias | 🟢 |
-| 5 | `ESTADO_VERSAO` | `gedcom_state.versao` | A | contador | 🟢 |
-| 6 | `ARQUIVO_ARMAZENADO` | nome em `src/uploads/` | D | chave de conteúdo | 🟢 |
-| 7 | `FORMULARIO` | `request.form` + `request.files` | D | `action` | 🟢 |
-| 8 | `CSV_LEITURA` | `df` + `df.attrs` | D | — | 🟢 |
-| 9 | `GRUPO_CM` | coluna `_group_key` | D | chave composta | 🟢 |
-| 10 | `EVIDENCIA_PESSOA` | `evidence_for(...)` | C | nome normalizado | 🟢 |
-| 11 | `EVIDENCIA_KIT` | bloco de `evidencias[nome][kit]` | C | `kit` | 🟢 |
-| 12 | `SEGMENTO` | item de `evidencia["segments"]` | C | ordinal | 🟢 |
-| 13 | `AVISO` | `{code, message}` | B e C | `code` | 🟢 |
-| 14 | `HIPOTESE_KIT` | bloco de `possible_relationships` | C | `kit` | 🟢 |
-| 15 | `LINHA_SCP40` | tupla de `SCP40_ROWS` | C | `key` | 🟢 |
-| 16 | `SCP40_META` | `SCP40_META` | C | `version` | 🟢 |
-| 17 | `CONFRONTO` | `compare(...)` | C | — | 🟢 |
-| 18 | `RESULTADO_DOCUMENTAL` | `documentary_relationship(...)` | B | — | 🟢 |
-| 19 | `FICHA_PESSOA` | `person_summary(pid)` | B | `id` | 🟢 |
-| 20 | `EVIDENCIA_SALTO` | `hop_evidence(...)` | B | par filho/genitor | 🟢 |
-| 21 | `DOSSIE_HOMONIMOS` | `homonym_dossier(...)` | B | `query` | 🟢 |
-| 22 | `ANCESTRAL_COMUM` | item de `common_ancestors` | B | `id` | 🟢 |
-| 23 | `CAMINHO_ALTERNATIVO` | item de `additional_paths` | B | `via` | 🟢 |
-| 24 | `RESULTADO_ANALISE` | item de `results_sorted` | D | — | 🟢 |
-| 25 | `DESCARTADO` | item de `skipped_matches` | D | `csv_name` | 🟢 |
-| 26 | `MENSAGEM_FINAL` | `message` de `dna_analysis` | D | — | 🟢 |
-| 27 | `CONSTANTE` | `data-dictionary.md` §9 | D | `nome` | 🟢 |
+| 1 | `ARVORE` | tupla `(people, families, graph, child_to_family)` | A | requisição | 🟢 |
+| 2 | `PESSOAS` | registro `ged4py` INDI em `arvore[0]` | A | requisição | 🟢 |
+| 3 | `FAMILIAS` | registro `ged4py` FAM em `arvore[1]` | A | requisição | 🟢 |
+| 4 | `GRAFO_BIPARTIDO` | `arvore[2]` (`networkx.Graph`) | A | requisição | 🟢 |
+| 5 | `CHILD_TO_FAMILY` | `arvore[3]` | A | requisição | 🟢 |
+| 6 | `CACHE_DE_NOMES` | `_INDICE_DE_NOMES` | B | **módulo** | 🟢 |
+| 7 | `RESULTADO_DOCUMENTAL` | `documentary_relationship(...)` | B | requisição | 🟢 |
+| 8 | `FICHA_PESSOA` | `person_summary(...)` | B | requisição | 🟢 |
+| 9 | `EVIDENCIA_SALTO` | `hop_evidence(...)` | B | requisição | 🟢 |
+| 10 | `DOSSIE_HOMONIMOS` | `homonym_dossier(...)` | B | requisição | 🟢 |
+| 11 | `ANCESTRAL_COMUM` | item de `common_ancestors` | B | requisição | 🟢 |
+| 12 | `CAMINHO_ALTERNATIVO` | item de `additional_paths` | B | requisição | 🟢 |
+| 13 | `AVISO` | `{code, message}` | B e C | requisição | 🟢 |
+| 14 | `EVIDENCIA_PESSOA` | `evidence_for(...)` | C | requisição | 🟢 |
+| 15 | `EVIDENCIA_KIT` | bloco de `evidencias[nome][kit]` | C | requisição | 🟢 |
+| 16 | `SEGMENTO` | item de `evidencia["segments"]` | C | requisição | 🟢 |
+| 17 | `HIPOTESE_KIT` | bloco de `possible_relationships` | C | requisição | 🟢 |
+| 18 | `LINHA_SCP40` | tupla de `SCP40_ROWS` | C | requisição | 🟢 |
+| 19 | `SCP40_META` | `SCP40_META` | C | requisição | 🟢 |
+| 20 | `CONFRONTO` | `compare(...)` | C | requisição | 🟢 |
+| 21 | `FORMULARIO` | `request.form` + `request.files` | D | requisição | 🟢 |
+| 22 | `ENTRADA_ARMAZENADA` | `EntradaArmazenada` | D | payload | 🟢 |
+| 23 | `ITEM_DE_ABA` | item de `itens_da_aba(...)` | D | requisição | 🟢 |
+| 24 | `ARMAZENADO` | retorno de `guardar_com_substituicao` | D | requisição | 🟢 |
+| 25 | `CSV_LEITURA` | `df` + `df.attrs` | D | requisição | 🟢 |
+| 26 | `RESULTADO_ANALISE` | item de `results_sorted` | D | requisição | 🟢 |
+| 27 | `DESCARTADO` | item de `skipped_matches` | D | requisição | 🟢 |
+| 28 | `ANALISE_PARA_REGISTRAR` | `AnaliseParaRegistrar` | D | payload | 🟢 |
+| 29 | `PESSOA_DA_ANALISE` | `PessoaDaAnalise` | D | payload | 🟢 |
+| 30 | `CONEXAO_DA_ANALISE` | `ConexaoDaAnalise` | D | payload | 🟢 |
+| 31 | `KIT_DA_ANALISE` | `KitDaAnalise` | D | payload | 🟢 |
+| 32 | `DESCARTADO_DA_ANALISE` | `DescartadoDaAnalise` | D | payload | 🟢 |
+| 33 | `RESULTADO_ANALISE_CASO_DE_USO` | `ResultadoDeAnalise` | D | payload | 🟢 |
+| 34 | `RESULTADO_BUSCA` | `ResultadoDeBusca` + `Desfecho` | D | payload | 🟢 |
+| 35 | `ARQUIVO_APOSENTADO` | `_aposentados/<nome>` | D | **disco** | 🟢 |
+| 36 | `CONSTANTE` | `data-dictionary.md` §10 | D | requisição | 🟢 |
+| 37 | `DNA_ANALYSIS` | tabela `dna_analysis` | E | **PostgreSQL** | 🟢 |
+| 38 | `ANALYSIS_PERSON` | tabela `analysis_person` | E | **PostgreSQL** | 🟢 |
+| 39 | `MATCH_RESULT` | tabela `match_result` | E | **PostgreSQL** | 🟢 |
+| 40 | `MATCH_KIT` | tabela `match_kit` | E | **PostgreSQL** | 🟢 |
+| 41 | `MATCH_PATH_NODE` | tabela `match_path_node` | E | **PostgreSQL** | 🟢 |
+| 42 | `SKIPPED_MATCH` | tabela `skipped_match` | E | **PostgreSQL** | 🟢 |
 
 ---
 
-## 7. O que este ERD **não** tem — e por quê
+## 8. O que este ERD **não** tem — e por quê
 
 | Ausência | Motivo | Conf. |
 | --- | --- | --- |
-| **Constraint de integridade referencial** | Não há banco. Referência GEDCOM pendente é **aceita** e a aresta não é criada. O alvo da migração quer o inverso (`FK` real + rejeição no parse) | 🟢 |
-| **Unicidade de `xref_id`** | Garantida pelo `dict` (chave), não por constraint. `families` e `people` são dicionários indexados por `xref_id` | 🟢 |
-| **Entidade de usuário / `owner_id`** | Não existe. É a raiz do `BUG-20260929-BJJH` e o invariante que a Onda 3 vai introduzir | 🟢 |
-| **Histórico, versionamento ou auditoria de dado** | Nada é versionado: o arquivo é imutável e o estado em memória é substituído | 🟢 |
-| **Relação entre `RESULTADO_ANALISE` e `PESSOA`** | Ela existe **dentro** de `documentary` (as fichas), e não como FK do item de resultado — reflexo de que não há persistência que precisasse da chave | 🟢 |
-| **Cardinalidade `N:M` explícita** | Pessoa↔família é `N:M` por natureza (uma pessoa está em várias famílias; uma família tem várias pessoas) e é resolvida por **nó intermediário** no grafo bipartido | 🟢 |
+| **Constraint de integridade no GEDCOM em memória** | Não há tabela para a árvore. Referência GEDCOM pendente é **aceita** e a aresta não é criada. **No banco**, ao contrário, há FK real | 🟢 |
+| **Unicidade de `xref_id`** | Garantida pelo `dict` (chave), não por constraint | 🟢 |
+| **Entidade de usuário** | Não existe — nem em `src/`, nem em `init.sql`. `owner_id` é uma **coluna de texto**, e não uma FK para uma tabela de usuários | 🟢 |
+| **Tabela de versão de esquema / runner de migração** | Sem migração para aplicar, seria decoração. **Limite declarado:** `CREATE TABLE IF NOT EXISTS` não altera tabela existente — mudar o esquema exige `docker compose down -v` (perdendo o histórico) ou `ALTER TABLE` manual | 🟢 |
+| **Política de retenção** | A tabela do alvo (`data_retention_policy`) não foi criada. O histórico persiste dado pessoal **sem expurgo** (`L-29`) | 🔴 |
+| **Tabela que reabre a análise** | Nenhum código de `src/` **lê** as tabelas: a persistência só escreve. Não há como reconstruir uma análise a partir do banco pela aplicação | 🟢 |
+| **Veredito humano sobre uma conexão** | `M-04`: o operador não tem onde registrar "aceitei / rejeitei / corrigi". A feature 008 decidiu gravar **o que a análise concluiu**, e não **o que o operador achou dela** | 🟢 |
 
 ---
 
-## 8. Lacunas do modelo de dados 🔴
+## 9. Lacunas do modelo de dados 🔴
 
 | ID | Lacuna | Conf. |
 | --- | --- | --- |
-| **E-01** | **Ordem é dado, não consequência — e não está modelada.** Três ordens determinam resultado e não têm estrutura que as proteja: a ordem de inserção das arestas (decide qual caminho o `shortest_path` devolve), a ordem dos candidatos de nome (decide o desempate) e a ordem de apresentação dos resultados. Só a terceira é explícita no código. Ver `adrs/22` e `adrs/23`. | 🟢 |
-| **E-02** | **O `RESULTADO_ANALISE` não referencia a `PESSOA` escolhida por chave**, só por nome (`match_name`) e pelo conteúdo de `documentary`. Não há como reconstruir a ligação sem reabrir a árvore. | 🟢 |
-| **E-03** | ✅ **FECHADA em 2026-10-05 — a sentinela foi tornada incapaz de colidir.** Você decidiu trocá-la. `SEM_KIT` passou a ser `" SEM-KIT"`, **com espaço à esquerda**: como `_clean` aplica `.strip()` em todo valor vindo do CSV, nenhum kit real (nem e-mail) pode começar com espaço. Antes, um CSV com um kit literalmente chamado `SEM-KIT` fazia as linhas **sem** kit caírem no mesmo grupo e somarem cM de origens diferentes. **Teste de regressão:** `test_8c_kit_chamado_SEM_KIT_nao_colide_com_a_ausencia_de_kit` prova três grupos separados. | 🟢 |
-| **E-04** | ✅ **DECIDIDA em 2026-10-05 — persistir é requisito do ALVO, e o legado mantém o comportamento efêmero.** Nenhuma estrutura é gravada entre requisições hoje, e isso **permanece**; o histórico de análises entra como requisito do sistema alvo (ver `gaps.md` § "Requisitos encaminhados ao alvo"). Registro importante para o modelo de dados do alvo: `RESULTADO_ANALISE` e `DESCARTADO` deixam de ser payload de tela e passam a ser **entidades persistidas**. | 🟢 |
+| **E-01** | **Ordem é dado, e a cobertura dela é desigual.** Três ordens determinam resultado: a de inserção das arestas do grafo (decide qual caminho o `shortest_path` devolve — **sem teste**), a dos candidatos de nome (decide o desempate — **determinística desde 2026-10-06**, com teste) e a de apresentação (**explícita e persistida** em `result_ordinal`). A primeira continua sem proteção | 🟢 |
+| **E-02** | ✅ **FECHADA NO BANCO em 2026-10-08.** A lacuna dizia que o resultado não referenciava a pessoa escolhida por chave, só por nome. Hoje `match_result.matched_person_xref` é **FK composta** para `analysis_person(analysis_id, xref)`, e `match_path_node.person_xref` também. **No payload em memória a lacuna persiste** — `match_name` continua sendo texto | 🟢 |
+| **E-03** | ✅ **FECHADA em 2026-10-05** — a sentinela `" SEM-KIT"` (com espaço à esquerda) não pode colidir com kit real | 🟢 |
+| **E-04** | ✅ **DECIDIDA em 2026-10-05 e EXECUTADA em 2026-10-08.** Persistir era requisito do alvo; a feature 008 trouxe a capacidade para o legado. `RESULTADO_ANALISE` e `DESCARTADO` **deixaram de ser só payload de tela** e passaram a ser entidades persistidas | 🟢 |
+| **E-05** | 🔴 **NOVA: a chave do cache de nomes pode não invalidar.** `(len(people), primeira chave, última chave)` é igual para duas árvores do mesmo tamanho com os mesmos xrefs extremos — provável entre exports do mesmo exportador. O dossiê de homônimos passa a listar xrefs de **outra** árvore, **sem exceção** (`L-24`) | 🟡 |
+| **E-06** | 🔴 **NOVA: a coluna `owner_id` existe e nenhuma consulta a usa, e não há FK para uma entidade de dono.** Ela satisfaz a **forma** do requisito do alvo e não o conteúdo: o teste negativo de 404 continua sendo portão de go-live da Onda 3 | 🟢 |
+| **E-07** | 🔴 **NOVA: não há teste do caminho de gravação.** Erro de SQL, de ordem de FK ou de tipo só apareceria no contêiner, porque o driver não está no `.venv` (`L-28`) | 🟢 |
 
 ---
 
-*Gerado pelo Reversa-Architect em 2026-10-05 (re-extração, nível completo).*
+*Gerado pelo Reversa-Architect em 2026-10-10 (re-extração, nível completo).*

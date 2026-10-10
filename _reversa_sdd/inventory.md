@@ -1,185 +1,172 @@
 # Inventário do Sistema Legado — analisador-genealogico
 
-> Nível de documentação: **Completo** (`state.json` → `doc_level`, decidido em 2026-10-05; coincide com `.reversa/config.toml [analysis]`, que também diz `completo`).
-> Re-extração de 2026-10-05. Substitui o inventário de 2026-09-30, que descrevia a raiz `analisador-genealogico/` e o pacote `reconstructed/`.
-> Snapshot da versão substituída: `.reversa/snapshots/2026-10-05-pre-reextracao/`
-> Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
-> ⚠️ **Contagens atualizadas pela revisão de 2026-10-05.** As correções de código decididas nas respostas às perguntas (`matching.py`, `app.py`, `genetic_evidence.py`) somaram **+16 linhas a `src/`** e **+103 a `tests/`**. Os números deste inventário são **pós-revisão**: `src/**.py` = 3.489 · `tests/**.py` = 3.060 · `app.py` = 267 · 129 funções de teste · 179 itens coletados.
-> 🔧 **Correção de 2026-10-08.** O vault Obsidian deixou de existir no repositório: a pasta
-> `.obsidian/` e os arquivos de navegação em `docs/` (`00 - Dashboard.md`, `Mapa Geral.md` e os
-> cinco `Mapa *.canvas`) foram removidos nesta data. As referências ao vault nestes artefatos
-> foram ajustadas junto; `docs/` segue existindo como cópia do mini-site de `_reversa_docs/`.
-> 📌 **`docs/` não é resíduo: é a pasta publicada no GitHub Pages** (source `master`, folder `/docs`),
-> e é preservada por isso. O workflow `.github/workflows/deploy-pages.yml` mira `_reversa_docs/`,
-> mas escuta a branch `main` — inexistente — logo não dispara por push.
+> **Rodada:** re-extração de 2026-10-10 (quarta extração; anteriores em 2026-08-03, 2026-09-30 e 2026-10-05). Substitui o inventário de 2026-10-05, que descrevia o sistema **sem** `ports/`, **sem** persistência, **sem** Docker e **sem** a lista de arquivos da tela.
+> **Autor:** Scout · **Nível de documentação:** completo · **Idioma:** Português
+> **Snapshot da versão substituída:** `.reversa/snapshots/2026-10-10-pre-reextracao/` (83 arquivos, 967 KB, sha256 por arquivo no `_MANIFEST.txt`)
+> **Código medido em:** HEAD `980502c` (2026-10-10), árvore de trabalho limpa, 246 commits. Não houve alteração do legado nesta fase.
+> **Escala de confiança:** 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
+> **Método de contagem:** "linhas úteis" = linhas não vazias (`Get-Content | Measure-Object -Line`); "linhas cruas" = total do arquivo, incluindo vazias. Os dois números são declarados porque a diferença entre eles já causou contagem truncada em artefatos anteriores.
 
 ---
 
 ## 1. Visão Geral
 
 * **Nome do Projeto:** analisador-genealogico (Genetic Genealogy Path Analyzer) 🟢
-* **Descrição:** Aplicação web Flask para genealogistas genéticos que identifica, calcula e visualiza conexões genealógicas entre uma pessoa raiz e correspondentes de DNA, cruzando árvores GEDCOM (`.ged`) com listas de segmentos de DNA (`.csv`) — e que, desde a regra final da análise (2026-10), **separa três coisas que nunca se contaminam**: parentesco documental (o que o GEDCOM afirma), evidência genética (o que o arquivo de DNA informa) e o confronto entre as duas, que devolve um de quatro estados. 🟢
-* **Linguagem Principal:** Python 3 — **3.14.6** verificado por execução, tanto no interpretador global quanto em `.venv/`. 🟢
-* **Framework Principal:** Flask 3.1.3, servido em produção por **waitress 3.0.2** a partir do bloco de entrada. 🟢
-* **Arquitetura:** Aplicação web Flask com renderização server-side (Jinja2), em **camada de rota fina + pacotes internos por responsabilidade** (`parsers/`, `core/`, `reporting/`, `utils/`), com estado em memória do processo e sem banco de dados. 🟢
+* **Descrição:** aplicação web Flask para genealogia genética. Cruza uma árvore GEDCOM (`.ged`) com uma lista de matches de DNA (`.csv`) e apresenta **três coisas separadas, que nunca se contaminam**: o parentesco documental que o GEDCOM afirma, a evidência genética que o CSV informa, e o **confronto** entre as duas, que devolve um de quatro estados (`COMPATIVEL`, `POSSIVEL`, `CONFLITANTE`, `INCONCLUSIVO`). 🟢
+* **Linguagem principal:** Python **3.14.6** verificado por execução no `.venv/` — que, desde a decisão de 2026-10-05 (`questions.md#pergunta-11`), é o interpretador **oficial** do projeto. 🟢
+* **Framework principal:** Flask 3.1.3, servido por **waitress 3.0.2**. 🟢
+* **Arquitetura:** hexagonal, em quatro anéis — `src/app.py` (borda web) → `src/application/` (casos de uso) → `src/ports/` (portas e adaptadores) → `src/core/` (domínio puro, sem HTTP e sem banco), com `parsers/`, `reporting/` e `utils/` de apoio. **O estado global do processo deixou de existir** (`core/gedcom_state.py` foi apagado no `T023` da feature 007): a árvore passou a ser parâmetro. 🟢
+* **Tamanho:** 5.130 linhas Python úteis em `src/` (35 arquivos) e 8.959 em `tests/` (48 arquivos); 182 `def`/`class` em `src/`. 🟢
+* **Suíte:** **536 itens coletados — 527 passam, 9 pulados, 0 falham** (§6). 🟢
 
-> **Mudança estrutural em relação à extração anterior (2026-09-30).** Quatro mudanças de forma, todas confirmadas por varredura:
->
-> 1. A raiz de código deixou de ser `analisador-genealogico/` e passou a ser **`src/`** (feature `003-renomear-pasta-app-para-src`).
-> 2. O pacote `reconstructed/` **deixou de existir**, substituído por quatro pacotes de primeiro nível: `core/`, `parsers/`, `reporting/` e `utils/` (série de refatoração `OPP-20261003-*`).
-> 3. O `app.py` passou de 84 para **267 linhas**: ganhou teto de corpo de requisição, tratamento de `413`, filtros de template, upload ancorado no arquivo e a guarda de instância única no bloco de entrada.
-> 4. Nasceu a **regra final da análise** (confronto GEDCOM × DNA com quatro estados), com oito módulos novos em `core/` e um arquivo de teste de 922 linhas. Nada disso existe em qualquer spec da extração anterior.
->
-> **Nota de contagem:** as linhas deste inventário foram obtidas por `[System.IO.File]::ReadAllLines`, que **conta linhas em branco** — ao contrário de `Get-Content | Measure-Object -Line`, que as ignora e foi a causa de contagens truncadas em artefatos anteriores.
+> **Divergência de ambiente medida nesta fase:** com `DATABASE_URL` presente no ambiente do processo (como estava no shell desta sessão, herdado do `.env`) e sem o driver `psycopg2` no `.venv`, **dois** testes de `test_persistencia_desabilitada.py` falham. Removendo a variável, os três passam e a suíte fecha em 527/9/0. Ver §9.1. 🟢
+
+### 1.1 O que mudou desde a extração de 2026-10-05
+
+O `_reversa_sdd/` atual descreve o sistema de 2026-10-05. Entre aquela data e 2026-10-10 entraram nove features em `_reversa_forward/` (005 a 012) e os adendos correspondentes. O que nasceu **sem spec principal**:
+
+| Mudança | Evidência no código | Registro existente |
+| --- | --- | --- |
+| Núcleo puro, sem estado global | `src/core/gedcom_state.py` **deletado**; a árvore virou parâmetro | adendos 005 e 007 |
+| Fronteira de aplicação | `src/application/` (5 casos de uso) + `src/ports/adaptadores.py` | adendo 006 |
+| Persistência histórica | `init.sql` (6 tabelas), `RegistroDeAnalisesPostgres`, `psycopg2-binary` no pin | adendo 008 |
+| Conteinerização | `docker/Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env` | adendo 008 |
+| Armazenamento por conteúdo + aposentadoria | chave `sha256` truncada, `aposentar()`, `_aposentados/` | adendos 010 e 011 |
+| Substituição no reenvio | `application/reenvio.py`, desfecho `substituido` | adendo 011 |
+| Lista de arquivos na tela | `reporting/lista_de_arquivos.py`, duas abas, "Abrir" e "Aposentar" | adendos 011 e 012 |
+| Erros de domínio tipados | `src/core/erros.py` + `application/traducao.py` | adendo 006 |
+| Registro da análise | `src/core/registro.py` + projeção do resultado | adendo 008 |
+| Arte do topo e ícone de atalho | `GET /banner.png` e `GET /apple-touch-icon.png` | adendos 009 e 011 |
+| Domínio de diagrama isolado | `src/core/diagram_domain.py` | adendo 006 |
+| CI/CD removido | `.github/workflows/` **não existe mais** (removido em 2026-10-08) | — |
 
 ---
 
 ## 2. Estrutura de Árvore de Diretórios
 
-Excluídos: `.git/`, `.agents/` e `.reversa/` (framework Reversa, não é sistema legado), `_reversa_*/` (artefatos do framework), `__pycache__/`, `.pytest_cache/`, `.pytest-tmp/`, `.venv/`, `node_modules/`, `uploads/` e `src/uploads/` (dados do usuário em runtime).
+Excluídos desta árvore: `.git/`, `.agents/` e `.reversa/` (framework Reversa), `_reversa_*/` (artefatos do framework), `.venv/`, `node_modules/`, `__pycache__/`, `.pytest_cache/`, `.parity-run-*/`, `.parity-tmp/` e o **conteúdo** de `src/uploads/` (dado real do operador).
 
 ```text
 /
 ├── src/                             # Raiz de código da aplicação
-│   ├── app.py                       # Camada de rota Flask + bloco de entrada waitress (267 linhas)
-│   ├── parsers/                     # Leitura do mundo de fora
-│   │   ├── __init__.py
-│   │   ├── gedcom_parser.py         # GEDCOM -> registros + grafo networkx (69)
-│   │   └── csv_ingest.py            # CSV de matches: encoding, separador, preâmbulo, linha torta (227)
-│   ├── core/                        # Decisão sobre o que foi lido, sem saber de HTTP
-│   │   ├── __init__.py
-│   │   ├── documentary_relationship.py  # Parentesco DOCUMENTAL: caminho, MRCA, homônimos, colapso de pedigree (576)
-│   │   ├── genetic_evidence.py      # Evidência GENÉTICA: kits, cM, segmentos, SNPs, cromossomo (264)
-│   │   ├── relationship_hypotheses.py   # cM -> possibilidades (Shared cM Project 4.0) (229)
-│   │   ├── evidence_comparison.py   # Confronto: COMPATÍVEL / POSSÍVEL / CONFLITANTE / INCONCLUSIVO (247)
-│   │   ├── cm_estimator.py          # LEGADO: faixas de cM escritas à mão, fora do fluxo (65)
-│   │   ├── dna_analysis.py          # Orquestra as três etapas do cruzamento (250)
-│   │   ├── matching.py              # Índices do GEDCOM e decisão de aceitação de candidatos (162)
-│   │   ├── name_normalization.py    # Normalização e decomposição de nomes (122)
-│   │   ├── path_search.py           # Fachada da busca de caminhos (219)
-│   │   ├── path_finding.py          # Caminho direto (MRCA) e indireto (afinidade) (85)
-│   │   ├── family_navigation.py     # Resolução de pessoa por nome e navegação (106)
-│   │   └── gedcom_state.py          # Estado do processo: people, families, graph, versão (52)
-│   ├── reporting/
-│   │   ├── __init__.py
-│   │   └── mermaid_render.py        # Diagrama Mermaid e contrato de escape do rótulo (289)
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── text_cleaning.py         # Autoridade única de limpeza de mojibake (86)
-│   │   ├── validate.py              # Validação do upload: nome, chave de conteúdo, GEDCOM (105)
-│   │   └── number_format.py         # Formato dos números na tela (cm_br, inteiro_br) (54)
-│   ├── templates/
-│   │   └── index.html               # Única tela da aplicação (525 linhas)
-│   └── uploads/                     # Runtime: arquivos enviados (não versionado)
-├── tests/                           # 11 arquivos de teste + 2 geradores de fixture
-│   ├── fixtures/
-│   │   ├── sample_gedcom.py
-│   │   └── sample_dna.py
-│   ├── test_domain.py
-│   ├── test_upload.py
-│   ├── test_upload_seguranca.py
-│   ├── test_path_search.py
-│   ├── test_dna_analysis.py
-│   ├── test_formatacao_cm.py
-│   ├── test_characterization_matching.py
-│   ├── test_characterization_mermaid.py
-│   ├── test_mermaid_escape.py
-│   ├── test_confrontacao_gedcom_dna.py
-│   └── test_servidor_producao.py
-├── plugins/
-│   └── dsh-markdownlint/            # Plugin Node do harness DSH (sub-projeto à parte, ver §7)
-├── docs/                            # Mini-site PUBLICADO no GitHub Pages (master /docs)
-├── .github/
-│   ├── workflows/deploy-pages.yml   # Dormante: escuta 'main', inexistente. Quem publica e docs/
-│   └── skills/                      # 5 skills auxiliares (naming, jsdoc, docstring, readme, security)
-├── .vscode/settings.json            # python.analysis.extraPaths = ./src + regras do markdownlint
-├── .markdownlint-cli2.jsonc         # Regras de lint do Markdown deste repositório
-├── pytest.ini                       # testpaths = tests
-├── pyrefly.toml                     # search-path = ["src"]
-├── requirements.txt                 # 6 dependências diretas, TODAS com versão fixada
-├── README.md                        # Documentação do projeto (atualizada em 2026-10-05)
-├── LICENSE                          # MIT
-├── AGENTS.md / GEMINI.md            # Instruções do framework Reversa
-├── .gitignore / .gitattributes
-└── uploads/                         # Runtime legado da raiz (4 arquivos); a aplicação usa src/uploads/
+│   ├── app.py                       # Borda web: 4 rotas, 5 ações de POST, filtros, montagem das portas, waitress (559 úteis / 625 cruas)
+│   ├── application/                 # Casos de uso (fronteira) — 627 linhas
+│   │   ├── __init__.py              # `Desfecho`, `nomes_de_exibicao`
+│   │   ├── upload_gedcom.py         # caso de uso do envio
+│   │   ├── dna_analysis.py          # caso de uso da análise de DNA
+│   │   ├── path_search.py           # caso de uso da busca de caminho
+│   │   ├── reenvio.py               # armazenar com substituição (GEDCOM e CSV)
+│   │   └── traducao.py              # ErroDeDominio -> mensagem de contrato
+│   ├── core/                        # Domínio puro, sem HTTP e sem banco — 2.257 linhas
+│   │   ├── documentary_relationship.py · path_search.py · path_finding.py · family_navigation.py
+│   │   ├── genetic_evidence.py · relationship_hypotheses.py · evidence_comparison.py
+│   │   ├── dna_analysis.py · matching.py · name_normalization.py · cm_estimator.py (legado fora do fluxo)
+│   │   ├── diagram_domain.py · registro.py · erros.py
+│   ├── parsers/                     # Leitura do mundo de fora — 256 linhas
+│   │   ├── gedcom_parser.py · csv_ingest.py
+│   ├── ports/                       # Portas e adaptadores concretos — 669 linhas
+│   │   ├── adaptadores.py           # ArmazenamentoEmDisco, CarregadorDeArvoresGedcom, RegistroDeAnalisesPostgres
+│   ├── reporting/                   # 421 linhas
+│   │   ├── mermaid_render.py · lista_de_arquivos.py
+│   ├── utils/                       # 341 linhas
+│   │   ├── text_cleaning.py · validate.py · number_format.py · name_keys.py
+│   ├── templates/index.html         # Tela única (731 úteis)
+│   ├── assets/                      # apple-touch-icon.png, banner-da-tela.png (artes DERIVADAS)
+│   └── uploads/                     # Pasta canônica de dados: 13 arquivos + _aposentados/ com 3
+├── tests/                           # 39 test_*.py + 9 de apoio — 8.959 linhas úteis
+├── docker/Dockerfile                # python:3.14-slim
+├── docker-compose.yml               # serviços db (postgres:16-alpine) e app
+├── init.sql                         # esquema idempotente das 6 tabelas do histórico (189 linhas)
+├── requirements.txt                 # 9 dependências diretas, todas com `==`
+├── pytest.ini · pyrefly.toml · .markdownlint-cli2.jsonc · .dockerignore · .gitignore · .gitattributes
+├── .env                             # credenciais do banco local — NÃO versionado
+├── publicar_docs.py                 # publica `_reversa_docs/` em `docs/`
+├── README.md                        # documentação viva do repositório (36 KB, em dia)
+├── AGENTS.md · GEMINI.md · LICENSE
+├── plugins/dsh-markdownlint/        # sub-projeto Node (lint de Markdown), fora do runtime
+└── docs/                            # cópia publicada do mini-site (10 páginas HTML)
 ```
 
-**Ausências confirmadas:** `static/` não existe, DAL/DDL/migrations não existem, `Dockerfile`/`docker-compose.yml` não existem. O README herdado do módulo (`analisador-genealogico/README.md`) e o `.gitignore.txt` do módulo foram **removidos** na feature 003. 🟢
+**Ausências confirmadas:** `static/` (proibida pelo `W004`), `migrations/`, ORM, `Dockerfile` na raiz (ele mora em `docker/`), pipeline de teste/build e qualquer workflow de CI. 🟢
 
 ---
 
 ## 3. Mapeamento por Módulo / Componente
 
-> A atribuição de cada arquivo a uma unidade funcional é do Scout e **está sujeita à revisão do Arqueólogo** — os módulos de `core/` são deliberadamente de responsabilidade única, e alguns servem a mais de um fluxo.
+### 3.1 Pacotes de código
 
-| Arquivo | Linhas | Responsabilidade | Tecnologias |
-| --- | --- | --- | --- |
-| `src/app.py` | 267 | Camada de rota. Rota única `index()` `GET`/`POST`, despacho por `request.form["action"]`; teto de corpo (`MAX_CONTENT_LENGTH`), handler de `413`, filtros `cm_br`/`inteiro_br`, upload ancorado no arquivo do app e bloco de entrada com waitress + guarda de instância única. | Flask, waitress, socket |
-| `parsers/gedcom_parser.py` | 69 | Traduz o GEDCOM em registros e no grafo; incrementa a versão de estado. | ged4py, networkx |
-| `parsers/csv_ingest.py` | 227 | Lê o CSV de matches tolerando separador, preâmbulo e linha torta; fallback de encoding; agrega cM por match. | pandas |
-| `core/gedcom_state.py` | 52 | Registro do estado do processo (singleton não persistente): `people`, `families`, `graph`, `child_to_family` e o contador `versao`, que é o sinal de invalidação de índices derivados. | stdlib |
-| `core/documentary_relationship.py` | 576 | **Parentesco documental**: caminho, ancestral comum, distância geracional, homônimos, caminhos múltiplos, colapso de pedigree e a evidência de cada salto. | networkx |
-| `core/genetic_evidence.py` | 264 | **Evidência genética**: kit, fonte, cM total, segmentos, maior segmento, SNPs, cromossomo e posições; nunca soma kits diferentes. | pandas |
-| `core/relationship_hypotheses.py` | 229 | Traduz cM em **possibilidades** de parentesco pela tabela publicada do Shared cM Project 4.0. | stdlib |
-| `core/evidence_comparison.py` | 247 | **Confronto** entre documento e genética, devolvendo um dos quatro estados. | stdlib |
-| `core/cm_estimator.py` | 65 | **Legado fora do fluxo**: as nove faixas de cM escritas à mão, mantidas como superfície de compatibilidade. O próprio módulo declara "não usar em código novo". | stdlib |
-| `core/dna_analysis.py` | 250 | Orquestra as três etapas do cruzamento e monta o payload consumido pelo template. | pandas |
-| `core/matching.py` | 162 | Índices do GEDCOM e decisão de aceitação de candidatos (matching difuso e filtros anti-falso-positivo). | thefuzz, RapidFuzz |
-| `core/name_normalization.py` | 122 | Normalização e decomposição de nomes, e o vocabulário que isso usa. | stdlib |
-| `core/path_search.py` | 219 | Fachada da busca de caminhos, consumida por `app.py`. | networkx |
-| `core/path_finding.py` | 85 | Caminho direto por ancestral comum (BFS bidirecional) e indireto por afinidade. | networkx |
-| `core/family_navigation.py` | 106 | Resolução de pessoa por nome e navegação de parentesco (pais, cônjuges). | networkx |
-| `reporting/mermaid_render.py` | 289 | Emissão do diagrama Mermaid e o contrato de escape do rótulo (lista branca). | stdlib |
-| `utils/text_cleaning.py` | 86 | Autoridade única da limpeza de mojibake (`strip_bad_utf`, `demojibake`). | stdlib |
-| `utils/validate.py` | 105 | Validação do upload: nome visível, chave derivada do conteúdo e reconhecimento de GEDCOM. Módulo puro, sem Flask e sem disco. | stdlib |
-| `utils/number_format.py` | 54 | Autoridade única da exibição numérica (`formatar_cm`, `formatar_inteiro`). | stdlib |
-| `templates/index.html` | 525 | Única tela: upload, abas de busca e de análise, **as quatro seções do resultado** e o confronto, alertas e spinner. Bootstrap 5.3.3 e Mermaid 10 por CDN; `securityLevel: 'strict'`. | HTML5, Jinja2, Bootstrap 5, Mermaid |
-| `tests/` (11 arquivos) | 3060 | Suíte de testes, incluindo dois arquivos de caracterização, o contrato de escape Mermaid, a regra final do confronto e a segurança do upload. | pytest 9.1.1 |
-| `src/uploads/` | — | Arquivos enviados em runtime, gravados sob chave derivada do conteúdo. Não versionado. | Sistema de arquivos |
+| Pacote | Arquivos | Linhas úteis | Responsabilidade | Tecnologias |
+| --- | ---: | ---: | --- | --- |
+| `src/app.py` | 1 | 559 | Borda web: rota `/` (GET/POST) com despacho por `action`, rotas de arte, processador de contexto das listas, teto de 16 MB, handler de `413`, 4 filtros de template, montagem única das portas e bloco `__main__` com waitress + guarda de instância única | Flask, waitress, socket |
+| `src/application/` | 6 | 627 | Casos de uso: orquestram núcleo + portas sem conhecer HTTP | stdlib |
+| `src/core/` | 15 | 2.257 | Domínio puro: parentesco documental, evidência genética, hipóteses, confronto, matching, busca de caminho, registro e erros | networkx, thefuzz/RapidFuzz, pandas |
+| `src/parsers/` | 3 | 256 | Leitura de GEDCOM (ged4py) e de CSV (pandas, com fallback de encoding) | ged4py, pandas |
+| `src/ports/` | 2 | 669 | Portas (protocolos) e adaptadores concretos: disco, carregador de árvores, registro Postgres | psycopg2 (preguiçoso) |
+| `src/reporting/` | 3 | 421 | Renderização Mermaid e funções puras da lista de arquivos | stdlib |
+| `src/utils/` | 5 | 341 | Limpeza de texto, validação, formatação numérica, chaves de nome | stdlib |
+| `src/templates/index.html` | 1 | 731 | Tela única: formulário, duas abas de lista, seleção, aposentadoria e as seções de resultado | Jinja2, Bootstrap 5.3.3, Mermaid 10 (CDN) |
+| `tests/` | 48 | 8.959 | 536 itens de teste | pytest 9.1.1, pytest-cov |
 
-> Contagem por `[System.IO.File]::ReadAllLines`. Totais: `src/**.py` = **3489** linhas; template = **525**; `tests/**.py` = **3060**.
+### 3.2 Unidades funcionais do sistema (o contrato que o operador enxerga)
+
+> A atribuição de cada arquivo a uma unidade é do Scout e **está sujeita à revisão do Arqueólogo**: vários módulos de `core/` servem a mais de um fluxo.
+
+| Módulo | Contrato | Arquivos-chave |
+| --- | --- | --- |
+| `upload-gedcom` | `POST /` com `action=upload_gedcom`: envio, validação de **conteúdo**, chave derivada do conteúdo, reenvio com substituição | `application/upload_gedcom.py`, `application/reenvio.py`, `parsers/gedcom_parser.py`, `utils/validate.py`, `utils/text_cleaning.py` |
+| `tela-de-entrada` | `GET /` (as duas abas, **sempre**) + `action=selecionar_arvore` + `action=aposentar_arquivo` | `app.py` (`index`, `_listas_da_tela`), `reporting/lista_de_arquivos.py`, `templates/index.html` |
+| `analise-dna` | `POST /` com `action=dna_analysis`, com o CSV vindo do formulário **ou** da lista | `application/dna_analysis.py`, `core/{dna_analysis,matching,genetic_evidence,relationship_hypotheses,evidence_comparison,name_normalization,registro}`, `parsers/csv_ingest.py` |
+| `busca-caminho` | `POST /` com `action=path_search` | `application/path_search.py`, `core/{path_search,path_finding,family_navigation,documentary_relationship}`, `reporting/mermaid_render.py` |
+| `recursos-da-tela` | `GET /banner.png` e `GET /apple-touch-icon.png` | `app.py` (rotas de arte), `src/assets/*.png`, `tests/{banner_da_tela,icone_de_atalho}.py` |
+
+**Capacidade transversal sem endpoint próprio:** a **persistência histórica** (`ports/adaptadores.py` + `init.sql` + `core/registro.py`). Ela tem um único consumidor — o caso de uso de DNA — e por isso é documentada dentro de `analise-dna`, com o esquema físico em `erd-complete.md`. 🟢
 
 ---
 
 ## 4. Pontos de Entrada (Entry Points) e Configurações
 
-* **Aplicação Principal:** `src/app.py`. Importa o app Flask; sob `__main__` sobe por **waitress**, não pelo servidor de desenvolvimento. 🟢
-* **Interface Web:** `src/templates/index.html` (única tela). 🟢
-* **Rotas Flask — superfície completa:** 🟢
+* **Aplicação principal:** `src/app.py`. Importá-lo devolve o objeto `app` (a suíte e o harness de paridade fazem isso); sob `__main__` ele sobe por **waitress**, com socket ligado antes de servir e guarda de exclusividade de instância. 🟢
+* **Interface web:** `src/templates/index.html` (única tela). 🟢
+* **Superfície HTTP completa:** 🟢
 
-| Método | Rota | `action` | Linha | Comportamento |
-| --- | --- | --- | --- | --- |
-| GET | `/` | — | 107 | Renderiza o formulário inicial de upload. |
-| POST | `/` | `upload_gedcom` | 111 | Valida o conteúdo como GEDCOM, grava sob chave derivada do conteúdo e carrega a árvore. |
-| POST | `/` | `dna_analysis` | 134 | Processa `matches_csv` + `root_name` contra a árvore carregada. |
-| POST | `/` | `path_search` | 156 | Busca caminho entre `person1_name` e `person2_name`. |
-
-> A superfície HTTP é a **mesma** da extração anterior: nenhuma rota ou valor de `action` foi criado, renomeado ou removido. O que cresceu foi o conteúdo do resultado de `dna_analysis`, que agora traz as quatro seções e o confronto. 🟢
+| Método | Rota | `action` | Comportamento |
+| --- | --- | --- | --- |
+| GET | `/` | — | Tela de entrada; as duas listas entram por processador de contexto, em **toda** renderização |
+| POST | `/` | `upload_gedcom` | Valida o conteúdo como GEDCOM, grava sob chave de conteúdo e carrega a árvore |
+| POST | `/` | `aposentar_arquivo` | Tira o arquivo da lista **movendo** para `_aposentados/`; nada é apagado |
+| POST | `/` | `selecionar_arvore` | Escolhe a árvore clicando na lista (mesmo estado que o envio produz) |
+| POST | `/` | `dna_analysis` | Roda a análise; o CSV vem do formulário ou da lista, com precedência para a lista |
+| POST | `/` | `path_search` | Busca caminho entre `person1_name` e `person2_name` |
+| GET | `/banner.png` | — | Arte do topo (feature 011); ausente devolve `404` e nada mais muda |
+| GET | `/apple-touch-icon.png` | — | Ícone de atalho (feature 009); escrita recusada com `405` pelo roteador |
 
 * **Variáveis de ambiente (todas com padrão declarado no código):** 🟢
 
 | Variável | Padrão | Efeito |
 | --- | --- | --- |
-| `ANALISADOR_HOST` | `127.0.0.1` | Endereço de escuta. Abrir para a rede é ato explícito. |
-| `ANALISADOR_PORT` | `5000` | Porta de escuta. |
-| `ANALISADOR_THREADS` | `4` | Threads do servidor. |
-| `ANALISADOR_UPLOAD_FOLDER` | — (cai no padrão) | Redireciona a pasta de upload; usado pelos testes para não escrever na pasta real. |
+| `ANALISADOR_HOST` | `127.0.0.1` | Endereço de escuta; atender a rede é ato explícito |
+| `ANALISADOR_PORT` | `5000` | Porta de escuta |
+| `ANALISADOR_THREADS` | `4` | Threads do waitress |
+| `ANALISADOR_UPLOAD_FOLDER` | derivado de `__file__` | Redireciona a pasta de uploads (usada pelos testes) |
+| `DATABASE_URL` | ausente | Presente liga o registro histórico; ausente mantém o registrador **nulo** |
 
-* **Configurações internas:** ~~`app.secret_key` embutido no código (`'f@milyse@rch_dna_edition_v16'`)~~ **removido em 2026-10-05** (correção do Revisor — não tinha consumidor: `flask.session` nunca foi importado); `MAX_CONTENT_LENGTH = 16 MB` com handler de `413` em português; `UPLOAD_FOLDER = "uploads"` resolvido por `_pasta_uploads()`, **ancorado no arquivo do app** (o caminho de escrita e o de leitura são o mesmo, sempre); guarda de instância única por socket ligado antes de servir, com `SO_EXCLUSIVEADDRUSE` no Windows. 🟢
-* **Configurações de ferramentas:** `pytest.ini` (`testpaths = tests`), `pyrefly.toml` (`search-path = ["src"]`), `.vscode/settings.json` (`python.analysis.extraPaths = ["./src"]`), `.markdownlint-cli2.jsonc` (regras de lint do repositório). 🟢
-* **CI/CD:** **passou a existir.** `.github/workflows/deploy-pages.yml` publica a pasta `_reversa_docs/` no GitHub Pages a cada push em `main`. Não há pipeline de teste, de build nem de análise estática. 🟢
-* **Docker:** ausente. 🟢
-* **Skills auxiliares:** `.github/skills/` contém cinco definições (`git-naming-conventions`, `jsdoc-documenter`, `python-docstring-generator`, `readme-blueprint-generator`, `security-code-audit`). São apoio de desenvolvimento, não fazem parte do runtime. 🟢
+* **Configurações internas:** teto de corpo de requisição de 16 MB nomeado (`TETO_DE_UPLOAD_EM_BYTES`) com handler de `413` em português; `app.secret_key` **removido** em 2026-10-05 (não tinha consumidor); pasta de upload resolvida **e** criada pela mesma função ancorada no arquivo do app; quatro filtros de template (`cm_br`, `inteiro_br`, `data_br`, `rotulo_do_arquivo`); `DONO_DO_PROCESSO = "unico"`, declarado como marcador de costura e **não** como mecanismo de segurança. 🟢
+* **CI/CD:** **ausente.** O workflow de GitHub Pages existiu entre 2026-10-05 e 2026-10-08 e foi removido; quem publica o mini-site hoje é `python publicar_docs.py`. Não há pipeline de teste, build ou análise estática. 🟢
+* **Docker:** **presente.** `docker/Dockerfile` (`python:3.14-slim`, contexto de build na raiz, `COPY` estreito) e `docker-compose.yml` (dois serviços, portas só no loopback, volume nomeado para o banco e bind mount para os uploads). 🟢
+* **Skills auxiliares:** `.github/skills/` tem seis definições de apoio ao desenvolvimento; não fazem parte do runtime. 🟢
 
 ---
 
 ## 5. Banco de Dados e Armazenamento
 
-* **Banco de dados:** **ausente**. Nenhum DDL, migration, schema ou ORM model no projeto. 🟢
-* **Estado em memória:** `core/gedcom_state.py` é o registro único do processo — `people`, `families`, `graph` e `child_to_family`, mais o contador `versao`. `people`, `families` e `child_to_family` são mutados *in place* (`clear()` + `update()`) para que o binding importado no topo continue apontando para o objeto vivo; `graph` é **reatribuído**, e por isso quem o consome o importa dentro da função. O contador `versao` existe porque `id()` não muda com mutação *in place*, e índices derivados precisam de um sinal de invalidação. 🟢
-* **Arquivos enviados:** gravados em `src/uploads/` (ou no caminho de `ANALISADOR_UPLOAD_FOLDER`) sob **chave derivada do conteúdo** do arquivo, com a extensão original preservada. O caminho completo é o que circula entre as funções — nunca o nome solto. 🟢
-* **Persistência de resultado:** **nenhuma**. Nada é gravado entre requisições; a árvore é reconstruída a partir do arquivo a cada `POST`. 🟢
-* **Dados do usuário:** 15 arquivos em `src/uploads/` e 4 em `uploads/` (local legado da raiz, anterior à ancoragem). Nenhum é versionado — `.gitignore` cobre `uploads/` em qualquer profundidade. 🟢
+**Dois regimes, deliberadamente diferentes** (`D-08` da feature 008): 🟢
+
+1. **Sistema de arquivos — os dados de entrada.** `src/uploads/` é a pasta canônica, ancorada em `__file__`. Hoje: **13 arquivos** (entre eles o GEDCOM real de 5,3 MB) e **3 em `_aposentados/`**. A chave de armazenamento é `^[0-9a-f]{16}__[A-Za-z0-9._-]+$` — 16 hexadecimais do `sha256` do conteúdo mais o nome visível. A **aposentadoria move**, nunca apaga; o reenvio de conteúdo novo **substitui** a versão anterior, que vai para a mesma pasta.
+2. **PostgreSQL 16 — o histórico das análises.** `init.sql` (189 linhas) é **idempotente** (`CREATE TABLE IF NOT EXISTS`, nenhum `DROP`) e cria **6 tabelas**: `dna_analysis`, `analysis_person`, `match_result`, `match_path_node`, `match_kit`, `skipped_match`. O DDL é **parcialmente herdado** de `_reversa_sdd/migration/target_data_model.md` (congelado em 2026-09-28, **anterior** ao confronto), com quatro extensões marcadas no próprio arquivo. A árvore **não é duplicada** no banco (`RN-04`): continua sendo o arquivo imutável de `src/uploads/`, referenciado por `tree_ref`.
+
+* **Sem ORM, sem runner de migração, sem tabela de versão de esquema.** Limite declarado no `init.sql`: mudança de esquema depois da primeira subida exige `docker compose down -v` (perdendo o histórico) ou `ALTER TABLE` manual. 🟢
+* **Os três estados do registro** (`D-02`): sem `DATABASE_URL` → registrador **nulo** e tela inalterada; com a variável e o banco respondendo → grava; com a variável e a gravação falhando → **a análise conclui e é exibida**, com aviso não bloqueante (`RN-13`). O `import psycopg2` é **preguiçoso**, dentro do método de gravação. 🟢
+* **Sem autenticação, sem sessão e sem papéis** — nenhuma tabela de usuário é criada, e `owner_id` existe sem FK e sem índice de escopo (`RN-10`). 🟢
 
 ---
 
@@ -187,47 +174,62 @@ Excluídos: `.git/`, `.agents/` e `.reversa/` (framework Reversa, não é sistem
 
 | Métrica | Valor |
 | --- | --- |
-| Framework | **pytest 9.1.1** (`pytest.ini`) 🟢 |
-| Arquivos de teste | **11** 🟢 |
-| Funções `def test_` | **129** 🟢 |
-| Itens coletados por `pytest --collect-only` | **179** 🟢 (a diferença vem de testes parametrizados) |
-| Linhas de teste | **3060** 🟢 |
-| Geradores de fixture | 2 (`tests/fixtures/sample_gedcom.py`, `sample_dna.py`) 🟢 |
-| Cobertura estimada | Não medida — sem `pytest-cov` nem configuração de cobertura. 🟡 |
+| Framework | **pytest 9.1.1** (+ pytest-cov 7.1.0 e coverage 7.16.2, no `.venv`) 🟢 |
+| Arquivos | **39** `test_*.py` + **9** de apoio (`conftest.py`, `fixtures/` ×4, `banner_da_tela.py`, `icone_de_atalho.py`, `manutencao_de_uploads.py`, `rodar_paridade.py`) 🟢 |
+| Funções `def test_` | **418** 🟢 |
+| Itens coletados (`--collect-only`) | **536** 🟢 |
+| Resultado medido nesta fase | **527 passam, 9 pulados, 0 falham** (66 s, `.venv`, sem `DATABASE_URL` no ambiente) 🟢 |
+| Linhas de teste | **8.959** úteis / 11.256 cruas 🟢 |
+| Cobertura de código | não remedida nesta fase (a revisão de 2026-10-05 mediu 83 % de `src/`) 🟡 |
 
-**Tipos de teste presentes:** unitários por módulo (`domain`, `upload`, `path_search`, `dna_analysis`, `formatacao_cm`), **caracterização** de matching e de Mermaid (congelam a saída observável), contrato de **escape de rótulo Mermaid**, **regra final do confronto** (`test_confrontacao_gedcom_dna.py`, 922 linhas, 27 funções) e **segurança do upload** (`test_upload_seguranca.py`, 425 linhas, 33 funções: teto de requisição, chave derivada do conteúdo, recusa de GEDCOM inválido), além do bloco de entrada (`test_servidor_producao.py`: servidor de produção, instância única, padrão do endereço).
+**Maiores arquivos de teste:** `test_upload_seguranca.py` (36 funções), `test_lista_de_arquivos.py` (31), `test_confrontacao_gedcom_dna.py` (28), `test_aposentar_arquivo.py` (25), `test_manutencao_de_uploads.py` (19).
 
-> Comparativo com a extração anterior: 7 arquivos / 52 funções / 86 itens / 1134 linhas → **11 arquivos / 129 funções / 179 itens / 3060 linhas**.
+**Módulos sem teste de unidade dedicado:** `core/family_navigation.py`, `core/path_finding.py`, `parsers/csv_ingest.py` — exercitados de passagem. 🟡
+
+**Instrumentação fora do pytest:** `_reversa_sdd/parity/harness.py` (harness diferencial contra o oráculo congelado) e `tests/rodar_paridade.py`; `tests/fixtures/arvore_atual.py` gera a árvore usada pelos testes.
 
 ---
 
 ## 7. Escopo Excluído deste Inventário
 
-Os itens abaixo vivem no repositório e foram deliberadamente **deixados fora** do escopo do sistema em runtime, para não serem confundidos com a arquitetura da aplicação:
-
 | Caminho | Natureza |
 | --- | --- |
-| `plugins/dsh-markdownlint/` | Sub-projeto **Node/JavaScript** independente: plugin host do harness DSH que expõe a ferramenta `markdown_lint` sobre o `markdownlint-cli2`. Tem `package.json`, `node_modules/` e smoke próprio. Não é importado pela aplicação Python. 🟢 |
-| `docs/` | **Pasta publicada no GitHub Pages**: source `master`, folder `/docs` → <https://adriano1976.github.io/reversa-analisador-genealogico/>. É cópia do mini-site de `_reversa_docs/`, sincronizada à mão por `xcopy`; sem `.nojekyll`, o Jekyll não publica nada que comece com ponto. Não é sistema. 🟢 |
-| `.github/skills/` | Cinco skills auxiliares de desenvolvimento. 🟢 |
-| `_reversa_sdd/`, `_reversa_forward/`, `_reversa_bugs/`, `_reversa_refactor/`, `_reversa_docs/`, `.reversa/`, `.agents/` | Framework Reversa e seus artefatos. 🟢 |
-| `.pytest-tmp/` | Resíduo de execução de testes (gitignored), não versionado. 🟡 |
-| `uploads/` (raiz) | Local de upload anterior à ancoragem no arquivo do app. Mantido apenas como dado. 🟢 |
+| `.agents/skills/` | Instalação do framework Reversa — sozinha, responde pela maior parte dos 167 `.md` do repositório 🟢 |
+| `.github/skills/` | Seis skills auxiliares de agente (readme, docstring, naming, auditoria de segurança) 🟢 |
+| `_reversa_sdd/` `_reversa_docs/` `_reversa_forward/` `_reversa_bugs/` `_reversa_refactor/` | Artefatos do framework Reversa 🟢 |
+| `docs/` | Cópia **publicada** do mini-site, gerada por `publicar_docs.py`; o fonte é `_reversa_docs/` 🟢 |
+| `plugins/dsh-markdownlint/` | Sub-projeto **Node/JavaScript** independente: plugin host que expõe `markdown_lint` sobre o `markdownlint-cli2`. Não é importado pela aplicação Python 🟢 |
+| `.venv/`, `node_modules/`, `__pycache__/`, `.pytest_cache/`, `.parity-run-*/`, `.parity-tmp/`, `.coverage` | Ambientes e resíduos de execução 🟢 |
+| `src/uploads/` (conteúdo) | Dado real do operador; o Princípio I do projeto proíbe versioná-lo ou expô-lo 🟢 |
 
 ---
 
 ## 8. Sugestão de Organização das Specs (Scout)
 
 * **`granularity`:** `endpoint` 🟢
-* **Razão:** a superfície continua sendo um **roteamento centralizado** de rota única com despacho por campo `action`, e os **três** valores distintos de `action` delimitam exatamente três unidades funcionais. A refatoração mudou onde o código mora, não a superfície.
+* **Razão:** a aplicação continua com **roteamento centralizado** — uma única rota `/` que despacha por `request.form.get("action")` —, e o contrato observável de cada fluxo é a **ação HTTP**, não o pacote de código por onde ela passa (a refatoração mudou onde o código mora, não a superfície). As três ações de análise somam-se hoje às ações da tela e às duas rotas de arte. 🟢
 * **Sinais observados:**
 
 | Sinal | Evidência |
 | --- | --- |
-| Roteamento centralizado | `src/app.py:112` (`@app.route("/", methods=["GET", "POST"])`), despacho por `request.form.get("action")` em `src/app.py:115`, com os três ramos em `:116`, `:139` e `:161` |
+| Roteamento centralizado | `src/app.py` — `@app.route("/", methods=["GET", "POST"])` com despacho por `request.form.get("action")` em 5 ramos, mais `@app.route("/banner.png")` e `@app.route("/apple-touch-icon.png")`, ambas só `GET` |
 
-> **Decisão já persistida.** `.reversa/config.toml` → `[specs]` contém a decisão de 2026-08-03: `layout = "feature-folder"`, `granularity = "endpoint"`, `scout_suggestion = "endpoint"`. Esta sugestão **confirma** a decisão existente; conforme a regra de imutabilidade do `surface-schema.md`, o campo `scout_suggestion` **não** é reescrito pelo orquestrador, e o passo de organização das specs é pulado nesta rodada. `.reversa/config.user.toml` não tem override de `[specs]` (verificado).
+> **Decisão já persistida.** `.reversa/config.toml` → `[specs]` contém a decisão de 2026-08-03: `layout = "feature-folder"`, `granularity = "endpoint"`, `scout_suggestion = "endpoint"`. Esta sugestão **confirma** a decisão existente; pela regra de imutabilidade do `surface-schema.md`, `scout_suggestion` **não** é reescrito, e o passo 3 é pulado nesta rodada. `.reversa/config.user.toml` **não** tem seção `[specs]` (verificado). 🟢
 
 ---
 
-*Gerado pelo Reversa-Scout em 2026-10-05 (re-extração).*
+## 9. Achados do Scout para as fases seguintes
+
+1. **`psycopg2-binary==2.9.13` está declarado e NÃO está instalado no `.venv`.** 🔴 O pin diz que o driver é dependência da aplicação; o interpretador oficial não o tem. O código sobrevive a isso por desenho (import preguiçoso + aviso não bloqueante), então nada quebra — mas a situação é o **inverso** da rodada anterior, que realinhou o pin ao `.venv` para encerrar justamente uma divergência de ambiente. Candidato a lacuna para o Revisor.
+2. **O resultado da suíte depende do ambiente.** 🟢 Medido: sem `DATABASE_URL` → 527 passam / 9 pulados / 0 falham; com `DATABASE_URL` presente (e sem `psycopg2`) → 525 / 9 / **2 falham** em `test_persistencia_desabilitada.py`. A premissa "a variável não existe no ambiente" não está declarada pelo teste.
+3. **`.env` contém credencial em claro** (usuário, senha, banco e `DATABASE_URL`). 🟢 Está no `.gitignore` (linha 6) e **nenhum valor foi transcrito para os artefatos desta extração**. O `docker-compose.yml` usa `${VAR:?}` de propósito, para não versionar credencial com valor padrão.
+4. **`src/core/gedcom_state.py` não existe mais**, mas sobrou `src/core/__pycache__/gedcom_state.cpython-314.pyc`. 🟡 Resíduo de bytecode, não código morto vivo — mas pode induzir a erro quem inventariar por `__pycache__`.
+5. **O mini-site está defasado.** 🟢 `_reversa_docs/` (e a cópia `docs/`) foram regenerados em 2026-10-08, antes das features 009 a 012, e o gerador **não lê** `_reversa_sdd/addenda/`. É o primeiro passo pós-extração previsto no pedido.
+6. **As matrizes de `_reversa_bugs/*/generated/` derivam das specs de 2026-10-05** e ancoram em `_reversa_sdd/upload-gedcom/contracts.md#2.1` e `_reversa_sdd/domain.md#3.5`, que esta rodada reescreve. 🟢 Por isso `/reversa-debugger-graph` deve ser o **último** passo depois da extração.
+7. **O `README.md` é a superfície de documentação mais confiável do repositório** (36 KB, atualizado em 2026-10-10: descreve a lista de arquivos, a aposentadoria, o reenvio e a pasta canônica). 🟢 Nenhum artefato do Reversa pode contradizê-lo sem medir o código.
+8. **Zero marcadores `TODO`/`FIXME`/`XXX`/`HACK` em `src/`.** 🟢 Não há intenção não implementada declarada no código; as declarações de legado vivem em docstring e comentário (`cm_estimator.py` é o caso explícito).
+9. **A árvore de trabalho estava limpa** na abertura da rodada (`git status --porcelain` vazio) e o legado **não foi tocado** nesta fase. 🟢
+
+---
+
+*Gerado pelo Reversa-Scout em 2026-10-10 (re-extração).*
