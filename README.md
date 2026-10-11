@@ -264,6 +264,47 @@ Para configurar outro ambiente, instale Python 3.14 e recrie `.venv`. Não use o
 ou testar: o backend RapidFuzz participa da decisão de matching, e as versões instaladas estão pinadas para
 reprodutibilidade.
 
+### Executar com Docker
+
+O `docker-compose.yml` da raiz sobe a aplicação **e** o PostgreSQL com um comando, a partir da raiz do
+repositório:
+
+```powershell
+docker compose up -d --build
+```
+
+Há um atalho na raiz que faz isso com a revisão já preenchida e imprime o que ficou no ar:
+
+```powershell
+.\atualizar.ps1
+```
+
+A aplicação fica em `http://127.0.0.1:5080/` — a porta 5080 do host é publicada para a 5000 do container —,
+e os uploads continuam sendo `src/uploads`, montada dentro do container como
+`./src/uploads:/app/src/uploads`. O banco sobe junto, e é ele que guarda o histórico das análises.
+
+> **O `--build` não é opcional depois de mexer no código.** O `docker/Dockerfile` leva o `src/` para dentro
+> da imagem por `COPY src/ /app/src/`, então uma edição em `src/` **não chega ao container**: sem `--build`,
+> o container continua servindo o código do dia em que a imagem foi construída. Uma imagem de 2026-10-09
+> chegou a servir, por horas, o código anterior à feature 011 sem que nada na tela denunciasse.
+
+Para conferir de quando é a imagem que está no ar — as duas marcas são gravadas no build, e nenhuma delas
+depende de alguém lembrar de anotar:
+
+```powershell
+docker image inspect genealogia-app --format '{{json .Config.Labels}}'
+docker compose exec -T app cat /app/CONSTRUIDO_EM
+```
+
+O primeiro comando mostra o rótulo `org.opencontainers.image.revision`; o segundo, o instante do build
+gravado dentro da imagem. Para o rótulo trazer o commit em vez de `desconhecida`, informe a revisão antes
+de construir:
+
+```powershell
+$env:REVISAO = git rev-parse --short HEAD
+docker compose up -d --build
+```
+
 ### Configuração de execução
 
 O bloco de entrada lê três variáveis de ambiente — todas com padrão declarado no código, então nada precisa
