@@ -49,6 +49,12 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        # O commit entra como rotulo da imagem quando voce o informa, com
+        # `$env:REVISAO = git rev-parse --short HEAD` antes do `up -d --build`. Sem ele o
+        # rotulo diz `desconhecida` — e `/app/CONSTRUIDO_EM` continua dizendo QUANDO esta
+        # imagem foi construida, que e a marca que responde "o container esta defasado?".
+        REVISAO: ${REVISAO:-desconhecida}
     environment:
       # `0.0.0.0` DENTRO do container. A publicacao de porta do Docker chega pelo IP do
       # container, e `127.0.0.1` aqui tornaria a aplicacao inalcancavel (D-10). O ato
