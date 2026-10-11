@@ -34,8 +34,9 @@ from utils.validate import (
 )
 
 # Subpasta para onde `aposentar` move o arquivo (`RN-14`). Fica DENTRO da pasta de upload de
-# proposito: `listar` ja ignora subdiretorio, entao o arquivo sai da lista sem que nenhum
-# filtro novo precise ser escrito — e sem uma lista de excecoes que alguem teria de manter.
+# proposito, e a razao e economica: `listar` ja ignora subdiretorio, entao mover para ca tira
+# o arquivo da lista sem que nenhum filtro novo precise nascer — e sem uma lista de excecoes
+# que alguem teria de manter em dia.
 PASTA_DE_APOSENTADOS = "_aposentados"
 
 if TYPE_CHECKING:
@@ -103,92 +104,98 @@ class ArmazenamentoEmDisco:
         return caminho if os.path.exists(caminho) else None
 
     def listar(self, dono: str) -> list[EntradaArmazenada]:
-        """Entradas da pasta: nome armazenado, bytes e data. **Nao abre arquivo.**
+        """Retrato da pasta: nome armazenado, bytes e data. **Nao abre arquivo nenhum.**
 
-        Feature `011-escolher-arquivo-da-lista`, acao `T013` (`D-01`, `D-07`, `D-08`).
+        Feature `011-escolher-arquivo-da-lista` (`D-01`, `D-07`, `D-08`).
 
-        ## O que ela le, e o que ela deliberadamente NAO le
+        ## O que ela le, e o que ela deliberadamente nao le
 
-        Do **diretorio**: o nome de cada entrada. Do **arquivo**: os atributos que o
-        sistema de arquivos ja mantem — tamanho e data de modificacao —, por `os.stat`.
-        Do **conteudo**: nada. Nao ha `open` aqui, e e por isso que a tela pode ser
-        montada sem reler os 29 MB da pasta a cada renderizacao (RNF de desempenho).
-        E tambem por isso que a extensao decide a aba, e nao o conteudo (`RN-09`).
+        Do **diretorio**: o nome de cada entrada. Do **arquivo**: os atributos que o sistema
+        de arquivos ja mantem — tamanho e data de modificacao —, por `os.stat`. Do
+        **conteudo**: nada. Nao ha `open` aqui, e e por isso que a tela de entrada pode ser
+        montada sem reler a pasta inteira a cada renderizacao (RNF de desempenho). E tambem
+        por isso que a extensao decide a aba, e nao o conteudo (`RN-09`).
 
         ## Pasta ausente devolve lista vazia, e nao excecao
 
-        `D-07`. Uma instalacao nova tem a pasta criada e vazia; uma pasta que
-        desapareca sob a aplicacao em execucao nao pode virar erro na tela de entrada.
-        O `D-07` recusou o `os.makedirs` que seria o conserto obvio: criar diretorio
-        dentro de uma leitura e efeito colateral escondido numa operacao que promete
-        nao escrever nada. Por isso o `isdir` vem antes, e o retorno e `[]`.
+        `D-07`. Uma instalacao nova tem a pasta criada e vazia; uma pasta que desapareca sob
+        a aplicacao em execucao nao pode virar erro na tela de entrada. O `D-07` recusou o
+        `os.makedirs` que seria o conserto obvio — criar diretorio dentro de uma leitura e
+        efeito colateral escondido numa operacao que promete nao escrever nada. Por isso o
+        `isdir` vem antes, e o retorno e `[]`.
 
         ## Nao filtra nada
 
-        Nem por nome, nem por extensao, nem por forma da chave. Quem separa as abas e
-        quem marca o item indisponivel e a funcao pura de `reporting/`, que decide pelo
-        nome. Filtrar aqui esconderia do operador um arquivo que existe — e o `D-11`
-        existe justamente para o item indisponivel aparecer **marcado**, em vez de
-        desaparecer.
+        Nem por nome, nem por extensao, nem por forma da chave. Separar as abas e marcar o
+        item indisponivel e trabalho da funcao pura de `reporting/`, que decide pelo nome.
+        Filtrar aqui esconderia do operador um arquivo que existe — e o `D-11` existe
+        justamente para o item indisponivel aparecer **marcado**, em vez de sumir.
 
-        Subdiretorio e ignorado: a pasta guarda arquivo, e um diretorio ali dentro nao
-        tem referencia que o alcance. Desde a `RN-14` isso deixou de ser so higiene: e
-        o que faz `aposentar` funcionar, porque o arquivo aposentado vai para
-        `_aposentados/` e deixa de ser um arquivo desta pasta.
+        Subdiretorio e ignorado. Desde a `RN-14` isso deixou de ser so higiene: e o que faz
+        `aposentar` funcionar, porque o arquivo aposentado vai para `_aposentados/` e deixa de
+        ser um arquivo desta pasta.
 
-        `dono` e recebido e **ignorado**, como no `guardar` e no `resolver`. Ele nao
-        filtra nada: as dividas #3 e #4 seguem abertas (`RN-06`), e a assimetria entre
-        os tres metodos da porta seria o custo que a feature 007 pagou para nao ter.
+        `dono` e recebido e **ignorado**, como no `guardar` e no `resolver`: ele nao filtra
+        nada, e a assimetria entre os metodos da porta seria o custo que a feature 007 pagou
+        para nao ter (dividas #3 e #4 seguem abertas).
         """
         if not os.path.isdir(self._pasta):
             return []
 
-        entradas: list[EntradaArmazenada] = []
-        for nome in os.listdir(self._pasta):
-            caminho = os.path.join(self._pasta, nome)
-            if not os.path.isfile(caminho):
-                continue
-            try:
-                atributos = os.stat(caminho)
-            except OSError:
-                # Entrada que sumiu entre o listdir e o stat: a listagem e um retrato
-                # do instante, e um arquivo que nao esta mais la nao vira excecao.
-                continue
-            entradas.append(EntradaArmazenada(
-                nome=nome,
-                bytes=atributos.st_size,
-                modificado_em=atributos.st_mtime,
-            ))
-        return entradas
+        retratos = (self._retrato(nome) for nome in os.listdir(self._pasta))
+        return [retrato for retrato in retratos if retrato is not None]
+
+    def _retrato(self, nome: str) -> EntradaArmazenada | None:
+        """A entrada, ou `None` quando ela nao e um arquivo legivel deste instante.
+
+        Duas exclusoes silenciosas, e as duas sao deliberadas:
+
+        - **subdiretorio** nao e arquivo, e nao tem referencia que o alcance;
+        - entrada que **sumiu entre o `listdir` e o `stat`** vira `None`, e nao excecao. A
+          listagem e um retrato do instante, e um arquivo que nao esta mais la nao pode
+          derrubar a tela que lista tudo.
+        """
+        caminho = os.path.join(self._pasta, nome)
+        if not os.path.isfile(caminho):
+            return None
+        try:
+            atributos = os.stat(caminho)
+        except OSError:
+            return None
+        return EntradaArmazenada(
+            nome=nome,
+            bytes=atributos.st_size,
+            modificado_em=atributos.st_mtime,
+        )
 
     def aposentar(self, referencia: str | None, dono: str) -> bool:
-        """Move o arquivo para `<pasta>/_aposentados/` e devolve se moveu (`RN-14`).
+        """Move o arquivo para `<pasta>/_aposentados/`; devolve se moveu (`RN-14`).
 
-        **Nao apaga nada**: o arquivo sai da lista e permanece no disco, inteiro e com
-        o mesmo nome. Desfazer e mover de volta, e a pasta de aposentados fica dentro
-        da propria pasta de upload justamente para isso.
+        **Nao apaga nada**: o arquivo sai da lista e permanece no disco, inteiro e com o
+        mesmo nome. Desfazer e mover de volta, e a pasta de aposentados fica dentro da
+        propria pasta de upload justamente para isso ser um `mv`.
 
         ## A defesa contra escape, em duas camadas
 
-        1. `referencia_de_arquivo_da_pasta` recusa qualquer coisa que seja um CAMINHO
-           em vez de um NOME (barra, barra invertida, byte nulo, `..`, vazio). Ela e
-           deliberadamente mais permissiva que `chave_recebida_e_valida`: os arquivos
-           **sem chave** da pasta real sao os inalcancaveis, e sao os que o operador
-           mais quer tirar da lista — exigir a chave aqui os tornaria inapagaveis.
-        2. `os.path.dirname` do caminho ja resolvido tem de ser **exatamente** a pasta
-           de upload. A primeira camada ja garante isso; a segunda nao confia nela.
-           E o mesmo espirito do `resolver`, que valida a forma antes de qualquer
-           `os.path.exists` (`BUG-20260929-QMLY`, criterio 5).
+        1. `referencia_de_arquivo_da_pasta` recusa tudo o que seja um CAMINHO em vez de um
+           NOME: barra, barra invertida, byte nulo, `.`, `..`, vazio. Ela e deliberadamente
+           mais permissiva que `chave_recebida_e_valida`, porque os arquivos **sem chave** da
+           pasta real sao os inalcancaveis — e sao os que o operador mais quer tirar da lista.
+           Exigir a chave aqui os tornaria impossiveis de aposentar.
+        2. o `dirname` do caminho ja resolvido tem de ser **exatamente** a pasta de upload. A
+           primeira camada ja garante isso; a segunda nao confia nela, e e o mesmo espirito do
+           `resolver`, que valida a forma antes de qualquer `os.path.exists`
+           (`BUG-20260929-QMLY`, criterio 5).
 
         ## Nao sobrescreve um aposentado
 
-        Se ja existir um aposentado com o mesmo nome, um sufixo numerico e acrescentado
-        em vez de sobrescrever. Para os nomes COM chave isso seria inofensivo — o nome
-        carrega o conteudo, entao os dois arquivos sao o mesmo dado —, mas para os nomes
-        SEM chave o nome nao carrega conteudo nenhum, e sobrescrever apagaria um arquivo
-        diferente. Como a `RN-07` proibe apagar, a escolha segura vale para os dois casos.
+        Se ja existir um aposentado com o mesmo nome, um sufixo numerico e acrescentado. Para
+        os nomes **com** chave isso seria inofensivo — o nome carrega o conteudo, entao os dois
+        arquivos sao o mesmo dado —, mas para os nomes **sem** chave o nome nao carrega
+        conteudo nenhum, e sobrescrever apagaria um arquivo diferente. Como a `RN-07` proibe
+        apagar, a escolha segura vale para os dois casos.
 
-        `dono` e recebido e **ignorado**, como nos outros tres metodos da porta.
+        `dono` e recebido e **ignorado**, como nos outros metodos da porta.
         """
         if not referencia_de_arquivo_da_pasta(referencia):
             return False
@@ -201,20 +208,30 @@ class ArmazenamentoEmDisco:
 
         destino_pasta = os.path.join(self._pasta, PASTA_DE_APOSENTADOS)
         os.makedirs(destino_pasta, exist_ok=True)
-        destino = os.path.join(destino_pasta, referencia)
-        if os.path.exists(destino):
-            for sufixo in range(1, 100):
-                alternativa = os.path.join(destino_pasta, f"{referencia}.{sufixo}")
-                if not os.path.exists(alternativa):
-                    destino = alternativa
-                    break
-            else:
-                # Cem aposentados com o mesmo nome: desistir e melhor do que
-                # sobrescrever um deles.
-                return False
+        destino = self._destino_livre(destino_pasta, referencia)
+        if destino is None:
+            return False
 
         os.replace(origem, destino)
         return True
+
+    @staticmethod
+    def _destino_livre(pasta: str, referencia: str) -> str | None:
+        """Primeiro caminho livre para o aposentado, ou `None` quando nao houver nenhum.
+
+        O nome natural e preferido; a partir da primeira colisao, o sufixo numerico entra.
+        O teto de cem tentativas existe para o caso absurdo nao virar laco infinito — e para
+        que o desfecho, nesse caso, seja **desistir** em vez de sobrescrever, que e o que a
+        `RN-07` proibe.
+        """
+        destino = os.path.join(pasta, referencia)
+        if not os.path.exists(destino):
+            return destino
+        for sufixo in range(1, 100):
+            alternativa = os.path.join(pasta, f"{referencia}.{sufixo}")
+            if not os.path.exists(alternativa):
+                return alternativa
+        return None
 
 
 class CarregadorDeArvoresGedcom:

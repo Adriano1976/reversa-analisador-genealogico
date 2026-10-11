@@ -76,26 +76,25 @@ def _csv_ilegivel(erro: CsvIlegivel) -> RespostaDeErro:
 
 
 def _gedcom_nao_suportado(erro: GedcomNaoSuportado) -> RespostaDeErro:
-    """`422` e a mensagem UNICA de conteudo recusado (`RN-18`, `T039`).
+    """`422` e a mensagem **unica** de conteudo recusado (`RN-18`, `T039`).
 
-    Pedido do operador em 2026-10-10. Ate aqui o texto era montado com o motivo dentro
+    Pedido do operador em 2026-10-10. Antes, o texto era montado com o motivo dentro
     (`"Arquivo nao reconhecido como GEDCOM: <motivo>."`), e o operador lia o motivo tecnico do
-    validador — "nao comeca com a declaracao 0 HEAD". Agora a tela diz sempre a mesma frase,
-    que e o que ele pediu.
+    validador — "nao comeca com a declaracao 0 HEAD". Agora a tela diz sempre esta frase.
 
     ## O motivo NAO se perdeu, e isso e deliberado
 
-    Ele continua dentro da excecao (`erro`), que e quem o carrega desde a feature 006
-    (`A002`): `validate.py` devolve o motivo, a excecao o transporta, e **so a apresentacao**
-    deixou de exibi-lo. Quem depurar tem o motivo a um `str(erro)` de distancia, e o
-    `except` do ramo de envio pode voltar a mostra-lo sem tocar no validador.
+    Ele continua dentro da excecao (`erro`), que o carrega desde a feature 006 (`A002`):
+    `validate.py` devolve o motivo, a excecao o transporta, e **so a apresentacao** deixou de
+    exibi-lo. Quem depurar tem o motivo a um `str(erro)` de distancia, e o ramo de envio pode
+    voltar a mostra-lo sem tocar no validador.
 
-    ## O que esta mensagem custa, declarado
+    ## O custo declarado desta troca
 
-    As TRES recusas de conteudo — arquivo vazio, byte nulo e cabecalho ausente — passam a ter
-    o MESMO texto. O operador perde a pista de qual foi o problema. A troca foi pedida com
-    essa consequencia a vista; se algum dia o arquivo vazio precisar de texto proprio, e uma
-    linha aqui, e o motivo para isso ja esta na excecao.
+    As **tres** recusas de conteudo — arquivo vazio, byte nulo e cabecalho ausente — passam a ter
+    o MESMO texto, e o operador perde a pista de qual foi o problema. A troca foi pedida com a
+    consequencia a vista; se um dia o arquivo vazio precisar de texto proprio, e uma linha aqui,
+    e o motivo ja esta na excecao.
     """
     return RespostaDeErro("Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.", 422)
 

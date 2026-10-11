@@ -4,13 +4,19 @@ import socket
 import sys
 
 from flask import Flask, render_template, request, send_file
-from reporting.lista_de_arquivos import formatar_data_br, itens_da_aba, rotulo_de_referencia
+from reporting.lista_de_arquivos import (
+    ABA_DE_ARVORES,
+    ABA_DE_DNA,
+    formatar_data_br,
+    itens_da_aba,
+    rotulo_de_referencia,
+)
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
 from application.path_search import path_search as caso_de_uso_de_busca
-from application.reenvio import guardar_com_substituicao
+from application.reenvio import SUBSTITUIDO, guardar_com_substituicao
 from application.traducao import traduzir
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
 from core.dna_analysis import Dependencias
@@ -98,15 +104,16 @@ app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
 app.add_template_filter(formatar_cm, "cm_br")
 app.add_template_filter(formatar_inteiro, "inteiro_br")
-# T035: a data da coluna "Enviado em". A conversao e a mesma autoridade unica de
-# `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template.
+# A data da coluna "Enviado em". A conversao e a MESMA autoridade unica usada pela lista, em
+# `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template: data que o sistema
+# nao converte tem de virar celula vazia em um lugar so.
 app.add_template_filter(formatar_data_br, "data_br")
-# T040: o nome VISIVEL da arvore aberta, a partir do `gedcom_filename` que a rota ja passa em
-# todas as renderizacoes. E filtro, e nao parametro de contexto, de proposito: a rota tem oito
+# O nome VISIVEL da arvore aberta, a partir do `gedcom_filename` que a rota ja passa em todas
+# as renderizacoes. E filtro, e nao parametro de contexto, de proposito: a rota tem oito
 # `render_template` com `gedcom_filename`, e acrescentar um argumento em cada um seria oito
 # lugares para esquecer um — o mesmo defeito que o processador de contexto resolveu para as
-# listas. O filtro reusa `rotulo_de_referencia`, que ja existia para as mensagens, entao o
-# nome sai SEM a chave de conteudo (`D-09`) pelo mesmo caminho de sempre.
+# listas. O filtro reusa `rotulo_de_referencia`, que ja existia para as mensagens, entao o nome
+# sai SEM a chave de conteudo pelo mesmo caminho de sempre.
 app.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
 
 UPLOAD_FOLDER = "uploads"
@@ -192,7 +199,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     checador nao estreita o segundo elemento da tupla por `erro is not None`,
     entao sem as duas a chamada do carregador recebe `str | None`.
 
-    ## O parse tem guarda, e o motivo foi MEDIDO (`A008`, `T042`)
+    ## O parse tem guarda, e o motivo foi MEDIDO
 
     Ate 2026-10-10 esta funcao chamava `_CARREGADOR.carregar` **fora de qualquer `try`**, e os
     `except` de `index()` comecam depois da chamada dela. Um arquivo que a referencia ALCANCA e
@@ -202,19 +209,18 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
         POST / com gedcom_filename=0e85a4f3052e19e3__Genealogia_Mineira.csv  ->  500
         OSError: Unexpected EOF while reading GEDCOM header
 
-    E nao era um caso de laboratorio: **10 dos 13 arquivos da pasta real** derrubavam o parser.
+    E nao era caso de laboratorio: **10 dos 13 arquivos da pasta real** derrubavam o parser.
     Eles nao sao GEDCOM, e o `guardar` nunca os aceitaria como tal — mas o `guardar` e o caminho
-    de ENVIO, e a pasta pode receber arquivo por fora da aplicacao. O `A008` da auditoria
-    registrou isso como "nao alcancavel com os arquivos de hoje"; o que se mediu depois e que o
-    caminho de CLIQUE nao chega la (a aba de DNA nao oferece "Abrir"), mas a REQUISICAO chega,
-    e a aplicacao nao tem autenticacao.
+    de ENVIO, e a pasta pode receber arquivo por fora da aplicacao. O que se mediu e que o
+    caminho de CLIQUE nao chega la (a aba de DNA nao oferece "Abrir"), mas a REQUISICAO chega, e
+    a aplicacao nao tem autenticacao.
 
-    ## As mensagens usam o rotulo, e nao a referencia (`D-09`)
+    ## As mensagens usam o ROTULO, e nao a referencia
 
     As duas mensagens de erro montavam `f"... '{referencia}' ..."`, e `referencia` e o nome
-    ARMAZENADO — que comeca com os 16 hexadecimais da chave de conteudo. O `D-09` diz que o
-    operador ve o NOME, nunca a chave, e o erro era o unico lugar da tela que ainda a mostrava.
-    Agora as duas passam por `rotulo_de_referencia`, o mesmo formatador das outras mensagens.
+    **armazenado** — que comeca com os 16 hexadecimais da chave de conteudo. O operador ve o
+    NOME, nunca a chave, e o erro era o unico lugar da tela que ainda a mostrava. Agora as duas
+    passam por `rotulo_de_referencia`, o mesmo formatador das outras mensagens.
     """
     referencia = request.form.get("gedcom_filename")
     if not referencia:
@@ -281,36 +287,38 @@ def icone_de_atalho():
     return send_file(caminho, mimetype="image/png")
 
 
-# --- Arte do topo da tela (feature 011, T036) ---
+# --- Arte do topo da tela (feature 011) ---
 #
-# Substitui o `<h1>Analisador Genealógico e de DNA</h1>` por uma imagem, a pedido do
-# operador. Mesmo desenho de rota do icone acima, e pelas mesmas razoes: `GET` sozinho, para
-# a recusa de escrita sair do roteador com `405`; `ETag` do `send_file` para a rebusca
-# responder `304` sem corpo; e **arte ausente devolve `404` e nada mais muda**, para a tela
-# continuar de pe (o `alt` da imagem e o texto do `<h1>` que ela substitui).
+# A pedido do operador, o topo deixou de ser so texto e passou a ter a arte dele. O desenho da
+# rota e o MESMO do icone de atalho acima, e pelas mesmas razoes: `GET` sozinho, para a recusa
+# de escrita sair do roteador com `405` sem uma linha nossa que pudesse divergir da convencao;
+# o `ETag` do `send_file` respondendo `304` sem corpo na rebusca; e **arte ausente devolve
+# `404` e nada mais muda**, para a tela continuar de pe.
 #
-# A ARTE SERVIDA NAO E A QUE O OPERADOR ENVIOU. O arquivo que ele mandou em 2026-10-10 e
-# `RGB`, sem alfa, com o quadriculado de transparencia GRAVADO no bitmap — servir aquilo
-# desenharia uma grade cinza atras do logo. O que esta rota serve e uma RENDERIZACAO
+# A ARTE SERVIDA NAO E A QUE O OPERADOR ENVIOU. O arquivo que ele mandou chegou em `RGB`, sem
+# canal alfa, com o quadriculado de transparencia **gravado no bitmap** — servir aquilo
+# desenharia uma grade cinza atras do desenho. O que esta rota serve e uma RENDERIZACAO
 # DERIVADA, com o fundo removido, e a receita que a produz tem fonte unica em
 # `tests/banner_da_tela.py`, ao lado do teste de regressao da arte.
 #
-# `src/assets/`, e nao `docs/assets/`: o `.dockerignore` e lista de PERMISSAO (`*`, depois
-# `!src/`, `!src/**`), entao arte em `docs/` responderia 200 aqui e 404 no container.
+# `src/assets/`, e nao `docs/assets/`: o `.dockerignore` deste projeto e lista de PERMISSAO
+# (`*`, depois `!src/`, `!src/**`), entao arte em `docs/` responderia 200 na maquina de
+# desenvolvimento e 404 dentro do container — falha silenciosa no ambiente que o operador usa.
 ARTE_DO_TOPO = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "banner-da-tela.png"
 )
-# Em `config` pelo mesmo motivo do icone: o caso de ausencia e testavel apontando a chave
-# para um caminho inexistente, sem tocar no repositorio.
+# Em `config` pelo mesmo motivo do icone: o caso de ausencia fica testavel apontando a chave
+# para um caminho inexistente, sem tocar na arte de verdade.
 app.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
 
 
 @app.route("/banner.png", methods=["GET"])
 def banner_do_topo():
-    """Serve a arte do topo da tela (`T036`).
+    """Serve a arte do topo da tela.
 
-    Sem validade longa de cache, como o icone: e a mesma arte que muda com o pedido do
-    operador, e o `ETag` ja da a revalidacao barata sem prender o cliente.
+    Registrada so com `GET`, e sem validade longa de cache: e a mesma arte que muda ao sabor do
+    pedido do operador, e o `ETag` ja da a revalidacao barata sem prender o cliente que ja a
+    buscou uma vez.
     """
     caminho = app.config["ARTE_DO_TOPO"]
     if not os.path.isfile(caminho):
@@ -318,38 +326,38 @@ def banner_do_topo():
     return send_file(caminho, mimetype="image/png")
 
 
-# --- As listas da tela (feature 011, T017) ---
+# --- As listas da tela (feature 011) ---
 #
-# A `D-04` fez o `GET /` entregar as duas abas com as listas **sempre**, e nao apenas
-# depois de um envio. Como a tela precisa delas em TODA renderizacao, elas entram por
-# um processador de contexto, e nao repetidas nos oito `render_template("index.html",
-# ...)` da rota: repetir seria oito lugares para esquecer um, e o nono nasceria
-# desatualizado.
+# O `GET /` entrega as duas abas com as listas **sempre**, e nao apenas depois de um envio.
+# Como a tela precisa delas em TODA renderizacao, elas entram por um processador de contexto
+# em vez de repetidas nos oito `render_template("index.html", ...)` da rota: repetir seria oito
+# lugares para esquecer um, e o nono nasceria desatualizado.
 #
-# **Nao ha `os.listdir` aqui.** Quem le a pasta e a PORTA (`D-01`): a rota so compoe o
-# que ela devolve. Foi a feature 006 que tirou o acesso a disco da borda, e um listdir
-# aqui o traria de volta.
+# **Nao ha `os.listdir` aqui.** Quem le a pasta e a PORTA: a rota so compoe o que ela devolve.
+# Foi a feature 006 que tirou o acesso a disco da borda, e um `listdir` neste arquivo o traria
+# de volta — alem de tornar a listagem impossivel de testar sem pasta real.
 #
-# O que a listagem NAO faz, por decisao: nao abre conteudo (`D-08`, `RN-09`) e nao
-# filtra arquivo nenhum. Quem separa as abas e quem marca o item indisponivel e a
-# funcao pura de `reporting/`, que decide pelo NOME.
+# O que a listagem NAO faz, por decisao: nao abre conteudo e nao filtra arquivo nenhum. Separar
+# as abas e marcar o item indisponivel e trabalho da funcao pura de `reporting/`, que decide
+# pelo NOME.
 #
 # **O instrumento de paridade nao enxerga isto.** `harness.py:191` substitui
-# `render_template` por uma captura de contexto, entao o processador nem chega a
-# rodar; e as chaves que ele le (`:211-221`) continuam sendo as mesmas de antes.
-# Acrescentar chave ao contexto e invisivel para ele, por construcao.
+# `render_template` por uma captura de contexto, entao o processador nem chega a rodar; e as
+# chaves que ele le (`:211-221`) continuam sendo as mesmas de antes. Acrescentar chave ao
+# contexto e invisivel para ele, por construcao.
 @app.context_processor
 def _listas_da_tela():
     """As duas listas de arquivos armazenados, para as abas da tela de entrada.
 
-    `RN-01`..`RN-03` e `D-09`/`D-10`: a selecao por extensao do nome visivel, o
-    agrupamento pela chave e a ordem por data moram na funcao pura; aqui so se
-    pergunta a ela duas vezes, uma por aba.
+    A selecao por extensao do nome visivel, o agrupamento pela chave e a ordem por data moram
+    na funcao pura: aqui so se pergunta a ela duas vezes, uma por aba. As extensoes que
+    decidem cada aba vem declaradas la, e nao escritas de novo neste arquivo — a particao tem
+    um dono so.
     """
     entradas = _ARMAZENAMENTO.listar(DONO_DO_PROCESSO)
     return {
-        "arvores_da_lista": itens_da_aba(entradas, ".ged"),
-        "relatorios_da_lista": itens_da_aba(entradas, ".csv"),
+        "arvores_da_lista": itens_da_aba(entradas, ABA_DE_ARVORES),
+        "relatorios_da_lista": itens_da_aba(entradas, ABA_DE_DNA),
     }
 
 
@@ -379,17 +387,17 @@ def index():
                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
 
         if action == "aposentar_arquivo":
-            # Aposentar um arquivo da lista (`RN-14`, `T034`).
+            # Aposentar um arquivo da lista (`RN-14`).
             #
-            # Este ramo vem ANTES de `_arvore_do_formulario`, e a ordem e a regra, nao
-            # estilo: `_arvore_do_formulario` resolve e PARSEIA a arvore escolhida, e a
-            # arvore escolhida pode ser exatamente a que se esta aposentando. Depois do
-            # move, o parse falharia e o operador veria "arquivo nao existe mais" no
-            # lugar da confirmacao — a acao teria funcionado e a tela diria que nao.
+            # ESTE RAMO VEM ANTES de `_arvore_do_formulario`, e a ordem e a regra, nao estilo:
+            # `_arvore_do_formulario` resolve E PARSEIA a arvore escolhida, e a arvore
+            # escolhida pode ser exatamente a que se esta aposentando. Depois do move, o parse
+            # falharia e o operador leria "arquivo nao existe mais" no lugar da confirmacao — a
+            # acao teria funcionado e a tela diria que nao.
             #
-            # Nada e apagado: o arquivo sai da lista e continua no disco, em
-            # `_aposentados/`. A mensagem diz isso, porque "apagar" e o que o botao
-            # parece fazer e o operador precisa saber que da para voltar.
+            # Nada e apagado: o arquivo sai da lista e continua no disco, em `_aposentados/`. A
+            # mensagem diz isso com todas as letras, porque "apagar" e o que o botao parece
+            # fazer, e o operador precisa saber que da para voltar.
             referencia = request.form.get("arquivo_a_aposentar")
             if _ARMAZENAMENTO.aposentar(referencia, DONO_DO_PROCESSO):
                 return render_template(
@@ -413,15 +421,14 @@ def index():
         all_names = nomes_de_exibicao(arvore)
 
         if action == "selecionar_arvore":
-            # Escolher a arvore CLICANDO na lista (feature 012, `D-01`). A referencia ja
-            # foi resolvida por `_arvore_do_formulario`, e o unico trabalho deste ramo e
-            # renderizar o estado "arvore escolhida" — o MESMO que o envio produz.
+            # Escolher a arvore CLICANDO na lista. A referencia ja foi resolvida por
+            # `_arvore_do_formulario`, e o unico trabalho deste ramo e renderizar o estado
+            # "arvore escolhida" — o MESMO que o envio produz.
             #
-            # O ramo existe porque, sem ele, este `action` cai no `return` do fim de
-            # `index()`, que renderiza `index.html` SEM `gedcom_filename`: a arvore
-            # resolvida seria descartada e o operador clicaria sem nada acontecer. Era o
-            # defeito medido em 2026-10-09 — a lista mostrava as arvores e nao havia como
-            # escolher nenhuma (`RF-02`).
+            # O ramo existe porque, sem ele, esta `action` cairia no `return` do fim de
+            # `index()`, que renderiza `index.html` SEM `gedcom_filename`: a arvore resolvida
+            # seria descartada e o operador clicaria sem nada acontecer. Era o defeito medido
+            # em 2026-10-09 — a lista mostrava as arvores e nao havia como escolher nenhuma.
             #
             # Nao ha efeito colateral: nenhum arquivo e lido alem do parse que
             # `_arvore_do_formulario` ja fez, e nada e escrito.
@@ -431,49 +438,47 @@ def index():
             try:
                 root_name = request.form["root_name"]
 
-                # Feature 011, T018 (`D-03`, `RN-04`): a referencia escolhida na LISTA
-                # tem **precedencia** sobre o arquivo, e o campo novo e OPCIONAL.
-                #
-                # Quando ele nao vem, o caminho abaixo e exatamente o de antes — mesma
-                # gravacao, mesma porta, mesma mensagem. Foi por isso que o campo e NOVO
-                # em vez de reaproveitar `matches_csv`: reaproveitar apagaria a prova de
-                # que o caminho antigo continua igual, e e essa prova que a paridade e os
-                # testes de rota consomem.
+                # A referencia escolhida na LISTA tem **precedencia** sobre o arquivo, e o
+                # campo novo e OPCIONAL. Quando ele nao vem, o caminho abaixo e exatamente o
+                # de antes — mesma gravacao, mesma porta, mesma mensagem. Foi por isso que o
+                # campo e NOVO em vez de reaproveitar `matches_csv`: reaproveitar apagaria a
+                # prova de que o caminho antigo continua igual, e e essa prova que a paridade
+                # e os testes de rota consomem.
                 referencia_do_csv = request.form.get("matches_csv_filename")
-                # `None` enquanto nao houver substituicao de versao do CSV (`T038`, `RN-17`).
-                # Inicializado aqui porque os TRES caminhos abaixo (CSV da lista, CSV enviado e
-                # CSV substituido) chegam ao mesmo `render_template` do fim.
+                # `None` enquanto nao houver substituicao de versao do CSV. Inicializado aqui
+                # porque os TRES caminhos abaixo — CSV da lista, CSV enviado e CSV substituido
+                # — chegam ao MESMO `render_template` do fim.
                 aviso_de_substituicao = None
                 if referencia_do_csv:
                     caminho_do_csv = _ARMAZENAMENTO.resolver(referencia_do_csv, DONO_DO_PROCESSO)
                     if caminho_do_csv is None:
-                        # Mesma classe de mensagem do caminho de uso da arvore: a tela
-                        # continua utilizavel, e o operador ve o que aconteceu. O texto
-                        # e o mesmo de `_arvore_do_formulario` porque a causa e a mesma.
+                        # Mesma classe de mensagem do caminho de uso da arvore: a tela continua
+                        # utilizavel e o operador ve o que aconteceu. O texto e o mesmo de
+                        # `_arvore_do_formulario` porque a causa e a mesma.
                         return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Erro: Arquivo '{referencia_do_csv}' não existe mais.", success=False)
                 else:
                     if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
                         return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
                     matches_file = request.files["matches_csv"]
 
-                    # A gravação do CSV passa pela MESMA porta do GEDCOM. O tipo
-                    # `"csv"` nao valida conteudo — a assimetria com o GEDCOM e a
-                    # divida #10, preservada de proposito (`RF-10`, `RN-01`).
+                    # A gravacao do CSV passa pela MESMA porta do GEDCOM. O tipo `"csv"` nao
+                    # valida conteudo — a assimetria com o GEDCOM e a divida #10, preservada de
+                    # proposito.
                     #
-                    # `T038`: e a MESMA regra de reenvio do GEDCOM (`RN-17`), pela mesma
-                    # funcao — nao um segundo bloco parecido. Antes desta acao, reenviar um
-                    # CSV com conteudo novo deixava DUAS linhas de mesmo rotulo na aba de
-                    # DNA: medido na pasta do operador, com dois `Familias_Sergipanas.csv`.
+                    # A regra de reenvio e a MESMA do GEDCOM, pela mesma funcao — e nao um
+                    # segundo bloco parecido. Antes disso, reenviar um CSV com conteudo novo
+                    # deixava DUAS linhas de mesmo rotulo na aba de DNA: medido na pasta do
+                    # operador, com dois `Familias_Sergipanas.csv`.
                     armazenado = guardar_com_substituicao(
                         _ARMAZENAMENTO, matches_file.read(), matches_file.filename,
                         "csv", DONO_DO_PROCESSO)
                     caminho_do_csv = armazenado.caminho
                     if armazenado.motivo is not None:
                         return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=armazenado.motivo, success=False)
-                    if armazenado.desfecho == "substituido":
+                    if armazenado.desfecho == SUBSTITUIDO:
                         # O aviso entra DEPOIS da analise, junto do resultado: a analise e o
-                        # assunto da tela, e a substituicao e uma nota sobre o insumo dela.
-                        # Ele nao pode substituir a mensagem do resultado.
+                        # assunto da tela, e a substituicao e uma nota sobre o insumo dela. Ele
+                        # nao pode substituir a mensagem do resultado.
                         aviso_de_substituicao = (
                             f"O CSV '{armazenado.visivel}' substituiu a versão anterior, que "
                             "saiu da lista e continua guardada na pasta de aposentados."

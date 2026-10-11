@@ -47,15 +47,15 @@ dividas #3 e #4 continuam abertas (`RN-06`).
 **Esta frase deixou de valer na feature `011-escolher-arquivo-da-lista`.** Ate
 entao ela dizia, com razao, que nenhum metodo novo havia sido criado em nenhuma
 porta. A `011` criou o **primeiro**: `ArmazenamentoDeArquivos.listar`, que devolve
-as entradas da pasta para a tela montar a lista de escolha. O motivo de ele
-tambem receber `dono` e o mesmo do paragrafo acima, e nao simetria decorativa:
-deixar o parametro de fora agora obrigaria a reabrir esta assinatura e todos os
-chamadores depois, que e exatamente o custo que a feature 007 pagou para nao ter.
+o retrato da pasta para a tela montar a lista de escolha. Ele tambem recebe `dono`,
+e pela mesma razao do paragrafo acima — deixar o parametro de fora agora obrigaria
+a reabrir esta assinatura e todos os chamadores depois, que e exatamente o custo
+que a feature 007 pagou para nao ter.
 
-A `T033`/`T034` da mesma feature criou o **segundo**: `aposentar`, que tira o
-arquivo da lista movendo-o para `<pasta>/_aposentados/`. Ele **nao** contraria a
-`RN-07` — nada e apagado, e o arquivo continua no disco —, e o `dono` entra com o
-mesmo alcance de sempre: sem comportamento.
+A mesma feature criou o **segundo**: `aposentar`, que tira o arquivo da lista
+movendo-o para `<pasta>/_aposentados/`. Ele **nao** contraria a `RN-07` — nada e
+apagado, e o arquivo continua no disco —, e o `dono` entra com o mesmo alcance de
+sempre: sem comportamento nenhum.
 """
 from __future__ import annotations
 
@@ -125,70 +125,67 @@ class ArmazenamentoDeArquivos(Protocol):
         ...
 
     def listar(self, dono: str) -> list["EntradaArmazenada"]:
-        """Entrada da pasta de upload: nome armazenado, bytes e data. **Nao le conteudo.**
+        """Retrato da pasta de upload: nome armazenado, bytes e data. **Nao abre arquivo.**
 
-        A `011-escolher-arquivo-da-lista` (`D-01`) trouxe esta operacao para a porta,
-        e nao para a rota, porque a feature 006 tirou o acesso a disco da borda:
-        `_arvore_do_formulario()` nao resolve caminho. Um `os.listdir` na rota
-        desfaria essa fronteira e tornaria a listagem impossivel de testar sem
-        pasta real.
+        A feature `011-escolher-arquivo-da-lista` (`D-01`) trouxe esta operacao para a
+        **porta**, e nao para a rota. A razao e a fronteira que a feature 006 estabeleceu:
+        `_arvore_do_formulario()` nao resolve caminho, e um `os.listdir` na rota desfaria
+        isso — alem de tornar a listagem impossivel de testar sem pasta real.
 
-        **O que ela lista, e o que ela NAO faz** (`D-08`, `RN-09`, `D-11`):
+        ## O que ela devolve, e o que ela NAO faz
 
-        - lista **tudo** o que e arquivo na pasta, sem julgar conteudo e sem julgar
-          nome. Nao ha filtro aqui: quem separa as abas e quem marca o item
-          indisponivel e a funcao pura de `reporting/`, que decide pelo NOME;
-        - **nao abre arquivo nenhum**. O que ela le do diretorio e o nome, e do
-          arquivo sao os atributos do sistema de arquivos (tamanho e data). E o
-          que evita reler 29 MB a cada renderizacao, e e o que faz o agrupamento
-          pela chave — que ja esta no nome — ser barato;
-        - **pasta ausente devolve lista vazia, e nao excecao** (`D-07`). Instalacao
-          nova tem a pasta criada e vazia, e uma pasta que desapareca sob a
-          aplicacao em execucao nao pode virar erro na tela de entrada. O `D-07`
-          recusou explicitamente o `os.makedirs` aqui: criar diretorio dentro de
-          uma leitura e efeito colateral escondido;
+        - devolve **tudo** o que e arquivo na pasta, sem julgar nome nem conteudo. Nao ha
+          filtro aqui: separar as abas e marcar o item indisponivel e trabalho da funcao
+          pura de `reporting/`, que decide pelo NOME (`D-08`, `RN-09`, `D-11`);
+        - **nao abre arquivo nenhum**. Do diretorio ela le o nome; do arquivo, os atributos
+          que o sistema de arquivos ja mantem — tamanho e data (`os.stat`). E o que evita
+          reler a pasta inteira a cada renderizacao, e o que torna barato o agrupamento
+          pela chave, que ja esta no nome;
+        - **pasta ausente devolve lista vazia, e nao excecao** (`D-07`). Instalacao nova tem
+          a pasta criada e vazia, e uma pasta que desapareca sob a aplicacao em execucao nao
+          pode virar erro na tela de entrada. O `D-07` recusou explicitamente o
+          `os.makedirs` aqui: criar diretorio dentro de uma leitura e efeito colateral
+          escondido numa operacao que promete nao escrever;
         - **nao escreve nada**: listar e leitura pura (`RF-08`, `RN-06`).
 
-        `dono` entra pela mesma razao e com o mesmo alcance dos outros metodos:
-        **nao filtra nada** (dividas #3 e #4 abertas). Quem decide se uma entrada
-        pode ser usada e a forma do nome, aplicada na leitura — e nao a identidade.
+        `dono` entra pela mesma razao dos outros metodos, e com o mesmo alcance: **nao
+        filtra nada** (dividas #3 e #4 abertas). Quem decide se uma entrada pode ser usada e
+        a forma do nome, e nao a identidade.
         """
         ...
 
     def aposentar(self, referencia: str | None, dono: str) -> bool:
         """Tira o arquivo da LISTA movendo-o para uma subpasta. **Nao apaga nada.**
 
-        `True` significa que o arquivo saiu da pasta de upload; `False`, que nada foi
-        movido — referencia em forma de caminho, arquivo inexistente, ou ja haver um
+        `True` significa que o arquivo saiu da pasta de upload. `False` significa que nada
+        foi movido: referencia em forma de caminho, arquivo inexistente, ou ja haver um
         aposentado com o mesmo nome.
 
         ## Aposentar, e nao apagar (`RN-14`)
 
         A `RN-07` diz que a aplicacao **nunca apaga** arquivo enviado, e ela continua
-        valendo: o que este metodo faz e MOVER o arquivo para `<pasta>/_aposentados/`,
-        onde ele permanece inteiro, com o mesmo nome e o mesmo conteudo. O operador
-        deixa de ve-lo na lista, e o dado nao some. Desfazer e mover de volta.
+        valendo: o que este metodo faz e MOVER para `<pasta>/_aposentados/`, onde o arquivo
+        permanece inteiro, com o mesmo nome e o mesmo conteudo. O operador deixa de ve-lo na
+        lista, e o dado nao some. Desfazer e mover de volta.
 
         ## Por que a lista nao precisa de filtro novo
 
-        Quem le a pasta e `listar`, e ela **ja** ignora subdiretorio, porque so aceita
-        `os.path.isfile`. Aposentar para dentro da propria pasta aproveita isso: o
-        arquivo sai da tela sem que nenhuma regra de filtragem precise ser acrescentada
-        — e sem uma lista de excecoes que alguem teria de manter.
+        Quem le a pasta e `listar`, e ela ja ignora subdiretorio — so aceita `os.path.isfile`.
+        Aposentar para dentro da propria pasta aproveita isso: o arquivo sai da tela sem que
+        nenhuma regra de filtragem precise nascer, e sem uma lista de excecoes que alguem
+        teria de manter.
 
-        ## A referencia e mais permissiva aqui do que em `resolver`, e isso e
-        ## deliberado
+        ## A referencia aqui e mais permissiva do que no `resolver`, e isso e deliberado
 
-        A defesa contra escape continua existindo, mas com outro criterio
+        A defesa contra escape continua existindo, com outro criterio
         (`utils.validate.referencia_de_arquivo_da_pasta`): qualquer NOME simples, e nao
-        apenas a forma canonica com chave. O motivo e medido — os arquivos **sem chave**
-        da pasta real sao os inalcancaveis, e sao exatamente os que o operador quer
-        tirar da lista. Exigir a chave aqui tornaria impossivel aposentar os tres que
-        mais incomodam. `resolver` **nao** afrouxa: ler por referencia continua exigindo
-        a forma fechada.
+        apenas a forma canonica com chave. O motivo e medido — os arquivos **sem chave** da
+        pasta real sao os inalcancaveis, e sao exatamente os que o operador quer tirar da
+        lista; exigir a chave aqui os tornaria impossiveis de aposentar. O `resolver` **nao**
+        afrouxa: ler por referencia continua exigindo a forma da chave.
 
-        `dono` entra pela mesma razao dos outros metodos: **nao filtra nada**. A pasta
-        de aposentados nao e separada por dono.
+        `dono` entra pela mesma razao dos outros metodos: **nao filtra nada**, e a pasta de
+        aposentados nao e separada por dono.
         """
         ...
 
@@ -197,18 +194,17 @@ class ArmazenamentoDeArquivos(Protocol):
 class EntradaArmazenada:
     """Um arquivo da pasta de upload, como a LISTAGEM o ve (`D-01`).
 
-    Nao e o arquivo: e o retrato do diretorio. Os tres campos sao os unicos que a
-    leitura de uma entrada produz, e nenhum deles exige abrir o conteudo.
+    Nao e o arquivo: e o retrato do diretorio. Os tres campos sao tudo o que a leitura de
+    uma entrada produz, e nenhum deles exige abrir o conteudo.
 
-    `nome` e o **nome armazenado** (`<16 hex>__<nome visivel>`), e nao o visivel: e
-    ele que o formulario devolve na requisicao seguinte, e e ele que o resolvedor
-    aceita. Quem deriva o rotulo de tela e a funcao pura de `reporting/`, a partir
-    deste campo.
+    `nome` e o **nome armazenado** (`<16 hex>__<nome visivel>`), e nao o visivel: e ele que
+    o formulario devolve na requisicao seguinte, e e ele que o resolvedor aceita. Derivar o
+    rotulo de tela e trabalho da funcao pura de `reporting/`, a partir deste campo.
 
-    `modificado_em` e o instante do sistema de arquivos, em segundos desde a epoch,
-    na mesma unidade que `os.path.getmtime`. A ordem da lista e por ele, decrescente:
-    o nome exibido nao e unico — medido, ha tres arquivos chamados
-    `Arvore_Unificada_Oficial_V1_2.ged` na pasta real — e e a data que distingue.
+    `modificado_em` e o instante do sistema de arquivos, em segundos desde a epoch, na mesma
+    unidade de `os.path.getmtime`. A lista e ordenada por ele, decrescente, porque o nome
+    exibido **nao e unico** — medido, ha tres arquivos chamados
+    `Arvore_Unificada_Oficial_V1_2.ged` na pasta real — e e a data que distingue um do outro.
     """
 
     nome: str
