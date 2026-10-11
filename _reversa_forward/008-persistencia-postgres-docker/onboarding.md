@@ -135,6 +135,17 @@ Esperado: a contagem é a **mesma** de antes do `down`, e a pasta de uploads con
 lugar. O volume do banco é **nomeado** e o de uploads é **bind mount** (`D-08`) — e é por
 isso que os dois regimes são diferentes.
 
+> **Nota de 2026-10-11 — o `--build` vale de novo depois de mexer no código.** O comando
+> acima é o da **primeira** subida; ele volta a ser obrigatório a cada mudança em `src/`,
+> porque o `docker/Dockerfile` leva o código para dentro da imagem por `COPY src/ /app/src/`,
+> e editar `src/` no host **não chega ao container**. Medido nesta data: a imagem construída
+> em 2026-10-09 17:14 servia o código de 2026-10-08, sem a feature 011, e só
+> `docker compose up -d --build` a atualizou. Para saber a idade do que está no ar:
+> `docker compose exec -T app cat /app/CONSTRUIDO_EM`, e
+> `docker image inspect genealogia-app --format '{{json .Config.Labels}}'` para a revisão —
+> as duas marcas são gravadas no build desde esta data. O README tem a seção
+> "Executar com Docker" com o mesmo aviso.
+
 ## 7. Passo 4 — o `init.sql` roda duas vezes sem quebrar (`RF-12`)
 
 ```powershell

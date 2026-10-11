@@ -536,6 +536,81 @@
       },
       "note": "Unidade NOVA (nao existia em 2026-10-05): tela-de-entrada e recursos-da-tela nao tem nenhum arquivo em disco. As outras tres existem e foram sobrescritas por decisao explicita do usuario."
     },
+    "restauracao_do_programa_2026_10_10": {
+      "phase": "restauracao",
+      "concluido_em": "2026-10-10T17:30:00-03:00",
+      "pedido_do_usuario": "Adriano, depois de ver como o programa revertido renderiza a tela inicial ('A tela inicial esta dessa forma, como era antes?'), respondeu 'sim' a proposta de restaurar o programa inteiro.",
+      "o_que_foi_feito": "git reset -- src tests  &&  git checkout HEAD -- src tests. O programa voltou ao conteudo de 8eb466a, incluindo os 12 arquivos que o revert havia removido.",
+      "por_que_nao_dava_para_restaurar_so_a_tela": "O app.py de 8eb466a importa application/reenvio.py (que o revert removeu) e usa assinaturas novas de utils/validate.py e ports/. Restaurar apenas o template e a rota quebraria o import - a tela e o resto do programa sao acoplados.",
+      "verificacao": {
+        "src_e_tests_identicos_ao_HEAD": "git status --porcelain -- src tests = VAZIO",
+        "os_12_arquivos_de_volta": "todos presentes; 35 .py em src/ e 39 test_*.py em tests/",
+        "suite": "527 passam / 9 pulados / 0 falham",
+        "paridade": "100% (zero divergencia) em 6/6 fixtures, exit 0",
+        "tela_inicial_contra_os_anexos_03_e_04": "TELA IGUAL AOS ANEXOS - os 13 literais conferidos, as 3 arvores, os 9 relatorios, os 12 tamanhos em bytes e ZERO marcadores de indisponibilidade"
+      },
+      "como_a_tela_estava_no_programa_revertido": [
+        "sem 'Genetic Genealogy Path Analyzer' e sem o paragrafo de apresentacao",
+        "sem banner no topo",
+        "sem as colunas Situacao, Arquivos, Enviado em e Gerenciar",
+        "sem os botoes 'Abrir' e 'Apagar' - havia um botao unico 'Usar esta arvore'",
+        "com o nome cru 'Backup-Arvore-Sandro.ged', e nao o rotulo limpo"
+      ],
+      "estado_final": "Programa e documentacao de volta ao MESMO ponto: HEAD 8eb466a. A divergencia entre codigo e specs registrada no bloco do revert DEIXOU DE EXISTIR.",
+      "legacy_untouched": false
+    },
+    "revert_do_programa_para_7c8140a_2026_10_10": {
+      "phase": "revert",
+      "desfecho": "DESFEITO no mesmo dia, a pedido do usuario - ver restauracao_do_programa_2026_10_10. Este bloco fica como registro do que o revert fez, do que foi verificado nele e de como a tela ficou enquanto ele valeu.",
+      "pedido_do_usuario": "Adriano, 2026-10-10 17:1x: 'Consegue reverter para o estado anterior de 16 horas atras?'. Entre as opcoes apresentadas, escolheu 'Reverter SO O PROGRAMA para 2026-10-09 16:59'.",
+      "o_que_foi_feito": "src/ e tests/ voltaram ao conteudo EXATO do commit 7c8140a (2026-10-09 16:59, 'docs(reversa): registra o adendo 011'). O HEAD NAO se moveu: continua em 8eb466a, e a tag programa-em-8eb466a guarda o estado que o programa tinha.",
+      "como": [
+        "git tag -f programa-em-8eb466a HEAD - ponto de seguranca criado ANTES de mexer",
+        "git checkout 7c8140a -- src tests - restaurou os 15 arquivos modificados desde entao",
+        "removidos os 12 arquivos que so existem DEPOIS de 7c8140a",
+        "limpeza do bytecode orfao dos modulos que deixaram de existir"
+      ],
+      "arquivos_removidos": [
+        "src/application/reenvio.py", "src/assets/banner-da-tela.png",
+        "tests/banner_da_tela.py", "tests/test_aposentar_arquivo.py", "tests/test_banner_do_topo.py",
+        "tests/test_campo_de_escolha_do_csv.py", "tests/test_forma_da_referencia.py",
+        "tests/test_gedcom_ilegivel_nao_derruba.py", "tests/test_reenvio_do_arquivo.py",
+        "tests/test_reenvio_do_csv.py", "tests/test_tabela_da_tela.py", "tests/test_voltar_para_a_lista.py"
+      ],
+      "arquivos_restaurados": [
+        "src/app.py", "src/application/traducao.py", "src/application/upload_gedcom.py", "src/core/erros.py",
+        "src/ports/__init__.py", "src/ports/adaptadores.py", "src/reporting/lista_de_arquivos.py",
+        "src/templates/index.html", "src/utils/validate.py", "tests/test_icone_de_atalho.py",
+        "tests/test_lista_de_arquivos.py", "tests/test_lista_na_tela.py", "tests/test_path_search.py",
+        "tests/test_traducao_de_erros.py", "tests/test_upload_seguranca.py"
+      ],
+      "verificacao": {
+        "src_e_tests_iguais_a_7c8140a": "git diff --stat 7c8140a -- src tests = VAZIO, e nenhum arquivo nao rastreado sobrou em src/ ou tests/",
+        "suite": "384 passam / 9 pulados / 0 falham - o conjunto de testes de 2026-10-09 16:59 (eram 527 passam em 8eb466a)",
+        "paridade": "100% (zero divergencia) em 6/6 fixtures, exit 0 - o harness vive em _reversa_sdd/ e NAO foi revertido; continua compativel",
+        "nenhum_fonte_perdido": "apenas .pyc foram apagados; todos os .py existem (34 em src/, 30 test_*.py em tests/)"
+      },
+      "o_que_o_programa_perdeu": [
+        "a acao aposentar_arquivo e o botao 'Apagar' da lista (f20a818, 2026-10-10 01:22)",
+        "o reenvio com substituicao de GEDCOM e CSV, em application/reenvio.py (926a488, 02:40)",
+        "a validacao da referencia por FORMA DE NOME e a RN-20 (d448c40, 03:50) - o alfabeto fechado VOLTOU, e com ele o BUG-20261009-6RKP",
+        "a guarda de GEDCOM ilegivel na rota (d448c40)",
+        "a arte e a rota do banner do topo (73da6c6 e 3f71c49, 03:50 e 12:44)",
+        "a masthead com subtitulo e titulo em texto (3f71c49, 12:44)",
+        "9 arquivos de teste e 1 modulo de apoio"
+      ],
+      "consequencia_declarada": "DOCUMENTO E CODIGO PASSAM A DIVERGIR DE PROPOSITO. _reversa_sdd/, _reversa_forward/, .reversa/state.json e o README.md NAO foram revertidos: eles descrevem o programa de 8eb466a, com aposentar, reenvio, RN-20 e banner. Quem reimplementar pelo _reversa_sdd/ vai encontrar requisitos de features que o codigo atual NAO tem. A escolha foi do usuario e fica registrada como tal.",
+      "watch_items_que_passam_a_estar_violados_ou_sem_objeto": [
+        "011/W004 (elegibilidade por forma de nome) - VIOLADO: o alfabeto fechado voltou e o acento volta a ser inacessivel",
+        "004/W003 (superficie HTTP de contrato) - VIOLADO: saiu /banner.png e saiu a acao aposentar_arquivo",
+        "003/W005 e 004/W005 (tamanho da suite) - AMARELO: 384 passam contra os 527 da medicao anterior",
+        "009/W028 (arte sob src/) - SEM OBJETO parcial: src/assets/banner-da-tela.png nao existe mais",
+        "009/W027 (GET / byte a byte) - ja era amarelo; o template reverteu para uma revisao anterior"
+      ],
+      "como_desfazer": "git reset -- src tests   &&   git checkout HEAD -- src tests   - restaura o programa de 8eb466a, inclusive os 12 arquivos removidos. A tag programa-em-8eb466a aponta para o mesmo estado.",
+      "nota_de_relogio": "Os checkpoints anteriores desta sessao usam timestamps '2026-10-11T..Z', cerca de 12 h a frente do relogio da maquina (2026-10-10 17:1x -03:00, o mesmo horario dos commits). Registrado para que a divergencia de data nao seja lida como inconsistencia do repositorio.",
+      "legacy_untouched": false
+    },
     "passo4_regressao_2026_10_10": {
       "phase": "passo4",
       "reextraction": "2026-10-10",

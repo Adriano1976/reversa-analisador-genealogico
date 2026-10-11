@@ -1,0 +1,516 @@
+diff --git a/src/app.py b/src/app.py
+index 095758e..9454708 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -392,12 +392,18 @@ def index():
+             # parece fazer e o operador precisa saber que da para voltar.
+             referencia = request.form.get("arquivo_a_aposentar")
+             if _ARMAZENAMENTO.aposentar(referencia, DONO_DO_PROCESSO):
++                # Rastro no servidor para uma acao que o operador percebe como
++                # destrutiva (`T-16` da revisao de 2026-10-10). A pasta continua
++                # sendo o registro do ESTADO; o log registra o ATO.
++                app.logger.info("Aposentadoria: '%s' saiu da lista", referencia)
+                 return render_template(
+                     "index.html",
+                     message=(f"'{rotulo_de_referencia(referencia)}' saiu da lista. "
+                              "O arquivo não foi apagado: ele continua guardado, inteiro, "
+                              "na pasta de aposentados."),
+                     success=True)
++            app.logger.warning(
++                "Aposentadoria recusada: '%s' nao esta mais na pasta", referencia)
+             return render_template(
+                 "index.html",
+                 message="Não foi possível aposentar o arquivo: ele não está mais na pasta.",
+@@ -556,6 +562,25 @@ if __name__ == "__main__":
+             f"{sys.executable} -m pip install -r requirements.txt"
+         )
+ 
++    # --- Verificacao da arte de runtime no arranque (L-33) ---
++    #
++    # As duas rotas de arte degradam para `404` VAZIO quando o arquivo nao esta no
++    # disco (`BR-E-03`), e a suite roda no HOST, onde `docs/` existe. A falha dentro
++    # do container era silenciosa de ponta a ponta: nenhum log, nenhum teste, e a
++    # tela continua de pe, sem banner e com o icone generico. E exatamente o caso
++    # que a escolha de `src/assets/` existe para evitar — a lista de PERMISSAO do
++    # `.dockerignore` e o que garante que a arte entre na imagem.
++    #
++    # Nao derruba o servidor: a degradacao e contrato, e um banner ausente nao
++    # justifica recusar a aplicacao inteira. O que muda e a falha deixar de ser
++    # invisivel no ambiente onde ela acontece.
++    for _papel, _arte in (("icone de atalho", app.config["ARTE_DO_ICONE"]),
++                          ("banner do topo", app.config["ARTE_DO_TOPO"])):
++        if not os.path.isfile(_arte):
++            app.logger.warning(
++                "Arte ausente no arranque: %s esperado em '%s'. A rota vai "
++                "degradar para 404 vazio.", _papel, _arte)
++
+     # --- Guarda de exclusividade (RN-05, RF-08) ---
+     #
+     # A medicao de 2026-10-04 mostrou que a plataforma NAO impede a coexistencia:
+diff --git a/src/core/documentary_relationship.py b/src/core/documentary_relationship.py
+index c0f6b26..56b8747 100644
+--- a/src/core/documentary_relationship.py
++++ b/src/core/documentary_relationship.py
+@@ -26,6 +26,7 @@ evidencia** (`evidence[].age_at_birth`, `plausible`) e **avisar**
+ """
+ from __future__ import annotations
+ 
++import hashlib
+ import re
+ import unicodedata
+ from collections import deque
+@@ -213,16 +214,45 @@ def _chave_de(people) -> tuple:
+     processo, entao o cache nunca invalidaria — foi o defeito medido em 2026-10-06
+     e cobrado por `test_6d`.
+ 
+-    A chave usa contagem, primeira e ultima chave — barato e suficiente para
+-    distinguir dois GEDCOMs carregados. Ela continua necessaria depois do `T023`,
+-    que removeu o estado global e a mutacao in place: o parse agora devolve
+-    dicionarios NOVOS, mas este cache e de modulo, e a chave continua sendo o que
+-    garante que ele fale do GEDCOM da vez.
++    ## Correcao de 2026-10-10 (`L-24` / `E-05`)
++
++    A chave era `(len(people), chaves[0], chaves[-1])`. **Medido em 2026-10-10, o
++    cenario era REAL:** duas arvores de 4 pessoas com a mesma chave
++    `(4, '@I1@', '@I9@')` e xrefs interiores diferentes, carregadas no mesmo
++    processo, fizeram o dossie de homonimos da SEGUNDA citar um xref que **nao
++    existe nela**, degradando para `"Sem Nome"` sem levantar nada. O gatilho nao
++    depende do conteudo: as duas arvores reais pequenas da pasta do operador ja
++    compartilhavam os dois extremos (`@I1000@` e `@I9@`) e diferiam **apenas** no
++    tamanho.
++
++    ## O que a assinatura cobre, e por que ela le os NOMES
++
++    Acrescentar so as chaves ao calculo **nao bastaria**: o caso mais provavel e o
++    operador corrigir o nome de uma pessoa e reexportar a MESMA arvore — mesmo
++    conjunto de xrefs, nomes diferentes —, e o indice continuaria dizendo que o
++    nome antigo aponta para aquele id. Como o indice mapeia
++    `normalizar(get_name(p))` -> ids, a assinatura tem de ser sobre o MESMO material
++    que o indice usa: o par `(xref, nome)` de cada pessoa.
++
++    O custo e menor que o da reconstrucao: ler os nomes custa uma fracao do
++    `normalizar` (NFKD + regex) que a construcao do indice paga, e o cache continua
++    valendo a pena nas ~71 consultas do fluxo de DNA.
++
++    `id()` **nao** serve: e reciclado. A assinatura e `blake2b` de 8 bytes — a
++    colisao e possivel em teoria e astronomicamente improvavel na pratica, e o pior
++    caso dela e o mesmo do defeito corrigido aqui, que e o que `tests/test_cache_de_nomes.py`
++    vigia.
+     """
+     if not people:
+-        return (0, None, None)
++        return (0, None, None, "")
+     chaves = sorted(people)
+-    return (len(people), chaves[0], chaves[-1])
++    assinatura = hashlib.blake2b(digest_size=8)
++    for chave in chaves:
++        assinatura.update(chave.encode("utf-8"))
++        assinatura.update(b"\x1f")
++        assinatura.update((get_name(people[chave]) or "").encode("utf-8"))
++        assinatura.update(b"\x1e")
++    return (len(people), chaves[0], chaves[-1], assinatura.hexdigest())
+ 
+ 
+ def _indice_por_nome(arvore) -> dict:
+@@ -465,7 +495,17 @@ def find_all_common_ancestors(arvore, a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIV
+             "total_meioses": da + db,
+             "birth": birth_date(arvore[0], pid),
+         })
+-    comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]), c["name"] or ""))
++    # Ordem: meioses totais, maior distancia, nome — e, no empate dos TRES, o menor
++    # `xref_id`. O quarto criterio e a correcao de 2026-10-10 do `L-25`: a varredura
++    # parte de `set(de_a) & set(de_b)`, entao o empate triplo herdava a ordem de
++    # iteracao do conjunto e mudava com o `PYTHONHASHSEED`. E a MESMA classe do
++    # defeito que o `matching` de `analise-dna` fechou em 2026-10-05 com o menor
++    # `xref_id` (`BR-D-63`), e o desenho e deliberadamente o mesmo.
++    #
++    # `additional_paths` e a lista de colapso derivam desta ordem, entao ficam
++    # deterministicas junto — e nao por acidente.
++    comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]),
++                               c["name"] or "", c["id"]))
+     return comuns[:limit]
+ 
+ 
+diff --git a/src/utils/validate.py b/src/utils/validate.py
+index 1324a7a..a1586a2 100644
+--- a/src/utils/validate.py
++++ b/src/utils/validate.py
+@@ -187,12 +187,21 @@ def motivo_de_indisponibilidade(nome) -> str | None:
+ 
+     - nao tem os 16 hexadecimais: e arquivo anterior a chave por conteudo, e a
+       referencia nao tem como alcanca-lo;
+-    - tem chave, mas o nome visivel carrega caractere que a forma fechada recusa.
+-      E o caso do acento e do espaco, medido na pasta real, e o defeito de raiz
+-      esta registrado como `BUG-20261009-6RKP`.
+-
+-    Dizer "sem chave" para o arquivo acentuado seria mentir sobre o motivo, e o
+-    operador concluiria que o arquivo e antigo quando ele nao e.
++    - tem chave, mas o nome visivel carrega caractere que a **forma de nome** recusa
++      como entrada de diretorio: barra, barra invertida, byte nulo, `.`, `..` ou
++      parte visivel vazia. Dizer "sem chave" para esse arquivo seria mentir sobre o
++      motivo, e o operador concluiria que o arquivo e antigo quando ele nao e.
++
++    ## Correcao de 2026-10-10 (`L-30`)
++
++    Este texto dizia que o segundo motivo era "o caso do acento e do espaco, medido
++    na pasta real". **Nao e mais:** a `_FORMATO_CHAVE` que recusava acento e espaco
++    foi removida pela `RN-20`/`ADR-32`, e `chave_recebida_e_valida` passou a exigir
++    apenas que a parte visivel seja um NOME. Um arquivo como
++    `94e2402671702cac__Familias_Sergipanas.csv` e **disponivel** hoje. O ramo
++    continua, como defesa em profundidade, para os valores que nao podem existir como
++    entrada de diretorio — e e por isso que o motivo nao foi removido junto com a
++    validacao que o originou.
+     """
+     chave, _visivel = decompor_nome_armazenado(nome)
+     if chave is None:
+diff --git a/tests/test_cache_de_nomes.py b/tests/test_cache_de_nomes.py
+new file mode 100644
+index 0000000..8489307
+--- /dev/null
++++ b/tests/test_cache_de_nomes.py
+@@ -0,0 +1,190 @@
++"""O cache de nomes do modulo documental invalida por CONTEUDO (`L-24` / `E-05`).
++
++## O defeito, e por que este arquivo existe
++
++O indice `nome -> ids` e um **cache de modulo**. A chave de invalidacao era
++`(len(people), chaves[0], chaves[-1])`: duas arvores do **mesmo tamanho** e com os
++**mesmos xrefs extremos** compartilhavam o indice, e o dossie de homonimos da
++SEGUNDA citava um xref que **nao existe nela** — sem levantar nada, porque
++`get_name(None)` devolve `"Sem Nome"` e as consultas devolvem `[]`/`None`.
++
++O cenario era **inferido** ate 2026-10-10, quando foi **confirmado por execucao**
++na revisao da re-extracao. E o gatilho medido **nao depende do conteudo**: as duas
++arvores reais pequenas da pasta do operador ja compartilhavam os dois extremos
++(`@I1000@` e `@I9@`) e diferiam **apenas** no tamanho.
++
++## O que estes testes prendem
++
++Eles prendem o **defeito**, e nao a forma da chave: qualquer implementacao que
++invalide por conteudo passa, e qualquer uma que volte a invalidar por tamanho e
++extremos cai. Os dois primeiros **falhavam antes da correcao**.
++
++O segundo cobre o caso **mais provavel dos dois**, e o que quase escapou da
++correcao: o operador corrigir o nome de uma pessoa e reexportar a mesma arvore —
++mesmo conjunto de xrefs, nomes diferentes. Invalidar so pelas chaves nao bastaria.
++"""
++from __future__ import annotations
++
++import os
++import sys
++import tempfile
++
++import pytest
++
++RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++sys.path.insert(0, os.path.join(RAIZ, "src"))
++
++from parsers import gedcom_parser  # noqa: E402
++from core import documentary_relationship as dr  # noqa: E402
++
++# Duas arvores de QUATRO pessoas cada, com os MESMOS extremos (`@I1@` e `@I9@`) e
++# xrefs interiores diferentes. A chave antiga era identica para as duas.
++ARVORE_A = """0 HEAD
++1 GEDC
++2 VERS 5.5.1
++0 @I1@ INDI
++1 NAME Ana /Silva/
++0 @I2@ INDI
++1 NAME Joao /Silva/
++0 @I3@ INDI
++1 NAME Rita /Silva/
++0 @I9@ INDI
++1 NAME Ze /Silva/
++0 TRLR
++"""
++
++ARVORE_B = """0 HEAD
++1 GEDC
++2 VERS 5.5.1
++0 @I1@ INDI
++1 NAME Ana /Souza/
++0 @I4@ INDI
++1 NAME Pedro /Souza/
++0 @I5@ INDI
++1 NAME Clara /Souza/
++0 @I9@ INDI
++1 NAME Ze /Souza/
++0 TRLR
++"""
++
++# Mesmo conjunto de xrefs; so o NOME de `@I1@` muda. E o caso do operador que
++# corrige um nome e reexporta a arvore.
++RENOMEADA_A = """0 HEAD
++1 GEDC
++2 VERS 5.5.1
++0 @I1@ INDI
++1 NAME Joao /Silva/
++0 @I2@ INDI
++1 NAME Maria /Silva/
++0 TRLR
++"""
++
++RENOMEADA_B = """0 HEAD
++1 GEDC
++2 VERS 5.5.1
++0 @I1@ INDI
++1 NAME Pedro /Souza/
++0 @I2@ INDI
++1 NAME Maria /Silva/
++0 TRLR
++"""
++
++
++def _gravar(conteudo: str, sufixo=".ged"):
++    fd, caminho = tempfile.mkstemp(suffix=sufixo)
++    with os.fdopen(fd, "w", encoding="utf-8") as fh:
++        fh.write(conteudo)
++    return caminho
++
++
++@pytest.fixture()
++def duas_arvores():
++    caminhos = [_gravar(ARVORE_A), _gravar(ARVORE_B)]
++    yield caminhos
++    for caminho in caminhos:
++        try:
++            os.unlink(caminho)
++        except OSError:
++            pass
++
++
++@pytest.fixture()
++def arvore_renomeada():
++    caminhos = [_gravar(RENOMEADA_A), _gravar(RENOMEADA_B)]
++    yield caminhos
++    for caminho in caminhos:
++        try:
++            os.unlink(caminho)
++        except OSError:
++            pass
++
++
++def _ids_citados(dossie: dict) -> list:
++    ids = []
++    for valor in dossie.values():
++        if isinstance(valor, list):
++            for item in valor:
++                if isinstance(item, dict) and "id" in item:
++                    ids.append(item["id"])
++    return ids
++
++
++def test_arvores_de_mesmo_tamanho_e_extremos_nao_compartilham_o_indice(duas_arvores):
++    """O caso medido em 2026-10-10 — este teste FALHAVA antes da correcao."""
++    a = gedcom_parser.carregar_arvore(duas_arvores[0])
++    b = gedcom_parser.carregar_arvore(duas_arvores[1])
++
++    assert len(a[0]) == len(b[0]) == 4
++    assert sorted(a[0])[0] == sorted(b[0])[0] == "@I1@"
++    assert sorted(a[0])[-1] == sorted(b[0])[-1] == "@I9@"
++
++    # A primeira arvore aquece o cache.
++    assert dr.homonym_dossier(a, "Joao Silva")["exact_count"] == 1
++
++    # A segunda NAO tem nenhum "Joao", e nao pode herdar o indice da primeira.
++    dossie_b = dr.homonym_dossier(b, "Joao Silva")
++    assert dossie_b["exact_count"] == 0, (
++        "o dossie da segunda arvore citou um nome que so existe na primeira"
++    )
++    for pid in _ids_citados(dossie_b):
++        assert pid in b[0], f"o dossie citou {pid}, que nao existe na arvore carregada"
++
++
++def test_mesmos_xrefs_com_nomes_diferentes_invalidam_o_indice(arvore_renomeada):
++    """O caso mais provavel: o operador renomeia e reexporta a MESMA arvore.
++
++    Invalidar so pelas chaves nao bastaria — o conjunto de xrefs e identico aqui.
++    """
++    a = gedcom_parser.carregar_arvore(arvore_renomeada[0])
++    b = gedcom_parser.carregar_arvore(arvore_renomeada[1])
++
++    assert sorted(a[0]) == sorted(b[0]), "o teste so vale com o conjunto de xrefs igual"
++
++    assert dr.homonym_dossier(a, "Joao Silva")["exact_count"] == 1
++
++    dossie_b = dr.homonym_dossier(b, "Joao Silva")
++    assert dossie_b["exact_count"] == 0, (
++        "o indice sobreviveu a troca de nomes com os xrefs iguais"
++    )
++    assert dr.homonym_dossier(b, "Pedro Souza")["exact_count"] == 1
++
++
++def test_a_chave_muda_quando_o_conteudo_muda(duas_arvores, arvore_renomeada):
++    """A chave e funcao do conteudo — nas duas formas de diferenca."""
++    a, b = (gedcom_parser.carregar_arvore(c)[0] for c in duas_arvores)
++    ra, rb = (gedcom_parser.carregar_arvore(c)[0] for c in arvore_renomeada)
++
++    assert dr._chave_de(a) != dr._chave_de(b), "xrefs interiores diferentes"
++    assert dr._chave_de(ra) != dr._chave_de(rb), "nomes diferentes com os mesmos xrefs"
++    assert dr._chave_de(a) == dr._chave_de(a), "a chave tem de ser estavel para o mesmo conteudo"
++    assert dr._chave_de({}) == (0, None, None, "")
++
++
++def test_o_indice_continua_sendo_reaproveitado_para_a_mesma_arvore(duas_arvores):
++    """A correcao nao pode ter matado o cache — era ele que evitava 71 varreduras."""
++    a = gedcom_parser.carregar_arvore(duas_arvores[0])
++
++    primeiro = dr._indice_por_nome(a)
++    segundo = dr._indice_por_nome(a)
++
++    assert primeiro is segundo, "o mapa foi reconstruido para a mesma arvore"
+diff --git a/tests/test_determinismo_dos_ancestrais.py b/tests/test_determinismo_dos_ancestrais.py
+new file mode 100644
+index 0000000..d9dfc87
+--- /dev/null
++++ b/tests/test_determinismo_dos_ancestrais.py
+@@ -0,0 +1,149 @@
++"""Ordenacao deterministica dos ancestrais comuns (`L-25`).
++
++## O defeito
++
++`find_all_common_ancestors` varre `set(de_a) & set(de_b)` e ordena por
++`(meioses totais, maior distancia, nome)`. Quando **dois ancestrais empatam nos TRES
++criterios**, a ordem final era a da iteracao do conjunto — que muda com o
++`PYTHONHASHSEED`, isto e, entre execucoes do mesmo codigo. `additional_paths` e a
++lista de colapso derivam dessa ordem, entao herdavam a instabilidade.
++
++E a **mesma classe** do defeito que o `matching` de `analise-dna` fechou em
++2026-10-05 com um quarto criterio deterministico — o menor `xref_id` (`BR-D-63`).
++A correcao de 2026-10-10 aplica aqui o mesmo desenho, deliberadamente.
++
++## O que este teste prende
++
++A **ordem por `xref_id` no empate triplo**, e nao o texto da chave. Duas arvores
++LOGICAMENTE identicas sao montadas com a declaracao dos ancestrais em ordens
++trocadas; as duas tem de devolver a MESMA lista, na ordem dos ids.
++
++> **Nota de honestidade:** um defeito de ordem de `set` pode passar por sorte dentro
++> de um unico processo. Por isso o teste nao depende de semente: ele fixa o contrato
++> (no empate, o menor `xref_id` vence) e o confere nas duas declaracoes.
++"""
++from __future__ import annotations
++
++import os
++import sys
++import tempfile
++
++import pytest
++
++RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++sys.path.insert(0, os.path.join(RAIZ, "src"))
++
++from parsers import gedcom_parser  # noqa: E402
++from core import documentary_relationship as dr  # noqa: E402
++
++# `@I1@` e `@I2@` descendem, os DOIS, de `@I10@` e de `@I20@`, a distancia 2 de
++# cada lado. Os dois ancestrais se chamam "Joao Silva". Resultado: empate exato em
++# meioses (4), maior distancia (2) e nome — o que sobra e o `xref_id`.
++_CABECA = """0 HEAD
++1 GEDC
++2 VERS 5.5.1
++"""
++
++_CORPO_ANCESTRAIS = """0 {primeiro} INDI
++1 NAME Joao /Silva/
++1 SEX M
++0 {segundo} INDI
++1 NAME Joao /Silva/
++1 SEX M
++"""
++
++_CAUDA = """0 @I3@ INDI
++1 NAME Ana /Silva/
++0 @I4@ INDI
++1 NAME Ana /Souza/
++0 @I5@ INDI
++1 NAME Bruno /Silva/
++0 @I6@ INDI
++1 NAME Bruno /Souza/
++0 @I1@ INDI
++1 NAME Alvo /Um/
++1 FAMC @F30@
++0 @I2@ INDI
++1 NAME Alvo /Dois/
++1 FAMC @F32@
++0 @F10@ FAM
++1 HUSB @I10@
++1 CHIL @I3@
++1 CHIL @I5@
++0 @F20@ FAM
++1 WIFE @I20@
++1 CHIL @I4@
++1 CHIL @I6@
++0 @F30@ FAM
++1 HUSB @I3@
++1 WIFE @I4@
++1 CHIL @I1@
++0 @F32@ FAM
++1 HUSB @I5@
++1 WIFE @I6@
++1 CHIL @I2@
++0 TRLR
++"""
++
++
++def _montar(primeiro: str, segundo: str) -> str:
++    return _CABECA + _CORPO_ANCESTRAIS.format(primeiro=primeiro, segundo=segundo) + _CAUDA
++
++
++def _gravar(conteudo: str) -> str:
++    fd, caminho = tempfile.mkstemp(suffix=".ged")
++    with os.fdopen(fd, "w", encoding="utf-8") as fh:
++        fh.write(conteudo)
++    return caminho
++
++
++@pytest.fixture()
++def duas_declaracoes():
++    caminhos = [_gravar(_montar("@I10@", "@I20@")), _gravar(_montar("@I20@", "@I10@"))]
++    yield caminhos
++    for caminho in caminhos:
++        try:
++            os.unlink(caminho)
++        except OSError:
++            pass
++
++
++def test_o_empate_triplo_e_desempatado_pelo_menor_xref_id(duas_declaracoes):
++    for caminho in duas_declaracoes:
++        arvore = gedcom_parser.carregar_arvore(caminho)
++        comuns = dr.find_all_common_ancestors(arvore, "@I1@", "@I2@")
++
++        ids = [c["id"] for c in comuns]
++        assert ids == ["@I10@", "@I20@"], (
++            "no empate em meioses, distancia e nome, a ordem tem de ser a dos ids"
++        )
++
++        # O empate tem de ser REAL — senao o teste nao estaria medindo o quarto
++        # criterio, e sim um dos tres primeiros.
++        primeiro, segundo = comuns[0], comuns[1]
++        assert primeiro["total_meioses"] == segundo["total_meioses"] == 4
++        assert max(primeiro["distance_a"], primeiro["distance_b"]) == 2
++        assert max(segundo["distance_a"], segundo["distance_b"]) == 2
++        assert primeiro["name"] == segundo["name"] == "Joao Silva"
++
++
++def test_a_ordem_nao_depende_da_ordem_de_declaracao_no_arquivo(duas_declaracoes):
++    ordens = []
++    for caminho in duas_declaracoes:
++        arvore = gedcom_parser.carregar_arvore(caminho)
++        ordens.append([c["id"] for c in dr.find_all_common_ancestors(arvore, "@I1@", "@I2@")])
++
++    assert ordens[0] == ordens[1], (
++        "duas declaracoes da MESMA arvore produziram ordens diferentes"
++    )
++
++
++def test_a_lista_do_parentesco_documental_herda_a_ordem(duas_declaracoes):
++    """`common_ancestors` e `additional_paths` derivam desta ordem — nao por acidente."""
++    arvore = gedcom_parser.carregar_arvore(duas_declaracoes[1])
++    resultado = dr.documentary_relationship(arvore, "@I1@", "@I2@")
++
++    ids = [c["id"] for c in resultado["common_ancestors"]]
++    assert ids == ["@I10@", "@I20@"], (
++        "a lista exposta pelo parentesco documental perdeu a ordem deterministica"
++    )

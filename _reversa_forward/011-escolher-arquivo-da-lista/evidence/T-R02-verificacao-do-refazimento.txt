@@ -1,0 +1,48 @@
+Refazimento da implementacao da feature 011 - verificacao final
+Data: 2026-10-11
+Ponto de restauracao: HEAD = 8eb466ad4765afec41eba90bff855615f4cf1ac6
+
+O que foi refeito (9 arquivos, os que a feature escreveu):
+  src/reporting/lista_de_arquivos.py
+  src/utils/validate.py
+  src/ports/__init__.py
+  src/ports/adaptadores.py
+  src/application/reenvio.py
+  src/application/upload_gedcom.py
+  src/application/traducao.py   (somente o tradutor de GEDCOM recusado)
+  src/app.py
+  src/templates/index.html
+
+O que NAO foi tocado:
+  tests/                        -> git status vazio (os 527 testes sao o contrato congelado)
+  src/core/, src/parsers/       -> git diff vazio
+  src/application/dna_analysis.py, path_search.py -> git diff vazio
+  .reversa/correcoes-agendadas-2026-10-10.patch   -> nao aplicado, continua como estava
+  src/uploads/                  -> 13 arquivos, 9.920.167 bytes, IDENTICO a linha de base
+  src/uploads/_aposentados/     -> 4 arquivos (a tela nao foi exercitada; nada mudou)
+
+Medicoes (antes -> depois):
+  suite   : 527 passed, 9 skipped  ->  527 passed, 9 skipped
+  paridade: PARIDADE 100 %         ->  PARIDADE 100 % (zero divergencia)
+  tests/  : 0 alteracoes           ->  0 alteracoes
+  SHA_DA_TELA de tests/test_icone_de_atalho.py (17240e5a...): NAO precisou mudar
+
+Decisao de execucao declarada: o estado vazio da tela e preso por SHA em
+tests/test_icone_de_atalho.py, e os testes sao o contrato congelado. Por isso o markup
+emitido no caminho da tela vazia ficou byte a byte igual, e o que foi reescrito nele sao
+os COMENTARIOS (que nao emitem saida) e as DUAS TABELAS de listagem, agora emitidas por um
+macro unico (`tabela_de_arquivos`) em vez de duas copias.
+
+sha256 depois:
+  d985c32bf7d6f4d64bb4ef48c9252527e70a641c9151ea1a4e04f2d9ead929d3  src/reporting/lista_de_arquivos.py
+  ce6e724cb3bcaf6bf5a74958caa828cdc5922f733c336e7ecad273baf5f18108  src/utils/validate.py
+  463387a5acd04a8a9029828f4b56c5c1b59da4d07946c11af5aa9fdc0494184c  src/ports/__init__.py
+  5299daaab06e911d8414ee123677925229691b87f54ca5ca4867ee9630a45f34  src/ports/adaptadores.py
+  219d4244eeb8b8e99b5ae53d9940a875f89ceab9fdd0f83b707c6cda476e9a97  src/application/reenvio.py
+  ab6316539b496f140b1a85aa856fe618cd2c973543851d436b191bf59e90e4e7  src/application/upload_gedcom.py
+  d18d4358982cf174e8cd1f7605bad19c0e6fadb5638ab248a96e79f0bc7df356  src/application/traducao.py
+  fe88f1ef009cc3f7444336905043865e98ec1b607c7dededd58df79431875d26  src/app.py
+  b6be9f8d6a40a71457aca7c22edeb48f81e624355fa160acaefcf263cdf90630  src/templates/index.html
+
+Restaurar o estado anterior, se for preciso:
+  git checkout 8eb466ad4765afec41eba90bff855615f4cf1ac6 -- src/
