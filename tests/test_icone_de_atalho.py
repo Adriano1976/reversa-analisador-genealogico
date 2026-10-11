@@ -55,7 +55,23 @@ TAMANHO_ESPERADO = 16504
 #: texto de apresentacao ficasse na mesma forma organizada da documentacao — centralizado e em
 #: coluna mais estreita —, e ele aparece nos DOIS ramos da tela. Era `36070ae0…`, 27.209 bytes;
 #: e `17240e5a…`, 27.502. A mudanca esta declarada na `RN-24` do adendo vigente.
-SHA_DA_TELA = "17240e5a29e800a6bbeca5e5c9e0e0c79e97ba61d469428b261e1cf769efe2bf"
+#:
+#: **Atualizado em 2026-10-11, pela revisao de design da tela.** O operador pediu a aplicacao das
+#: sugestoes de design que ele mandou: a folha de estilo saiu do `<style>` embutido e passou a ser
+#: servida por `GET /app.css` (rota nova, em `src/assets/app.css` — `src/static/` continua proibida
+#: pelo `W004`); o topo deixou de repetir em texto o titulo que a arte ja mostra (o `<h1>` ficou so
+#: semantico); o resultado ganhou indice com ancoras e o veredito da confrontacao subiu para o
+#: cabecalho do cartao. A tela vazia que este teste mede carrega o `<head>` — folha, fontes e tema —
+#: e o topo, entao ela tambem muda. Era `17240e5a…`, 27.502 bytes; passou a `1066e272…`, 27.241.
+#:
+#: **Atualizado no MESMO dia, pelo controle de tema.** O operador pediu um botao visivel para
+#: escolher entre claro e escuro, com o **claro como padrao** — antes o tema vinha de
+#: `matchMedia('(prefers-color-scheme: dark)')`, e quem tinha o Windows no escuro abria a aplicacao
+#: no escuro sem ter pedido. O botao vive fora dos dois ramos da tela, entao ele aparece tambem na
+#: tela vazia que este teste mede. Era `1066e272…`, 27.241 bytes; e `f2b2233e…`, 28.858. O
+#: paragrafo de 2026-10-09 continua sendo a justificativa, e nao uma licenca: o invariante e "a tela
+#: nao mudou DESDE a ultima mudanca declarada", e estas mudancas estao declaradas aqui.
+SHA_DA_TELA = "f2b2233e5b1a537672ddb0e50ad29681f93249e49e68a26956f3e77af6b8fb66"
 
 
 def _cabecalho_png(corpo: bytes):

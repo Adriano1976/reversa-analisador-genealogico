@@ -1,0 +1,163 @@
+/* app.css — a folha de estilo da tela, substituindo o `<style>` embutido no template.
+   Mantém TODOS os nomes de classe já usados no template: funciona sem mexer no HTML.
+
+   SERVIDA POR ROTA, E NAO POR PASTA ESTATICA. `src/static/` e proibida pelo `W004`
+   (feature 003) e o `RN-07` da feature 009 proibe configurar diretorio estatico, entao o
+   arquivo mora em `src/assets/` — a pasta que o `.dockerignore` deixa entrar na imagem
+   (`!src/**`) — e sai por `GET /app.css`, com o mesmo desenho das duas rotas de arte.
+   A paleta (verde-folha, marrom do tronco e pergaminho) foi tirada da propria arte do topo. */
+
+:root{
+  --bg:#F5F1E6;
+  --surface:#fff;
+  --surface-2:#F8F4E9;
+  --ink:#2A2418;
+  --head:#4A3B1A;
+  --muted:#6A6150;
+  --line:#DDD4BF;
+  --primary:#3F6B2E;
+  --primary-hover:#335724;
+  --on-primary:#fff;
+  --danger:#A8321F;
+  --focus:#8A5A2B;
+  --aviso-bg:#FBF3DC;
+  --aviso-line:#A8741F;
+  --ok:#2F6B3A;
+  --poss:#7A4F00;
+  --conf:#A8321F;
+  --inc:#6A6150;
+  --graph-bg:#FFFFFF;
+  --st-compativel:#2F6B3A; --st-possivel:#7A4F00; --st-conflitante:#A8321F; --st-inconclusivo:#6A6150;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+
+  --bs-body-bg:var(--bg); --bs-body-color:var(--ink); --bs-border-color:var(--line);
+  --bs-body-font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bs-secondary-color:var(--muted); --bs-link-color:var(--primary); --bs-link-hover-color:var(--primary-hover);
+}
+:root[data-bs-theme="dark"]{
+  --bg:#16140F;
+  --surface:#1F1C14;
+  --surface-2:#26221A;
+  --ink:#EDE7D6;
+  --head:#E8D9B0;
+  --muted:#A99F88;
+  --line:#3A3426;
+  --primary:#8DBB6E;
+  --primary-hover:#A5CC8B;
+  --on-primary:#16140F;
+  --danger:#EE9A88;
+  --focus:#D9A85E;
+  --aviso-bg:#2B2512;
+  --aviso-line:#D9A85E;
+  --graph-bg:#FFFFFF;
+  /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
+}
+
+body{background:var(--bg);color:var(--ink);line-height:1.55}
+h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,4vw,2.5rem)}
+h2{font-size:1.6rem}
+
+a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Cartão principal e cartões de resultado */
+.card{--bs-card-bg:var(--surface);--bs-card-border-color:var(--line);--bs-card-cap-bg:var(--surface-2);margin-top:1.5rem;border-radius:10px}
+.main-card{box-shadow:none!important}
+.card-header h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600}
+
+/* Banner: era 50% do cartão e empurrava o formulário para baixo da dobra */
+.main-card .img-fluid.w-50{width:min(50%,320px)!important}
+
+/* Abas */
+.nav-tabs{--bs-nav-tabs-border-color:var(--line);margin-bottom:1.5rem}
+.nav-tabs .nav-link{color:var(--muted);border:0;border-bottom:3px solid transparent;font-weight:500;background:none}
+.nav-tabs .nav-link:hover{color:var(--ink);border-bottom-color:var(--line)}
+.nav-tabs .nav-link.active{color:var(--ink);background:none;border-bottom-color:var(--primary)}
+
+/* Botões: uma única cor de ação principal; destrutivo vira contorno */
+.btn-primary,.btn-info,.btn-success{
+  --bs-btn-bg:var(--primary);--bs-btn-border-color:var(--primary);--bs-btn-color:var(--on-primary);
+  --bs-btn-hover-bg:var(--primary-hover);--bs-btn-hover-border-color:var(--primary-hover);--bs-btn-hover-color:var(--on-primary);
+  --bs-btn-active-bg:var(--primary-hover);--bs-btn-active-border-color:var(--primary-hover);--bs-btn-active-color:var(--on-primary);
+  font-weight:600}
+.btn-danger{
+  --bs-btn-bg:transparent;--bs-btn-border-color:var(--danger);--bs-btn-color:var(--danger);
+  --bs-btn-hover-bg:var(--danger);--bs-btn-hover-border-color:var(--danger);--bs-btn-hover-color:#fff;
+  --bs-btn-active-bg:var(--danger);--bs-btn-active-border-color:var(--danger);--bs-btn-active-color:#fff}
+
+/* Campos */
+.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:6px}
+.form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary) 25%,transparent)}
+.spinner-border.text-primary{color:var(--primary)!important}
+/* O tamanho do indicador vinha do `<style>` embutido e quase se perdeu na troca: sem esta
+   regra ele volta ao tamanho padrao do Bootstrap e a espera deixa de ser visivel. */
+.spinner-border{width:3rem;height:3rem}
+
+/* Tabelas */
+.table{--bs-table-bg:transparent;--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
+.table-light,.table > :not(caption) > * > .table-light{--bs-table-bg:var(--surface-2);--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
+.table thead th{font-weight:500;color:var(--muted);white-space:nowrap}
+.tabela-evidencia{font-size:.85rem}
+
+/* Seções do relatório: sentença normal em vez de CAIXA ALTA espaçada */
+.secao{margin-top:1.75rem;border-top:1px solid var(--line);padding-top:1rem}
+.secao h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600;text-transform:none;letter-spacing:0}
+.secao h5 .numero{color:var(--muted);font-weight:500}
+.rotulo-fonte{font-size:.82rem;color:var(--muted);text-transform:none;letter-spacing:0}
+
+/* Avisos */
+.alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:.25rem;font-size:.9rem}
+.documental-ambiguo{color:var(--danger);font-weight:600}
+
+/* Estados da confrontação — o laranja antigo (#fd7e14 com texto branco) não passava em contraste */
+.badge[class*="estado-"]{color:#fff}
+.estado-COMPATIVEL{background-color:var(--st-compativel)}
+.estado-POSSIVEL{background-color:var(--st-possivel)}
+.estado-CONFLITANTE{background-color:var(--st-conflitante)}
+.estado-INCONCLUSIVO{background-color:var(--st-inconclusivo)}
+
+/* Grafo */
+.graph-container{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--graph-bg);color:#172B3A;overflow-x:auto}
+.mermaid{text-align:center}
+
+/* details/summary */
+details>summary{cursor:pointer;color:var(--primary)}
+details>summary:hover{text-decoration:underline}
+
+/* Evidência genética em grade compacta */
+.kit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem 1.5rem;margin:0 0 .75rem}
+.kit-grid dt{font-weight:500;color:var(--muted);font-size:.8rem;margin:0}
+.kit-grid dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kit-grid .destaque{font-family:var(--serif);font-size:1.6rem;font-weight:600;line-height:1.15}
+
+/* Índice de resultados no topo */
+.indice-resultados td,.indice-resultados th{padding:.5rem .6rem}
+html{scroll-padding-top:1rem}
+/* O cartão de destino pisca ao ser alcançado pelo índice, para o olho achar a linha */
+.card:target{outline:3px solid var(--focus);outline-offset:4px}
+
+/* Botão de tema (claro/escuro).
+   FIXO no canto, e nao no fluxo do cartao: um relatorio com vinte matches e longo, e o
+   controle tem de continuar alcancavel depois de rolar. O `z-index` e o mesmo degrau dos
+   elementos fixos do Bootstrap (1030), para ficar acima do conteudo e abaixo de modal.
+   Ele vive na MARGEM do topo: o cartao comeca em `my-5` (3rem), entao em tela estreita o
+   botao fica acima do cartao, e nao por cima dele. */
+.botao-tema{
+  position:fixed;top:1rem;right:1rem;z-index:1030;
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;
+  padding:.4rem .85rem;font:inherit;font-size:.85rem;font-weight:500;
+  box-shadow:0 1px 4px rgba(0,0,0,.14);cursor:pointer
+}
+.botao-tema:hover{border-color:var(--primary);color:var(--primary)}
+.botao-tema .icone-tema{font-size:1rem;line-height:1}
+@media (max-width:575.98px){
+  .botao-tema{top:.5rem;right:.5rem;padding:.35rem .7rem}
+}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Banner: o PNG é transparente e o texto dele é marrom; no tema escuro precisa de uma placa clara */
+:root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:14px;padding:.4rem}
+/* h1 só semântico: o banner já mostra "Analisador Genealógico" */

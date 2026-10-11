@@ -326,6 +326,44 @@ def banner_do_topo():
     return send_file(caminho, mimetype="image/png")
 
 
+# --- A folha de estilo da tela ---
+#
+# A identidade visual saiu do `<style>` embutido no template e passou a ser um ARQUIVO
+# servido, com o MESMO desenho das duas rotas de arte acima: `GET` sozinho, para a recusa
+# de escrita sair do roteador com `405`; o `ETag` do `send_file` respondendo `304` sem
+# corpo na rebusca; e **arquivo ausente devolve `404` e nada mais muda** — a tela continua
+# de pe, apenas sem a identidade visual, que e degradacao aceitavel.
+#
+# POR QUE UMA ROTA, E NAO `src/static/`. A pasta estatica e PROIBIDA pelo `W004` (feature
+# 003), e o `RN-07` da feature 009 proibe CONFIGURAR diretorio estatico. `src/assets/` e a
+# pasta que o `.dockerignore` deixa entrar na imagem (`!src/**`), entao o arquivo responde
+# igual na maquina de desenvolvimento e dentro do container — servido de `src/templates/`
+# ou da raiz, responderia `200` no host e `404` no ambiente do operador.
+#
+# SEM VALIDADE LONGA DE CACHE, pela mesma razao das duas artes: a folha muda ao sabor do
+# pedido do operador, e uma validade longa congelaria o cliente que ja a tivesse buscado. O
+# `ETag` ja da a revalidacao barata.
+ESTILO_DA_TELA = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "app.css"
+)
+# Em `config` para o caso de ausencia ser testavel sem tocar no arquivo, como nas artes.
+app.config["ESTILO_DA_TELA"] = ESTILO_DA_TELA
+
+
+@app.route("/app.css", methods=["GET"])
+def estilo_da_tela():
+    """Serve a folha de estilo da tela.
+
+    O `mimetype` e declarado, e nao adivinhado pelo `send_file`: o navegador so aplica a
+    folha se o `Content-Type` for `text/css`, e a extensao `.css` seria a unica coisa a
+    sustenta-lo.
+    """
+    caminho = app.config["ESTILO_DA_TELA"]
+    if not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype="text/css")
+
+
 # --- As listas da tela (feature 011) ---
 #
 # O `GET /` entrega as duas abas com as listas **sempre**, e nao apenas depois de um envio.
