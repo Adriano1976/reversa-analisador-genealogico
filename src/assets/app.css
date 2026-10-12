@@ -19,6 +19,11 @@
   --primary-hover:#335724;
   --on-primary:#fff;
   --danger:#A8321F;
+  /* Texto SOBRE a cor de perigo. Existe pelo mesmo motivo do `--on-primary`: o tema escuro
+     CLAREIA o `--danger`, e o `#fff` que estava fixo no `.btn-danger` dava 2,18:1 no hover do
+     "Apagar" — o rotulo sumia justamente com o dedo no botao. Aqui, `#fff` sobre `#A8321F` da
+     6,69:1; no escuro, `#16140F` sobre `#EE9A88` da 8,42:1. */
+  --on-danger:#fff;
   --focus:#8A5A2B;
   --aviso-bg:#FBF3DC;
   --aviso-line:#A8741F;
@@ -46,6 +51,7 @@
   --primary-hover:#A5CC8B;
   --on-primary:#16140F;
   --danger:#EE9A88;
+  --on-danger:#16140F;
   --focus:#D9A85E;
   --aviso-bg:#2B2512;
   --aviso-line:#D9A85E;
@@ -80,10 +86,13 @@ a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible
   --bs-btn-hover-bg:var(--primary-hover);--bs-btn-hover-border-color:var(--primary-hover);--bs-btn-hover-color:var(--on-primary);
   --bs-btn-active-bg:var(--primary-hover);--bs-btn-active-border-color:var(--primary-hover);--bs-btn-active-color:var(--on-primary);
   font-weight:600}
+/* A cor do texto no hover/active vem de `--on-danger`, e NAO de `#fff` fixo: era esse literal
+   que sumia no tema escuro (2,18:1). Mesmo padrao que o `.btn-primary` ja usava com
+   `--on-primary`. */
 .btn-danger{
   --bs-btn-bg:transparent;--bs-btn-border-color:var(--danger);--bs-btn-color:var(--danger);
-  --bs-btn-hover-bg:var(--danger);--bs-btn-hover-border-color:var(--danger);--bs-btn-hover-color:#fff;
-  --bs-btn-active-bg:var(--danger);--bs-btn-active-border-color:var(--danger);--bs-btn-active-color:#fff}
+  --bs-btn-hover-bg:var(--danger);--bs-btn-hover-border-color:var(--danger);--bs-btn-hover-color:var(--on-danger);
+  --bs-btn-active-bg:var(--danger);--bs-btn-active-border-color:var(--danger);--bs-btn-active-color:var(--on-danger)}
 
 /* Campos */
 .form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:6px}

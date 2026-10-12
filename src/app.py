@@ -11,7 +11,7 @@ from reporting.lista_de_arquivos import (
     itens_da_aba,
     rotulo_de_referencia,
 )
-from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 
 from application import Desfecho, nomes_de_exibicao
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
@@ -97,6 +97,22 @@ TETO_DE_UPLOAD_EM_BYTES = 16 * 1024 * 1024
 # A divisao fica aqui, ao lado da origem, para as duas formas do MESMO teto
 # mudarem juntas se o valor mudar um dia.
 TETO_DE_UPLOAD_EM_MB = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
+
+# O teto ACIMA, na camada que RECEBE a conexao (`waitress.max_request_body_size`).
+#
+# POR QUE ELE E NECESSARIO. O `MAX_CONTENT_LENGTH` do Flask so age quando o Flask ja tem o
+# `environ` na mao — e o waitress acumula o corpo inteiro ANTES disso. O padrao do waitress e de
+# **1 GB**, entao o teto de 16 MB nao impedia nada na camada de baixo: o multipart inteiro
+# chegava (e, acima de `inbuf_overflow`, deixava de caber so em memoria) para so entao virar
+# `413`. Era a classe do BUG-20260929-QMLY sobrevivendo uma camada abaixo da correcao que a
+# declarou fechada.
+#
+# POR QUE COM MARGEM, e nao o valor exato. Com o limite do waitress IGUAL ao do Flask, um arquivo
+# logo acima do teto seria cortado pelo servidor e o operador leria o `413` cru do waitress, sem a
+# mensagem da aplicacao. A margem de 1 MB deixa a faixa proxima do teto chegar ao Flask e receber
+# "Arquivo maior que o limite de 16 MB."; muito acima disso, o corte e do servidor — e ai o custo
+# evitado (receber centenas de MB para recusar no fim) vale mais do que a mensagem bonita.
+MARGEM_DO_MULTIPART = 1024 * 1024
 
 app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
@@ -326,6 +342,31 @@ def banner_do_topo():
     return send_file(caminho, mimetype="image/png")
 
 
+# A arte do topo traz "Analisador Genealogico" DESENHADO nela, entao o `<h1>` fica `visually-hidden`
+# enquanto ela responde: mostrar os dois nomearia o produto duas vezes, uma logo abaixo da outra. O
+# `<h1>` nao sai do documento — ele continua sendo o titulo de nivel 1 para leitor de tela e buscador.
+#
+# A CONDICAO E DO SERVIDOR, e nao do navegador. O CSS nao sabe se uma imagem carregou, e o JS so
+# descobriria depois de a pagina pintar — tarde para quem ja leu o topo. Aqui a pergunta e feita antes
+# de renderizar, e `os.path.isfile` e a MESMA pergunta que a rota responde em `404`: as duas nao podem
+# divergir.
+#
+# POR QUE ISSO IMPORTA. Sem a arte, esconder o `<h1>` deixaria o operador com o subtitulo em ingles e
+# **nenhuma** identificacao do produto em portugues. Era o caso que o `RN-08` declara suportado (a arte
+# pode faltar e a tela continua de pe) e que ficou descoberto quando o `<h1>` passou a ser escondido.
+#
+# Vem por processador de contexto, e nao por argumento nos oito `render_template`, pelo mesmo motivo das
+# listas: seriam oito lugares para esquecer um.
+@app.context_processor
+def _arte_do_topo_disponivel():
+    """`True` enquanto o arquivo da arte do topo estiver no disco.
+
+    Lida de `app.config` a cada renderizacao, e nao capturada no import: e o que permite ao teste
+    apontar `ARTE_DO_TOPO` para um caminho inexistente e medir a tela sem a arte.
+    """
+    return {"arte_do_topo_disponivel": os.path.isfile(app.config["ARTE_DO_TOPO"])}
+
+
 # --- A folha de estilo da tela ---
 #
 # A identidade visual saiu do `<style>` embutido no template e passou a ser um ARQUIVO
@@ -421,7 +462,17 @@ def index():
                 # unica diferenca e que agora a condicao chega TIPADA: a moldura
                 # e da tabela de traducao, e o motivo veio dentro da excecao.
                 return render_template("index.html", message=traduzir(erro_de_dominio).mensagem, success=False)
+            except HTTPException:
+                # Erro do CLIENTE (campo obrigatorio ausente, corpo malformado) NAO e falha
+                # inesperada nossa, e era engolido pelo `except Exception` logo abaixo: o operador
+                # recebia **200** com o texto interno do Werkzeug na tela. Sobe para o Flask
+                # responder o status certo, como ja acontece com o `413` do teto de upload.
+                raise
             except Exception as e:
+                # O LITERAL E CONTRATO CONGELADO (`upload-gedcom/contracts.md` secao de literais):
+                # ele nao muda aqui. O que faltava era o RASTRO — a extracao registra "Nada e
+                # registrado em log" como lacuna de gravidade alta, e esta linha e a que a fecha.
+                app.logger.exception("falha inesperada no envio de GEDCOM")
                 return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
 
         if action == "aposentar_arquivo":
@@ -474,7 +525,20 @@ def index():
 
         if action == "dna_analysis":
             try:
-                root_name = request.form["root_name"]
+                # O `.strip()` alinha a analise de DNA com a busca de caminho, que ja o faz nos
+                # dois nomes (`person1_name`/`person2_name`, logo abaixo). Sem ele, um espaco
+                # colado junto ao nome — vindo do GEDCOM, de um export do Gedmatch ou de um
+                # copiar-e-colar — fazia a pessoa NAO ser encontrada, e o operador lia
+                # "Seu nome 'Carlos Silva Souza ' nao foi encontrado" sem entender por que.
+                #
+                # O VAZIO NAO PODE SEGUIR, e a razao e medida: o nucleo casa por
+                # `root_name.lower() in nome` (`core/dna_analysis.py`), e `"" in "qualquer
+                # coisa"` e **verdadeiro** — um nome que virasse vazio escolheria a PRIMEIRA
+                # pessoa da arvore, em silencio, e a analise sairia com o parentesco errado. Por
+                # isso o valor BRUTO volta quando o strip esvazia: o nucleo entao levanta
+                # `PessoaNaoEncontrada` e o operador recebe a mensagem de sempre.
+                nome_informado = request.form["root_name"]
+                root_name = nome_informado.strip() or nome_informado
 
                 # A referencia escolhida na LISTA tem **precedencia** sobre o arquivo, e o
                 # campo novo e OPCIONAL. Quando ele nao vem, o caminho abaixo e exatamente o
@@ -493,7 +557,7 @@ def index():
                         # Mesma classe de mensagem do caminho de uso da arvore: a tela continua
                         # utilizavel e o operador ve o que aconteceu. O texto e o mesmo de
                         # `_arvore_do_formulario` porque a causa e a mesma.
-                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Erro: Arquivo '{referencia_do_csv}' não existe mais.", success=False)
+                        return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Erro: Arquivo '{rotulo_de_referencia(referencia_do_csv)}' não existe mais.", success=False)
                 else:
                     if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
                         return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message="Por favor, carregue o arquivo CSV de matches.", success=False)
@@ -542,7 +606,15 @@ def index():
                 )
             except ErroDeDominio as erro_de_dominio:
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=traduzir(erro_de_dominio).mensagem, success=False)
+            except HTTPException:
+                # Ver a nota do ramo de envio: erro de cliente nao pode virar `200` com texto
+                # interno. Aqui o caso concreto e `root_name` ausente, que levanta
+                # `BadRequestKeyError` — e que respondia `200` dizendo "Ocorreu um erro: 400 Bad
+                # Request: The browser (or proxy) sent a request that this server could not
+                # understand."
+                raise
             except Exception as e:
+                app.logger.exception("falha inesperada na analise de DNA")
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=f"Ocorreu um erro: {e}", success=False)
 
         if action == "path_search":
@@ -566,7 +638,12 @@ def index():
             except ErroDeDominio as erro_de_dominio:
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
                                        message=traduzir(erro_de_dominio).mensagem, success=False)
+            except HTTPException:
+                # Ver a nota do ramo de envio: erro de cliente nao pode virar `200` com texto
+                # interno.
+                raise
             except Exception as e:
+                app.logger.exception("falha inesperada na busca de caminho")
                 return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names,
                                        message=f"Ocorreu um erro: {e}", success=False)
 
@@ -665,4 +742,5 @@ if __name__ == "__main__":
     # `sockets` e mutuamente exclusivo de `host` e `port`: o servidor levanta
     # ValueError se receber `sockets` junto de qualquer um dos dois. Endereco e
     # porta ja estao no socket ligado.
-    serve(app, sockets=[socket_de_escuta], threads=concorrencia)
+    serve(app, sockets=[socket_de_escuta], threads=concorrencia,
+          max_request_body_size=TETO_DE_UPLOAD_EM_BYTES + MARGEM_DO_MULTIPART)

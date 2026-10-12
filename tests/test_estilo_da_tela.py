@@ -244,3 +244,33 @@ class TestO_Controle_De_Tema:
         assert ".botao-tema" in folha, (
             "o botao de tema ficaria sem posicao nem forma na folha"
         )
+
+
+class TestOTextoDoSobreODestrutivo:
+    """O "Apagar" no tema escuro: branco fixo sobre `#EE9A88` dava **2,18:1**.
+
+    Medido em 2026-10-11, e o defeito era do refresh de design: o `.btn-primary` sempre usou
+    `var(--on-primary)`, que o tema escuro redefine, e o `.btn-danger` ficou com `#fff` escrito
+    a mao. No claro o literal funcionava (6,69:1), entao a folha parecia certa.
+    """
+
+    def _regra_do_destrutivo(self, folha: str) -> str:
+        bloco = re.search(r"\.btn-danger\{([^}]*)\}", folha, re.S)
+        assert bloco, "a regra do `.btn-danger` sumiu da folha"
+        return bloco.group(1)
+
+    def test_a_cor_do_texto_nao_e_fixada(self, folha):
+        regra = self._regra_do_destrutivo(folha)
+        assert "var(--on-danger)" in regra, (
+            "o `.btn-danger` precisa tirar a cor do texto de `--on-danger`"
+        )
+        assert "#fff" not in regra.lower(), (
+            "o `.btn-danger` voltou a fixar branco: no tema escuro o rotulo do 'Apagar' "
+            "desaparece no hover (2,18:1)"
+        )
+
+    def test_os_dois_temas_definem_a_cor_do_texto(self, folha):
+        assert folha.count("--on-danger:") == 2, (
+            "`--on-danger` precisa ser definida no tema claro E no escuro: e a cor do texto "
+            "SOBRE o `--danger`, e o `--danger` muda de tom entre os dois"
+        )

@@ -56,6 +56,17 @@ def _visivel(corpo: str) -> str:
     return " ".join(re.findall(r">([^<]+)<", corpo))
 
 
+def _classe_do_h1(corpo: str) -> str:
+    """A lista de classes do `<h1>` do produto. String vazia se ele nao existir.
+
+    Existe porque `_visivel()` NAO responde se o operador ve o titulo: `visually-hidden`
+    esconde por folha de estilo, e o texto continua entre as tags. Medido em 2026-10-11 —
+    os dois testes que nomeavam "titulo visivel" seguiam verdes com o `<h1>` escondido.
+    """
+    achado = re.search(r'<h1[^>]*class="([^"]*)"', corpo)
+    return achado.group(1) if achado else ""
+
+
 class TestRotaDaArte:
     """A rota da arte, com o mesmo contrato da rota do icone."""
 
@@ -105,11 +116,13 @@ class TestRotaDaArte:
         assert repetida.get_data() == b""
 
     def test_arte_ausente_devolve_404_e_a_tela_continua_de_pe(self, cliente_de_upload, monkeypatch):
-        """`RN-08`: a arte pode faltar, e a tela nao pode cair por causa dela.
+        """`RN-08` e `RN-23`, emendada em 2026-10-11: sem a arte, o titulo tem de APARECER.
 
-        Depois da `RN-23` o titulo e **texto**, e nao mais o `alt` da imagem: entao ele sobrevive
-        a arte ausente por construcao, e nao por depender do atributo. O que este teste prende
-        agora e isso — o operador nao fica sem titulo quando a imagem nao carrega.
+        **Este teste media a coisa errada ate 2026-10-11.** Ele procurava `TITULO_NA_TELA` em
+        qualquer lugar do documento, e o texto continua no HTML mesmo quando a folha o esconde —
+        entao ele passava enquanto o operador ficava **sem titulo nenhum**: o `alt` descreve a
+        ilustracao, nao o produto, e o subtitulo e em ingles. Agora ele prende o EFEITO, que e o
+        que ele sempre prometeu no docstring: sem a arte, o `<h1>` volta a ser visivel.
         """
         app, cliente, _pasta = cliente_de_upload
         monkeypatch.setitem(app.config, "ARTE_DO_TOPO", os.path.join(_RAIZ, "nao-existe.png"))
@@ -117,8 +130,11 @@ class TestRotaDaArte:
         assert cliente.get(CAMINHO).status_code == 404
         tela = cliente.get("/")
         assert tela.status_code == 200
-        assert TITULO_NA_TELA in tela.get_data(as_text=True), (
-            "o titulo sumiu da tela quando a arte falta: ele e texto, e nao pode depender da imagem"
+        corpo = tela.get_data(as_text=True)
+        assert TITULO_NA_TELA in corpo, "o titulo sumiu do documento quando a arte falta"
+        assert "visually-hidden" not in _classe_do_h1(corpo), (
+            "sem a arte o `h1` ficou escondido: o operador fica sem nenhuma identificacao do "
+            "produto em portugues, que e o caso que este teste existe para impedir"
         )
 
 
@@ -174,15 +190,42 @@ class TestTopoDaTela:
 
         assert SUBTITULO in self._corpo(cliente)
 
-    def test_o_titulo_e_TEXTO_visivel_e_o_antigo_nao_voltou(self, cliente_de_upload):
-        """Inverte a `RN-16`: o titulo volta a ser texto, e o texto antigo nao ressuscita."""
+    def test_o_titulo_existe_como_texto_e_o_antigo_nao_voltou(self, cliente_de_upload):
+        """Inverte a `RN-16`: o titulo e TEXTO, e o texto antigo nao ressuscita.
+
+        ## O que este teste mede, e o que ele NAO mede
+
+        `_visivel()` le o texto ENTRE tags, entao ele responde "o titulo existe como texto no
+        documento" — que e o que vale para leitor de tela e buscador. Ele **nao** responde se o
+        operador VE o titulo: quem responde isso e `test_o_titulo_so_e_escondido_...` abaixo, e
+        `test_arte_ausente_devolve_404_...`, na outra classe.
+
+        A distincao foi MEDIDA em 2026-10-11: com o `<h1>` sob `visually-hidden`, os dois testes
+        que nomeavam "titulo visivel" continuaram verdes, porque a folha esconde o que o regex
+        continua encontrando. O nome e o docstring deste teste passaram a declarar o que ele
+        realmente mede, em vez de prometer o que ele nao mede.
+        """
         _app, cliente, _pasta = cliente_de_upload
 
         visivel = _visivel(self._corpo(cliente))
 
-        assert TITULO_NA_TELA in visivel, "o titulo deixou de ser texto visivel"
+        assert TITULO_NA_TELA in visivel, "o titulo deixou de existir como texto no documento"
         assert TEXTO_DO_TITULO not in visivel, (
             "o titulo ANTIGO voltou para a tela: era para ele ter saido na `RN-16` e nao voltar"
+        )
+
+    def test_o_titulo_so_e_escondido_quando_a_arte_esta_na_tela(self, cliente_de_upload):
+        """`RN-23` emendada em 2026-10-11: o `h1` duplica a arte, entao ele cede enquanto ela vem.
+
+        A arte do topo ja desenha "Analisador Genealogico". Com os dois visiveis, o produto se
+        nomeia duas vezes, uma logo abaixo da outra; sem a arte, esconder o `h1` deixaria o
+        operador sem titulo nenhum. A emenda e a condicao: escondido **se, e somente se,** a arte
+        responde — e quem responde isso e o servidor (`arte_do_topo_disponivel`), nao o CSS.
+        """
+        _app, cliente, _pasta = cliente_de_upload
+
+        assert "visually-hidden" in _classe_do_h1(self._corpo(cliente)), (
+            "com a arte na tela, o `h1` visivel repete o titulo que a arte ja desenha"
         )
 
     def test_o_h1_carrega_o_titulo_em_texto(self, cliente_de_upload):

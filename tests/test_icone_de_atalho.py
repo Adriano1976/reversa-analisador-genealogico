@@ -8,9 +8,10 @@ sem canal alfa. Nao existe pixel transparente em um PNG cujo cabecalho diz que n
 canal alfa, e isso dispensa a biblioteca de imagem aqui - o que importa porque ela nao
 esta em `requirements.txt` (`D-09`).
 
-O teste que prova que a **tela nao mudou** compara o `sha256` do HTML servido com o valor
-medido **antes** de a rota existir (23.906 bytes). Ele nao e um teste de comportamento
-novo: e a guarda do `RF-05` e da `RN-02`, e por isso ele ja passa antes da rota.
+O teste que prova que a **tela nao mudou** compara o `sha256` do HTML servido com o ultimo valor
+**declarado**. Ele nao e um teste de comportamento novo: e a guarda do `RF-05` e da `RN-02`, e por
+isso ele ja passava antes de a rota existir. O criterio NAO e "a tela nunca muda" — ver o bloco
+grande acima de `SHA_DA_TELA`, que declara quem pode mover o valor e onde a declaracao mora.
 """
 from __future__ import annotations
 
@@ -59,18 +60,31 @@ TAMANHO_ESPERADO = 16504
 #: **Atualizado em 2026-10-11, pela revisao de design da tela.** O operador pediu a aplicacao das
 #: sugestoes de design que ele mandou: a folha de estilo saiu do `<style>` embutido e passou a ser
 #: servida por `GET /app.css` (rota nova, em `src/assets/app.css` — `src/static/` continua proibida
-#: pelo `W004`); o topo deixou de repetir em texto o titulo que a arte ja mostra (o `<h1>` ficou so
-#: semantico); o resultado ganhou indice com ancoras e o veredito da confrontacao subiu para o
-#: cabecalho do cartao. A tela vazia que este teste mede carrega o `<head>` — folha, fontes e tema —
-#: e o topo, entao ela tambem muda. Era `17240e5a…`, 27.502 bytes; passou a `1066e272…`, 27.241.
+#: pelo `W004`); o topo deixou de repetir em texto o titulo que a arte ja mostra; o resultado ganhou
+#: indice com ancoras e o veredito da confrontacao subiu para o cabecalho do cartao. A tela vazia que
+#: este teste mede carrega o `<head>` — folha, fontes e tema — e o topo, entao ela tambem muda.
+#: `17240e5a…` (27.502 bytes) → `f2b2233e…` (28.858). O `1066e272…` que aparece na prosa foi medido
+#: no meio da sessao e **nunca existiu em commit**; o valor foi recalculado uma vez antes de entrar.
 #:
-#: **Atualizado no MESMO dia, pelo controle de tema.** O operador pediu um botao visivel para
-#: escolher entre claro e escuro, com o **claro como padrao** — antes o tema vinha de
-#: `matchMedia('(prefers-color-scheme: dark)')`, e quem tinha o Windows no escuro abria a aplicacao
-#: no escuro sem ter pedido. O botao vive fora dos dois ramos da tela, entao ele aparece tambem na
-#: tela vazia que este teste mede. Era `1066e272…`, 27.241 bytes; e `f2b2233e…`, 28.858. O
-#: paragrafo de 2026-10-09 continua sendo a justificativa, e nao uma licenca: o invariante e "a tela
-#: nao mudou DESDE a ultima mudanca declarada", e estas mudancas estao declaradas aqui.
+#: **O mesmo commit trouxe o controle de tema.** Botao visivel para escolher entre claro e escuro,
+#: com o **claro como padrao** — antes o tema vinha de `matchMedia('(prefers-color-scheme: dark)')`,
+#: e quem tinha o Windows no escuro abria a aplicacao no escuro sem ter pedido. O botao vive fora dos
+#: dois ramos da tela, entao ele aparece tambem na tela vazia que este teste mede.
+#:
+#: ## A declaracao desta mudanca NAO mora aqui
+#:
+#: O paragrafo de 2026-10-09 (acima) continua sendo a justificativa, e nao uma licenca: o invariante e
+#: "a tela nao mudou DESDE a ultima mudanca declarada". Mas **este comentario nao e o canal de
+#: declaracao do projeto** — o canal e `_reversa_sdd/addenda/`, e foi la que as `RN-16`, `RN-23` e
+#: `RN-24` viveram. Ate 2026-10-11 este arquivo era editado pelo mesmo autor que mudava a tela, e o
+#: comentario virava a AUTORIZACAO da mudanca em vez da guarda dela — inclusive para uma mudanca que
+#: contrariava uma regra vigente.
+#:
+#: A revisao de design esta declarada em
+#: `_reversa_sdd/addenda/013-revisao-de-design-da-tela.md`, que **emenda a `RN-23`** (o titulo passa a
+#: ser escondido se, e somente se, a arte do topo responder). Este hash continua valendo para o que
+#: ele sempre mediu — "a tela nao mudou sem mudanca declarada" — e o alcance dele e declarado: ele
+#: mede a tela de entrada **vazia**, com a pasta de upload do fixture.
 SHA_DA_TELA = "f2b2233e5b1a537672ddb0e50ad29681f93249e49e68a26956f3e77af6b8fb66"
 
 
@@ -135,13 +149,20 @@ def test_o_tamanho_e_o_da_receita(resposta):
 # --- T004: a tela nao mudou ---------------------------------------------------
 
 
-def test_a_tela_nao_mudou_um_byte(cliente_de_upload):
-    """`RF-05` e `RN-02`: `GET /` identico ao de antes da feature, byte a byte."""
+def test_a_tela_nao_mudou_sem_mudanca_declarada(cliente_de_upload):
+    """`RF-05` e `RN-02`: a tela de entrada nao mudou **desde a ultima mudanca declarada**.
+
+    Nao e "a tela nao pode mudar": e "a tela nao pode mudar **sem declaracao**". A declaracao mora
+    em `_reversa_sdd/addenda/` — a revisao de design de 2026-10-11 esta em `013-…`. O que este
+    teste pega e a mudanca de tela que ninguem declarou: mutacao acidental de dependencia,
+    ambiente de upload diferente, espacamento reordenado.
+    """
     _app, cliente, _pasta = cliente_de_upload
     corpo = cliente.get("/").get_data()
     assert hashlib.sha256(corpo).hexdigest() == SHA_DA_TELA, (
         f"a tela mudou: {len(corpo)} bytes. Esperado {SHA_DA_TELA[:16]}... "
-        "Esta feature NAO pode tocar no template."
+        "Se a mudanca foi deliberada, declare-a em `_reversa_sdd/addenda/` e atualize o valor; "
+        "se nao foi, este e um defeito."
     )
 
 

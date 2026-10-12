@@ -186,12 +186,16 @@
                                  alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
                                  class="img-fluid w-50">
                             <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
-                            {# O `<h1>` fica SO para leitor de tela e buscador, e a razao e que a arte
-                               acima JA traz o texto "Analisador Genealógico" desenhado: manter os
-                               dois visiveis diria a mesma coisa duas vezes. `visually-hidden` e o
-                               que preserva a estrutura do documento (um `h1` por pagina, com o
-                               titulo do produto) sem repetir o que a arte ja mostra. #}
-                            <h1 class="card-title mb-3 visually-hidden">Analisador Genealógico</h1>
+                            {# O `<h1>` SO e escondido enquanto a arte ESTA na tela. A arte do topo ja
+                               traz "Analisador Genealógico" desenhado, entao os dois visiveis
+                               nomeariam o produto duas vezes, uma logo abaixo da outra; e sem a
+                               arte, escondê-lo deixaria o operador sem nenhuma identificacao em
+                               portugues. A condicao vem do SERVIDOR (`arte_do_topo_disponivel`),
+                               porque o CSS nao sabe se uma imagem carregou.
+
+                               O texto nunca sai do documento: escondido ou nao, ele e o titulo de
+                               nivel 1 para leitor de tela e buscador. #}
+                            <h1 class="card-title mb-3{% if arte_do_topo_disponivel %} visually-hidden{% endif %}">Analisador Genealógico</h1>
                             {# O texto de apresentacao fica CENTRALIZADO e numa coluna mais
                                estreita que o cartao, na mesma forma organizada da documentacao
                                do projeto.
