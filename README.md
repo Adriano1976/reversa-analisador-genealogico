@@ -688,6 +688,28 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
   O `harness.py` é o instrumento e **não** deve ser executado direto: sem o invólucro ele escreve as sondas de
   GEDCOM e as fixtures de DNA na pasta real de uploads, que é justamente o resíduo que a feature 010 corrigiu.
 
+- Duas verificações só fazem sentido **dentro da imagem**, porque o host não tem o driver do banco e o
+  `src/assets/` pode faltar no contexto de build sem que nada no host perceba. O instrumento
+  `tests/verificacao_no_conteiner.py` cobre as duas: a **arte servida** (`/apple-touch-icon.png`,
+  `/banner.png`, `/app.css` e `GET /`) e a **gravação no banco** pelo caminho feliz da porta, contra o
+  PostgreSQL do compose. Ele usa apenas dependências de produção — o pytest não está na imagem, que é
+  lista de runtime:
+
+  ```powershell
+  docker compose up -d db
+  docker compose run --rm `
+      -v ./tests:/app/tests `
+      -v ./src/uploads:/app/src/uploads:ro `
+      -e ANALISADOR_UPLOAD_FOLDER=/tmp/uploads-verificacao `
+      app python tests/verificacao_no_conteiner.py
+  ```
+
+  O `-v ./tests:/app/tests` é obrigatório porque a imagem **não** carrega `tests/` (o `.dockerignore` é lista
+  de permissão: só `requirements.txt` e `src/` entram). A pasta de uploads entra **somente leitura**, e a
+  variável a desvia para `/tmp` antes do `import app`, de modo que nenhum byte do operador é lido ou escrito.
+  O mesmo arquivo roda no host, mas a metade do banco se **pula** com mensagem explícita: um pulo não é um
+  sucesso, e o veredito imprime quantas verificações executaram de fato.
+
 ## Contribuindo
 
 Ao contribuir para este projeto, por favor, considere as seguintes diretrizes:
