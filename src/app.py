@@ -11,7 +11,7 @@ from reporting.lista_de_arquivos import (
     itens_da_aba,
     rotulo_de_referencia,
 )
-from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
+from werkzeug.exceptions import HTTPException, RequestEntityTooLarge, SecurityError
 
 from application import Desfecho, nomes_de_exibicao
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
@@ -132,6 +132,44 @@ app.add_template_filter(formatar_data_br, "data_br")
 # sai SEM a chave de conteudo pelo mesmo caminho de sempre.
 app.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
 
+# --- Cabecalho `Host` (E-02 do adendo 014) ---
+#
+# O QUE ISTO DEFENDE, E O QUE NAO DEFENDE. Nao e autenticacao: o `Host` e um cabecalho que
+# qualquer cliente que nao seja navegador forja em uma linha, entao quem alcanca a porta com
+# `curl` continua entrando igual. O que ele fecha e um vetor de NAVEGADOR — o DNS rebinding: uma
+# pagina hostil que o operador abra enquanto a aplicacao roda resolve o proprio dominio para
+# `127.0.0.1`, e as requisicoes seguintes chegam aqui em MESMA ORIGEM, com o navegador
+# obedecendo. Sem sessao e sem cookie, nao ha nada entre essa pagina e as arvores, os relatorios
+# de DNA (dado pessoal sensivel) e a acao destrutiva de aposentar.
+#
+# A DEFESA E A LISTA, e nao um token: o navegador manda no `Host` o nome que o atacante escolheu,
+# e e justamente esse nome que nao esta na lista. O Flask 3.1 le esta chave nativamente
+# (`flask/app.py`, `config["TRUSTED_HOSTS"]`) e recusa o resto **antes** de chegar a rota,
+# cobrindo as quatro rotas e as tres rotas de arquivo.
+#
+# A PORTA NAO PARTICIPA DA COMPARACAO: `127.0.0.1` sozinho libera `:5000` e `:5080`. E o que faz
+# uma entrada cobrir o acesso local e o do container ao mesmo tempo — o defeito de configuracao
+# que uma lista por porta convidaria.
+HOSTS_PERMITIDOS_PADRAO = ("127.0.0.1", "localhost")
+
+# Nomes a mais, separados por virgula. Existe para o acesso que sai do loopback — o celular na
+# rede, com `ANALISADOR_HOST=0.0.0.0`, onde o `Host` e o IP da maquina. Sem esta variavel esse
+# acesso responde `400`, e a pagina diz QUAL host foi recusado, entao o diagnostico esta na tela.
+ANALISADOR_HOSTS_PERMITIDOS = "ANALISADOR_HOSTS_PERMITIDOS"
+
+
+def _hosts_permitidos() -> list[str]:
+    """A lista do `TRUSTED_HOSTS`: os padrao mais o que a variavel de ambiente acrescentar."""
+    extras = os.environ.get(ANALISADOR_HOSTS_PERMITIDOS, "")
+    return list(HOSTS_PERMITIDOS_PADRAO) + [
+        nome.strip() for nome in extras.split(",") if nome.strip()
+    ]
+
+
+# Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
+# ambiente — o mesmo padrao das chaves de arte e da folha.
+app.config["TRUSTED_HOSTS"] = _hosts_permitidos()
+
 UPLOAD_FOLDER = "uploads"
 
 
@@ -191,6 +229,30 @@ def _requisicao_grande(_erro):
         message=f"Arquivo maior que o limite de {TETO_DE_UPLOAD_EM_MB} MB.",
         success=False,
     ), 413
+
+
+@app.errorhandler(SecurityError)
+def _host_recusado(erro):
+    """Registra a recusa de `Host` e devolve o `400` que o Werkzeug ja montou.
+
+    Sem esta linha a recusa nao deixa rastro NENHUM: a pagina diz ao operador qual host foi
+    recusado, mas quem nao estiver olhando o navegador — ou quem ler o log depois — nao descobre
+    nada. E o unico sinal que faltava no E-02.
+
+    O corpo da resposta NAO muda: devolver a propria excecao faz o Flask responder o mesmo `400`
+    com a mesma frase ("Host 'X' is not trusted."), que e o que torna o diagnostico possivel sem
+    consultar o codigo.
+
+    ## Por que o valor sai de `headers`, e NAO de `request.host`
+
+    Porque `request.host` **valida de novo** e levanta o mesmo `SecurityError` — dentro do tratador
+    que existe para registra-lo. Medido: o log nunca acontecia e a excecao subia do lugar errado.
+    O cabecalho cru nao passa pela validacao, e e exatamente o que se quer registrar aqui.
+    """
+    app.logger.warning(
+        "requisicao recusada pelo cabecalho Host: %s", request.headers.get("host")
+    )
+    return erro
 
 
 def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
