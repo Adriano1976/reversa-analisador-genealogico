@@ -91,6 +91,32 @@
     "motivo_do_preservado": "Sao produtos de pipelines posteriores ao congelamento. Regenerar as specs de feature nao invalida o oraculo, o harness de paridade nem os goldens."
   },
   "checkpoints": {
+    "passo4_2026_10_13": {
+      "phase": "revisao",
+      "tipo": "verificacao suplementar do Passo 4, sem regeneracao de spec",
+      "concluido_em": "2026-10-13T13:32:00-03:00",
+      "motivo": "o codigo mudou depois da re-extracao de 2026-10-10 (a folha de estilo virou rota em 2026-10-12, commit b173d70; o Host passou a ter lista em 2026-10-13, commit 4ad9f63; e os demais commits do dia) e a paridade recoletada em 2026-10-13 09:34 nao tinha veredito registrado em lugar nenhum",
+      "features_varridas": 12,
+      "watch_items": {"total": 67, "verde": 61, "amarelo": 5, "vermelho": 1},
+      "vermelho": "010-W008, o MESMO da passada anterior (renomeacoes historicas de 2026-10-09/10); a medicao de hoje mostra integridade preservada e nome alterado, e a triagem segue pendente de decisao humana",
+      "amarelos": ["004-W003", "004-W008", "006-W005", "006-W019", "007-W023"],
+      "verificacao_por_execucao": {
+        "suite": "605 passam / 9 pulados / 0 falham, em 48,05 s",
+        "paridade": "PARIDADE 100 % (zero divergencia), exit 0, 6/6 fixtures, por tests/rodar_paridade.py",
+        "observacoes_dos_coletores": "205 itens identicos byte a byte entre candidato e oraculo (_obs_cand.json == _obs_oracle.json, sha256 ee1efee9)",
+        "varreduras": ["_t020_varredura.py: APROVADO", "_t011_varredura.py: APROVADO"],
+        "sonda_de_mensagens": "5 divergencias contra o baseline do oraculo de 2026-10-07, TODAS por mudanca declarada e contratada (recusa fixa, rotulo no lugar da chave, aviso de substituicao)"
+      },
+      "arquivos_gravados": [
+        "_reversa_forward/<9 features com itens>/regression-watch.md: bloco datado no topo do historico, aditivo",
+        "_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md: linha de superacao pela re-extracao de 2026-10-10"
+      ],
+      "conferencia_da_reconciliacao": "O plan.md registrava 8 adendos marcados com 2026-10-10, e apenas 7 carregavam a linha: o 011 era o oitavo e foi marcado agora. Os adendos 013 (2026-10-12) e 014 (2026-10-11) sao POSTERIORES a re-extracao de 2026-10-10 e por isso NAO foram marcados: os deltas deles ainda nao foram absorvidos por nenhuma extracao.",
+      "candidatos_a_arquivamento_nao_executado": ["003-W001..W005 (3 verdes)", "004-W001, W002, W004, W005, W006, W007 (3 verdes)"],
+      "motivo_de_nao_arquivar": "a tabela principal proibe mover watch items para Arquivadas automaticamente; a decisao e humana",
+      "residuo_declarado": "Reexecutar os instrumentos regravou _reversa_forward/006-fronteira-aplicacao-ports/evidence/mensagens_depois.json e _reversa_forward/007-dono-no-port-e-baseline/evidence/T011-varredura.txt (saidas de instrumento, agora com o estado atual do app); as quebras de linha foram normalizadas para LF",
+      "proximo_do_projeto": "com o Passo 4 fechado, as correcoes de codigo agendadas podem comecar (L-24/E-05, L-30, L-25, L-33, L-28/X-05), e a primeira da fila e a L-24, que exige medicao antes de decidir"
+    },
     "scout_reextracao_2026_10_10": {
       "completed_at": "2026-10-10T17:34:44Z",
       "reextraction": true,

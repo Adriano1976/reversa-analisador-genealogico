@@ -65,17 +65,17 @@
 | `L-20` | `get_children` varre todas as famílias **sem índice**, e `person_a`/`person_b` são **fichas completas** por resultado. | `busca-caminho/design.md` § Riscos | ✅ **medida:** 15,4 ms por ficha, **142 fichas ≈ 2,2 s** — contra **20,9 s de parse** e **1,73 s** de uma chamada de `homonym_dossier`. **O gargalo é o parse, não as fichas.** Decisão: **não otimizar agora**, porque a otimização mexeria em `get_children`, que alimenta também a detecção de colapso, e a ordem das arestas é contrato de paridade. |
 | — | **O parse da árvore custa ~21 s** para 35.460 pessoas, e **nada é cacheado entre requisições**. | `upload-gedcom/design.md` (NFR) | 🟡 Declarado desde 2026-10-05 como consequência do `ADR-24`. Agora **tem número**. Não é lacuna: é o preço explícito da árvore-como-valor. |
 
-### 3.5 Correção agendada para depois do Passo 4
+### 3.5 Correções agendadas — liberadas pelo Passo 4, concluído em 2026-10-13
 
-| ID | O que falta | Onde | Por que espera |
+| ID | O que falta | Onde | Situação |
 | --- | --- | --- | --- |
-| `L-25` | `common_ancestors` / `additional_paths`: quarto critério determinístico no empate triplo. | `busca-caminho/design.md` | Decisão tomada (pergunta 2). Mudança de código — espera o Passo 4. |
-| `L-28` / `X-05` | Ambiente de teste **com** `psycopg2`, para o caminho feliz de INSERT. | `analise-dna/design.md` | Decisão tomada (pergunta 6). Espera o Passo 4, e **não** pode tocar no `.venv/` oficial. |
-| `L-33` | Health check no arranque para as duas artes. | `recursos-da-tela/design.md` | Decisão tomada (pergunta 7). Mudança de código. |
-| `L-30` | Corrigir a docstring de `motivo_de_indisponibilidade` (o ramo **fica**). | `tela-de-entrada/design.md` | Decisão tomada (pergunta 3). Mudança de código, ainda que só de comentário. |
-| — | Log de servidor nas duas tentativas de aposentar (sucesso e fracasso). | `tela-de-entrada/requirements.md` | Decisão tomada (pergunta 14). Mudança de código. |
+| `L-25` | `common_ancestors` / `additional_paths`: quarto critério determinístico no empate triplo. | `busca-caminho/design.md` | Decisão tomada (pergunta 2). **Liberada** pelo Passo 4 de 2026-10-13; aguarda execução. |
+| `L-28` / `X-05` | Ambiente de teste **com** `psycopg2`, para o caminho feliz de INSERT. | `analise-dna/design.md` | ✅ **executada em 2026-10-13** pelo instrumento `tests/verificacao_no_conteiner.py`, que roda **dentro da imagem** (o `.venv/` oficial não foi tocado). Medido contra o PostgreSQL do compose: `registrar()` devolve referência, `dna_analysis` com `accepted=1`/`skipped=0`, 3 linhas em `analysis_person`, `match_result.matched_person_xref=I13` (a **FK composta** satisfeita), `match_kit` com cM `[200.0, 60.0]` **sem soma**, `match_path_node` com 3 nós em papéis do domínio fechado, `skipped_match` = 0, e a limpeza deixou **0 linhas** no histórico do operador. |
+| `L-33` | Verificação da arte **dentro do contêiner**. | `recursos-da-tela/design.md` | ✅ **executada em 2026-10-13** pelo mesmo instrumento. Medido na imagem: `/apple-touch-icon.png` (200, `image/png`, 16.504 bytes, `sha256 c89e29e2fc029287…`), `/banner.png` (200, `image/png`, 317.058 bytes, `sha256 1629dfd08ffb8f7d…`), `/app.css` (200, `text/css`, 8.816 bytes, `sha256 82a67d33b3ef09fb…`) e `GET /` (200, 28.858 bytes) — os **mesmos hashes do host**, o que prova que a arte que a imagem serve é a arte atual. O comando está no `README.md`, seção Testes. |
+| `L-30` | Corrigir a docstring de `motivo_de_indisponibilidade` (o ramo **fica**). | `tela-de-entrada/design.md` | ✅ **verificada como já executada** em 2026-10-13: a frase antiga ("o caso do acento e do espaço, medido na pasta real") **não existe mais** e a docstring traz a "Nota medida depois da `RN-20`", que declara o segundo ramo quase inalcançável e mantém o ramo. Nenhuma mudança de código foi necessária. |
+| — | Log de servidor nas duas tentativas de aposentar (sucesso e fracasso). | `tela-de-entrada/requirements.md` | Decisão tomada (pergunta 14). **Liberada** pelo Passo 4 de 2026-10-13; aguarda execução. |
 
-> **Por que tudo isso espera:** a decisão registrada pelo próprio projeto é *"não corrigir código do legado antes da Fase 5 e do Passo 4 — o Passo 4 confere regressão contra as features 003/004, e mexer no código antes disso é trabalhar com duas variáveis ao mesmo tempo"*. A Fase 5 está concluída; o Passo 4 é o próximo item do plano.
+> **Passo 4 concluído em 2026-10-13.** A nota que prendia estas correções dizia: *"não corrigir código do legado antes da Fase 5 e do Passo 4 — o Passo 4 confere regressão contra as features 003/004, e mexer no código antes disso é trabalhar com duas variáveis ao mesmo tempo"*. A Fase 5 foi concluída em 2026-10-10 e o Passo 4 foi fechado em **2026-10-13** (12 features, 67 watch items: 61 🟢, 5 🟡 e 1 🔴 — o mesmo `010-W008`, com triagem humana pendente; paridade em 100 % e suíte em 605 passam / 9 pulados / 0 falham). As correções desta tabela estão, portanto, **liberadas**.
 
 ---
 

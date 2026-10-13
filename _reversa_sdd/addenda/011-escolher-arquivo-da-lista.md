@@ -4,6 +4,8 @@
 > Feature: `_reversa_forward/011-escolher-arquivo-da-lista/`
 > Convergido por `/reversa-sync` (`T032`).
 
+Superado pela re-extração de 2026-10-10.
+
 ## 1. O que esta feature muda na spec efetiva
 
 Esta e a **primeira feature que altera a tela de entrada desde a reconstrucao do legado**, e ela muda

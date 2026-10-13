@@ -73,6 +73,19 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `ORACLE = .../_reversa_sdd/oracle/app_legacy_e43ca22.py` (4 menções no harness) e a única menção a `src/app.py` é o **comentário que proíbe** usá-lo como oráculo (`harness.py:9`). A paridade medida hoje, 100 %, foi feita contra o oráculo congelado. |
+| W002 | 🟢 verde | **Nenhuma** declaração de `people`/`families`/`graph`/`child_to_family`/`versao` em nível de módulo em `src/core/` (medido), e `clear()`/`update()` ausentes de `carregar_arvore`, que **devolve** a tupla. |
+| W003 | 🟢 verde | A spec declara a corrida **em linha própria**: `upload-gedcom/contracts.md` §7, "Requisição concorrente sobre o **disco** … **Não há garantia:** `guardar` e `aposentar` verificam e depois agem 🟡". Nenhum artefato declara thread-safety geral resolvida. |
+| W004 | 🟢 verde | `_chave_de` usa **contagem + primeira + última chave**, derivada do conteúdo, e o docstring registra por que `id()` não serve. ⚠️ A ressalva de **colisão possível** (`L-24`/`E-05`) **continua aberta** — medida por execução em 2026-10-10 e com correção aceita para **depois deste passo**. O defeito que este item vigia (`id()`) não voltou. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items** (a rodada de 2026-10-05 verificou apenas as features 001 a 004). Medição no código, nas specs regeneradas e nos instrumentos.

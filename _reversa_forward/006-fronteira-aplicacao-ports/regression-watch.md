@@ -54,6 +54,30 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W005 | 🟡 amarelo | Sonda reexecutada hoje (`probe_mensagens.py depois` + `_comparar.py`): **5 divergências** contra o baseline do oráculo (2026-10-07), **todas por mudança declarada e contratada**: (a) a recusa de conteúdo passou à frase **fixa** `"Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto."` (`upload-gedcom/contracts.md`, `design.md`, `requirements.md`, `domain.md`, adendo `011`); (b) as duas mensagens de referência passaram a mostrar o **rótulo** em vez da chave (`domain.md`, `openapi/index.yaml`); (c) `dna_ok` ganhou o **aviso de substituição** do CSV (`RN-17`, `domain.md`). Nenhum literal mudou em silêncio, e a essência do item continua: **toda** mensagem está contratada. O baseline da sonda é o oráculo de 2026-10-07 e está superado por quatro features. |
+| W006 | 🟢 verde | `ErroDeDominio(ValueError)` presente (medido); `tests/test_erros_de_dominio.py` passa na suíte de hoje. |
+| W007 | 🟢 verde | `Desfecho` no caso de uso (7 ocorrências) e a rota decide por `Desfecho.ERRO_DE_ENTRADA` (medido); `tests/test_desfecho_do_resultado.py` passa. |
+| W008 | 🟢 verde | `AVISO_AFINIDADE` (3 ocorrências) e o `NÃO` em maiúsculas em `src/core/path_search.py` (medido). |
+| W009 | 🟢 verde | As 3 menções em `src/` são **comentário ou docstring** (`gedcom_parser.py:11`, `documentary_relationship.py:54`, `application/__init__.py:23`). No harness existe **uma chamada** (`harness.py:110`), e ela é ao **oráculo copiado** (`m` vem de `shutil.copyfile(oracle…)` + `importlib`, linhas 76-79), nunca ao candidato: a regra vigia o `src/`, que não a chama. |
+| W010 | 🟢 verde | `_t020_varredura.py` reexecutado: **APROVADO** — 46 chamadas em `index()`, **0 símbolos proibidos**, **1** ponto de montagem de `Dependencias`. |
+| W011 | 🟢 verde | `TETO_DE_UPLOAD_EM_BYTES = 16 * 1024 * 1024` e a mensagem de `413` intactos (medido). |
+| W012 | 🟢 verde | Chave `sha256` do conteúdo, guarda de reenvio (`if not os.path.exists(caminho)`), caminho completo devolvido e validação **antes** do `open(..., "wb")` (medido). |
+| W013 | 🟢 verde | Fallback `latin-1` presente (2 ocorrências em `csv_ingest.py`) e nenhuma exceção de domínio intercepta a queda de codec. |
+| W014 | 🟢 verde | `get_name` continua cópia literal do oráculo (`person.name.format() … else "Sem Nome"`). |
+| W015 | 🟢 verde | **1** montagem de `Dependencias` em todo o `src/`, em `_DEPENDENCIAS` na borda (medido). |
+| W016 | 🟢 verde | `core/dna_analysis.dna_analysis` devolve a tripla (`results_sorted, skipped_matches, message`); `core/path_search` devolve tripla com o indicador booleano; o `Desfecho` vive no caso de uso; o harness compara `success` do contexto (`harness.py:211`). |
+| W017 | 🟢 verde | **Zero decoradores `skip`/`xfail`** nos testes e suíte em **605 passam / 9 pulados / 0 falham**, acima das linhas de base de 178 (005) e 261 — nenhum teste removido ou desabilitado. |
+| W018 | 🟢 verde | `tests/rodar_paridade.py` reexecutado: **PARIDADE 100 % (zero divergência), exit 0**, 6/6 fixtures. |
+| W019 | 🟡 amarelo | A divergência conhecida continua **aberta e sem decisão**: o template renderiza `Resultado da Análise` (1 ocorrência) e o Gherkin congelado diz `Resultados da Análise de DNA` (0). Nada mudou nesta passagem — aguarda quem decide qual dos dois é a autoridade. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.** Medição no código, nas specs regeneradas, na suíte (527 passam / 9 pulados / 0 falham) e nos scripts de evidência da própria feature.

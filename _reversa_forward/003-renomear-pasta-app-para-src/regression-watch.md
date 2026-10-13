@@ -29,6 +29,23 @@ Itens sem peso de regressão. Não eram regras confirmadas antes da mudança, ou
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Terceira verificação real destes watch items.** Os cinco itens ficam com **três verdes
+consecutivos** (2026-10-05, 2026-10-10 e esta) e são candidatos ao arquivamento pela regra do
+`setup.json` (`watch.archive-after: 3`). O arquivamento **não** foi feito nesta passagem, porque
+a tabela principal proíbe mover itens automaticamente: a decisão é humana.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `src/` com `application/`, `assets/`, `core/`, `parsers/`, `ports/`, `reporting/`, `templates/`, `uploads/` e `utils/`; **35 arquivos `.py`**; `src/reconstructed/` **não existe** (medido). |
+| W002 | 🟢 verde | `requirements.txt` na raiz, **9 linhas, todas com `==`** (medido). |
+| W003 | 🟢 verde | `src/uploads` existe; `_pasta_uploads()` ancorada em `os.path.dirname(os.path.abspath(__file__))`, com `ANALISADOR_UPLOAD_FOLDER` como sobreposição de processo (medido em `src/app.py`). |
+| W004 | 🟢 verde | `src/README.md`, `src/.gitignore.txt` e `src/static/` **ausentes** (medido). A arte de runtime mora em `src/assets/` (`app.css`, `apple-touch-icon.png`, `banner-da-tela.png`). |
+| W005 | 🟢 verde | **Paridade remedida hoje: 100 %, exit 0, 6/6 fixtures.** Suíte em **614 itens (605 passam, 9 pulados, 0 falham)** — cresceu de 536, **nenhum teste removido ou desabilitado**. Os **205 itens observados** pelos coletores são idênticos byte a byte entre candidato e oráculo. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Segunda verificação real destes watch items**, contra o `_reversa_sdd/` regenerado em 2026-10-10 e contra o código, por medição. Suíte: **527 passam / 9 pulados / 0 falham**. Paridade: **100 % em 6/6 fixtures, exit 0**.

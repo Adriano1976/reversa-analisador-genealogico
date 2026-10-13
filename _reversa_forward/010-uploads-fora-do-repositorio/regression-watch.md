@@ -39,6 +39,23 @@ foram confirmadas por uma re-extração:
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pasta é resolvida uma vez, no import, ancorada no arquivo do app, com `ANALISADOR_UPLOAD_FOLDER` sobrepondo (medido em `src/app.py`). |
+| W002 | 🟢 verde | **Zero** ocorrências de `unlink`, `os.remove`, `shutil.rmtree` e `tempfile` em todo o `src/` (medido). |
+| W003 | 🟢 verde | O nome em disco segue `<16 hexadecimais>__<nome visível>`, com a chave vinda do conteúdo (medido em `src/utils/validate.py` e `src/ports/adaptadores.py`). |
+| W004 | 🟢 verde | `docker-compose.yml` monta `./src/uploads:/app/src/uploads` (medido), o mesmo alvo que `src/app.py` deriva de `__file__`. |
+| W005 | 🟢 verde | O `README.md` lista `ANALISADOR_UPLOAD_FOLDER` na tabela de configuração e manda executar a paridade pelo invólucro (`tests/rodar_paridade.py`), com o `harness.py` marcado como instrumento a não rodar direto. |
+| W006 | 🟢 verde | `harness.py` com `sha256 33e45b055aef8458…`, **inalterado desde 2026-10-07** (commit `ffa835e`, que diz por quê) e sem alteração não commitada (`git status` limpo para o arquivo). O amarelo da passagem anterior era histórico: hoje o instrumento é exatamente o que a extração descreve. |
+| W007 | 🟢 verde | `tests/manutencao_de_uploads.py` presente: manifesto revisável, conferência de `sha256`, expurgo que **não** remove fora do manifesto, duplicatas **relatadas** em vez de deduplicadas, e `--dry-run`. |
+| W008 | 🔴 vermelho | **Segue vermelho, agora com a medição completa contra o inventário de 2026-10-09 (34 entradas).** **Nenhum conteúdo do operador foi perdido:** zero arquivos com hash desaparecido entre os dados do operador, zero arquivos com conteúdo diferente. **Sete renomeações** (acento e forma da chave: `Famílias_*` → `Familias_*`, e os dois `.ged` do operador ganharam prefixo de chave), todas de 2026-10-09/10 e já declaradas. Das 16 entradas do inventário que não estão mais na pasta, **9 reaparecem no repositório** (`_reversa_sdd/parity/fixtures/…` e `_reversa_forward/008…/evidence/_tmp_e2e/`) e **7 são sondas do instrumento** (`probe.ged` e um `matches_dois_kits.csv`) sem rastro. Quatro arquivos **novos** foram acrescentados pelo operador. Conclusão: a **integridade** está preservada e o **nome** não. A triagem pedida na passagem anterior continua **pendente e é ato humano**: ou o item passa a vigiar integridade (nada removido, conteúdo preservado), ou permanece vermelho a cada rodada por um fato histórico que não se desfaz. *A tabela principal não foi alterada.* |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.**

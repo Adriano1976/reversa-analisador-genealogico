@@ -33,6 +33,23 @@ do legado. **Nao entram em priorizacao automatica.**
 
 ## 3. Historico de re-extracoes
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pré-condição "CSV **ou** referência" está contratada em `domain.md` §4 e, no código, `if referencia_do_csv:` vem **antes** da guarda do arquivo (medido). |
+| W002 | 🟢 verde | A referência tem **precedência**: o ramo da referência resolve primeiro e só cai no arquivo enviado quando ela não vem (medido em `src/app.py`). |
+| W003 | 🟢 verde | `GET /` entrega as duas abas **sem envio prévio** (ramo `{% if not gedcom_filename %}` do template, medido). |
+| W004 | 🟢 verde | `_FORMATO_CHAVE` existe **apenas na docstring** que declara a própria remoção; a defesa é por **forma de nome** (`RN-20`, `ADR-32`). |
+| W005 | 🟢 verde | O literal `"Por favor, carregue o arquivo CSV de matches."` continua em `src/app.py` e na sonda de mensagens. |
+| W006 | 🟢 verde | `SCR-001-initial-upload.html.txt` com `sha256 ec07f71b4084269a…` — exatamente o esperado (medido em disco). ⚠️ O achado da passagem anterior sobre a **cadeia de integridade do manifesto** continua: `_reversa_sdd/screens/golden/manifest.yaml:77` declara `2e2a5c02a439…` para o mesmo arquivo. O **conteúdo** está certo; o que está quebrado é o manifesto. **Decisão humana pendente.** |
+| W007 | 🟢 verde | O harness continua **insensível ao template** (substitui `render_template` por captura de contexto) e a paridade medida hoje está em **100 %**. |
+| W008 | 🟢 verde | As ocorrências de `session`/`cookie` em `src/` são **comentários** (`src/app.py:81-82` e `:142`); não há sessão, cookie nem cache guardando a escolha do operador. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.**

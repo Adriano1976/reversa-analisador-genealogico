@@ -58,6 +58,27 @@ Observações novas, acrescentadas sem reescrever as anteriores. A `O15` **corri
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Terceira verificação real destes watch items.** Seis dos oito itens (W001, W002, W004, W005,
+W006 e W007) ficam com **três verdes consecutivos** (2026-10-05, 2026-10-10 e esta) e são
+candidatos ao arquivamento pela regra do `setup.json` (`watch.archive-after: 3`); W003 e W008
+têm amarelo e permanecem de qualquer forma. O arquivamento **não** foi feito nesta passagem,
+porque a tabela principal proíbe mover itens automaticamente: a decisão é humana.
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `from waitress import serve` (1 ocorrência); **`app.run(` e `debug=`: zero** em todo o `src/` (medido). |
+| W002 | 🟢 verde | `ANALISADOR_HOST` (`127.0.0.1`), `ANALISADOR_PORT` (`5000`) e `ANALISADOR_THREADS` (`4`), os três com o padrão declarado na própria chamada (medido). |
+| W003 | 🟡 amarelo | **A essência vale; o número do enunciado está superado outra vez, por acréscimo deliberado.** Medido hoje: **4 rotas** (`/`, `/apple-touch-icon.png`, `/banner.png`, `/app.css`) e **5 valores de `action`**. A `/app.css` entrou em **2026-10-12** (a folha de estilo saiu do template e virou rota, commit `b173d70`). Os nomes de campo e os literais de contrato seguem contratados; a sonda de mensagens acusa cinco divergências, todas declaradas (ver `006-W005`). **Não é regressão.** |
+| W004 | 🟢 verde | `waitress==3.0.2` presente no `requirements.txt` e **`gunicorn` ausente** (medido). |
+| W005 | 🟢 verde | **Paridade 100 %** e suíte em 605/9/0 — cresceu e não perdeu teste. `test_servidor_producao.py` presente. |
+| W006 | 🟢 verde | Guarda intacta: socket criado pela aplicação, `SO_EXCLUSIVEADDRUSE` (2), `SO_REUSEADDR` (4), `bind` + `listen` antes de `serve(`, e `serve(app, sockets=...)` **sem** `host`/`port`. Ganhou `max_request_body_size` derivado do teto (adendo `014`). |
+| W007 | 🟢 verde | Padrão `127.0.0.1` com o motivo escrito no código. **Reforço novo, sem tocar o padrão:** `app.config["TRUSTED_HOSTS"]` mais `ANALISADOR_HOSTS_PERMITIDOS` recusam `Host` de terceiro com `400` (adendo `014`, medido em execução). |
+| W008 | 🟡 amarelo | **9 linhas, todas com `==`** (medido). A segunda metade — "nas versões validadas" — continua superada por decisão humana registrada em `adrs/13` e `questions.md#pergunta-11`. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Segunda verificação real destes watch items.** Medição direta no código, na suíte (527 passam / 9 pulados / 0 falham) e na paridade (100 % em 6/6 fixtures, exit 0).

@@ -38,6 +38,23 @@ medidos nesta feature, declarados para não se perderem.
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | A pasta canônica é `<diretório do app>/uploads`, dentro do repositório, resolvida uma vez no import e ancorada em `__file__` (medido). |
+| W002 | 🟢 verde | O `README.md` diz, em duas linhas, que `ANALISADOR_UPLOAD_FOLDER` é **sobreposição de processo** e "não modo de operação", e o `inventory.md` a descreve como usada pelos testes (medido). |
+| W003 | 🟢 verde | `.gitignore` linha 31 (`uploads/`) e **`git check-ignore -v src/uploads/exemplo.ged` devolve `.gitignore:31:uploads/`** — medido com um arquivo dentro da pasta, que é o único jeito de a regra surtir efeito. |
+| W004 | 🟢 verde | O `.dockerignore` mantém `src/uploads/` **depois** de `!src/` (medido), na ordem que faz a última regra vencer. |
+| W005 | 🟢 verde | O serviço `app` do `docker-compose.yml` monta `./src/uploads` sobre `/app/src/uploads` (medido). |
+| W006 | 🟢 verde | O `README.md` manda executar a paridade pelo invólucro e o `harness.py` segue com o **mesmo `sha256`** (`33e45b055aef8458…`), sem alteração não commitada. |
+| W007 | 🟢 verde | `tests/test_guardas_do_armazenamento.py` presente e prende as duas guardas **e a ordem**, com três testes de **mutação**: `…falha_quando_a_linha_sai`, `…falha_quando_a_reexclusao_sai` e `…falha_quando_as_linhas_invertem`. |
+| W008 | 🟢 verde | A forma do nome no disco é preservada, com a extensão original, e **zero** `unlink`/`os.remove` em `src/`; o expurgo opera por **manifesto revisável** (`tests/manutencao_de_uploads.py`). |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.**

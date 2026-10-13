@@ -1,19 +1,19 @@
-arquivos de producao varridos: 33
+arquivos de producao varridos: 35
 
 1 e 2. chamadores de porta em producao
-  ok    src/app.py:163 carregar() -> DONO_DO_PROCESSO
-  ok    src/app.py:212 guardar() -> DONO_DO_PROCESSO
-  ok    src/application/upload_gedcom.py:59 guardar() -> dono
-  ok    src/application/upload_gedcom.py:67 carregar() -> dono
-  ok    src/ports/adaptadores.py:110 resolver() -> dono
+  ok    src/app.py:307 carregar() -> DONO_DO_PROCESSO
+  ok    src/app.py:617 resolver() -> DONO_DO_PROCESSO
+  ok    src/application/reenvio.py:70 guardar() -> dono
+  ok    src/application/upload_gedcom.py:103 carregar() -> dono
+  ok    src/ports/adaptadores.py:254 resolver() -> dono
 
   chamadores de porta encontrados: 5 (esperado 5)
 
 3 e 4. a constante de dono
 
   atribuicoes de constante de dono: 1
-    src/app.py:64 DONO_DO_PROCESSO
-  ok    o bloco acima de src/app.py:64 (DONO_DO_PROCESSO) declara a ausencia de isolamento, a divida #3 e a nao-seguranca
+    src/app.py:76 DONO_DO_PROCESSO
+  ok    o bloco acima de src/app.py:76 (DONO_DO_PROCESSO) declara a ausencia de isolamento, a divida #3 e a nao-seguranca
 
 ======================================================================
 RESULTADO: APROVADO

@@ -45,6 +45,21 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W020 | 🟢 verde | `dono` aparece **somente na assinatura** nas quatro operações de armazenamento (medido: uma ocorrência fora da docstring, que é o próprio parâmetro); a chave continua vindo do conteúdo e `test_porta_de_armazenamento.py` passa na suíte. |
+| W021 | 🟢 verde | `tests/conftest.py` mantém o `tmp_path` do projeto (`tests/.tmp/`) e `tests/test_ambiente_temporario_da_suite.py` existe; a suíte rodou **sem um único erro de `setup`**. |
+| W022 | 🟢 verde | `dono` obrigatório, **sem valor padrão**, na **última** posição nas seis assinaturas de porta (medido); `CarregadorDeArvores` com **um único** método público (`carregar`). |
+| W023 | 🟡 amarelo | A metade da **comparação por conjunto** está registrada em `legacy-impact.md` §5 ("deixa de ser total e passa a ser conjunto", linhas 137-139). A outra metade — "a medição pós-correção no interpretador oficial **com o comando registrado ao lado**" — **não** foi encontrada no artefato que o item nomeia. Evidência parcial: aguarda julgamento humano. |
+| W024 | 🟢 verde | `git diff --stat -- tests/test_upload_seguranca.py` **vazio** (medido) e a suíte bem acima de 261 aprovados. Nenhum `skip`/`xfail` novo. |
+| W025 | 🟢 verde | `_t011_varredura.py` reexecutado: **APROVADO** — **1** atribuição de constante de dono (`src/app.py:76`), o bloco acima dela declara a ausência de isolamento, a dívida #3 e que o dono não é mecanismo de segurança, e todo chamador de produção passa o dono sem literal no local. **A contagem continua 5**, como a regra exige, e o **conjunto mudou**: entrou `src/application/reenvio.py:70` (`guardar()`) e saiu o segundo chamador de `upload_gedcom.py` — a substituição no reenvio passou a ser o caminho comum de gravação. A revisão que o número obriga está feita. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.** Medição no código, nas specs regeneradas e no script de evidência da feature.

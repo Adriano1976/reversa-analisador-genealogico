@@ -44,6 +44,20 @@
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-10-13 13:32 (verificação suplementar)
+
+**Verificação suplementar, sem regeneração de spec:** o `_reversa_sdd/` é o de 2026-10-10; o que mudou desde então foi o **código**, e é o código de hoje que está medido. Suíte: **605 passam / 9 pulados / 0 falham**. Paridade: **100 %, exit 0, 6/6 fixtures** (`tests/rodar_paridade.py`).
+
+**Segunda verificação real destes watch items.**
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W026 | 🟢 verde | A rota serve o ícone por `send_file(caminho, mimetype="image/png")` e nenhuma rota de arte responde `201`/`409` nem redireciona (medido). |
+| W027 | 🟢 verde | O template **não** declara `apple-touch-icon` (**0 ocorrências**) e `test_a_tela_nao_mudou_um_byte` passa na suíte de hoje — o hash de referência foi atualizado junto com a tela de 2026-10-12, como o próprio teste exige. |
+| W028 | 🟢 verde | `src/static/` **não existe** e a arte de runtime está em `src/assets/` (`app.css`, `apple-touch-icon.png`, `banner-da-tela.png`) — medido no host. |
+| W029 | 🟢 verde | **Zero** rotas para `favicon.ico` e `apple-touch-icon-precomposed.png` (medido em `src/app.py`). |
+| W030 | 🟢 verde | Medido no arquivo: **180×180, tipo de cor 2 (sem alfa), 16.504 bytes**; a deriva continua comparada por **pixel**. |
+
 ### Re-extração 2026-10-10 21:40
 
 **Primeira verificação real destes watch items.**

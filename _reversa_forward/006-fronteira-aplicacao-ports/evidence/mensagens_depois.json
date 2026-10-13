@@ -17,14 +17,14 @@
     "caso": "upload_conteudo_invalido",
     "status": 200,
     "alerta": "danger",
-    "mensagem": "Arquivo não reconhecido como GEDCOM: não começa com a declaração 0 HEAD.",
+    "mensagem": "Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.",
     "obs": ""
   },
   {
     "caso": "upload_conteudo_vazio",
     "status": 200,
     "alerta": "danger",
-    "mensagem": "Arquivo não reconhecido como GEDCOM: arquivo vazio.",
+    "mensagem": "Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.",
     "obs": ""
   },
   {
@@ -52,14 +52,14 @@
     "caso": "ref_inexistente",
     "status": 200,
     "alerta": "danger",
-    "mensagem": "Erro: Arquivo &#39;0000000000000000__nao_existe.ged&#39; não existe mais.",
+    "mensagem": "Erro: Arquivo &#39;nao existe&#39; não existe mais.",
     "obs": ""
   },
   {
     "caso": "ref_forma_invalida",
     "status": 200,
     "alerta": "danger",
-    "mensagem": "Erro: Arquivo &#39;../app.py&#39; não existe mais.",
+    "mensagem": "Erro: Arquivo &#39;app&#39; não existe mais.",
     "obs": ""
   },
   {
@@ -94,7 +94,7 @@
     "caso": "dna_ok",
     "status": 200,
     "alerta": "success",
-    "mensagem": "1 conexões encontradas. 0 descartadas.",
+    "mensagem": "1 conexões encontradas. 0 descartadas. O CSV &#39;matches.csv&#39; substituiu a versão anterior, que saiu da lista e continua guardada na pasta de aposentados.",
     "obs": ""
   },
   {
