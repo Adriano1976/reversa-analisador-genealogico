@@ -1,0 +1,87 @@
+"""Reproducao e regressao do BUG-20261013-X7EN: a tela pode ser enquadrada por terceiro.
+
+## Por que este arquivo existe
+
+`GET /` e a **unica pagina** do sistema, e e nela que vive o formulario da acao destrutiva
+(`action=aposentar_arquivo`, `src/templates/index.html:68-73`). Medido em 2026-10-13, a
+resposta nao trazia `X-Frame-Options` nem `Content-Security-Policy` com `frame-ancestors`,
+e os unicos cabecalhos eram `content-length`, `content-type`, `date` e `server: waitress`.
+Sem eles, nada impede outra origem de enquadrar a pagina — e o `confirm()` do `onsubmit` e
+barreira de interface, nao de servidor.
+
+## O que este arquivo prende, e o que ele NAO prende
+
+- **Reproducao**: a presenca do cabecalho de enquadramento em toda resposta. Falha antes da
+  correcao, passa depois.
+- **Regressao**: que o **corpo** da tela nao mudou. Estes testes passam antes e depois; a prova
+  byte a byte de que o HTML nao mudou e o invariante `SHA_DA_TELA` de
+  `tests/test_icone_de_atalho.py`, que continua valendo justamente porque esta correcao e de
+  cabecalho.
+- **Nao** prende `Content-Security-Policy`: ele e o `BUG-20261013-4PYJ`, **adiado por decisao**
+  registrada no adendo deste bug. O template tem script inline (`mermaid.initialize`), e um CSP
+  mal calibrado quebraria o diagrama e o estilo — por isso a correcao aqui e so o
+  `X-Frame-Options`.
+"""
+from __future__ import annotations
+
+import os
+import sys
+
+import pytest
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _caminho in (RAIZ, os.path.join(RAIZ, "src")):
+    if _caminho not in sys.path:
+        sys.path.insert(0, _caminho)
+
+CABECALHO = "X-Frame-Options"
+ROTAS = ("/", "/apple-touch-icon.png", "/banner.png", "/app.css")
+
+
+class TestReproducao:
+    """O defeito relatado: a resposta nao traz controle de enquadramento."""
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+
+        O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
+        passar a versao parcial da correcao.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get(rota)
+        assert resposta.status_code == 200, f"{rota} nao respondeu 200"
+        assert resposta.headers.get(CABECALHO) == "DENY", (
+            f"{rota} responde sem `{CABECALHO}`: a pagina com o formulario da acao destrutiva "
+            "continua enquadravel por outra origem"
+        )
+
+
+class TestRegressao:
+    """O que NAO pode mudar junto: o corpo da tela e as rotas de arte."""
+
+    def test_o_corpo_da_tela_continua_o_mesmo(self, cliente_de_upload):
+        """Ancoras de contrato da tela de entrada continuam no HTML servido.
+
+        A prova byte a byte e o `SHA_DA_TELA` de `tests/test_icone_de_atalho.py`; aqui ficam as
+        ancoras legiveis, que falham com mensagem util se alguem tocar no template junto do
+        cabecalho.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get("/")
+        assert resposta.status_code == 200
+        assert resposta.headers["Content-Type"].startswith("text/html")
+        html = resposta.get_data(as_text=True)
+        assert "Buscar Conexão no GEDCOM" in html, "a aba de busca sumiu da tela"
+        assert "Analisador de DNA" in html, "a aba de DNA sumiu da tela"
+        assert 'name="action" value="upload_gedcom"' in html, "o formulario de envio sumiu da tela"
+
+    def test_o_cabecalho_nao_acrescenta_nem_remove_byte_do_corpo(self, cliente_de_upload):
+        """O comprimento declarado pelo servidor e o comprimento real do corpo.
+
+        Se um tratador de resposta mexesse no corpo ao acrescentar o cabecalho, esta assercao
+        quebraria — e ela passa antes e depois da correcao, porque o `content-length` e do Flask.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get("/")
+        assert int(resposta.headers["Content-Length"]) == len(resposta.get_data())

@@ -255,6 +255,30 @@ def _host_recusado(erro):
     return erro
 
 
+# --- Cabecalho de enquadramento (BUG-20261013-X7EN) ---
+#
+# O QUE ISTO DEFENDE. A tela unica do sistema carrega o formulario da acao destrutiva
+# (`action=aposentar_arquivo`, `templates/index.html:68-73`). Sem controle de enquadramento,
+# outra origem pode embutir a pagina num `<iframe>` e sobrepor a interface; o `confirm()` do
+# botao e barreira de INTERFACE, e nao de servidor. E o mesmo vetor de NAVEGADOR que o
+# `TRUSTED_HOSTS` acima reconheceu — com a diferenca de que a lista de `Host` fecha o DNS
+# rebinding e nao fecha o enquadramento.
+#
+# POR QUE `X-Frame-Options`, E NAO `frame-ancestors`. Os dois resolvem, e o `X-Frame-Options` e
+# o unico que nao depende de politica de conteudo para existir. O `Content-Security-Policy`
+# fica com o `BUG-20261013-4PYJ`, que precisa acomodar os hosts de CDN e o script inline do
+# `mermaid.initialize` — um CSP mal calibrado quebraria o diagrama e o estilo da tela.
+#
+# POR QUE `after_request`, E NAO NO TEMPLATE. Cabecalho nao e conteudo: no template ele seria
+# repetido em cada resposta e ainda assim nao cobriria as rotas de arte. Aqui vale para TODA
+# resposta, e o corpo nao muda um byte — e o que mantem valido o invariante `SHA_DA_TELA` de
+# `tests/test_icone_de_atalho.py`, que mede a tela e nao a borda.
+@app.after_request
+def _sem_enquadramento_por_terceiro(resposta):
+    resposta.headers["X-Frame-Options"] = "DENY"
+    return resposta
+
+
 def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     """Arvore pedida pelo formulario: devolve `(referencia, arvore, mensagem)`.
 
