@@ -1,0 +1,59 @@
+{
+  "upload": {
+    "status": 200,
+    "mensagem": [
+      "Arquivo &#39;teste:1.ged&#39; carregado!"
+    ],
+    "referencia_devolvida": "123d0fe265f75b13__teste:1.ged",
+    "bytes_enviados": 709
+  },
+  "disco": {
+    "nome_com_dois_pontos": {
+      "caminho_logico": "123d0fe265f75b13__teste:1.ged",
+      "existe": true,
+      "arquivo_regular": true,
+      "bytes_do_stat": 709,
+      "bytes_lidos": 709
+    },
+    "nome_sem_dois_pontos": {
+      "caminho_logico": "123d0fe265f75b13__teste",
+      "existe": true,
+      "arquivo_regular": true,
+      "bytes_do_stat": 0,
+      "bytes_lidos": 0
+    }
+  },
+  "lista": {
+    "referencias_oferecidas": [
+      "143baa23f465657e__escape.ged",
+      "220dc770d7e93574__aux.ged",
+      "3708936ca5ce2f09__lpt1.ged",
+      "62cfb5e8142d1261__CON.ged",
+      "795307284bf000f2__nome.ged",
+      "86b1ccc63ccda05a__teste.ged",
+      "8f05e513e4135c5a__nul.ged",
+      "97d11d7e434252a7___.._escape.ged",
+      "a69e28f5e7314949__con.ged",
+      "daf4383a644b5138__com1.ged"
+    ],
+    "oferece_o_nome_sem_dois_pontos": false,
+    "oferece_o_nome_com_dois_pontos": false,
+    "tamanhos_visiveis": {}
+  },
+  "clique": {
+    "com_dois_pontos": {
+      "referencia": "123d0fe265f75b13__teste:1.ged",
+      "status": 200,
+      "mensagem": [],
+      "abriu_a_arvore": true
+    },
+    "sem_dois_pontos": {
+      "referencia": "123d0fe265f75b13__teste",
+      "status": 200,
+      "mensagem": [
+        "Erro: o arquivo &#39;teste&#39; não pôde ser lido como GEDCOM. Ele pode estar corrompido, vazio, ou não ser um GEDCOM de verdade."
+      ],
+      "abriu_a_arvore": false
+    }
+  }
+}

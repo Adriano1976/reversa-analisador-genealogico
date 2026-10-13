@@ -1,0 +1,13 @@
+﻿{
+  "endereco_de_teste": "127.0.0.2",
+  "porta": 5097,
+  "acesso_por_outra_interface_com_host_proprio": {
+    "status": 200,
+    "corpo": "<!DOCTYPE html>\n<html lang=\"pt-br\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Analisador de Conex�es Geneal�gicas</title>\n"
+  },
+  "acesso_por_outra_interface_host_padrao_do_cliente": {
+    "status": 200,
+    "bytes": 63657
+  },
+  "variavel_de_allowlist_do_servidor": "127.0.0.2"
+}

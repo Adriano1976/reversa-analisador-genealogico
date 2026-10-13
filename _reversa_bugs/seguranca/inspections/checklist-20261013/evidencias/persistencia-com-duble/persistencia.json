@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "aviso_de_persistencia": [
+    "1 conexões encontradas. 24 descartadas.",
+    "Histórico não registrado: OperationalError: connection to server at &#34;127.0.0.1&#34;, port 5432 failed: FATAL:  password authentication failed for user &#34;analisador-sonda&#34;",
+    "Foram encontrados 5 caminhos genealógicos distintos (inclusive por outros ancestrais comuns). O caminho exibido é o de menor distância total; os demais estão listados e nenhum foi descartado.",
+    "O CSV não traz coluna de kit nem de e-mail: os segmentos foram agrupados apenas pelo nome. Se duas pessoas diferentes compartilharem o nome, os valores podem estar somados indevidamente."
+  ],
+  "tem_stub_psycopg2": true,
+  "database_url_do_servidor": "postgresql://analisador-sonda:senha-sintetica@127.0.0.1:5432/base-sonda"
+}

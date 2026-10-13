@@ -1,0 +1,115 @@
+diff --git a/_reversa_sdd/addenda/bug-BUG-20261013-2EFQ-v001.md b/_reversa_sdd/addenda/bug-BUG-20261013-2EFQ-v001.md
+new file mode 100644
+index 0000000..00d3327
+--- /dev/null
++++ b/_reversa_sdd/addenda/bug-BUG-20261013-2EFQ-v001.md
+@@ -0,0 +1,109 @@
++# Adendo v001 — gravação do nome visível: o `:` do NTFS passa a ser substituído
++
++> Identificador: `bug-BUG-20261013-2EFQ-v001`
++> Data: 2026-10-13
++> Cenário: **legado** (âncora em `_reversa_sdd/upload-gedcom/` e `_reversa_sdd/adrs/32-elegibilidade-por-forma-de-nome.md`)
++> Veredito: **`spec-desatualizada`**, adendo versionado
++> Bug de origem: `BUG-20261013-2EFQ`
++> Não existe versão anterior deste contrato.
++
++## Vigência
++
++Vigente desde 2026-10-13. **Não edita nenhuma spec original** e não contradiz o `ADR-32` nem a
++`RN-20` — que fixaram a elegibilidade da **leitura** por forma de nome. Este adendo trata da
++**escrita**: a lista de caracteres que o gravador substitui.
++
++Ele também não reabre nada do `BUG-20260929-QMLY` (chave por conteúdo e saneamento) nem do
++`BUG-20261009-6RKP` (acento e espaço inalcançáveis): os dois continuam valendo, e o segundo é
++justamente o que proíbe "resolver" este caso estreitando o alfabeto do nome visível.
++
++## Por que a spec está desatualizada
++
++A spec descreve o saneamento como uma **enumeração fechada**, e o código a cumpre à risca:
++
++| Artefato | O que diz |
++|---|---|
++| `_reversa_sdd/upload-gedcom/contracts.md#2.1` | "`/`, `\`, NUL → `_`; **acentos, espaços** e a **extensão original** preservados; vazio ou só pontos → `arvore.ged`; sem extensão → recebe `.ged`" |
++| `_reversa_sdd/upload-gedcom/requirements.md` (`RF-06`) | "Sanear o nome visível: `/`, `\` e NUL viram `_`; acentos e espaços preservados" |
++| `_reversa_sdd/code-analysis.md` (`BR-U-10`) | "No nome visível, `/`, `\` e NUL viram `_`; acentos, espaços e a extensão são preservados" |
++| `_reversa_sdd/upload-gedcom/design.md` | "Preserva a extensão; nunca vazio" |
++
++A enumeração **descreve o que o gravador faz, e não o que ele precisa garantir**: que o nome
++produzido possa ser **gravado e relido como arquivo regular**. No NTFS, o `:` é o separador de
++**fluxo alternativo**, e `open("<pasta>/<chave>__teste:1.ged", "wb")` cria `<chave>__teste`
++com **zero byte**, guardando os bytes no fluxo `:1.ged`. Medido em 2026-10-13:
++
++- a tela responde "carregado!" e o `os.stat` no nome devolvido reporta o tamanho real (o
++  Windows resolve o fluxo de forma transparente), então a gravação **parece** ter funcionado;
++- o que quebra é o que a própria aplicação enxerga: `listar` enumera `os.listdir`, vê
++  `<chave>__teste`, e `itens_da_aba` descarta a entrada porque o nome visível não termina em
++  `.ged` nem `.csv`. A árvore enviada **não aparece em aba nenhuma**;
++- com `teste.ged:ads`, a linha aparece com **0 byte** e não abre;
++- com `C:\escape.ged` (que na camada HTTP chega como `C:escape.ged`, porque o par entre aspas do
++  cabeçalho multipart come a barra invertida), a referência não resolve, a releitura levanta
++  `RuntimeError` e sobra um **arquivo órfão de 0 byte** na pasta.
++
++Nenhum arquivo real do operador tem `:` — nem na pasta, nem nos aposentados —, então **não há
++dado a reparar**: o adendo conserta a regra antes que ela morda.
++
++## O que passa a valer
++
++### 1. A gravação substitui também o `:`, pela mesma política
++
++No nome visível, `:` vira `_`, como já acontecia com `/`, `\` e NUL. Não há alfabeto novo, não
++há recusa nova e não há renomeação de nada: é o mesmo tratamento, aplicado ao quarto caractere
++que a plataforma não aceita num nome de arquivo.
++
++### 2. O conjunto da LEITURA não muda, e a distinção passa a ser declarada
++
++São **duas** perguntas, e agora com dois nomes no código:
++
++| Pergunta | Constante | Quem usa |
++|---|---|---|
++| "Que caracteres a **gravação** substitui?" | `_CARACTERES_SUBSTITUIDOS` = `/`, `\`, NUL, `:` | `nome_visivel_seguro` |
++| "Isto é um **caminho**?" | `_SEPARADORES` = `/`, `\`, NUL | `referencia_de_arquivo_da_pasta`, e por herança a elegibilidade da tela |
++
++O `:` **não** entra em `_SEPARADORES`. Ele não é separador de caminho, e acrescentá-lo ali
++teria apertado o **alcance** de arquivos já gravados: um nome com `:` (de uma origem externa,
++por exemplo) deixaria de ser listável e de poder ser aposentado. A defesa contra escape de
++pasta continua sendo a mesma, por forma de nome (`RN-20`, `ADR-32`).
++
++### 3. O que não muda
++
++- **Acento, espaço e extensão continuam preservados** (`RF-06`, `RN-20`): o saneamento novo é
++  cirúrgico, e há teste de regressão que cai se ele virar transliteração.
++- **Nomes reservados do Windows continuam inofensivos**: `CON`, `NUL`, `AUX`, `COM1` e `LPT1`
++  produzem arquivo regular, porque o prefixo de 16 hexadecimais da chave os tira do espaço de
++  nomes de dispositivo. Medido, e preso por teste de regressão.
++- **Nenhum arquivo é renomeado**: não existe arquivo com `:` no disco do operador.
++- **A chave de conteúdo e o caminho não mudam**: `nome_do_arquivo_armazenado` continua
++  `<chave>__<nome visível>`, e dois envios do mesmo conteúdo continuam reencontrando o mesmo
++  arquivo.
++
++## Impacto por artefato da extração
++
++| Artefato | Seção | Tipo de impacto | Delta |
++|---|---|---|---|
++| `_reversa_sdd/upload-gedcom/contracts.md` | §2.1 (nome visível) | `regra-alterada` | A enumeração dos caracteres substituídos ganha o `:`; "acentos, espaços e a extensão preservados" continua |
++| `_reversa_sdd/upload-gedcom/requirements.md` | `RF-06` | `regra-alterada` | Idem |
++| `_reversa_sdd/code-analysis.md` | `BR-U-10` | `regra-alterada` | Idem, e a distinção entre o conjunto da escrita e o da leitura passa a ser declarada |
++| `_reversa_sdd/upload-gedcom/design.md` | §5 e a linha da extensão | `sem-impacto` de comportamento, `regra-alterada` de redação | A preservação da extensão segue; o texto do saneamento ganha o quarto caractere |
++| `_reversa_sdd/data-dictionary.md` | §2 (nome visível) | `delta-de-dados` | Nenhum dado muda; a descrição do nome visível cita o novo conjunto |
++| `_reversa_sdd/adrs/32-elegibilidade-por-forma-de-nome.md` | Decisão | `sem-impacto` | Continua valendo: a elegibilidade da leitura não foi tocada |
++| `tests/` | — | `testes-novos` | `tests/test_nome_com_dois_pontos.py` (reprodução e regressão). Nenhum teste existente foi alterado |
++
++## Evidências
++
++| O que | Onde |
++|---|---|
++| Os três casos com `:`, com `exists`/`isfile`/`stat`/bytes lidos | `_reversa_bugs/seguranca/bugs/BUG-20261013-2EFQ-nome-com-dois-pontos-fluxo-ntfs/evidence/ads.json` |
++| Bateria de 14 nomes, incluindo os controles negativos | `_reversa_bugs/seguranca/bugs/BUG-20261013-2EFQ-nome-com-dois-pontos-fluxo-ntfs/evidence/nomes.json` |
++| Relatório da inspeção (item 7b) | `_reversa_bugs/seguranca/inspections/checklist-20261013/RESULTADOS-DO-CHECKLIST.md` |
++| Reprodução que falhava antes e passa depois | `tests/test_nome_com_dois_pontos.py::TestReproducao` |
++| Regressão que passa antes e depois | `tests/test_nome_com_dois_pontos.py::TestRegressao` |
++
++## Aprovação
++
++Plano aprovado pelo operador em 2026-10-13 (`fix/plan.html`), com a estratégia de **correção
++direta**, e veredito de spec **`spec-desatualizada`** com adendo versionado, conforme o menu da
++etapa 7 do `/reversa-debugger-fix`.

@@ -1,0 +1,302 @@
+{
+  "candidatos": [
+    {
+      "nome_enviado": "teste:1.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;teste:1.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "bee820c034ef143d__teste:1.ged",
+      "arquivos_criados": {
+        "bee820c034ef143d__teste": {
+          "arquivo_regular": true,
+          "bytes": 0
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": false,
+      "referencia_oferecida_na_tela": "bee820c034ef143d__teste",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "teste.ged:ads",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;teste.ged:ads&#39; carregado!"
+      ],
+      "referencia_devolvida": "86b1ccc63ccda05a__teste.ged:ads",
+      "arquivos_criados": {
+        "86b1ccc63ccda05a__teste.ged": {
+          "arquivo_regular": true,
+          "bytes": 0
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "86b1ccc63ccda05a__teste.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "con.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;con.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "a69e28f5e7314949__con.ged",
+      "arquivos_criados": {
+        "a69e28f5e7314949__con.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "a69e28f5e7314949__con.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "CON.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;CON.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "0d87d62c5e53a61f__CON.ged",
+      "arquivos_criados": {
+        "0d87d62c5e53a61f__CON.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "0d87d62c5e53a61f__CON.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "nul.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;nul.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "8f05e513e4135c5a__nul.ged",
+      "arquivos_criados": {
+        "8f05e513e4135c5a__nul.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "8f05e513e4135c5a__nul.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "aux.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;aux.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "220dc770d7e93574__aux.ged",
+      "arquivos_criados": {
+        "220dc770d7e93574__aux.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "220dc770d7e93574__aux.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "com1.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;com1.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "daf4383a644b5138__com1.ged",
+      "arquivos_criados": {
+        "daf4383a644b5138__com1.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "daf4383a644b5138__com1.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "lpt1.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;lpt1.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "3708936ca5ce2f09__lpt1.ged",
+      "arquivos_criados": {
+        "3708936ca5ce2f09__lpt1.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "3708936ca5ce2f09__lpt1.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "CON",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;CON.ged&#39; atualizado: a versão anterior saiu da lista e continua guardada, inteira, na pasta de aposentados."
+      ],
+      "referencia_devolvida": "62cfb5e8142d1261__CON.ged",
+      "arquivos_criados": {
+        "62cfb5e8142d1261__CON.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        },
+        "_aposentados": {
+          "arquivo_regular": false,
+          "bytes": null
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "62cfb5e8142d1261__CON.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "nome.",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;nome.&#39; carregado!"
+      ],
+      "referencia_devolvida": "8f44365fe0efb29b__nome.ged",
+      "arquivos_criados": {
+        "8f44365fe0efb29b__nome.ged": {
+          "arquivo_regular": true,
+          "bytes": 706
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 706,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "8f44365fe0efb29b__nome.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "nome ",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;nome.ged&#39; atualizado: a versão anterior saiu da lista e continua guardada, inteira, na pasta de aposentados."
+      ],
+      "referencia_devolvida": "795307284bf000f2__nome.ged",
+      "arquivos_criados": {
+        "795307284bf000f2__nome.ged": {
+          "arquivo_regular": true,
+          "bytes": 707
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 707,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "795307284bf000f2__nome.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "..\\escape.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;..escape.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "143baa23f465657e__escape.ged",
+      "arquivos_criados": {
+        "143baa23f465657e__escape.ged": {
+          "arquivo_regular": true,
+          "bytes": 707
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 707,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "143baa23f465657e__escape.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "C:\\escape.ged",
+      "status": 200,
+      "mensagem": [
+        "Erro ao processar GEDCOM: a árvore recém-gravada não pôde ser relida"
+      ],
+      "referencia_devolvida": "143baa23f465657e__escape.ged",
+      "arquivos_criados": {
+        "993a6adffa751f16__C": {
+          "arquivo_regular": true,
+          "bytes": 0
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 707,
+      "referencia_conteudo_confere": false,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "143baa23f465657e__escape.ged",
+      "bytes_mostrados_na_tela": null
+    },
+    {
+      "nome_enviado": "../../escape.ged",
+      "status": 200,
+      "mensagem": [
+        "Arquivo &#39;../../escape.ged&#39; carregado!"
+      ],
+      "referencia_devolvida": "97d11d7e434252a7___.._escape.ged",
+      "arquivos_criados": {
+        "97d11d7e434252a7___.._escape.ged": {
+          "arquivo_regular": true,
+          "bytes": 707
+        }
+      },
+      "referencia_existe_no_disco": true,
+      "referencia_e_arquivo_regular": true,
+      "referencia_bytes_lidos": 707,
+      "referencia_conteudo_confere": true,
+      "a_tela_oferece_alguma_forma": true,
+      "referencia_oferecida_na_tela": "97d11d7e434252a7___.._escape.ged",
+      "bytes_mostrados_na_tela": null
+    }
+  ]
+}

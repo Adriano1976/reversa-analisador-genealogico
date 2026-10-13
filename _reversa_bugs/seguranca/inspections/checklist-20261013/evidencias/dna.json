@@ -1,0 +1,50 @@
+{
+  "arvores": {
+    "arvore_pool150.ged": "9175b9d94143467a__arvore_pool150.ged",
+    "arvore_pool600.ged": "ca66fd57c5159309__arvore_pool600.ged",
+    "arvore_valida.ged": "7b682362af68f7c0__arvore_valida.ged"
+  },
+  "csvs_na_pasta": {
+    "matches_r24.csv": "62b66fde1fb6a5d0__matches_r24.csv",
+    "matches_r49.csv": "c50c363b43b010a1__matches_r49.csv",
+    "matches_r199.csv": "988dc7190dae0142__matches_r199.csv"
+  },
+  "matriz": [
+    {
+      "arvore": "arvore_pool600.ged",
+      "csv": "matches_r24.csv",
+      "segundos": 1.22,
+      "status": 200,
+      "mensagem": [
+        "1 conexões encontradas. 24 descartadas."
+      ]
+    },
+    {
+      "arvore": "arvore_pool600.ged",
+      "csv": "matches_r49.csv",
+      "segundos": 1.22,
+      "status": 200,
+      "mensagem": [
+        "1 conexões encontradas. 49 descartadas."
+      ]
+    },
+    {
+      "arvore": "arvore_pool600.ged",
+      "csv": "matches_r199.csv",
+      "segundos": 3.27,
+      "status": 200,
+      "mensagem": [
+        "1 conexões encontradas. 199 descartadas."
+      ]
+    },
+    {
+      "arvore": "arvore_pool150.ged",
+      "csv": "matches_r49.csv",
+      "segundos": 0.33,
+      "status": 200,
+      "mensagem": [
+        "1 conexões encontradas. 49 descartadas."
+      ]
+    }
+  ]
+}

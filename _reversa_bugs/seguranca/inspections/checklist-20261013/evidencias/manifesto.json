@@ -1,0 +1,59 @@
+{
+  "arvore_valida": {
+    "nome": "arvore_valida.ged",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\arvore_valida.ged",
+    "bytes": 709,
+    "sha256": "7b682362af68f7c0c4942f67496a267a5270f2084cd97a9e90906df6e43e2bbc",
+    "chave": "7b682362af68f7c0"
+  },
+  "arvore_truncada": {
+    "nome": "arvore_truncada.ged",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\arvore_truncada.ged",
+    "bytes": 43,
+    "sha256": "01b967ca022a5692851a7933b65ff5d8d75ade2a56ca6e3e1b4d53ae551ea8cc",
+    "chave": "01b967ca022a5692"
+  },
+  "arvore_pool150": {
+    "nome": "arvore_pool150.ged",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\arvore_pool150.ged",
+    "bytes": 7799,
+    "sha256": "9175b9d94143467ae52f36e186d24b86d864506ed191fc1257dee6495f7d2c1c",
+    "chave": "9175b9d94143467a"
+  },
+  "arvore_pool600": {
+    "nome": "arvore_pool600.ged",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\arvore_pool600.ged",
+    "bytes": 29399,
+    "sha256": "ca66fd57c5159309ff4d4548bbf0006200f6ca9d9eed17c06d124978105f8ce0",
+    "chave": "ca66fd57c5159309"
+  },
+  "arvore_grande_15000": {
+    "nome": "arvore_grande_15000.ged",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\arvore_grande_15000.ged",
+    "bytes": 1303670,
+    "sha256": "9895e6ed083ac7bf2403d71a4a4039265154d049c24860a7b31e5794af74eae9",
+    "chave": "9895e6ed083ac7bf"
+  },
+  "matches_r24": {
+    "nome": "matches_r24.csv",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\matches_r24.csv",
+    "bytes": 575,
+    "sha256": "62b66fde1fb6a5d0016cf0f4e6cc152307a2867bba39cc0436a6793bcb273f43",
+    "chave": "62b66fde1fb6a5d0"
+  },
+  "matches_r49": {
+    "nome": "matches_r49.csv",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\matches_r49.csv",
+    "bytes": 1150,
+    "sha256": "c50c363b43b010a16b3c98955533efd449bfdf4b8d9ca8da82a992563c4dd363",
+    "chave": "c50c363b43b010a1"
+  },
+  "matches_r199": {
+    "nome": "matches_r199.csv",
+    "caminho": "C:\\Users\\venda\\AppData\\Local\\Temp\\dsh-cvAZP4\\reversa-chec-seg\\fixtures\\matches_r199.csv",
+    "bytes": 4699,
+    "sha256": "988dc7190dae01420a41786e093e2f8546d47e0cdbfaf3da939298718cd142a7",
+    "chave": "988dc7190dae0142"
+  },
+  "raiz": "Carlos Silva Souza"
+}

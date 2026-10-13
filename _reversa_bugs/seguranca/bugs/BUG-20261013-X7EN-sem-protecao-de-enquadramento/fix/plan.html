@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de correção · BUG-20261013-X7EN</title>
+<style>
+  :root{
+    --fundo:#0b1220; --cartao:#151f33; --borda:#2a3a55; --texto:#e6edf7;
+    --fraco:#93a4c0; --ok:#34d399; --aberto:#f87171; --medio:#fbbf24; --azul:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--fundo);color:var(--texto);line-height:1.55;
+       font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px}
+  h3{font-size:14px;margin:16px 0 8px;color:var(--fraco)}
+  .meta{color:var(--fraco);font-size:13px;margin:0 0 20px}
+  .meta code,code{color:var(--texto);background:#0f1a2e;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .cartoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:12px 18px;min-width:126px}
+  .cartao b{display:block;font-size:22px;line-height:1.25}
+  .cartao span{color:var(--fraco);font-size:12px}
+  section{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:18px;margin-bottom:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--borda);vertical-align:top}
+  th{color:var(--fraco);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ol,ul{margin:8px 0 0;padding-left:22px}
+  li{margin-bottom:5px}
+  .ok{color:var(--ok)} .aberto{color:var(--aberto)} .medio{color:var(--medio)}
+  .vazio{color:var(--fraco);font-size:13px;margin:0}
+  svg{width:100%;height:auto;display:block}
+  text{font-family:"Segoe UI",system-ui,sans-serif}
+  .antes{color:var(--aberto)} .depois{color:var(--ok)}
+</style>
+</head>
+<body>
+
+<h1>Plano de correção · #12 BUG-20261013-X7EN</h1>
+<p class="meta">
+  Contexto <code>seguranca</code> · plano gerado em 2026-10-13 · severidade <b>medium</b> · prioridade <b>P2</b>
+  · commit base <code>c670788</code> · <b>nada foi alterado no projeto ainda</b>
+</p>
+
+<div class="cartoes">
+  <div class="cartao"><b class="aberto">reproduzido</b><span>1/1 execução</span></div>
+  <div class="cartao"><b class="ok">confirmed</b><span>causa raiz</span></div>
+  <div class="cartao"><b class="ok">baixa</b><span>risco da mudança</span></div>
+  <div class="cartao"><b>3</b><span>itens no change set</span></div>
+  <div class="cartao"><b>2</b><span>testes planejados</span></div>
+</div>
+
+<section>
+  <h2>Resumo do defeito</h2>
+  <p>
+    A resposta de <code>GET /</code> não emite <code>X-Frame-Options</code> nem
+    <code>Content-Security-Policy</code> com <code>frame-ancestors</code> — e essa página contém o
+    formulário da ação destrutiva:
+  </p>
+  <table>
+    <thead><tr><th>Medido em <code>GET /</code></th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td><code>X-Frame-Options</code></td><td><span class="aberto">ausente</span></td></tr>
+      <tr><td><code>Content-Security-Policy</code> (e <code>frame-ancestors</code>)</td><td><span class="aberto">ausente</span></td></tr>
+      <tr><td>Cabeçalhos que a resposta traz</td><td><code>content-length</code>, <code>content-type</code>,
+          <code>date</code>, <code>server: waitress</code></td></tr>
+      <tr><td>Formulário destrutivo na página</td><td><code>action=aposentar_arquivo</code>, com
+          <code>onsubmit</code> de <code>confirm()</code> (<code>index.html:68-73</code>)</td></tr>
+    </tbody>
+  </table>
+  <p class="vazio">O <code>confirm()</code> é barreira de interface e reduz o clique único acidental, mas
+  não é controle de servidor. A página também é a única do sistema: quem a enquadra, enquadra tudo.</p>
+</section>
+
+<section>
+  <h2>Causa raiz <span class="ok">(confirmed)</span></h2>
+  <ol>
+    <li><code>src/app.py</code> não registra <code>@app.after_request</code> nem emite cabeçalho por rota:
+        a resposta carrega apenas o que o Flask e o waitress produzem.</li>
+    <li>Nenhum artefato da spec efetiva previu controle de enquadramento — a única defesa de borda
+        especificada é a lista de <code>Host</code> (<code>TRUSTED_HOSTS</code>, adendo <code>014</code>),
+        que fecha DNS rebinding e explicitamente <b>não</b> é proteção de enquadramento nem de origem.</li>
+    <li>Consequência: não há nada entre uma página de terceiro e a interface que contém o botão
+        “Apagar”.</li>
+  </ol>
+  <h3>Evidências</h3>
+  <ul>
+    <li><a href="../evidence/estatico.json">evidence/estatico.json</a> — lista de cabeçalhos ausentes e a
+        presença do formulário destrutivo na mesma resposta.</li>
+    <li><a href="../evidence/estatico-get-index.html">evidence/estatico-get-index.html</a> — HTML cru de
+        <code>GET /</code>.</li>
+    <li><a href="../evidence/reproducao.md">evidence/reproducao.md</a> — cápsula de reprodução.</li>
+    <li><code>_reversa_bugs/seguranca/inspections/checklist-20261013/RESULTADOS-DO-CHECKLIST.md</code> item 6.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Estratégia escolhida</h2>
+  <p><b>Correção direta</b>, e <b>apenas com <code>X-Frame-Options: DENY</code></b>. O
+  <code>Content-Security-Policy</code> fica de fora <b>por decisão desta sessão</b>: ele é o
+  <a href="../../BUG-20261013-4PYJ-scripts-de-cdn-sem-sri-e-sem-csp/bug.md">BUG-20261013-4PYJ</a>, e o
+  template tem script inline (<code>mermaid.initialize</code>) — um CSP mal calibrado quebra o diagrama e o
+  estilo da página. O <code>X-Frame-Options</code> fecha o enquadramento sem tocar em uma linha de HTML.</p>
+  <p class="vazio">O par <b>fica incompleto de propósito</b>: o enquadramento é fechado, e a verificação de
+  origem (<a href="../../BUG-20261013-Z5BC-post-sem-verificacao-de-origem/bug.md">BUG-20261013-Z5BC</a>)
+  segue aberta por estar entre os três correções adiadas. Registrado no adendo.</p>
+</section>
+
+<section>
+  <h2>Correction Change Set proposto</h2>
+  <table>
+    <thead><tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr></thead>
+    <tbody>
+      <tr><td>CHG-001</td><td><code>code</code></td><td><code>src/app.py</code></td>
+          <td>Um <code>@app.after_request</code> que acrescenta <code>X-Frame-Options: DENY</code> a todas as
+              respostas, com o motivo escrito no código (o vetor de navegador que o adendo <code>014</code>
+              já reconheceu, e que a lista de <code>Host</code> não cobre).</td></tr>
+      <tr><td>CHG-002</td><td><code>specification</code></td>
+          <td><code>_reversa_sdd/addenda/bug-BUG-20261013-X7EN-v001.md</code></td>
+          <td>Adendo <b>aditivo</b>: especifica pela primeira vez o cabeçalho de enquadramento, sem fingir
+              que altera seção existente. Registra também que o CSP não entrou e por quê.</td></tr>
+      <tr><td>CHG-003</td><td><code>test</code></td>
+          <td><code>tests/test_cabecalho_de_enquadramento.py</code></td>
+          <td>Reprodução e regressão no mesmo arquivo, com intenções distintas: o cabeçalho presente, e o
+              corpo da resposta <b>inalterado</b>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Testes planejados</h2>
+  <table>
+    <thead><tr><th>#</th><th>Teste</th><th>O que prova</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>reprodução: <code>GET /</code> traz <code>X-Frame-Options: DENY</code></td>
+          <td><span class="antes">hoje falha</span> — o cabeçalho não existe em nenhuma resposta.</td></tr>
+      <tr><td>2</td><td>regressão: o corpo de <code>GET /</code> não muda, e as rotas de arte seguem
+          <code>200</code></td>
+          <td><span class="depois">continua passando</span> — prova que a correção é de cabeçalho, e que o
+              <code>SHA_DA_TELA</code> de <code>tests/test_icone_de_atalho.py</code> segue válido (nada de
+              HTML foi tocado).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Riscos da mudança</h2>
+  <ul>
+    <li><b>Blast radius: mínimo.</b> Um cabeçalho, num ponto único, para todas as rotas.</li>
+    <li><b>Não quebra automação.</b> Diferente de verificar origem, o <code>X-Frame-Options</code> <b>não
+        recusa requisição</b>: quem obedece é o navegador. <code>curl</code>, scripts e a suíte não mudam de
+        comportamento — é o oposto do risco que mantém o <a href="../../BUG-20261013-Z5BC-post-sem-verificacao-de-origem/bug.md">Z5BC</a>
+        fora desta sessão.</li>
+    <li><b>Nenhum byte de corpo.</b> Verificado pelo teste de regressão e pelo invariante de tela.</li>
+    <li><b>Reversibilidade: alta.</b> Reverter é remover o tratador.</li>
+  </ul>
+  <h3>Fora do escopo (Agent Notes)</h3>
+  <ul>
+    <li>Não introduzir <code>Content-Security-Policy</code> nesta correção (é o <code>4PYJ</code>, adiado).</li>
+    <li>Não acrescentar <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code> ou HSTS: não foram
+        medidos como defeito e não entram sem medição.</li>
+    <li>Não tocar no template: o <code>confirm()</code> do botão permanece, como defesa adicional.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Grafo do bug</h2>
+  <svg viewBox="0 0 960 220" role="img" aria-label="Relações do BUG-20261013-X7EN">
+    <defs><marker id="seta2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+      orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#93a4c0"/></marker></defs>
+    <line x1="470" y1="110" x2="600" y2="110" stroke="#93a4c0" stroke-width="1.6" marker-end="url(#seta2)"/>
+    <text x="535" y="100" fill="#93a4c0" font-size="11" text-anchor="middle">related-to (supported)</text>
+
+    <a href="../bug.md">
+      <rect x="70" y="76" width="290" height="70" rx="9" fill="#16202b" stroke="#fbbf24" stroke-width="2"/>
+      <text x="215" y="100" fill="#e6edf7" font-size="13" text-anchor="middle">#12 BUG-20261013-X7EN</text>
+      <text x="215" y="118" fill="#c7d3e0" font-size="11" text-anchor="middle">página enquadrável</text>
+      <text x="215" y="136" fill="#fbbf24" font-size="11" text-anchor="middle">open · medium / P2</text>
+    </a>
+
+    <a href="../../BUG-20261013-Z5BC-post-sem-verificacao-de-origem/bug.md">
+      <rect x="600" y="76" width="290" height="70" rx="9" fill="#16202b" stroke="#7f8c8d" stroke-width="2"/>
+      <text x="745" y="100" fill="#e6edf7" font-size="13" text-anchor="middle">#10 BUG-20261013-Z5BC</text>
+      <text x="745" y="118" fill="#fbbf24" font-size="11" text-anchor="middle">restrito (fora das views)</text>
+      <text x="745" y="136" fill="#c7d3e0" font-size="11" text-anchor="middle">adiado nesta sessão</text>
+    </a>
+  </svg>
+  <h3>Matriz de relações</h3>
+  <table>
+    <thead><tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><a href="../bug.md">BUG-20261013-X7EN</a></td><td>related-to</td>
+          <td><a href="../../BUG-20261013-Z5BC-post-sem-verificacao-de-origem/bug.md">BUG-20261013-Z5BC</a></td>
+          <td>supported</td></tr>
+    </tbody>
+  </table>
+  <p class="vazio">Os dois se compõem — enquadramento e ausência de verificação de origem —, mas só o
+  primeiro é corrigido agora, por decisão registrada.</p>
+</section>
+
+<section>
+  <h2>Ordem sugerida nesta sessão</h2>
+  <p>Este é o <b>primeiro</b>: risco baixo, correção de um cabeçalho, e valida o ciclo vermelho→verde antes
+  do <a href="../../BUG-20261013-2EFQ-nome-com-dois-pontos-fluxo-ntfs/bug.md">BUG-20261013-2EFQ</a>, que é
+  o mais grave dos dois e o único que emenda contrato de spec.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+{
+  "upload_com_origin_hostil": {
+    "status": 200,
+    "mensagem": [
+      "Arquivo &#39;arvore_valida.ged&#39; carregado!"
+    ],
+    "referencia_devolvida": "7b682362af68f7c0__arvore_valida.ged",
+    "arquivos_novos": [
+      "7b682362af68f7c0__arvore_valida.ged"
+    ]
+  },
+  "segundo_upload_sem_origin": {
+    "status": 200,
+    "mensagem": [
+      "Arquivo &#39;arvore_valida.ged&#39; já estava armazenado com o mesmo conteúdo: nada mudou."
+    ]
+  },
+  "acao_destrutiva": [
+    {
+      "caso": "com_origin_hostil",
+      "status": 200,
+      "mensagem": [
+        "&#39;arvore valida&#39; saiu da lista. O arquivo não foi apagado: ele continua guardado, inteiro, na pasta de aposentados."
+      ],
+      "aposentados": {
+        "7b682362af68f7c0__arvore_valida.ged": {
+          "arquivo_regular": true,
+          "bytes": 709
+        }
+      }
+    },
+    {
+      "caso": "sem_origin_nem_referer",
+      "status": 200,
+      "mensagem": [
+        "&#39;arvore valida&#39; saiu da lista. O arquivo não foi apagado: ele continua guardado, inteiro, na pasta de aposentados."
+      ],
+      "aposentados": {
+        "7b682362af68f7c0__arvore_valida.ged": {
+          "arquivo_regular": true,
+          "bytes": 709
+        }
+      }
+    }
+  ],
+  "cabecalhos_enviados": {
+    "Origin": "http://atacante.exemplo",
+    "Referer": "http://atacante.exemplo/pagina-hostil.html"
+  }
+}

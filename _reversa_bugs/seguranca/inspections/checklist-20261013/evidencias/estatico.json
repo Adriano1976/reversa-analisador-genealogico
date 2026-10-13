@@ -1,0 +1,59 @@
+{
+  "status": 200,
+  "cabecalhos_de_seguranca": {
+    "content-security-policy": null,
+    "x-frame-options": null,
+    "set-cookie": null,
+    "strict-transport-security": null,
+    "x-content-type-options": null,
+    "referrer-policy": null,
+    "permissions-policy": null,
+    "cross-origin-opener-policy": null,
+    "server": "waitress",
+    "content-type": "text/html; charset=utf-8"
+  },
+  "cabecalhos_completos": {
+    "content-length": "28858",
+    "content-type": "text/html; charset=utf-8",
+    "date": "Tue, 13 Oct 2026 14:49:20 GMT",
+    "server": "waitress"
+  },
+  "seguranca_ausente": [
+    "content-security-policy",
+    "x-frame-options",
+    "set-cookie",
+    "strict-transport-security",
+    "x-content-type-options",
+    "referrer-policy",
+    "permissions-policy",
+    "cross-origin-opener-policy"
+  ],
+  "scripts": [
+    "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js\">",
+    "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\">"
+  ],
+  "scripts_sem_integrity": [
+    "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js\">",
+    "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\">"
+  ],
+  "terceiros": [
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+    "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
+    "https://fonts.googleapis.com",
+    "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+    "https://fonts.gstatic.com"
+  ],
+  "formularios": [
+    {
+      "tag": "<form method=\"POST\" enctype=\"multipart/form-data\" id=\"gedcom-upload-form\">",
+      "acoes": [
+        "upload_gedcom"
+      ],
+      "ocultos": [
+        "<input type=\"hidden\" name=\"action\" value=\"upload_gedcom\">"
+      ]
+    }
+  ],
+  "tem_campo_de_token": false
+}

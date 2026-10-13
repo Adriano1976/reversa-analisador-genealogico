@@ -1,0 +1,21 @@
+{
+  "sem_credencial": {
+    "status": 200,
+    "set_cookie": null,
+    "www_authenticate": null,
+    "bytes_da_pagina": 28858,
+    "ve_a_lista_de_arquivos": true
+  },
+  "host_forjado": {
+    "host": "atacante.exemplo",
+    "status": 400,
+    "corpo": "<!doctype html>\n<html lang=en>\n<title>400 Bad Request</title>\n<h1>Bad Request</h1>\n<p>Host &#39;atacante.exemplo&#39; is not trusted.</p>\n"
+  },
+  "host_loopback": {
+    "host": "127.0.0.1",
+    "status": 200
+  },
+  "host_localhost_sem_porta": {
+    "status": 200
+  }
+}

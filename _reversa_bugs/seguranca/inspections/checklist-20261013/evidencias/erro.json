@@ -1,0 +1,17 @@
+{
+  "diretorio_no_lugar_do_arquivo": {
+    "nome_armadilha": "7b682362af68f7c0__sonda_dir.ged",
+    "status": 200,
+    "mensagem": [
+      "Erro ao processar GEDCOM: [Errno 13] Permission denied: &#39;C:\\\\Users\\\\venda\\\\AppData\\\\Local\\\\Temp\\\\dsh-cvAZP4\\\\reversa-chec-seg\\\\uploads\\\\7b682362af68f7c0__sonda_dir.ged&#39;"
+    ],
+    "texto_de_excecao_na_pagina": "[Errno 13] Permission denied: &#39;C:\\\\Users\\\\venda\\\\AppData\\\\Local\\\\Temp\\\\dsh-cvAZP4\\\\reversa-chec-seg\\\\uploads\\\\7b682362af68f7c0__sonda_dir.ged&#39;"
+  },
+  "gedcom_truncado": {
+    "status": 200,
+    "mensagem": [
+      "Arquivo &#39;arvore_truncada.ged&#39; carregado!"
+    ],
+    "texto_de_excecao_na_pagina": null
+  }
+}

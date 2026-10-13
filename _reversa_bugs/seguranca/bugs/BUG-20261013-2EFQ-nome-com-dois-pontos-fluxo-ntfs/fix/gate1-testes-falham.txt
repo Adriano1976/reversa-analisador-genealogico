@@ -1,0 +1,200 @@
+﻿FFFF..FFFF..........                                                     [100%]
+================================== FAILURES ===================================
+___ TestReproducao.test_toda_resposta_traz_o_cabecalho_de_enquadramento[/] ____
+
+self = <test_cabecalho_de_enquadramento.TestReproducao object at 0x0000022F1EA45BD0>
+cliente_de_upload = (<Flask '_app_conftest006'>, <FlaskClient <Flask '_app_conftest006'>>, 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\dc9eac0f1f714065b8821c5ceabdb15e\\uploads')
+rota = '/'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+    
+        O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
+        passar a versao parcial da correcao.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get(rota)
+        assert resposta.status_code == 200, f"{rota} nao respondeu 200"
+>       assert resposta.headers.get(CABECALHO) == "DENY", (
+            f"{rota} responde sem `{CABECALHO}`: a pagina com o formulario da acao destrutiva "
+            "continua enquadravel por outra origem"
+        )
+E       AssertionError: / responde sem `X-Frame-Options`: a pagina com o formulario da acao destrutiva continua enquadravel por outra origem
+E       assert None == 'DENY'
+E        +  where None = get('X-Frame-Options')
+E        +    where get = Headers([('Content-Type', 'text/html; charset=utf-8'), ('Content-Length', '28858')]).get
+E        +      where Headers([('Content-Type', 'text/html; charset=utf-8'), ('Content-Length', '28858')]) = <WrapperTestResponse streamed [200 OK]>.headers
+
+tests\test_cabecalho_de_enquadramento.py:54: AssertionError
+_ TestReproducao.test_toda_resposta_traz_o_cabecalho_de_enquadramento[/apple-touch-icon.png] _
+
+self = <test_cabecalho_de_enquadramento.TestReproducao object at 0x0000022F1EA46350>
+cliente_de_upload = (<Flask '_app_conftest006'>, <FlaskClient <Flask '_app_conftest006'>>, 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\a7da7e2e452d4e68920b235b73726da7\\uploads')
+rota = '/apple-touch-icon.png'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+    
+        O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
+        passar a versao parcial da correcao.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get(rota)
+        assert resposta.status_code == 200, f"{rota} nao respondeu 200"
+>       assert resposta.headers.get(CABECALHO) == "DENY", (
+            f"{rota} responde sem `{CABECALHO}`: a pagina com o formulario da acao destrutiva "
+            "continua enquadravel por outra origem"
+        )
+E       AssertionError: /apple-touch-icon.png responde sem `X-Frame-Options`: a pagina com o formulario da acao destrutiva continua enquadravel por outra origem
+E       assert None == 'DENY'
+E        +  where None = get('X-Frame-Options')
+E        +    where get = Headers([('Content-Disposition', 'inline; filename=apple-touch-icon.png'), ('Content-Type', 'image/png'), ('Content-Le...ETag', '"1791485083.523772-16504-1398349174"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]).get
+E        +      where Headers([('Content-Disposition', 'inline; filename=apple-touch-icon.png'), ('Content-Type', 'image/png'), ('Content-Le...ETag', '"1791485083.523772-16504-1398349174"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]) = <WrapperTestResponse streamed [200 OK]>.headers
+
+tests\test_cabecalho_de_enquadramento.py:54: AssertionError
+_ TestReproducao.test_toda_resposta_traz_o_cabecalho_de_enquadramento[/banner.png] _
+
+self = <test_cabecalho_de_enquadramento.TestReproducao object at 0x0000022F1EA25350>
+cliente_de_upload = (<Flask '_app_conftest006'>, <FlaskClient <Flask '_app_conftest006'>>, 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\daf29f24cde6428cb8778f4d10b2fe68\\uploads')
+rota = '/banner.png'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+    
+        O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
+        passar a versao parcial da correcao.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get(rota)
+        assert resposta.status_code == 200, f"{rota} nao respondeu 200"
+>       assert resposta.headers.get(CABECALHO) == "DENY", (
+            f"{rota} responde sem `{CABECALHO}`: a pagina com o formulario da acao destrutiva "
+            "continua enquadravel por outra origem"
+        )
+E       AssertionError: /banner.png responde sem `X-Frame-Options`: a pagina com o formulario da acao destrutiva continua enquadravel por outra origem
+E       assert None == 'DENY'
+E        +  where None = get('X-Frame-Options')
+E        +    where get = Headers([('Content-Disposition', 'inline; filename=banner-da-tela.png'), ('Content-Type', 'image/png'), ('Content-Leng...ETag', '"1791688315.797224-317058-374611065"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]).get
+E        +      where Headers([('Content-Disposition', 'inline; filename=banner-da-tela.png'), ('Content-Type', 'image/png'), ('Content-Leng...ETag', '"1791688315.797224-317058-374611065"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]) = <WrapperTestResponse streamed [200 OK]>.headers
+
+tests\test_cabecalho_de_enquadramento.py:54: AssertionError
+_ TestReproducao.test_toda_resposta_traz_o_cabecalho_de_enquadramento[/app.css] _
+
+self = <test_cabecalho_de_enquadramento.TestReproducao object at 0x0000022F1EA255B0>
+cliente_de_upload = (<Flask '_app_conftest006'>, <FlaskClient <Flask '_app_conftest006'>>, 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\3f0cf1e0670141128939d29b4f4db6c1\\uploads')
+rota = '/app.css'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+    
+        O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
+        passar a versao parcial da correcao.
+        """
+        _, client, _ = cliente_de_upload
+        resposta = client.get(rota)
+        assert resposta.status_code == 200, f"{rota} nao respondeu 200"
+>       assert resposta.headers.get(CABECALHO) == "DENY", (
+            f"{rota} responde sem `{CABECALHO}`: a pagina com o formulario da acao destrutiva "
+            "continua enquadravel por outra origem"
+        )
+E       AssertionError: /app.css responde sem `X-Frame-Options`: a pagina com o formulario da acao destrutiva continua enquadravel por outra origem
+E       assert None == 'DENY'
+E        +  where None = get('X-Frame-Options')
+E        +    where get = Headers([('Content-Disposition', 'inline; filename=app.css'), ('Content-Type', 'text/css; charset=utf-8'), ('Content-L...'ETag', '"1791776559.234018-8816-4048885891"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]).get
+E        +      where Headers([('Content-Disposition', 'inline; filename=app.css'), ('Content-Type', 'text/css; charset=utf-8'), ('Content-L...'ETag', '"1791776559.234018-8816-4048885891"'), ('Date', 'Tue, 13 Oct 2026 17:22:47 GMT'), ('Accept-Ranges', 'bytes')]) = <WrapperTestResponse streamed [200 OK]>.headers
+
+tests\test_cabecalho_de_enquadramento.py:54: AssertionError
+_ TestReproducao.test_o_arquivo_da_lista_carrega_os_bytes_quando_o_nome_tem_dois_pontos _
+
+self = <test_nome_com_dois_pontos.TestReproducao object at 0x0000022F1EA465D0>
+pasta_temporaria = 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\b23905174b5a4986a13bd5b645be6d8d'
+
+    def test_o_arquivo_da_lista_carrega_os_bytes_quando_o_nome_tem_dois_pontos(self, pasta_temporaria):
+        """`teste:1.ged` � hoje a arvore nao aparece em aba nenhuma."""
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), "teste:1.ged")
+        entrada = _entrada_listada(armazenamento, caminho)
+>       assert entrada is not None, (
+            "a lista da tela nao oferece o arquivo que a porta acabou de gravar: o nome "
+            f"devolvido ({os.path.basename(caminho)!r}) nao e o nome que existe na pasta"
+        )
+E       AssertionError: a lista da tela nao oferece o arquivo que a porta acabou de gravar: o nome devolvido ('1c7316c5a4ecb368__teste:1.ged') nao e o nome que existe na pasta
+E       assert None is not None
+
+tests\test_nome_com_dois_pontos.py:88: AssertionError
+_ TestReproducao.test_o_arquivo_da_lista_carrega_os_bytes_com_dois_pontos_apos_a_extensao _
+
+self = <test_nome_com_dois_pontos.TestReproducao object at 0x0000022F202147D0>
+pasta_temporaria = 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\8dd5ccb93b7b4aae8bfbf856d3fd0e0e'
+
+    def test_o_arquivo_da_lista_carrega_os_bytes_com_dois_pontos_apos_a_extensao(self, pasta_temporaria):
+        """`teste.ged:ads` � hoje a linha aparece com 0 byte e nao abre."""
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), "teste.ged:ads")
+        entrada = _entrada_listada(armazenamento, caminho)
+>       assert entrada is not None, "a lista nao oferece o arquivo gravado"
+E       AssertionError: a lista nao oferece o arquivo gravado
+E       assert None is not None
+
+tests\test_nome_com_dois_pontos.py:103: AssertionError
+________ TestReproducao.test_a_referencia_devolvida_e_um_nome_simples _________
+
+self = <test_nome_com_dois_pontos.TestReproducao object at 0x0000022F1EA25CD0>
+pasta_temporaria = 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\b1d065d5aba84bb0826916c7c92cf115'
+
+    def test_a_referencia_devolvida_e_um_nome_simples(self, pasta_temporaria):
+        """A referencia e o que o formulario devolve na requisicao seguinte.
+    
+        Um `:` na referencia e o que faz a gravacao e a leitura divergirem: o arquivo que nasce
+        nao tem o nome devolvido.
+        """
+        _, caminho = _guardar(_pasta(pasta_temporaria), "teste:1.ged")
+        referencia = os.path.basename(caminho)
+>       assert ":" not in referencia, (
+            f"a referencia {referencia!r} carrega o separador de fluxo do NTFS: o arquivo que "
+            "existe no disco tem outro nome"
+        )
+E       AssertionError: a referencia '1c7316c5a4ecb368__teste:1.ged' carrega o separador de fluxo do NTFS: o arquivo que existe no disco tem outro nome
+E       assert ':' not in '1c7316c5a4e..._teste:1.ged'
+E         
+E         ':' is contained here:
+E           1c7316c5a4ecb368__teste:1.ged
+E         ?                        +
+
+tests\test_nome_com_dois_pontos.py:116: AssertionError
+_________ TestReproducao.test_o_caso_do_drive_nao_deixa_arquivo_orfao _________
+
+self = <test_nome_com_dois_pontos.TestReproducao object at 0x0000022F200F2FD0>
+pasta_temporaria = 'D:\\Projetos\\reversa_analisador_gelealogico\\tests\\.tmp\\6187c092bb1048369b4aa027d67e2db5'
+
+    def test_o_caso_do_drive_nao_deixa_arquivo_orfao(self, pasta_temporaria):
+        """`C:\\escape.ged` (que chega como `C:escape.ged`) � hoje a gravacao deixa orfao de 0 byte.
+    
+        O nome visivel vira `C:escape.ged`, e o `basename` de um caminho com unidade e diferente
+        do proprio valor: a referencia nao resolve, a releitura falha e o arquivo fica na pasta.
+        """
+        pasta = _pasta(pasta_temporaria)
+        armazenamento, caminho = _guardar(pasta, "C:\\escape.ged")
+        referencia = os.path.basename(caminho)
+>       assert armazenamento.resolver(referencia, DONO) is not None, (
+            f"a referencia {referencia!r} nao resolve para arquivo existente: o nome gravado e "
+            "inalcancavel pela propria aplicacao"
+        )
+E       AssertionError: a referencia '1c7316c5a4ecb368__C:_escape.ged' nao resolve para arquivo existente: o nome gravado e inalcancavel pela propria aplicacao
+E       assert None is not None
+E        +  where None = resolver('1c7316c5a4ecb368__C:_escape.ged', 'unico')
+E        +    where resolver = <ports.adaptadores.ArmazenamentoEmDisco object at 0x0000022F28319650>.resolver
+
+tests\test_nome_com_dois_pontos.py:130: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_cabecalho_de_enquadramento.py::TestReproducao::test_toda_resposta_traz_o_cabecalho_de_enquadramento[/]
+FAILED tests/test_cabecalho_de_enquadramento.py::TestReproducao::test_toda_resposta_traz_o_cabecalho_de_enquadramento[/apple-touch-icon.png]
+FAILED tests/test_cabecalho_de_enquadramento.py::TestReproducao::test_toda_resposta_traz_o_cabecalho_de_enquadramento[/banner.png]
+FAILED tests/test_cabecalho_de_enquadramento.py::TestReproducao::test_toda_resposta_traz_o_cabecalho_de_enquadramento[/app.css]
+FAILED tests/test_nome_com_dois_pontos.py::TestReproducao::test_o_arquivo_da_lista_carrega_os_bytes_quando_o_nome_tem_dois_pontos
+FAILED tests/test_nome_com_dois_pontos.py::TestReproducao::test_o_arquivo_da_lista_carrega_os_bytes_com_dois_pontos_apos_a_extensao
+FAILED tests/test_nome_com_dois_pontos.py::TestReproducao::test_a_referencia_devolvida_e_um_nome_simples
+FAILED tests/test_nome_com_dois_pontos.py::TestReproducao::test_o_caso_do_drive_nao_deixa_arquivo_orfao
+8 failed, 12 passed in 3.32s

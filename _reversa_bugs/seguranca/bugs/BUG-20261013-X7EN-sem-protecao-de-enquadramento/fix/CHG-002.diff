@@ -1,0 +1,85 @@
+diff --git a/_reversa_sdd/addenda/bug-BUG-20261013-X7EN-v001.md b/_reversa_sdd/addenda/bug-BUG-20261013-X7EN-v001.md
+new file mode 100644
+index 0000000..57c4a02
+--- /dev/null
++++ b/_reversa_sdd/addenda/bug-BUG-20261013-X7EN-v001.md
+@@ -0,0 +1,79 @@
++# Adendo v001 — enquadramento da tela: `X-Frame-Options` em toda resposta
++
++> Identificador: `bug-BUG-20261013-X7EN-v001`
++> Data: 2026-10-13
++> Cenário: **legado** (âncora em `_reversa_sdd/architecture.md`, `_reversa_sdd/domain.md` e `_reversa_sdd/addenda/014-endurecimento-da-borda.md`)
++> Veredito: **`spec-gap`**, adendo aditivo
++> Bug de origem: `BUG-20261013-X7EN`
++> Não existe versão anterior deste contrato.
++
++## Vigência
++
++Vigente desde 2026-10-13. **Não edita nenhuma spec original** e não contradiz o adendo `014`
++(que fechou o DNS rebinding pela lista de `Host`): ele **completa** o mesmo vetor de navegador,
++que o próprio adendo `014` declara não cobrir — nas palavras dele, a lista de `Host` "**não é
++autenticação**" e o que ela fecha é um vetor de navegador, sem se apresentar como proteção de
++enquadramento nem de origem.
++
++## Por que é uma lacuna, e não uma spec desatualizada
++
++Nenhum artefato da spec efetiva previu controle de enquadramento. A verificação foi feita por
++busca em toda a `_reversa_sdd/`: **zero ocorrências** de `Content-Security-Policy`,
++`X-Frame-Options` e `frame-ancestors`. O contrato de `GET /` está em
++`_reversa_sdd/openapi/index.yaml` como `200` + `text/html`, e o de
++`_reversa_sdd/recursos-da-tela/contracts.md` §1 cita apenas `Content-Type` e `ETag` para as
++rotas de arte. Não há seção para emendar: o adendo é **aditivo**, e especifica o comportamento
++pela primeira vez.
++
++O que tornava a lacuna relevante, e foi medido em 2026-10-13: a resposta de `GET /` trazia
++apenas `content-length`, `content-type`, `date` e `server: waitress`, e é **nessa página** que
++vive o formulário da ação destrutiva (`action=aposentar_arquivo`,
++`src/templates/index.html:68-73`). O `confirm()` do `onsubmit` é barreira de interface, e não
++de servidor.
++
++## O que passa a valer
++
++### 1. Toda resposta carrega `X-Frame-Options: DENY`
++
++A resposta de qualquer rota da aplicação — a tela (`/`) e as três rotas de arquivo
++(`/apple-touch-icon.png`, `/banner.png`, `/app.css`) — traz o cabeçalho
++`X-Frame-Options: DENY`. A aplicação não é destinada a ser embutida por ninguém, e o valor
++`DENY` é o que expressa isso sem exceção por origem.
++
++O cabeçalho é emitido por um único `@app.after_request` em `src/app.py`, e **não** pelo
++template: um cabeçalho não é conteúdo, e repeti-lo em cada `render_template` deixaria de fora
++as rotas de arquivo, que não renderizam template nenhum.
++
++### 2. O corpo da resposta não muda
++
++Acrescentar o cabeçalho **não altera um byte do HTML**. É o que mantém válido o invariante
++`SHA_DA_TELA` de `tests/test_icone_de_atalho.py`, e é o que o teste de regressão deste bug
++prende (`tests/test_cabecalho_de_enquadramento.py::TestRegressao`).
++
++### 3. O `Content-Security-Policy` fica de fora, e a razão é registrada
++
++Esta entrega **não** introduz `Content-Security-Policy`. O defeito irmão — scripts de CDN sem
++integridade e ausência de política de conteúdo — é o `BUG-20261013-4PYJ`, **deixado fora desta
++sessão por decisão registrada**. O motivo é técnico e medido: o template tem script **inline**
++(`mermaid.initialize`, `src/templates/index.html:831-840`), e um CSP que não contemple
++`'unsafe-inline'` ou um nonce **quebraria o diagrama e o estilo da tela**. Enquanto o `4PYJ`
++não for tratado, `frame-ancestors` não entra.
++
++Consequência aceita e declarada: o **par fica incompleto**. O enquadramento é fechado aqui; a
++verificação de origem (`BUG-20261013-Z5BC`) continua aberta, porque está entre as três
++correções adiadas nesta sessão.
++
++## Evidências
++
++| O que | Onde |
++|---|---|
++| Ausência medida dos dois controles, com a lista completa de cabeçalhos | `_reversa_bugs/seguranca/bugs/BUG-20261013-X7EN-sem-protecao-de-enquadramento/evidence/estatico.json` |
++| HTML cru de `GET /` na medição | `_reversa_bugs/seguranca/bugs/BUG-20261013-X7EN-sem-protecao-de-enquadramento/evidence/estatico-get-index.html` |
++| Relatório da inspeção (item 6) | `_reversa_bugs/seguranca/inspections/checklist-20261013/RESULTADOS-DO-CHECKLIST.md` |
++| Teste de reprodução (falhava antes) e de regressão | `tests/test_cabecalho_de_enquadramento.py` |
++
++## Aprovação
++
++Plano aprovado pelo operador em 2026-10-13 (`fix/plan.html`), com a estratégia de **correção
++direta**, e veredito de spec **`spec-gap`** com adendo aditivo, conforme o menu da etapa 7 do
++`/reversa-debugger-fix`.

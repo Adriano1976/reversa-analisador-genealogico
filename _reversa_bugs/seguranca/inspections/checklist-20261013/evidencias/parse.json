@@ -1,0 +1,24 @@
+{
+  "bytes_da_arvore": 1303670,
+  "upload_com_parse_incluso": 6.26,
+  "selecionar_a_mesma_arvore_3x": [
+    5.54,
+    4.33,
+    4.24
+  ],
+  "pagina_simples_ociosa": [
+    0.006,
+    0.004,
+    0.004
+  ],
+  "quatro_parses_simultaneos": [
+    72.16,
+    71.27,
+    70.31,
+    70.32
+  ],
+  "pagina_simples_durante_os_4_parses": [
+    69.67
+  ],
+  "tempo_total_dos_4_simultaneos": 72.16
+}

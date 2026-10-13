@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Conexões Genealógicas</title>
+<!-- icone da aba: logo do projeto em data URI, ver .reversa/_favicon.py -->
+    <link rel="icon" type="image/png" sizes="128x128" href="data:image/png;base64,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">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="/app.css" rel="stylesheet">
+    
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                if (localStorage.getItem('tema') === 'dark') { tema = 'dark'; }
+            } catch (e) { /* sem armazenamento: fica o padrao claro */ }
+            document.documentElement.dataset.bsTheme = tema;
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    
+    <button type="button" id="botao-tema" class="botao-tema" aria-pressed="false"
+            aria-label="Mudar para o tema escuro">
+        <span class="icone-tema" aria-hidden="true">&#9789;</span>
+        <span class="rotulo-tema">Tema escuro</span>
+    </button>
+    <script>
+        (function () {
+            var botao = document.getElementById('botao-tema');
+            var raiz = document.documentElement;
+
+            function aplicar(tema, guardar) {
+                var escuro = tema === 'dark';
+                raiz.dataset.bsTheme = tema;
+                botao.setAttribute('aria-pressed', escuro ? 'true' : 'false');
+                botao.setAttribute('aria-label',
+                    escuro ? 'Mudar para o tema claro' : 'Mudar para o tema escuro');
+                botao.querySelector('.icone-tema').innerHTML = escuro ? '&#9728;' : '&#9789;';
+                botao.querySelector('.rotulo-tema').textContent =
+                    escuro ? 'Tema claro' : 'Tema escuro';
+                if (guardar) {
+                    try { localStorage.setItem('tema', tema); } catch (e) { /* sem armazenamento */ }
+                }
+            }
+
+            botao.addEventListener('click', function () {
+                aplicar(raiz.dataset.bsTheme === 'dark' ? 'light' : 'dark', true);
+            });
+
+            aplicar(raiz.dataset.bsTheme === 'dark' ? 'dark' : 'light', false);
+        })();
+    </script>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm main-card">
+                    <div class="card-body">
+                        
+                        <div class="text-center mb-4">
+                            <img src="/banner.png"
+                                 alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
+                                 class="img-fluid w-50">
+                            <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
+                            
+                            <h1 class="card-title mb-3 visually-hidden">Analisador Genealógico</h1>
+                            
+                            <div class="row justify-content-center">
+                                <div class="col-lg-9">
+                                    <p>
+                                        Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em
+                                        genealogia documental e genética. Seu objetivo é <b>ajudar os usuários a
+                                        compreender como se relacionam com outras pessoas por meio da análise da
+                                        árvore genealógica e de dados de DNA</b>.
+                                    </p>
+                                    <p class="mb-0">
+                                        <b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em
+                                        formato GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em
+                                        formato CSV. <b>A partir do cruzamento desses dados, o aplicativo identifica
+                                        possíveis conexões genealógicas entre duas pessoas.</b>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                1 conexões encontradas. 24 descartadas.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        
+
+                        
+                            
+                            <p class="text-muted">
+                                Árvore aberta: <b>arvore valida</b>
+                                — <a href="/">escolher outra árvore</a>
+                            </p>
+
+                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" aria-controls="path-panel" aria-selected="true" type="button" role="tab">Buscar Conexão no GEDCOM</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" aria-controls="dna-panel" aria-selected="false" type="button" role="tab">Analisador de DNA</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisTabsContent">
+                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
+                                    <form method="POST" id="path-form">
+                                        <input type="hidden" name="action" value="path_search">
+                                        <input type="hidden" name="gedcom_filename" value="7b682362af68f7c0__arvore_valida.ged">
+                                        <div class="mb-3">
+                                            <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
+                                            <input type="text" class="form-control" id="person1_name" name="person1_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
+                                            <input type="text" class="form-control" id="person2_name" name="person2_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-info">Encontrar Conexão</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
+                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
+                                    <form method="POST" enctype="multipart/form-data" id="dna-form">
+                                        <input type="hidden" name="action" value="dna_analysis">
+                                        <input type="hidden" name="gedcom_filename" value="7b682362af68f7c0__arvore_valida.ged">
+                                        <div class="mb-3">
+                                            
+                                            <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                            
+                                                <select class="form-select" id="matches_csv_filename" name="matches_csv_filename">
+                                                    <option value="">— escolher da lista —</option>
+                                                    
+                                                        
+                                                            <option value="988dc7190dae0142__matches_r199.csv">matches r199</option>
+                                                        
+                                                    
+                                                        
+                                                            <option value="c50c363b43b010a1__matches_r49.csv">matches r49</option>
+                                                        
+                                                    
+                                                        
+                                                            <option value="62b66fde1fb6a5d0__matches_r24.csv">matches r24</option>
+                                                        
+                                                    
+                                                </select>
+                                                <div class="form-text">Ou envie um arquivo novo abaixo.</div>
+                                            
+                                            <input class="form-control mt-2" type="file" id="matches_csv" name="matches_csv">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
+                                            <input type="text" class="form-control" id="root_name" name="root_name" placeholder="Ex: João da Silva" required list="gedcom_names">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <datalist id="gedcom_names">
+                                
+                                    <option value="Ana Souza Lima">
+                                
+                                    <option value="Antonio Silva">
+                                
+                                    <option value="Carlos Silva Souza">
+                                
+                                    <option value="Jose Silva">
+                                
+                                    <option value="Maria Souza">
+                                
+                                    <option value="Pedro Silva">
+                                
+                                    <option value="Primo Silva Souza">
+                                
+                                    <option value="Rita Souza">
+                                
+                            </datalist>
+                        
+
+                        <div id="loading" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Analisando...</span></div>
+                            <p class="mt-2">Analisando... Isso pode levar alguns segundos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-area">
+                    
+                    
+                        <h2 class="text-center mt-5">Resultado da Análise</h2>
+                        
+                        
+                            
+                            
+                        
+                        <p class="text-center text-muted">
+                            1 conexões analisadas:
+                            <strong>1</strong> com caminho genealógico no GEDCOM
+                            (0 com identidade ambígua) e
+                            <strong>0</strong> apenas com evidência genética
+                            (sem caminho no GEDCOM).
+                        </p>
+                        
+                        <div class="table-responsive indice-resultados mb-4">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Match</th>
+                                        <th class="text-end">cM</th>
+                                        <th>Parentesco no GEDCOM</th>
+                                        <th>Confrontação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                        <tr>
+                                            <td><a href="#resultado-1">Carlos Silva Souza</a></td>
+                                            <td class="text-end">120</td>
+                                            <td>A mesma pessoa</td>
+                                            <td><span class="badge estado-INCONCLUSIVO">Inconclusivo</span></td>
+                                        </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                            <div class="card" id="resultado-1">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Análise de conexão com <strong>Carlos Silva Souza</strong>
+                                        
+                                            <span class="badge bg-secondary">DNA: 120 cM</span>
+                                        
+                                        
+                                        
+                                            <span class="badge estado-INCONCLUSIVO">Inconclusivo</span>
+                                        
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+
+                                    
+                                    
+                                    
+                                    <div class="secao" style="margin-top:0; border-top:0; padding-top:0;">
+                                        <h5><span class="numero">1.</span> Parentesco documental</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
+
+                                        <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                            
+                                                <span class="badge bg-primary">A mesma pessoa</span>
+                                            
+                                        </p>
+
+                                        
+
+                                        <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong>
+                                            Carlos Silva Souza
+                                        </p>
+
+                                        
+                                            <p class="mb-1"><strong>Ancestral comum (MRCA) do caminho exibido:</strong>
+                                                Carlos Silva Souza
+                                                
+                                            </p>
+                                        
+
+                                        
+                                            <details class="mb-2">
+                                                <summary><strong>Ancestrais comuns encontrados (4)</strong></summary>
+                                                <ul class="mb-0">
+                                                    
+                                                        <li>Ana Souza Lima — 1 + 1 gerações (2 meioses)</li>
+                                                    
+                                                        <li>Jose Silva — 1 + 1 gerações (2 meioses)</li>
+                                                    
+                                                        <li>Antonio Silva — 2 + 2 gerações (4 meioses)</li>
+                                                    
+                                                        <li>Maria Souza — 2 + 2 gerações (4 meioses)</li>
+                                                    
+                                                </ul>
+                                            </details>
+                                        
+
+                                        
+                                            <details class="mb-2">
+                                                <summary><strong>Mais de um caminho genealógico encontrado (4 adicional(is))</strong></summary>
+                                                <ul class="mb-0">
+                                                    
+                                                        <li>Caminho via <strong>Ana Souza Lima</strong> (2 meioses):
+                                                            Carlos Silva Souza → Ana Souza Lima → Carlos Silva Souza</li>
+                                                    
+                                                        <li>Caminho via <strong>Jose Silva</strong> (2 meioses):
+                                                            Carlos Silva Souza → Jose Silva → Carlos Silva Souza</li>
+                                                    
+                                                        <li>Caminho via <strong>Antonio Silva</strong> (4 meioses):
+                                                            Carlos Silva Souza → Jose Silva → Antonio Silva → Jose Silva → Carlos Silva Souza</li>
+                                                    
+                                                        <li>Caminho via <strong>Maria Souza</strong> (4 meioses):
+                                                            Carlos Silva Souza → Jose Silva → Maria Souza → Jose Silva → Carlos Silva Souza</li>
+                                                    
+                                                </ul>
+                                            </details>
+                                        
+
+                                        
+
+                                        
+
+                                        
+                                            <div class="graph-container mt-2"><div class="mermaid">flowchart BT
+N_I1["Carlos Silva Souza"]
+style N_I1 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
+style N_I1 fill:#ffebee,stroke:#ef5350,stroke-width:2px
+style N_I1 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px</div></div>
+                                        
+                                    </div>
+                                    
+
+                                    
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">2.</span> Evidência genética</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: fonte não identificada no CSV</p>
+                                        
+                                            
+                                                
+                                                <dl class="kit-grid">
+                                                    <div><dt>DNA compartilhado</dt><dd class="destaque">120 cM</dd></div>
+                                                    <div><dt>Maior segmento</dt><dd>120 cM</dd></div>
+                                                    <div><dt>Segmentos</dt><dd>1</dd></div>
+                                                    <div><dt>SNPs</dt><dd>—</dd></div>
+                                                    <div><dt>Pessoa (como está no CSV)</dt><dd>Carlos Silva Souza</dd></div>
+                                                    <div><dt>Kit</dt><dd>não informado no CSV</dd></div>
+                                                    <div><dt>Cromossomo(s)</dt><dd>não informado no CSV</dd></div>
+                                                    <div><dt>Método do valor</dt><dd>valor da única linha do CSV para este kit (1 registro(s) do CSV)</dd></div>
+                                                </dl>
+                                                <details class="mb-3">
+                                                    <summary>Posições</summary>
+                                                    <div class="mt-2">
+                                                        
+                                                            
+                                                        
+                                                    </div>
+                                                </details>
+                                            
+                                        
+                                    </div>
+                                    
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+                                        
+                                            <p class="mb-2">Com base na quantidade de DNA compartilhada, existem diferentes possibilidades de relacionamento.</p>
+                                            
+                                                <p class="mb-1">
+                                                    <strong>Kit não informado</strong> — 120 cM
+                                                    <span class="badge bg-light text-dark">confiança: muito baixa</span>
+                                                </p>
+                                                
+                                                    <ul>
+                                                        
+                                                            <li>Meio-primos de 2º grau
+                                                                <small class="text-muted">(10–325 cM na fonte; média 120 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau (1× removido)
+                                                                <small class="text-muted">(14–353 cM na fonte; média 122 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (3× removidos)
+                                                                <small class="text-muted">(25–238 cM na fonte; média 117 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 3º grau
+                                                                <small class="text-muted">(0–234 cM na fonte; média 73 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau (2× removidos)
+                                                                <small class="text-muted">(0–244 cM na fonte; média 71 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau (3× removidos)
+                                                                <small class="text-muted">(0–154 cM na fonte; média 51 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 3º grau (1× removido)
+                                                                <small class="text-muted">(0–192 cM na fonte; média 48 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 4º grau
+                                                                <small class="text-muted">(0–139 cM na fonte; média 35 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 4º grau (1× removido)
+                                                                <small class="text-muted">(0–126 cM na fonte; média 28 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (2× removidos)
+                                                                <small class="text-muted">(33–471 cM na fonte; média 221 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 2º grau
+                                                                <small class="text-muted">(41–592 cM na fonte; média 229 cM)</small>
+                                                            </li>
+                                                        
+                                                            <li>Primos de 1º grau (1× removido)
+                                                                <small class="text-muted">(102–980 cM na fonte; média 433 cM)</small>
+                                                            </li>
+                                                        
+                                                    </ul>
+                                                
+                                                <p class="small text-muted">12 relação(ões) publicada(s) na versão 4.0 do Shared cM Project admitem 120 cM. Essas relações têm distribuições sobrepostas: o valor observado não identifica qual delas é a verdadeira. Quanto mais distante a relação, maior a cautela, porque a média das relações distantes só considera quem compartilha DNA detectável. 12 relações publicadas cobrem este valor — nesta faixa o cM praticamente não discrimina.</p>
+                                            
+                                            <div class="alert alert-warning py-2 mb-0">
+                                                <strong>Atenção:</strong> essas possibilidades são estatísticas, vêm das faixas publicadas do
+                                                Shared cM Project 4.0 (4.0) e <b>não</b> representam confirmação
+                                                do parentesco documental. As distribuições das relações se sobrepõem: o mesmo valor de cM cabe em
+                                                várias delas. Endogamia e colapso de pedigree aumentam o cM esperado e alargam ainda mais essas faixas.
+                                            </div>
+                                        
+                                    </div>
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">4.</span> Confrontação GEDCOM × DNA</h5>
+                                        
+                                            <p class="mb-2">Status:
+                                                <span class="badge estado-INCONCLUSIVO">Inconclusivo</span>
+                                            </p>
+                                            <p class="mb-2">Inconclusivo: os dados disponíveis não permitem avaliar adequadamente a compatibilidade entre o caminho documental e a evidência genética.</p>
+                                            
+                                                <p class="small text-muted mb-2">Não há faixa publicada para comparar: a versão 4.0 do Shared cM Project não publica faixa para “A mesma pessoa” nem para 0 meioses. O parentesco documental segue registrado, mas a evidência genética não pode ser confrontada com ele.</p>
+                                            
+                                            
+                                            
+                                            
+                                        
+                                    </div>
+
+                                    
+                                    <div class="secao">
+                                        <h5><span class="numero">5.</span> Observações</h5>
+                                        
+                                            
+                                                <div class="alerta-aviso">Foram encontrados 5 caminhos genealógicos distintos (inclusive por outros ancestrais comuns). O caminho exibido é o de menor distância total; os demais estão listados e nenhum foi descartado.</div>
+                                            
+                                                <div class="alerta-aviso">O CSV não traz coluna de kit nem de e-mail: os segmentos foram agrupados apenas pelo nome. Se duas pessoas diferentes compartilharem o nome, os valores podem estar somados indevidamente.</div>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        
+                    
+
+                    
+                      <h2 class="text-center mt-5">Matches descartados (24)</h2>
+
+                      <div class="card">
+                        <div class="card-body">
+                          <p class="text-muted">
+                            Estes nomes estavam no CSV, mas não foi possível ligá-los a nenhum registro do GEDCOM.
+                            Nada foi inferido a partir do DNA: o motivo da rejeição aparece abaixo.
+                          </p>
+
+                          <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                              <thead>
+                                <tr>
+                                  <th style="width:32%">Nome no CSV</th>
+                                  <th style="width:14%">Kit</th>
+                                  <th style="width:12%">cM</th>
+                                  <th>Motivo</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                
+                                  <tr>
+                                    <td><strong>Candidato0 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>20,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato1 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>21,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato2 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>22,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato3 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>23,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato4 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>24,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato5 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>25,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato6 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>26,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato7 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>27,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato8 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>28,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato9 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>29,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=27, final=50.55, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato10 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>30,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato11 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>31,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato12 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>32,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato13 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>33,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato14 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>34,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato15 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>20,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato16 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>21,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato17 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>22,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato18 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>23,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato19 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>24,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato20 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>25,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato21 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>26,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato22 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>27,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                                  <tr>
+                                    <td><strong>Candidato23 Silva</strong></td>
+                                    <td>—</td>
+                                    <td>28,5</td>
+                                    <td>score insuficiente ou conflito de sobrenome (given=25, final=49.1, inter=1/1, jacc=0.50)</td>
+                                  </tr>
+                                
+                              </tbody>
+                            </table>
+                          </div>
+
+                        </div>
+                      </div>
+                    
+
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'strict',
+                theme: 'base',
+                themeVariables: {
+                    fontFamily: 'IBM Plex Sans, sans-serif',
+                    primaryColor: '#E3EEEC', primaryBorderColor: '#2D5F5D',
+                    primaryTextColor: '#172B3A', lineColor: '#566772'
+                }
+            });
+            setTimeout(() => {
+                const mermaidElements = document.querySelectorAll(".mermaid");
+                if (mermaidElements.length) {
+                    mermaid.run({ nodes: mermaidElements });
+                }
+            }, 100);
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            
+            form.addEventListener('submit', function(e) {
+                if (e.defaultPrevented) return;
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results-area').style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

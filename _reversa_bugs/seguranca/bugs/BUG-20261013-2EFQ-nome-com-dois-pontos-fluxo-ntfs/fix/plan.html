@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de correção · BUG-20261013-2EFQ</title>
+<style>
+  :root{
+    --fundo:#0b1220; --cartao:#151f33; --borda:#2a3a55; --texto:#e6edf7;
+    --fraco:#93a4c0; --ok:#34d399; --aberto:#f87171; --medio:#fbbf24; --azul:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:var(--fundo);color:var(--texto);line-height:1.55;
+       font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+  h1{font-size:22px;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px}
+  h3{font-size:14px;margin:16px 0 8px;color:var(--fraco)}
+  .meta{color:var(--fraco);font-size:13px;margin:0 0 20px}
+  .meta code,code{color:var(--texto);background:#0f1a2e;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .cartoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+  .cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:12px 18px;min-width:126px}
+  .cartao b{display:block;font-size:22px;line-height:1.25}
+  .cartao span{color:var(--fraco);font-size:12px}
+  section{background:var(--cartao);border:1px solid var(--borda);border-radius:10px;
+          padding:18px;margin-bottom:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--borda);vertical-align:top}
+  th{color:var(--fraco);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  a{color:var(--azul);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ol,ul{margin:8px 0 0;padding-left:22px}
+  li{margin-bottom:5px}
+  .ok{color:var(--ok)} .aberto{color:var(--aberto)} .medio{color:var(--medio)}
+  .vazio{color:var(--fraco);font-size:13px;margin:0}
+  svg{width:100%;height:auto;display:block}
+  text{font-family:"Segoe UI",system-ui,sans-serif}
+  .antes{color:var(--aberto)} .depois{color:var(--ok)}
+</style>
+</head>
+<body>
+
+<h1>Plano de correção · #7 BUG-20261013-2EFQ</h1>
+<p class="meta">
+  Contexto <code>seguranca</code> · plano gerado em 2026-10-13 · severidade <b>high</b> · prioridade <b>P1</b>
+  · commit base <code>c670788</code> · <b>nada foi alterado no projeto ainda</b>
+</p>
+
+<div class="cartoes">
+  <div class="cartao"><b class="aberto">reproduzido</b><span>3/3 execuções</span></div>
+  <div class="cartao"><b class="ok">confirmed</b><span>causa raiz</span></div>
+  <div class="cartao"><b class="medio">média</b><span>risco da mudança</span></div>
+  <div class="cartao"><b>4</b><span>itens no change set</span></div>
+  <div class="cartao"><b>5</b><span>testes planejados</span></div>
+</div>
+
+<section>
+  <h2>Resumo do defeito</h2>
+  <p>
+    O nome visível do arquivo é saneado apenas contra separadores de caminho e byte nulo
+    (<code>/</code>, <code>\</code>, <code>\x00</code> viram <code>_</code>), e a extensão original é
+    preservada. O caractere <code>:</code> não é tratado, e no NTFS ele é o <b>separador de fluxo
+    alternativo</b>: a aplicação responde <b>“carregado!”</b>, mas a árvore não existe para a interface.
+  </p>
+  <table>
+    <thead><tr><th>Nome enviado</th><th>Tela</th><th>O que nasce no disco</th><th>O que o operador alcança</th></tr></thead>
+    <tbody>
+      <tr><td><code>teste:1.ged</code></td><td>“carregado!”</td>
+          <td><code>&lt;chave&gt;__teste</code>, <b>0 byte</b> (bytes no fluxo <code>:1.ged</code>)</td>
+          <td>nada: o nome sem extensão não entra em nenhuma das duas abas</td></tr>
+      <tr><td><code>teste.ged:ads</code></td><td>“carregado!”</td>
+          <td><code>&lt;chave&gt;__teste.ged</code>, <b>0 byte</b> (bytes no fluxo <code>:ads</code>)</td>
+          <td>a linha aparece com 0 byte e clicar responde “não pôde ser lido como GEDCOM”</td></tr>
+      <tr><td><code>C:\escape.ged</code> (chega como <code>C:escape.ged</code>)</td>
+          <td>“a árvore recém-gravada não pôde ser relida”</td>
+          <td><code>&lt;chave&gt;__C</code>, <b>0 byte</b> + <b>arquivo órfão</b></td><td>nada</td></tr>
+    </tbody>
+  </table>
+  <p class="vazio">Medido em 2026-10-13, com o app em loopback e a pasta de upload desviada para um
+  diretório temporário. Nenhum arquivo real do operador tem <code>:</code> — nem na pasta, nem nos
+  aposentados —, então <b>não há dado a reparar</b>: é consertar antes de acontecer.</p>
+</section>
+
+<section>
+  <h2>Causa raiz <span class="ok">(confirmed)</span></h2>
+  <ol>
+    <li><code>nome_visivel_seguro</code> (<code>src/utils/validate.py:67-91</code>) só percorre
+        <code>_SEPARADORES = ("/", "\\", "\x00")</code> (linha 58). O <code>:</code> sobrevive intacto.</li>
+    <li><code>nome_do_arquivo_armazenado</code> compõe <code>&lt;16 hex&gt;__teste:1.ged</code>, e
+        <code>guardar</code> (<code>src/ports/adaptadores.py:84-87</code>) chama
+        <code>open(caminho, "wb")</code> nesse caminho.</li>
+    <li>No NTFS, <code>open("…/&lt;chave&gt;__teste:1.ged","wb")</code> <b>não</b> cria esse arquivo: cria
+        <code>&lt;chave&gt;__teste</code> com 0 byte e guarda os 709 bytes no fluxo <code>:1.ged</code>.
+        <code>os.path.exists</code> e <code>os.stat</code> no nome com dois pontos respondem
+        <code>True</code> e 709 — a resposta imediata “funciona”, lendo o fluxo.</li>
+    <li><code>listar</code> enumera <code>os.listdir</code>, que devolve <code>&lt;chave&gt;__teste</code>;
+        <code>itens_da_aba</code> (<code>src/reporting/lista_de_arquivos.py:186</code>) descarta a entrada
+        porque o nome visível não termina em <code>.ged</code> nem em <code>.csv</code>. A árvore
+        enviada não aparece em aba nenhuma.</li>
+    <li>No caso <code>C:escape.ged</code>, <code>referencia_de_arquivo_da_pasta</code> recusa (o
+        <code>basename</code> de <code>C:escape.ged</code> é <code>escape.ged</code>, diferente do próprio
+        nome), <code>carregar</code> devolve <code>None</code> e <code>upload_gedcom</code> levanta
+        <code>RuntimeError</code>, que a rota traduz em “a árvore recém-gravada não pôde ser relida”.</li>
+  </ol>
+  <h3>Evidências</h3>
+  <ul>
+    <li><a href="../evidence/ads.json">evidence/ads.json</a> — os três casos, com
+        <code>os.path.exists</code>, <code>os.path.isfile</code>, tamanho de <code>stat</code> e bytes lidos.</li>
+    <li><a href="../evidence/nomes.json">evidence/nomes.json</a> — bateria de 14 nomes, com o que nasceu no
+        disco e o que a tela passou a oferecer.</li>
+    <li><a href="../evidence/reproducao.md">evidence/reproducao.md</a> — cápsula de reprodução.</li>
+    <li><code>_reversa_bugs/seguranca/inspections/checklist-20261013/RESULTADOS-DO-CHECKLIST.md</code> item 7b.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Estratégia escolhida</h2>
+  <p><b>Correção direta</b>, sem debate. A causa está <b>confirmada por medição</b> (os cinco passos acima
+  foram executados, não inferidos) e há uma única estratégia razoável: incluir o <code>:</code> no conjunto
+  que a autoridade de saneamento já substitui, mantendo a política existente (troca por <code>_</code>).
+  Nada aqui pede hipóteses concorrentes nem mudança de desenho.</p>
+  <p class="vazio">O que <b>não</b> será feito: mexer nas duas autoridades de <i>alcance</i>
+  (<code>chave_recebida_e_valida</code>, <code>referencia_de_arquivo_da_pasta</code>). A defesa contra escape
+  de pasta continua a mesma; o defeito é de <b>gravação</b>, não de leitura.</p>
+</section>
+
+<section>
+  <h2>Correction Change Set proposto</h2>
+  <table>
+    <thead><tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr></thead>
+    <tbody>
+      <tr><td>CHG-001</td><td><code>code</code></td><td><code>src/utils/validate.py</code></td>
+          <td>Acrescentar <code>:</code> ao conjunto substituído, com o motivo escrito no comentário
+              (fluxo alternativo NTFS) e a nota de que a extensão e o acento continuam preservados.</td></tr>
+      <tr><td>CHG-002</td><td><code>specification</code></td>
+          <td><code>_reversa_sdd/addenda/bug-BUG-20261013-2EFQ-v001.md</code></td>
+          <td>Adendo versionado que emenda a enumeração de caracteres saneados
+              (<code>upload-gedcom/contracts.md#2.1</code>, <code>RF-06</code>, <code>BR-U-10</code>,
+              <code>design.md</code>). A spec original não é editada.</td></tr>
+      <tr><td>CHG-003</td><td><code>test</code></td><td><code>tests/test_nome_com_dois_pontos.py</code></td>
+          <td>Testes de <b>reprodução</b> que <b>tocam o disco</b>: é o que os testes atuais não fazem, e a
+              razão de o defeito ter sobrevivido a 605 testes.</td></tr>
+      <tr><td>CHG-004</td><td><code>test</code></td><td><code>tests/test_upload_seguranca.py</code></td>
+          <td>Teste de <b>regressão</b> acrescentado ao arquivo da autoridade de saneamento: os caracteres
+              que já eram substituídos continuam, e acento, espaço e extensão continuam preservados.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Testes planejados</h2>
+  <table>
+    <thead><tr><th>#</th><th>Teste</th><th>O que prova</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>reprodução: <code>teste:1.ged</code> pela porta <code>guardar</code></td>
+          <td><span class="antes">hoje falha</span> — o caminho devolvido é arquivo <b>regular</b>, com os
+              bytes enviados, e <code>os.path.getsize</code> é o tamanho real (e não 0).</td></tr>
+      <tr><td>2</td><td>reprodução: <code>teste.ged:ads</code></td>
+          <td><span class="antes">hoje falha</span> — nenhum fluxo alternativo; o arquivo é regular e
+              legível de volta.</td></tr>
+      <tr><td>3</td><td>reprodução: <code>C:\escape.ged</code></td>
+          <td><span class="antes">hoje falha</span> — a gravação conclui, a referência <b>resolve</b> e
+              nenhum arquivo de 0 byte fica órfão na pasta.</td></tr>
+      <tr><td>4</td><td>regressão: acento, espaço e extensão preservados</td>
+          <td><span class="depois">continua passando</span> — <code>Famílias_Sergipanas.csv</code> e
+              <code>árvore da família.ged</code> seguem intactos; é o comportamento que a <code>RN-20</code>
+              restaurou e que não pode voltar a quebrar.</td></tr>
+      <tr><td>5</td><td>regressão: controles negativos do Windows</td>
+          <td><span class="depois">continua passando</span> — <code>CON</code>, <code>NUL</code>,
+              <code>AUX</code>, <code>COM1</code> e <code>LPT1</code> continuam virando arquivo regular
+              (medido: o prefixo de chave já os neutraliza) e nenhum caminho sai da pasta.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Riscos da mudança</h2>
+  <ul>
+    <li><b>Blast radius: baixo.</b> Uma função de saneamento e os testes. Nenhuma assinatura de porta, nenhuma
+        rota, nenhum template.</li>
+    <li><b>Contrato externo: é o ponto de atenção.</b> O conjunto de caracteres substituídos muda, e ele está
+        enumerado em <code>contracts.md#2.1</code>, <code>RF-06</code>, <code>BR-U-10</code> e
+        <code>design.md</code> — daí o adendo. O <b>nome visível</b> de um arquivo com <code>:</code> passa a
+        ter <code>_</code>: nenhum arquivo real é afetado (medido).</li>
+    <li><b>Dados: nenhum reparo.</b> Não existe arquivo com <code>:</code> na pasta do operador nem nos
+        aposentados, então não há renomeação nem manifesto a executar (diferente do
+        <a href="../../../upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">BUG-20261009-6RKP</a>).</li>
+    <li><b>Reversibilidade: alta.</b> Reverter é remover <code>:</code> da tupla.</li>
+    <li><b>Paridade: não afetada.</b> O instrumento compara o núcleo; <code>utils/validate.py</code> é borda.
+        Mesmo assim, a paridade e a suíte serão remedidas depois do change set.</li>
+  </ul>
+  <h3>Fora do escopo (Agent Notes)</h3>
+  <ul>
+    <li>Não tratar nomes reservados do Windows: <b>medido</b> como inofensivo, pelo prefixo de chave.</li>
+    <li>Não afrouxar nem apertar as duas autoridades de forma de nome.</li>
+    <li>Não varrer nem tocar a pasta real de uploads.</li>
+    <li>Não aproveitar para sanear outros caracteres sem medição que os justifique.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Grafo do bug</h2>
+  <svg viewBox="0 0 960 260" role="img" aria-label="Relações do BUG-20261013-2EFQ">
+    <defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+      orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#93a4c0"/></marker></defs>
+    <line x1="330" y1="130" x2="600" y2="70" stroke="#93a4c0" stroke-width="1.6" marker-end="url(#seta)"/>
+    <line x1="330" y1="130" x2="600" y2="190" stroke="#93a4c0" stroke-width="1.6"
+          stroke-dasharray="6 4" marker-end="url(#seta)"/>
+    <text x="450" y="88" fill="#93a4c0" font-size="11" text-anchor="middle">related-to (supported)</text>
+    <text x="450" y="205" fill="#93a4c0" font-size="11" text-anchor="middle">related-to (proposed)</text>
+
+    <a href="../bug.md">
+      <rect x="70" y="96" width="260" height="70" rx="9" fill="#16202b" stroke="#f87171" stroke-width="2"/>
+      <text x="200" y="120" fill="#e6edf7" font-size="13" text-anchor="middle">#7 BUG-20261013-2EFQ</text>
+      <text x="200" y="138" fill="#c7d3e0" font-size="11" text-anchor="middle">nome com ':' → fluxo NTFS</text>
+      <text x="200" y="156" fill="#f87171" font-size="11" text-anchor="middle">open · high / P1</text>
+    </a>
+
+    <a href="../../../upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">
+      <rect x="600" y="36" width="290" height="66" rx="9" fill="#16202b" stroke="#7f8c8d" stroke-width="2"/>
+      <text x="745" y="58" fill="#e6edf7" font-size="13" text-anchor="middle">#6 BUG-20261009-6RKP</text>
+      <text x="745" y="76" fill="#c7d3e0" font-size="11" text-anchor="middle">acento/espaço não resolviam</text>
+      <text x="745" y="93" fill="#34d399" font-size="11" text-anchor="middle">resolved · fixed · normal</text>
+    </a>
+
+    <a href="../../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">
+      <rect x="600" y="158" width="290" height="66" rx="9" fill="#16202b" stroke="#7f8c8d" stroke-width="2"/>
+      <text x="745" y="180" fill="#e6edf7" font-size="13" text-anchor="middle">#2 BUG-20260929-QMLY</text>
+      <text x="745" y="198" fill="#fbbf24" font-size="11" text-anchor="middle">restrito (fora das views)</text>
+      <text x="745" y="215" fill="#34d399" font-size="11" text-anchor="middle">resolved · fixed</text>
+    </a>
+  </svg>
+  <h3>Matriz de relações</h3>
+  <table>
+    <thead><tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><a href="../bug.md">BUG-20261013-2EFQ</a></td><td>related-to</td>
+          <td><a href="../../../upload-gedcom/bugs/BUG-20261009-6RKP-nome-com-acento-nao-resolve/bug.md">BUG-20261009-6RKP</a></td>
+          <td>supported</td></tr>
+      <tr><td><a href="../bug.md">BUG-20261013-2EFQ</a></td><td>related-to</td>
+          <td><a href="../../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">BUG-20260929-QMLY</a></td>
+          <td>proposed</td></tr>
+      <tr><td><a href="../../bugs/BUG-20261013-X7EN-sem-protecao-de-enquadramento/bug.md">BUG-20261013-X7EN</a></td>
+          <td>—</td><td><i>sem relação com este bug</i></td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Ordem sugerida nesta sessão</h2>
+  <p>Os dois bugs corrigidos nesta sessão <b>não têm relação entre si</b> (arestas distintas no grafo).
+  Sugestão: começar pelo <a href="../../bugs/BUG-20261013-X7EN-sem-protecao-de-enquadramento/bug.md">X7EN</a>
+  — é um cabeçalho, risco baixo, e valida o ciclo vermelho→verde rapidamente —, e só então este, que é o
+  mais grave dos dois e o único que muda contrato de spec.</p>
+</section>
+
+</body>
+</html>
