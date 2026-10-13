@@ -58,6 +58,10 @@ ARVORE = CHAVE_ARVORE + "__Arvore.ged"
 RELATORIO = CHAVE_CSV + "__Matches.csv"
 RAIZ_DA_ARVORE = "Carlos Silva Souza"
 
+#: A folha de estilo da tela, pela mesma razao do `tests/test_estilo_da_tela.py`: o par
+#: classe-no-template / `.classe`-na-folha nao quebra nada em silencio, so muda a tela.
+FOLHA = os.path.join(_RAIZ, "src", "assets", "app.css")
+
 #: Os oito rotulos que a grade do kit tem de manter. Sao os MESMOS da tabela de nove linhas que
 #: ela substituiu, e o `tests/mudancas` registra que a troca de forma nao renomeia nada.
 ROTULOS_DO_KIT = (
@@ -111,6 +115,17 @@ def _cartoes_do_resultado(marcacao: str) -> list[str]:
     return re.findall(r'id="(resultado-\d+)"', marcacao)
 
 
+#: O `id` do container do indice e o unico destino que o link de retorno pode ter. Os dois
+#: nascem em pontos DIFERENTES do template (o container, no topo; o link, dentro do laco dos
+#: cartoes), entao renomear um so nao levanta erro nenhum — a ancora so deixa de ter alvo.
+ALVO_DO_RETORNO = "indice"
+
+
+def _retornos_ao_indice(marcacao: str) -> list[str]:
+    """Os alvos dos links de retorno, um por cartao, na ordem em que aparecem."""
+    return re.findall(r'class="voltar-ao-indice" href="#([^"]+)"', marcacao)
+
+
 def _cabecalhos(marcacao: str) -> list[str]:
     """O conteudo de cada `card-header`. Um cartao de resultado por vez."""
     return re.findall(r'(?s)<div class="card-header">(.*?)</div>', marcacao)
@@ -143,6 +158,74 @@ class TestOIndiceApontaParaOsCartoes:
     @pytest.mark.parametrize("coluna", COLUNAS_DO_INDICE)
     def test_o_indice_tem_as_quatro_colunas(self, pagina, coluna):
         assert f">{coluna}<" in pagina, f"o indice perdeu a coluna {coluna!r}"
+
+
+class TestOCaminhoDeVoltaParaOIndice:
+    """O indice leva ao cartao; o cartao tem de ter como voltar ao indice.
+
+    Sem isto o operador que abre a analise completa de uma pessoa — cinco secoes, com tabelas de
+    evidencia, grafo e avisos — so alcanca a lista de novo rolando a pagina inteira de volta.
+    O retorno e uma ancora interna, e nao um `POST` com `action`: ele nao passa pelo despacho de
+    acao, entao nao tem como descartar o estado do resultado que esta na tela.
+    """
+
+    def test_o_indice_e_um_alvo_de_verdade(self, pagina):
+        """Guarda contra o teste vazio: um `id` sem link, ou um link sem `id`, nao volta nada."""
+        assert f'id="{ALVO_DO_RETORNO}"' in pagina, (
+            "o indice perdeu o `id`: o link de retorno apontaria para lugar nenhum e o clique "
+            "nao faria nada"
+        )
+
+    def test_ha_um_retorno_por_cartao(self, pagina):
+        cartoes = _cartoes_do_resultado(pagina)
+        retornos = _retornos_ao_indice(pagina)
+        assert cartoes, "nao ha cartao nenhum para conferir"
+        assert len(retornos) == len(cartoes), (
+            "nem todo cartao tem link de volta: quem abriu a analise pelo indice precisa "
+            f"conseguir voltar de qualquer uma delas. cartoes={len(cartoes)} retornos={len(retornos)}"
+        )
+
+    def test_todo_retorno_aponta_para_o_indice(self, pagina):
+        retornos = _retornos_ao_indice(pagina)
+        assert retornos, "nao ha link de retorno para conferir"
+        assert set(retornos) == {ALVO_DO_RETORNO}, (
+            f"o link de retorno mudou de alvo: {sorted(set(retornos))}. O alvo e o container do "
+            "indice, e nao um cartao nem uma rota externa"
+        )
+
+    def test_o_retorno_e_ancora_e_nao_envio(self, pagina):
+        """Ancora interna nao reenvia formulario nem depende do despacho de `action`."""
+        retornos = re.findall(r"<a class=\"voltar-ao-indice\"[^>]*>", pagina)
+        assert retornos, "o link de retorno nao esta na tela"
+        for marca in retornos:
+            assert 'href="#' in marca, f"o retorno deixou de ser ancora interna: {marca}"
+            assert 'href="/' not in marca, (
+                f"o retorno virou navegacao para outra rota e descarta o resultado: {marca}"
+            )
+
+    def test_o_retorno_nomeia_o_destino_para_leitor_de_tela(self, pagina):
+        """"Voltar" sozinho nao diz de onde para onde; o texto escondido diz."""
+        assert re.search(
+            r'<a class="voltar-ao-indice" href="#indice">[^<]+'
+            r'<span class="visually-hidden">[^<]+</span></a>',
+            pagina,
+        ), (
+            "o rotulo visivel e curto de proposito, mas o link precisa do destino escrito em "
+            "`visually-hidden`: sem ele o leitor de tela anuncia so \"Voltar\""
+        )
+
+    def test_o_rotulo_visivel_e_voltar(self, pagina):
+        assert re.search(r'href="#indice">Voltar<', pagina), (
+            "o rotulo visivel do retorno mudou; a tela de busca ja usa o mesmo vocabulario"
+        )
+
+    def test_o_retorno_tem_estilo_na_folha(self):
+        """Um link sem regra cai no meio do cabecalho, disputando linha com o selo."""
+        with open(FOLHA, encoding="utf-8") as arquivo:
+            folha = arquivo.read()
+        assert ".voltar-ao-indice" in folha, (
+            "a folha perdeu a regra do retorno: ele volta a ficar solto no cabecalho do cartao"
+        )
 
 
 class TestOSeloDaConfrontacao:

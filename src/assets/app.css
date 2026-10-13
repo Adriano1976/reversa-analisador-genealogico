@@ -141,6 +141,19 @@ details>summary:hover{text-decoration:underline}
 
 /* Índice de resultados no topo */
 .indice-resultados td,.indice-resultados th{padding:.5rem .6rem}
+
+/* O caminho de volta: o índice leva ao cartão por âncora, e este link faz o inverso.
+   Alinhado à direita no próprio cabeçalho para ficar na PRIMEIRA dobra do cartão — o
+   relatório de uma conexão tem cinco seções, e um retorno no rodapé obrigaria a rolar tudo.
+   Discreto de propósito (contorno, e não cor de ação): a ação principal do cartão é ler, e
+   não sair. A cor vem de `--primary`, que os dois temas já redefinem. */
+.voltar-ao-indice{
+  float:right;font-family:var(--bs-body-font-family);font-size:.85rem;font-weight:500;
+  text-decoration:none;border:1px solid var(--line);border-radius:999px;
+  padding:.15rem .7rem;white-space:nowrap
+}
+.voltar-ao-indice:hover{border-color:var(--primary)}
+
 html{scroll-padding-top:1rem}
 /* O cartão de destino pisca ao ser alcançado pelo índice, para o olho achar a linha */
 .card:target{outline:3px solid var(--focus);outline-offset:4px}

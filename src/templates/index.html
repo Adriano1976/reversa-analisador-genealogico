@@ -424,7 +424,11 @@
 
                            As ancoras funcionam porque o `id` do cartao e o MESMO indice de `loop`:
                            as duas iteracoes percorrem a MESMA lista, na mesma ordem. #}
-                        <div class="table-responsive indice-resultados mb-4">
+                        {# O `id` do indice NAO e decoracao: e o ALVO do link "Voltar ao
+                           indice" de cada cartao. A ancora mora aqui, no container, e nao na
+                           tabela, para que o retorno caia na lista de matches — com o titulo,
+                           o resumo e o cabecalho das colunas — e nao no meio da tabela. #}
+                        <div class="table-responsive indice-resultados mb-4" id="indice">
                             <table class="table table-sm align-middle">
                                 <thead>
                                     <tr>
@@ -461,6 +465,25 @@
                                         {% if result.comparison %}
                                             <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
                                         {% endif %}
+                                        {# O CAMINHO DE VOLTA. O indice do topo leva a este
+                                           cartao por ancora, e sem um retorno na mesma altura o
+                                           operador que le a analise completa — cinco secoes,
+                                           com tabelas e grafo — so chega a lista de novo
+                                           rolando a pagina inteira de volta.
+
+                                           E um LINK, e nao um botao com `action`, pela mesma
+                                           razao do "escolher outra arvore" da tela de busca:
+                                           ele volta por ancora, sem POST, sem passar pelo
+                                           despacho de `action` e sem descartar o estado do
+                                           resultado. O `id` do alvo (`#indice`) e literal, como
+                                           o `#resultado-N` do indice, e o par e preso por teste.
+
+                                           O TEXTO VISIVEL fica curto ("Voltar"), porque o
+                                           cartao ja esta sob o titulo "Resultado da Analise"; o
+                                           `visually-hidden` e que diz a quem usa leitor de tela
+                                           para ONDE o link volta, ja que "Voltar" sozinho nao
+                                           nomeia destino nenhum. #}
+                                        <a class="voltar-ao-indice" href="#indice">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
                                     </h5>
                                 </div>
                                 <div class="card-body">
