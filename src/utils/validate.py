@@ -55,7 +55,28 @@ _HEX16 = r"[0-9a-f]{16}"
 _PREFIXO_CHAVE = re.compile(r"^" + _HEX16 + _SEPARADOR)
 
 # Separadores de caminho dos dois sistemas, mais o byte nulo.
+#
+# ESTA TUPLA RESPONDE UMA PERGUNTA DE LEITURA, e nao de escrita: e ela que
+# `referencia_de_arquivo_da_pasta` percorre para decidir se a referencia recebida e um NOME ou
+# um caminho. Mexer nela muda o ALCANCE de arquivos ja gravados — por isso ela NAO recebeu o
+# `:` (ver `_CARACTERES_SUBSTITUIDOS` logo abaixo).
 _SEPARADORES = ("/", "\\", "\x00")
+
+# O que a GRAVACAO substitui no nome visivel, e por que este conjunto e maior que o de cima.
+#
+# `BUG-20261013-2EFQ`, medido em 2026-10-13: no NTFS o `:` e o separador de **fluxo
+# alternativo**. `open("<pasta>/<chave>__teste:1.ged", "wb")` nao cria esse arquivo — cria
+# `<chave>__teste` com ZERO byte e guarda o conteudo no fluxo `:1.ged`. O `os.path.isfile` e o
+# `os.stat` no nome com dois pontos respondem `True` e o tamanho real, entao a gravacao parece
+# ter funcionado; o que quebra e o que a propria aplicacao enxerga: `listar` enumera
+# `os.listdir`, so ve `<chave>__teste`, e `itens_da_aba` descarta a entrada porque o nome
+# visivel nao termina em `.ged` nem `.csv`. A arvore enviada nao aparece em aba nenhuma.
+#
+# A DISTINCAO ENTRE AS DUAS TUPLAS E O CONSERTO. O `:` nao e separador de caminho (a leitura
+# continua aceitando um nome que o tenha, se um dia existir um na pasta, para que ele possa ao
+# menos ser listado e aposentado); ele e um problema de ESCRITA, e e na escrita que ele passa a
+# ser substituido, pela mesma politica que ja vale para `/`, `\` e NUL: vira `_`.
+_CARACTERES_SUBSTITUIDOS = _SEPARADORES + (":",)
 
 BOM_UTF8 = b"\xef\xbb\xbf"
 
@@ -76,7 +97,7 @@ def nome_visivel_seguro(nome_original) -> str:
     upload, e quem separa o que e chave do que e rotulo e `decompor_nome_armazenado`.
     """
     nome = nome_original or ""
-    for separador in _SEPARADORES:
+    for separador in _CARACTERES_SUBSTITUIDOS:
         nome = nome.replace(separador, "_")
     nome = nome.strip().strip(".")
     if not nome:

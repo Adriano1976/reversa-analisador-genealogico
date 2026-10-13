@@ -1,0 +1,195 @@
+"""Reproducao e regressao do BUG-20261013-2EFQ: nome com `:` no NTFS.
+
+## Por que este arquivo existe, e por que ele TOCA O DISCO
+
+Os testes de `nome_visivel_seguro` que ja existiam comparam **cadeias**: que `/` e `\\` somem,
+que acento e espaco ficam. O defeito **nao aparece na cadeia** — `teste:1.ged` e uma cadeia
+perfeitamente valida. Ele aparece quando a porta **grava**: no NTFS o `:` e o separador de
+fluxo alternativo, entao `open("<pasta>/<chave>__teste:1.ged", "wb")` cria o arquivo
+`<chave>__teste` com **zero byte** e guarda o conteudo no fluxo `:1.ged`.
+
+Medido em 2026-10-13: `os.path.isfile` e `os.stat` no nome com dois pontos respondem `True`
+e 709 bytes (o Windows resolve o fluxo de forma transparente), entao a resposta imediata
+parece funcionar. O que **nao** funciona e o que a propria aplicacao enxerga: `listar`
+enumera `os.listdir` e so ve `<chave>__teste`, cujo nome visivel nao termina em `.ged` nem
+`.csv`, e `itens_da_aba` descarta a entrada. A arvore enviada nao aparece em aba nenhuma.
+
+Por isso a assercao central deste arquivo e **ponta a ponta, com disco de verdade**: o que a
+porta grava e o que a porta lista tem de ser o mesmo arquivo, com os mesmos bytes. E a unica
+forma de o defeito nao passar despercebido outra vez.
+
+## Reproducao e regressao sao coisas distintas
+
+- `TestReproducao` falha **antes** da correcao e passa depois: sao os tres nomes com `:`.
+- `TestRegressao` passa **antes e depois**: sao os comportamentos que a correcao nao pode
+  quebrar — nomes reservados do Windows, acento e espaco preservados, e o escape de pasta
+  continua recusado.
+"""
+from __future__ import annotations
+
+import os
+import sys
+
+import pytest
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _caminho in (RAIZ, os.path.join(RAIZ, "src")):
+    if _caminho not in sys.path:
+        sys.path.insert(0, _caminho)
+
+from ports.adaptadores import ArmazenamentoEmDisco  # noqa: E402
+
+GEDCOM = (
+    "0 HEAD\n"
+    "1 SOUR teste-dois-pontos\n"
+    "1 GEDC\n"
+    "2 VERS 5.5.1\n"
+    "1 CHAR UTF-8\n"
+    "0 @I1@ INDI\n"
+    "1 NAME Carlos /Silva/\n"
+    "0 TRLR\n"
+).encode("utf-8")
+
+DONO = "unico"
+
+
+def _pasta(pasta_temporaria: str) -> str:
+    destino = os.path.join(pasta_temporaria, "uploads")
+    os.makedirs(destino, exist_ok=True)
+    return destino
+
+
+def _guardar(pasta: str, nome_original: str, conteudo: bytes = GEDCOM):
+    """Grava pela PORTA, como o caso de uso faz, e devolve `(armazenamento, referencia)`."""
+    armazenamento = ArmazenamentoEmDisco(pasta)
+    caminho, motivo = armazenamento.guardar(conteudo, nome_original, "gedcom", DONO)
+    assert motivo is None, f"a gravacao recusou {nome_original!r}: {motivo}"
+    assert caminho, f"a gravacao de {nome_original!r} nao devolveu caminho"
+    return armazenamento, caminho
+
+
+def _entrada_listada(armazenamento: ArmazenamentoEmDisco, caminho: str):
+    """A entrada que a LISTA da tela oferece para este arquivo, ou `None`.
+
+    A comparacao e pelo `basename`: e o que a tela devolve no campo oculto e o que o
+    resolvedor aceita na requisicao seguinte.
+    """
+    alvo = os.path.basename(caminho)
+    return {entrada.nome: entrada for entrada in armazenamento.listar(DONO)}.get(alvo)
+
+
+class TestReproducao:
+    """Os tres nomes com `:` — cada um com um desfecho diferente, todos errados."""
+
+    def test_o_arquivo_da_lista_carrega_os_bytes_quando_o_nome_tem_dois_pontos(self, pasta_temporaria):
+        """`teste:1.ged` — hoje a arvore nao aparece em aba nenhuma."""
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), "teste:1.ged")
+        entrada = _entrada_listada(armazenamento, caminho)
+        assert entrada is not None, (
+            "a lista da tela nao oferece o arquivo que a porta acabou de gravar: o nome "
+            f"devolvido ({os.path.basename(caminho)!r}) nao e o nome que existe na pasta"
+        )
+        assert entrada.bytes == len(GEDCOM), (
+            f"a lista mostra {entrada.bytes} byte(s) para um arquivo de {len(GEDCOM)}: "
+            "os bytes foram parar num fluxo alternativo, fora do alcance da aplicacao"
+        )
+        with open(caminho, "rb") as arquivo:
+            assert arquivo.read() == GEDCOM, "o conteudo lido de volta nao e o conteudo enviado"
+
+    def test_o_arquivo_da_lista_carrega_os_bytes_com_dois_pontos_apos_a_extensao(self, pasta_temporaria):
+        """`teste.ged:ads` — hoje a linha aparece com 0 byte e nao abre."""
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), "teste.ged:ads")
+        entrada = _entrada_listada(armazenamento, caminho)
+        assert entrada is not None, "a lista nao oferece o arquivo gravado"
+        assert entrada.bytes == len(GEDCOM), (
+            f"a lista mostra {entrada.bytes} byte(s): o arquivo visivel e um fantasma de 0 byte"
+        )
+
+    def test_a_referencia_devolvida_e_um_nome_simples(self, pasta_temporaria):
+        """A referencia e o que o formulario devolve na requisicao seguinte.
+
+        Um `:` na referencia e o que faz a gravacao e a leitura divergirem: o arquivo que nasce
+        nao tem o nome devolvido.
+        """
+        _, caminho = _guardar(_pasta(pasta_temporaria), "teste:1.ged")
+        referencia = os.path.basename(caminho)
+        assert ":" not in referencia, (
+            f"a referencia {referencia!r} carrega o separador de fluxo do NTFS: o arquivo que "
+            "existe no disco tem outro nome"
+        )
+
+    def test_o_caso_do_drive_nao_deixa_arquivo_orfao(self, pasta_temporaria):
+        """`C:\\escape.ged` (que chega como `C:escape.ged`) — hoje a gravacao deixa orfao de 0 byte.
+
+        O nome visivel vira `C:escape.ged`, e o `basename` de um caminho com unidade e diferente
+        do proprio valor: a referencia nao resolve, a releitura falha e o arquivo fica na pasta.
+        """
+        pasta = _pasta(pasta_temporaria)
+        armazenamento, caminho = _guardar(pasta, "C:\\escape.ged")
+        referencia = os.path.basename(caminho)
+        assert armazenamento.resolver(referencia, DONO) is not None, (
+            f"a referencia {referencia!r} nao resolve para arquivo existente: o nome gravado e "
+            "inalcancavel pela propria aplicacao"
+        )
+        vazios = [
+            nome for nome in os.listdir(pasta)
+            if os.path.isfile(os.path.join(pasta, nome))
+            and os.path.getsize(os.path.join(pasta, nome)) == 0
+        ]
+        assert vazios == [], f"a pasta ficou com arquivo(s) orfao(s) de 0 byte: {vazios}"
+
+
+class TestRegressao:
+    """O que a correcao NAO pode quebrar. Passa antes e depois."""
+
+    @pytest.mark.parametrize(
+        "nome_original",
+        ["con.ged", "CON.ged", "nul.ged", "aux.ged", "com1.ged", "lpt1.ged", "CON"],
+    )
+    def test_nomes_reservados_do_windows_continuam_virando_arquivo_regular(
+            self, pasta_temporaria, nome_original):
+        """Medido em 2026-10-13: o prefixo de 16 hexadecimais ja neutraliza o nome de dispositivo.
+
+        O item fica preso porque um saneamento mais agressivo — que troque o nome inteiro, por
+        exemplo — poderia quebrar isto sem que ninguem percebesse.
+        """
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), nome_original)
+        assert os.path.isfile(caminho), f"{nome_original!r} nao virou arquivo regular"
+        assert os.path.getsize(caminho) == len(GEDCOM), (
+            f"{nome_original!r} foi gravado com {os.path.getsize(caminho)} byte(s)"
+        )
+        entrada = _entrada_listada(armazenamento, caminho)
+        assert entrada is not None and entrada.bytes == len(GEDCOM)
+
+    def test_acento_espaco_e_extensao_continuam_preservados(self, pasta_temporaria):
+        """O comportamento que a `RN-20` restaurou: o gravador PRESERVA acento e espaco.
+
+        Se a correcao do `:` passar a substituir tudo o que nao for ASCII, este teste cai — e ele
+        e o que impede o remedio de virar doenca.
+        """
+        nome = "árvore da família.ged"
+        armazenamento, caminho = _guardar(_pasta(pasta_temporaria), nome)
+        assert os.path.basename(caminho).endswith("__" + nome), (
+            f"o nome visivel deixou de ser preservado: {os.path.basename(caminho)!r}"
+        )
+        entrada = _entrada_listada(armazenamento, caminho)
+        assert entrada is not None and entrada.bytes == len(GEDCOM)
+
+    def test_escape_de_pasta_continua_recusado(self, pasta_temporaria):
+        """`../../escape.ged` continua virando um nome DENTRO da pasta, nunca um caminho."""
+        pasta = _pasta(pasta_temporaria)
+        _, caminho = _guardar(pasta, "../../escape.ged")
+        assert os.path.dirname(os.path.abspath(caminho)) == os.path.abspath(pasta), (
+            "a gravacao saiu da pasta de upload"
+        )
+        assert os.path.basename(caminho) not in ("..", "."), "a referencia virou caminho relativo"
+
+    def test_a_referencia_continua_sendo_o_nome_de_um_arquivo_da_pasta(self, pasta_temporaria):
+        """O contrato de `resolver`: o que a porta devolve tem de ser alcancavel de volta."""
+        pasta = _pasta(pasta_temporaria)
+        armazenamento, caminho = _guardar(pasta, "sem_dois_pontos.ged")
+        referencia = os.path.basename(caminho)
+        resolvido = armazenamento.resolver(referencia, DONO)
+        assert resolvido is not None
+        with open(resolvido, "rb") as arquivo:
+            assert arquivo.read() == GEDCOM
