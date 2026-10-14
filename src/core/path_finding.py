@@ -58,34 +58,72 @@ def find_ancestral_path(arvore: Arvore, start_id, end_id, max_depth=MAX_DEPTH):
     """BFS bidirecional subindo por pais (profundidade maxima max_depth).
 
     Retorna `(path, common_ancestor)` ou `(None, None)`.
+
+    ## O encontro e testado no DESCOBRIMENTO, e nao na saida da fila
+
+    Ate 2026-10-13 este teste ficava so no `popleft`: o no era comparado com a fronteira
+    oposta quando **saia** da fila deste lado. Isso produzia falso negativo, e o caso
+    medido esta no GEDCOM real `Arvore_Unificada_Oficial_V1_2.ged`:
+
+    - `Adriano Santos` (`@I6f405a00@`) e `Therezinha Carvalho do Nascimento Souza`
+      (`@Ied60620a@`) tem **5 ancestrais comuns** (9 passos de um lado, 6 do outro);
+    - a fronteira da Therezinha alcanca os 67 ancestrais dela e **esvazia** na oitava
+      iteracao; a da raiz ainda expandia e so chegaria a regiao comum na nona;
+    - o laco faz `break` quando uma das filas esvazia, entao o lado da raiz foi
+      abandonado — e os **quatro** ancestrais comuns ja estavam nos dois conjuntos de
+      visitados, sem que ninguem comparasse;
+    - resultado: "Parentesco documental nao encontrado" para um par que tem caminho de
+      **16 nos** e parentesco "Primos de 5º grau com 3× remoção".
+
+    Nao era o teto: subir `max_depth` para 40, 60, 80, 120 ou 200 nao muda o resultado,
+    porque quem interrompe a busca e a fila vazia, e nao o limite de iteracoes. Por isso
+    `MAX_DEPTH` continua **20** — o teto nao era o defeito, e mexe-lo so esconderia a causa.
+
+    A correcao e a comparacao no instante em que o pai e descoberto. Ela e
+    **puramente aditiva**: so encontra pares que ja tinham ancestral comum no arquivo, e
+    nao pode criar falso positivo nem derrubar um "nao encontrado" que fosse correto.
+    Medido nos 62 cartoes da analise real do operador: **5 cartoes** saiam de
+    "nao encontrado" para "encontrado", todos com caminho verdadeiro.
+
+    ## Enquanto houver fila de um lado, a busca continua
+
+    O `if not q1: break` (e o irmao para `q2`) saiu: uma fronteira que esvazia so significa
+    que aquele lado terminou de subir, e nao que a resposta nao exista. Quem encerra a
+    busca e o teto de iteracoes, ou as duas filas vazias.
+
+    ## O caminho concatenado
+
+    O caminho sai como `caminho1 + [encontro] + caminho2`, com `caminho2` ja na ordem
+    de subida a partir de `end_id` (herdada do `visited2`). O `visited` guarda o caminho
+    na ordem de descoberta, entao o da fronteira invertida **nao** e girado aqui — o
+    caminho que os testes de paridade congelaram ja saia assim, e girar mudaria a ordem
+    exibida dos descendentes.
     """
     q1, q2 = deque([(start_id, [start_id])]), deque([(end_id, [end_id])])
     visited1, visited2 = {start_id: [start_id]}, {end_id: [end_id]}
     if start_id == end_id:
         return ([start_id], start_id)
     for _depth in range(max_depth):
-        q_size = len(q1)
-        if not q_size:
+        if q1:
+            q_size = len(q1)
+            for _ in range(q_size):
+                curr_id, path = q1.popleft()
+                for p_id in get_parents(arvore, curr_id):
+                    if p_id in visited2:
+                        return (path + [p_id] + visited2[p_id][::-1][1:], p_id)
+                    if p_id not in visited1:
+                        visited1[p_id] = path + [p_id]
+                        q1.append((p_id, path + [p_id]))
+        if q2:
+            q_size = len(q2)
+            for _ in range(q_size):
+                curr_id, path = q2.popleft()
+                for p_id in get_parents(arvore, curr_id):
+                    if p_id in visited1:
+                        return (visited1[p_id] + path[::-1], p_id)
+                    if p_id not in visited2:
+                        visited2[p_id] = path + [p_id]
+                        q2.append((p_id, path + [p_id]))
+        if not q1 and not q2:
             break
-        for _ in range(q_size):
-            curr_id, path = q1.popleft()
-            if curr_id in visited2:
-                return (path + visited2[curr_id][::-1][1:], curr_id)
-            for p_id in get_parents(arvore, curr_id):
-                if p_id not in visited1:
-                    new_path = path + [p_id]
-                    visited1[p_id] = new_path
-                    q1.append((p_id, new_path))
-        q_size = len(q2)
-        if not q_size:
-            break
-        for _ in range(q_size):
-            curr_id, path = q2.popleft()
-            if curr_id in visited1:
-                return (visited1[curr_id] + path[::-1][1:], curr_id)
-            for p_id in get_parents(arvore, curr_id):
-                if p_id not in visited2:
-                    new_path = path + [p_id]
-                    visited2[p_id] = new_path
-                    q2.append((p_id, new_path))
     return (None, None)

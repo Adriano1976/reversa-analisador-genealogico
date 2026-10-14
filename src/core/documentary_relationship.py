@@ -424,9 +424,10 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
         if removidos == 0:
             return {"key": "AUNT_UNCLE", "label": "Tio/Tia ↔ Sobrinho(a)", "meioses": meioses,
                     "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": None, "removed": 0}}
-        prefixo = "Tio/Tia-avô/avó ↔ Sobrinho(a)-neto(a)" if removidos == 1 else \
-            f"Tio/Tia-{'bis' * (removidos - 1)}avô/avó ↔ Sobrinho(a)-{'bis' * (removidos - 1)}neto(a)"
-        return {"key": f"GREAT_AUNT_{removidos}", "label": prefixo, "meioses": meioses,
+        grau_do_tio = maior - 1
+        rotulo = (f"Tio/Tia-{nome_do_grau(grau_do_tio)} ↔ "
+                  f"Sobrinho(a)-{nome_do_grau(grau_do_tio, plural_neto=True)}")
+        return {"key": f"GREAT_AUNT_{removidos}", "label": rotulo, "meioses": meioses,
                 "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": None, "removed": removidos}}
 
     grau, removidos = menor - 1, maior - menor
@@ -553,8 +554,9 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
         avisos_sem_caminho = [{
             "code": "sem_caminho",
             "message": "Nenhum caminho subindo por pais liga as duas pessoas dentro do teto "
-                       f"de {MAX_DEPTH} iterações. Isso não prova ausência de parentesco: "
-                       "pode faltar vínculo no GEDCOM.",
+                       f"de {MAX_DEPTH} iterações. Isso não prova ausência de parentesco: as "
+                       "duas podem ser ligadas por irmandade, por outro ramo colateral que o "
+                       "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
         }]
         if homonimos.get("ambiguous"):
             avisos_sem_caminho.append({
