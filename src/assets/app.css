@@ -154,6 +154,48 @@ details>summary:hover{text-decoration:underline}
 }
 .voltar-ao-indice:hover{border-color:var(--primary)}
 
+/* Identidade do match a confirmar (o nome do CSV e a pessoa escolhida no GEDCOM divergem no
+   prenome). APARENCIA DE AVISO, e nao de erro: o match nao foi descartado, e o cM pode estar
+   certo — o que falta e confirmar de quem ele e. Vermelho de perigo mandaria descartar o que
+   talvez esteja bom; cinza de apoio esconderia o que pode estar trocado. O contorno faz o selo
+   aparecer sem competir com os selos de confrontacao, que sao cor cheia sobre cor cheia. */
+.identidade-a-confirmar{
+  background-color:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line);
+  font-weight:600
+}
+/* A caixa do cartao: mesma paleta do aviso, com a barra a esquerda que o projeto ja usa em
+   `.alerta-aviso`, e um degrau a mais de corpo porque aqui o texto e a informacao principal
+   do cartao — e nao uma nota de rodape. */
+.alerta-identidade{
+  border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+}
+.alerta-identidade strong{color:var(--aviso-line)}
+
+/* Janela de vida: a data do registro NAO permite que ele tenha doado o DNA.
+   Os tres graus usam a paleta que os dois temas ja redefinem:
+     - `impossivel` — vermelho de perigo: nao ha como ser o doador;
+     - `suspeita`   — amarelo de aviso: pode ser, mas confira;
+     - `imprecisa`  — cinza de apoio: data estimada, nao afirma nem descarta.
+   Nenhum deles usa cor CHEIA de fundo: o cartao continua legivel, e o selo do
+   indice nao compete com os selos de confrontacao, que sao cor cheia. */
+.janela-impossivel{background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);font-weight:600}
+.janela-suspeita{background-color:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line);font-weight:600}
+.janela-imprecisa{background-color:transparent;color:var(--muted);border:1px solid var(--line)}
+
+.alerta-janela{
+  border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+}
+/* O grau impossivel pesa mais: barra e borda na cor de perigo. */
+.alerta-janela-impossivel{border-color:var(--danger);border-left-color:var(--danger)}
+.alerta-janela-impossivel strong{color:var(--danger)}
+.alerta-janela-suspeita strong{color:var(--aviso-line)}
+.alerta-janela-data_imprecisa{border-left-color:var(--line);background:transparent}
+.alerta-janela-data_imprecisa strong{color:var(--muted)}
+
 html{scroll-padding-top:1rem}
 /* O cartão de destino pisca ao ser alcançado pelo índice, para o olho achar a linha */
 .card:target{outline:3px solid var(--focus);outline-offset:4px}

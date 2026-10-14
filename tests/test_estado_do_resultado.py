@@ -271,6 +271,91 @@ class TestAGradeDoKit:
         )
 
 
+class TestOEstadoDaIdentidadeChegaATela:
+    """O nucleo decide o estado; o template so o exibe.
+
+    Sem esta classe, apagar o campo `identidade` do resultado do nucleo deixaria o template
+    renderizando um `Undefined` do Jinja: a comparacao com `'a_confirmar'` simplesmente da
+    falso, **nenhum selo aparece** e nenhuma das guardas de template percebe — o aviso morre
+    em silencio, que e o unico modo de falha que importa aqui.
+    """
+
+    def test_o_resultado_traz_estado_de_identidade_por_cartao(self, cliente_de_upload):
+        """Medido no nucleo, pelo caminho de producao do fluxo de DNA."""
+        from core.dna_analysis import Dependencias, dna_analysis
+        from parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+        from parsers.gedcom_parser import carregar_arvore
+        from reporting.mermaid_render import (
+            generate_mermaid_graph,
+            generate_mermaid_graph_indirect_bridge,
+        )
+
+        _app, _cliente, pasta = cliente_de_upload
+        _guardar(pasta, ARVORE, DNA_GED)
+        _guardar(pasta, RELATORIO, DNA_CSV_UTF8)
+
+        deps = Dependencias(read_csv_with_fallback, detect_columns, aggregate_matches,
+                            generate_mermaid_graph, generate_mermaid_graph_indirect_bridge)
+        resultados, _descartados, _mensagem = dna_analysis(
+            os.path.join(pasta, RELATORIO), RAIZ_DA_ARVORE, deps,
+            carregar_arvore(os.path.join(pasta, ARVORE)))
+
+        assert resultados, "a analise nao devolveu cartao nenhum para conferir"
+        for resultado in resultados:
+            assert "identidade" in resultado, (
+                "o resultado do nucleo perdeu o campo `identidade`: o template renderiza o selo "
+                "a partir dele, e sem o campo o selo some sem erro nenhum"
+            )
+            assert "identidade_aviso" in resultado, (
+                "o resultado do nucleo perdeu o campo `identidade_aviso`: o cartao ficaria sem a "
+                "frase que mostra os dois nomes"
+            )
+
+    def test_o_estado_de_identidade_usa_os_tres_valores_conhecidos(self, pagina):
+        """Na tela, so os dois rotulos previstos: o selo do indice e o do cabecalho."""
+        estados = set(re.findall(r'identidade-(a_confirmar)', pagina))
+        assert estados <= {"a_confirmar"}, (
+            f"a tela emitiu um estado de identidade que o CSS nao conhece: {sorted(estados)}"
+        )
+
+    def test_o_resultado_traz_janela_de_vida_por_cartao(self, cliente_de_upload):
+        """Mesmo risco do campo `identidade`: sem ele, o selo some sem erro nenhum."""
+        from core.dna_analysis import Dependencias, dna_analysis
+        from parsers.csv_ingest import aggregate_matches, detect_columns, read_csv_with_fallback
+        from parsers.gedcom_parser import carregar_arvore
+        from reporting.mermaid_render import (
+            generate_mermaid_graph,
+            generate_mermaid_graph_indirect_bridge,
+        )
+
+        _app, _cliente, pasta = cliente_de_upload
+        _guardar(pasta, ARVORE, DNA_GED)
+        _guardar(pasta, RELATORIO, DNA_CSV_UTF8)
+
+        deps = Dependencias(read_csv_with_fallback, detect_columns, aggregate_matches,
+                            generate_mermaid_graph, generate_mermaid_graph_indirect_bridge)
+        resultados, _descartados, _mensagem = dna_analysis(
+            os.path.join(pasta, RELATORIO), RAIZ_DA_ARVORE, deps,
+            carregar_arvore(os.path.join(pasta, ARVORE)))
+
+        assert resultados, "a analise nao devolveu cartao nenhum para conferir"
+        for resultado in resultados:
+            for campo in ("janela_de_vida", "idade_na_arvore", "data_de_nascimento",
+                          "ano_de_referencia", "janela_aviso"):
+                assert campo in resultado, (
+                    f"o resultado do nucleo perdeu o campo `{campo}`: o template renderiza o "
+                    "selo e o aviso a partir dele, e sem o campo eles somem sem erro nenhum"
+                )
+
+    def test_a_janela_de_vida_usa_estados_conhecidos_pelo_css(self, pagina):
+        estados = set(re.findall(r'janela-([a-z_]+)"', pagina))
+        conhecidos = {"impossivel", "suspeita", "imprecisa", "impossivel", "suspeita",
+                      "data_imprecisa"}
+        assert estados <= conhecidos, (
+            f"a tela emitiu um estado de janela que o CSS nao conhece: {sorted(estados)}"
+        )
+
+
 class TestOSensibilidadeDoAcoplamento:
     """Prova que a comparacao de ancoras DETECTA divergencia, e nao passa sempre.
 

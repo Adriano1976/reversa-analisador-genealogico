@@ -34,11 +34,15 @@ harness ja fazia.
 """
 from __future__ import annotations
 
+from datetime import datetime
+
 from .diagram_domain import resolvedor_de_diagrama
-from .documentary_relationship import documentary_relationship, homonym_dossier
+from .documentary_relationship import birth_date, documentary_relationship, homonym_dossier
 from .erros import DnaCsvSemColunas, PessoaNaoEncontrada
 from .evidence_comparison import compare
 from .genetic_evidence import build_genetic_evidence, evidence_for
+from .identidade_do_match import conferir, nomes_divergentes
+from .janela_de_vida import ano_de_referencia, aviso_da_janela, conferir_janela_de_vida
 from .matching import build_ged_indexes, match_candidates
 from .name_normalization import (
     drop_short_tokens,
@@ -203,6 +207,12 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore):
     # do laco, porque o mapeamento so aponta para funcoes do proprio pacote.
     dominio = resolvedor_de_diagrama(arvore)
 
+    # O ano de referencia da janela de vida e resolvido UMA vez por analise: ele
+    # depende do nascimento da raiz, que nao muda entre os matches. Ver
+    # `core.janela_de_vida` para a ancora e os dois limiares.
+    ano_atual = datetime.now().year
+    ano_base = ano_de_referencia(ano_atual, birth_date(arvore[0], root_id))
+
     for chave_nome, por_kit in evidencias.items():
         for chave_kit, kit in por_kit.items():
             # O matching continua recebendo o cM DO KIT (nunca a soma de kits
@@ -241,9 +251,34 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore):
             comparison = compare(documentary, hypotheses, evidence)
 
             nomes_do_caminho = (documentary.get("path") or {}).get("names") or []
+            # A pessoa da arvore foi escolhida por NOME, e o nome pode ter casado pelo
+            # sobrenome e nao pela pessoa. O estado da identificacao NAO muda a escolha —
+            # `matching.py` fica intacto —, mas deixa de ser silencioso: o cartao passa a
+            # poder dizer que o nome do CSV e outro. Ver `identidade_do_match`.
+            nome_na_arvore = get_name(arvore[0][pid])
+            identidade = conferir(kit["person_name_csv"], nome_na_arvore)
+
+            # A JANELA DE VIDA. O casamento e por nome, e nome casa com gente de outro
+            # seculo: medido, 10 dos 62 cartoes da analise real tem escolhido com idade
+            # impossivel para quem doou DNA. A escolha NAO muda — so deixa de ser
+            # apresentada como boa. Ver `core.janela_de_vida`.
+            data_na_arvore = birth_date(arvore[0], pid)
+            janela, idade_na_arvore, data_imprecisa = conferir_janela_de_vida(
+                data_na_arvore, ano_base)
+
             results_list.append({
-                "match_name": get_name(arvore[0][pid]),
+                "match_name": nome_na_arvore,
                 "csv_name": kit["person_name_csv"],
+                "identidade": identidade,
+                "identidade_aviso": nomes_divergentes(kit["person_name_csv"], nome_na_arvore),
+                "janela_de_vida": janela,
+                "idade_na_arvore": idade_na_arvore,
+                "data_de_nascimento": data_na_arvore,
+                "data_imprecisa": data_imprecisa,
+                "ano_de_referencia": ano_base,
+                "janela_aviso": aviso_da_janela(janela, idade_na_arvore,
+                                                kit["person_name_csv"], nome_na_arvore,
+                                                data_na_arvore, ano_base),
                 "cm": kit["total_cm"],
                 "kit": kit["kit"],
                 "text_path": " → ".join(nomes_do_caminho),

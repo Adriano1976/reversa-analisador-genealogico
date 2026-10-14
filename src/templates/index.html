@@ -435,15 +435,58 @@
                                         <th>Match</th>
                                         <th class="text-end">cM</th>
                                         <th>Parentesco no GEDCOM</th>
+                                        <th>Identidade no GEDCOM</th>
+                                        <th>Janela de vida</th>
                                         <th>Confrontação</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for r in dna_results %}
                                         <tr>
+                                            {# O NOME DO CSV NAO E O NOME DA PESSOA. O cabecalho desta
+                                               coluna e o nome que o operador ve no relatorio de DNA;
+                                               o que a linha mostra e a pessoa que a arvore devolveu
+                                               para aquele nome. Quando os dois divergem no prenome, a
+                                               coluna "Identidade no GEDCOM" avisa — a familia pode ter
+                                               duas pessoas com os mesmos sobrenomes. Ver
+                                               `core/identidade_do_match`. #}
                                             <td><a href="#resultado-{{ loop.index }}">{{ r.match_name }}</a></td>
                                             <td class="text-end">{{ r.cm | cm_br if r.cm is not none else '—' }}</td>
                                             <td>{{ r.documentary.label if r.documentary else '—' }}</td>
+                                            <td>
+                                                {# O SELO SO APARECE QUANDO HA O QUE CONFIRMAR. O rotulo
+                                                   acessivel e CURTO de proposito ("identidade a
+                                                   confirmar"), e nao a frase que explica o caso: a
+                                                   frase e o `title` para quem tem mouse e o aviso
+                                                   no corpo do cartao para quem chega la. Enfiar a
+                                                   explicacao dentro do `visually-hidden` fazia o
+                                                   texto que o leitor de tela anuncia virar um
+                                                   paragrafo no meio de uma celula. #}
+                                                {% if r.identidade == 'a_confirmar' %}
+                                                    <span class="badge identidade-a-confirmar" title="{{ r.identidade_aviso }}">confirmar<span class="visually-hidden">: identidade a confirmar</span></span>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {# A JANELA DE VIDA. Marca quando a data do registro
+                                                   escolhido nao permite que ele tenha doado aquele
+                                                   DNA — o caso medido e um match de 25,4 cM casado
+                                                   com um registro de 1793. Aparece na LISTA para o
+                                                   operador nao precisar abrir 62 cartoes para achar
+                                                   as conexoes em que a identidade nao fecha. O
+                                                   rotulo fica curto e a idade vai no `title`. Ver
+                                                   `core.janela_de_vida`. #}
+                                                {% if r.janela_de_vida == 'impossivel' %}
+                                                    <span class="badge janela-impossivel" title="{{ r.janela_aviso }}">{{ r.idade_na_arvore }} anos<span class="visually-hidden">: idade impossível para quem doou o DNA</span></span>
+                                                {% elif r.janela_de_vida == 'suspeita' %}
+                                                    <span class="badge janela-suspeita" title="{{ r.janela_aviso }}">{{ r.idade_na_arvore }} anos<span class="visually-hidden">: idade acima do plausível</span></span>
+                                                {% elif r.janela_de_vida == 'data_imprecisa' %}
+                                                    <span class="badge janela-imprecisa" title="{{ r.janela_aviso }}">estimada<span class="visually-hidden">: data de nascimento estimada</span></span>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
                                             <td>{% if r.comparison %}<span class="badge estado-{{ r.comparison.status }}">{{ r.comparison.label }}</span>{% else %}—{% endif %}</td>
                                         </tr>
                                     {% endfor %}
@@ -464,6 +507,14 @@
                                            muda de sentido entre o indice, o cabecalho e a secao 4. #}
                                         {% if result.comparison %}
                                             <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
+                                        {% endif %}
+                                        {# O SELO DA IDENTIDADE, ao lado dos outros dois. Ele nao e um
+                                           quarto veredito de confrontacao: diz de QUEM e o cartao, e
+                                           por isso vem antes de qualquer conclusao sobre o cM. Sem
+                                           ele, um cartao como o da "Therezinha" que o CSV pede e sai
+                                           com o nome de outra pessoa da familia passa por bom. #}
+                                        {% if result.identidade == 'a_confirmar' %}
+                                            <span class="badge identidade-a-confirmar" title="{{ result.identidade_aviso }}">Identidade a confirmar</span>
                                         {% endif %}
                                         {# O CAMINHO DE VOLTA. O indice do topo leva a este
                                            cartao por ancora, e sem um retorno na mesma altura o
@@ -487,6 +538,37 @@
                                     </h5>
                                 </div>
                                 <div class="card-body">
+
+                                    {# ---------------- 0. IDENTIDADE A CONFIRMAR ---------------- #}
+                                    {# Vem ANTES das cinco secoes, e nao como rodape: e um aviso sobre de
+                                       QUEM e o cartao, e vale mais que qualquer numero abaixo dele.
+                                       O aviso nao decide nada e nao descarta o match — ele mostra os
+                                       dois nomes e devolve a conferencia a quem opera, que e a unica
+                                       coisa honesta a fazer enquanto a escolha for por semelhanca de
+                                       nome. `identidade_aviso` ja traz a frase montada no nucleo; o
+                                       template nao remonta texto de dominio. #}
+                                    {% if result.identidade == 'a_confirmar' %}
+                                        <div class="alerta-identidade" role="alert">
+                                            <strong>Identidade a confirmar.</strong>
+                                            {{ result.identidade_aviso }}
+                                            Confira a identidade antes de usar as conclusões desta conexão.
+                                        </div>
+                                    {% endif %}
+
+                                    {# ---------------- 0b. JANELA DE VIDA ---------------- #}
+                                    {# O SEGUNDO aviso sobre de QUEM e o cartao, e o mais grave dos dois: a
+                                       data do proprio registro escolhido nao permite que ele tenha doado
+                                       aquele DNA. Nao descarta o match — medido, 9 das 10 escolhas com
+                                       idade impossivel NAO tem candidato melhor, e descartar faria o
+                                       operador perder a evidencia genetica junto. O que ele faz e dizer
+                                       que o parentesco abaixo e o DO REGISTRO ESCOLHIDO, e nao o do
+                                       doador. Ver `core/janela_de_vida`. #}
+                                    {% if result.janela_de_vida in ('impossivel', 'suspeita', 'data_imprecisa') %}
+                                        <div class="alerta-janela alerta-janela-{{ result.janela_de_vida }}" role="alert">
+                                            <strong>{% if result.janela_de_vida == 'impossivel' %}Idade impossível para o doador do DNA.{% elif result.janela_de_vida == 'suspeita' %}Idade acima do plausível para o doador do DNA.{% else %}Data de nascimento estimada.{% endif %}</strong>
+                                            {{ result.janela_aviso }}
+                                        </div>
+                                    {% endif %}
 
                                     {# ---------------- 1. PARENTESCO DOCUMENTAL ---------------- #}
                                     {# O `if` externo mantem o template renderizavel por payload
