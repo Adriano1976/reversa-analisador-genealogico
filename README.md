@@ -412,6 +412,8 @@ src/                            # raiz de código: 34 arquivos, 4.816 linhas nã
 │   ├── relationship_hypotheses.py   # cM → possibilidades, pela tabela publicada do Shared cM Project 4.0
 │   ├── evidence_comparison.py  # Confronto GEDCOM × DNA: COMPATÍVEL, POSSÍVEL, CONFLITANTE, INCONCLUSIVO
 │   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
+│   ├── identidade_do_match.py  # O nome do CSV e a pessoa escolhida são a mesma? (não escolhe pessoa: só rotula)
+│   ├── janela_de_vida.py       # A data do registro permite que ele tenha doado o DNA? (não escolhe pessoa: só rotula)
 │   ├── name_normalization.py   # Normalização e decomposição de nomes
 │   ├── path_finding.py         # Caminho entre duas pessoas, na árvore recebida por parâmetro
 │   ├── family_navigation.py    # Quem é parente de quem, na árvore recebida por parâmetro
@@ -503,6 +505,7 @@ tests/
 ├── icone_de_atalho.py                   # Receita de derivação da arte do ícone de atalho (não é teste)
 ├── test_ambiente_temporario_da_suite.py # O diretório temporário da suíte
 ├── test_arvore_devolvida.py             # A árvore devolvida pelo parse como valor
+├── test_busca_de_ancestral_comum.py     # O encontro da BFS bidirecional, com lados de profundidades diferentes
 ├── test_characterization_matching.py    # Caracterização: congela a decisão de matching
 ├── test_characterization_mermaid.py     # Caracterização: congela a saída Mermaid
 ├── test_confrontacao_gedcom_dna.py      # Regra final: os 10 cenários exigidos de confronto
@@ -514,6 +517,8 @@ tests/
 ├── test_erros_de_dominio.py             # As exceções de domínio tipadas
 ├── test_formatacao_cm.py                # Formatação do total de cM no cartão de resultado
 ├── test_icone_de_atalho.py              # A rota do ícone de atalho
+├── test_identidade_do_match.py          # O nome do CSV e a pessoa do GEDCOM: confirmada, grafia ou a confirmar
+├── test_janela_de_vida.py               # A data do registro permite que ele tenha doado o DNA?
 ├── test_mermaid_escape.py               # Contrato de escape do rótulo Mermaid
 ├── test_path_search.py                  # Busca de ancestrais diretos e caminhos por afinidade
 ├── test_persistencia_desabilitada.py    # Persistência desabilitada: nada é gravado
@@ -521,6 +526,7 @@ tests/
 ├── test_porta_de_armazenamento.py       # A porta de armazenamento e a chave derivada do conteúdo
 ├── test_projecao_da_analise.py          # A projeção do resultado no payload da porta
 ├── test_registro_de_analises.py         # O adaptador Postgres contra o banco (pulado sem banco)
+├── test_rotulos_de_parentesco.py        # A série dos avós em português: trisavô, e não bisbisavô
 ├── test_servidor_producao.py            # Bloco de entrada: waitress, instância única e endereço padrão
 ├── test_traducao_de_erros.py            # A tabela que devolve o literal da tela
 ├── test_upload.py                       # Parsing de GEDCOM e construção do grafo
@@ -621,6 +627,15 @@ com mensagem na tela, e nunca com erro do servidor.
 - **Leitura tolerante de CSV:** reconhece `,`, `;`, TAB e `|`, localiza cabeçalhos após preâmbulos e informa
   linhas irregulares em vez de abortar a leitura.
 - **Busca aproximada de nomes:** combina variações de grafia e abreviações.
+- **Identidade a confirmar:** quando o nome do relatório de DNA e a pessoa escolhida no GEDCOM divergem no
+  **prenome** — mas coincidem nos sobrenomes —, o cartão avisa em vez de apresentar o cM como certo. A
+  escolha continua a mesma: o aviso **não** descarta o match, apenas mostra os dois nomes e devolve a
+  conferência a quem opera.
+- **Janela de vida do doador:** quando a data de nascimento do registro escolhido torna impossível que ele
+  tenha doado aquele DNA (acima de 122 anos, o recorde humano verificado), o cartão diz isso em vez de
+  afirmar o parentesco. Entre 105 e 122 anos o aviso é mais brando; sem data, nada é dito. Como no aviso de
+  identidade, o match **não** é descartado — medido, 9 das 10 escolhas com idade impossível não têm
+  candidato melhor, e descartar faria o operador perder a evidência genética.
 - **Possibilidades pelo DNA:** apresenta relações compatíveis segundo o Shared cM Project 4.0, sem afirmar
   um parentesco único.
 - **Confronto GEDCOM × DNA:** retorna COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO e explica as causas
