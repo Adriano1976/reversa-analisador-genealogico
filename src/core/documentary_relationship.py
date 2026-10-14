@@ -331,6 +331,60 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
 
 _ROMANO = {1: "1º", 2: "2º", 3: "3º", 4: "4º", 5: "5º", 6: "6º", 7: "7º", 8: "8º", 9: "9º", 10: "10º"}
 
+# ---------------------------------------------------------------------------
+# O nome do avo e do neto, por grau
+#
+# A sequencia portuguesa e `avô → bisavô → trisavô → tetravô → pentavô → hexavô →
+# heptavô → octavô → nonavô → decavô`, e a mesma para os netos com `-neto`. A fonte
+# e a nomenclatura genealogica corrente: pais, avos, bisavos, trisavos, tetravos,
+# pentavos, hexavos...
+#
+# ## O defeito que isto corrige (2026-10-14)
+#
+# O codigo montava a palavra repetindo `"bis" * (acima - 2)`, o que produzia
+# `bisbisavô`, `bisbisbisavô` e — no cartao da Margarida — a palavra de 64
+# caracteres `Tio/Tia-bisbisbisbisbisbisbisbisavô/avó ↔ Sobrinho(a)-bisbisbisbisbisbisbisbisneto(a)`.
+# `bisbisavô` nao existe em portugues: o prefixo do terceiro grau e `tris-`, e nao
+# `bis-` repetido. O rotulo aparecia em 1 dos 62 cartoes da analise real; a varredura
+# de (0,0) a (12,12) mostrou que o defeito atingia todo grau a partir do quarto.
+#
+# ## As palavras vao INTEIRAS na tabela, e nao como prefixo + radical
+#
+# A primeira versao desta correcao concatenava prefixo e radical e produziu
+# `tetraavô` e `pentaavô`: os prefixos `tetra-` e `penta-` ja terminam em vogal, e o
+# radical comeca com outra. A forma correta contrai (`tetravô`, `pentavô`), e nao
+# alonga. Guardar a palavra pronta elimina a classe inteira desse erro — e ha teste
+# para cada grau, justamente porque concatenar aqui e tentador.
+#
+# `trisneto`, e nao `trineto`: mesma familia de `bisneto`, mesmo radical.
+# ---------------------------------------------------------------------------
+_PALAVRAS_DO_GRAU = {
+    3: ("bisavô/avó", "bisneto(a)"),
+    4: ("trisavô/avó", "trisneto(a)"),
+    5: ("tetravô/avó", "tetraneto(a)"),
+    6: ("pentavô/avó", "pentaneto(a)"),
+    7: ("hexavô/avó", "hexaneto(a)"),
+    8: ("heptavô/avó", "heptaneto(a)"),
+    9: ("octavô/avó", "octaneto(a)"),
+    10: ("nonavô/avó", "nonaneto(a)"),
+}
+
+
+def nome_do_grau(graus: int, plural_neto: bool = False) -> str:
+    """`avô`/`avó` (ou `neto`/`neta`) com o grau, em portugues correto.
+
+    `graus=2` e o avo, `3` o bisavo, `4` o trisavo. Acima de `10` a serie continua
+    com o ordinal em algarismo — `11º avô` — porque `undecavô` e forma que quase
+    ninguem reconhece, e um rotulo que o operador nao entende e pior que um numerado.
+    """
+    if graus <= 2:
+        return "neto(a)" if plural_neto else "avô/avó"
+    palavras = _PALAVRAS_DO_GRAU.get(graus)
+    if palavras:
+        return palavras[1] if plural_neto else palavras[0]
+    ordinal = _ROMANO.get(graus - 2, f"{graus - 2}º")
+    return f"{ordinal} {'neto(a)' if plural_neto else 'avô/avó'}"
+
 
 def documentary_label(deg_a: int, deg_b: int) -> dict:
     """Traduz (subidas ate o MRCA em cada lado) no parentesco documental.
@@ -351,8 +405,8 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
         elif acima == 2:
             chave, rotulo = "GRANDPARENT", "Avô/Avó ↔ Neto(a)"
         else:
-            bis = "bis" * (acima - 2)
-            chave, rotulo = f"DIRECT_{acima}", f"{bis}avô/avó ↔ {bis}neto(a)"
+            chave = f"DIRECT_{acima}"
+            rotulo = f"{nome_do_grau(acima)} ↔ {nome_do_grau(acima, plural_neto=True)}"
         sentido = "A é ascendente direto de B" if deg_a else "A é descendente direto de B"
         return {"key": chave, "label": rotulo, "detail": sentido, "meioses": meioses,
                 "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": None, "removed": None}}
@@ -360,8 +414,9 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
     menor, maior = min(deg_a, deg_b), max(deg_a, deg_b)
 
     if menor == 1:
-        # (1,1) sao irmaos; (1,2) tio/tia; (1,3) tio/tia-avo; (1,4) tio/tia-bisavo.
-        # Contar `maior` a partir de 2 e o mesmo que contar meioses a partir de 3.
+        # (1,1) sao irmaos; (1,2) tio/tia; (1,3) tio/tia-avo; (1,4) tio/tia-bisavo;
+        # (1,5) tio/tia-trisavo. Contar `maior` a partir de 2 e o mesmo que contar
+        # meioses a partir de 3.
         if maior == 1:
             return {"key": "SIBLINGS", "label": "Irmãos", "meioses": meioses,
                     "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": None, "removed": None}}

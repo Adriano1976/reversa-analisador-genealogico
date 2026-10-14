@@ -93,13 +93,18 @@ SCP40_ROWS = [
 
 # Relações que a 4.0 não publica. A lista existe para que o confronto saiba
 # dizer "não há faixa publicada" em vez de inventar uma.
+#
+# O texto das entradas `DIRECT_*` seguia a série `2º bisavô`, `3º bisavô`, que não é a
+# nomenclatura corrente — a série em português é `bisavô → trisavô → tetravô → pentavô`
+# (ver `documentary_label.nome_do_grau`, e `tests/test_rotulos_de_parentesco.py`). Alinhado
+# em 2026-10-14 com a mesma correção que tirou `bisbisavô` dos rótulos de parentesco.
 SCP40_NOT_PUBLISHED = {
     "1C4R": "não analisada na versão 4.0",
     "1C5R": "não analisada na versão 4.0",
     "1C6R": "não analisada na versão 4.0",
     "3C2R": "não analisada na versão 4.0",
-    "DIRECT_4": "2º bisavô/avó: não analisada na versão 4.0",
-    "DIRECT_5": "3º bisavô/avó: não analisada na versão 4.0",
+    "DIRECT_4": "trisavô/avó: não analisada na versão 4.0",
+    "DIRECT_5": "tetravô/avó: não analisada na versão 4.0",
 }
 
 
