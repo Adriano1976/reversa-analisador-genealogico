@@ -49,12 +49,18 @@ class ResultadoDeAnalise:
     tem valor padrao para que as construcoes existentes continuem validas. Nulo
     significa "nada a avisar" — gravado, ou persistencia desabilitada —, e nesse
     caso a tela nao renderiza nada (`D-02`, `RF-17`).
+
+    `observacoes_do_arquivo` sao os avisos da ANALISE (e nao de um cartao): mesmo
+    nome em mais de um kit, CSV sem coluna de kit, linhas ignoradas, cabecalho fora
+    do lugar, raiz ambigua. Tambem tem valor padrao pela mesma razao, e a tela os
+    mostra em bloco unico — antes eles eram copiados para dentro de cada cartao.
     """
 
     resultados: list
     descartados: list
     mensagem: str
     aviso_de_persistencia: str | None = None
+    observacoes_do_arquivo: tuple = ()
 
 
 # ---------------------------------------------------------------------------
@@ -266,7 +272,12 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
     referencia da arvore nao ha o que gravar: ela e a chave de conteudo que o
     `RF-03` exige, e inventa-la aqui seria criar um identificador que nao existe.
     """
-    resultados, descartados, mensagem = fluxo_dna(caminho_do_csv, root_name, deps, arvore)
+    # As observacoes que valem para o ARQUIVO inteiro, e nao para um cartao. Elas
+    # nascem no nucleo e ganham canal proprio na tela; sem isso, eram copiadas para
+    # dentro de cada cartao (ver o adendo 017).
+    _observacoes: list[str] = []
+    resultados, descartados, mensagem = fluxo_dna(caminho_do_csv, root_name, deps, arvore,
+                                                  observacoes_do_arquivo=_observacoes)
 
     aviso = None
     if registro is not None and referencia_da_arvore:
@@ -288,6 +299,7 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
         descartados=descartados,
         mensagem=mensagem,
         aviso_de_persistencia=aviso,
+        observacoes_do_arquivo=tuple(_observacoes),
     )
 
 

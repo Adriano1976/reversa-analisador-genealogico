@@ -534,6 +534,66 @@ def _caminho_alternativo(arvore, a_id, b_id, ancestral_id):
     return {"ids": ids, "names": [get_name(arvore[0].get(i)) for i in ids], "via": ancestral_id}
 
 
+def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
+    """A forma do parentesco documental quando NAO se apresenta caminho nenhum.
+
+    ## Por que isto e uma funcao, e nao um literal dentro de `documentary_relationship`
+
+    Porque ha DUAS razoes para apresentar um cartao assim, e so uma delas e a ausencia de
+    caminho:
+
+    1. **nao existe caminho** — a busca subiu por pais e nao ligou as duas pessoas. E o caso
+       que `documentary_relationship` encontra sozinho;
+    2. **existe caminho, e ele nao e apresentado** — a politica de janela de vida: quando a
+       idade do registro escolhido passa de `IDADE_IMPOSSIVEL`, o cartao passa a ser tratado
+       como este grupo e o diagrama e desconsiderado (`core.dna_analysis`).
+
+    As duas tem de sair com a MESMA forma, palavra por palavra: e isso que faz a segunda ser,
+    de fato, "tratada como" a primeira. Se a forma fosse copiada, as duas divergiriam na
+    primeira correcao de texto.
+
+    ## O que esta funcao NAO decide
+
+    Ela nao decide nada: recebe ids e devolve a forma. Quem decide apresentar assim e quem a
+    chama. No caso (1) a decisao e do proprio caminho; no caso (2), do operador, e ela esta
+    declarada em `_reversa_sdd/addenda/016-janela-de-vida-veta-o-parentesco.md`.
+    """
+    homonimos = homonimos or {}
+    avisos = [{
+        "code": "sem_caminho",
+        "message": "Nenhum caminho subindo por pais liga as duas pessoas dentro do teto "
+                   f"de {MAX_DEPTH} iterações. Isso não prova ausência de parentesco: as "
+                   "duas podem ser ligadas por irmandade, por outro ramo colateral que o "
+                   "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
+    }]
+    if homonimos.get("ambiguous"):
+        avisos.append({
+            "code": "homonimo",
+            "message": (f"Identidade ambígua — análise não conclusiva. Existem "
+                        f"{homonimos.get('exact_count')} registros envolvendo "
+                        f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
+                        "deles é a pessoa procurada."),
+        })
+    return {
+        "status": "not_found",
+        "source": "GEDCOM",
+        "label": "Parentesco documental não encontrado",
+        "relationship_key": None,
+        "meioses": None,
+        "degrees": None,
+        "person_a": person_summary(arvore, a_id),
+        "person_b": person_summary(arvore, b_id),
+        "common_ancestor": None,
+        "path": None,
+        "common_ancestors": [],
+        "additional_paths": [],
+        "evidence": [],
+        "homonyms": homonimos,
+        "ambiguous_identity": bool(homonimos.get("ambiguous")),
+        "warnings": avisos,
+    }
+
+
 def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
     """Parentesco documental completo entre duas pessoas do GEDCOM.
 
@@ -551,39 +611,7 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
     homonimos = homonyms or {}
 
     if not path:
-        avisos_sem_caminho = [{
-            "code": "sem_caminho",
-            "message": "Nenhum caminho subindo por pais liga as duas pessoas dentro do teto "
-                       f"de {MAX_DEPTH} iterações. Isso não prova ausência de parentesco: as "
-                       "duas podem ser ligadas por irmandade, por outro ramo colateral que o "
-                       "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
-        }]
-        if homonimos.get("ambiguous"):
-            avisos_sem_caminho.append({
-                "code": "homonimo",
-                "message": (f"Identidade ambígua — análise não conclusiva. Existem "
-                            f"{homonimos.get('exact_count')} registros envolvendo "
-                            f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
-                            "deles é a pessoa procurada."),
-            })
-        return {
-            "status": "not_found",
-            "source": "GEDCOM",
-            "label": "Parentesco documental não encontrado",
-            "relationship_key": None,
-            "meioses": None,
-            "degrees": None,
-            "person_a": person_summary(arvore, a_id),
-            "person_b": person_summary(arvore, b_id),
-            "common_ancestor": None,
-            "path": None,
-            "common_ancestors": [],
-            "additional_paths": [],
-            "evidence": [],
-            "homonyms": homonimos,
-            "ambiguous_identity": bool(homonimos.get("ambiguous")),
-            "warnings": avisos_sem_caminho,
-        }
+        return documental_nao_encontrado(arvore, a_id, b_id, homonimos=homonimos)
 
     indice = path.index(comum) if comum in path else 0
     deg_a, deg_b = indice, len(path) - 1 - indice
@@ -671,7 +699,8 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
 
 
 __all__ = [
-    "documentary_relationship", "documentary_label", "person_summary",
+    "documentary_relationship", "documental_nao_encontrado",
+    "documentary_label", "person_summary",
     "homonym_dossier", "hop_evidence", "find_all_common_ancestors",
     "parse_year", "birth_date", "death_date", "get_children", "normalizar",
     "MAX_DEPTH", "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",

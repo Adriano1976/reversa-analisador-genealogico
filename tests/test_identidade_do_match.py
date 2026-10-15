@@ -235,66 +235,49 @@ class TestAAparenciaNaTela:
         with open(FOLHA, encoding="utf-8") as arquivo:
             return arquivo.read()
 
-    def test_o_indice_tem_a_coluna_de_identidade(self, template):
-        assert ">Identidade no GEDCOM<" in template, (
-            "o indice perdeu a coluna de identidade: numa lista de 62 matches, o operador so "
-            "descobriria a troca de pessoa depois de abrir o cartao"
-        )
+    def test_o_sinal_de_identidade_esta_no_cabecalho_do_cartao(self, template):
+        """Com a tabela do indice fora (adendo 019), o cabecalho e' o unico lugar que mostra.
 
-    def test_o_selo_do_indice_so_aparece_quando_ha_o_que_confirmar(self, template):
-        assert "{% if r.identidade == 'a_confirmar' %}" in template, (
-            "sem a condicao, a coluna de identidade marcaria os 62 cartoes e o aviso viraria "
-            "decoracao"
-        )
+        E ele e' o `<summary>` do cartao: o sinal aparece com o cartao FECHADO, que era
+        exatamente o trabalho da coluna que saiu — numa lista de 142 matches, o operador nao
+        pode descobrir a troca de pessoa so depois de abrir o cartao.
 
-    def test_o_selo_do_cabecalho_usa_a_mesma_classe(self, template):
-        """Dois pontos de uso — o indice e o cabecalho — e os dois com a MESMA classe.
-
-        A contagem roda sobre o que vira documento: comentario Jinja e prosa, e conta-lo
-        faria o teste medir a propria documentacao.
+        A limpeza dos comentarios NAO e' decorativa: o comentario do cartao cita
+        `<div class="card-header">` em prosa, e sem tirar o comentario o regex casa ali e o
+        teste mede a documentacao em vez do documento.
         """
         import re
 
         sem_comentarios = re.sub(r"\{#.*?#\}", "", template, flags=re.S)
-        assert sem_comentarios.count("identidade-a-confirmar") == 2, (
-            "a classe do selo de identidade precisa aparecer exatamente nos dois lugares que "
-            "a exibem (indice e cabecalho do cartao): duas classes seriam duas chances de a "
-            "cor divergir entre a lista e o cartao"
+        cabecalho = re.search(r'(?s)<div class="card-header">(.*?)</div>', sem_comentarios)
+        assert cabecalho, "o cartao perdeu o cabecalho"
+        assert "identidade-a-confirmar" in cabecalho.group(1), (
+            "o sinal de identidade saiu do cabecalho do cartao"
         )
 
-    def test_o_rotulo_acessivel_do_indice_e_curto(self, template):
-        """O `visually-hidden` do selo do indice e um ROTULO, e nao a explicacao.
+    def test_o_selo_so_aparece_quando_ha_o_que_confirmar(self, template):
+        assert "{% if result.identidade == 'a_confirmar' %}" in template, (
+            "sem a condicao, o cabecalho marcaria os 142 cartoes e o aviso viraria decoracao"
+        )
 
-        O defeito que este teste prende foi medido no navegador antes de existir: com a frase
-        inteira dentro do `span` escondido, o texto VISIVEL da celula ("confirmar") e o
-        escondido concatenavam, e o leitor de tela anunciava um paragrafo no meio de uma
-        celula de tabela.
+    def test_o_selo_tem_um_ponto_de_uso_so(self, template):
+        """Eram dois (o indice e o cabecalho) enquanto a tabela existia; hoje e' um.
+
+        A contagem existia porque DOIS lugares mostravam a mesma coisa com a mesma classe, e
+        duas chances de a cor divergir sao uma chance a mais do que o necessario. Com um ponto
+        so, o que se prende e' que ele nao vire dois por descuido.
         """
-        import re as _re
+        import re
 
-        sem_comentarios = _re.sub(r"\{#.*?#\}", "", template, flags=_re.S)
-        selo = _re.search(
-            r'<span class="badge identidade-a-confirmar" title="\{\{ r\.identidade_aviso \}\}">'
-            r'(.*?)</span></span>',
-            sem_comentarios,
-        )
-        assert selo, (
-            "o selo do indice perdeu a forma esperada (classe, `title` com a frase do nucleo e "
-            "rotulo acessivel)"
-        )
-        assert "identidade_aviso" not in selo.group(1), (
-            "o `visually-hidden` do indice voltou a carregar a frase inteira: o texto que o "
-            "leitor de tela anuncia tem de ser um rotulo, e a explicacao fica no cartao"
-        )
-        assert "identidade a confirmar" in selo.group(1), (
-            "o selo do indice perdeu o rotulo acessivel: quem nao ve a cor precisa ouvir o que "
-            "o selo quer dizer"
+        sem_comentarios = re.sub(r"\{#.*?#\}", "", template, flags=re.S)
+        assert sem_comentarios.count("identidade-a-confirmar") == 1, (
+            "a classe do selo de identidade tem UM ponto de uso, o cabecalho do cartao"
         )
 
     def test_a_frase_do_aviso_fica_no_cartao_e_no_title(self, template):
         """A explicacao tem dois lugares: o `title` (mouse) e a caixa do cartao (todos)."""
-        assert 'title="{{ r.identidade_aviso }}"' in template, (
-            "o selo do indice perdeu o `title`: quem usa mouse ficaria sem saber o que confirmar"
+        assert 'title="{{ result.identidade_aviso }}"' in template, (
+            "o selo perdeu o `title`: quem usa mouse ficaria sem saber o que confirmar"
         )
         assert 'class="alerta-identidade"' in template
 
@@ -349,3 +332,58 @@ class TestAAparenciaNaTela:
         assert "var(--aviso-bg)" in regra and "var(--aviso-line)" in regra, (
             "o selo fixou cor literal e nao acompanha o tema"
         )
+
+
+class TestUmPrenomeSoNaoConfirma:
+    """Nome de UMA palavra nao identifica ninguem — e o estado tem de dizer isso.
+
+    ## O caso medido, em 2026-10-14
+
+    O kit `ZC1171551` traz `"Margarida"` no relatorio, e a arvore tem **oito** registros com
+    esse nome exato. Com uma palavra so, todo termo de semelhanca da nota do matching fica
+    IGUAL entre os oito; a ordem entre eles e do desempate congelado, nao de evidencia. Dois
+    tem caminho ate a raiz (um de 1673 e um sem data), e a escolha entre os dois foi essa
+    ordenacao. O cartao saiu com o de 1673 — 353 anos —, e o eixo da identidade dizia
+    `CONFIRMADA`.
+
+    Um casamento exato de `Margarida` com `Margarida` confirma que a PALAVRA e a mesma. Nao
+    confirma que a pessoa e.
+    """
+
+    def test_um_prenome_so_nao_confirma(self):
+        assert conferir("Margarida", "Margarida") == A_CONFIRMAR
+
+    def test_um_prenome_so_nao_confirma_nem_com_arvore_maior(self):
+        assert conferir("Margarida", "Margarida Souza") == A_CONFIRMAR
+
+    def test_a_frase_fala_de_prenome_e_nao_de_sobrenome(self):
+        """A frase generica diz "os sobrenomes coincidem" — e aqui nao ha sobrenome nenhum."""
+        frase = nomes_divergentes("Margarida", "Margarida")
+        assert "um prenome só" in frase
+        assert "sobrenomes coincidem" not in frase, (
+            "a frase generica afirma que os sobrenomes coincidem, e o relatorio nao trouxe nenhum"
+        )
+        assert "Confira a pessoa pelos pais" in frase
+
+    @pytest.mark.parametrize("nome", [
+        "Maria Natividade",           # `split_name_pt` chama `natividade` de prenome...
+        "Jose Francisco Alves",       # ...e `alves` de prenome, nestes dois.
+        "Maria Souza",
+    ])
+    def test_duas_palavras_ou_mais_continuam_confirmando(self, nome):
+        """O corte e por NUMERO DE PALAVRAS, e nao por "nao tem sobrenome".
+
+        `split_name_pt` classifica `natividade` como prenome quando o nome comeca por um
+        prenome generico — e esses nomes TEM parte que discrimina. Marca-los seria
+        transformar o aviso em ruido, e ruido nao avisa.
+        """
+        assert conferir(nome, nome) == CONFIRMADA
+
+    def test_o_nome_vazio_continua_marcando(self):
+        assert conferir("", "") == A_CONFIRMAR
+
+    def test_a_regra_e_por_contagem_de_palavras(self):
+        """Documenta o mecanismo: e o numero de palavras, nao a presenca de sobrenome."""
+        assert conferir("Margarida", "Margarida") == A_CONFIRMAR
+        assert conferir("Margarida Souza", "Margarida Souza") == CONFIRMADA
+        assert conferir("Margarida de Souza", "Margarida de Souza") == CONFIRMADA

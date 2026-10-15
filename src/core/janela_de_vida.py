@@ -44,9 +44,22 @@ descartar parentesco verdadeiro — e nao e o que esta aqui.
   que testou.
 
 Nao sao numeros calibrados: sao heuristicos declarados, como o `0.33` do Jaccard e os limiares
-de prenome de `identidade_do_match`. **E o numero nao e sensivel**: medido nos 62 cartoes, os
-marcados tem de 116 a 666 anos, entao qualquer limiar entre 100 e 110 da o mesmo resultado. O
-mais apertado (116 anos) esta 11 anos acima do aviso e 6 abaixo do teto.
+de prenome de `identidade_do_match`.
+
+**E o numero nao e sensivel — mas a faixa de insensibilidade e mais estreita do que a versao
+anterior deste docstring afirmava.** Medido em **2026-10-14**, nos 62 cartoes:
+
+- o cartao marcado mais apertado tem **145** anos, e o nao marcado mais folgado tem **117** —
+  entao qualquer **limite duro** entre **117 e 144** da exatamente os mesmos **8**;
+- o **limiar de aviso** e insensivel entre **104 e 109**: os 5 de `suspeita` vao de 110 a 117, e
+  a partir de 110 um deles deixa de ser marcado.
+
+A frase que estava aqui — "medido nos 62 cartoes, os marcados tem de 116 a 666 anos, entao
+qualquer limiar entre 100 e 110 da o mesmo resultado" — **nao se sustenta**: o marcado mais
+apertado tem 110 (e nao 116), e com limite duro em 100 seriam **15** cartoes marcados, e nao 8.
+Os 7 de diferenca estao entre 105 e 117, e e justamente essa faixa que separa o centenario raro
+que testou DNA do registro de outro seculo. Confundir as duas coisas com um limite unico foi o
+erro que os dois limiares existem para evitar.
 
 ## A ancora e o proprio dado, e nao o relogio
 
@@ -129,12 +142,18 @@ def aviso_da_janela(estado: str, idade: int | None, nome_no_csv: str, nome_na_ar
         return ""
 
     if estado == IMPOSSIVEL:
+        # A ultima frase mudou em 2026-10-14, com a regra do adendo
+        # `016-janela-de-vida-veta-o-parentesco`: ela dizia "o parentesco abaixo e o do
+        # registro escolhido", e com a regra **nao ha parentesco abaixo** — o cartao passa a
+        # ser apresentado como o grupo "Parentesco documental nao encontrado". A frase nova
+        # diz o que o cartao faz, e nao o que ele mostra: e literalmente verdadeira nos dois
+        # casos em que este estado aparece (havia caminho e ele foi vetado, ou nao havia).
         return (f"O relatório de DNA traz “{nome_no_csv}” e a pessoa escolhida no GEDCOM é "
                 f"“{nome_na_arvore}”, com nascimento em {data_na_arvore} — "
                 f"{idade} anos em {ano_referencia}. Nenhuma pessoa com essa idade pode ter "
                 "doado DNA: ou o registro é de outra pessoa com o mesmo nome, ou falta o "
-                "vínculo que liga o doador a esta árvore. O parentesco abaixo é o do registro "
-                "escolhido, e não pode ser lido como o do doador.")
+                "vínculo que liga o doador a esta árvore. Por isso este cartão não apresenta "
+                "parentesco documental.")
 
     if estado == SUSPEITA:
         return (f"O relatório de DNA traz “{nome_no_csv}” e a pessoa escolhida no GEDCOM é "

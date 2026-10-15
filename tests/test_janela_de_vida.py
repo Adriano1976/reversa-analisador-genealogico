@@ -237,11 +237,24 @@ class TestAAvisoEscritoParaOOperador:
         assert str(idade) in frase, "falta a idade calculada"
 
     def test_a_frase_do_impossivel_nao_afirma_o_parentesco(self):
+        """O aviso diz o que o cartao FAZ, e nao o que ele mostra.
+
+        Ate 2026-10-14 ele dizia "o parentesco abaixo e o do registro escolhido" — e com a
+        regra do adendo `016-janela-de-vida-veta-o-parentesco` **nao ha parentesco abaixo**:
+        o cartao passa a ser apresentado como o grupo "Parentesco documental nao encontrado".
+        A frase ficaria contradizendo a propria secao 1 logo abaixo dela.
+
+        O que o aviso continua tendo de dizer e a EVIDENCIA — os dois nomes, a data e a idade
+        —, e continua sem afirmar parentesco nenhum.
+        """
         frase = aviso_da_janela(IMPOSSIVEL, 233, "A", "B", "1793", ANO)
-        assert "não pode ser lido como o do doador" in frase, (
-            "o aviso precisa dizer que o parentesco exibido e o do REGISTRO ESCOLHIDO, e nao o "
-            "do doador — e a razao de o cartao nao ser descartado"
+        assert "não apresenta parentesco documental" in frase, (
+            "o aviso precisa dizer que o cartao nao apresenta parentesco, porque nao apresenta"
         )
+        for proibido in ("primo", "avô", "grau", "o parentesco abaixo"):
+            assert proibido not in frase.lower(), (
+                f"o aviso afirma parentesco (`{proibido}`) num cartao que nao mostra nenhum"
+            )
 
     def test_a_frase_do_suspeito_pede_conferencia(self):
         frase = aviso_da_janela(SUSPEITA, 117, "A", "B", "1909", ANO)
@@ -284,30 +297,42 @@ class TestAAparenciaNaTela:
         with open(FOLHA, encoding="utf-8") as arquivo:
             return arquivo.read()
 
-    def test_o_indice_tem_a_coluna_de_janela(self, template):
-        assert ">Janela de vida<" in template, (
-            "o indice perdeu a coluna: numa lista de 62 matches o operador so descobriria a "
-            "idade impossivel depois de abrir o cartao"
+    def test_o_sinal_de_janela_esta_no_cabecalho_do_cartao(self, template):
+        """Com a tabela do indice fora (adendo 019), o cabecalho e' o unico lugar que mostra.
+
+        E ele e' o `<summary>` do cartao: o sinal aparece com o cartao FECHADO, que era
+        exatamente o trabalho da coluna que saiu — numa lista de 142 matches o operador nao
+        pode descobrir a idade impossivel so depois de abrir o cartao.
+
+        A limpeza dos comentarios NAO e' decorativa: o comentario do cartao cita
+        `<div class="card-header">` em prosa, e sem tirar o comentario o regex casa ali e o
+        teste mede a documentacao em vez do documento.
+        """
+        sem_comentarios = re.sub(r"\{#.*?#\}", "", template, flags=re.S)
+        cabecalho = re.search(r'(?s)<div class="card-header">(.*?)</div>', sem_comentarios)
+        assert cabecalho, "o cartao perdeu o cabecalho"
+        assert "janela-impossivel" in cabecalho.group(1), (
+            "o sinal de janela de vida saiu do cabecalho do cartao"
         )
 
     def test_o_selo_so_aparece_quando_ha_o_que_marcar(self, template):
-        assert "{% if r.janela_de_vida == 'impossivel' %}" in template
-        assert "{% elif r.janela_de_vida == 'suspeita' %}" in template
+        assert "{% if result.janela_de_vida == 'impossivel' %}" in template
+        assert "{% elif result.janela_de_vida == 'suspeita' %}" in template
 
-    def test_o_rotulo_do_indice_e_curto(self, template):
+    def test_o_rotulo_do_selo_e_curto(self, template):
         """A licao do selo de identidade: o `visually-hidden` e rotulo, nao a explicacao."""
         sem_comentarios = re.sub(r"\{#.*?#\}", "", template, flags=re.S)
         selo = re.search(
-            r'<span class="badge janela-impossivel" title="\{\{ r\.janela_aviso \}\}">'
+            r'<span class="badge janela-impossivel" title="\{\{ result\.janela_aviso \}\}">'
             r'(.*?)</span></span>',
             sem_comentarios,
         )
         assert selo, "o selo de janela perdeu a forma esperada (classe, title e rotulo)"
         assert "janela_aviso" not in selo.group(1), (
-            "o `visually-hidden` do indice voltou a carregar a frase inteira"
+            "o `visually-hidden` voltou a carregar a frase inteira"
         )
         assert "idade" in selo.group(1).lower() or "anos" in selo.group(1), (
-            "o selo do indice perdeu o rotulo acessivel"
+            "o selo perdeu o rotulo acessivel"
         )
 
     def test_o_aviso_do_cartao_vem_antes_das_secoes(self, template):

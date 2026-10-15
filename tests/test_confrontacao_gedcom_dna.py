@@ -406,6 +406,25 @@ def _analisar(csv_texto, ged_texto=GED_FAMILIA, raiz="Adriano Vieira Souza"):
         os.remove(caminho)
 
 
+def _analisar_com_arquivo(csv_texto, ged_texto=GED_FAMILIA, raiz="Adriano Vieira Souza"):
+    """Como `_analisar`, e devolve tambem as observacoes do ARQUIVO (adendo 017).
+
+    Os avisos que valem para o CSV inteiro — e nao para um cartao — saem por um
+    canal proprio. Eles nao entram em `resultado["observations"]`: enquanto
+    entravam, o aviso de multiplos kits ocupava 70,3% das linhas da secao 5 de
+    todos os cartoes e falava de nomes que a triagem sequer aceitou.
+    """
+    _carregar(ged_texto)
+    caminho = _csv(csv_texto)
+    observacoes = []
+    try:
+        resultados, descartados, mensagem = dna_analysis(
+            caminho, raiz, _deps(), atual(), observacoes_do_arquivo=observacoes)
+    finally:
+        os.remove(caminho)
+    return resultados, descartados, mensagem, observacoes
+
+
 def _so_basico(**kwargs):
     """CSV no formato legado (so Name,cM) — usado quando o kit nao importa."""
     linhas = "\n".join(f"{nome},{cm}" for nome, cm in kwargs.items())
@@ -632,7 +651,7 @@ CSV_DOIS_KITS = (
 
 
 def test_8_mesmo_nome_em_dois_kits_nao_soma_segmentos():
-    resultados, _, mensagem = _analisar(CSV_DOIS_KITS)
+    resultados, _, mensagem, observacoes_do_arquivo = _analisar_com_arquivo(CSV_DOIS_KITS)
 
     assert mensagem.startswith("2 conexões encontradas")
     assert {r["kit"] for r in resultados} == {"A1111111", "B2222222"}
@@ -640,10 +659,18 @@ def test_8_mesmo_nome_em_dois_kits_nao_soma_segmentos():
     for resultado in resultados:
         assert resultado["genetic_evidence"]["totals"]["cm"] == resultado["cm"]
         assert len(resultado["genetic_evidence"]["kits"]) == 1
-        assert any("mais de um kit" in o for o in resultado["observations"])
-    # o cM de cada kit foi avaliado sozinho: nenhuma hipotese sobre 150 cM
-    for resultado in resultados:
+        # o cM de cada kit foi avaliado sozinho: nenhuma hipotese sobre 150 cM
         assert all(bloco["total_cm"] != 150 for bloco in resultado["hypotheses"])
+        # o aviso e do ARQUIVO, e nao do cartao: ele nao se repete aqui (adendo 017)
+        assert not any("mais de um kit" in o for o in resultado["observations"])
+
+    # uma vez por nome, e no canal proprio — com os dois valores e a soma que ela impede
+    assert len(observacoes_do_arquivo) == 1
+    aviso = observacoes_do_arquivo[0]
+    assert "mais de um kit" in aviso
+    assert "A1111111 com 100 cM" in aviso and "B2222222 com 50 cM" in aviso
+    assert "150 cM" in aviso, "a frase tem de nomear a soma que ela proibe"
+    assert "Soraia Vieira Souza" in aviso, "e de dizer de quem ela fala"
 
 
 def test_8b_sem_coluna_de_kit_a_evidencia_avisa():
@@ -861,13 +888,16 @@ def test_linha_torta_nao_derruba_a_analise_e_aparece_nas_observacoes():
     texto = ("Kit number,Name,Chromosome,Start,End,cM,SNPs\n"
              "A1111111,Soraia Vieira Souza,1,10,20,2600,500\n"
              "A1111111,Soraia Vieira Souza,1,10,20,2600,500,CAMPO-A-MAIS\n")
-    resultados, descartados, mensagem = _analisar(texto)
+    resultados, descartados, mensagem, observacoes_do_arquivo = _analisar_com_arquivo(texto)
 
     assert mensagem.startswith("1 conexões encontradas")
     assert descartados == []
     assert resultados[0]["cm"] == 2600
-    assert any("número de campos diferente do cabeçalho" in o for o in resultados[0]["observations"])
-    assert any("linha(s) 3" in o for o in resultados[0]["observations"])
+    # A linha torta e um fato do ARQUIVO: vale para a analise inteira e nao se
+    # repete no cartao de cada conexao (adendo 017).
+    assert any("número de campos diferente do cabeçalho" in o for o in observacoes_do_arquivo)
+    assert any("linha(s) 3" in o for o in observacoes_do_arquivo)
+    assert not any("número de campos" in o for o in resultados[0]["observations"])
 
 
 def test_csv_com_preambulo_de_export_e_lido_a_partir_do_cabecalho():
@@ -889,10 +919,11 @@ def test_csv_com_preambulo_de_export_e_lido_a_partir_do_cabecalho():
     assert list(df.columns)[:3] == ["Kit number", "Name", "Chromosome"]
     assert len(df) == 1
 
-    resultados, _, mensagem = _analisar(texto)
+    resultados, _, mensagem, observacoes_do_arquivo = _analisar_com_arquivo(texto)
     assert mensagem.startswith("1 conexões encontradas")
     assert resultados[0]["cm"] == 2600
-    assert any("antes do cabeçalho" in o for o in resultados[0]["observations"])
+    assert any("antes do cabeçalho" in o for o in observacoes_do_arquivo)
+    assert not any("antes do cabeçalho" in o for o in resultados[0]["observations"])
 
 
 def test_arquivo_sem_cabecalho_nao_ganha_cabecalho_inventado():

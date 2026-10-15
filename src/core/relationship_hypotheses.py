@@ -122,6 +122,30 @@ def rows_by_meioses(meioses: int) -> list:
     return [row_for_key(c[0]) for c in SCP40_ROWS if c[3] == meioses]
 
 
+def meioses_maximo_publicado() -> int:
+    """O maior numero de meioses que a versao 4.0 calibra.
+
+    Existe para o confronto poder distinguir duas razoes diferentes de "nao ha janela":
+    a relacao nao foi publicada mas o numero de meioses TEM linhas publicadas (ai a
+    envoltoria resolve), e a relacao e mais PROFUNDA do que qualquer coisa que a fonte
+    calibra. A segunda e uma constatacao sobre o alcance da fonte, e nao uma lacuna da
+    tabela — e o operador precisa ouvir a diferenca. Ver `core.evidence_comparison`.
+    """
+    return max(linha[3] for linha in SCP40_ROWS)
+
+
+def meioses_publicados() -> list:
+    """Os numeros de meioses que a versao 4.0 calibra, em ordem.
+
+    Existe pela mesma razao de `meioses_maximo_publicado`: ha duas razoes diferentes de
+    "nao ha janela", e as duas precisam ser ditas com precisao. Quando a relacao cai num
+    numero que a fonte simplesmente NAO publica (13 meioses, por exemplo, entre 12 e 14),
+    dizer "a fonte nao calibra" seria falso — ela calibra 12 e 14. Ver
+    `core.evidence_comparison`.
+    """
+    return sorted({linha[3] for linha in SCP40_ROWS})
+
+
 def meioses_window(meioses: int):
     """Janela de compatibilidade para uma contagem de meioses, tirada da fonte.
 
@@ -224,11 +248,17 @@ def hypotheses_for_evidence(evidence: dict) -> list:
         bloco["kit"] = kit.get("kit")
         bloco["segment_count"] = kit.get("segment_count")
         bloco["largest_segment_cm"] = kit.get("largest_segment_cm")
+        # A estimativa de geracoes ate o MRCA do proprio kit. Viaja junto porque e o unico
+        # numero do arquivo de DNA que fala de PROFUNDIDADE, e o confronto precisa dele
+        # para dizer o que a falta de faixa publicada deixa em aberto. Ver
+        # `core.profundidade_do_caminho`.
+        bloco["mrca_generations"] = kit.get("mrca_generations")
         blocos.append(bloco)
     return blocos
 
 
 __all__ = [
     "SCP40_ROWS", "SCP40_META", "SCP40_NOT_PUBLISHED", "row_for_key", "rows_by_meioses",
-    "meioses_window", "possible_relationships", "hypotheses_for_evidence",
+    "meioses_window", "meioses_maximo_publicado", "meioses_publicados",
+    "possible_relationships", "hypotheses_for_evidence",
 ]

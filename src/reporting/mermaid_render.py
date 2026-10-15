@@ -116,6 +116,79 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio):
     return "\n".join(lines)
 
 
+# O estilo que o renderizador emite para o ancestral comum do caminho direto. E por ele
+# que `anotar_profundidade` encontra o alvo, e nao por um id recebido de fora: com casal, o
+# no emitido e `A+B` e o id do ancestral sozinho nem existe no diagrama. Ver a docstring.
+_ESTILO_DO_ANCESTRAL = re.compile(
+    r"^style (\S+) fill:#fff9c4,stroke:#fbc02d,stroke-width:2px$", re.MULTILINE)
+
+
+def anotar_profundidade(texto: str, anotacao: dict) -> str:
+    """Acrescenta ao Mermaid JA PRONTO as marcas de profundidade.
+
+    Recebe o diagrama pronto em vez de participar da montagem por uma razao pratica: a
+    assinatura de `generate_mermaid_graph` e contrato declarado
+    (`_reversa_sdd/busca-caminho/contracts.md`) e o legado a compartilha. Anotar depois
+    deixa o renderizador intacto e mantem a dependencia opcional — sem ela, o diagrama sai
+    exatamente como sempre saiu.
+
+    ## O ancestral comum e marcado TROCANDO o estilo que ja esta la
+
+    A tentacao e receber o id do ancestral e emitir um `style` novo para ele. Nao serve:
+    quando o ancestral **nao** esta numa das pontas do caminho, o renderizador o funde com
+    o conjuge num no unico (`A+B`), e o id do ancestral sozinho nao existe no diagrama —
+    o `style` cairia no vazio, sem erro nenhum, e a marca sumiria justamente nos casos com
+    casal. Reimplementar aqui a decisao do casal duplicaria regra de negocio que o
+    `ADR-11` mantem no renderizador. Entao o alvo e encontrado pelo estilo de ancestral que
+    o renderizador **ja emitiu**: `fill:#fff9c4,stroke:#fbc02d`, que aparece uma unica vez
+    no diagrama direto.
+
+    ## O que as marcas dizem, e o que elas NAO fazem
+
+    - o **ancestral comum documental** continua amarelo e ganha contorno vermelho
+      tracejado: e o no que a arvore propoe e que o cM nao sustenta;
+    - quando o caminho TEM um no na profundidade que o kit sugere, ele ganha contorno
+      roxo tracejado. Esse no e uma pessoa **que ja estava no caminho documental** —
+      nenhum no e criado, e nenhuma geracao e inventada. E o oposto da interpolacao de
+      "Geração 1, Geração 2": o desenho mostra onde o DNA sugere o ancestral e onde a
+      arvore o colocou, sem preencher o meio;
+    - quando o GEDCOM nao alcanca a profundidade sugerida, so o ancestral documental e
+      marcado, e o texto da legenda diz que a arvore para antes.
+
+    ## Nenhum TEXTO entra no diagrama
+
+    A leitura da profundidade ("a arvore afirma 7,5 geracoes...") nasceu aqui, como um no
+    solto ao lado do desenho, e saiu: num `flowchart` toda caixa parece um parente, e o
+    operador que ve uma caixa no grafo espera que ela seja uma pessoa ou um vinculo. Ela e
+    hoje um bloco de texto na legenda, montado por
+    `core.profundidade_do_caminho.resumo_da_profundidade`. Este modulo **so marca no**, e
+    nada que ele emite afirma ligacao nem carrega frase.
+    """
+    if not texto or not anotacao:
+        return texto
+
+    linhas = []
+
+    def _marcar_ancestral(encontrado):
+        return ("style " + encontrado.group(1) + " fill:#fff9c4,stroke:#c62828,"
+                "stroke-width:3px,stroke-dasharray: 6 4")
+
+    texto, trocas = _ESTILO_DO_ANCESTRAL.subn(_marcar_ancestral, texto)
+
+    no_sugerido = anotacao.get("no_sugerido")
+    if no_sugerido:
+        linhas.append(f"style {_mermaid_sid(no_sugerido)} fill:#f3e5f5,stroke:#8e24aa,"
+                      "stroke-width:3px,stroke-dasharray: 6 4")
+
+    # Sem o estilo de ancestral no texto nao ha o que anotar: o diagrama nao veio do
+    # caminho direto. Devolver o original e melhor que devolver meia anotacao.
+    if not trocas:
+        return texto
+    if not linhas:
+        return texto
+    return texto + "\n" + "\n".join(linhas)
+
+
 def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
     sid, lab = _mermaid_sid, _mermaid_label
     get_name = dominio["get_name"]

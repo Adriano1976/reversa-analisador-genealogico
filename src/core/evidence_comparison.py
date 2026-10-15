@@ -29,7 +29,18 @@ compara. Um conflito vira aviso e lista de causas, nunca uma reescrita de vincul
 """
 from __future__ import annotations
 
-from .relationship_hypotheses import meioses_window, row_for_key
+from .relationship_hypotheses import (
+    meioses_maximo_publicado,
+    meioses_publicados,
+    meioses_window,
+    row_for_key,
+)
+from .profundidade_do_caminho import ATENCAO, DIVERGENCIA, conferir_profundidade
+
+
+def _numero(valor) -> str:
+    """Decimal com virgula, como o resto da tela (`cm_br`). Nao ha formatador de borda aqui."""
+    return f"{valor:.1f}".replace(".", ",")
 
 STATUS_LABEL = {
     "COMPATIVEL": "Compatível",
@@ -202,8 +213,64 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
 
     janela, motivo = _janela_do_documental(documental)
     if janela is None:
+        meioses = documental.get("meioses")
+        limite = meioses_maximo_publicado()
         base["detail"] = (f"Não há faixa publicada para comparar: {motivo}. O parentesco documental "
                           "segue registrado, mas a evidência genética não pode ser confrontada com ele.")
+
+        # DUAS razoes diferentes de nao haver janela, e a tela precisa dizer qual e.
+        #
+        # A fonte nao cobrir a relacao e uma coisa; a relacao ser mais PROFUNDA do que
+        # qualquer coisa que a fonte calibra e outra. Na segunda, o silencio nao e
+        # concordancia: medido em 2026-10-14, 7 dos 11 cartoes com caminho documental caem
+        # aqui, e sao 3 alem do alcance (18, 19 e 20 meioses, contra um teto publicado de
+        # 16) e 4 em lacuna da tabela (13 e 15 meioses, entre 12 e 14 e entre 14 e 16).
+        # Antes desta distincao os 7 diziam apenas "Inconclusivo", que na tela se le como
+        # "sem objecao".
+        #
+        # O veredito NAO muda: continua `INCONCLUSIVO`, como decidem RF-19, BR-D-27 e o
+        # ADR-15 ("nenhum numero e inventado"). O que muda e o texto, que passa a nomear o
+        # limite estrutural da fonte. Emprestar a janela do numero de meioses mais proximo
+        # — que daria um veredito aos 7 — seria exatamente inventar numero, e por isso nao
+        # foi feito.
+        if meioses:
+            publicados = meioses_publicados()
+            if meioses > limite:
+                base["detail"] += (
+                    f" A relação documental tem {meioses} meioses — mais profunda que a relação "
+                    f"mais distante que a versão 4.0 do Shared cM Project calibra ({limite} "
+                    "meioses). Nessa profundidade a fonte não publica distribuição nenhuma, e o "
+                    "silêncio não é concordância: nenhum caminho foi inventado a partir do DNA."
+                )
+            elif meioses not in publicados:
+                abaixo = max((m for m in publicados if m < meioses), default=None)
+                acima = min((m for m in publicados if m > meioses), default=None)
+                vizinhos = " e ".join(str(m) for m in (abaixo, acima) if m is not None)
+                base["detail"] += (
+                    f" A versão 4.0 não publica faixa para {meioses} meioses "
+                    f"(as publicadas mais próximas são {vizinhos}). A envoltória por meioses só "
+                    "vale para o MESMO número de meioses: nenhuma janela foi emprestada por "
+                    "proximidade, e nenhum número foi inventado."
+                )
+
+        # O numero que o proprio arquivo de DNA traz para a profundidade, que e o unico
+        # disponivel quando a fonte nao calibra a relacao. Ver `core.profundidade_do_caminho`.
+        geracoes_do_kit = next(
+            (b.get("mrca_generations") for b in (hypotheses or []) if b.get("mrca_generations")),
+            None)
+        if meioses and geracoes_do_kit:
+            estado, _razao, _doc = conferir_profundidade(meioses, geracoes_do_kit)
+            texto = ("Sem faixa publicada para a relação documental, o cM não foi confrontado com "
+                     "ela. O relatório de DNA estima "
+                     + f"{geracoes_do_kit:.2f}".replace(".", ",")
+                     + " gerações até o MRCA deste kit, contra "
+                     + _numero(meioses / 2)
+                     + " gerações médias que a árvore afirma")
+            if estado in (ATENCAO, DIVERGENCIA):
+                notas.append(texto + " — veja o aviso de profundidade no topo do cartão.")
+            else:
+                notas.append(texto + ".")
+
         base["observations"] = notas
         return base
 
