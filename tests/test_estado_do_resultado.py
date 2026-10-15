@@ -1,29 +1,34 @@
-"""O estado de RESULTADO da tela: indice, selo do cabecalho e grade do kit genetico.
+"""O estado de RESULTADO da tela: cabecalho do cartao, retorno e grade do kit genetico.
 
 ## Por que este arquivo existe
 
 `SHA_DA_TELA` (`tests/test_icone_de_atalho.py`) mede a tela de ENTRADA **VAZIA**, e era o
-unico invariante de tela do projeto. O markup que a revisao de design acrescentou — o indice
-com ancoras, o selo da confrontacao no cabecalho do cartao e a grade do kit — vive no estado de
+unico invariante de tela do projeto. O markup que a revisao de design acrescentou — o selo da
+confrontacao no cabecalho do cartao, o caminho de volta e a grade do kit — vive no estado de
 RESULTADO, que aquele hash **nao alcanca**.
 
-Medido em 2026-10-11, antes deste arquivo: apagar o indice inteiro, ou o selo do cabecalho, ou
-trocar a grade pela tabela antiga mantinha os **561 testes verdes**. A folha de estilo tambem
-saiu do alcance do hash quando deixou de ser `<style>` embutido. Este arquivo fecha a parte do
-resultado.
+Medido em 2026-10-11, antes deste arquivo: apagar o selo do cabecalho, ou trocar a grade pela
+tabela antiga, mantinha os **561 testes verdes**. A folha de estilo tambem saiu do alcance do
+hash quando deixou de ser `<style>` embutido. Este arquivo fecha a parte do resultado.
 
 ## O que ele mede, e o que ele NAO mede
 
 Mede **presenca e acoplamento**, nunca aparencia: nao ha assert de cor, largura ou posicao —
 isso e da folha. O que se prende e o que quebra em silencio:
 
-1. **o acoplamento indice <-> cartao.** O `href="#resultado-N"` e o `id="resultado-N"` nascem
-   em **dois lacos separados** sobre a mesma lista. Hoje batem; nada garantia que continuassem,
-   porque filtrar ou reordenar UM dos lacos quebra a ancora sem quebrar a tela;
+1. **o acoplamento retorno <-> titulo.** O `href="#resultados"` de cada cartao e o
+   `id="resultados"` do titulo nascem em **dois pontos separados** do template, e renomear um
+   so nao levanta erro nenhum: o link apenas deixa de ter alvo. Ate o adendo `019` este par era
+   o `#resultado-N` da tabela do indice; com ela fora, o que liga os dois pontos e o retorno
+   para o titulo;
 2. **o selo no cabecalho**, e nao so na secao 4 — era o ponto do refresh e some sem aviso;
 3. **os oito rotulos da grade do kit**, que a tabela antiga tambem tinha e que nao podem
    divergir do CSV que os alimenta;
 4. **as posicoes atras do `details`**, que sairam da tabela de nove linhas.
+
+O `id` do cartao (`resultado-N`) continua sendo medido, porque e ele que o `hash` da barra de
+enderecos encontra para abrir o cartao recolhido (`tests/test_cartoes_recolhiveis.py`). O que
+saiu foi o **link** para ele: o unico lugar que emitia `#resultado-N` era a tabela.
 
 ## O caminho e o de PRODUCAO
 
@@ -75,9 +80,6 @@ ROTULOS_DO_KIT = (
     "Método do valor",
 )
 
-COLUNAS_DO_INDICE = ("Match", "cM", "Parentesco no GEDCOM", "Confrontação")
-
-
 def _guardar(pasta: str, nome: str, conteudo: str) -> None:
     with open(os.path.join(pasta, nome), "w", encoding="utf-8") as arquivo:
         arquivo.write(conteudo)
@@ -115,10 +117,16 @@ def _cartoes_do_resultado(marcacao: str) -> list[str]:
     return re.findall(r'id="(resultado-\d+)"', marcacao)
 
 
-#: O `id` do container do indice e o unico destino que o link de retorno pode ter. Os dois
-#: nascem em pontos DIFERENTES do template (o container, no topo; o link, dentro do laco dos
+#: O `id` do titulo do resultado e o unico destino que o link de retorno pode ter. Os dois
+#: nascem em pontos DIFERENTES do template (o titulo, no topo; o link, dentro do laco dos
 #: cartoes), entao renomear um so nao levanta erro nenhum — a ancora so deixa de ter alvo.
-ALVO_DO_RETORNO = "indice"
+#: Ate o adendo `019` este alvo era o container da tabela do indice (`#indice`), que saiu.
+ALVO_DO_RETORNO = "resultados"
+
+
+def _alvo_do_retorno_existe(marcacao: str) -> bool:
+    """O `id` do alvo do retorno esta no documento?"""
+    return f'id="{ALVO_DO_RETORNO}"' in marcacao
 
 
 def _retornos_ao_indice(marcacao: str) -> list[str]:
@@ -131,37 +139,43 @@ def _cabecalhos(marcacao: str) -> list[str]:
     return re.findall(r'(?s)<div class="card-header">(.*?)</div>', marcacao)
 
 
-class TestOIndiceApontaParaOsCartoes:
-    """O acoplamento, que e o que mais facilmente se rompe em silencio."""
+class TestOCartaoTemIdentidadePropria:
+    """Todo cartao tem `id`, e a tabela do indice nao voltou.
 
-    def test_o_indice_existe(self, pagina):
-        """Guarda contra o teste vazio: sem esta linha, `[] == []` passaria."""
-        assert "indice-resultados" in pagina, (
-            "o indice de resultados sumiu do estado de resultado"
-        )
-        assert _ancoras_do_indice(pagina), (
-            "o indice esta na tela mas nao tem nenhum link de ancora"
+    O `id="resultado-N"` e o que o navegador encontra quando a barra de enderecos traz
+    `#resultado-3` — e o JS que abre o cartao recolhido depende disso
+    (`tests/test_cartoes_recolhiveis.py`). Ate o adendo `019` havia DOIS lacos emitindo
+    `#resultado-N`: a tabela (o link) e os cartoes (o `id`). A tabela saiu, e com ela o link.
+    """
+
+    def test_a_tabela_do_indice_nao_voltou(self, pagina):
+        """Ela virou uma SEGUNDA lista de resumos quando os cartoes passaram a recolher.
+
+        A coluna "Confrontacao" dizia exatamente o que o selo do cabecalho do cartao ja dizia,
+        e as linhas existiam para navegar uma pagina que nao precisa mais de indice.
+        """
+        assert "indice-resultados" not in pagina, (
+            "a tabela do indice voltou (adendo 019): com os cartoes recolhiveis ela e' uma "
+            "segunda lista de resumos, e nao a visao geral"
         )
 
-    def test_cada_ancora_aponta_para_um_cartao_que_existe(self, pagina):
-        ancoras = _ancoras_do_indice(pagina)
+    def test_ha_um_cartao_por_conexao_e_cada_um_tem_id(self, pagina):
         cartoes = _cartoes_do_resultado(pagina)
-        assert ancoras, "nao ha ancora nenhuma para conferir"
-        assert sorted(ancoras) == sorted(cartoes), (
-            "as ancoras do indice e os `id` dos cartoes divergiram: os dois nascem de lacos "
-            f"separados sobre a mesma lista. ancoras={ancoras} cartoes={cartoes}"
+        assert cartoes, "nao ha cartao de resultado para conferir"
+        assert len(cartoes) == len(set(cartoes)), (
+            f"`id` de cartao repetido: {sorted(cartoes)}. O `hash` abriria o cartao errado"
         )
 
-    def test_ha_um_cartao_por_linha_do_indice(self, pagina):
-        assert len(_ancoras_do_indice(pagina)) == len(_cartoes_do_resultado(pagina)) > 0
+    def test_a_numeracao_dos_cartoes_nao_tem_buraco(self, pagina):
+        """O `hash` e o `id` sao o par: um buraco na numeracao e' um alvo que nao existe."""
+        cartoes = _cartoes_do_resultado(pagina)
+        assert cartoes == [f"resultado-{i}" for i in range(1, len(cartoes) + 1)], (
+            f"a numeracao dos cartoes ficou com buraco: {cartoes}"
+        )
 
-    @pytest.mark.parametrize("coluna", COLUNAS_DO_INDICE)
-    def test_o_indice_tem_as_quatro_colunas(self, pagina, coluna):
-        assert f">{coluna}<" in pagina, f"o indice perdeu a coluna {coluna!r}"
 
-
-class TestOCaminhoDeVoltaParaOIndice:
-    """O indice leva ao cartao; o cartao tem de ter como voltar ao indice.
+class TestOCaminhoDeVoltaParaALista:
+    """O cartao tem de ter como voltar ao topo da lista de resultados.
 
     Sem isto o operador que abre a analise completa de uma pessoa — cinco secoes, com tabelas de
     evidencia, grafo e avisos — so alcanca a lista de novo rolando a pagina inteira de volta.
@@ -169,11 +183,11 @@ class TestOCaminhoDeVoltaParaOIndice:
     acao, entao nao tem como descartar o estado do resultado que esta na tela.
     """
 
-    def test_o_indice_e_um_alvo_de_verdade(self, pagina):
+    def test_o_alvo_do_retorno_existe_no_documento(self, pagina):
         """Guarda contra o teste vazio: um `id` sem link, ou um link sem `id`, nao volta nada."""
-        assert f'id="{ALVO_DO_RETORNO}"' in pagina, (
-            "o indice perdeu o `id`: o link de retorno apontaria para lugar nenhum e o clique "
-            "nao faria nada"
+        assert _alvo_do_retorno_existe(pagina), (
+            f"o titulo perdeu o `id=\"{ALVO_DO_RETORNO}\"`: o link de retorno apontaria para "
+            "lugar nenhum e o clique nao faria nada"
         )
 
     def test_ha_um_retorno_por_cartao(self, pagina):
@@ -181,16 +195,16 @@ class TestOCaminhoDeVoltaParaOIndice:
         retornos = _retornos_ao_indice(pagina)
         assert cartoes, "nao ha cartao nenhum para conferir"
         assert len(retornos) == len(cartoes), (
-            "nem todo cartao tem link de volta: quem abriu a analise pelo indice precisa "
-            f"conseguir voltar de qualquer uma delas. cartoes={len(cartoes)} retornos={len(retornos)}"
+            "nem todo cartao tem link de volta: quem leu a analise completa precisa conseguir "
+            f"voltar de qualquer uma delas. cartoes={len(cartoes)} retornos={len(retornos)}"
         )
 
-    def test_todo_retorno_aponta_para_o_indice(self, pagina):
+    def test_todo_retorno_aponta_para_o_titulo(self, pagina):
         retornos = _retornos_ao_indice(pagina)
         assert retornos, "nao ha link de retorno para conferir"
         assert set(retornos) == {ALVO_DO_RETORNO}, (
-            f"o link de retorno mudou de alvo: {sorted(set(retornos))}. O alvo e o container do "
-            "indice, e nao um cartao nem uma rota externa"
+            f"o link de retorno mudou de alvo: {sorted(set(retornos))}. O alvo e o titulo do "
+            "resultado, e nao um cartao nem uma rota externa"
         )
 
     def test_o_retorno_e_ancora_e_nao_envio(self, pagina):
@@ -206,7 +220,7 @@ class TestOCaminhoDeVoltaParaOIndice:
     def test_o_retorno_nomeia_o_destino_para_leitor_de_tela(self, pagina):
         """"Voltar" sozinho nao diz de onde para onde; o texto escondido diz."""
         assert re.search(
-            r'<a class="voltar-ao-indice" href="#indice">[^<]+'
+            r'<a class="voltar-ao-indice" href="#resultados">[^<]+'
             r'<span class="visually-hidden">[^<]+</span></a>',
             pagina,
         ), (
@@ -215,7 +229,7 @@ class TestOCaminhoDeVoltaParaOIndice:
         )
 
     def test_o_rotulo_visivel_e_voltar(self, pagina):
-        assert re.search(r'href="#indice">Voltar<', pagina), (
+        assert re.search(r'href="#resultados">Voltar<', pagina), (
             "o rotulo visivel do retorno mudou; a tela de busca ja usa o mesmo vocabulario"
         )
 
@@ -357,27 +371,35 @@ class TestOEstadoDaIdentidadeChegaATela:
 
 
 class TestOSensibilidadeDoAcoplamento:
-    """Prova que a comparacao de ancoras DETECTA divergencia, e nao passa sempre.
+    """Prova que a checagem do par alvo <-> retorno DETECTA divergencia, e nao passa sempre.
 
-    Sem esta prova, `test_cada_ancora_aponta_para_um_cartao_que_existe` poderia estar
-    comparando duas listas que saem do mesmo trecho e passar por vacuidade — que e o modo de
-    falha mais perigoso de um teste de acoplamento.
+    Sem esta prova, `test_o_alvo_do_retorno_existe_no_documento` poderia estar conferindo uma
+    string que sempre aparece — que e o modo de falha mais perigoso de um teste de acoplamento.
     """
 
-    def test_uma_ancora_quebrada_e_detectada(self):
-        marcacao = (
-            '<a href="#resultado-1">A</a><a href="#resultado-2">B</a>'
-            '<div class="card" id="resultado-1"></div>'
-            '<div class="card" id="resultado-3"></div>'
-        )
-        assert _ancoras_do_indice(marcacao) != _cartoes_do_resultado(marcacao), (
-            "o par de extratores nao distingue ancoras de cartoes: o teste de acoplamento "
-            "estaria medindo a si mesmo"
+    def test_um_retorno_sem_alvo_e_detectado(self):
+        marcacao = ('<h2 id="outro-titulo">titulo</h2>'
+                    '<a class="voltar-ao-indice" href="#resultados">Voltar</a>')
+        assert not _alvo_do_retorno_existe(marcacao), (
+            "a checagem nao distingue o alvo certo de um `id` qualquer"
         )
 
-    def test_ancoras_e_cartoes_casados_nao_sao_reportados(self):
-        marcacao = (
-            '<a href="#resultado-1">A</a>'
-            '<div class="card" id="resultado-1"></div>'
+    def test_o_alvo_certo_e_reconhecido(self):
+        marcacao = ('<h2 id="resultados">titulo</h2>'
+                    '<a class="voltar-ao-indice" href="#resultados">Voltar</a>')
+        assert _alvo_do_retorno_existe(marcacao), (
+            "a checagem nao reconhece o proprio alvo que ela prende"
         )
-        assert _ancoras_do_indice(marcacao) == _cartoes_do_resultado(marcacao)
+
+    def test_a_volta_da_tabela_do_indice_seria_detectada(self):
+        """A guarda contra o retorno da tabela tem de reconhecer a tabela."""
+        assert "indice-resultados" in '<div class="table-responsive indice-resultados mb-4">', (
+            "a guarda contra o retorno da tabela nao reconheceria a tabela"
+        )
+
+    def test_um_cartao_sem_id_e_detectado(self):
+        """O `id` e o alvo do `hash`; sem ele o cartao recolhido nao tem como ser aberto."""
+        marcacao = '<details class="card"><summary class="sumario-do-cartao">x</summary></details>'
+        assert _cartoes_do_resultado(marcacao) == [], (
+            "o extrator de cartoes acharia um cartao sem `id`"
+        )

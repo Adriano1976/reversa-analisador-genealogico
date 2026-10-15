@@ -27,6 +27,7 @@ from parsers.csv_ingest import (
     read_csv_with_fallback,
 )
 from reporting.mermaid_render import (
+    anotar_profundidade,
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
 )
@@ -47,6 +48,7 @@ _DEPENDENCIAS = Dependencias(
     aggregate_matches,
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
+    anotar_profundidade,
 )
 
 # RN-06 e RF-04: NAO ha identidade de usuario. O dono e um marcador unico do
@@ -686,6 +688,7 @@ def index():
                     all_names=all_names,
                     dna_results=resultado.resultados,
                     skipped_matches=resultado.descartados,
+                    observacoes_do_arquivo=resultado.observacoes_do_arquivo,
                     message=mensagem_final,
                     aviso_de_persistencia=resultado.aviso_de_persistencia,
                     success=True

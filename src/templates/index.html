@@ -401,8 +401,45 @@
                     {% if aviso_de_persistencia %}
                         <div class="alerta-aviso" role="alert">{{ aviso_de_persistencia }}</div>
                     {% endif %}
+                    {#- AS OBSERVACOES DO ARQUIVO, e nao de um cartao. Valem para a analise
+                       inteira — mesmo nome em mais de um kit, CSV sem coluna de kit, linhas
+                       ignoradas, cabecalho fora do lugar, raiz ambigua — e por isso aparecem
+                       UMA vez, aqui, em vez de serem repetidas dentro de cada cartao. Medido
+                       antes desta mudanca, no arquivo real de 142 cartoes: o aviso de multiplos
+                       kits ocupava 710 das 1010 linhas da secao 5 (70,3%), aparecia em 142 de
+                       142 cartoes e, em 3 dos 5 casos, falava de nomes que a triagem descartou e
+                       que nao tem cartao nenhum. Ver o adendo 017.
+
+                       O bloco fica FORA da guarda de `dna_results`, de proposito: com zero
+                       conexoes aceitas nao ha cartao nenhum, e o aviso do arquivo e justamente
+                       o que explica o zero.
+
+                       Os hifens que abrem e fecham este comentario NAO sao estilo: eles consomem
+                       os dois saltos de linha que o comentario e o `if` abaixo acrescentariam a
+                       tela de ENTRADA, onde `observacoes_do_arquivo` e indefinido e o bloco nao
+                       renderiza. Sem eles a pagina de entrada mudaria de bytes — e o hash dela e
+                       contrato congelado (`tests/test_icone_de_atalho.py`). -#}
+                    {% if observacoes_do_arquivo %}
+                        <div class="observacoes-do-arquivo mb-4">
+                            <h3 class="h6 mb-1">Observações do arquivo</h3>
+                            <p class="text-muted small mb-2">
+                                Valem para o CSV inteiro, não para uma conexão específica. Nenhuma
+                                delas muda um parentesco já calculado.
+                            </p>
+                            {% for observacao in observacoes_do_arquivo %}
+                                <div class="alerta-aviso">{{ observacao }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% if dna_results %}
-                        <h2 class="text-center mt-5">Resultado da Análise</h2>
+                        {# O TITULO E' O ALVO DO LINK "Voltar" DE CADA CARTAO. Ele era a tabela do
+                           indice, que saiu: enquanto os cartoes nasciam todos abertos, a tabela
+                           era a unica visao geral, mas com os cartoes recolhiveis ela virou uma
+                           SEGUNDA lista de resumos — a coluna "Confrontacao" dizia exatamente o
+                           que o selo do cabecalho do cartao ja dizia. O que so a tabela dava
+                           (Parentesco, Janela de vida, Profundidade) subiu para o cabecalho do
+                           cartao, que e onde a lista agora vive. Ver o adendo 019. #}
+                        <h2 class="text-center mt-5" id="resultados">Resultado da Análise</h2>
                         {% set ns = namespace(com_caminho=0, ambiguos=0) %}
                         {% for r in dna_results %}
                             {% if r.documentary and r.documentary.path %}{% set ns.com_caminho = ns.com_caminho + 1 %}{% endif %}
@@ -415,86 +452,47 @@
                             <strong>{{ dna_results | length - ns.com_caminho }}</strong> apenas com evidência genética
                             (sem caminho no GEDCOM).
                         </p>
-                        {# O INDICE, e nao um acordeao. Cada match vira um cartao com cinco secoes
-                           abertas, e com vinte matches a pagina fica enorme; um indice com ancoras
-                           resolve a navegacao SEM esconder conteudo. Colapsar os cartoes seria a
-                           outra saida, e ela esta descartada por um motivo medido: o Mermaid mede o
-                           tamanho do grafo no momento em que desenha, e um grafo dentro de um bloco
-                           fechado sai com dimensao errada quando o bloco abre.
-
-                           As ancoras funcionam porque o `id` do cartao e o MESMO indice de `loop`:
-                           as duas iteracoes percorrem a MESMA lista, na mesma ordem. #}
-                        {# O `id` do indice NAO e decoracao: e o ALVO do link "Voltar ao
-                           indice" de cada cartao. A ancora mora aqui, no container, e nao na
-                           tabela, para que o retorno caia na lista de matches — com o titulo,
-                           o resumo e o cabecalho das colunas — e nao no meio da tabela. #}
-                        <div class="table-responsive indice-resultados mb-4" id="indice">
-                            <table class="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Match</th>
-                                        <th class="text-end">cM</th>
-                                        <th>Parentesco no GEDCOM</th>
-                                        <th>Identidade no GEDCOM</th>
-                                        <th>Janela de vida</th>
-                                        <th>Confrontação</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for r in dna_results %}
-                                        <tr>
-                                            {# O NOME DO CSV NAO E O NOME DA PESSOA. O cabecalho desta
-                                               coluna e o nome que o operador ve no relatorio de DNA;
-                                               o que a linha mostra e a pessoa que a arvore devolveu
-                                               para aquele nome. Quando os dois divergem no prenome, a
-                                               coluna "Identidade no GEDCOM" avisa — a familia pode ter
-                                               duas pessoas com os mesmos sobrenomes. Ver
-                                               `core/identidade_do_match`. #}
-                                            <td><a href="#resultado-{{ loop.index }}">{{ r.match_name }}</a></td>
-                                            <td class="text-end">{{ r.cm | cm_br if r.cm is not none else '—' }}</td>
-                                            <td>{{ r.documentary.label if r.documentary else '—' }}</td>
-                                            <td>
-                                                {# O SELO SO APARECE QUANDO HA O QUE CONFIRMAR. O rotulo
-                                                   acessivel e CURTO de proposito ("identidade a
-                                                   confirmar"), e nao a frase que explica o caso: a
-                                                   frase e o `title` para quem tem mouse e o aviso
-                                                   no corpo do cartao para quem chega la. Enfiar a
-                                                   explicacao dentro do `visually-hidden` fazia o
-                                                   texto que o leitor de tela anuncia virar um
-                                                   paragrafo no meio de uma celula. #}
-                                                {% if r.identidade == 'a_confirmar' %}
-                                                    <span class="badge identidade-a-confirmar" title="{{ r.identidade_aviso }}">confirmar<span class="visually-hidden">: identidade a confirmar</span></span>
-                                                {% else %}
-                                                    <span class="text-muted">—</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {# A JANELA DE VIDA. Marca quando a data do registro
-                                                   escolhido nao permite que ele tenha doado aquele
-                                                   DNA — o caso medido e um match de 25,4 cM casado
-                                                   com um registro de 1793. Aparece na LISTA para o
-                                                   operador nao precisar abrir 62 cartoes para achar
-                                                   as conexoes em que a identidade nao fecha. O
-                                                   rotulo fica curto e a idade vai no `title`. Ver
-                                                   `core.janela_de_vida`. #}
-                                                {% if r.janela_de_vida == 'impossivel' %}
-                                                    <span class="badge janela-impossivel" title="{{ r.janela_aviso }}">{{ r.idade_na_arvore }} anos<span class="visually-hidden">: idade impossível para quem doou o DNA</span></span>
-                                                {% elif r.janela_de_vida == 'suspeita' %}
-                                                    <span class="badge janela-suspeita" title="{{ r.janela_aviso }}">{{ r.idade_na_arvore }} anos<span class="visually-hidden">: idade acima do plausível</span></span>
-                                                {% elif r.janela_de_vida == 'data_imprecisa' %}
-                                                    <span class="badge janela-imprecisa" title="{{ r.janela_aviso }}">estimada<span class="visually-hidden">: data de nascimento estimada</span></span>
-                                                {% else %}
-                                                    <span class="text-muted">—</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{% if r.comparison %}<span class="badge estado-{{ r.comparison.status }}">{{ r.comparison.label }}</span>{% else %}—{% endif %}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                        {# OS DOIS BOTOES QUE IMPEDEM O COLAPSO DE VIRAR TRABALHO. Sem eles, ler a
+                           analise inteira passa a ser um clique por conexao — medido nesta
+                           analise, 142. Nao alteram dado nenhum: so mudam o `open` de cada
+                           `details`, e o `toggle` de cada cartao cuida do diagrama. #}
+                        {% if dna_results | length > 1 %}
+                            <p class="text-center mb-3 controles-dos-cartoes">
+                                <button type="button" class="botao-do-cartao" id="expandir-cartoes">Expandir todas as análises</button>
+                                <button type="button" class="botao-do-cartao" id="recolher-cartoes">Recolher todas</button>
+                            </p>
+                        {% endif %}
+                        {# A TABELA DO INDICE SAIU (adendo 019). Com os cartoes recolhiveis ela
+                           virou uma segunda lista de resumos: a coluna "Confrontacao" repetia o
+                           selo do cabecalho, e as linhas existiam para navegar uma pagina que ja
+                           nao precisa de indice. O que so ela dava — Parentesco, Janela de vida e
+                           Profundidade — passou para o cabecalho de cada cartao, que agora e' a
+                           propria lista. #}
                         {% for result in dna_results %}
-                            <div class="card" id="resultado-{{ loop.index }}">
+                            {# CADA CARTAO E UM `<details>` — o operador abre o que quer ler.
+                               O `<summary>` embrulha o `card-header` SEM substitui-lo: o
+                               cabecalho continua sendo `<div class="card-header">`, e assim o
+                               cartao fechado ainda mostra tudo que a extinta tabela do indice
+                               mostrava — nome, cM, parentesco, janela de vida, profundidade e
+                               os vereditos. Quem decide se vale abrir decide pelo cabecalho,
+                               nao por dentro dele.
+
+                               O `details` fica FECHADO por padrao porque a LISTA DE CABECALHOS
+                               e' a visao geral: com a tabela do indice fora (adendo 019), os
+                               sinais de comparacao entre matches tiveram de subir para ca. Um
+                               cartao fechado que so dissesse o nome obrigaria a abrir os 142
+                               para achar as conexoes com janela de vida impossivel ou
+                               profundidade divergente — que e exatamente o trabalho que a
+                               coluna evitava. Os dois botoes acima abrem e fecham todos de uma
+                               vez, para que ler a analise inteira nao vire centenas de cliques.
+
+                               O GRAFO DENTRO DO CARTAO FECHADO e o motivo pelo qual colapsar
+                               tinha sido descartado. Ele deixou de ser impedimento porque o
+                               `toggle` que ja existia para o `grafo-do-registro` passou a valer
+                               para QUALQUER `details` com diagrama: o Mermaid so mede o que
+                               esta aberto. #}
+                            <details class="card cartao-do-resultado" id="resultado-{{ loop.index }}">
+                                <summary class="sumario-do-cartao">
                                 <div class="card-header">
                                     <h5 class="mb-0">Análise de conexão com <strong>{{ result.match_name }}</strong>
                                         {% if result.cm is not none %}
@@ -506,7 +504,27 @@
                                            ler o resto. O selo e o MESMO (`estado-<status>`), entao a cor nao
                                            muda de sentido entre o indice, o cabecalho e a secao 4. #}
                                         {% if result.comparison %}
-                                            <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
+                                            {# O rotulo vem de `confrontacao_rotulo`, e NAO de
+                                               `comparison.label`, porque os dois eixos nao podem
+                                               se contradizer no mesmo cabecalho. Medido num
+                                               cartao real: o selo dizia "Compatível" e o aviso
+                                               logo abaixo dizia "nenhuma pessoa com essa idade
+                                               pode ter doado DNA" — os dois certos sobre eixos
+                                               diferentes (o cM cabe na faixa; a identidade nao
+                                               fecha), mas o selo e o mais visivel. Quando a
+                                               janela de vida e impossivel, o rotulo passa a
+                                               dizer os dois. O veredito em si (`comparison`)
+                                               fica intacto, e a secao 4 continua mostrando o
+                                               confronto de cM, que e outra pergunta. #}
+                                            {# O SELLO COMBINADO NAO USA O PREFIXO `estado-`.
+                                               Aquele prefixo e reivindicado por
+                                               `.badge[class*="estado-"]{color:#fff}`, que existe
+                                               para os QUATRO estados — cor cheia com texto branco.
+                                               Este selo e da familia de aviso (creme com texto
+                                               vermelho), e com o prefixo `estado-` o branco vencia
+                                               e o texto sumia: 1,11:1 de contraste, medido em
+                                               2026-10-14. Ver `.identidade-impossivel` na folha. #}
+                                            <span class="badge {% if result.confrontacao_efetiva == 'identidade_impossivel' %}identidade-impossivel{% else %}estado-{{ result.confrontacao_efetiva }}{% endif %}" title="{{ result.comparison.detail or '' }}">{{ result.confrontacao_rotulo }}</span>
                                         {% endif %}
                                         {# O SELO DA IDENTIDADE, ao lado dos outros dois. Ele nao e um
                                            quarto veredito de confrontacao: diz de QUEM e o cartao, e
@@ -516,29 +534,90 @@
                                         {% if result.identidade == 'a_confirmar' %}
                                             <span class="badge identidade-a-confirmar" title="{{ result.identidade_aviso }}">Identidade a confirmar</span>
                                         {% endif %}
-                                        {# O CAMINHO DE VOLTA. O indice do topo leva a este
-                                           cartao por ancora, e sem um retorno na mesma altura o
-                                           operador que le a analise completa — cinco secoes,
-                                           com tabelas e grafo — so chega a lista de novo
-                                           rolando a pagina inteira de volta.
+                                        {# O CAMINHO DE VOLTA. Sem ele, o operador que le a analise
+                                           completa — cinco secoes, com tabelas e grafo — so chega
+                                           a lista de novo rolando a pagina inteira de volta.
 
                                            E um LINK, e nao um botao com `action`, pela mesma
                                            razao do "escolher outra arvore" da tela de busca:
                                            ele volta por ancora, sem POST, sem passar pelo
                                            despacho de `action` e sem descartar o estado do
-                                           resultado. O `id` do alvo (`#indice`) e literal, como
-                                           o `#resultado-N` do indice, e o par e preso por teste.
+                                           resultado. O alvo e' o titulo `#resultados`, que
+                                           substituiu a tabela do indice (adendo 019), e o par
+                                           e preso por teste.
 
                                            O TEXTO VISIVEL fica curto ("Voltar"), porque o
                                            cartao ja esta sob o titulo "Resultado da Analise"; o
                                            `visually-hidden` e que diz a quem usa leitor de tela
                                            para ONDE o link volta, ja que "Voltar" sozinho nao
                                            nomeia destino nenhum. #}
-                                        <a class="voltar-ao-indice" href="#indice">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
+                                        <a class="voltar-ao-indice" href="#resultados">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
+                                        {# A SEGUNDA LINHA DO CABECALHO — o que a tabela do indice
+                                           dava e que so ela dava: Parentesco, Janela de vida e
+                                           Profundidade. Elas existiam para o operador NAO ter de
+                                           abrir cartao por cartao; com a tabela fora, este e o
+                                           unico lugar que ainda faz isso, e por isso o cartao
+                                           nasce fechado sem esconder o achado.
+
+                                           Um `span` e nao um `<div>`: um `div` aqui fecharia o
+                                           `card-header` cedo para o extrator de teste, que le
+                                           o cabecalho ate o primeiro `</div>`. O `clear:both`
+                                           da folha e que o joga para baixo do "Voltar", que
+                                           e' flutuante. #}
+                                        <span class="cabecalho-sinais">
+                                            <span class="rotulo-parentesco">{{ result.documentary.label if result.documentary else '—' }}</span>
+                                            {% if result.janela_de_vida == 'impossivel' and result.documentary and result.documentary.path %}
+                                                <span class="badge parentesco-do-registro" title="{{ result.janela_aviso }}">não atribuível ao doador<span class="visually-hidden">: este parentesco é o do registro escolhido, e não o do doador</span></span>
+                                            {% endif %}
+                                            {% if result.janela_de_vida == 'impossivel' %}
+                                                <span class="badge janela-impossivel" title="{{ result.janela_aviso }}">{{ result.idade_na_arvore }} anos<span class="visually-hidden">: idade impossível para quem doou o DNA</span></span>
+                                            {% elif result.janela_de_vida == 'suspeita' %}
+                                                <span class="badge janela-suspeita" title="{{ result.janela_aviso }}">{{ result.idade_na_arvore }} anos<span class="visually-hidden">: idade acima do plausível</span></span>
+                                            {% elif result.janela_de_vida == 'data_imprecisa' %}
+                                                <span class="badge janela-imprecisa" title="{{ result.janela_aviso }}">estimada<span class="visually-hidden">: data de nascimento estimada</span></span>
+                                            {% endif %}
+                                            {% if result.profundidade == 'divergencia' %}
+                                                <span class="badge profundidade-divergencia" title="{{ result.profundidade_aviso }}">{{ result.profundidade_razao | round(1) }}×<span class="visually-hidden">: a árvore afirma o dobro de gerações que este kit estima</span></span>
+                                            {% elif result.profundidade == 'atencao' %}
+                                                <span class="badge profundidade-atencao" title="{{ result.profundidade_aviso }}">{{ result.profundidade_razao | round(1) }}×<span class="visually-hidden">: diferença de profundidade a conferir</span></span>
+                                            {% endif %}
+                                        </span>
                                     </h5>
                                 </div>
+                                </summary>
                                 <div class="card-body">
 
+                                    {# ---------------- 0. VEREDICTO DO DOADOR ---------------- #}
+                                    {# O PRIMEIRO bloco do cartao, quando a data do registro nao
+                                       permite que ele tenha doado o DNA.
+                                       INATINGIVEL DESDE 2026-10-14, pela regra do adendo
+                                       `016-janela-de-vida-veta-o-parentesco`: quando a janela
+                                       de vida e `impossivel`, o cartao passa a ser tratado
+                                       como "Parentesco documental nao encontrado" e o
+                                       caminho nao chega a ser montado — entao nao ha
+                                       diagrama para recolher nem parentesco para
+                                       ressalvar. O ramo fica porque a regra e reversivel
+                                       numa linha (`core.dna_analysis`), e apaga-lo agora
+                                       esconderia o que a reversao teria de restaurar. Nao substitui o aviso da
+                                       janela de vida (0b), que traz os NUMEROS: este diz o que
+                                       fazer com o que vem abaixo.
+                                       O caminho documental NAO e apagado. A arvore realmente tem
+                                       esse caminho, e apresentar a secao 1 como "nao encontrado"
+                                       seria falso — e mandaria o operador procurar registro
+                                       faltando quando o trabalho e procurar homonimo. O que muda
+                                       e a MOLDURA: o parentesco passa a ser apresentado como o DO
+                                       REGISTRO, e o vinculo entre o DNA e esta arvore fica
+                                       declarado como desconhecido. #}
+                                    {% if result.janela_de_vida == 'impossivel' and result.documentary and result.documentary.path %}
+                                        <div class="veredicto-do-doador" role="alert">
+                                            <strong>Nenhum parentesco atribuível ao doador.</strong>
+                                            O GEDCOM <em>tem</em> um caminho para este nome, e ele está preservado
+                                            abaixo — mas o registro escolhido pela busca por nome não pode ser quem
+                                            doou o DNA. O parentesco que você lê na seção 1 é
+                                            <strong>o do registro</strong>, não o do doador: o vínculo entre este
+                                            DNA e esta árvore continua desconhecido.
+                                        </div>
+                                    {% endif %}
                                     {# ---------------- 0. IDENTIDADE A CONFIRMAR ---------------- #}
                                     {# Vem ANTES das cinco secoes, e nao como rodape: e um aviso sobre de
                                        QUEM e o cartao, e vale mais que qualquer numero abaixo dele.
@@ -570,6 +649,26 @@
                                         </div>
                                     {% endif %}
 
+                                    {# ---------------- 0c. PROFUNDIDADE DO CAMINHO ---------------- #}
+                                    {# A TERCEIRA verificacao, e a unica que fala quando as duas
+                                       anteriores se calam. Ela nao pergunta se a pessoa pode estar
+                                       viva (janela de vida) nem se o cM cabe na faixa publicada
+                                       (confronto): pergunta se a arvore afirma a mesma
+                                       profundidade que o proprio kit informa. Nao descarta o match
+                                       e nao muda veredito nenhum — avisa, como as outras duas.
+                                       Ver `core.profundidade_do_caminho`. #}
+                                    {% if result.profundidade == 'divergencia' %}
+                                        <div class="alerta-profundidade alerta-profundidade-divergencia" role="alert">
+                                            <strong>A árvore afirma o dobro de gerações que este kit estima.</strong>
+                                            {{ result.profundidade_aviso }}
+                                        </div>
+                                    {% elif result.profundidade == 'atencao' %}
+                                        <div class="alerta-profundidade alerta-profundidade-atencao" role="alert">
+                                            <strong>Diferença de profundidade a conferir.</strong>
+                                            {{ result.profundidade_aviso }}
+                                        </div>
+                                    {% endif %}
+
                                     {# ---------------- 1. PARENTESCO DOCUMENTAL ---------------- #}
                                     {# O `if` externo mantem o template renderizavel por payload
                                        antigo (so nome + cM), como o usado em tests/test_formatacao_cm.py. #}
@@ -578,7 +677,7 @@
                                         <h5><span class="numero">1.</span> Parentesco documental</h5>
                                         <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
 
-                                        <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                        <p class="mb-1"><strong>Parentesco do registro escolhido:</strong>
                                             {% if result.documentary.status == 'found' %}
                                                 <span class="badge bg-primary">{{ result.documentary.label }}</span>
                                             {% elif result.documentary.status == 'ambiguous' %}
@@ -704,7 +803,104 @@
                                         {% endif %}
 
                                         {% if result.mermaid_data %}
-                                            <div class="graph-container mt-2"><div class="mermaid">{{ result.mermaid_data | safe }}</div></div>
+                                            <details class="grafo-do-registro"{% if result.janela_de_vida != 'impossivel' %} open{% endif %}>
+                                                {# O TITULO DIZ DE QUEM E O DESENHO. Sem ele, a
+                                                   cadeia de 12 ou 13 caixas se apresenta como a
+                                                   resposta; com ele, o operador sabe que abriu o
+                                                   caminho do REGISTRO. Recolhido quando a janela
+                                                   de vida e impossivel: o grafo nao some, so deixa
+                                                   de ser a primeira coisa a ler.
+                                                   INATINGIVEL DESDE 2026-10-14 pela regra do
+                                                   adendo `016`: com a janela impossivel o caminho
+                                                   nao e montado, entao nao ha diagrama para
+                                                   recolher. O ramo fica porque a regra e
+                                                   reversivel numa linha. #}
+                                                <summary>
+                                                    {% if result.janela_de_vida == 'impossivel' %}
+                                                        Caminho do registro escolhido no GEDCOM — <strong>não é o caminho do doador</strong>
+                                                    {% else %}
+                                                        Caminho genealógico no GEDCOM
+                                                    {% endif %}
+                                                </summary>
+                                                <div class="graph-container mt-2"><div class="mermaid">{{ result.mermaid_data | safe }}</div></div>
+                                                {# A LEGENDA DO DIAGRAMA.
+                                                   O diagrama mistura tres cores que existiam desde
+                                                   sempre (verde = quem pediu a analise, vermelho =
+                                                   quem o relatorio de DNA indicou, amarelo =
+                                                   ancestral comum que o GEDCOM afirma) com as marcas
+                                                   da profundidade. Nenhuma delas estava explicada em
+                                                   lugar nenhum da tela: um desenho colorido sem
+                                                   legenda obriga o operador a adivinhar, e adivinhar
+                                                   cor e adivinhar conclusao.
+                                                   A legenda e CONTEXTUAL: descreve o que ESTE
+                                                   diagrama tem. Listar uma cor que nao esta no
+                                                   desenho e ruido; omitir uma que esta seria pior que
+                                                   nao ter legenda. Por isso a marca do ancestral muda
+                                                   de FORMA (amarelo liso, ou amarelo com contorno
+                                                   vermelho tracejado) em vez de virar dois itens que
+                                                   se contradizem. Ver
+                                                   `reporting.mermaid_render.anotar_profundidade`. #}
+                                                <div class="legenda-do-grafo">
+                                                    <p class="legenda-titulo">Como ler as cores do diagrama</p>
+                                                    <ul>
+                                                        <li>
+                                                            <span class="legenda-marca legenda-raiz"></span>
+                                                            <strong>{{ result.documentary.person_a.name if result.documentary and result.documentary.person_a else 'A raiz da análise' }}</strong>
+                                                            — você, o ponto de partida desta análise
+                                                        </li>
+                                                        <li>
+                                                            <span class="legenda-marca legenda-match"></span>
+                                                            <strong>{{ result.match_name }}</strong>
+                                                            — a pessoa do GEDCOM que o relatório de DNA indicou
+                                                        </li>
+                                                        <li>
+                                                            {% if result.profundidade == 'divergencia' %}
+                                                                <span class="legenda-marca legenda-ancestral-nao-sustentado"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                                — <strong>com o elo que o DNA não sustenta</strong>
+                                                            {% elif result.profundidade == 'atencao' %}
+                                                                <span class="legenda-marca legenda-ancestral-nao-sustentado"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                                — <strong>com uma diferença de profundidade a conferir</strong>
+                                                            {% else %}
+                                                                <span class="legenda-marca legenda-ancestral"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                            {% endif %}
+                                                        </li>
+                                                        {% if result.profundidade_no_sugerido %}
+                                                            <li>
+                                                                <span class="legenda-marca legenda-sugerido"></span>
+                                                                Onde o <strong>DNA</strong> sugere o ancestral comum
+                                                                — mais perto que a árvore afirma. É uma pessoa que já
+                                                                estava neste caminho: nada foi inventado no meio dele
+                                                            </li>
+                                                        {% endif %}
+                                                        <li>
+                                                            <span class="legenda-marca legenda-neutro"></span>
+                                                            Sem destaque: o caminho documental comum, sem ressalva
+                                                        </li>
+                                                    </ul>
+                                                    {# O BLOCO INFORMATIVO.
+                                                       Ele nasceu DENTRO do grafo, como um no solto
+                                                       ao lado do desenho — e num `flowchart` toda
+                                                       caixa parece um parente: o operador que ve uma
+                                                       caixa no grafo espera que ela seja uma pessoa
+                                                       ou um vinculo. Aqui ele esta onde sempre
+                                                       deveria ter estado, como TEXTO, separado do
+                                                       desenho, dizendo em uma frase o que os numeros
+                                                       do cartao querem dizer.
+                                                       O texto e montado no nucleo
+                                                       (`core.profundidade_do_caminho`), e nao no
+                                                       template: o template nao remonta frase de
+                                                       dominio. #}
+                                                    {% if result.profundidade_resumo %}
+                                                        <p class="legenda-informativa">
+                                                            <strong>O que os números mostram.</strong>
+                                                            {{ result.profundidade_resumo }}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                            </details>
                                         {% endif %}
                                     </div>
                                     {% endif %}
@@ -792,6 +988,21 @@
                                             <p class="mb-2">Status:
                                                 <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
                                             </p>
+                                            {# O selo desta secao e o do eixo do cM, e nao o do
+                                               cabecalho: aqui a pergunta e se o cM cabe na faixa
+                                               publicada para o parentesco documental. Quando a
+                                               identidade nao fecha, os dois numeros podem ser
+                                               verdadeiros ao mesmo tempo, e a linha abaixo diz
+                                               isso em vez de deixar o operador escolher entre
+                                               dois selos contraditorios. #}
+                                            {% if result.confrontacao_efetiva == 'identidade_impossivel' %}
+                                                <p class="small text-muted mb-2">
+                                                    Este veredito é sobre o cM e o parentesco documental, e continua valendo
+                                                    como leitura do <strong>registro escolhido</strong>. Ele não diz que o doador
+                                                    é essa pessoa: a idade do registro não permite que ela tenha doado o DNA
+                                                    — veja o aviso no topo do cartão.
+                                                </p>
+                                            {% endif %}
                                             <p class="mb-2">{{ result.comparison.message }}</p>
                                             {% if result.comparison.detail %}
                                                 <p class="small text-muted mb-2">{{ result.comparison.detail }}</p>
@@ -836,14 +1047,27 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                            </div>
+                            </details>
                         {% endfor %}
                     {% endif %}
 
                     {% if skipped_matches %}
-                      <h2 class="text-center mt-5">Matches descartados ({{ skipped_matches | length }})</h2>
+                      {# OS DESCARTADOS TAMBEM RECOLHEM, pelo mesmo motivo dos cartoes: sao
+                         centenas de linhas que o operador raramente le, e o numero no resumo ja
+                         diz de relance o que ele precisa saber. O resumo E' o titulo — o `<h2>`
+                         que existia virou o proprio `<summary>`, e nao um cabecalho acima dele.
 
-                      <div class="card">
+                         O comentario mora DENTRO do `{% if %}` de proposito: fora dele ele
+                         acrescentaria um salto de linha a tela de ENTRADA, onde
+                         `skipped_matches` e' indefinido e este bloco nao renderiza — e o hash
+                         daquela tela e' contrato congelado (`tests/test_icone_de_atalho.py`).
+
+                         FORA DOS BOTOES DE EXPANDIR/RECOLHER: aqueles dizem "Expandir todas as
+                         analises", e arrastar 266 descartes junto seria surpresa. #}
+                      <details class="card bloco-descartados">
+                        <summary class="sumario-do-cartao">
+                          <div class="card-header"><h5 class="mb-0">Matches descartados ({{ skipped_matches | length }})</h5></div>
+                        </summary>
                         <div class="card-body">
                           <p class="text-muted">
                             Estes nomes estavam no CSV, mas não foi possível ligá-los a nenhum registro do GEDCOM.
@@ -874,7 +1098,7 @@
                           </div>
 
                         </div>
-                      </div>
+                      </details>
                     {% endif %}
 
 
@@ -944,11 +1168,69 @@
                 }
             });
             setTimeout(() => {
-                const mermaidElements = document.querySelectorAll(".mermaid");
-                if (mermaidElements.length) {
-                    mermaid.run({ nodes: mermaidElements });
+                {# O DIAGRAMA RECOLHIDO NAO PODE SER RENDERIZADO FECHADO. O Mermaid mede o
+                   container para dimensionar o SVG, e dentro de um `details` fechado o
+                   elemento tem tamanho zero: o desenho sai quebrado e — pior — marcado como
+                   `data-processed`, entao abrir depois nao conserta. Por isso a rodada inicial
+                   PULA o que esta dentro de um `details` fechado, e o `toggle` renderiza na
+                   primeira abertura. #}
+                const desenhos = Array.from(document.querySelectorAll(".mermaid"))
+                    .filter((el) => !el.closest("details:not([open])"));
+                if (desenhos.length) {
+                    mermaid.run({ nodes: desenhos });
                 }
+                {# O MESMO CUIDADO VALE PARA O CARTAO INTEIRO, que agora tambem recolhe. O
+                   seletor deixou de ser `details.grafo-do-registro` e passou a ser QUALQUER
+                   `details` que contenha diagrama: o cartao em volta do grafo tem exatamente o
+                   mesmo problema — fechado, o container tem tamanho zero. A condicao
+                   `has(".mermaid")` evita pendurar ouvinte em `details` que nao desenha nada. #}
+                document.querySelectorAll("details").forEach((detalhe) => {
+                    if (!detalhe.querySelector(".mermaid")) return;
+                    detalhe.addEventListener("toggle", () => {
+                        if (!detalhe.open) return;
+                        const pendentes = Array.from(detalhe.querySelectorAll(".mermaid"))
+                            .filter((el) => !el.dataset.processed);
+                        if (pendentes.length) {
+                            mermaid.run({ nodes: pendentes });
+                        }
+                    });
+                });
             }, 100);
+
+            {# O CARTAO DO ALVO ABRE SOZINHO. O indice manda o operador para `#resultado-N`, e com
+               os cartoes fechados por padrao o clique cairia num cartao recolhido — o operador
+               concluiria que o link nao funciona. Vale para o clique no indice E para quem abre
+               ou recarrega a pagina ja com o `#` na barra de enderecos. #}
+            const abrirCartaoDoAlvo = () => {
+                if (!location.hash) return;
+                const alvo = document.getElementById(location.hash.slice(1));
+                if (alvo && alvo.tagName === "DETAILS") alvo.open = true;
+            };
+            window.addEventListener("hashchange", abrirCartaoDoAlvo);
+            abrirCartaoDoAlvo();
+
+            {# O LINK DENTRO DO `summary` NAO PODE RECOLHER O CARTAO. O "Voltar" mora no cabecalho,
+               que agora e o proprio gatilho do `details`: sem esta guarda, clicar em "Voltar"
+               fecharia o cartao enquanto a pagina rola de volta ao indice. `stopPropagation` no
+               link corta o caminho do evento antes do `summary`, que e quem tem o comportamento
+               de alternar. #}
+            document.querySelectorAll("summary a").forEach((alvo) => {
+                alvo.addEventListener("click", (evento) => evento.stopPropagation());
+            });
+
+            const todosOsCartoes = () => Array.from(document.querySelectorAll("details.cartao-do-resultado"));
+            const expandir = document.getElementById("expandir-cartoes");
+            const recolher = document.getElementById("recolher-cartoes");
+            if (expandir) {
+                expandir.addEventListener("click", () => {
+                    todosOsCartoes().forEach((cartao) => { cartao.open = true; });
+                });
+            }
+            if (recolher) {
+                recolher.addEventListener("click", () => {
+                    todosOsCartoes().forEach((cartao) => { cartao.open = false; });
+                });
+            }
         });
 
         document.querySelectorAll('form').forEach(form => {

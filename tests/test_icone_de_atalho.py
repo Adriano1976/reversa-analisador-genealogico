@@ -85,7 +85,34 @@ TAMANHO_ESPERADO = 16504
 #: ser escondido se, e somente se, a arte do topo responder). Este hash continua valendo para o que
 #: ele sempre mediu — "a tela nao mudou sem mudanca declarada" — e o alcance dele e declarado: ele
 #: mede a tela de entrada **vazia**, com a pasta de upload do fixture.
-SHA_DA_TELA = "f2b2233e5b1a537672ddb0e50ad29681f93249e49e68a26956f3e77af6b8fb66"
+#:
+#: **Atualizado em 2026-10-14, pelo adendo `015-veredicto-do-doador-no-cartao`.** A tela de entrada
+#: vazia NAO foi redesenhada: o conteudo visivel dela e o mesmo. O que mudou foi o `<script>` global
+#: — o bloco do `mermaid.run` ganhou o filtro que pula diagrama dentro de `details` fechado e o
+#: listener de `toggle` —, e o script vive fora dos dois ramos da tela, entao ele entra no que este
+#: hash mede. `f2b2233e…` (28.858 bytes) → `9cf0e558…` (29.486). A declaracao esta em
+#: `_reversa_sdd/addenda/015-veredicto-do-doador-no-cartao.md`.
+#:
+#: **Atualizado em 2026-10-14, pelo adendo `018-cartao-de-resultado-recolhivel`.** Mesmo caso do
+#: `015`, e de novo so o `<script>`: cada cartao de resultado virou um `<details>` fechado por
+#: padrao, e o script ganhou o ouvinte que abre o cartao do alvo da ancora (`hashchange`), a guarda
+#: que impede o link "Voltar" — que mora no cabecalho, agora o proprio gatilho — de fechar o cartao,
+#: e o par de controles "Expandir/Recolher todas". O seletor do `toggle` do Mermaid deixou de nomear
+#: `details.grafo-do-registro` e passou a alcancar qualquer `details` com diagrama. Os dois botoes
+#: estao sob `{% if dna_results %}` e NAO aparecem na tela vazia; o que entra no hash e o script.
+#: `9cf0e558…` (29.486 bytes) → `6cc496b4…` (30.768). A declaracao esta em
+#: `_reversa_sdd/addenda/018-cartao-de-resultado-recolhivel.md`.
+#:
+#: **Atualizado em 2026-10-14, pelo adendo `020-bloco-dos-descartados-recolhivel`.** So' o
+#: `<script>`, de novo: o grupo "Matches descartados" virou um `<details>` recolhivel, e para os
+#: botoes "Expandir/Recolher todas as analises" nao alcancarem esse bloco o seletor deles passou de
+#: `details.card` para `details.cartao-do-resultado`. O bloco em si vive sob
+#: `{% if skipped_matches %}` e NAO entra no que este hash mede — na tela vazia `skipped_matches` e'
+#: indefinido e o corpo do `if` e' pulado inteiro. Medido, e nao deduzido: a primeira medicao deu
+#: +69 bytes e nao fechava com os 15 do seletor, porque eu comparava o HTML do Flask com um render
+#: de Jinja de contexto vazio. `6cc496b4…` (30.768 bytes) → `5e6842be…` (30.783, +15 = o seletor).
+#: A declaracao esta em `_reversa_sdd/addenda/020-bloco-dos-descartados-recolhivel.md`.
+SHA_DA_TELA = "5e6842bec9258e912ca2f04b6a5ae92efa5fc937a4b124a7e77fda4459feedf7"
 
 
 def _cabecalho_png(corpo: bytes):

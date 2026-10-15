@@ -50,10 +50,40 @@ CLASSES_DO_TEMPLATE = (
     "documental-ambiguo",
     "graph-container",
     "mermaid",
-    "indice-resultados",
     "kit-grid",
     "destaque",
     "botao-tema",
+    # A terceira verificacao (profundidade do caminho x estimativa do kit) e o selo
+    # combinado do cabecalho. Entram na lista pelo mesmo motivo dos outros: sumir da folha
+    # nao levanta erro nenhum, so deixa a tela diferente.
+    #
+    # O selo combinado NAO comeca com `estado-` de proposito: aquele prefixo e reivindicado
+    # por `.badge[class*="estado-"]{color:#fff}`, e o texto branco sobre o creme de
+    # `--aviso-bg` dava 1,11:1. Ver `TestOContrasteDosSelos`.
+    "profundidade-divergencia",
+    "profundidade-atencao",
+    "alerta-profundidade",
+    "alerta-profundidade-divergencia",
+    "identidade-impossivel",
+    "legenda-do-grafo",
+    "legenda-marca",
+    # O veredicto do doador e o diagrama recolhido, do mesmo lote: o cartao em que a data do
+    # registro impede que ele tenha doado o DNA.
+    "veredicto-do-doador",
+    "grafo-do-registro",
+    # O selo do parentesco que nao e do doador, no indice.
+    "parentesco-do-registro",
+    # O cartao de resultado recolhivel: o `summary` embrulha o `card-header`, e sumir da folha
+    # deixaria o cabecalho sem cursor e sem o sinal de que ha o que abrir.
+    "sumario-do-cartao",
+    "controles-dos-cartoes",
+    "botao-do-cartao",
+    # A segunda linha do cabecalho do cartao: o que a tabela do indice dava (Parentesco, Janela
+    # de vida, Profundidade) e que subiu para o cartao quando a tabela saiu — adendo 019.
+    "cabecalho-sinais",
+    "rotulo-parentesco",
+    # O bloco recolhivel dos descartados: mesma forma dos cartoes, aparencia de apendice.
+    "bloco-descartados",
 )
 
 
@@ -194,6 +224,18 @@ class TestO_Acoplamento_Com_O_Template:
             "o template deixou de usar o nome do estado como classe do selo"
         )
 
+    def test_o_cabecalho_usa_o_rotulo_combinado(self, template):
+        """O selo do cabecalho nao pode contradizer o aviso logo abaixo.
+
+        Medido num cartao real: "Compatível" no cabecalho e "nenhuma pessoa com essa idade
+        pode ter doado DNA" no aviso seguinte. Os dois estavam certos sobre eixos diferentes,
+        mas o selo e o mais visivel — entao o cabecalho le `confrontacao_efetiva`, e a secao 4
+        continua lendo o veredito de cM, que e outra pergunta.
+        """
+        assert "estado-{{ result.confrontacao_efetiva }}" in template, (
+            "o cabecalho voltou a mostrar o veredito cru do confronto"
+        )
+
 
 class TestO_Controle_De_Tema:
     """Claro como PADRAO, escuro por escolha do operador, e a escolha lembrada."""
@@ -274,3 +316,226 @@ class TestOTextoDoSobreODestrutivo:
             "`--on-danger` precisa ser definida no tema claro E no escuro: e a cor do texto "
             "SOBRE o `--danger`, e o `--danger` muda de tom entre os dois"
         )
+
+
+# ---------------------------------------------------------------------------
+# CONTRASTE DOS SELOS.
+#
+# O caso medido, em 2026-10-14: o operador relatou que o selo combinado do cabecalho estava
+# "em branco, pois nao consigo ler". Nao era a regra do selo: era
+# `.badge[class*="estado-"]{color:#fff}` — especificidade (0,2,0) — vencendo
+# `.estado-identidade_impossivel`, (0,1,0). Texto branco sobre o creme de `--aviso-bg`:
+# **1,11:1** no tema claro. No escuro o mesmo selo dava 15,26:1, porque la `--aviso-bg` e
+# escuro — um teste de um tema so nao pegaria.
+#
+# Um teste que lesse apenas a regra do selo teria passado com a tela ilegivel. Por isso a cor
+# efetiva e resolvida pela CASCATA: todas as regras que casam com o elemento, vencendo a de
+# maior especificidade (e, no empate, a ultima) — que e o que o navegador faz.
+#
+# Os dois erros que a sonda `_reversa_bugs/_sondas-matching/contraste_dos_selos.py` cometeu
+# antes de servir, e que estao corrigidos aqui: os COMENTARIOS precisam sair antes do parser
+# (senao o seletor vira `/* ... */ .badge[...]` e nada casa), e seletor de ELEMENTO (`body`,
+# `h1,h2,h3`) casaria com tudo e todo selo herdaria a cor do `h5`.
+# ---------------------------------------------------------------------------
+
+#: Os selos que o template emite, na forma exata de `class="..."`.
+SELOS_DO_TEMPLATE = (
+    "badge estado-COMPATIVEL",
+    "badge estado-POSSIVEL",
+    "badge estado-CONFLITANTE",
+    "badge estado-INCONCLUSIVO",
+    "badge identidade-a-confirmar",
+    "badge identidade-impossivel",
+    "badge janela-impossivel",
+    "badge janela-suspeita",
+    "badge janela-imprecisa",
+    "badge profundidade-divergencia",
+    "badge profundidade-atencao",
+    "badge parentesco-do-registro",
+)
+
+#: WCAG 2.1, nivel AA para texto normal.
+CONTRASTE_MINIMO = 4.5
+
+_BLOCO_CSS = re.compile(r"([^{}]+)\{([^{}]*)\}", re.S)
+_VAR = re.compile(r"var\((--[\w-]+)\)")
+
+
+def _sem_comentario(css: str) -> str:
+    return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+
+def _sem_media(css: str) -> str:
+    """Os blocos `@media` saem: nenhum deles toca em selo, e o parser nao os entende."""
+    saida, i = [], 0
+    while i < len(css):
+        if css.startswith("@media", i):
+            j = css.index("{", i)
+            profundidade = 0
+            while j < len(css):
+                if css[j] == "{":
+                    profundidade += 1
+                elif css[j] == "}":
+                    profundidade -= 1
+                    if profundidade == 0:
+                        break
+                j += 1
+            i = j + 1
+            continue
+        saida.append(css[i])
+        i += 1
+    return "".join(saida)
+
+
+def _regras(css: str) -> list:
+    return [(" ".join(sel.split()), corpo)
+            for sel, corpo in _BLOCO_CSS.findall(_sem_media(_sem_comentario(css)))]
+
+
+def _variaveis(css: str, tema: str) -> dict:
+    valores = {}
+    for seletor, corpo in _regras(css):
+        vale = seletor == ":root" or (
+            seletor == ':root[data-bs-theme="dark"]' and tema == "escuro")
+        if not vale:
+            continue
+        for decl in corpo.split(";"):
+            nome, _, valor = decl.partition(":")
+            if nome.strip().startswith("--"):
+                valores[nome.strip()] = valor.strip()
+    return valores
+
+
+def _resolve(valor: str, variaveis: dict) -> str:
+    anterior = None
+    while anterior != valor:
+        anterior = valor
+        valor = _VAR.sub(lambda m: variaveis.get(m.group(1), m.group(0)), valor)
+    return valor.strip()
+
+
+def _casa(seletor: str, classes: str) -> bool:
+    if not seletor or seletor.startswith(("@", ":")) or " " in seletor or ">" in seletor:
+        return False
+    nomes = re.findall(r"\.([\w-]+)", seletor)
+    atributos = re.findall(r'\[class\*="([^"]+)"\]', seletor)
+    if not nomes and not atributos:
+        return False
+    if not all(nome in classes.split() for nome in nomes):
+        return False
+    return all(alvo in classes for alvo in atributos)
+
+
+def _especificidade(seletor: str) -> int:
+    return len(re.findall(r"\.([\w-]+)", seletor)) + seletor.count("[class")
+
+
+def _valor_efetivo(css: str, classes: str, propriedade: str, variaveis: dict):
+    """O valor que o NAVEGADOR aplica: maior especificidade e, no empate, a ultima regra."""
+    vencedor = None
+    for indice, (seletor, corpo) in enumerate(_regras(css)):
+        if not _casa(seletor, classes):
+            continue
+        for decl in corpo.split(";"):
+            nome, _, valor = decl.partition(":")
+            nome = nome.strip()
+            if nome == propriedade or (propriedade == "background-color"
+                                       and nome == "background"):
+                chave = (_especificidade(seletor), indice)
+                if vencedor is None or chave >= vencedor[0]:
+                    vencedor = (chave, valor.strip())
+    return _resolve(vencedor[1], variaveis) if vencedor else None
+
+
+def _rgb(cor):
+    if cor is None:
+        return None
+    cor = cor.strip().lower()
+    if cor in ("transparent", "none", "inherit", "initial"):
+        return None
+    if cor.startswith("#"):
+        hexa = cor[1:]
+        if len(hexa) == 3:
+            hexa = "".join(c * 2 for c in hexa)
+        return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
+    achado = re.match(r"rgba?\((\d+),\s*(\d+),\s*(\d+)", cor)
+    return tuple(int(achado.group(i)) for i in (1, 2, 3)) if achado else None
+
+
+def _luminancia(cor) -> float:
+    def canal(valor):
+        valor = valor / 255
+        return valor / 12.92 if valor <= 0.03928 else ((valor + 0.055) / 1.055) ** 2.4
+    vermelho, verde, azul = cor
+    return (0.2126 * canal(vermelho) + 0.7152 * canal(verde) + 0.0722 * canal(azul))
+
+
+def _contraste(cor_a, cor_b) -> float:
+    la, lb = _luminancia(cor_a), _luminancia(cor_b)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+class TestOContrasteDosSelos:
+    """Todo selo da tela tem de ser legivel nos DOIS temas.
+
+    O defeito que originou esta classe era invisivel para um teste de tema unico: no escuro o
+    mesmo selo dava 15,26:1. E era invisivel para um teste que lesse so a regra do selo,
+    porque quem vencia a cor era outra regra.
+    """
+
+    @pytest.mark.parametrize("tema", ["claro", "escuro"])
+    @pytest.mark.parametrize("classes", SELOS_DO_TEMPLATE)
+    def test_o_texto_do_selo_e_legivel_sobre_o_proprio_fundo(self, folha, classes, tema):
+        variaveis = _variaveis(folha, tema)
+        texto = _rgb(_valor_efetivo(folha, classes, "color", variaveis))
+        fundo = _rgb(_valor_efetivo(folha, classes, "background-color", variaveis))
+        # Selo sem fundo proprio fica sobre o cartao, que e `--surface` nos dois temas.
+        if fundo is None:
+            fundo = _rgb(_resolve("var(--surface)", variaveis))
+
+        assert texto and fundo, (
+            f"nao consegui resolver a cor efetiva de `{classes}` no tema {tema}: "
+            f"texto={texto} fundo={fundo}. O parser ou a folha mudaram de forma."
+        )
+        razao = _contraste(texto, fundo)
+        assert razao >= CONTRASTE_MINIMO, (
+            f"`{classes}` no tema {tema}: texto {texto} sobre fundo {fundo} da "
+            f"{razao:.2f}:1, abaixo de {CONTRASTE_MINIMO}:1. O operador nao consegue ler."
+        )
+
+    def test_o_prefixo_estado_e_reservado_aos_quatro_estados(self, folha):
+        """Quem tem `estado-` no nome herda `color:#fff` — e isso so serve para cor cheia.
+
+        O selo combinado do cabecalho se chamava `.estado-identidade_impossivel` e saiu branco
+        sobre creme por causa desta regra. O nome mudou; esta guarda impede que outro selo de
+        aviso volte a usar o prefixo, e confere que a regra do branco continua existindo (sem
+        ela, os quatro estados ficariam com texto escuro sobre cor cheia).
+        """
+        brancos = _valor_efetivo(folha, "badge estado-COMPATIVEL", "color",
+                                 _variaveis(folha, "claro"))
+        assert brancos and brancos.replace(" ", "") == "#fff", (
+            "a regra do texto branco dos estados mudou: confira se o prefixo `estado-` ainda "
+            "esta reservado"
+        )
+        # Os comentarios saem antes das checagens de TEXTO: o comentario de
+        # `.identidade-impossivel` cita o nome antigo para documentar o defeito, e sem esta
+        # limpeza a guarda acharia a propria documentacao. Foi a mesma armadilha que a sonda
+        # caiu, e por isso ela esta registrada nos dois lugares.
+        codigo = _sem_comentario(folha)
+        for estado in ESTADOS:
+            assert f".estado-{estado}" in codigo
+        assert ".estado-identidade" not in codigo, (
+            "um selo de aviso voltou a usar o prefixo `estado-`: ele sairia com texto branco"
+        )
+
+    def test_os_selos_de_aviso_partem_da_paleta_de_aviso(self, folha):
+        """Contraste igual ao dos vizinhos, e nao cor inventada."""
+        claro = _variaveis(folha, "claro")
+        for classes in ("badge identidade-impossivel", "badge janela-impossivel",
+                        "badge profundidade-divergencia"):
+            # `_valor_efetivo` ja resolve o `var()`: comparar com o literal daria sempre
+            # diferente.
+            assert (_valor_efetivo(folha, classes, "background-color", claro)
+                    == _resolve("var(--aviso-bg)", claro))
+            assert (_valor_efetivo(folha, classes, "color", claro)
+                    == _resolve("var(--danger)", claro))
