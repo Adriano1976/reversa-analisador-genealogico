@@ -524,6 +524,7 @@ tests/
 ├── test_persistencia_desabilitada.py    # Persistência desabilitada: nada é gravado
 ├── test_persistencia_indisponivel.py    # Persistência indisponível: a análise conclui com aviso
 ├── test_porta_de_armazenamento.py       # A porta de armazenamento e a chave derivada do conteúdo
+├── test_profundidade_do_caminho.py      # A árvore afirma a mesma profundidade que o próprio kit estima?
 ├── test_projecao_da_analise.py          # A projeção do resultado no payload da porta
 ├── test_registro_de_analises.py         # O adaptador Postgres contra o banco (pulado sem banco)
 ├── test_rotulos_de_parentesco.py        # A série dos avós em português: trisavô, e não bisbisavô
@@ -630,16 +631,88 @@ com mensagem na tela, e nunca com erro do servidor.
 - **Identidade a confirmar:** quando o nome do relatório de DNA e a pessoa escolhida no GEDCOM divergem no
   **prenome** — mas coincidem nos sobrenomes —, o cartão avisa em vez de apresentar o cM como certo. A
   escolha continua a mesma: o aviso **não** descarta o match, apenas mostra os dois nomes e devolve a
-  conferência a quem opera.
+  conferência a quem opera. O mesmo aviso aparece quando o relatório traz **um prenome só, sem sobrenome**:
+  um casamento exato de `Margarida` com `Margarida` confirma que a palavra é a mesma, não que a pessoa é —
+  e medido, esse kit casa com **oito** registros de nome idêntico, dois deles com caminho até a raiz, e quem
+  decide entre eles é o desempate congelado, não um dado. O corte é por **número de palavras**, e não por
+  "não tem sobrenome": `Maria Natividade` e `José Francisco Alves` têm parte que discrimina e continuam
+  confirmados.
 - **Janela de vida do doador:** quando a data de nascimento do registro escolhido torna impossível que ele
   tenha doado aquele DNA (acima de 122 anos, o recorde humano verificado), o cartão diz isso em vez de
   afirmar o parentesco. Entre 105 e 122 anos o aviso é mais brando; sem data, nada é dito. Como no aviso de
   identidade, o match **não** é descartado — medido, 9 das 10 escolhas com idade impossível não têm
   candidato melhor, e descartar faria o operador perder a evidência genética.
+- **Profundidade do caminho:** a terceira verificação, e a única que fala quando as outras duas se calam.
+  Compara as gerações que a árvore afirma até o ancestral comum com a estimativa de gerações até o MRCA que
+  o **próprio relatório de DNA** traz, na coluna `MRCA` do CSV (presente em 270 de 270 kits do arquivo real e
+  antes descartada pelo fluxo). A partir do **dobro** a árvore está afirmando mais gerações do que o cM
+  sustenta — sinal de elo ausente entre a geração documentada e o doador, e não de parentesco mais distante.
+  Entre 1,5× e 2× o número é mostrado como atenção, sem afirmar divergência. No diagrama, o ancestral comum
+  documental ganha contorno vermelho tracejado e o ponto do caminho na profundidade que o kit estima ganha
+  contorno roxo — **sempre um nó que já estava no caminho documental**: nenhum nó é criado e nenhuma geração
+  é interpolada. Medido nos 62 cartões: 1 divergência e 4 atenções, incluindo um cartão que nem a janela de
+  vida nem o confronto alcançavam (doadora nascida em 1976, 19,2 cM, árvore afirmando 10,0 gerações contra
+  4,77 do kit).
+- **Legenda do diagrama:** cada diagrama traz a explicação das cores que **ele** mostra — verde (você, a raiz
+  da análise), vermelho (a pessoa do GEDCOM que o relatório de DNA indicou), amarelo (o ancestral comum que o
+  GEDCOM afirma), e as marcas de profundidade quando existem. É **contextual** de propósito: listar uma cor
+  ausente do desenho é ruído, e omitir uma presente seria pior que não ter legenda. As amostras usam os
+  mesmos valores literais que o Mermaid emite — em `reporting/mermaid_render.py` e no `mermaid.initialize` do
+  template —, e o par amostra↔literal é preso por teste, porque uma legenda que descreve cores que o desenho
+  não tem é pior que legenda nenhuma.
+- **A leitura dos números é texto, e não um nó do grafo:** a frase que resume a verificação de profundidade
+  ("a árvore afirma 7,5 gerações até o ancestral comum; este kit estima 4,3") aparece como **bloco
+  informativo dentro da legenda**. Dentro de um `flowchart` toda caixa parece um parente, e o operador que vê
+  uma caixa no grafo espera que ela seja uma pessoa ou um vínculo. O renderizador recebeu a guarda
+  correspondente: `anotar_profundidade` só emite linhas `style`, nunca texto.
+- **Janela de vida veta o parentesco:** quando a data do registro escolhido faz a idade passar de **122
+  anos**, o cartão passa a ser tratado como o grupo *"Parentesco documental não encontrado"* — com todas as
+  regras desse grupo — e o diagrama é desconsiderado. Medido: alcança **3 dos 62** cartões, e a árvore
+  **tem** o caminho (11, 12 e 10 meioses). É decisão declarada do operador, e as consequências estão no
+  adendo `016`: a tela afirma algo inexato sobre a árvore, perde a única comparação de cM da análise e 1 dos
+  5 cartões que apontam para o mesmo ancestral. O parentesco retirado **não é destruído** — vai para
+  `documentary_do_registro`, fora da tela, o que permite auditar a regra e revertê-la. `suspeita` (105–122)
+  continua apenas avisando, e registro sem data não é impossível.
+- **Observação de arquivo não é observação de cartão:** um aviso que vale para o CSV inteiro — mesmo
+  nome em mais de um kit, CSV sem coluna de kit, linhas ignoradas, cabeçalho fora do lugar, raiz ambígua
+  — aparece **uma vez**, no bloco *"Observações do arquivo"* acima do índice, e **nunca** dentro da seção
+  5 de um cartão. Antes ele era copiado para dentro de cada cartão: medido no arquivo real de 142
+  cartões, o aviso de múltiplos kits ocupava **710 das 1010 linhas** da seção 5 (70,3%), aparecia em
+  **142 de 142** cartões e, em **3 dos 5** casos, falava de nomes que a triagem descartou e que não têm
+  cartão nenhum. A frase também deixou de ser o recibo da contabilidade do programa e virou fato dos
+  dados: nomeia o nome, cada kit com o seu valor, a soma que não pode ser feita e o parentesco que essa
+  soma faria acreditar. O bloco fica **fora** da guarda dos resultados, porque com zero cartões o aviso
+  do arquivo é justamente o que explica o zero. Ver o adendo `017`.
+- **Cartão de resultado recolhível:** cada análise de conexão é um `<details>` **fechado por
+  padrão**, e o cabeçalho — que embrulha o cartão inteiro como `<summary>` — é a **visão geral da
+  lista**: traz o nome, o cM, o parentesco, a janela de vida, a profundidade e os vereditos, de modo
+  que o achado aparece com o cartão fechado. Dois botões, **Expandir todas as análises** e **Recolher
+  todas**, impedem que ler a análise completa vire um clique por conexão. O recolhimento é **visual**:
+  as cinco seções continuam no HTML, e é isso que preserva a leitura da análise como texto. Dois
+  cuidados que o recolhimento exige, os dois cobertos por teste: o alvo do "Voltar" é o título
+  (`#resultados`), que precisa existir, e o link mora no cabeçalho, que agora é o próprio gatilho,
+  então o clique nele não pode fechar o cartão. O diagrama dentro do cartão fechado — motivo pelo
+  qual colapsar tinha sido descartado — é resolvido pelo mesmo `toggle` que já renderiza o grafo na
+  primeira abertura. Ver os adendos `018` e `019`.
+- **A tabela do índice saiu, e o cabeçalho do cartão é a lista:** enquanto os cartões nasciam todos
+  abertos, a tabela de sete colunas era a única visão geral. Com os cartões recolhíveis ela virou uma
+  **segunda lista de resumos** — a coluna *Confrontação* repetia o selo do cabeçalho. Ela foi
+  removida, e as três colunas que só ela dava (*Parentesco*, *Janela de vida*, *Profundidade*)
+  subiram para o cabeçalho do cartão, que aparece fechado: sem isso, achar as conexões com idade
+  impossível ou profundidade divergente voltaria a exigir abrir cartão por cartão. Ver o adendo `019`.
+- **Matches descartados recolhível:** o grupo é um `<details>` cujo **próprio título é o
+  `<summary>`** — `Matches descartados (N)`, com a contagem vinda da análise. Nasce fechado, como os
+  cartões, e a tabela continua no documento quando fechado. Fica **fora** dos botões "Expandir/
+  Recolher todas as análises": aqueles falam das análises, e arrastar centenas de descartes junto
+  seria surpresa — o que exigiu um marcador explícito (`cartao-do-resultado`) nos cartões de
+  análise, já que o seletor genérico alcançaria os dois blocos. Ver o adendo `020`.
 - **Possibilidades pelo DNA:** apresenta relações compatíveis segundo o Shared cM Project 4.0, sem afirmar
   um parentesco único.
 - **Confronto GEDCOM × DNA:** retorna COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO e explica as causas
-  relevantes.
+  relevantes. Quando a versão 4.0 não publica faixa para a relação documental, o texto diz **qual** é o
+  motivo — a relação é mais profunda que a mais distante que a fonte calibra, ou cai numa lacuna da tabela —
+  em vez de deixar o silêncio passar por concordância. O veredito continua sendo INCONCLUSIVO: nenhuma janela
+  é emprestada do número de meioses mais próximo, porque isso seria inventar número (ADR-15).
 - **Alertas documentais:** sinaliza datas impossíveis, homônimos, caminhos múltiplos e colapso de pedigree.
 - **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
