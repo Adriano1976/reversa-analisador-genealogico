@@ -264,7 +264,22 @@
                                         <input type="hidden" name="action" value="upload_gedcom">
                                         <div class="mb-3">
                                             <label for="gedcom" class="form-label"><b>Enviar nova árvore</b></label>
-                                            <input class="form-control" type="file" id="gedcom" name="gedcom" required>
+                                            {# `accept` FILTRA O SELETOR, e nao valida nada. Quem
+                                               escolher "Todos os arquivos" — ou arrastar o arquivo
+                                               para dentro do campo — manda o que quiser; a barreira
+                                               de verdade e' a de conteudo
+                                               (`utils.validate.validar_conteudo_gedcom`, que exige a
+                                               declaracao `0 HEAD`), e ela ja' existia. O ganho aqui
+                                               e' nao oferecer o erro: sem o filtro, o operador
+                                               escolhe um .txt, recebe "carregado!" e o arquivo nao
+                                               aparece em aba nenhuma.
+
+                                               SO' `.ged`, e nao `.gedcom`: quem decide a aba e' a
+                                               extensao (`reporting.lista_de_arquivos.ABA_DE_ARVORES`),
+                                               e um `.gedcom` nao entra em aba nenhuma. Oferecer no
+                                               seletor um arquivo que depois some seria pior do que
+                                               escondê-lo. -#}
+                                            <input class="form-control" type="file" id="gedcom" name="gedcom" accept=".ged" required>
                                         </div>
                                         <div class="d-grid">
                                             <button type="submit" class="btn btn-primary">Carregar</button>
@@ -371,7 +386,13 @@
                                                 </select>
                                                 <div class="form-text">Ou envie um arquivo novo abaixo.</div>
                                             {% endif %}
-                                            <input class="form-control mt-2" type="file" id="matches_csv" name="matches_csv">
+                                            {# Mesma regra do campo da arvore: `accept` filtra o
+                                               seletor e nao valida. A barreira de verdade e' a
+                                               leitura do CSV, que recusa o arquivo sem as colunas de
+                                               Nome e cM (`core.erros.DnaCsvSemColunas`) — e o campo
+                                               e' opcional de proposito, porque o relatorio pode vir
+                                               da lista acima. -#}
+                                            <input class="form-control mt-2" type="file" id="matches_csv" name="matches_csv" accept=".csv">
                                         </div>
                                         <div class="mb-3">
                                             <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
@@ -420,8 +441,24 @@
                        renderiza. Sem eles a pagina de entrada mudaria de bytes — e o hash dela e
                        contrato congelado (`tests/test_icone_de_atalho.py`). -#}
                     {% if observacoes_do_arquivo %}
-                        <div class="observacoes-do-arquivo mb-4">
-                            <h3 class="h6 mb-1">Observações do arquivo</h3>
+                      {# O bloco recolhe como os cartoes — mesmo `details`, mesmo
+                         `sumario-do-cartao`, mesmo losango —, e a diferenca esta no que ele
+                         carrega: AVISO, e nao apendice. Por isso nasce ABERTO. O bloco dos
+                         descartados pode comecar fechado porque e' o rodape da analise; este
+                         diz coisas que mudam a leitura do resultado (nome em mais de um kit,
+                         CSV sem coluna de kit, linhas ignoradas, raiz ambigua), e esconder
+                         aviso atras de um clique contraria o motivo de ele existir: o adendo
+                         017 o tirou de dentro dos cartoes justamente para ele ser LIDO.
+
+                         O `<h2>`/`<h3>` que titulava virou o proprio `<summary>`. A classe
+                         `observacoes-do-arquivo` FICA no container: e' ela que o teste do
+                         adendo 017 usa para achar o bloco e para prender que ele renderiza
+                         fora da guarda de `dna_results`. #}
+                      <details class="card observacoes-do-arquivo mb-4" open>
+                        <summary class="sumario-do-cartao">
+                          <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
+                        </summary>
+                        <div class="card-body">
                             <p class="text-muted small mb-2">
                                 Valem para o CSV inteiro, não para uma conexão específica. Nenhuma
                                 delas muda um parentesco já calculado.
@@ -430,6 +467,7 @@
                                 <div class="alerta-aviso">{{ observacao }}</div>
                             {% endfor %}
                         </div>
+                      </details>
                     {% endif %}
                     {% if dna_results %}
                         {# O TITULO E' O ALVO DO LINK "Voltar" DE CADA CARTAO. Ele era a tabela do

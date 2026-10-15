@@ -147,12 +147,13 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 
 /* Avisos */
 .alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:.25rem;font-size:.9rem}
-/* As observacoes do ARQUIVO, e nao de um cartao: valem para a analise inteira e
-   por isso ficam num bloco unico acima do indice, visualmente separadas dos
-   cartoes. O bloco nao pode competir com o resultado — a borda e discreta e o
-   titulo e do mesmo tamanho dos rotulos de secao. */
-.observacoes-do-arquivo{border:1px solid var(--aviso-line);border-radius:.375rem;padding:.85rem 1rem;background:var(--aviso-bg)}
-.observacoes-do-arquivo h3{color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}
+/* As observacoes do ARQUIVO, e nao de um cartao: valem para a analise inteira e por isso ficam
+   num bloco unico acima do resultado, visualmente separadas dos cartoes. Recolhem como eles
+   (mesmo `details`, mesmo `sumario-do-cartao`), mas com aparencia de AVISO: o creme de
+   `--aviso-bg` percorre o bloco inteiro, e nao so os itens, e o cabecalho o anuncia antes de o
+   operador ler qualquer linha. Nasce ABERTO — o `open` esta no template —, ao contrario do
+   bloco dos descartados, porque o que ele carrega muda a leitura do resultado. */
+.observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
 .observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
 .observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}
 .documental-ambiguo{color:var(--danger);font-weight:600}

@@ -303,12 +303,20 @@ class TestTelaDeEntradaSemArquivo:
         )
 
     def test_pasta_vazia_nao_despeja_nome_de_arquivo(self, cliente_de_upload):
-        """Estado vazio e vazio: nada de item fantasma na lista."""
+        """Estado vazio e vazio: nada de item fantasma na lista.
+
+        Os atributos `accept` dos campos de arquivo sao **configuracao de seletor**, e nao nome
+        de arquivo: desde o adendo `021` eles entram no documento legitimamente, com `.ged` e
+        `.csv` no valor. Tira-los antes de procurar preserva a pergunta original — "algum NOME
+        de arquivo vazou?" — sem afrouxar nada: qualquer outro `.ged` ou `.csv` na pagina
+        continua acusando.
+        """
         _app, cliente, _pasta = cliente_de_upload
 
         corpo = _corpo(cliente)
+        sem_filtros = re.sub(r'accept="[^"]*"', "", corpo)
 
-        assert ".ged" not in corpo and ".csv" not in corpo, (
+        assert ".ged" not in sem_filtros and ".csv" not in sem_filtros, (
             "a tela mostrou nome de arquivo com a pasta vazia: a lista nao esta sendo derivada do disco"
         )
 

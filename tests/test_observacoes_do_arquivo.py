@@ -289,7 +289,10 @@ class TestOTextoDoTemplate:
     def test_o_bloco_do_arquivo_existe_e_percorre_a_lista(self):
         html = self._template()
         assert "observacoes_do_arquivo" in html
-        assert 'class="observacoes-do-arquivo' in html
+        # A ANCORA NAO INCLUI `class="`: o bloco passou a levar `card` junto com a classe dele
+        # quando virou `<details>` (adendo 022), e prender a ordem das classes faria o teste
+        # cair por um detalhe de markup que nao muda nada na tela.
+        assert "observacoes-do-arquivo" in html
         assert "Observações do arquivo" in html
         assert "{% for observacao in observacoes_do_arquivo %}" in html
 
@@ -297,7 +300,7 @@ class TestOTextoDoTemplate:
         """Com zero conexoes aceitas nao ha cartao nenhum — e o aviso do arquivo e
         justamente o que explica o zero."""
         html = _sem_comentarios_jinja(self._template())
-        posicao_bloco = html.index('class="observacoes-do-arquivo')
+        posicao_bloco = html.index("observacoes-do-arquivo")
         posicao_guarda = html.index("{% if dna_results %}")
         assert posicao_bloco < posicao_guarda, (
             "o bloco do arquivo tem de renderizar tambem quando nao ha resultado")
@@ -335,18 +338,18 @@ def _pagina(cliente, pasta, csv_texto):
 class TestABlocoNaTela:
 
     @staticmethod
-    def _blocos_do_arquivo(pagina):
-        achado = re.search(r'(?s)<div class="observacoes-do-arquivo[^"]*">(.*?)</div>\s*{%',
-                            pagina)
-        if achado:
-            return re.findall(r'(?s)<div class="alerta-aviso">(.*?)</div>', achado.group(1))
-        # Sem Jinja no HTML renderizado: delimita pelo proximo bloco conhecido.
-        inicio = pagina.find('<div class="observacoes-do-arquivo')
+    def _bloco(pagina):
+        """O trecho do bloco dos avisos, do `<details>` ate' o fim dele.
+
+        Ele e' `<details class="card observacoes-do-arquivo …">`, e nao mais um `<div>`: a
+        busca por `<div class="observacoes-do-arquivo` — que existiu aqui ate' o adendo 022 —
+        devolveria vazio, e os testes que dependessem dela passariam por vacuidade.
+        """
+        inicio = pagina.find('<details class="card observacoes-do-arquivo')
         if inicio < 0:
-            return []
-        fim = pagina.find('<h2 class="text-center mt-5">', inicio)
-        trecho = pagina[inicio:fim if fim > 0 else len(pagina)]
-        return re.findall(r'(?s)<div class="alerta-aviso">(.*?)</div>', trecho)
+            return ""
+        fim = pagina.find("</details>", inicio)
+        return pagina[inicio:fim if fim > 0 else len(pagina)]
 
     @staticmethod
     def _secoes_de_observacao(pagina):
@@ -376,3 +379,52 @@ class TestABlocoNaTela:
         pagina = _pagina(cliente, pasta, CSV_SEM_CARTAO)
         assert "Observações do arquivo" in pagina
         assert "Zzz Ninguem" in pagina
+
+
+class TestOBlocoRecolhivel:
+    """O bloco virou `<details>` — e nasce ABERTO, ao contrario do bloco dos descartados."""
+
+    def test_o_titulo_e_o_summary_e_nao_um_cabecalho_acima(self, cliente_de_upload):
+        _app, cliente, pasta = cliente_de_upload
+        pagina = _pagina(cliente, pasta, CSV_DOIS_KITS)
+        assert re.search(
+            r'(?s)<summary class="sumario-do-cartao">\s*<div class="card-header">\s*'
+            r'<h5[^>]*>Observações do arquivo</h5>',
+            pagina), (
+            "o titulo do bloco nao virou o `summary`: sobra um cabecalho acima de um `details`"
+        )
+
+    def test_o_bloco_nasce_aberto(self, cliente_de_upload):
+        """Ele carrega AVISO, e nao detalhe.
+
+        O bloco dos descartados pode comecar fechado porque e' o rodape da analise. Este diz
+        coisas que mudam a leitura do resultado — nome em mais de um kit, CSV sem coluna de
+        kit, raiz ambigua —, e o adendo 017 o tirou de dentro dos cartoes justamente para ele
+        ser LIDO. Escondê-lo atras de um clique desfaria aquilo.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        pagina = _pagina(cliente, pasta, CSV_DOIS_KITS)
+        abertura = re.search(r'<details class="card observacoes-do-arquivo[^"]*"([^>]*)>', pagina)
+        assert abertura, "o bloco dos avisos nao esta na tela"
+        assert "open" in abertura.group(1), (
+            "o bloco dos avisos nasceu FECHADO: aviso escondido atras de um clique"
+        )
+
+    def test_os_avisos_ficam_dentro_do_bloco(self, cliente_de_upload):
+        _app, cliente, pasta = cliente_de_upload
+        pagina = _pagina(cliente, pasta, CSV_DOIS_KITS)
+        bloco = self._bloco(pagina)
+        assert bloco, f"o bloco dos avisos nao esta na tela: {self._bloco(pagina)!r}"
+        assert "mais de um kit" in bloco, (
+            "o aviso saiu de dentro do bloco recolhivel"
+        )
+
+    def test_o_bloco_nao_e_alvo_de_ancora(self, cliente_de_upload):
+        """Ele nao tem `id`: nenhum link manda o operador para ele, e ele nao abre por hash."""
+        _app, cliente, pasta = cliente_de_upload
+        pagina = _pagina(cliente, pasta, CSV_DOIS_KITS)
+        assert re.search(r'<details class="card observacoes-do-arquivo[^"]*" id=', pagina) is None
+
+    @staticmethod
+    def _bloco(pagina):
+        return TestABlocoNaTela._bloco(pagina)

@@ -245,12 +245,19 @@ class TestAAparenciaNaTela:
         A limpeza dos comentarios NAO e' decorativa: o comentario do cartao cita
         `<div class="card-header">` em prosa, e sem tirar o comentario o regex casa ali e o
         teste mede a documentacao em vez do documento.
+
+        E a busca e' ancorada no MARCADOR do cartao de resultado, e nao no primeiro
+        `card-header` do arquivo: desde o adendo 022 o bloco dos avisos do arquivo tambem
+        traz um `card-header`, e ele vem ANTES dos cartoes — o "primeiro do documento" passou
+        a ser o dele.
         """
         import re
 
         sem_comentarios = re.sub(r"\{#.*?#\}", "", template, flags=re.S)
-        cabecalho = re.search(r'(?s)<div class="card-header">(.*?)</div>', sem_comentarios)
-        assert cabecalho, "o cartao perdeu o cabecalho"
+        cabecalho = re.search(
+            r'(?s)<details class="card cartao-do-resultado".*?<div class="card-header">(.*?)</div>',
+            sem_comentarios)
+        assert cabecalho, "o cartao de resultado perdeu o cabecalho"
         assert "identidade-a-confirmar" in cabecalho.group(1), (
             "o sinal de identidade saiu do cabecalho do cartao"
         )

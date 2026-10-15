@@ -112,7 +112,17 @@ TAMANHO_ESPERADO = 16504
 #: +69 bytes e nao fechava com os 15 do seletor, porque eu comparava o HTML do Flask com um render
 #: de Jinja de contexto vazio. `6cc496b4…` (30.768 bytes) → `5e6842be…` (30.783, +15 = o seletor).
 #: A declaracao esta em `_reversa_sdd/addenda/020-bloco-dos-descartados-recolhivel.md`.
-SHA_DA_TELA = "5e6842bec9258e912ca2f04b6a5ae92efa5fc937a4b124a7e77fda4459feedf7"
+#:
+#: **Atualizado em 2026-10-14, pelo adendo `021-seletor-de-arquivos-por-formato`.** Desta vez a
+#: tela de entrada muda de verdade, por um atributo visivel no HTML servido: o campo "Enviar nova
+#: arvore" ganhou `accept=".ged"`, para o seletor de arquivos oferecer so' o formato da aba.
+#: `5e6842be…` (30.745 bytes) → `39c6257f…` (30.759, +14 = exatamente o atributo). O campo do CSV
+#: (`accept=".csv"`) NAO entra no que este hash mede: ele vive no formulario da analise, que so'
+#: existe depois de uma arvore carregada. Os comentarios que explicam os dois campos fecham com
+#: `-#}` para nao acrescentarem whitespace ao documento — sem isso o delta seria +59, e esta
+#: declaracao estaria contando espaco em branco em vez de contar a regra.
+#: A declaracao esta em `_reversa_sdd/addenda/021-seletor-de-arquivos-por-formato.md`.
+SHA_DA_TELA = "39c6257f43419adb15fb521a63a03fdb2193feab6adadd8b10ca11db02fd0560"
 
 
 def _cabecalho_png(corpo: bytes):

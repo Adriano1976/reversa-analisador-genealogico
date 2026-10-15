@@ -168,12 +168,29 @@ def pagina(cliente_de_upload) -> str:
 # A arvore, na tela renderizada
 # ---------------------------------------------------------------------------
 
+def _cabecalhos_dos_cartoes(pagina: str) -> list[str]:
+    """Os `card-header` dos cartoes de RESULTADO, um por cartao.
+
+    O bloco das observacoes do arquivo tambem e' um `details.card` com `card-header` — ele
+    recolhe pela mesma forma, e **nao** e' cartao de resultado. Contar todos misturaria os
+    dois; o corte e' pelo marcador que o template poe so' no cartao (`cartao-do-resultado`).
+    """
+    partes = pagina.split('<details class="card cartao-do-resultado"')[1:]
+    cabecalhos = []
+    for parte in partes:
+        achado = re.search(r'(?s)<div class="card-header">(.*?)</div>', parte)
+        if achado:
+            cabecalhos.append(achado.group(1))
+    return cabecalhos
+
+
 class TestAArvoreDoCartao:
 
     def test_ha_um_details_por_conexao(self, pagina):
         arvore = _arvore(pagina)
-        assert len(arvore.cartoes) == 2, f"cartoes: {arvore.cartoes}"
-        assert {c["id"] for c in arvore.cartoes} == {"resultado-1", "resultado-2"}
+        do_resultado = [c for c in arvore.cartoes if c["do_resultado"]]
+        assert len(do_resultado) == 2, f"cartoes: {arvore.cartoes}"
+        assert {c["id"] for c in do_resultado} == {"resultado-1", "resultado-2"}
 
     def test_todo_details_fecha(self, pagina):
         """O navegador conserta `details` nao fechado — fechando no lugar ERRADO."""
@@ -202,8 +219,12 @@ class TestAArvoreDoCartao:
         assert _arvore(pagina).summary_orfaos == 0
 
     def test_o_cartao_nasce_fechado(self, pagina):
-        """O indice acima ja traz as sete colunas de todas as conexoes; o cartao e o detalhe."""
-        for cartao in _arvore(pagina).cartoes:
+        """A lista de cabecalhos e' a visao geral; o cartao e o detalhe.
+
+        O bloco das observacoes do arquivo fica de FORA desta contagem e nasce ABERTO: ele
+        carrega aviso, e nao detalhe. Ver `tests/test_observacoes_do_arquivo.py`.
+        """
+        for cartao in [c for c in _arvore(pagina).cartoes if c["do_resultado"]]:
             assert not cartao["aberto"], (
                 f"o cartao {cartao['id']} veio com `open`: o recolhimento deixa de ser escolha"
             )
@@ -218,8 +239,8 @@ class TestAArvoreDoCartao:
             r'(?s)<summary class="sumario-do-cartao">\s*<div class="card-header">', pagina), (
             "o `card-header` saiu de dentro do `summary`: o cartao fechado perde o cabecalho"
         )
-        cabecalhos = re.findall(r'(?s)<div class="card-header">(.*?)</div>', pagina)
-        assert len(cabecalhos) == 2
+        cabecalhos = _cabecalhos_dos_cartoes(pagina)
+        assert len(cabecalhos) == 2, f"cabecalhos de cartao de resultado: {len(cabecalhos)}"
         for cabecalho in cabecalhos:
             assert "Análise de conexão com" in cabecalho
             assert "voltar-ao-indice" in cabecalho, "o Voltar vive no cabecalho e nao pode sair"
@@ -253,8 +274,8 @@ class TestONadaSome:
             "a tabela do indice voltou: com os cartoes recolhiveis ela e' uma segunda lista "
             "de resumos, e nao a visao geral"
         )
-        cabecalhos = re.findall(r'(?s)<div class="card-header">(.*?)</div>', pagina)
-        assert len(cabecalhos) == 2
+        cabecalhos = _cabecalhos_dos_cartoes(pagina)
+        assert len(cabecalhos) == 2, f"cabecalhos de cartao de resultado: {len(cabecalhos)}"
         for cabecalho in cabecalhos:
             assert "cabecalho-sinais" in cabecalho, (
                 "o cabecalho perdeu a linha de sinais (Parentesco, Janela de vida, "
@@ -349,9 +370,14 @@ class TestOsAcoplamentosDoRecolhimento:
         assert "stopPropagation" in template
 
     def test_o_alvo_da_ancora_e_o_proprio_details(self, pagina):
-        """A ancora abre o cartao so porque o `id` esta no `<details>`, e nao num filho."""
-        arvore = _arvore(pagina)
-        assert all(c["id"] for c in arvore.cartoes), (
+        """A ancora abre o cartao so porque o `id` esta no `<details>`, e nao num filho.
+
+        O `id` e' exigencia do cartao de RESULTADO: o bloco das observacoes do arquivo tem
+        `details.card` sem `id` nenhum, e nao ha ancora que o alcance.
+        """
+        do_resultado = [c for c in _arvore(pagina).cartoes if c["do_resultado"]]
+        assert do_resultado, "nao ha cartao de resultado para conferir"
+        assert all(c["id"] for c in do_resultado), (
             "o `id` saiu do `details`: o hash deixa de encontrar o elemento que abre"
         )
 
