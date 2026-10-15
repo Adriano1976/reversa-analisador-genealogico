@@ -57,7 +57,7 @@ proximo = pagina.find('<div class="card" id="resultado-', i + 1)
 bloco = pagina[i:proximo if proximo != -1 else i + 20000]
 texto = " ".join(re.sub(r"<[^>]+>", " ", bloco).split())
 
-for rotulo in ("Parentesco encontrado:", "Caminho genealógico no GEDCOM:",
+for rotulo in ("Parentesco do registro escolhido:", "Caminho genealógico no GEDCOM:",
                "Ancestral comum (MRCA)", "Distância geracional:"):
     j = texto.find(rotulo)
     if j != -1:
