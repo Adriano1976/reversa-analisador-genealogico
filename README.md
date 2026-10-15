@@ -682,7 +682,13 @@ com mensagem na tela, e nunca com erro do servidor.
   cartão nenhum. A frase também deixou de ser o recibo da contabilidade do programa e virou fato dos
   dados: nomeia o nome, cada kit com o seu valor, a soma que não pode ser feita e o parentesco que essa
   soma faria acreditar. O bloco fica **fora** da guarda dos resultados, porque com zero cartões o aviso
-  do arquivo é justamente o que explica o zero. Ver o adendo `017`.
+  do arquivo é justamente o que explica o zero. Ver os adendos `017` e `022`.
+- **Os três blocos recolhíveis, e por que dois nascem fechados e um não:** cada análise de conexão é
+  um `<details>` **fechado** por padrão (é o detalhe), o grupo *Matches descartados* também (é o
+  rodapé), e o bloco *"Observações do arquivo"* nasce **aberto** — ele carrega **aviso**, e esconder
+  aviso atrás de um clique desfaria o motivo de o adendo `017` tê-lo tirado de dentro dos cartões. Os
+  botões **Expandir/Recolher todas as análises** atuam só sobre os cartões de resultado. Ver o
+  adendo `022`.
 - **Cartão de resultado recolhível:** cada análise de conexão é um `<details>` **fechado por
   padrão**, e o cabeçalho — que embrulha o cartão inteiro como `<summary>` — é a **visão geral da
   lista**: traz o nome, o cM, o parentesco, a janela de vida, a profundidade e os vereditos, de modo
@@ -706,6 +712,14 @@ com mensagem na tela, e nunca com erro do servidor.
   Recolher todas as análises": aqueles falam das análises, e arrastar centenas de descartes junto
   seria surpresa — o que exigiu um marcador explícito (`cartao-do-resultado`) nos cartões de
   análise, já que o seletor genérico alcançaria os dois blocos. Ver o adendo `020`.
+- **O seletor de arquivos oferece só o formato de cada aba:** o campo **"Enviar nova árvore"** traz
+  `accept=".ged"` e o campo do relatório traz `accept=".csv"`, de modo que o seletor do sistema não
+  oferece arquivos de outro tipo. É **filtro de interface, e não barreira**: quem escolher "Todos os
+  arquivos" — ou arrastar o arquivo para o campo — envia o que quiser, e a validação continua sendo
+  a de **conteúdo** (`0 HEAD`), mantida assim pela `RISK-007` para não recusar GEDCOM de exportador
+  legítimo com extensão atípica. O valor é por extensão, e não por tipo MIME: no Windows o `.csv`
+  costuma estar registrado como `application/vnd.ms-excel`, e `text/csv` esconderia arquivos
+  legítimos. Só `.ged`, e não `.gedcom`, porque é a extensão que decide a aba. Ver o adendo `021`.
 - **Possibilidades pelo DNA:** apresenta relações compatíveis segundo o Shared cM Project 4.0, sem afirmar
   um parentesco único.
 - **Confronto GEDCOM × DNA:** retorna COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO e explica as causas
