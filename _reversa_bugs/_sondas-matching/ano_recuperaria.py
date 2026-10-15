@@ -35,7 +35,7 @@ from reporting.mermaid_render import (  # noqa: E402
     generate_mermaid_graph_indirect_bridge,
 )
 
-GED = os.path.join(R, "src", "uploads", "46733fab20ef75fa__Arvore_Unificada_Oficial_V1_2.ged")
+GED = os.path.join(R, "src", "uploads", "0fa3699e246caae1__Arvore_Unificada_Oficial_V1_2.ged")
 CSV = os.path.join(R, "src", "uploads", "03f50d273442cef1__Famílias_Sergipanas.csv")
 
 
@@ -74,6 +74,7 @@ def main():
     sem_ano_escolhido = 0
     implausivel_sem_alternativa = 0
     recuperaveis = []
+    sem_ano_travados = []
     for resultado in resultados:
         documento = resultado.get("documentary") or {}
         do_registro = resultado.get("documentary_do_registro") or documento
@@ -85,6 +86,13 @@ def main():
         ano_escolhido = ano_de_nascimento(arvore, pessoa_b)
         if ano_escolhido is None:
             sem_ano_escolhido += 1
+            fichas = homonym_dossier(arvore, nome_csv)["exact_matches"]
+            sem_ano_travados.append({
+                "nome": nome_csv, "kit": resultado.get("kit"), "pessoa": pessoa_b,
+                "candidatos": len(fichas),
+                "candidatos_com_ano": sum(1 for f in fichas
+                                          if ano_de_nascimento(arvore, f["id"])),
+            })
             continue
         plausivel = ano_escolhido > limite
         if plausivel:
@@ -107,6 +115,14 @@ def main():
         lista = ", ".join(f"{i}={a}" for i, a in boas)
         print(f"    {str(nome)[:30]:<30} kit {str(kit):<11} escolhido={ano_ruim}  "
               f"alternativa(s) plausivel(is): {lista}")
+
+    print("\n" + "=" * 104)
+    print("OS CARTOES TRAVADOS POR FALTA DE DATA — onde preencher o GEDCOM vale mais")
+    print("=" * 104)
+    for registro in sem_ano_travados:
+        print(f"    {str(registro['nome'])[:30]:<30} kit {str(registro['kit']):<11} "
+              f"registro {registro['pessoa']:<14} candidatos={registro['candidatos']} "
+              f"com_ano={registro['candidatos_com_ano']}")
 
     print("\n" + "=" * 104)
     print("RESUMO")
