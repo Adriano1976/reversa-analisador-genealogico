@@ -114,12 +114,19 @@ justificar no `progress.jsonl`. **É ato deliberado, não atalho.**
 - **`templates/documentation/` NÃO existe neste repositório.** O `.state.json` do site registra
   exatamente isso: sem `viewer.html`, `.tpl`, `sidebar.js`, `extract_modules.py`,
   `extract_deps.py`, `convert_chronicle.py` nem `convert_soul.py`. A execução de 2026-10-06 foi
-  feita com **scripts determinísticos próprios**, guardados em `.reversa/`: `_docs_extract_modules.py`,
+  feita com **scripts determinísticos próprios**, guardados em `.reversa/` — **movidos para
+  `_docs_auxiliary/` em 2026-10-16**: `_docs_extract_modules.py`,
   `_docs_extract_metrics.py`, `_docs_extract_features.py`, `_docs_nav.py`, `_docs_build_datajs.py`,
   `_docs_inject_pages.py`, `_docs_smoke_test.py`, `_docs_render_check.js`, `_docs_state.py`,
   `_docs_finalize.py`, `_docs_fix_whatchanged.py`, `_docs_inline_hero.py`, `_docs_seal.py`,
   `_docs_telemetry.py`, `_docs_step8_check.py` (16 arquivos). **Eles são o caminho de trabalho
   comprovado** — se o skill padrão não fechar, use-os.
+
+  > **Nota de 2026-10-16.** Os scripts saíram de `.reversa/` para `_docs_auxiliary/`; os nomes não
+  > mudaram. E a publicação de `_reversa_docs/` em `docs/` deixou de ser o `_docs_sync_vault.py` em
+  > 2026-10-10: quem publica agora é `publicar_docs.py`, na raiz, que além de copiar aplica os quatro
+  > ajustes de publicação (título, `apple-touch-icon`, brand e `h1`) e tem `--conferir` para provar o
+  > resultado byte a byte. Os dois comandos abaixo já apontam para o caminho novo.
 - **`_reversa_docs/` é versionado pelo git** (31 arquivos rastreados) e **não** está no
   `.gitignore`. Mudanças aparecem em `git status` e o commit é decisão do operador.
 - **Não existe backup do site no disco agora.** O `.state.json` cita
@@ -133,9 +140,9 @@ justificar no `progress.jsonl`. **É ato deliberado, não atalho.**
   **SVG inline** (não `<img>`), e o `data.js` tem **11 chaves** de dados. Leia
   `_reversa_docs/.state.json` antes de mexer.
 - **Verificações que o pipeline de 2026-10-06 usou, e que valem repetir:**
-  `node .reversa/_docs_render_check.js` (carrega o `data.js` num `window` falso e confere o
+  `node _docs_auxiliary/_docs_render_check.js` (carrega o `data.js` num `window` falso e confere o
   inventário, os 10 itens do nav e a sintaxe do script inline das 10 páginas) e
-  `.venv/Scripts/python.exe .reversa/_docs_smoke_test.py` (sobe `http.server` efêmero, faz GET
+  `.venv/Scripts/python.exe _docs_auxiliary/_docs_smoke_test.py` (sobe `http.server` efêmero, faz GET
   nas 10 páginas e nos 29 assets, e valida links relativos contra o disco).
 
 ## 8. Regras que não podem ser violadas

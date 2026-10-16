@@ -26,11 +26,11 @@ foi mantido nas duas rodadas em vez de ser marcado sem execução.
 ## Comandos de verificação e resultado
 
 ```text
-node .reversa/_docs_render_check.js
+node _docs_auxiliary/_docs_render_check.js
   -> data.js x assets/data/: 6/6 chaves iguais; nav com 10 itens resolvendo no disco;
      script inline das 10 páginas compila. RESULTADO: tudo verde
 
-.venv/Scripts/python.exe .reversa/_docs_smoke_test.py
+.venv/Scripts/python.exe _docs_auxiliary/_docs_smoke_test.py
   -> páginas verificadas no servidor: 10/10
      assets locais verificados por GET: 28
      erros do smoke test: 0

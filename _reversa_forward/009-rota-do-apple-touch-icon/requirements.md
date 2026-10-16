@@ -47,7 +47,7 @@ entrega **acrescenta** um recurso e não toca em nada que já existe.
 >
 > 1. **O ícone da aba já foi resolvido por dentro do documento, e essa solução não serve para o
 >    atalho.** O `data URI` é a resposta certa para a aba — não cria rota nova, que é uma
->    restrição declarada do próprio gerador (`.reversa/_favicon.py`: *"nao cria rota nova (a
+>    restrição declarada do próprio gerador (`_docs_auxiliary/_favicon.py`: *"nao cria rota nova (a
 >    aplicacao tem rota unica, documentada)"*). Para o atalho ele é **inerte**: o sistema móvel
 >    não lê a imagem do documento, ele busca o caminho convencional.
 > 2. **A arte tem fundo transparente, e isso é um defeito visível na tela inicial.** O sistema

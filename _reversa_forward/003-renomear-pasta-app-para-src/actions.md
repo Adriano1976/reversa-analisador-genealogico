@@ -140,10 +140,10 @@ afirmação de arquitetura que não valiam mais.
 
 1. `_reversa_docs/assets/data/modules.json` e `deps.json` — 61 módulos, 10 pastas, 8 nós, 20
    arestas e `cycles: []`, extraídos do código por script determinístico.
-2. `node .reversa/_docs_render_check.js` — confere que o `data.js` embute exatamente os seis JSONs
+2. `node _docs_auxiliary/_docs_render_check.js` — confere que o `data.js` embute exatamente os seis JSONs
    de `assets/data/`, que os 10 itens de nav resolvem no disco e que o script inline das 10 páginas
    compila. Resultado: **tudo verde**.
-3. `.venv/Scripts/python.exe .reversa/_docs_smoke_test.py` — sobe `http.server` efêmero, faz GET nas
+3. `.venv/Scripts/python.exe _docs_auxiliary/_docs_smoke_test.py` — sobe `http.server` efêmero, faz GET nas
    10 páginas e nos 28 assets locais e valida os links relativos. Resultado: **10/10 páginas em 200,
    0 erros, 0 links quebrados**.
 4. `_reversa_docs/.state.json` — telemetria com as duas execuções, os hashes de cada artefato e o

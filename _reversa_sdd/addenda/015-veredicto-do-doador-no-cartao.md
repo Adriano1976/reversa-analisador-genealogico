@@ -118,7 +118,7 @@ obrigar a declarar, e não porque a tela de entrada tenha sido redesenhada.
 - `_reversa_bugs/_sondas-matching/avaliar_regra_nao_encontrado.py` — a sonda que mediu o alcance da
   regra proposta e as três consequências.
 - `_reversa_bugs/_sondas-matching/avaliar_proposta_margarida.py` — a sonda das quatro sugestões.
-- `.reversa/correcao-de-precisao-20261014-profundidade-do-caminho.md` — a verificação de profundidade,
+- `_docs_auxiliary/correcao-de-precisao-20261014-profundidade-do-caminho.md` — a verificação de profundidade,
   de que este bloco é vizinho.
 - `src/templates/index.html`, `src/assets/app.css`,
   `tests/test_profundidade_do_caminho.py::TestOCartaoDoDoadorImpossivel`.
