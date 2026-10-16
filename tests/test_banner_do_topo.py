@@ -116,13 +116,15 @@ class TestRotaDaArte:
         assert repetida.get_data() == b""
 
     def test_arte_ausente_devolve_404_e_a_tela_continua_de_pe(self, cliente_de_upload, monkeypatch):
-        """`RN-08` e `RN-23`, emendada em 2026-10-11: sem a arte, o titulo tem de APARECER.
+        """`RN-08`: a arte pode faltar, e a tela nao pode cair por causa dela.
 
-        **Este teste media a coisa errada ate 2026-10-11.** Ele procurava `TITULO_NA_TELA` em
-        qualquer lugar do documento, e o texto continua no HTML mesmo quando a folha o esconde —
-        entao ele passava enquanto o operador ficava **sem titulo nenhum**: o `alt` descreve a
-        ilustracao, nao o produto, e o subtitulo e em ingles. Agora ele prende o EFEITO, que e o
-        que ele sempre prometeu no docstring: sem a arte, o `<h1>` volta a ser visivel.
+        **Este teste media a coisa errada ate 2026-10-11** — procurava `TITULO_NA_TELA` em
+        qualquer lugar do documento, e o texto continua no HTML mesmo quando a folha o esconde.
+        Ele passava enquanto o operador ficava **sem titulo nenhum**.
+
+        Hoje a assercao e a mesma, mas o motivo mudou: o `<h1>` e **sempre visivel** desde
+        2026-10-16 (a arte nova nao traz o texto), entao a linha virou guarda contra alguem
+        voltar a esconde-lo.
         """
         app, cliente, _pasta = cliente_de_upload
         monkeypatch.setitem(app.config, "ARTE_DO_TOPO", os.path.join(_RAIZ, "nao-existe.png"))
@@ -133,8 +135,8 @@ class TestRotaDaArte:
         corpo = tela.get_data(as_text=True)
         assert TITULO_NA_TELA in corpo, "o titulo sumiu do documento quando a arte falta"
         assert "visually-hidden" not in _classe_do_h1(corpo), (
-            "sem a arte o `h1` ficou escondido: o operador fica sem nenhuma identificacao do "
-            "produto em portugues, que e o caso que este teste existe para impedir"
+            "o `h1` ficou escondido: o operador fica sem nenhuma identificacao do produto em "
+            "portugues, que e o caso que este teste existe para impedir"
         )
 
 
@@ -214,18 +216,27 @@ class TestTopoDaTela:
             "o titulo ANTIGO voltou para a tela: era para ele ter saido na `RN-16` e nao voltar"
         )
 
-    def test_o_titulo_so_e_escondido_quando_a_arte_esta_na_tela(self, cliente_de_upload):
-        """`RN-23` emendada em 2026-10-11: o `h1` duplica a arte, entao ele cede enquanto ela vem.
+    def test_o_titulo_do_produto_esta_sempre_visivel(self, cliente_de_upload):
+        """`RN-23`: o titulo e **texto visivel**, e nao depende da arte.
 
-        A arte do topo ja desenha "Analisador Genealogico". Com os dois visiveis, o produto se
-        nomeia duas vezes, uma logo abaixo da outra; sem a arte, esconder o `h1` deixaria o
-        operador sem titulo nenhum. A emenda e a condicao: escondido **se, e somente se,** a arte
-        responde — e quem responde isso e o servidor (`arte_do_topo_disponivel`), nao o CSS.
+        ## A condicao que existiu aqui, e por que ela saiu
+
+        Entre 2026-10-11 e 2026-10-16 o `h1` era escondido **enquanto a arte do topo respondesse**,
+        porque aquela arte trazia "Analisador Genealogico" DESENHADO: com os dois visiveis, o
+        produto se nomeava duas vezes, uma logo abaixo da outra. Quem respondia era o servidor
+        (`arte_do_topo_disponivel`, um processador de contexto), e nao o CSS — folha de estilo nao
+        sabe se uma imagem carregou.
+
+        A arte trocada em 2026-10-16 **nao tem o texto**, entao a condicao perdeu o objeto:
+        esconder o `h1` passaria a deixar a tela sem nenhuma identificacao do produto em portugues
+        (o subtitulo e em ingles e o `alt` descreve a ilustracao). O que este teste prende, a partir
+        dai, e a `RN-23` **como ela esta escrita** — sem emenda.
         """
         _app, cliente, _pasta = cliente_de_upload
 
-        assert "visually-hidden" in _classe_do_h1(self._corpo(cliente)), (
-            "com a arte na tela, o `h1` visivel repete o titulo que a arte ja desenha"
+        assert "visually-hidden" not in _classe_do_h1(self._corpo(cliente)), (
+            "o `h1` voltou a ser escondido: a arte atual nao traz o titulo, entao a tela ficaria "
+            "sem nenhuma identificacao do produto em portugues"
         )
 
     def test_o_h1_carrega_o_titulo_em_texto(self, cliente_de_upload):
@@ -364,16 +375,27 @@ class TestArteDerivada:
     def test_a_arte_nao_perdeu_as_partes_claras_que_sao_arte(self, arte):
         """O outro lado do risco: a regra que remove fundo claro nao pode furar a pintura.
 
-        ## Estes pontos foram MEDIDOS na composicao de 2026-10-10
+        ## Estes pontos foram MEDIDOS na composicao de 2026-10-16
 
-        Todos verificados como opacos no arquivo de runtime. Eles cobrem as duas famílias de risco:
+        Todos verificados como opacos no arquivo de runtime. Eles cobrem as duas familias de
+        risco:
 
         - **arte ESCURA e pouco saturada** (capa `sat=53`, lombada `sat=35`, base do livro
           `sat=22`) — o que um limite de brilho baixo demais comecaria a comer;
-        - **arte CLARA e quase neutra** (o preenchimento do texto dourado, `sat~24`) — o que um
-          teto de saturacao largo demais come, e foi o defeito MEDIDO: com um unico limite de
-          brilho, as letras de "Analisador Genealogico" ficaram OCAS. A correcao esta em
-          `_e_fundo`, que usa teto estreito na faixa de 160 a 190.
+        - **arte CLARA e quase neutra** — o que um teto de saturacao largo demais come. Os dois
+          pontos centrais sao desta familia, e foram escolhidos a **>= 4 px de qualquer pixel de
+          fundo**: prendem TINTA, e nao a antialiasing da borda.
+
+        ## O ponto que saiu em 2026-10-16, e por que ele caiu
+
+        A composicao anterior tinha um ponto no **preenchimento do texto dourado**
+        (`(270, 212)`, `sat~24`), e era ele que prendia a faixa ESTREITA de saturacao — foi com um
+        teto unico que as letras de "Analisador Genealogico" ficaram OCAS.
+
+        A arte atual **nao tem o texto**: `(270, 212)` virou fundo e este teste caiu, corretamente.
+        A familia continua representada pelos dois pontos centrais; a contagem que a prende sem
+        depender de um pixel esta em
+        `test_a_faixa_estreita_de_saturacao_continua_protegendo_tinta`.
 
         Se alguem "resolver" um residuo de fundo baixando o brilho ou alargando a saturacao, um
         destes pontos vira buraco e este teste cai.
@@ -384,7 +406,8 @@ class TestArteDerivada:
             "folha alta direita": (860, 75),
             "galho esquerdo": (300, 130),
             "galho direito": (700, 130),
-            "preenchimento do texto (A)": (270, 212),
+            "tinta clara e quase neutra, no centro (1)": (511, 255),
+            "tinta clara e quase neutra, no centro (2)": (489, 377),
             "pagina esquerda": (430, 360),
             "pagina direita": (600, 360),
             "lombada": (512, 420),
@@ -395,3 +418,41 @@ class TestArteDerivada:
             assert rgba.getpixel((x, y))[3] == 255, (
                 f"a arte perdeu {rotulo} em ({x}, {y}): a remocao de fundo comeu tinta"
             )
+
+    def test_a_faixa_estreita_de_saturacao_continua_protegendo_tinta(self, arte):
+        """A contagem que prende a faixa estreita sem depender de um pixel so'.
+
+        `_e_fundo` trata a faixa de 160 a 190 com teto de saturacao **estreito** (12), porque
+        ali o fundo e cinza neutro (`sat` 0..7) e a tinta clara e levemente quente. Se o teto
+        voltar a ser o largo (50), **toda** a tinta dessa faixa vira fundo — foi o defeito medido
+        que deixou as letras de "Analisador Genealogico" ocas na composicao anterior.
+
+        ## Os numeros sao medidos, nao escolhidos
+
+        Na arte derivada de 2026-10-16: **455 pixels** opacos nesta faixa. Com o teto largo:
+        **zero**. O piso de 150 fica com folga de 3x para baixo de proposito — pixels de borda
+        mudam com qualquer ajuste na segunda passada da receita, e o que este teste prende e a
+        ORDEM DE GRANDEZA, nao o valor exato.
+
+        Este teste existe porque o ponto por pixel que fazia esse papel saiu com o texto: sem ele,
+        alargar o teto passaria despercebido.
+        """
+        rgba = arte.convert("RGBA")
+        pixels = rgba.load()
+        largura, altura = rgba.size
+
+        na_faixa = 0
+        for y in range(altura):
+            for x in range(largura):
+                r, g, b, alfa = pixels[x, y]
+                if alfa != 255:
+                    continue
+                maior, menor = max(r, g, b), min(r, g, b)
+                if 160 <= maior < 190 and 12 < (maior - menor) <= 50:
+                    na_faixa += 1
+
+        assert na_faixa >= 150, (
+            f"so' {na_faixa} pixels opacos na faixa estreita de saturacao (medido: 455). O teto "
+            "de `SATURACAO_MINIMA_ESCURA` foi alargado, ou o brilho minimo baixou, e a tinta clara "
+            "da arte esta sendo tratada como fundo"
+        )

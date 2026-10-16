@@ -435,29 +435,21 @@ def banner_do_topo():
     return send_file(caminho, mimetype="image/png")
 
 
-# A arte do topo traz "Analisador Genealogico" DESENHADO nela, entao o `<h1>` fica `visually-hidden`
-# enquanto ela responde: mostrar os dois nomearia o produto duas vezes, uma logo abaixo da outra. O
-# `<h1>` nao sai do documento — ele continua sendo o titulo de nivel 1 para leitor de tela e buscador.
+# O processador de contexto `_arte_do_topo_disponivel` EXISTIU aqui, e saiu em 2026-10-16 junto com a
+# condicao que ele alimentava no template. O registro fica porque a ideia pode voltar.
 #
-# A CONDICAO E DO SERVIDOR, e nao do navegador. O CSS nao sabe se uma imagem carregou, e o JS so
-# descobriria depois de a pagina pintar — tarde para quem ja leu o topo. Aqui a pergunta e feita antes
-# de renderizar, e `os.path.isfile` e a MESMA pergunta que a rota responde em `404`: as duas nao podem
-# divergir.
+# Ele respondia "a arte do topo esta no disco?" para o `<h1>` se esconder quando ela responde. Fazia
+# sentido enquanto a arte trazia "Analisador Genealogico" DESENHADO: com os dois visiveis, o produto se
+# nomeava duas vezes, uma logo abaixo da outra. E a condicao era do SERVIDOR, e nao do CSS, porque folha
+# de estilo nao sabe se uma imagem carregou.
 #
-# POR QUE ISSO IMPORTA. Sem a arte, esconder o `<h1>` deixaria o operador com o subtitulo em ingles e
-# **nenhuma** identificacao do produto em portugues. Era o caso que o `RN-08` declara suportado (a arte
-# pode faltar e a tela continua de pe) e que ficou descoberto quando o `<h1>` passou a ser escondido.
+# A arte trocada em 2026-10-16 **nao tem o texto** (ver `docs/assets/img/banner-analisador.png`), entao
+# a condicao perdeu o objeto: esconder o `<h1>` passaria a deixar a tela sem NENHUMA identificacao do
+# produto em portugues — o subtitulo e em ingles e o `alt` descreve a ilustracao. O `<h1>` volta a ser
+# sempre visivel e a `RN-23` volta a valer como esta escrita.
 #
-# Vem por processador de contexto, e nao por argumento nos oito `render_template`, pelo mesmo motivo das
-# listas: seriam oito lugares para esquecer um.
-@app.context_processor
-def _arte_do_topo_disponivel():
-    """`True` enquanto o arquivo da arte do topo estiver no disco.
-
-    Lida de `app.config` a cada renderizacao, e nao capturada no import: e o que permite ao teste
-    apontar `ARTE_DO_TOPO` para um caminho inexistente e medir a tela sem a arte.
-    """
-    return {"arte_do_topo_disponivel": os.path.isfile(app.config["ARTE_DO_TOPO"])}
+# SE A ARTE VOLTAR A TRAZER O TITULO, a condicao volta a fazer sentido: um processador de contexto com
+# `os.path.isfile(app.config["ARTE_DO_TOPO"])`, que e a MESMA pergunta que a rota responde em `404`.
 
 
 # --- A folha de estilo da tela ---

@@ -122,7 +122,22 @@ TAMANHO_ESPERADO = 16504
 #: `-#}` para nao acrescentarem whitespace ao documento — sem isso o delta seria +59, e esta
 #: declaracao estaria contando espaco em branco em vez de contar a regra.
 #: A declaracao esta em `_reversa_sdd/addenda/021-seletor-de-arquivos-por-formato.md`.
-SHA_DA_TELA = "39c6257f43419adb15fb521a63a03fdb2193feab6adadd8b10ca11db02fd0560"
+#:
+#: **Atualizado em 2026-10-16, pela troca da arte do topo.** A arte nova
+#: (`docs/assets/img/banner-analisador.png`, 1024x547) NAO traz "Analisador Genealogico" desenhado.
+#: Com isso o `<h1>` voltou a ser SEMPRE visivel: a condicao que o escondia enquanto a arte
+#: respondia (`arte_do_topo_disponivel`, um processador de contexto) perdeu o objeto e saiu junto,
+#: de `src/app.py` e do template. `39c6257f…` (30.759 bytes) → `c4a34f7b…` (30.781).
+#:
+#: A contribuicao DESTA mudanca e **-16 bytes** — exatamente o ` visually-hidden` que saiu da classe
+#: do `h1`. Os +38 restantes do delta sao de edicoes **em curso e nao commitadas** de outra sessao no
+#: mesmo template: medido, e nao deduzido, porque o valor anterior veio do commit do adendo `021` e o
+#: template esta modificado na arvore. Este hash mede a TELA, entao ele acusa as duas coisas juntas.
+#:
+#: Com o titulo de volta, a **`RN-23` volta a valer como esta escrita**: a emenda que o adendo `013`
+#: registrou ("escondido se, e somente se, a arte responder") foi RETIRADA. A declaracao desta
+#: entrega esta em `_reversa_sdd/addenda/023-arte-do-topo-sem-o-titulo.md`.
+SHA_DA_TELA = "c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0"
 
 
 def _cabecalho_png(corpo: bytes):

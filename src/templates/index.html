@@ -192,16 +192,14 @@
                                  alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
                                  class="img-fluid w-50">
                             <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
-                            {# O `<h1>` SO e escondido enquanto a arte ESTA na tela. A arte do topo ja
-                               traz "Analisador Genealógico" desenhado, entao os dois visiveis
-                               nomeariam o produto duas vezes, uma logo abaixo da outra; e sem a
-                               arte, escondê-lo deixaria o operador sem nenhuma identificacao em
-                               portugues. A condicao vem do SERVIDOR (`arte_do_topo_disponivel`),
-                               porque o CSS nao sabe se uma imagem carregou.
-
-                               O texto nunca sai do documento: escondido ou nao, ele e o titulo de
-                               nivel 1 para leitor de tela e buscador. #}
-                            <h1 class="card-title mb-3{% if arte_do_topo_disponivel %} visually-hidden{% endif %}">Analisador Genealógico</h1>
+                            {# O `<h1>` e SEMPRE visivel, e a `RN-23` volta a valer como esta escrita.
+                               Ele chegou a ser escondido enquanto a arte do topo trazia "Analisador
+                               Genealógico" desenhado — com os dois visiveis, o produto se nomeava
+                               duas vezes, uma logo abaixo da outra. A arte trocada em 2026-10-16
+                               **nao tem o texto**, entao esconder o `h1` deixaria a tela sem
+                               nenhuma identificacao do produto em portugues: o subtitulo e em
+                               ingles e o `alt` descreve a ilustracao. #}
+                            <h1 class="card-title mb-3">Analisador Genealógico</h1>
                             {# O texto de apresentacao fica CENTRALIZADO e numa coluna mais
                                estreita que o cartao, na mesma forma organizada da documentacao
                                do projeto.
