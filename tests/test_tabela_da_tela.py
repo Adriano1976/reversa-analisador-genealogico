@@ -163,20 +163,47 @@ class TestTabelaComColunas:
         assert CHAVE_A not in visivel, "a chave de conteudo virou TEXTO na tabela"
 
 
-    def test_a_coluna_tamanho_traz_o_valor_formatado(self, cliente_de_upload):
+    def test_a_coluna_tamanho_traz_o_valor_na_unidade_certa(self, cliente_de_upload):
         """`T020`: o item mostra o TAMANHO, e nao so o rotulo da coluna.
 
-        Lacuna medida em 2026-10-10: o cabecalho `Tamanho` era assertado, e o **valor** nao era
-        assertado em lugar nenhum. Um arquivo de 1200 bytes da um literal conhecido (`1.200
-        bytes`, com o separador de milhar brasileiro), entao a assercao nao depende do proprio
-        filtro para saber o que esperar.
+        **Atualizado em 2026-10-16, a pedido do operador.** A coluna mostrava o total em bytes
+        (`1.200 bytes`) e passou a mostrar a unidade que se le de relance — `8,54 MB` em vez de
+        `8.955.472 bytes`.
+
+        O arquivo tem exatamente **1 MB** (1.048.576 bytes), o primeiro valor da faixa de MB,
+        entao o literal esperado nao depende do proprio filtro para saber o que esperar.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        _guardar(pasta, f"{CHAVE_A}__arvore.ged", b"x" * (1024 * 1024))
+
+        assert "1 MB" in _corpo(cliente), "a coluna Tamanho nao trouxe o valor em MB"
+
+    def test_arquivo_abaixo_de_1_mb_sai_em_kb(self, cliente_de_upload):
+        """O corte em 1 MB, medido na tela e nao so' na funcao.
+
+        Sem o corte, os CSVs deste acervo — 56.307 bytes — apareceriam como `0,05 MB`, que
+        ninguem le. Com ele, a mesma faixa sai em KB.
+        """
+        _app, cliente, pasta = cliente_de_upload
+        _guardar(pasta, f"{CHAVE_A}__arvore.ged", b"x" * (55 * 1024))
+
+        assert "55 KB" in _corpo(cliente), "arquivo abaixo de 1 MB nao saiu em KB"
+
+    def test_o_numero_exato_de_bytes_continua_na_celula(self, cliente_de_upload):
+        """O `title` da celula — o numero exato que a unidade curta nao mostra.
+
+        `1,17 KB` nao diz quantos bytes o arquivo tem, e duas versoes do mesmo CSV podem diferir
+        por poucos bytes. O `title` e' o que mantem o dado exato a um hover de distancia.
         """
         _app, cliente, pasta = cliente_de_upload
         _guardar(pasta, f"{CHAVE_A}__arvore.ged", b"x" * 1200)
 
         corpo = _corpo(cliente)
 
-        assert "1.200 bytes" in corpo, "a coluna Tamanho nao trouxe o valor do arquivo"
+        assert "1,17 KB" in corpo, "pre-condicao: 1200 bytes dao 1,17 KB"
+        assert 'title="1.200 bytes"' in corpo, (
+            "o numero exato em bytes saiu da celula: nao sobra onde ler o tamanho real do arquivo"
+        )
 
     def test_a_aba_de_dna_tem_as_mesmas_colunas(self, cliente_de_upload):
         """`T020` diz "as duas listas", e o teste so olhava a de arvore.
@@ -229,3 +256,54 @@ class TestFormatarDataBr:
     def test_instante_impossivel_devolve_celula_vazia_e_nao_excecao(self, valor):
         """Uma celula de data nao pode derrubar a tela de entrada inteira com `500`."""
         assert formatar_data_br(valor) == ""
+
+
+class TestOFormatoDoTamanho:
+    """`formatar_tamanho`: a unidade e a precisao, medidas nas BORDAS.
+
+    Os testes de rota acima provam que a coluna usa o filtro; estes provam o que o filtro faz nos
+    pontos em que ele decide — o corte de 1 MB e o arredondamento de duas casas. Sao testes de
+    UNIDADE de proposito: um caso de fronteira de um byte nao se monta pela tela sem escrever um
+    arquivo de 1 MB menos um byte.
+    """
+
+    @pytest.mark.parametrize("quantidade,esperado", [
+        (0, "0 KB"),
+        (512, "0,5 KB"),
+        (1024, "1 KB"),
+        (1200, "1,17 KB"),
+        (55 * 1024, "55 KB"),
+        # O byte ANTES do corte: arredonda para 1024 KB, e nao para 1 MB. E' a consequencia
+        # honesta de um corte exato, e nenhum arquivo real cai nesta largura de um byte.
+        (1024 * 1024 - 1, "1024 KB"),
+        (1024 * 1024, "1 MB"),
+        (1024 * 1024 + 1, "1 MB"),
+        (8_955_472, "8,54 MB"),
+        (100 * 1024 * 1024, "100 MB"),
+    ])
+    def test_a_unidade_e_a_precisao(self, quantidade, esperado):
+        from utils.number_format import formatar_tamanho
+
+        assert formatar_tamanho(quantidade) == esperado
+
+    def test_zeros_a_direita_saem(self):
+        """`100 MB`, e nao `100,00 MB` — a mesma politica de `formatar_cm`."""
+        from utils.number_format import formatar_tamanho
+
+        assert formatar_tamanho(100 * 1024 * 1024) == "100 MB"
+        assert formatar_tamanho(1024) == "1 KB"
+
+    @pytest.mark.parametrize("valor", [None, "", "nao e numero"])
+    def test_valor_ausente_vira_travessao_e_nao_excecao(self, valor):
+        """Ausencia de dado nao e' dado zero: vira travessao, como em `formatar_inteiro`."""
+        from utils.number_format import formatar_tamanho
+
+        assert formatar_tamanho(valor) == "—"
+
+    def test_a_base_e_1024_e_nao_1000(self):
+        """A mesma base do teto de upload (`TETO_DE_UPLOAD_EM_MB`), para nao haver dois numeros
+        para o mesmo arquivo."""
+        from utils.number_format import formatar_tamanho
+
+        assert formatar_tamanho(1024 * 1024) == "1 MB"
+        assert formatar_tamanho(1_000_000) == "976,56 KB"

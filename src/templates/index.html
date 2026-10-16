@@ -46,7 +46,13 @@
                         {% endif %}
                     </td>
                     <td class="text-end">{{ item.quantidade }}</td>
-                    <td class="text-end text-muted small text-nowrap">{{ item.bytes | inteiro_br }} bytes</td>
+                    {# O tamanho visivel passou a ser na unidade que se le de relance, a pedido do
+                       operador (2026-10-16): `8,54 MB` e `55 KB` leem melhor do que `8.955.472 bytes`
+                       e `56.307 bytes`. Abaixo de 1 MB o filtro troca para KB sozinho.
+                       O numero EXATO em bytes NAO foi perdido — ele vive no `title` da celula, e e
+                       o que garante que dois arquivos de tamanhos proximos nunca fiquem com o mesmo
+                       texto sem forma de distingui-los. #}
+                    <td class="text-end text-muted small text-nowrap" title="{{ item.bytes | inteiro_br }} bytes">{{ item.bytes | tamanho_br }}</td>
                     <td class="text-muted small text-nowrap" title="Data de modificação do arquivo no disco">{{ item.modificado_em | data_br }}</td>
                     <td class="text-center">
                         <span class="d-inline-flex align-items-center gap-2">

@@ -36,7 +36,7 @@ from ports.adaptadores import (
     CarregadorDeArvoresGedcom,
     RegistroDeAnalisesPostgres,
 )
-from utils.number_format import formatar_cm, formatar_inteiro
+from utils.number_format import formatar_cm, formatar_inteiro, formatar_tamanho
 
 # As dependencias de borda que o nucleo consome (RF-09): leitura de CSV e
 # emissao de diagrama. Montadas UMA vez, aqui na borda, e injetadas nos fluxos
@@ -122,6 +122,11 @@ app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
 app.add_template_filter(formatar_cm, "cm_br")
 app.add_template_filter(formatar_inteiro, "inteiro_br")
+# O tamanho dos arquivos da lista, na unidade que se le de relance: `8,54 MB`, `55 KB`.
+# Nasceu em 2026-10-16, a pedido do operador: a coluna "Tamanho" das DUAS abas mostrava o total em
+# bytes, e `8.955.472 bytes` nao se le de relance. O numero exato continua no `title` da celula —
+# ver o comentario no macro.
+app.add_template_filter(formatar_tamanho, "tamanho_br")
 # A data da coluna "Enviado em". A conversao e a MESMA autoridade unica usada pela lista, em
 # `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template: data que o sistema
 # nao converte tem de virar celula vazia em um lugar so.
