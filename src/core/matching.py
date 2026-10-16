@@ -94,7 +94,41 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
                     pool.update(pids)
 
         if not pool:
-            reason = "sem candidatos por sobrenome (abreviação/corrupção?)"
+            # O motivo antigo era um so': "sem candidatos por sobrenome
+            # (abreviação/corrupção?)", e ele acusava o ARQUIVO. Medido no arquivo real
+            # do operador (13.716 pessoas, 454 nomes): dos 94 grupos com pool vazio, 86
+            # nao tinham sobrenome NENHUM para procurar — e so' 2 eram mesmo abreviacao
+            # (`*Roger S`, `A CF`). `Marcos Antonio de Melo` nao e' abreviacao nem
+            # corrupcao: "marcos" e "antonio" sao os dois genericos, e "melo" virou o
+            # prenome.
+            #
+            # A DECISAO nao muda: pool vazio descarta o nome nas quatro causas. Muda so'
+            # o texto, que passa a dizer qual delas aconteceu. Ver o adendo 024.
+            primeiros = [t for t in norm_name(match_name).split() if t not in STOP_WORDS]
+            if not surn_csv:
+                # Sobrou mais de um token: HAVIA um sobrenome para achar, e ele foi
+                # empurrado para a casa do prenome. Acontece por dois caminhos, e o
+                # criterio e' o mesmo nos dois:
+                #   - o primeiro token esta' em GENERIC_GIVENS e foi pulado
+                #     ("Maria Pacheco" -> prenome "pacheco");
+                #   - o ultimo token e' sufixo de sobrenome e foi consumido por
+                #     `surname_core_tokens` ("*Coutinho Neto" -> "neto" sai como sufixo,
+                #     e "coutinho" sobra como prenome).
+                # E' limitacao da decomposicao, nao defeito do arquivo enviado.
+                if len(primeiros) > 1:
+                    reason = "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"
+                # Um token so': nao havia sobrenome nenhum para perder.
+                else:
+                    reason = "o nome não tem sobrenome (nome único)"
+            elif not csv_surn_all:
+                # O nome TEM sobrenome, mas nenhum token chega a 3 letras: virou inicial,
+                # e inicial nao e' chave de busca (o fallback por prefixo tambem exige 3).
+                # Aqui — e so' aqui — o motivo antigo ("abreviação") estava certo.
+                reason = "sobrenome curto demais para buscar (inicial ou abreviação)"
+            else:
+                # O nome tem sobrenome utilizavel, e ele nao esta' na arvore — nem por
+                # prefixo de 3 caracteres. Aqui sim cabe conferir grafia e o GEDCOM.
+                reason = "nenhum sobrenome do nome existe no GEDCOM"
         else:
             best_pid = None
             best_score = best_g = -1

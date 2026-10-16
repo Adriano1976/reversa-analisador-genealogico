@@ -14,6 +14,22 @@ nao-generico e o sobrenome, como "Joao Silva", tem o sobrenome interpretado como
 prenome por `split_name_pt`, e o pool de candidatos fica vazio. Ver a tabela de
 decisoes. Corrigir isso mudaria comportamento, logo e feature, nao refactor.
 
+**O ACHADO CONTINUA SEM CORRECAO; o MOTIVO deixou de acusa-lo (adendo `024`).** O
+comportamento congelado abaixo e' exatamente o mesmo — pool vazio descarta o nome, e
+nenhuma decisao mudou. O que mudou e' so' o TEXTO: o motivo unico "sem candidatos por
+sobrenome (abreviação/corrupção?)" acusava o ARQUIVO do operador, e passou a dizer qual
+das tres causas aconteceu — sobrenome lido como prenome, nome unico, ou sobrenome que
+nao existe no GEDCOM.
+
+A escala foi medida no arquivo real do operador (13.716 pessoas, 454 nomes distintos):
+dos **94** grupos com pool vazio, **87** nao tinham sobrenome nenhum para procurar.
+`Marcos Antonio de Melo` nao e' abreviacao nem corrupcao — "marcos" e "antonio" estao os
+dois em `GENERIC_GIVENS`, entao "melo" virou o prenome. Dos 87, **19** tem mais de um
+token (havia sobrenome de verdade e ele foi comido) e 68 sao mononimos legitimos. Este
+segundo caso — dois genericos seguidos, com o sobrenome no meio de um nome completo —
+NAO estava descrito aqui: o achado original falava do nome cujo UNICO token nao-generico
+e' o sobrenome.
+
 ## Mudanca deliberada de 2026-10 (regra final da analise)
 
 A forma do payload do fluxo mudou por ordem explicita: o campo `relationships`
@@ -124,7 +140,7 @@ PIPELINE = {
         [{"csv_name": "Zzz Ninguem dos Santos",
           "kit": None,
           "cm": 150,
-          "motivo": "sem candidatos por sobrenome (abreviação/corrupção?)"}],
+          "motivo": "nenhum sobrenome do nome existe no GEDCOM"}],
         "0 conexões encontradas. 1 descartadas.",
     ),
 }
@@ -163,13 +179,21 @@ DECISOES = [
     ("Joaquim Silva", ["@I10@"], None),
     ("Lone Ranger", ["@I90@"], None),
     ("ana silva souza", ["@I13@"], None),
-    ("Joao Silva", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Ana Souza", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Ana Silva", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Silva", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Souza", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Maria Oliveira", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
-    ("Zzz Ninguem dos Santos", [], "sem candidatos por sobrenome (abreviação/corrupção?)"),
+    ("Joao Silva", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    ("Ana Souza", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    ("Ana Silva", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    ("Silva", [], "o nome não tem sobrenome (nome único)"),
+    ("Souza", [], "o nome não tem sobrenome (nome único)"),
+    ("Maria Oliveira", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    ("Zzz Ninguem dos Santos", [], "nenhum sobrenome do nome existe no GEDCOM"),
+    ("A CF", [], "sobrenome curto demais para buscar (inicial ou abreviação)"),
+    ("*Roger S", [], "sobrenome curto demais para buscar (inicial ou abreviação)"),
+    # Os dois caminhos que empurram o sobrenome para a casa do prenome — o segundo
+    # estava fora da descricao original do achado caracterizado (adendo 024).
+    ("Marcos Antonio de Melo", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    ("*Coutinho Neto", [], "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"),
+    # E o que NAO perdeu sobrenome nenhum: um token so'.
+    ("PAULO", [], "o nome não tem sobrenome (nome único)"),
 ]
 
 

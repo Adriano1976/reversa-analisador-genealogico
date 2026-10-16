@@ -178,6 +178,23 @@ def test_dna_analysis_happy(dna_loaded):
         os.remove(path)
 
 
+#: Os motivos de recusa por sobrenome, catalogados em
+#: `_reversa_sdd/analise-dna/contracts.md`. A assercao de `TT-04` pergunta "veio um
+#: motivo do catalogo?", e nao "o texto contem 'nao' ou 'sem'": o proxy por substring
+#: acusou a mudanca de redacao do adendo `024` como se o filtro anti-falso-positivo
+#: tivesse sido perdido. O filtro nao mudou — o texto e' que deixou de acusar o arquivo
+#: do operador. O motivo de score e' o unico dinamico (carrega os numeros medidos) e por
+#: isso e' conferido por prefixo.
+MOTIVOS_POR_SOBRENOME = (
+    "o sobrenome foi lido como prenome (nome sem sobrenome isolável)",
+    "o nome não tem sobrenome (nome único)",
+    "sobrenome curto demais para buscar (inicial ou abreviação)",
+    "nenhum sobrenome do nome existe no GEDCOM",
+    "sem sobrenome em comum (filtro anti-falso-positivo)",
+)
+PREFIXO_DO_MOTIVO_DE_SCORE = "score insuficiente ou conflito de sobrenome ("
+
+
 # TT-04: anti-falso-positivo — match sem sobrenome em comum é descartado.
 def test_anti_false_positive(dna_loaded):
     """TT-04: matches sem sobrenome em comum com a raiz são descartados.
@@ -185,7 +202,7 @@ def test_anti_false_positive(dna_loaded):
     Usa ``DNA_CSV_NO_INTERSECTION`` (nomes sem sobreposição de tokens com
     ``Carlos Silva Souza``) e confirma que:
     - Nenhum resultado válido é retornado.
-    - O match vai para ``skipped`` com motivo que contém ``não`` ou ``sem``.
+    - O match vai para ``skipped`` com um motivo do catálogo de recusa por sobrenome.
 
     Args:
         dna_loaded: Fixture que carrega o GEDCOM sintético e guarda a arvore devolvida.
@@ -197,7 +214,10 @@ def test_anti_false_positive(dna_loaded):
         results, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
         assert len(results) == 0
         assert len(skipped) == 1
-        assert "não" in skipped[0]["motivo"] or "sem" in skipped[0]["motivo"]
+        motivo = skipped[0]["motivo"]
+        assert (motivo in MOTIVOS_POR_SOBRENOME
+                or motivo.startswith(PREFIXO_DO_MOTIVO_DE_SCORE)), (
+            f"motivo fora do catalogo de recusa por sobrenome: {motivo!r}")
     finally:
         os.remove(path)
 
