@@ -17,6 +17,7 @@ tests/.tmp/
 .parity-run-cand/
 _reversa_sdd/parity/_obs_*.json
 _reversa_sdd/parity/_collect_*.py
+_docs_auxiliary
 
 # Backups e caches genericos
 .backup-*
@@ -28,4 +29,15 @@ htmlcov/
 # Dados reais do usuario: GEDCOM e CSV de DNA nunca sao versionados (principio I).
 # O padrao com barra final casa em qualquer profundidade, cobrindo
 # uploads/ e analisador-genealogico/uploads/.
-uploads/
+**/uploads/*
+!src/uploads/.gitkeep
+
+# Dados genealogicos reais e o toolchain que os trata (principio I).
+_gedcom_tratado/
+_gedcom_trabalho/
+
+# Backups de dado do operador gravados pelo Reversa (principio I).
+.reversa/backups-de-dados/
+
+# Diretorio de trabalho do _docs_render_check.js
+.reversa/_tmp_scripts/

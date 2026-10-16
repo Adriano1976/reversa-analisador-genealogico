@@ -4,8 +4,12 @@ O Principio I de `.reversa/principles.md` manda que dado real de DNA/GEDCOM nunc
 versionamento. Com a pasta canonica de volta **dentro** do repositorio (feature 012), duas
 linhas de configuracao passam a ser tudo o que separa o dado real de uma exposicao:
 
-1. `.gitignore` -> `uploads/`
+1. `.gitignore` -> `**/uploads/*`, com `!src/uploads/.gitkeep` como excecao
 2. `.dockerignore` -> `src/uploads/`, **depois** de `!src/**`
+
+A guarda 1 e' medida pelo **efeito**, e nao pela linha: ver "Por que assercao de efeito" abaixo.
+Ela ja' foi escrita pelo texto (`uploads/`) e caiu em 2026-10-16, quando a regra virou
+`**/uploads/*` e o dado **continuou** protegido — o teste e' que perguntava pela ortografia.
 
 Nenhuma das duas tinha teste. Este arquivo prende as duas, e prende tambem a **ordem** no
 `.dockerignore`: o `.dockerignore` do projeto e lista de permissao, e no Docker a **ultima
@@ -49,10 +53,16 @@ COMPOSE = os.path.join(RAIZ, "docker-compose.yml")
 README = os.path.join(RAIZ, "README.md")
 ATALHO = os.path.join(RAIZ, "atualizar.ps1")
 
-# As regras que este arquivo vigia, pelo texto exato da linha.
-REGRA_GIT = "uploads/"
+# As regras do `.dockerignore` e do `Dockerfile` sao vigiadas pelo TEXTO exato da linha, porque
+# ali a ORDEM e' a regra e o texto e' o contrato.
 REGRA_DOCKER = "src/uploads/"
 PERMISSAO_DOCKER = "!src/**"
+# A guarda do `.gitignore` NAO tem constante de linha, e isso e' deliberado: ela e' vigiada pelo
+# EFEITO — o proprio git responde se cada caminho de dado e' ignorado. O unico literal que sobra
+# e' o TRECHO que a mutacao procura para tirar as regras, e ele nao precisa saber a grafia
+# vigente. Foi essa a licao de 2026-10-16: a regra `uploads/` virou `**/uploads/*`, o dado
+# continuou protegido, e o teste caiu porque prendia a ortografia.
+TRECHO_DAS_REGRAS_DO_GIT = "uploads"
 
 # Guarda 3: a identidade do build. As tres linhas vivem no `docker/Dockerfile`.
 ARG_DA_REVISAO = "ARG REVISAO=desconhecida"
@@ -75,6 +85,20 @@ LEITURA_DO_CARIMBO = "cat /app/CONSTRUIDO_EM"
 # Um caminho representativo do dado real, e um que nunca pode ser ignorado.
 CAMINHO_DO_DADO = "src/uploads/080e7943572d2652__arvore.ged"
 CAMINHO_NEUTRO = "README.md"
+
+#: Onde dado real PODE estar. A guarda vigia o EFEITO do padrao em **todos** eles, e nao so' na
+#: pasta canonica de hoje: o que sustenta o Principio I e' o padrao, e ele tem de cobrir a pasta
+#: canonica, a subpasta de aposentados e qualquer `uploads/` que venha a existir em outra
+#: profundidade. Medido em 2026-10-16: os cinco sao ignorados pela MESMA regra (`**/uploads/*`).
+CAMINHOS_DE_DADO = [
+    "src/uploads/080e7943572d2652__arvore.ged",
+    "src/uploads/94e2402671702cac__matches.csv",
+    "src/uploads/_aposentados/080e7943572d2652__arvore.ged",
+    "uploads/080e7943572d2652__arvore.ged",
+    "analisador-genealogico/uploads/080e7943572d2652__arvore.ged",
+]
+#: A EXCECAO do padrao: o marcador de pasta vazia existe justamente para ser versionado.
+CAMINHO_DO_MARCADOR = "src/uploads/.gitkeep"
 
 
 def _linhas(caminho: str) -> list:
@@ -103,25 +127,71 @@ def _ordem_do_dockerignore(caminho: str) -> bool:
     return permissao >= 0 and reexclusao >= 0 and reexclusao > permissao
 
 
-def _git_diz_quem_ignora(caminho: str) -> str:
-    """Saida de `git check-ignore -v`, ou string vazia quando o git nao ignora."""
+# `core.excludesFile=` vazio: o teste mede o `.gitignore` DESTE repositorio, e nao um arquivo de
+# exclusao global do operador. Sem isto, uma maquina com `uploads/` no excludes global faria a
+# guarda passar sem que o arquivo do projeto tivesse regra nenhuma — e a guarda estaria medindo a
+# maquina, nao o repositorio.
+SEM_EXCLUDES_GLOBAL = ["-c", "core.excludesFile="]
+
+
+def _git(*argumentos: str, cwd: str = RAIZ) -> subprocess.CompletedProcess:
+    """Roda o git neste repositorio, sem o excludes global. `git` ausente pula o teste."""
     if shutil.which("git") is None:
         pytest.skip("git nao esta no PATH")
-    resultado = subprocess.run(
-        ["git", "check-ignore", "-v", caminho],
-        cwd=RAIZ, capture_output=True, text=True,
+    return subprocess.run(["git", *SEM_EXCLUDES_GLOBAL, *argumentos],
+                          cwd=cwd, capture_output=True, text=True)
+
+
+def _git_diz_quem_ignora(caminho: str) -> str:
+    """Saida de `git check-ignore -v`, ou string vazia quando o git nao ignora."""
+    return _git("check-ignore", "-v", caminho).stdout.strip()
+
+
+def _git_ignora(caminho: str, cwd: str = RAIZ) -> bool:
+    """O PROPRIO git responde se o caminho e' ignorado. O padrao nao e' reimplementado aqui.
+
+    `--quiet` existe para a resposta ser o **codigo de saida**, e nao a prosa: `0` = ignorado,
+    `1` = nao ignorado. E o caminho NAO precisa existir — a resposta vem do padrao, e e' isso que
+    permite medir a guarda sem gravar dado real nenhum em disco.
+    """
+    resultado = _git("check-ignore", "--quiet", caminho, cwd=cwd)
+    assert resultado.returncode in (0, 1), (
+        "`git check-ignore` falhou em %s: %s" % (cwd, resultado.stderr.strip())
     )
-    return resultado.stdout.strip()
+    return resultado.returncode == 0
+
+
+def _repo_descartavel(destino: str, copia_do_gitignore: str) -> str:
+    """Repo git minimo com o `.gitignore` dado. Devolve a raiz dele.
+
+    Existe para a mutacao medir o EFEITO sem tocar no `.gitignore` real: mutar o do projeto
+    deixaria o dado exposto se o teste abortasse entre a mutacao e a restauracao.
+    """
+    os.makedirs(destino, exist_ok=True)
+    assert _git("init", "-q", cwd=destino).returncode == 0, "`git init` falhou em %s" % destino
+    shutil.copyfile(copia_do_gitignore, os.path.join(destino, ".gitignore"))
+    return destino
 
 
 # ---------------------------------------------------------------------------
 # Guarda 1: `.gitignore`
 # ---------------------------------------------------------------------------
 
-def test_gitignore_tem_a_regra_de_uploads():
-    assert _tem_regra(GITIGNORE, REGRA_GIT), (
-        "a linha `%s` saiu do .gitignore: sem ela o git passa a rastrear o dado real do "
-        "operador, e o Principio I deixa de valer" % REGRA_GIT
+@pytest.mark.parametrize("caminho", CAMINHOS_DE_DADO)
+def test_gitignore_ignora_o_dado_em_qualquer_uploads(caminho):
+    """A guarda do `.gitignore`, pelo EFEITO — em cada caminho onde dado real pode estar.
+
+    **Reescrito em 2026-10-16.** Antes daqui havia um teste da LINHA `uploads/`. O `.gitignore`
+    trocou essa regra por `**/uploads/*` mais `!src/uploads/.gitkeep`: o dado continuou protegido
+    e o teste caiu, porque perguntava pela **ortografia** da regra, e nao pelo que ela produz.
+
+    Agora a pergunta e' feita ao proprio git, e em CINCO caminhos — a pasta canonica, o CSV, a
+    subpasta de aposentados e dois `uploads/` em outras profundidades. Cobre mais do que a linha
+    cobria, e sobrevive a proxima reescrita do padrao.
+    """
+    assert _git_ignora(caminho), (
+        "`%s` NAO esta ignorado: o git passa a rastrear o dado real do operador, e o Principio I "
+        "deixa de valer" % caminho
     )
 
 
@@ -136,13 +206,16 @@ def test_gitignore_surte_efeito_e_o_git_nomeia_a_regra():
 
 
 def test_gitignore_nao_ignora_o_que_nao_e_dado():
-    """Controle negativo: a assercao de efeito acima tem de discriminar."""
-    saida = _git_diz_quem_ignora(CAMINHO_NEUTRO)
+    """Controle negativo: a assercao de efeito acima tem de discriminar.
 
-    assert not saida, (
-        "`%s` aparece como ignorado (%r). A assercao de efeito responderia 'sim' para "
-        "qualquer caminho, e nao provaria nada" % (CAMINHO_NEUTRO, saida)
-    )
+    Dois casos, e o segundo e' uma EXCECAO do proprio padrao: o marcador de pasta vazia existe
+    para ser versionado, entao ele nao pode aparecer como ignorado.
+    """
+    for caminho in (CAMINHO_NEUTRO, CAMINHO_DO_MARCADOR):
+        assert not _git_ignora(caminho), (
+            "`%s` aparece como ignorado. A assercao de efeito responderia 'sim' para qualquer "
+            "caminho, e nao provaria nada" % caminho
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -199,11 +272,49 @@ def _copia_com_as_duas_regras_trocadas(origem: str, destino: str) -> str:
     return destino
 
 
-def test_mutacao_a_guarda_do_gitignore_falha_quando_a_linha_sai(tmp_path):
-    copia = _copia_sem_a_regra(GITIGNORE, str(tmp_path / ".gitignore"), REGRA_GIT)
+def _copia_sem_as_regras_de_uploads(origem: str, destino: str) -> str:
+    """Copia `origem` para `destino` sem toda linha nao-comentario que menciona `uploads`.
 
-    assert not _tem_regra(copia, REGRA_GIT), (
-        "a assercao literal passou com a linha removida: ela nao prende nada"
+    A remocao e' por TRECHO, e nao por linha exata, de proposito: a mutacao nao precisa saber
+    qual e' a grafia da regra vigente, e continua valendo quando ela for reescrita — foi
+    exatamente o que faltou em 2026-10-16, quando `uploads/` virou `**/uploads/*`.
+    """
+    linhas = _linhas(origem)
+    restantes = [linha for linha in linhas
+                 if linha.lstrip().startswith("#") or TRECHO_DAS_REGRAS_DO_GIT not in linha]
+    assert len(restantes) < len(linhas), (
+        "nenhuma linha nao-comentario de %s menciona `%s`: a mutacao nao tirou regra nenhuma, e "
+        "o teste passaria sem ter mutado nada" % (origem, TRECHO_DAS_REGRAS_DO_GIT)
+    )
+    os.makedirs(os.path.dirname(destino), exist_ok=True)
+    with open(destino, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(restantes) + "\n")
+    return destino
+
+
+def test_mutacao_a_guarda_do_gitignore_falha_quando_as_regras_saem(tmp_path):
+    """A guarda e' SENSIVEL: sem as regras de `uploads`, o git passa a rastrear o dado.
+
+    **Reescrito em 2026-10-16, junto com a guarda.** O teste antigo tirava a linha literal
+    `uploads/` e conferia que a assercao literal falhava — o que nao prova nada sobre o que o
+    GIT faz, e ainda quebrou quando a regra mudou de grafia.
+
+    Agora a mutacao remove **toda** linha nao-comentario que menciona `uploads`, sem precisar
+    saber a grafia vigente, e a assercao e' medida no git — em repo descartavel, porque mutar o
+    `.gitignore` do projeto deixaria o dado exposto se o teste abortasse no meio.
+    """
+    intacto = _repo_descartavel(str(tmp_path / "repo-intacto"), GITIGNORE)
+    assert _git_ignora(CAMINHO_DO_DADO, cwd=intacto), (
+        "pre-condicao: a copia INTACTA do .gitignore, em repo descartavel, tem de ignorar o dado. "
+        "Sem esta linha, a mutacao abaixo passaria por o repo de teste nao funcionar"
+    )
+
+    mutado = _copia_sem_as_regras_de_uploads(GITIGNORE, str(tmp_path / "mutado" / ".gitignore"))
+    repo_mutado = _repo_descartavel(str(tmp_path / "repo-mutado"), mutado)
+
+    assert not _git_ignora(CAMINHO_DO_DADO, cwd=repo_mutado), (
+        "com as regras de `uploads` fora, o git CONTINUOU ignorando o dado: a guarda nao esta "
+        "presa ao que ela diz prender"
     )
 
 
