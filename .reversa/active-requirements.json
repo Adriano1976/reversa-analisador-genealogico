@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/025-desempenho-carga-arvore",
-  "feature-id": "025",
-  "short-name": "desempenho-carga-arvore",
-  "started-at": "2026-10-17T15:40:00Z",
-  "current-stage": "done",
-  "stages-completed": ["requirements", "clarify", "plan", "to-do", "coding", "sync"],
+  "feature-dir": "_reversa_forward/026-polimento-visual-da-tela",
+  "feature-id": "026",
+  "short-name": "polimento-visual-da-tela",
+  "started-at": "2026-10-17T18:20:43Z",
+  "current-stage": "to-do",
+  "stages-completed": ["requirements", "clarify", "plan"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
