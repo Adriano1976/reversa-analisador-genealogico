@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/011-escolher-arquivo-da-lista",
-  "feature-id": "011",
-  "short-name": "escolher-arquivo-da-lista",
-  "started-at": "2026-10-09T15:46:30Z",
-  "current-stage": "requirements",
-  "stages-completed": [],
+  "feature-dir": "_reversa_forward/025-desempenho-carga-arvore",
+  "feature-id": "025",
+  "short-name": "desempenho-carga-arvore",
+  "started-at": "2026-10-17T15:40:00Z",
+  "current-stage": "done",
+  "stages-completed": ["requirements", "clarify", "plan", "to-do", "coding", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

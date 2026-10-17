@@ -1,0 +1,18 @@
+ESCOPO DA MUDANCA - feature 025 (T015)
+
+git diff --stat:
+.reversa/active-requirements.json | 12 ++++++------
+ src/parsers/gedcom_parser.py      | 37 ++++++++++++++++++++++++++++++++-----
+ tests/test_upload.py              |  4 ++--
+ 3 files changed, 40 insertions(+), 13 deletions(-)
+
+git status --porcelain (src/ e tests/):
+M src/parsers/gedcom_parser.py
+ M tests/test_upload.py
+?? tests/test_carga_da_arvore.py
+
+requirements.txt: diff vazio? True
+pin do ged4py: #   ged4py  0.5.2  -> 0.5.5 ged4py==0.5.5
+
+sha256 _reversa_sdd/parity/_profile_big.py = 50c27b09a862fe7704e1c02deb4170b22fdf0aa3eaeb6a124a12f43a003f47d1
+sha256 _reversa_sdd/parity/harness.py = 33e45b055aef845872530a7631a2565e2b8dc3e82df536c8ab787fdf4fe14d37

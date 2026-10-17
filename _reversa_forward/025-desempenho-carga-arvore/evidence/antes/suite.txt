@@ -1,0 +1,9 @@
+SUITE — linha de base ANTES da mudanca (T004)
+feature: 025-desempenho-carga-arvore
+data: 2026-10-17
+head: c946b6c
+DATABASE_URL ausente
+
+$ .venv/Scripts/python.exe -m pytest -q
+1046 passed, 9 skipped in 54.04s
+exit=0

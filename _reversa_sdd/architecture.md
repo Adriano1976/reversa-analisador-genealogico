@@ -5,6 +5,7 @@
 > Snapshot da versão substituída: `.reversa/snapshots/2026-10-10-pre-reextracao/architecture.md`
 > Escala de confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 > Detalhamento: `c4-context.md` (nível 1) · `c4-containers.md` (nível 2) · `c4-components.md` (nível 3) · `erd-complete.md` · `adrs/` (**36** decisões) · `domain.md` · `state-machines.md` · `permissions.md`
+> Atualização de **2026-10-17**: §3 absorve o adendo `025` — a construção do grafo recebe as famílias já lidas, e não o leitor do arquivo.
 
 ---
 
@@ -59,9 +60,11 @@ O que define a arquitetura de hoje **não é o que definia a de 2026-10-05**. A 
 | `application/` | 6 | Casos de uso, desfecho, reenvio, tradução |
 | `ports/` | 2 | Os quatro `Protocol` e os três adaptadores |
 | `core/` | 15 | Decisão de domínio, sem saber de HTTP |
-| `parsers/` | 3 | Leitura do mundo de fora — **devolve valor** |
+| `parsers/` | 3 | Leitura do mundo de fora — **devolve valor**; o grafo transforma dado já lido |
 | `reporting/` | 3 | Emissão do diagrama e as funções puras da lista |
 | `utils/` | 5 | Autoridades únicas transversais |
+
+**A construção do grafo não lê o arquivo** (adendo `025`, 2026-10-17): `carregar_arvore` materializa `list(parser.records0("FAM"))` **uma vez** e a entrega a `build_graph_from_parser(people, familias)`; a função do grafo **não recebe mais o `GedcomReader`**. A árvore, a ordem de inserção de nós e arestas (`@ordem`) e o `child_to_family` continuam idênticos — o que saiu foi a **segunda materialização** dos registros `FAM`.
 
 ### 🟢 Os ciclos de pacote FORAM QUEBRADOS
 

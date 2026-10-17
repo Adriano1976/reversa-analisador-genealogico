@@ -23,13 +23,31 @@ from ged4py.parser import GedcomReader
 
 from core.registro import get_name, ref_id
 
-def build_graph_from_parser(people_dict: dict, parser):
-    """Constrói grafo bidirecional pessoa<->familia e índice filho->famílias."""
+def build_graph_from_parser(people_dict: dict, familias):
+    """Constrói grafo bidirecional pessoa<->familia e índice filho->famílias.
+
+    Recebe as famílias **já materializadas** na ordem do arquivo, e não o
+    `GedcomReader`: quem lê o arquivo é `carregar_arvore`, e a construção do grafo
+    só transforma dado (`RN-03` da feature 025).
+
+    ## Por que a lista, e não o dicionário `families`
+
+    `families` é chaveado por `ref_id`, e `ref_id(None)` devolve `None`
+    (`core.registro`). Duas famílias sem `xref_id` cairiam na mesma chave, e o
+    dicionário teria menos entradas do que o arquivo tem. A lista preserva a
+    **sequência exata** que a segunda passada percorria antes desta feature.
+
+    ## Invariante: os registros só são LIDOS
+
+    A lista é compartilhada com o dicionário `families` da árvore devolvida. Isso é
+    seguro porque esta função lê apenas `fam.xref_id` e `fam.sub_records`, e nunca
+    muta o registro. Se algum dia precisar mutar, a lista tem de ser copiada antes.
+    """
     g = nx.Graph()
     c2f = {}
     for pid, person in people_dict.items():
         g.add_node(pid, label=get_name(person), type="person")
-    for fam in parser.records0("FAM"):
+    for fam in familias:
         fam_id = ref_id(fam.xref_id)
         if not fam_id:
             continue
@@ -71,6 +89,15 @@ def carregar_arvore(file_path: str) -> Tree:
     """
     with GedcomReader(file_path) as parser:
         new_people = {ref_id(i.xref_id): i for i in parser.records0("INDI")}
-        new_families = {ref_id(f.xref_id): f for f in parser.records0("FAM")}
-        new_graph, new_child_to_family = build_graph_from_parser(new_people, parser)
+        # UMA materializacao por registro de nivel 0 (`RN-02`): a lista e lida
+        # aqui e entregue ao grafo, em vez de o grafo percorrer `records0("FAM")`
+        # de novo. Medido na arvore real de 35.460 pessoas: `read_record` caiu de
+        # 49.321 (1 HEAD + 35.460 INDI + 2 x 6.930 FAM) para 42.391.
+        #
+        # E a LISTA, e nao `new_families.values()`: o dicionario e chaveado por
+        # `ref_id`, e familia sem `xref_id` colapsa na chave `None`. A lista
+        # preserva a sequencia exata que a segunda passada percorria.
+        familias = list(parser.records0("FAM"))
+        new_families = {ref_id(f.xref_id): f for f in familias}
+        new_graph, new_child_to_family = build_graph_from_parser(new_people, familias)
         return new_people, new_families, new_graph, new_child_to_family

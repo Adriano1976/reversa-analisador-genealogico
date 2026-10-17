@@ -1,0 +1,12 @@
+AMBIENTE DA MEDICAO - feature 025-desempenho-carga-arvore
+data: 2026-10-17T13:12:35.5826962-03:00
+head: c946b6caed229d95b91c230e6ece257b40d47387
+head_desc: c946b6c 2026-10-16 chore(sondas): amplia as sondas de matching e de tela
+DATABASE_URL_presente: False
+python: Python 3.14.6
+ged4py: 0.5.5
+networkx: 3.7
+arquivo: src/uploads/0fa3699e246caae1__Arvore_Unificada_Oficial_V1_2.ged | bytes=5508014 | sha256=0fa3699e246caae1f761f0757469c6e1df942f2aa542ce4b0329a43308acba6b
+arquivo: src/uploads/54f4887e89705735__Famílias_Sergipanas.csv | bytes=56314 | sha256=d7cbb84ac5693b0abd071657e3bd5cfa18f0a39f30cd3312a405ea480837ce31
+arquivo: _reversa_sdd/parity/_profile_big.py | bytes=3743 | sha256=50c27b09a862fe7704e1c02deb4170b22fdf0aa3eaeb6a124a12f43a003f47d1
+arquivo: _reversa_sdd/parity/harness.py | bytes=31448 | sha256=33e45b055aef845872530a7631a2565e2b8dc3e82df536c8ab787fdf4fe14d37

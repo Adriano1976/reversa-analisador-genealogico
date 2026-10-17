@@ -59,6 +59,7 @@
 - [x] **Reversa** — Reconciliação de adendos ✅ **8 adendos** marcados como superados pela re-extração de 2026-10-10 (17 no total; 9 já estavam de rodadas anteriores)
 - [x] **Reversa** — **Re-verificação suplementar em 2026-10-13** (o código mudou depois da re-extração; nenhuma spec foi regerada) ✅ **12 features, 67 watch items: 61 🟢 · 5 🟡 · 1 🔴** — o vermelho é o mesmo `010-W008`, com triagem humana pendente; paridade **100 % (6/6, exit 0)** e suíte **605 passam / 9 pulados / 0 falham**; `_t020_varredura.py` e `_t011_varredura.py` **APROVADOS**; a sonda de mensagens acusa 5 divergências, todas por mudança declarada; bloco datado gravado no histórico das 9 features que têm itens
 - [x] **Reversa** — **Reconciliação de adendos, complemento de 2026-10-13** ✅ o adendo `011-escolher-arquivo-da-lista` **era o oitavo** de 2026-10-10 e não carregava a linha de superação: marcado agora, o que fecha a contagem registrada acima. Os adendos `013` (2026-10-12) e `014` (2026-10-11) são **posteriores** à re-extração e seguem vigentes
+- [x] **Reversa** — **Absorção editorial do adendo `025` em 2026-10-17** ✅ o adendo registra o delta da feature 025 (`build_graph_from_parser` recebe as famílias já materializadas, não o `GedcomReader`); absorvido em `architecture.md#3` e `c4-components.md` (nível 3), com a ficha do `gedcom_parser.py` corrigida. **Nenhum código foi tocado**
 
 ---
 

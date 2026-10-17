@@ -214,7 +214,7 @@ def test_build_graph_structure():
     from ged4py.parser import GedcomReader
 
     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
-        g, c2f = build_graph_from_parser(atual()[0], parser)
+        g, c2f = build_graph_from_parser(atual()[0], list(parser.records0("FAM")))
 
     assert isinstance(g, nx.Graph)
     # Nós de pessoas e de família presentes.
@@ -260,7 +260,7 @@ def test_family_without_id_skipped():
 
     # FAM sem xref_id não adiciona nó; pessoas ainda mapeiam filhos corretamente.
     with GedcomReader(_write_g(SAMPLE_GED)) as parser:
-        g, c2f = build_graph_from_parser(atual()[0], parser)
+        g, c2f = build_graph_from_parser(atual()[0], list(parser.records0("FAM")))
     assert "@I3@" in g
     assert c2f.get("@I3@") == ["@F1@"]
 

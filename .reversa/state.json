@@ -1774,6 +1774,25 @@
         "atualizar o README.md, que ainda documenta o interpretador global e agora contradiz o pin",
         "tratar a lacuna critica L-16/M-03 (corrida entre threads) na Onda 3 da migracao, junto com P-01"
       ]
+    },
+    "absorcao_adendo_025_2026_10_17": {
+      "phase": "revisao",
+      "tipo": "absorcao editorial de adendo, sem re-extracao e sem alteracao de codigo",
+      "concluido_em": "2026-10-17T13:49:48-03:00",
+      "motivo": "Verificacao pedida pelo usuario: o adendo 025 (2026-10-17) registra que build_graph_from_parser deixou de receber o GedcomReader e passou a receber as familias ja materializadas; architecture.md#3 e c4-components.md (nivel 3) ainda estavam na versao de 2026-10-10.",
+      "veredito": {
+        "adendo_025": "SIM - e o registro provisorio do delta da feature 025: vigencia, antes/depois da assinatura, medicao e tabela de impacto nos artefatos.",
+        "architecture_md_3": "Desatualizado no ponto declarado: a linha de parsers/ nao mencionava a construcao do grafo e nao registrava que a funcao do grafo recebe as familias ja lidas. Absorvido com nota explicita.",
+        "c4_components_md_nivel_3": "Desatualizado na ficha de gedcom_parser.py: descrevia a traducao do GEDCOM para o grafo sem registrar a nova assinatura (familias ja materializadas, sem GedcomReader). Atualizado."
+      },
+      "arquivos_gravados": [
+        "_reversa_sdd/architecture.md: linha de atualizacao no cabecalho, linha de parsers/ e nota 'A construcao do grafo nao le o arquivo' em #3",
+        "_reversa_sdd/c4-components.md: linha de atualizacao no cabecalho, ficha de gedcom_parser.py (76 -> 85 linhas uteis) e nota em parsers/",
+        "_reversa_sdd/addenda/025-desempenho-carga-arvore.md: linha de absorcao na Vigencia e secao 'Absorcao editorial nos artefatos (2026-10-17)', aditivas"
+      ],
+      "codigo_nao_tocado": true,
+      "observacao_de_contagem": "85 = linhas nao vazias (metodo de code-analysis.md); o 76 anterior da ficha coincidia com as linhas cruas do arquivo em HEAD, nao com o criterio 'uteis' usado nos demais componentes.",
+      "proximo_passo": "Nenhuma acao de codigo. A feature 025 segue como unica origem da mudanca em src/parsers/gedcom_parser.py e tests/test_upload.py."
     }
   },
   "engines": [

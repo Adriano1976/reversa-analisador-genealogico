@@ -1,0 +1,8 @@
+IMPRESSAO DA ARVORE E DO RESULTADO — feature 025
+gedcom: 0fa3699e246caae1__Arvore_Unificada_Oficial_V1_2.ged (5508014 bytes) sha256_arquivo=0fa3699e246caae1f761f0757469c6e1df942f2aa542ce4b0329a43308acba6b
+csv: 54f4887e89705735__Famílias_Sergipanas.csv (56314 bytes) sha256_arquivo=d7cbb84ac5693b0abd071657e3bd5cfa18f0a39f30cd3312a405ea480837ce31
+raiz: Adriano Santos
+pessoas=35460 familias=6930 nos=42390 arestas=36807
+cartoes=93 descartados=363
+impressao_arvore=8bf55afb8fa93ee414240afe8698eee1b419fd073fb67f446467c7f37cc1d925
+impressao_dna=d369611f03a30f448849a3885a3e4f3b4adf4cf4ad73ae877f27283b585c5163

@@ -5,6 +5,7 @@
 > Snapshot da versão substituída: `.reversa/snapshots/2026-10-10-pre-reextracao/c4-components.md`
 > Confiança: 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA
 > Nível 1: `c4-context.md` · Nível 2: `c4-containers.md` · Visão geral: `architecture.md`
+> Atualização de **2026-10-17**: a ficha de `gedcom_parser.py` absorve o adendo `025` — o grafo recebe as famílias já materializadas, não o `GedcomReader`.
 
 O nível 3 descreve os componentes internos do **container 1 (Aplicação web)**: **31 componentes** em **sete** unidades — a rota, a camada de aplicação, a fronteira de portas e os quatro pacotes do núcleo.
 
@@ -192,10 +193,12 @@ flowchart TB
 
 | Componente | Responsabilidade | Depende de | É usado por | Conf. |
 | --- | --- | --- | --- | --- |
-| `gedcom_parser.py` (76) | Traduzir o GEDCOM em registros `INDI`/`FAM` e no grafo bipartido e **devolver a árvore como VALOR** (`carregar_arvore`). A casca `load_gedcom_and_build_graph` **foi removida** | `ged4py`, `networkx` | `ports.adaptadores` | 🟢 |
+| `gedcom_parser.py` (85) | **Ler** o GEDCOM com `ged4py` e **devolver a árvore como VALOR** (`carregar_arvore`); a construção do grafo (`build_graph_from_parser(people, familias)`) recebe as famílias **já materializadas** e **não recebe o `GedcomReader`** (adendo `025`). A casca `load_gedcom_and_build_graph` **foi removida** | `ged4py`, `networkx` | `ports.adaptadores` | 🟢 |
 | `csv_ingest.py` (192) | Ler o CSV tolerando encoding, separador, preâmbulo e linha torta; achar colunas por papel; agregar cM (caminho **legado**, mantido e exposto ao núcleo por injeção) | `pandas`, `utils.name_keys`, `utils.text_cleaning`, `core.erros` | `application` (por injeção em `Dependencias`) | 🟢 |
 
 > ⚠️ **A direção da dependência mudou.** `parsers/` **não escreve mais estado**: devolve valor. E `core/` **não importa mais `parsers/`**: recebe as funções de leitura de CSV **por injeção** (a classe `Dependencias`, montada uma vez na borda). É o que quebrou o ciclo `core/` ↔ `parsers/`.
+
+> 🟢 **A leitura ficou concentrada em `carregar_arvore`.** `build_graph_from_parser` recebe a lista de famílias já materializada por `carregar_arvore` e só transforma dado; o grafo não abre o arquivo (adendo `025`).
 
 ### `core/` — decisão de domínio
 

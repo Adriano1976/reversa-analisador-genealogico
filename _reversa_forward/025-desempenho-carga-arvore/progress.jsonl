@@ -1,0 +1,20 @@
+{"ts":"2026-10-17T16:10:00Z","action":"T001","status":"done","files":["_reversa_sdd/parity/_perfil_da_carga.py"]}
+{"ts":"2026-10-17T16:11:00Z","action":"T002","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/_impressao_da_arvore.py"]}
+{"ts":"2026-10-17T16:12:35Z","action":"T003","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/antes/ambiente.txt"]}
+{"ts":"2026-10-17T16:13:29Z","action":"T004","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/antes/suite.txt"],"nota":"1046 passed, 9 skipped, 0 falhas"}
+{"ts":"2026-10-17T16:15:40Z","action":"T005","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/antes/paridade.txt"],"nota":"24 divergencias em 5 de 6 fixtures, exit 1 — linha de base pre-existente"}
+{"ts":"2026-10-17T16:20:00Z","action":"T006","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/antes/carga.txt"],"nota":"FAM=2, read_record=49321, index0=3, _init_index=1; carga 34.47/45.96/25.09 (dispersao 83%)"}
+{"ts":"2026-10-17T16:24:02Z","action":"T007","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/antes/impressao.txt"],"nota":"arvore=8bf55afb, dna=d369611f"}
+{"ts":"2026-10-17T16:26:00Z","action":"T008","status":"done","files":["tests/test_carga_da_arvore.py","_reversa_forward/025-desempenho-carga-arvore/evidence/antes/T008-teste-falhando.txt"],"nota":"visto falhando com FAM=2, como projetado"}
+{"ts":"2026-10-17T16:28:00Z","action":"T009","status":"done","files":["src/parsers/gedcom_parser.py"]}
+{"ts":"2026-10-17T16:29:00Z","action":"T010","status":"done","files":["tests/test_upload.py"],"nota":"dois testes adaptados; nenhum removido"}
+{"ts":"2026-10-17T16:32:00Z","action":"T011","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/depois/suite.txt"],"nota":"1048 passed, 9 skipped, 0 falhas"}
+{"ts":"2026-10-17T16:34:30Z","action":"T012","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/depois/paridade.txt"],"nota":"24 divergencias; 0 linhas diferentes contra a captura de antes"}
+{"ts":"2026-10-17T16:35:40Z","action":"T013","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/depois/impressao.txt"],"nota":"hashes identicos aos de antes"}
+{"ts":"2026-10-17T16:39:00Z","action":"T014","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/depois/carga.txt","_reversa_forward/025-desempenho-carga-arvore/evidence/depois/custo_da_leitura_removida.txt"],"nota":"FAM=1, read_record=42391, index0=2, _init_index=1; custo removido mediana 1.59 s"}
+{"ts":"2026-10-17T16:41:00Z","action":"T015","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/depois/escopo.txt"],"nota":"diff so no parser e nos testes; sha256 de _profile_big.py e harness.py inalterados"}
+{"ts":"2026-10-17T16:44:00Z","action":"T016","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/evidence/RELATORIO.md"],"nota":"medianas de ponta a ponta nao sao atribuiveis (dispersao 83%); ganho declarado e o da fase removida"}
+{"ts":"2026-10-17T16:46:00Z","action":"T017","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/onboarding.md"]}
+{"ts":"2026-10-17T16:48:00Z","action":"T018","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/legacy-impact.md"]}
+{"ts":"2026-10-17T16:50:00Z","action":"T019","status":"done","files":["_reversa_forward/025-desempenho-carga-arvore/regression-watch.md"]}
+{"ts":"2026-10-17T16:52:00Z","action":"T020","status":"done","files":["_reversa_sdd/addenda/025-desempenho-carga-arvore.md"]}
