@@ -44,7 +44,7 @@ Nenhum conflito com princípio ativo.
 | D-06 | O selo é `badge validacao-valido` / `badge validacao-conflito`, de **contorno**, com texto em `--ink` | Distingue por forma do selo de confronto (preenchido) e não cai na regra `.badge[class*="estado-"]` | (a) selo preenchido com `--st-*`; (b) cor nova inventada | 🟢 |
 | D-07 | Duas variáveis por tema: `--validacao-valido` e `--validacao-conflito`, com os valores de `--primary`/`--danger` de cada bloco | `--st-*` não são redefinidas no escuro; sem isso o contorno sumiria no tema noturno. Contraste **medido**: 5,66:1 e 5,92:1 no claro; 8,30:1 e 8,42:1 no escuro | (a) reusar `--st-*` (escuro sobre escuro); (b) texto branco (exigiria preenchimento) | 🟢 |
 | D-08 | Uma linha explicativa sob o título da lista: os dois selos e "sem selo = não concluído" | Sem ela, a ausência é ambígua entre "validado", "inconclusivo" e "não calculado" | (a) nada; (b) legenda por cartão (ruído multiplicado) | 🟡 |
-| D-09 | O `SHA_DA_TELA` é recalculado nesta entrega, com data e motivo no comentário | O invariante existe para impedir mudança **não declarada**; mantê-lo velho deixaria a suíte vermelha e o teste sem sentido | (a) afrouxar o teste; (b) remover o invariante | 🟢 |
+| D-09 | O `SHA_DA_TELA` **não** muda: o invariante cobre `GET /` sem resultados, e o bloco do cartão não é renderizado nesse caminho | Verificado em 2026-10-18: `GET /` não contém `legenda-da-validacao`, e o teste do hash passa sem alteração. A proteção do cartão fica com os testes de tela | (a) atualizar o hash à mão (não muda); (b) acreditar que o hash protege o cartão (a premissa estava errada) | 🟢 |
 | D-10 | Teste de contraste **calculado** a partir da folha, não "olhado" | O par claro/escuro muda com o tema; um teste que lê as variáveis dos dois blocos e aplica a fórmula WCAG pega regressão de cor sem abrir navegador | (a) conferência manual; (b) teste de screenshot | 🟢 |
 | D-11 | O teste de "uma chamada por resultado" usa espião no validador, injetado no módulo | Prova o requisito de custo sem depender de contador global | (a) contar tempo; (b) confiar na leitura do código | 🟢 |
 | D-12 | Sem dependência nova, sem tabela, sem rota, sem persistência do veredito | O banco não tem coluna para ele, e criar uma é migração fora do pedido | (a) gravar em `match_result`; (b) expor rota nova | 🟢 |
@@ -98,7 +98,7 @@ n/a. Não há dado a migrar. A única "migração" é o hash da tela, atualizado
 | Risco | Impacto | Probabilidade | Mitigação |
 |-------|---------|---------------|-----------|
 | Divergência de G entre o cartão e `validar_arquivos` | **alto** | média | D-04: uma implementação só, e o teste da `028` continua provando o valor |
-| Esquecer o `SHA_DA_TELA` | alto | média | D-09 e teste dedicado; a suíte fica vermelha se esquecer, o que é o comportamento desejado |
+| Esquecer o `SHA_DA_TELA` | baixo | baixa | **Não há o que esquecer:** verificado que `GET /` não renderiza o bloco de resultados, o hash não muda. O risco real é o oposto — supor que o hash protege o cartão, e não proteger |
 | Contorno ilegível no tema escuro | alto | alta sem D-07 | Duas variáveis por tema e teste de contraste calculado |
 | Custo de 142 chamadas ao validador | médio | baixa | Função pura e O(saltos); espião conta as chamadas; medir no teste de integração |
 | Selo contradizer o de confronto no mesmo cabeçalho | médio | média | Textos distintos ("Validado" × "Compatível") e eixos declarados na linha explicativa |

@@ -126,11 +126,13 @@ invariante faz parte da feature, não é efeito colateral.
    - Origem no legado: `src/core/janela_de_vida.py` (`ano_de_referencia`)
    - Tipo: preservada
 
-8. **RN-08: o `SHA_DA_TELA` é atualizado nesta entrega, com o motivo registrado.** O invariante
-   prende a tela contra mudança não declarada; mudar o HTML sem atualizar o hash deixaria a suíte
-   vermelha, e atualizar sem registrar deixaria o invariante sem sentido. 🟢
-   - Origem no legado: `tests/test_icone_de_atalho.py` (214, 307)
-   - Tipo: alterada
+8. **RN-08: o `SHA_DA_TELA` NÃO muda nesta entrega — e isso foi verificado, não suposto.** O
+   invariante prende o HTML de `GET /` **sem resultados**, e o bloco do cartão só é
+   renderizado quando há `dna_results`. Medido em 2026-10-18: `GET /` não contém
+   `legenda-da-validacao`, e o teste do hash passa sem alteração. Logo o hash **não** protege
+   o cartão; quem passa a protegê-lo são os testes de tela novos (RF-11). 🟢
+   - Origem no legado: `tests/test_icone_de_atalho.py` (214, 307) — asserções sobre `GET /`
+   - Tipo: alterada (a premissa de que o hash cobria o cartão estava **errada**)
 
 9. **RN-09: o selo é acessível.** O texto visível é curto e o `visually-hidden` diz a frase completa
    ("veredito de validação: linha em conflito"), como já fazem os selos de janela e profundidade. 🟢
@@ -193,7 +195,7 @@ invariante faz parte da feature, não é efeito colateral.
 | RF-06 | O selo é de contorno, com texto em `--ink` e borda na cor do status, legível nos dois temas | Must | A folha define `--validacao-valido` e `--validacao-conflito` nos dois blocos de tema; o contraste medido é ≥ 4,5:1 no texto e ≥ 3:1 na borda | 🟢 |
 | RF-07 | Sem veredito **ou** com veredito inconclusivo, nenhum selo é renderizado | Must | Resultado sem `status` e resultado `INCONCLUSIVO` não produzem nó com `validacao-` | 🟢 |
 | RF-08 | Os quatro estados e os demais selos não mudam | Must | `estado-COMPATIVEL` e companhia continuam com o mesmo texto e a mesma cor; o teste de hash passa após atualização declarada | 🟢 |
-| RF-09 | O `SHA_DA_TELA` é atualizado e continua prendendo a tela | Must | As duas asserções passam com o hash novo, e o comentário registra a data e o motivo | 🟢 |
+| RF-09 | O `SHA_DA_TELA` é **verificado** e permanece igual, porque o bloco de resultados não entra em `GET /` | Must | As duas asserções continuam passando sem alteração, e o teste de tela prova o selo no cartão | 🟢 |
 | RF-10 | O selo é acessível | Must | O `visually-hidden` contém a frase completa do veredito | 🟢 |
 | RF-11 | Testes de tela cobrem os três status e a ausência | Must | Suíte verde; um teste por status, com fixture sintética | 🟢 |
 | RF-12 | O mapeamento status → rótulo e status → classe mora em Python, não em Jinja | Should | O template só testa presença e imprime o que recebe | 🟢 |

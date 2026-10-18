@@ -85,8 +85,14 @@ Contraste medido em 2026-10-18: 5,66:1 e 5,92:1 no claro; 8,30:1 e 8,42:1 no esc
 
 ## 7. Compatibilidade e migração
 
-n/a para dado. A única migração é do **invariante**: `SHA_DA_TELA` é recalculado dentro da entrega,
-com data e motivo no comentário, e o teste continua prendendo a tela contra mudança não declarada.
+n/a para dado. E n/a também para o invariante de tela: **verificado em 2026-10-18** que
+`GET /` (sem resultados) não renderiza o bloco do cartão — a legenda nova não aparece nele, e
+o `SHA_DA_TELA` continua válido sem alteração. O invariante prende a **casca** da tela; o
+cartão passa a ser preso pelos testes de tela novos.
+
+> **Correção registrada:** o `requirements.md` e o `roadmap.md` previam atualizar o hash. A
+> medição mostrou que não havia o que atualizar, e os dois documentos foram corrigidos. Supor
+> que um invariante cobre uma região que ele não cobre é pior do que não ter invariante.
 
 ## 8. O que **não** muda
 

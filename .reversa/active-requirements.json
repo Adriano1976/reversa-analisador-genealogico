@@ -4,8 +4,8 @@
   "feature-id": "031",
   "short-name": "veredito-no-cartao",
   "started-at": "2026-10-18T17:23:32Z",
-  "current-stage": "plan",
-  "stages-completed": ["requirements", "clarify"],
+  "current-stage": "done",
+  "stages-completed": ["requirements", "clarify", "plan", "to-do", "coding", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
