@@ -496,6 +496,16 @@
                             <strong>{{ dna_results | length - ns.com_caminho }}</strong> apenas com evidência genética
                             (sem caminho no GEDCOM).
                         </p>
+                        {# A LEGENDA DO SELO DE VALIDACAO (feature 031). Ela existe por causa de uma
+                           decisao: `Inconclusivo` NAO ganha selo, porque numa analise de 142 cartoes
+                           ele e' o caso mais comum e marcar quase todos nao marcaria nenhum. Sem esta
+                           linha, a ausencia do selo seria ambigua entre "validado", "inconclusivo" e
+                           "nao calculado" — e o operador concluiria errado. #}
+                        <p class="text-center text-muted legenda-da-validacao">
+                            O selo <span class="badge validacao-valido">Validado</span> marca a linha temporalmente viável
+                            e <span class="badge validacao-conflito">Linha em conflito</span> marca a contradição biológica
+                            ou temporal (<strong>sem selo = não concluído</strong>, por dado faltante, afinidade ou ambiguidade).
+                        </p>
                         {# OS DOIS BOTOES QUE IMPEDEM O COLAPSO DE VIRAR TRABALHO. Sem eles, ler a
                            analise inteira passa a ser um clique por conexao — medido nesta
                            analise, 142. Nao alteram dado nenhum: so mudam o `open` de cada
@@ -577,6 +587,18 @@
                                            com o nome de outra pessoa da familia passa por bom. #}
                                         {% if result.identidade == 'a_confirmar' %}
                                             <span class="badge identidade-a-confirmar" title="{{ result.identidade_aviso }}">Identidade a confirmar</span>
+                                        {% endif %}
+                                        {# O VEREDITO DE VIABILIDADE TEMPORAL (feature 031). Sobe para o
+                                           cabecalho pelo mesmo motivo dos outros sinais: e' o que decide se
+                                           vale abrir o cartao. O selo so' existe quando o veredito CONCLUI —
+                                           "Inconclusivo" nao ganha selo, senao marcaria quase todos os 142
+                                           cartoes e deixaria de marcar algum. A classe vem pronta do nucleo e
+                                           NAO contem `estado-`: aquele prefixo pinta o texto de branco, e este
+                                           selo e' de contorno (ver `.validacao-*` na folha). O literal de
+                                           maquina `ERRO CRONICO / QUEBRA DE LINHA` fica no `title`, com o
+                                           motivo e o codigo da anomalia. #}
+                                        {% if result.validacao_rotulo %}
+                                            <span class="badge {{ result.validacao_classe }}" title="{{ result.validacao_aviso or '' }}">{{ result.validacao_rotulo }}<span class="visually-hidden">: veredito de validação temporal da linha documental</span></span>
                                         {% endif %}
                                         {# O CAMINHO DE VOLTA. Sem ele, o operador que le a analise
                                            completa — cinco secoes, com tabelas e grafo — so chega

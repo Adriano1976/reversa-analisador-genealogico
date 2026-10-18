@@ -38,6 +38,14 @@
      branco sobre ele daria 2,62:1. O cinza #6A6150 da 6,11:1 e diz "sem veredito" — e o estado
      INCONCLUSIVO e o estado inicial e o caminho de falha do confronto. */
   --st-compativel:#2F6B3A; --st-possivel:#7A4F00; --st-conflitante:#A8321F; --st-inconclusivo:#6A6150;
+  /* O SELO DE VALIDACAO TEMPORAL (feature 031) tem familia propria, e nao `--st-*`, porque
+     ele e de CONTORNO: a cor vai na borda e o texto fica em `--ink`, que ja clareia no tema
+     escuro. As `--st-*` nao sao redefinidas no escuro (ficam escuras de proposito, para o
+     texto BRANCO dos selos preenchidos); usa-las aqui daria ~2,3:1 e o contorno sumiria no
+     tema noturno. Contraste medido em 2026-10-18 pela formula WCAG de luminancia relativa:
+     5,66:1 (valido) e 5,92:1 (conflito) no claro; 8,30:1 e 8,42:1 no escuro. Minimo AA para
+     texto pequeno: 4,5:1. Ha teste que recalcula isso lendo esta folha. */
+  --validacao-valido:#2F6B3A; --validacao-conflito:#A8321F;
   --serif:'Newsreader',Georgia,'Times New Roman',serif;
 
   --bs-body-bg:var(--bg); --bs-body-color:var(--ink); --bs-border-color:var(--line);
@@ -65,6 +73,10 @@
   --perigo-bg:#2E1B18;
   --perigo-line:#EE9A88;
   --graph-bg:#FFFFFF;
+  /* As cores do selo de validacao precisam CLAREAR aqui: o selo e de contorno e o texto
+     fica em `--ink` (#EDE7D6), entao a borda tem de contrastar com #16140F, nao com o
+     pergaminho. Ver a medicao no bloco claro. */
+  --validacao-valido:#8DBB6E; --validacao-conflito:#EE9A88;
   /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
 }
 
@@ -209,6 +221,17 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 .estado-POSSIVEL{background-color:var(--st-possivel)}
 .estado-CONFLITANTE{background-color:var(--st-conflitante)}
 .estado-INCONCLUSIVO{background-color:var(--st-inconclusivo)}
+
+/* A VALIDACAO TEMPORAL E DE CONTORNO, e nao preenchida. Duas razoes:
+   1. FORMA, e nao cor nova: com preenchimento, o verde de "Compativel" (confronto de cM) e o
+      verde de "Validado" (viabilidade temporal) ficariam iguais à primeira vista, no mesmo
+      cabecalho — e são perguntas diferentes.
+   2. A classe NAO pode conter `estado-`: `.badge[class*="estado-"]` (acima) pinta o texto de
+      branco, e num selo sem fundo escuro isso dá o defeito de 1,11:1 medido em 2026-10-14 com
+      o `estado-identidade_impossivel`.
+   O texto usa `--ink`, que já vira claro no tema escuro; só a borda carrega a cor do status. */
+.badge.validacao-valido{background:transparent;border:1px solid var(--validacao-valido);color:var(--ink)}
+.badge.validacao-conflito{background:transparent;border:1px solid var(--validacao-conflito);color:var(--ink)}
 
 /* Grafo */
 .graph-container{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--graph-bg);color:#172B3A;overflow-x:auto}
