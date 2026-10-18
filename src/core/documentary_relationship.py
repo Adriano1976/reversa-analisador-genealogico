@@ -29,6 +29,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections import deque
+from statistics import median
 
 from .family_navigation import get_parents
 from .registro import get_name, ref_id
@@ -117,6 +118,57 @@ def _local_de(people, pid, tag):
                 if sub.tag == "PLAC":
                     return str(sub.value)
     return None
+
+
+def intervalo_de_geracao_mediano(arvore) -> float | None:
+    """Mediana dos intervalos pai-filho datados da arvore, em anos.
+
+    ## Por que esta funcao mora aqui, e nao na fachada de validacao
+
+    Ela nasceu em `application.validacao` (feature `028`), onde so a fachada a usava.
+    A feature `031` precisou do MESMO numero dentro do fluxo de DNA, para o cartao
+    mostrar o veredito de viabilidade temporal. Duplicar aqui seria pior do que mover:
+    duas implementacoes de `G` podem divergir em silencio, e o mesmo kit passaria a ter
+    dois vereditos — um no cartao, outro na fachada.
+
+    O lugar e este porque o dado e todo documental: datas de nascimento e vinculos de
+    filiacao, que este modulo ja le com `parse_year` e `birth_date`.
+
+    So entram intervalos com as duas datas e dentro de 12-70 anos (a mesma faixa de
+    `IDADE_MINIMA_GENITOR`/`IDADE_MAXIMA_GENITOR`). Com menos de 3 amostras devolve
+    `None`, e quem chama cai para o prior declarado de 25 anos — `None` aqui significa
+    "a arvore nao tem amostra suficiente", nunca zero.
+    """
+    people, families = arvore[0], arvore[1]
+    intervalos: list[int] = []
+
+    for familia in families.values():
+        pais = []
+        for registro in familia.sub_records:
+            if registro.tag in ("HUSB", "WIFE"):
+                pid = ref_id(registro.value)
+                if pid:
+                    pais.append(pid)
+        if not pais:
+            continue
+        for registro in familia.sub_records:
+            if registro.tag != "CHIL":
+                continue
+            filho = ref_id(registro.value)
+            ano_filho = parse_year(birth_date(people, filho))
+            if ano_filho is None:
+                continue
+            for pai in pais:
+                ano_pai = parse_year(birth_date(people, pai))
+                if ano_pai is None:
+                    continue
+                intervalo = ano_filho - ano_pai
+                if IDADE_MINIMA_GENITOR <= intervalo <= IDADE_MAXIMA_GENITOR:
+                    intervalos.append(intervalo)
+
+    if len(intervalos) < 3:
+        return None
+    return float(median(intervalos))
 
 
 # ---------------------------------------------------------------------------
@@ -703,5 +755,6 @@ __all__ = [
     "documentary_label", "person_summary",
     "homonym_dossier", "hop_evidence", "find_all_common_ancestors",
     "parse_year", "birth_date", "death_date", "get_children", "normalizar",
+    "intervalo_de_geracao_mediano",
     "MAX_DEPTH", "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
 ]

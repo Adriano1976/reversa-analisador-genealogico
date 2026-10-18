@@ -32,23 +32,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from statistics import median
 from typing import Callable
 
 from core.documentary_relationship import (
-    IDADE_MAXIMA_GENITOR,
-    IDADE_MINIMA_GENITOR,
     birth_date,
     documentary_relationship,
     homonym_dossier,
-    parse_year,
+)
+from core.documentary_relationship import (
+    intervalo_de_geracao_mediano as _intervalo_do_nucleo,
 )
 from core.erros import PessoaNaoEncontrada
 from core.evidence_comparison import compare
 from core.genetic_evidence import evidence_for
 from core.janela_de_vida import ano_de_referencia
 from core.matching import build_ged_indexes, match_candidates
-from core.registro import get_name, ref_id
+from core.registro import get_name
 from core.relationship_hypotheses import hypotheses_for_evidence
 from core.validator import (
     ComparacaoParaValidar,
@@ -79,44 +78,19 @@ def _dependencias_padrao() -> DependenciasDeValidacao:
     )
 
 
-def _ref(familia, tag: str):
-    """xref_id de HUSB/WIFE/CHIL em um registro FAM, ou None."""
-    for registro in familia.sub_records:
-        if registro.tag == tag:
-            return ref_id(registro.value)
-    return None
-
-
 def intervalo_de_geracao_mediano(arvore) -> float | None:
     """Mediana dos intervalos pai-filho datados da árvore, em anos.
 
-    Só entram intervalos com as duas datas e dentro de 12–70. Com menos de 3
-    amostras devolve `None`; o núcleo cai para o prior declarado de 25 anos.
+    **Delegada ao núcleo desde a feature `031`.** A implementação mora em
+    `core.documentary_relationship`, porque o fluxo de DNA também precisa do mesmo
+    número para mostrar o veredito no cartão. Duas implementações de `G` poderiam
+    divergir em silêncio, e o mesmo kit teria dois vereditos — um no cartão, outro
+    aqui.
+
+    Com menos de 3 amostras devolve `None`; o núcleo cai para o prior declarado de
+    25 anos.
     """
-    people, families = arvore[0], arvore[1]
-    intervalos: list[int] = []
-
-    for familia in families.values():
-        pais = [p for p in (_ref(familia, "HUSB"), _ref(familia, "WIFE")) if p]
-        if not pais:
-            continue
-        filhos = [ref_id(registro.value) for registro in familia.sub_records
-                  if registro.tag == "CHIL"]
-        for filho in filhos:
-            ano_filho = parse_year(birth_date(people, filho))
-            if ano_filho is None:
-                continue
-            for pai in pais:
-                ano_pai = parse_year(birth_date(people, pai))
-                if ano_pai is None:
-                    continue
-                intervalo = ano_filho - ano_pai
-                if IDADE_MINIMA_GENITOR <= intervalo <= IDADE_MAXIMA_GENITOR:
-                    intervalos.append(intervalo)
-
-    if len(intervalos) < 3:
-        return None
-    return float(median(intervalos))
+    return _intervalo_do_nucleo(arvore)
 
 
 def _resolver_raiz(arvore, nome_doador: str) -> str:

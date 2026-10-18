@@ -42,6 +42,7 @@ from .documentary_relationship import (
     documental_nao_encontrado,
     documentary_relationship,
     homonym_dossier,
+    intervalo_de_geracao_mediano,
 )
 from .erros import DnaCsvSemColunas, PessoaNaoEncontrada
 from .evidence_comparison import compare
@@ -75,6 +76,12 @@ from .name_normalization import (
 from .relationship_hypotheses import hypotheses_for_evidence
 from utils.text_cleaning import demojibake, strip_bad_utf
 from .registro import get_name
+from .validator import (
+    ERRO_CRONICO,
+    VALIDADO,
+    ComparacaoParaValidar,
+    validar_comparacao,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -155,6 +162,96 @@ def _observacoes(documentary, evidence, comparison):
             vistos.add(texto)
             unicos.append(texto)
     return unicos
+
+
+# ---------------------------------------------------------------------------
+# Veredito de validacao no cartao (feature 031)
+# ---------------------------------------------------------------------------
+
+#: Status -> (rotulo visivel, classe CSS). O mapa mora aqui, e nao no template,
+#: porque decidir texto e cor e regra: o Jinja so testa se ha rotulo.
+#:
+#: `INCONCLUSIVO` NAO entra no mapa de proposito. Numa analise real sao 142 cartoes e
+#: o inconclusivo e o caso mais comum; marcar quase todos nao marcaria nenhum. A
+#: ausencia de selo significa "nao concluido", e a lista declara isso.
+ROTULOS_DE_VALIDACAO = {
+    VALIDADO: ("Validado", "validacao-valido"),
+    ERRO_CRONICO: ("Linha em conflito", "validacao-conflito"),
+}
+
+
+def _aviso_da_validacao(resultado) -> str | None:
+    """Status + motivo + primeiro codigo critico, para o `title` do selo.
+
+    O literal de maquina vai AQUI, e nao no texto visivel: `ERRO CRONICO / QUEBRA DE
+    LINHA` tem 31 caracteres sem acento, nao cabe num selo e e ruim de ler. Quem audita
+    le no `title`, que e onde o literal continua disponivel.
+    """
+    status = (resultado or {}).get("status") or ""
+    motivo = (resultado or {}).get("motivo") or ""
+    criticos = [item for item in (resultado or {}).get("codigos") or []
+                if item.get("severidade") == "critico"]
+    if criticos:
+        codigo = criticos[0].get("codigo")
+        detalhe = f"{motivo} ({codigo})" if motivo else codigo
+    else:
+        detalhe = motivo
+    if not detalhe:
+        return status or None
+    return f"{status}: {detalhe}" if status else detalhe
+
+
+def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_do_kit,
+                         ano_base, intervalo):
+    """As quatro chaves que o cartao le, a partir do veredito da feature 028.
+
+    ## Por que o veredito viaja no dicionario
+
+    O template itera os dicionarios de resultado (`app.py` passa `resultado.resultados`
+    para `dna_results`), e le `result.cm`, `result.comparison`, `result.documentary`.
+    Um campo que nao esteja no dicionario nao aparece na tela. O precedente e o
+    `confrontacao_rotulo`, que ja e rotulo humano produzido aqui.
+
+    ## Por que `documental` e o ORIGINAL, e nao o apresentado
+
+    Quando a janela de vida e impossivel, a tela troca o parentesco pelo "nao
+    encontrado" (`documentary_do_registro` guarda o original). O veredito temporal e
+    sobre a LINHA DOCUMENTAL, entao ele olha o caminho de verdade: julgar o cartao pelo
+    texto que a tela mostra daria "inconclusivo" justamente nos casos em que a linha
+    existe e esta quebrada.
+    """
+    pessoa_a = (documental or {}).get("person_a") or {}
+    pessoa_b = (documental or {}).get("person_b") or {}
+    doador = {
+        "id": root_id,
+        "nome": pessoa_a.get("name") or get_name(arvore[0].get(root_id)),
+        "nascimento": pessoa_a.get("birth") or birth_date(arvore[0], root_id),
+    }
+    match = {
+        "id": pessoa_b.get("id"),
+        "nome": pessoa_b.get("name"),
+        "nascimento": pessoa_b.get("birth"),
+    }
+    resultado = validar_comparacao(ComparacaoParaValidar(
+        doador=doador,
+        match=match,
+        documental=documental,
+        kit={"kit": kit.get("kit"), "total_cm": kit.get("total_cm"),
+             "mrca_generations": geracoes_do_kit},
+        ano_referencia=ano_base,
+        intervalo_de_geracao=intervalo,
+        comparacao_existente=comparacao,
+    ))
+    status = resultado.get("status")
+    rotulo, classe = ROTULOS_DE_VALIDACAO.get(status, (None, None))
+    return {
+        "validacao_status": status,
+        "validacao_rotulo": rotulo,
+        "validacao_classe": classe,
+        # O aviso existe para o `title` do selo. Sem selo, ele nao teria onde aparecer, e
+        # carregar texto que nenhuma tela le e a definicao de dado morto.
+        "validacao_aviso": _aviso_da_validacao(resultado) if rotulo else None,
+    }
 
 
 def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None):
@@ -268,6 +365,13 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
     # `core.janela_de_vida` para a ancora e os dois limiares.
     ano_atual = datetime.now().year
     ano_base = ano_de_referencia(ano_atual, birth_date(arvore[0], root_id))
+
+    # O intervalo de geracao (G) tambem e resolvido UMA vez por analise, pela mesma
+    # razao do ano de referencia — e por uma a mais: ele sai de uma varredura das
+    # familias, e refazer isso por cartao custaria 142 varreduras por analise. Mais
+    # importante: e o MESMO valor que `application.validacao` usa, entao o cartao e a
+    # fachada nunca dao vereditos diferentes para o mesmo kit.
+    intervalo_de_geracao = intervalo_de_geracao_mediano(arvore)
 
     for chave_nome, por_kit in evidencias.items():
         for chave_kit, kit in por_kit.items():
@@ -400,6 +504,19 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 confrontacao_rotulo = (str((comparison or {}).get("label", "")).lower()
                                        + " no cM, identidade impossível")
 
+            # O VEREDITO DE VIABILIDADE TEMPORAL sobe para o cartao (feature 031). Ele
+            # olha o documental ORIGINAL: quando a janela de vida e impossivel, a tela
+            # troca o parentesco pelo "nao encontrado", mas a linha existe — e e sobre ela
+            # que o veredito fala. Julgar o texto apresentado daria "inconclusivo"
+            # exatamente nos casos em que ha uma linha para julgar.
+            documental_da_validacao = documentary_do_registro or documentary
+            comparacao_da_validacao = comparison
+            if documentary_do_registro is not None:
+                comparacao_da_validacao = compare(documental_da_validacao, hypotheses, evidence)
+            validacao = _validacao_do_cartao(
+                arvore, root_id, documental_da_validacao, comparacao_da_validacao,
+                kit, geracoes_do_kit, ano_base, intervalo_de_geracao)
+
             results_list.append({
                 "match_name": nome_na_arvore,
                 "csv_name": kit["person_name_csv"],
@@ -430,6 +547,13 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                     geracoes_documentais, geracoes_do_kit, razao_da_profundidade),
                 "confrontacao_efetiva": confrontacao_efetiva,
                 "confrontacao_rotulo": confrontacao_rotulo,
+                # O veredito de validacao temporal (feature 028), agora visivel no cartao.
+                # Quatro chaves: status e dado de dominio; rotulo e classe sao vocabulario
+                # de tela, decididos aqui para o template nao ter regra (RF-12).
+                "validacao_status": validacao["validacao_status"],
+                "validacao_rotulo": validacao["validacao_rotulo"],
+                "validacao_classe": validacao["validacao_classe"],
+                "validacao_aviso": validacao["validacao_aviso"],
                 "cm": kit["total_cm"],
                 "kit": kit["kit"],
                 "text_path": " → ".join(nomes_do_caminho),
