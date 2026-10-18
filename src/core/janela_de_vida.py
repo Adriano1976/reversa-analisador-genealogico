@@ -106,6 +106,17 @@ def _e_imprecisa(data_gedcom: str) -> bool:
     return any(qualificador in texto for qualificador in _QUALIFICADORES)
 
 
+def data_imprecisa(data_gedcom: str | None) -> bool:
+    """A data do GEDCOM traz um qualificador de estimativa (`ABT`, `EST`, ...)?
+
+    Wrapper público da regra que já existia em `_e_imprecisa`. Existe para o
+    validador de dados (`core.validator`) poder classificar a data do MRCA sem
+    importar função privada e sem duplicar a lista de qualificadores — a
+    autoridade da lista continua sendo este módulo.
+    """
+    return _e_imprecisa(data_gedcom or "")
+
+
 def conferir_janela_de_vida(data_de_nascimento: str | None, ano_referencia: int) -> tuple[str, int | None, bool]:
     """Estado da janela de vida.
 
@@ -124,7 +135,7 @@ def conferir_janela_de_vida(data_de_nascimento: str | None, ano_referencia: int)
         return (SEM_DATA, None, False)
 
     idade = ano_referencia - ano
-    imprecisa = _e_imprecisa(data_de_nascimento or "")
+    imprecisa = data_imprecisa(data_de_nascimento)
 
     if idade > IDADE_IMPOSSIVEL:
         return (IMPOSSIVEL, idade, imprecisa)
@@ -179,6 +190,7 @@ __all__ = [
     "SEM_DATA",
     "DATA_IMPRECISA",
     "ano_de_referencia",
+    "data_imprecisa",
     "conferir_janela_de_vida",
     "aviso_da_janela",
 ]
