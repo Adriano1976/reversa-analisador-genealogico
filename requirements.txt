@@ -32,3 +32,14 @@ python-Levenshtein==0.27.5
 # compilacao local em nenhum dos dois. Versao fixada pelo mesmo motivo das outras: uma
 # instalacao nova nao pode trazer outra versao sem uma linha de codigo mudar.
 psycopg2-binary==2.9.13
+
+# Adicionada pela feature 030 (renderizador Graphviz). Usada APENAS por
+# `src/reporting/visualizer.py`, e sempre por import PREGUICOSO: sem o pacote, `import app`
+# e a suite continuam funcionando (mesma decisao do psycopg2, L-26).
+#
+# ATENCAO: este pacote e so o BINDING. O binario `dot` NAO vem do pip — e dependencia de
+# sistema (https://graphviz.org/download/) e precisa estar no PATH. Sem ele, a renderizacao
+# falha de proposito com o codigo DOT_AUSENTE, em vez de gerar arquivo pela metade.
+#
+# Versao fixada pelo ADR-13, na versao instalada e verificada no .venv em 2026-10-18.
+graphviz==0.21
