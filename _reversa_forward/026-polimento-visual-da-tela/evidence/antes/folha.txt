@@ -1,0 +1,57 @@
+# Recorte da folha antes da mudança (2026-10-17)
+
+Arquivo: `src/assets/app.css` (22.224 bytes, 391 linhas, HEAD `c12fcea`).
+
+## 1. Tokens do `:root` (linhas 28-35)
+
+```css
+  --aviso-bg:#FBF3DC;
+  --aviso-line:#A8741F;
+  --ok:#2F6B3A;
+  --poss:#7A4F00;
+  --conf:#A8321F;
+  --inc:#6A6150;
+  --graph-bg:#FFFFFF;
+  --st-compativel:#2F6B3A; --st-possivel:#7A4F00; --st-conflitante:#A8321F; --st-inconclusivo:#6A6150;
+```
+
+Família curta (`--ok`, `--poss`, `--conf`, `--inc`): 4 definições, **zero usos** na folha, no template
+e nos testes. Família `--st-*`: 4 definições na mesma linha, 4 usos nas regras `.estado-*`.
+
+## 2. Comentário dos estados (linhas 161-166)
+
+```css
+/* Estados da confrontação — o laranja antigo (#fd7e14 com texto branco) não passava em contraste */
+.badge[class*="estado-"]{color:#fff}
+.estado-COMPATIVEL{background-color:var(--st-compativel)}
+.estado-POSSIVEL{background-color:var(--st-possivel)}
+.estado-CONFLITANTE{background-color:var(--st-conflitante)}
+.estado-INCONCLUSIVO{background-color:var(--st-inconclusivo)}
+```
+
+O comentário registra o caso do laranja (2,57:1) e **não** registra os quatro números atuais.
+
+## 3. Bloco do banner (linhas 351-353)
+
+```css
+/* Banner: o PNG é transparente e o texto dele é marrom; no tema escuro precisa de uma placa clara */
+:root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:14px;padding:.4rem}
+/* h1 só semântico: o banner já mostra "Analisador Genealógico" */
+```
+
+Os **dois** comentários descrevem a arte anterior a 2026-10-16: a atual não tem texto e o `h1` é
+sempre visível — o primeiro afirma que o texto da arte é marrom; o segundo, que o banner mostra o nome.
+
+## 4. Medições de referência
+
+| Item | Valor |
+|------|-------|
+| Contraste branco sobre `#6A6150` | 6,11:1 |
+| Contraste branco sobre `--muted` escuro (`#A99F88`) | 2,62:1 |
+| Contraste branco sobre `#2F6B3A` | 6,39:1 |
+| Contraste branco sobre `#7A4F00` | 7,13:1 |
+| Contraste branco sobre `#A8321F` | 6,69:1 |
+| Contraste branco sobre o laranja histórico `#fd7e14` | 2,57:1 |
+| `SHA_DA_TELA` | `c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0` (30.781 bytes) |
+| Suíte antes | 1.048 passam, 9 pulados, 0 falham |
+| Guardas da tela antes | 90 passam |

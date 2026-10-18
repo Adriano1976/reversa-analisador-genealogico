@@ -182,9 +182,11 @@
                            DESCREVER A ILUSTRACAO: com o titulo escrito logo abaixo, repetir o
                            titulo no `alt` faria o leitor de tela anuncia-lo duas vezes.
 
-                           A masthead (arte, subtitulo e titulo) fica centralizada; os dois
-                           paragrafos ficam alinhados a esquerda, porque texto corrido
-                           centralizado e mais dificil de ler. A ARTE SERVIDA NAO E O ARQUIVO
+                           A masthead (arte, subtitulo e titulo) fica centralizada, e os dois
+                           paragrafos TAMBEM: a `RN-24` pede texto centralizado numa coluna mais
+                           estreita que o cartao (`row justify-content-center` + `col-lg-*`), e o
+                           teste `test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita`
+                           prende esse arranjo. A ARTE SERVIDA NAO E O ARQUIVO
                            ENVIADO — ela e uma renderizacao derivada, e a receita esta em
                            `tests/banner_da_tela.py`. #}
                         <div class="text-center mb-4">

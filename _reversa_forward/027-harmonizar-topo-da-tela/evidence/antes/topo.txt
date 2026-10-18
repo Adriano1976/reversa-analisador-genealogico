@@ -1,0 +1,54 @@
+# Recorte do topo antes da mudança (2026-10-17)
+
+Arquivo: `src/templates/index.html` (1.294 linhas, HEAD `f49bc47`) e `src/assets/app.css`
+(399 linhas, com a entrega da 026 ainda **sem commit**).
+
+## 1. Alerta de retorno
+
+`index.html:231`:
+
+```html
+<div class="alert alert-{{ 'success' if success else 'danger' }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+```
+
+Sem regra na folha. Cores padrão do framework: fundo `#d1e7dd`, texto `#0a3622` (10,35:1), borda
+`#badbcc` (1,15:1 contra o fundo). Há um `alert alert-warning` dentro de um cartão de resultado
+(`index.html:1015`) que **não** pode ser alcançado pela regra nova.
+
+## 2. Ação principal
+
+`div.d-grid` em três formulários: `index.html:288`, `:356` e `:405`. Cada botão ocupa a largura
+inteira do cartão.
+
+## 3. Escala do topo
+
+- `src/assets/app.css:64` — `h1{font-size:clamp(1.9rem,4vw,2.5rem)}`
+- `src/assets/app.css:106` — `.main-card .img-fluid.w-50{width:min(50%,320px)!important}`
+
+## 4. Comentário da introdução
+
+`index.html:185-187`:
+
+```text
+A masthead (arte, subtitulo e titulo) fica centralizada; os dois
+paragrafos ficam alinhados a esquerda, porque texto corrido
+centralizado e mais dificil de ler. A ARTE SERVIDA NAO E O ARQUIVO
+```
+
+O markup real está centralizado e em `col-lg-9`, como a `RN-24` manda. O comentário é o defeito.
+
+## 5. Linha de base
+
+| Item | Valor |
+|------|-------|
+| `SHA_DA_TELA` | `c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0` (30.781 bytes) |
+| Suíte antes | 1.048 passam, 9 pulados, 0 falham |
+| Guardas da tela antes | 90 passam |
+| Cópias do baseline | `evidence/antes/app.css` e `evidence/antes/index.html` |
+| Diff de baseline | `evidence/antes/diff-baseline.txt` (inclui a entrega da 026, ainda sem commit) |
+
+O comentário da masthead é **Jinja** (`{# ... #}`), removido do HTML servido. Corrigi-lo não deve
+mover o `SHA_DA_TELA`; isso será verificado na T010.

@@ -1,0 +1,49 @@
+# Prova de escopo (2026-10-17)
+
+> Feature `027-harmonizar-topo-da-tela` — ação `T013` (`RN-08`, `RF-06`).
+
+## Diff do repositório
+
+```text
+ M .gitignore
+ M .reversa/active-requirements.json
+ M _reversa_forward/026-polimento-visual-da-tela/actions.md
+ M src/assets/app.css
+ M src/templates/index.html
+```
+
+- `.gitignore`: modificação **anterior** a esta feature (já estava na linha de base da 026, HEAD
+  `f49bc47`); não foi tocada aqui.
+- `.reversa/active-requirements.json` e `_reversa_forward/026/.../actions.md`: bookkeeping das
+  features 026/027, não código.
+- **Código**: apenas `src/assets/app.css` e `src/templates/index.html`.
+
+## Delta só da 027 (contra as cópias do baseline)
+
+```text
+app.css      | 41 +++++++++++++++++++++++++++++++++++++++---   41 inserções, 2 remoções
+index.html   |  8 ++++++---                                    5 inserções, 3 remoções
+```
+
+As duas remoções do `app.css` são as linhas substituídas do `h1` e da largura da arte; as 41 inserções
+são os 8 tokens, o bloco dos alertas, a regra do CTA e as duas linhas novas de escala.
+
+No `index.html`, as linhas alteradas são **somente** o comentário Jinja da masthead — nenhuma tag,
+classe, atributo ou texto do markup mudou.
+
+## A introdução e a `RN-24`
+
+- `text-start` no **fonte**: 1 ocorrência, dentro de um comentário Jinja (linha ~207), que **não chega
+  ao HTML**.
+- `text-start` no **HTML servido**: **0** — provado por
+  `test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita`, verde nas guardas.
+
+## O rodapé
+
+Nenhum seletor de `.badge`, `.cartao-do-resultado`, `bg-secondary`, `--st-*` ou das seções do
+resultado foi tocado. O `alert-warning` do cartão de DNA (`index.html:1015`) continua com a cor padrão,
+porque as regras novas são específicas de `.alert-success` e `.alert-danger`.
+
+## `SHA_DA_TELA`
+
+Inalterado: `c4a34f7b…`, 30.781 bytes. O comentário é Jinja e não chega ao documento (ver `hash.txt`).

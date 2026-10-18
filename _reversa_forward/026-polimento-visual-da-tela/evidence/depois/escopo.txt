@@ -1,0 +1,19 @@
+﻿== depois da mudanca ==
+timestamp: 2026-10-17T19:04:24.6665864Z
+== git diff --stat ==
+ .gitignore         |  9 ++++-----
+ src/assets/app.css | 22 +++++++++++++++-------
+ 2 files changed, 19 insertions(+), 12 deletions(-)
+== git status ==
+ M .gitignore
+ M src/assets/app.css
+?? _reversa_bugs/_sondas-matching/_antes.json
+?? _reversa_bugs/_sondas-matching/_impacto.txt
+?? _reversa_bugs/_sondas-matching/_pagina_do_servidor.html
+?? _reversa_bugs/_sondas-matching/_pagina_tratada.html
+?? _reversa_bugs/_sondas-matching/_suite.txt
+?? _reversa_bugs/_sondas-matching/_tratado.json
+?? _reversa_bugs/_sondas-matching/_v2_resumo.json
+?? _reversa_forward/026-polimento-visual-da-tela/evidence/
+== tokens mortos (esperado: nenhum) ==
+(nenhum)

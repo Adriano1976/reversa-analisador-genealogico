@@ -27,11 +27,16 @@
   --focus:#8A5A2B;
   --aviso-bg:#FBF3DC;
   --aviso-line:#A8741F;
-  --ok:#2F6B3A;
-  --poss:#7A4F00;
-  --conf:#A8321F;
-  --inc:#6A6150;
+  --sucesso-bg:#EDF4E6;
+  --sucesso-line:#3F6B2E;
+  --perigo-bg:#FBEDEA;
+  --perigo-line:#A8321F;
   --graph-bg:#FFFFFF;
+  /* Os quatro estados do confronto. O texto do selo e BRANCO (regra `.badge[class*="estado-"]`,
+     mais abaixo), entao cada cor precisa ser escura o bastante nos dois temas.
+     `--st-inconclusivo` NAO segue `--muted`: no tema escuro o texto neutro clareia para #A99F88, e
+     branco sobre ele daria 2,62:1. O cinza #6A6150 da 6,11:1 e diz "sem veredito" — e o estado
+     INCONCLUSIVO e o estado inicial e o caminho de falha do confronto. */
   --st-compativel:#2F6B3A; --st-possivel:#7A4F00; --st-conflitante:#A8321F; --st-inconclusivo:#6A6150;
   --serif:'Newsreader',Georgia,'Times New Roman',serif;
 
@@ -55,13 +60,17 @@
   --focus:#D9A85E;
   --aviso-bg:#2B2512;
   --aviso-line:#D9A85E;
+  --sucesso-bg:#1E2A17;
+  --sucesso-line:#8DBB6E;
+  --perigo-bg:#2E1B18;
+  --perigo-line:#EE9A88;
   --graph-bg:#FFFFFF;
   /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
 }
 
 body{background:var(--bg);color:var(--ink);line-height:1.55}
 h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
-h1{font-size:clamp(1.9rem,4vw,2.5rem)}
+h1{font-size:clamp(1.8rem,3.2vw,2.2rem)}
 h2{font-size:1.6rem}
 
 a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -103,7 +112,7 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 .botao-do-cartao:hover{border-color:var(--primary)}
 
 /* Banner: era 50% do cartão e empurrava o formulário para baixo da dobra */
-.main-card .img-fluid.w-50{width:min(50%,320px)!important}
+.main-card .img-fluid.w-50{width:min(50%,280px)!important}
 
 /* Abas */
 .nav-tabs{--bs-nav-tabs-border-color:var(--line);margin-bottom:1.5rem}
@@ -124,6 +133,14 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
   --bs-btn-bg:transparent;--bs-btn-border-color:var(--danger);--bs-btn-color:var(--danger);
   --bs-btn-hover-bg:var(--danger);--bs-btn-hover-border-color:var(--danger);--bs-btn-hover-color:var(--on-danger);
   --bs-btn-active-bg:var(--danger);--bs-btn-active-border-color:var(--danger);--bs-btn-active-color:var(--on-danger)}
+
+/* Acao principal: largura natural no desktop e total no telefone. O `d-grid` e o MESMO nos tres
+   formularios, entao uma regra cobre os tres. Abaixo de 576 px o botao continua esticado, que e o
+   alvo grande que o telefone precisa; acima, `justify-self:start` devolve a largura natural e tira
+   a barra verde que pesava mais que qualquer elemento do resultado. */
+@media (min-width:576px){
+  .d-grid > .btn{justify-self:start;width:auto;min-width:12rem;padding-inline:1.5rem}
+}
 
 /* Campos */
 .form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:6px}
@@ -156,9 +173,37 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 .observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
 .observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
 .observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}
+
+/* Alertas de retorno (o flash do topo). Ate 2026-10-17 usavam a cor padrao do framework, fora da
+   paleta, e a borda padrao media 1,15:1 contra o fundo — o bloco lia como chapa lisa. Os pares
+   medidos com os tokens novos:
+     claro:  texto --ink #2A2418 sobre #EDF4E6 = 13,70:1; borda #3F6B2E = 5,57:1
+             texto --ink #2A2418 sobre #FBEDEA = 13,49:1; borda #A8321F = 5,86:1
+     escuro: texto --ink #EDE7D6 sobre #1E2A17 = 12,16:1; borda #8DBB6E = 6,77:1
+             texto --ink #EDE7D6 sobre #2E1B18 = 13,22:1; borda #EE9A88 = 7,47:1
+   O seletor e ESPECIFICO de proposito: `.alert` sozinho alcancaria o alert-warning do cartao de
+   DNA (`index.html:1015`), que pertence ao resultado e nao muda aqui (RN-08). O X continua o do
+   framework, que ja se inverte no tema escuro; so a opacidade e o foco sao ajustados. */
+.alert-success{
+  --bs-alert-color:var(--ink);--bs-alert-bg:var(--sucesso-bg);
+  --bs-alert-border-color:var(--sucesso-line);--bs-alert-link-color:var(--primary);
+  padding-block:.65rem;padding-left:.9rem;border-radius:.5rem}
+.alert-danger{
+  --bs-alert-color:var(--ink);--bs-alert-bg:var(--perigo-bg);
+  --bs-alert-border-color:var(--perigo-line);--bs-alert-link-color:var(--danger);
+  padding-block:.65rem;padding-left:.9rem;border-radius:.5rem}
+.alert-success .btn-close,.alert-danger .btn-close{opacity:.55}
+.alert-success .btn-close:hover,.alert-danger .btn-close:hover{opacity:.8}
+.alert-success .btn-close:focus-visible,.alert-danger .btn-close:focus-visible{
+  opacity:1;outline:3px solid var(--focus);outline-offset:2px}
 .documental-ambiguo{color:var(--danger);font-weight:600}
 
-/* Estados da confrontação — o laranja antigo (#fd7e14 com texto branco) não passava em contraste */
+/* Estados da confrontação — o laranja antigo (#fd7e14 com texto branco) não passava em contraste
+   (2,57:1) e por isso a paleta foi refeita. Os quatro atuais, medidos com texto branco, dão:
+   COMPATIVEL 6,39:1, POSSIVEL 7,13:1, CONFLITANTE 6,69:1 e INCONCLUSIVO 6,11:1 — todos acima dos
+   4,5:1 de WCAG AA. A cor é cheia nos DOIS temas e não é redefinida no bloco escuro de propósito: o
+   par texto/fundo do selo não depende do tema. Antes de "consertar" a ausência de override, leia o
+   comentário do token `--st-inconclusivo`. */
 .badge[class*="estado-"]{color:#fff}
 .estado-COMPATIVEL{background-color:var(--st-compativel)}
 .estado-POSSIVEL{background-color:var(--st-possivel)}
@@ -348,9 +393,11 @@ html{scroll-padding-top:1rem}
 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
-/* Banner: o PNG é transparente e o texto dele é marrom; no tema escuro precisa de uma placa clara */
+/* Banner: o PNG é transparente e a ilustração foi desenhada para fundo claro; no tema escuro ela
+   precisa de uma placa clara para não perder contraste. */
 :root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:14px;padding:.4rem}
-/* h1 só semântico: o banner já mostra "Analisador Genealógico" */
+/* O h1 é SEMPRE visível: a arte atual NÃO traz o título. Ele é a identificação do produto em
+   português e continua na tela quando a imagem falha — por isso não recebe `visually-hidden`. */
 
 /* O VEREDICTO DO DOADOR.
    Primeiro bloco do cartao quando a data do registro nao permite que ele tenha doado o DNA.

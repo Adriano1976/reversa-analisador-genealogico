@@ -1,0 +1,38 @@
+# Verificação do hash da tela (2026-10-17)
+
+> Feature `027-harmonizar-topo-da-tela` — ação `T010` (`RF-08`, `D-09`).
+
+## Linha de base
+
+| Item | Valor |
+|------|-------|
+| `SHA_DA_TELA` | `c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0` |
+| Tamanho do HTML de `GET /` | 30.781 bytes |
+| Suíte antes | 1.048 passam, 9 pulados, 0 falham |
+
+## Depois da correção do comentário
+
+O teste `tests/test_icone_de_atalho.py::test_a_tela_nao_mudou_sem_mudanca_declarada` **passou sem
+edição**, junto com o teste da `RN-24`:
+
+```text
+tests/test_icone_de_atalho.py::test_a_tela_nao_mudou_sem_mudanca_declarada PASSED
+tests/test_banner_do_topo.py::TestTopoDaTela::test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita PASSED
+2 passed in 3.83s
+```
+
+E na rodada completa: **90 passed** nas guardas e **1.048 passed** na suíte, com o mesmo `SHA_DA_TELA`
+gravado no arquivo.
+
+## Por que o hash não mudou
+
+O comentário da masthead (`src/templates/index.html:176-189`) é um **comentário Jinja** (`{# … #}`).
+O Jinja o remove por inteiro antes de renderizar: nem o texto, nem as quebras de linha internas
+chegam ao documento. O HTML servido em `GET /` continua **byte a byte** o mesmo.
+
+## Consequência
+
+O `SHA_DA_TELA` **não foi atualizado** — não havia o que atualizar. O `RF-08` foi cumprido na forma
+verificada: a mudança de tela foi medida, e o resultado (não mudou, e por quê) está registrado aqui e
+vai para o adendo da feature. Forçar uma mudança de HTML só para mover o hash seria criar uma
+diferença de tela que o operador não pediu.

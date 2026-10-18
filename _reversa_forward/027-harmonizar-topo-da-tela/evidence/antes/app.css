@@ -1,0 +1,399 @@
+/* app.css — a folha de estilo da tela, substituindo o `<style>` embutido no template.
+   Mantém TODOS os nomes de classe já usados no template: funciona sem mexer no HTML.
+
+   SERVIDA POR ROTA, E NAO POR PASTA ESTATICA. `src/static/` e proibida pelo `W004`
+   (feature 003) e o `RN-07` da feature 009 proibe configurar diretorio estatico, entao o
+   arquivo mora em `src/assets/` — a pasta que o `.dockerignore` deixa entrar na imagem
+   (`!src/**`) — e sai por `GET /app.css`, com o mesmo desenho das duas rotas de arte.
+   A paleta (verde-folha, marrom do tronco e pergaminho) foi tirada da propria arte do topo. */
+
+:root{
+  --bg:#F5F1E6;
+  --surface:#fff;
+  --surface-2:#F8F4E9;
+  --ink:#2A2418;
+  --head:#4A3B1A;
+  --muted:#6A6150;
+  --line:#DDD4BF;
+  --primary:#3F6B2E;
+  --primary-hover:#335724;
+  --on-primary:#fff;
+  --danger:#A8321F;
+  /* Texto SOBRE a cor de perigo. Existe pelo mesmo motivo do `--on-primary`: o tema escuro
+     CLAREIA o `--danger`, e o `#fff` que estava fixo no `.btn-danger` dava 2,18:1 no hover do
+     "Apagar" — o rotulo sumia justamente com o dedo no botao. Aqui, `#fff` sobre `#A8321F` da
+     6,69:1; no escuro, `#16140F` sobre `#EE9A88` da 8,42:1. */
+  --on-danger:#fff;
+  --focus:#8A5A2B;
+  --aviso-bg:#FBF3DC;
+  --aviso-line:#A8741F;
+  --graph-bg:#FFFFFF;
+  /* Os quatro estados do confronto. O texto do selo e BRANCO (regra `.badge[class*="estado-"]`,
+     mais abaixo), entao cada cor precisa ser escura o bastante nos dois temas.
+     `--st-inconclusivo` NAO segue `--muted`: no tema escuro o texto neutro clareia para #A99F88, e
+     branco sobre ele daria 2,62:1. O cinza #6A6150 da 6,11:1 e diz "sem veredito" — e o estado
+     INCONCLUSIVO e o estado inicial e o caminho de falha do confronto. */
+  --st-compativel:#2F6B3A; --st-possivel:#7A4F00; --st-conflitante:#A8321F; --st-inconclusivo:#6A6150;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+
+  --bs-body-bg:var(--bg); --bs-body-color:var(--ink); --bs-border-color:var(--line);
+  --bs-body-font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bs-secondary-color:var(--muted); --bs-link-color:var(--primary); --bs-link-hover-color:var(--primary-hover);
+}
+:root[data-bs-theme="dark"]{
+  --bg:#16140F;
+  --surface:#1F1C14;
+  --surface-2:#26221A;
+  --ink:#EDE7D6;
+  --head:#E8D9B0;
+  --muted:#A99F88;
+  --line:#3A3426;
+  --primary:#8DBB6E;
+  --primary-hover:#A5CC8B;
+  --on-primary:#16140F;
+  --danger:#EE9A88;
+  --on-danger:#16140F;
+  --focus:#D9A85E;
+  --aviso-bg:#2B2512;
+  --aviso-line:#D9A85E;
+  --graph-bg:#FFFFFF;
+  /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
+}
+
+body{background:var(--bg);color:var(--ink);line-height:1.55}
+h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,4vw,2.5rem)}
+h2{font-size:1.6rem}
+
+a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Cartão principal e cartões de resultado */
+.card{--bs-card-bg:var(--surface);--bs-card-border-color:var(--line);--bs-card-cap-bg:var(--surface-2);margin-top:1.5rem;border-radius:10px}
+.main-card{box-shadow:none!important}
+.card-header h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600}
+
+/* Cada cartão de resultado é um `<details>`: o operador abre o que quer ler. Fechado, ele
+   continua mostrando o cabeçalho inteiro — nome, cM e os três selos —, e é por isso que o
+   `summary` EMBRULHA o `.card-header` em vez de substituí-lo. O losango à direita é o único
+   sinal de que há algo para abrir, e ele é desenhado em `--muted` (contorno, e não cor de
+   ação): a ação do cartão é ler, e a mesma discrição vale para o "Voltar". */
+details.card{overflow:hidden}
+details.card > summary.sumario-do-cartao{display:flex;align-items:center;list-style:none;cursor:pointer}
+details.card > summary.sumario-do-cartao::-webkit-details-marker{display:none}
+details.card > summary.sumario-do-cartao > .card-header{flex:1 1 auto;min-width:0}
+details.card > summary.sumario-do-cartao::after{
+  content:"";flex:0 0 auto;width:.5rem;height:.5rem;margin-right:1.1rem;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);transition:transform .15s ease
+}
+details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
+
+/* O bloco dos descartados usa a MESMA forma recolhivel dos cartoes, e nao a mesma importancia:
+   aparencia de apendice. O titulo em `--muted` diz que a lista e' o rodape da analise, e nao um
+   resultado dela — e' a unica diferenca visual entre os dois, de proposito. */
+.bloco-descartados > summary .card-header h5{color:var(--muted);font-size:1.05rem}
+
+/* Os dois controles que impedem o colapso de virar trabalho: sem eles, ler a análise inteira
+   volta a ser um clique por conexão. Mesma discrição do "Voltar" — contorno, não cor de ação. */
+.controles-dos-cartoes{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.botao-do-cartao{
+  font-family:var(--bs-body-font-family);font-size:.85rem;font-weight:500;color:var(--primary);
+  background:transparent;border:1px solid var(--line);border-radius:999px;
+  padding:.25rem .9rem;cursor:pointer
+}
+.botao-do-cartao:hover{border-color:var(--primary)}
+
+/* Banner: era 50% do cartão e empurrava o formulário para baixo da dobra */
+.main-card .img-fluid.w-50{width:min(50%,320px)!important}
+
+/* Abas */
+.nav-tabs{--bs-nav-tabs-border-color:var(--line);margin-bottom:1.5rem}
+.nav-tabs .nav-link{color:var(--muted);border:0;border-bottom:3px solid transparent;font-weight:500;background:none}
+.nav-tabs .nav-link:hover{color:var(--ink);border-bottom-color:var(--line)}
+.nav-tabs .nav-link.active{color:var(--ink);background:none;border-bottom-color:var(--primary)}
+
+/* Botões: uma única cor de ação principal; destrutivo vira contorno */
+.btn-primary,.btn-info,.btn-success{
+  --bs-btn-bg:var(--primary);--bs-btn-border-color:var(--primary);--bs-btn-color:var(--on-primary);
+  --bs-btn-hover-bg:var(--primary-hover);--bs-btn-hover-border-color:var(--primary-hover);--bs-btn-hover-color:var(--on-primary);
+  --bs-btn-active-bg:var(--primary-hover);--bs-btn-active-border-color:var(--primary-hover);--bs-btn-active-color:var(--on-primary);
+  font-weight:600}
+/* A cor do texto no hover/active vem de `--on-danger`, e NAO de `#fff` fixo: era esse literal
+   que sumia no tema escuro (2,18:1). Mesmo padrao que o `.btn-primary` ja usava com
+   `--on-primary`. */
+.btn-danger{
+  --bs-btn-bg:transparent;--bs-btn-border-color:var(--danger);--bs-btn-color:var(--danger);
+  --bs-btn-hover-bg:var(--danger);--bs-btn-hover-border-color:var(--danger);--bs-btn-hover-color:var(--on-danger);
+  --bs-btn-active-bg:var(--danger);--bs-btn-active-border-color:var(--danger);--bs-btn-active-color:var(--on-danger)}
+
+/* Campos */
+.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:6px}
+.form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary) 25%,transparent)}
+.spinner-border.text-primary{color:var(--primary)!important}
+/* O tamanho do indicador vinha do `<style>` embutido e quase se perdeu na troca: sem esta
+   regra ele volta ao tamanho padrao do Bootstrap e a espera deixa de ser visivel. */
+.spinner-border{width:3rem;height:3rem}
+
+/* Tabelas */
+.table{--bs-table-bg:transparent;--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
+.table-light,.table > :not(caption) > * > .table-light{--bs-table-bg:var(--surface-2);--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
+.table thead th{font-weight:500;color:var(--muted);white-space:nowrap}
+.tabela-evidencia{font-size:.85rem}
+
+/* Seções do relatório: sentença normal em vez de CAIXA ALTA espaçada */
+.secao{margin-top:1.75rem;border-top:1px solid var(--line);padding-top:1rem}
+.secao h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600;text-transform:none;letter-spacing:0}
+.secao h5 .numero{color:var(--muted);font-weight:500}
+.rotulo-fonte{font-size:.82rem;color:var(--muted);text-transform:none;letter-spacing:0}
+
+/* Avisos */
+.alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:.25rem;font-size:.9rem}
+/* As observacoes do ARQUIVO, e nao de um cartao: valem para a analise inteira e por isso ficam
+   num bloco unico acima do resultado, visualmente separadas dos cartoes. Recolhem como eles
+   (mesmo `details`, mesmo `sumario-do-cartao`), mas com aparencia de AVISO: o creme de
+   `--aviso-bg` percorre o bloco inteiro, e nao so os itens, e o cabecalho o anuncia antes de o
+   operador ler qualquer linha. Nasce ABERTO — o `open` esta no template —, ao contrario do
+   bloco dos descartados, porque o que ele carrega muda a leitura do resultado. */
+.observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
+.observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
+.observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}
+.documental-ambiguo{color:var(--danger);font-weight:600}
+
+/* Estados da confrontação — o laranja antigo (#fd7e14 com texto branco) não passava em contraste
+   (2,57:1) e por isso a paleta foi refeita. Os quatro atuais, medidos com texto branco, dão:
+   COMPATIVEL 6,39:1, POSSIVEL 7,13:1, CONFLITANTE 6,69:1 e INCONCLUSIVO 6,11:1 — todos acima dos
+   4,5:1 de WCAG AA. A cor é cheia nos DOIS temas e não é redefinida no bloco escuro de propósito: o
+   par texto/fundo do selo não depende do tema. Antes de "consertar" a ausência de override, leia o
+   comentário do token `--st-inconclusivo`. */
+.badge[class*="estado-"]{color:#fff}
+.estado-COMPATIVEL{background-color:var(--st-compativel)}
+.estado-POSSIVEL{background-color:var(--st-possivel)}
+.estado-CONFLITANTE{background-color:var(--st-conflitante)}
+.estado-INCONCLUSIVO{background-color:var(--st-inconclusivo)}
+
+/* Grafo */
+.graph-container{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--graph-bg);color:#172B3A;overflow-x:auto}
+.mermaid{text-align:center}
+
+/* details/summary */
+details>summary{cursor:pointer;color:var(--primary)}
+details>summary:hover{text-decoration:underline}
+
+/* Evidência genética em grade compacta */
+.kit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem 1.5rem;margin:0 0 .75rem}
+.kit-grid dt{font-weight:500;color:var(--muted);font-size:.8rem;margin:0}
+.kit-grid dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kit-grid .destaque{font-family:var(--serif);font-size:1.6rem;font-weight:600;line-height:1.15}
+
+/* A segunda linha do cabeçalho do cartão: o que a tabela do índice dava e que só ela dava —
+   Parentesco, Janela de vida e Profundidade. Ela existe para o operador NÃO ter de abrir cartão
+   por cartão, e por isso vive no CABEÇALHO, visível com o cartão fechado. `clear:both` porque o
+   "Voltar" é flutuante e vem antes dela no documento. */
+.cabecalho-sinais{
+  clear:both;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
+  margin-top:.35rem;font-size:.85rem;color:var(--muted)
+}
+.rotulo-parentesco{font-weight:500}
+
+/* O caminho de volta: o índice leva ao cartão por âncora, e este link faz o inverso.
+   Alinhado à direita no próprio cabeçalho para ficar na PRIMEIRA dobra do cartão — o
+   relatório de uma conexão tem cinco seções, e um retorno no rodapé obrigaria a rolar tudo.
+   Discreto de propósito (contorno, e não cor de ação): a ação principal do cartão é ler, e
+   não sair. A cor vem de `--primary`, que os dois temas já redefinem. */
+.voltar-ao-indice{
+  float:right;font-family:var(--bs-body-font-family);font-size:.85rem;font-weight:500;
+  text-decoration:none;border:1px solid var(--line);border-radius:999px;
+  padding:.15rem .7rem;white-space:nowrap
+}
+.voltar-ao-indice:hover{border-color:var(--primary)}
+
+/* Identidade do match a confirmar (o nome do CSV e a pessoa escolhida no GEDCOM divergem no
+   prenome). APARENCIA DE AVISO, e nao de erro: o match nao foi descartado, e o cM pode estar
+   certo — o que falta e confirmar de quem ele e. Vermelho de perigo mandaria descartar o que
+   talvez esteja bom; cinza de apoio esconderia o que pode estar trocado. O contorno faz o selo
+   aparecer sem competir com os selos de confrontacao, que sao cor cheia sobre cor cheia. */
+.identidade-a-confirmar{
+  background-color:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line);
+  font-weight:600
+}
+/* A caixa do cartao: mesma paleta do aviso, com a barra a esquerda que o projeto ja usa em
+   `.alerta-aviso`, e um degrau a mais de corpo porque aqui o texto e a informacao principal
+   do cartao — e nao uma nota de rodape. */
+.alerta-identidade{
+  border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+}
+.alerta-identidade strong{color:var(--aviso-line)}
+
+/* Janela de vida: a data do registro NAO permite que ele tenha doado o DNA.
+   Os tres graus usam a paleta que os dois temas ja redefinem:
+     - `impossivel` — vermelho de perigo: nao ha como ser o doador;
+     - `suspeita`   — amarelo de aviso: pode ser, mas confira;
+     - `imprecisa`  — cinza de apoio: data estimada, nao afirma nem descarta.
+   Nenhum deles usa cor CHEIA de fundo: o cartao continua legivel, e o selo do
+   indice nao compete com os selos de confrontacao, que sao cor cheia. */
+.janela-impossivel{background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);font-weight:600}
+.janela-suspeita{background-color:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line);font-weight:600}
+.janela-imprecisa{background-color:transparent;color:var(--muted);border:1px solid var(--line)}
+
+.alerta-janela{
+  border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+}
+/* O grau impossivel pesa mais: barra e borda na cor de perigo. */
+.alerta-janela-impossivel{border-color:var(--danger);border-left-color:var(--danger)}
+.alerta-janela-impossivel strong{color:var(--danger)}
+.alerta-janela-suspeita strong{color:var(--aviso-line)}
+.alerta-janela-data_imprecisa{border-left-color:var(--line);background:transparent}
+.alerta-janela-data_imprecisa strong{color:var(--muted)}
+
+/* Profundidade do caminho: a arvore afirma mais geracoes do que o proprio kit estima.
+   Mesma logica de aparencia da janela de vida, e pela mesma razao: o match NAO foi
+   descartado e nenhum veredito mudou — o que mudou e que a divergencia deixou de ser
+   silenciosa. Cor cheia de fundo nao entra, para o selo do indice nao competir com os
+   selos de confrontacao, que sao cor cheia sobre cor cheia. */
+.profundidade-divergencia{background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);font-weight:600}
+.profundidade-atencao{background-color:var(--aviso-bg);color:var(--ink);border:1px solid var(--aviso-line);font-weight:600}
+
+.alerta-profundidade{
+  border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+}
+/* "Dobro" e afirmacao forte; "atencao" e numero a conferir. Os dois pesam diferente. */
+.alerta-profundidade-divergencia{border-color:var(--danger);border-left-color:var(--danger)}
+.alerta-profundidade-divergencia strong{color:var(--danger)}
+.alerta-profundidade-atencao strong{color:var(--aviso-line)}
+
+/* O selo combinado do cabecalho: o cM cabe na faixa, mas a identidade do doador nao fecha.
+   Nao e um quinto estado do confronto — os quatro continuam quatro (`RF-19`, `BR-D-27`,
+   ADR-15) —, e por isso o nome NAO comeca com `estado-`.
+
+   ## O prefixo `estado-` e reivindicado, e foi o que quebrou este selo
+
+   A primeira versao desta regra se chamava `.estado-identidade_impossivel` e o operador
+   relatou que o selo estava "em branco, pois nao consigo ler". A causa nao era a regra: era
+   `.badge[class*="estado-"]{color:#fff}` — especificidade (0,2,0) — vencendo esta, (0,1,0).
+   O texto saiu BRANCO sobre o creme de `--aviso-bg`: **1,11:1** no tema claro. No escuro o
+   mesmo selo dava 15,26:1, porque la `--aviso-bg` e escuro — ou seja, um teste de um tema so
+   nao pegaria. Medido em 2026-10-14 por
+   `_reversa_bugs/_sondas-matching/contraste_dos_selos.py`, e preso por
+   `tests/test_estilo_da_tela.py::TestOContrasteDosSelos`.
+
+   Com o nome fora de `estado-`, o atributo nao casa mais e a cor de `--danger` vale:
+   6,03:1 no claro e 6,99:1 no escuro, os mesmos numeros de `.janela-impossivel`. */
+.identidade-impossivel{
+  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);
+  font-weight:600
+}
+
+/* A LEGENDA DO DIAGRAMA.
+   As amostras usam as MESMAS cores literais que o Mermaid emite — em
+   `reporting/mermaid_render.py` para as marcas de profundidade e em
+   `mermaid.initialize` do template para o no comum —, e NAO as cores de tema: o grafo e
+   desenhado sobre `--graph-bg` branco nos dois temas, entao uma cor de tema na legenda nao
+   corresponderia ao desenho. O par amostra <-> literal e preso por
+   `tests/test_profundidade_do_caminho.py`, porque uma legenda que descreve cores que o
+   desenho nao tem e pior que legenda nenhuma. */
+.legenda-do-grafo{
+  margin-top:.5rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:.25rem;
+  background:var(--surface-2);font-size:.86rem;color:var(--ink)
+}
+.legenda-titulo{
+  margin:0 0 .4rem;font-size:.78rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.03em
+}
+.legenda-do-grafo ul{margin:0;padding-left:0;list-style:none}
+.legenda-do-grafo li{margin-bottom:.25rem;line-height:1.45}
+.legenda-do-grafo li:last-child{margin-bottom:0}
+.legenda-marca{
+  display:inline-block;width:.9rem;height:.9rem;vertical-align:-.15rem;
+  border-radius:.15rem;border:2px solid var(--line);margin-right:.4rem;background:#fff
+}
+.legenda-raiz{background:#e8f5e9;border-color:#66bb6a}
+.legenda-match{background:#ffebee;border-color:#ef5350}
+.legenda-ancestral{background:#fff9c4;border-color:#fbc02d}
+.legenda-ancestral-nao-sustentado{background:#fff9c4;border-color:#c62828;border-style:dashed}
+.legenda-sugerido{background:#f3e5f5;border-color:#8e24aa;border-style:dashed}
+.legenda-neutro{background:#E3EEEC;border-color:#2D5F5D}
+/* O bloco informativo da legenda: a leitura em uma frase do que os numeros do cartao
+   querem dizer. Ele nasceu dentro do grafo, como um no solto, e saiu — num `flowchart`
+   toda caixa parece um parente. Separado do desenho, com barra a esquerda como o
+   `.alerta-aviso`, ele se le como texto e nao como parte do parentesco. */
+.legenda-informativa{
+  margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--aviso-line);
+  background:var(--aviso-bg);border-radius:.2rem;font-size:.88rem
+}
+.legenda-informativa strong{color:var(--aviso-line)}
+
+html{scroll-padding-top:1rem}
+/* O cartão de destino pisca ao ser alcançado pelo índice, para o olho achar a linha */
+.card:target{outline:3px solid var(--focus);outline-offset:4px}
+
+/* Botão de tema (claro/escuro).
+   FIXO no canto, e nao no fluxo do cartao: um relatorio com vinte matches e longo, e o
+   controle tem de continuar alcancavel depois de rolar. O `z-index` e o mesmo degrau dos
+   elementos fixos do Bootstrap (1030), para ficar acima do conteudo e abaixo de modal.
+   Ele vive na MARGEM do topo: o cartao comeca em `my-5` (3rem), entao em tela estreita o
+   botao fica acima do cartao, e nao por cima dele. */
+.botao-tema{
+  position:fixed;top:1rem;right:1rem;z-index:1030;
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;
+  padding:.4rem .85rem;font:inherit;font-size:.85rem;font-weight:500;
+  box-shadow:0 1px 4px rgba(0,0,0,.14);cursor:pointer
+}
+.botao-tema:hover{border-color:var(--primary);color:var(--primary)}
+.botao-tema .icone-tema{font-size:1rem;line-height:1}
+@media (max-width:575.98px){
+  .botao-tema{top:.5rem;right:.5rem;padding:.35rem .7rem}
+}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Banner: o PNG é transparente e a ilustração foi desenhada para fundo claro; no tema escuro ela
+   precisa de uma placa clara para não perder contraste. */
+:root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:14px;padding:.4rem}
+/* O h1 é SEMPRE visível: a arte atual NÃO traz o título. Ele é a identificação do produto em
+   português e continua na tela quando a imagem falha — por isso não recebe `visually-hidden`. */
+
+/* O VEREDICTO DO DOADOR.
+   Primeiro bloco do cartao quando a data do registro nao permite que ele tenha doado o DNA.
+   Nao carrega numero nenhum — isso e do aviso da janela de vida, logo abaixo —, e sim o que
+   fazer com o parentesco que vem depois: ele e o DO REGISTRO, e o vinculo entre este DNA e
+   esta arvore fica declarado como desconhecido.
+   A barra e a cor de perigo porque a afirmacao e mais forte que um aviso: e um veredicto sobre
+   o cartao inteiro, e nao uma ressalva sobre um numero. */
+.veredicto-do-doador{
+  border:1px solid var(--danger);border-left:5px solid var(--danger);
+  background:var(--aviso-bg);color:var(--ink);
+  padding:.8rem 1rem;margin-bottom:1rem;border-radius:.25rem;font-size:.95rem
+}
+.veredicto-do-doador > strong:first-child{
+  display:block;color:var(--danger);font-size:1.02rem;margin-bottom:.2rem
+}
+
+/* O DIAGRAMA RECOLHIDO.
+   O `summary` e o TITULO que diz de quem e o desenho. Sem ele, uma cadeia de 12 ou 13 caixas
+   terminando numa pessoa de 1673 se apresenta como a resposta; com ele, o operador sabe que
+   abriu o caminho do REGISTRO. Recolhido quando a janela de vida e impossivel: o grafo nao
+   some, so deixa de ser a primeira coisa a ler. Ver o `toggle` no template — um `details`
+   fechado tem tamanho zero e o Mermaid renderiza quebrado dentro dele. */
+details.grafo-do-registro{margin-top:.5rem}
+details.grafo-do-registro > summary{padding:.35rem 0;font-size:.92rem}
+details.grafo-do-registro > summary strong{color:var(--danger)}
+details.grafo-do-registro[open] > summary{margin-bottom:.4rem}
+
+/* O SELO DO PARENTESCO QUE NAO E DO DOADOR, no indice.
+   Mesma paleta de `.identidade-impossivel` e de `.janela-impossivel` — e um aviso, nao um
+   veredito —, e classe propria porque o SIGNIFICADO e outro: aqui nao se diz de quem e o
+   cartao, e sim que o parentesco exibido e o do REGISTRO escolhido. Sem ele, o unico sinal
+   ficava duas colunas depois, em "Janela de vida", e o operador formava a crenca ao ler o
+   parentesco, antes de chegar la. */
+.parentesco-do-registro{
+  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);
+  font-weight:600
+}

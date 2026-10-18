@@ -1,0 +1,40 @@
+﻿== linha de base ==
+timestamp: 2026-10-17T19:34:54.0801558Z
+HEAD: f49bc47 docs: planejar polimento visual da tela de entrada
+== git status ==
+ M .gitignore
+ M .reversa/active-requirements.json
+ M _reversa_forward/026-polimento-visual-da-tela/actions.md
+ M src/assets/app.css
+?? _reversa_bugs/_sondas-matching/_antes.json
+?? _reversa_bugs/_sondas-matching/_impacto.txt
+?? _reversa_bugs/_sondas-matching/_pagina_do_servidor.html
+?? _reversa_bugs/_sondas-matching/_pagina_tratada.html
+?? _reversa_bugs/_sondas-matching/_suite.txt
+?? _reversa_bugs/_sondas-matching/_tratado.json
+?? _reversa_bugs/_sondas-matching/_v2_resumo.json
+?? _reversa_forward/026-polimento-visual-da-tela/evidence/
+?? _reversa_forward/026-polimento-visual-da-tela/legacy-impact.md
+?? _reversa_forward/026-polimento-visual-da-tela/progress.jsonl
+?? _reversa_forward/026-polimento-visual-da-tela/regression-watch.md
+?? _reversa_forward/027-harmonizar-topo-da-tela/
+?? _reversa_sdd/addenda/026-polimento-visual-da-tela.md
+== SHA_DA_TELA atual ==
+SHA_DA_TELA = "c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0"
+== suite completa ==
+........................................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 20%]
+........................................................................ [ 27%]
+........................................................................ [ 34%]
+........................................................................ [ 40%]
+........................................................................ [ 47%]
+........................................................................ [ 54%]
+..................................................................s..... [ 61%]
+........................................................................ [ 68%]
+........................................................................ [ 74%]
+........................................................................ [ 81%]
+..........ssssssss...................................................... [ 88%]
+........................................................................ [ 95%]
+.................................................                        [100%]
+1048 passed, 9 skipped in 104.92s (0:01:44)

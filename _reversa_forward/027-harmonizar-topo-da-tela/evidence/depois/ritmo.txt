@@ -1,0 +1,22 @@
+# Medição do ritmo do topo (2026-10-17)
+
+> Feature `027-harmonizar-topo-da-tela` — ação `T009` (`RF-05`, `D-08`).
+
+## Degraus medidos
+
+| Bloco | Classe / regra | Degrau |
+|-------|----------------|--------|
+| Campos do formulário | `mb-3` nos `.mb-3` dos formulários | **1 rem** |
+| Abas | `.nav-tabs{margin-bottom:1.5rem}` (`app.css`) | **1,5 rem** |
+| Masthead | `mb-4` no `div.text-center` | **1,5 rem** |
+| Bloco de observações | `mb-4` no `details.observacoes-do-arquivo` | **1,5 rem** |
+| Título do resultado | `mt-5` no `h2` | **3 rem** — fora do escopo (`RN-08`) |
+
+## Conclusão
+
+O topo usa **dois degraus consistentes**: 1 rem para os campos e 1,5 rem para os blocos. Não há
+degrau "estranho" a corrigir; a distância maior é a transição para o resultado, que pertence ao
+rodapé e fica intocada (`RN-08`).
+
+**Nenhuma alteração de espaçamento foi feita.** O `RF-05` foi cumprido pela medição e pelo registro,
+como previsto em `D-08`.
