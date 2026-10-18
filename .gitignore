@@ -17,7 +17,6 @@ tests/.tmp/
 .parity-run-cand/
 _reversa_sdd/parity/_obs_*.json
 _reversa_sdd/parity/_collect_*.py
-_docs_auxiliary
 
 # Backups e caches genericos
 .backup-*
@@ -32,12 +31,11 @@ htmlcov/
 **/uploads/*
 !src/uploads/.gitkeep
 
-# Dados genealogicos reais e o toolchain que os trata (principio I).
-_gedcom_tratado/
-_gedcom_trabalho/
-
 # Backups de dado do operador gravados pelo Reversa (principio I).
 .reversa/backups-de-dados/
 
 # Diretorio de trabalho do _docs_render_check.js
 .reversa/_tmp_scripts/
+
+# Ferramenta local de publicação do mini-site (não versionar).
+publicar_docs.py
