@@ -460,7 +460,7 @@
                          `observacoes-do-arquivo` FICA no container: e' ela que o teste do
                          adendo 017 usa para achar o bloco e para prender que ele renderiza
                          fora da guarda de `dna_results`. #}
-                      <details class="card observacoes-do-arquivo mb-4">
+                      <details class="card observacoes-do-arquivo mb-4" open>
                         <summary class="sumario-do-cartao">
                           <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
                         </summary>
@@ -580,7 +580,10 @@
                             <details class="card cartao-do-resultado" id="resultado-{{ loop.index }}">
                                 <summary class="sumario-do-cartao">
                                 <div class="card-header">
-                                    <h5 class="mb-0">Análise de conexão com <strong>{{ result.match_name }}</strong>
+                                    <h5 class="mb-0">
+                                        <span class="conteudo-do-cabecalho">
+                                        <span class="titulo-da-conexao">Análise de conexão com <strong>{{ result.match_name }}</strong></span>
+                                        <span class="selos-do-cabecalho">
                                         {% if result.cm is not none %}
                                             <span class="badge bg-secondary">DNA: {{ result.cm | cm_br }} cM</span>
                                         {% endif %}
@@ -632,6 +635,7 @@
                                         {% if result.validacao_rotulo %}
                                             <span class="badge {{ result.validacao_classe }}" title="{{ result.validacao_aviso or '' }}">{{ result.validacao_rotulo }}<span class="visually-hidden">: veredito de validação temporal da linha documental</span></span>
                                         {% endif %}
+                                        </span>
                                         {# O CAMINHO DE VOLTA. Sem ele, o operador que le a analise
                                            completa — cinco secoes, com tabelas e grafo — so chega
                                            a lista de novo rolando a pagina inteira de volta.
@@ -679,6 +683,7 @@
                                             {% elif result.profundidade == 'atencao' %}
                                                 <span class="badge profundidade-atencao" title="{{ result.profundidade_aviso }}">{{ result.profundidade_razao | round(1) }}×<span class="visually-hidden">: diferença de profundidade a conferir</span></span>
                                             {% endif %}
+                                        </span>
                                         </span>
                                     </h5>
                                 </div>
@@ -1047,6 +1052,18 @@
                                                     <div><dt>Cromossomo(s)</dt><dd>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</dd></div>
                                                     <div><dt>Método do valor</dt><dd>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</dd></div>
                                                 </dl>
+                                                {# O FILTRO DE ENDOGAMIA. O texto e montado no
+                                                   nucleo (`core.endogamia`), e nao aqui: o
+                                                   template nao remonta frase de dominio. O total
+                                                   bruto continua no badge `DNA:` do cabecalho; o
+                                                   total recalculado aparece nesta linha, para o
+                                                   operador ver os dois numeros lado a lado. #}
+                                                {% if kit.endogamia and kit.endogamia.mensagem %}
+                                                    <p class="legenda-informativa">
+                                                        <strong>Filtro de endogamia.</strong>
+                                                        {{ kit.endogamia.mensagem }}
+                                                    </p>
+                                                {% endif %}
                                                 <details class="mb-3">
                                                     <summary>Posições</summary>
                                                     <div class="mt-2">
@@ -1184,22 +1201,51 @@
                          FORA DOS BOTOES DE EXPANDIR/RECOLHER: aqueles dizem "Expandir todas as
                          analises", e arrastar 266 descartes junto seria surpresa. #}
                       <details class="card bloco-descartados">
+                        {# A QUEM A ARVORE OFERECIA (feature 034). O bloco existia desde a `020`
+                           como uma lista de motivos tecnicos — e um motivo tecnico nao diz ao
+                           operador se o descarte foi acerto ou perda. Agora cada linha mostra
+                           os candidatos que o nucleo avaliou, com ano de nascimento: o ano e'
+                           o que separa "quase acertou" de "homonimo de outro seculo".
+                           Medido no GEDCOM real: 76 dos 364 descartes tem candidato, e 7 deles
+                           levariam caminho novo. Os outros 288 nao tem ninguem compativel, e
+                           continuam so' com o motivo. #}
+                        {% set nd = namespace(com_candidato=0) %}
+                        {% for item in skipped_matches %}
+                          {% if item.candidatos | selectattr('compativel') | list %}{% set nd.com_candidato = nd.com_candidato + 1 %}{% endif %}
+                        {% endfor %}
                         <summary class="sumario-do-cartao">
-                          <div class="card-header"><h5 class="mb-0">Matches descartados ({{ skipped_matches | length }})</h5></div>
+                          <div class="card-header"><h5 class="mb-0">Matches descartados ({{ skipped_matches | length }}){% if nd.com_candidato %} · <strong>{{ nd.com_candidato }}</strong> com candidato na árvore{% endif %}</h5></div>
                         </summary>
                         <div class="card-body">
                           <p class="text-muted">
                             Estes nomes estavam no CSV, mas não foi possível ligá-los a nenhum registro do GEDCOM.
                             Nada foi inferido a partir do DNA: o motivo da rejeição aparece abaixo.
+                            {% if nd.com_candidato %}
+                              Quando a árvore tem alguém com o mesmo prenome e sobrenome, os candidatos aparecem
+                              com o ano de nascimento — é o que permite decidir se vale corrigir a grafia, procurar
+                              homônimo ou aceitar o descarte.
+                            {% endif %}
                           </p>
+
+                          {# A LISTA DE TRABALHO (feature 035). Os descartes se resolvem no
+                             cadastro da arvore, que acontece em outra ferramenta — esta acao
+                             leva a lista para la. O JSON viaja no proprio formulario porque a
+                             aplicacao nao tem sessao: sem ele, so' uma nova analise traria os
+                             mesmos dados de volta. Ver `reporting/csv_de_descartes.py`. #}
+                          <form method="POST" action="{{ url_for('descartes_em_csv') }}" class="mb-3">
+                            <input type="hidden" name="dados" value="{{ skipped_matches | tojson | forceescape }}">
+                            <button type="submit" class="botao-do-cartao">Baixar lista de trabalho (CSV)</button>
+                            <span class="text-muted small">com o motivo e os candidatos de cada nome; a coluna Motivo separa quem não tem sobrenome na árvore de quem tem o sobrenome e não o parente.</span>
+                          </form>
 
                           <div class="table-responsive">
                             <table class="table table-sm align-middle">
                               <thead>
                                 <tr>
-                                  <th style="width:32%">Nome no CSV</th>
-                                  <th style="width:14%">Kit</th>
-                                  <th style="width:12%">cM</th>
+                                  <th style="width:26%">Nome no CSV</th>
+                                  <th style="width:10%">Kit</th>
+                                  <th style="width:8%">cM</th>
+                                  <th style="width:34%">Candidatos na árvore</th>
                                   <th>Motivo</th>
                                 </tr>
                               </thead>
@@ -1209,6 +1255,56 @@
                                     <td><strong>{{ item.csv_name }}</strong></td>
                                     <td>{{ item.kit or '—' }}</td>
                                     <td>{{ item.cm | cm_br if item.cm is not none else '—' }}</td>
+                                    <td>
+                                      {# SO' O CANDIDATO COMPATIVEL ENTRA COMO LISTA (prenome parecido E
+                                         sobrenome em comum). Os demais avaliados sao uteis para explicar
+                                         a recusa, mas apresentados como "melhor avaliado" e em texto
+                                         fraco: medido no GEDCOM real, 281 descartes tem algum
+                                         candidato e apenas 76 tem um COMPATIVEL. Listar os 281 como
+                                         se fossem parentes seria ruido com cara de resposta. #}
+                                      {% set compativeis = item.candidatos | selectattr('compativel') | list %}
+                                      {% if compativeis %}
+                                        <ul class="list-unstyled mb-0 small candidatos-do-descarte">
+                                          {% for candidato in compativeis %}
+                                            <li>
+                                              <strong>{{ candidato.nome }}</strong>
+                                              {% if candidato.nascimento %}<span class="text-muted">(n. {{ candidato.nascimento }})</span>{% endif %}
+                                              <span class="text-muted">· prenome {{ candidato.prenome | round | int if candidato.prenome is not none else '—' }} · nota {{ candidato.nota if candidato.nota is not none else '—' }}</span>
+                                              {# A PROMOCAO (feature 034). Formulario PROPRIO, e nao um botao
+                                                 dentro do formulario da analise: o bloco fica fora dele e
+                                                 formulario aninhado nao e' HTML valido. Os campos repetem o
+                                                 que a analise original usou (arvore, raiz, CSV), porque a
+                                                 aplicacao nao tem sessao — e reenvia as promocoes ja feitas,
+                                                 para a segunda nao apagar a primeira.
+                                                 A DECISAO E' DO OPERADOR: nada e' promovido por nota. #}
+                                              <form method="POST" class="m-0 mt-1 promover-candidato">
+                                                <input type="hidden" name="action" value="dna_analysis">
+                                                <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                                <input type="hidden" name="matches_csv_filename" value="{{ csv_filename_usado }}">
+                                                <input type="hidden" name="root_name" value="{{ root_name_usado }}">
+                                                {% if dna_results %}
+                                                  {% for promovido in dna_results if promovido.promovido %}
+                                                    <input type="hidden" name="promover" value="{{ promovido.promovido.csv_name }}|{{ promovido.promovido.pid }}|{{ promovido.promovido.motivo }}">
+                                                  {% endfor %}
+                                                {% endif %}
+                                                <input type="hidden" name="promover" value="{{ item.csv_name }}|{{ candidato.id }}|{{ item.motivo }}">
+                                                <button type="submit" class="botao-do-cartao">usar este candidato</button>
+                                              </form>
+                                            </li>
+                                          {% endfor %}
+                                        </ul>
+                                      {% elif item.candidatos %}
+                                        {% set fraco = item.candidatos[0] %}
+                                        <span class="text-muted small">
+                                          sem candidato compatível — melhor avaliado: {{ fraco.nome }}
+                                          {% if fraco.nascimento %}(n. {{ fraco.nascimento }}){% endif %}
+                                          · prenome {{ fraco.prenome | round | int if fraco.prenome is not none else '—' }}
+                                          · nota {{ fraco.nota if fraco.nota is not none else '—' }}
+                                        </span>
+                                      {% else %}
+                                        <span class="text-muted">—</span>
+                                      {% endif %}
+                                    </td>
                                     <td>{{ item.motivo }}</td>
                                   </tr>
                                 {% endfor %}

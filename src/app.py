@@ -1,9 +1,10 @@
 import errno
+import json
 import os
 import socket
 import sys
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, Response, render_template, request, send_file
 from reporting.lista_de_arquivos import (
     ABA_DE_ARVORES,
     ABA_DE_DNA,
@@ -32,6 +33,7 @@ from reporting.mermaid_render import (
     generate_mermaid_graph_indirect_bridge,
     mermaid_da_sugestao,
 )
+from reporting.csv_de_descartes import csv_de_descartes
 from ports.adaptadores import (
     ArmazenamentoEmDisco,
     CarregadorDeArvoresGedcom,
@@ -513,6 +515,31 @@ def estilo_da_tela():
 # `render_template` por uma captura de contexto, entao o processador nem chega a rodar; e as
 # chaves que ele le (`:211-221`) continuam sendo as mesmas de antes. Acrescentar chave ao
 # contexto e invisivel para ele, por construcao.
+@app.route("/descartes.csv", methods=["POST"])
+def descartes_em_csv():
+    """Baixa a lista de trabalho dos descartes (feature 035).
+
+    O corpo vem do proprio HTML da analise: o bloco dos descartados carrega, num campo
+    oculto, o mesmo JSON que ele renderizou. Nao ha sessao nem historico nesta aplicacao,
+    entao reenviar o que a tela tem e' o unico jeito de exportar **exatamente** o que o
+    operador esta vendo — e nenhuma analise roda de novo.
+
+    Nada aqui e' confiavel por origem: o conteudo e' texto que o operador ja recebeu, e o
+    formatador da camada `reporting` desarma formula de planilha e escapa o CSV.
+    """
+    try:
+        itens = json.loads(request.form.get("dados") or "[]")
+    except (TypeError, ValueError):
+        itens = []
+    if not isinstance(itens, list):
+        itens = []
+    return Response(
+        csv_de_descartes(itens),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=descartes.csv"},
+    )
+
+
 @app.context_processor
 def _listas_da_tela():
     """As duas listas de arquivos armazenados, para as abas da tela de entrada.
@@ -636,6 +663,18 @@ def index():
                 # prova de que o caminho antigo continua igual, e e essa prova que a paridade
                 # e os testes de rota consomem.
                 referencia_do_csv = request.form.get("matches_csv_filename")
+                # A referencia que PRODUZIU o resultado. Ela volta para a tela porque a
+                # promocao de um descarte (feature 034) e' um POST novo, sem sessao: sem
+                # este valor o segundo envio nao saberia qual CSV analisar.
+                referencia_do_csv_usada = referencia_do_csv
+                # As promocoes ja feitas viajam no formulario, uma por campo `promover`
+                # ("nome|pid|motivo"). Reenvia-las e' o que impede que promover a segunda
+                # conexao apague a primeira — nao ha sessao nem disco para guardar.
+                candidatos_fixos = {}
+                for valor in request.form.getlist("promover"):
+                    partes = valor.split("|", 2)
+                    if len(partes) == 3:
+                        candidatos_fixos[partes[0]] = (partes[1], partes[2])
                 # `None` enquanto nao houver substituicao de versao do CSV. Inicializado aqui
                 # porque os TRES caminhos abaixo — CSV da lista, CSV enviado e CSV substituido
                 # — chegam ao MESMO `render_template` do fim.
@@ -664,6 +703,8 @@ def index():
                         _ARMAZENAMENTO, matches_file.read(), matches_file.filename,
                         "csv", DONO_DO_PROCESSO)
                     caminho_do_csv = armazenado.caminho
+                    if caminho_do_csv:
+                        referencia_do_csv_usada = os.path.basename(caminho_do_csv)
                     if armazenado.motivo is not None:
                         return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names, message=armazenado.motivo, success=False)
                     if armazenado.desfecho == SUBSTITUIDO:
@@ -677,7 +718,7 @@ def index():
 
                 resultado = caso_de_uso_dna(
                     caminho_do_csv, root_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO,
-                    gedcom_filename, _REGISTRO)
+                    gedcom_filename, _REGISTRO, candidatos_fixos=candidatos_fixos or None)
                 # O aviso da substituicao do CSV acompanha a mensagem do resultado, e nao a
                 # substitui: a analise e o assunto da tela (`T038`).
                 mensagem_final = resultado.mensagem
@@ -692,6 +733,10 @@ def index():
                     observacoes_do_arquivo=resultado.observacoes_do_arquivo,
                     message=mensagem_final,
                     aviso_de_persistencia=resultado.aviso_de_persistencia,
+                    # O que a promocao de um descarte precisa para reenviar a MESMA
+                    # analise (feature 034): a raiz e o CSV que produziram este resultado.
+                    root_name_usado=root_name,
+                    csv_filename_usado=referencia_do_csv_usada,
                     success=True
                 )
             except ErroDeDominio as erro_de_dominio:

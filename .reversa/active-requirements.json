@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/034-revisao-dos-descartes",
-  "feature-id": "034",
-  "short-name": "revisao-dos-descartes",
-  "started-at": "2026-10-19T13:55:00Z",
-  "current-stage": "coding-em-progresso",
-  "stages-completed": ["requirements", "plan", "to-do"],
+  "feature-dir": "_reversa_forward/036-refino-do-cartao-de-resultado",
+  "feature-id": "036",
+  "short-name": "refino-do-cartao-de-resultado",
+  "started-at": "2026-10-19T18:46:46Z",
+  "current-stage": "done",
+  "stages-completed": ["requirements", "clarify", "plan", "to-do", "coding", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
