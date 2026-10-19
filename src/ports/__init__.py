@@ -346,6 +346,22 @@ class ConexaoDaAnalise:
 
 
 @dataclass(frozen=True)
+class CandidatoDoDescarte:
+    """UM candidato que a arvore oferecia para um nome descartado (feature 034).
+
+    Existe para que a tela possa dizer a quem o nucleo quase ligou o nome: sem isso,
+    o descarte e' um beco sem saida. `nota` e `prenome` sao as duas medidas que o
+    nucleo usa na decisao, e vao como numero — nao como texto de motivo.
+    """
+
+    nome: str
+    prenome: float | None = None
+    nota: float | None = None
+    nascimento: str | None = None
+    compativel: bool = False
+
+
+@dataclass(frozen=True)
 class DescartadoDaAnalise:
     """UMA conexao descartada, com o motivo (`skipped_match`, `RN-07`).
 
@@ -360,6 +376,7 @@ class DescartadoDaAnalise:
     reason: str
     kit: str | None = None
     total_cm: float | None = None
+    candidatos: tuple[CandidatoDoDescarte, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -426,4 +443,5 @@ __all__ = [
     "KitDaAnalise",
     "ConexaoDaAnalise",
     "DescartadoDaAnalise",
+    "CandidatoDoDescarte",
 ]

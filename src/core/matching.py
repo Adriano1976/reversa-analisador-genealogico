@@ -64,6 +64,11 @@ def build_ged_indexes(arvore: Arvore):
         non_stop = [t for t in key_tokens if t not in STOP_WORDS]
         features[pid] = {
             "norm": key,
+            # O nome de exibicao viaja junto (feature 034): a lista dos descartados
+            # mostra ao operador QUEM a arvore oferecia, e o id nao diz nada a ele.
+            # Guardar aqui evita que o caminho de avaliacao precise da arvore — os
+            # testes de aceitacao chamam a funcao com `arvore=None` de proposito.
+            "nome": nm,
             "given_tokens": non_stop[:2] or key_tokens[:2],
             "surnames": set(surnames),
             "surnames_list": surnames,
@@ -72,11 +77,29 @@ def build_ged_indexes(arvore: Arvore):
     return ged_index, surname_index, features
 
 
-def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_index, features):
-    """Retorna `(candidate_pids, reason)` seguindo o bloco de scoring do legado."""
+def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_index,
+                       features, limite=3):
+    """Retorna `(candidate_pids, reason, proximos)` — a avaliacao completa.
+
+    `proximos` são os `limite` melhores candidatos **avaliados**, mesmo quando nenhum
+    foi aceito. A ordem deles é a do **operador**, não a da decisão: compatível primeiro
+    (prenome parecido e sobrenome em comum), depois prenome, nota e interseção.
+
+    As duas ordens são diferentes de propósito. A decisão desempata por interseção de
+    sobrenomes primeiro; para a tela, isso enterrava o candidato certo atrás de homônimos
+    de sobrenome — medido no GEDCOM real em 2026-10-19: ordenando pela decisão, 50 dos
+    366 descartes mostravam um compatível; ordenando pelo que o operador precisa ver, 76.
+
+    Existe separada de `match_candidates` (feature 034) porque a lista dos descartados
+    precisa mostrar quem a árvore oferecia — e o vencedor sozinho não basta: no caso
+    real `*Maria de Fátima Oliveira de Jesus` o vencedor era outra pessoa, e a
+    candidata compatível estava em segundo. `match_candidates` mantém o contrato de
+    dois valores para não quebrar quem só quer a decisão.
+    """
     key = norm_name(match_name)
     candidate_pids = ged_index.get(key, [])
     reason = None
+    proximos = []
 
     if not candidate_pids:
         given_csv, surn_csv, csv_suffixes = split_name_pt(match_name)
@@ -133,6 +156,7 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
             best_pid = None
             best_score = best_g = -1
             best_inter = -1
+            avaliados = []
             key_norm = norm_name(match_name)
 
             for pid in pool:
@@ -146,6 +170,7 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
                 common_penalty = sum(1 for s in inter_set if s in COMMON_SURNAMES)
                 inter_bonus = 8.0 * inter_cnt_local - 4.0 * common_penalty
                 score = round(0.55 * s_token + 0.25 * s_part + 0.20 * s_given + inter_bonus, 2)
+                avaliados.append((pid, score, s_given, inter_cnt_local))
 
                 # 4o criterio de desempate: menor `xref_id` no empate triplo.
                 # Decisao de 2026-10-05 (_reversa_sdd/questions.md#pergunta-1 e
@@ -159,6 +184,18 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
                     best_pid, best_score, best_g, best_inter = pid, score, s_given, inter_cnt_local
 
             if best_pid is not None:
+                # Os melhores para o OPERADOR: compatível primeiro, depois prenome, nota
+                # e interseção. Não é a ordem da decisão (que desempata por interseção
+                # antes de tudo) — ver a docstring de `avaliar_candidatos`.
+                proximos = [
+                    {"id": pid_, "nome": features[pid_].get("nome") or pid_,
+                     "nota": nota, "prenome": given, "intersecao": inter,
+                     "compativel": given >= 85 and inter >= 1}
+                    for pid_, nota, given, inter
+                    in sorted(avaliados,
+                              key=lambda t: (0 if (t[2] >= 85 and t[3] >= 1) else 1,
+                                             -t[2], -t[1], -t[3], t[0]))[:limite]
+                ]
                 feat_best = features[best_pid]
                 ged_surn_best = feat_best["surnames"]
                 inter_best = csv_surn_all & ged_surn_best
@@ -212,4 +249,16 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
                         reason = (f"score insuficiente ou conflito de sobrenome "
                                   f"(given={best_g}, final={best_score}, inter={inter_cnt}/{required_intersection}, jacc={jacc:.2f})")
 
-    return candidate_pids, reason
+    return candidate_pids, reason, proximos
+
+
+def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_index, features):
+    """Retorna `(candidate_pids, reason)` seguindo o bloco de scoring do legado.
+
+    Assinatura historica, mantida de proposito: quem so quer a decisao nao precisa
+    saber que a avaliacao tambem produz os melhores candidatos. Ver
+    `avaliar_candidatos`.
+    """
+    pids, motivo, _ = avaliar_candidatos(arvore, match_name, cm_value, ged_index,
+                                         surname_index, features)
+    return pids, motivo

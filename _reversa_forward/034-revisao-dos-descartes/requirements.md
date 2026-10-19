@@ -37,6 +37,19 @@ Três, e não um: no caso real `*Maria de Fátima Oliveira de Jesus`, o melhor c
 *Maria de Fátima da Mata Oliveira* (n. 1966), ficou atrás. Com um candidato só, a tela mostraria
 a pessoa errada e o operador não teria como saber.
 
+### RF-01b — Compatível é diferente de "melhor avaliado"
+
+"Compatível" é prenome parecido **e** sobrenome em comum — a condição que o operador consegue
+julgar. Medido no GEDCOM real: dos **366** descartes, **281** têm algum candidato avaliado e
+**76** têm um compatível. Os 281 entram como lista; os demais aparecem como "melhor avaliado",
+em texto fraco, porque listá-los como parentes seria ruído com cara de resposta.
+
+### RF-01c — A ordem é a do operador, não a da decisão
+
+A decisão desempata por interseção de sobrenomes primeiro; para a tela isso enterra o candidato
+certo atrás de homônimos de sobrenome. Medido: pela ordem da decisão, **50** descartes mostravam
+um compatível; pela ordem do operador (compatível, prenome, nota), **76**.
+
 ### RF-02 — A promoção é uma ação do operador, nunca automática
 
 Um botão "usar este candidato" cria o cartão e roda a análise normal (parentesco, veredito,

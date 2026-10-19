@@ -31,15 +31,21 @@ Um fixture de `conftest.py` **substitui** o de mesmo nome de qualquer plugin. Co
 `231 passed, 15 errors` de antes.
 
 `pasta_temporaria` e a **implementacao unica** desta politica, e `tmp_path`
-delega para ela devolvendo `pathlib.Path`. O diretorio fica em `tests/.tmp/`, e
-nao no temporario do sistema, por tres motivos: a raiz fica sob `tests/**`, que e
-area do projeto; nao depende de o temporario do sistema estar saudavel; e
-`pasta_temporaria` ja usava essa raiz, entao unificar nao muda fixture entregue. O
-prefixo `.` mantem o diretorio fora da coleta, porque `norecursedirs` do pytest ja
-ignora `.*`.
+delega para ela devolvendo `pathlib.Path`.
 
-**Consequencia declarada:** o `tmp_path` da suite deixa de ficar sob o temporario
-do sistema. Quem depurar procurando o diretorio em `%TEMP%` nao vai encontra-lo.
+**A raiz mudou para o temporario do sistema em 2026-10-19 (feature 034).** Ela ficava em
+`tests/.tmp/` com tres justificativas: ficar sob `tests/**`, nao depender do temporario do
+sistema e preservar a raiz que `pasta_temporaria` ja usava. A primeira caiu por medicao: o
+sandbox de escrita do harness recusa **criar subdiretorio** dentro do workspace, e
+`os.makedirs(tests/.tmp/<uuid>)` passou a levantar `PermissionError` — 408 testes morriam no
+preparo, antes de qualquer assercao. A segunda nao se sustenta: o que quebrava no temporario do
+sistema era o `getbasetemp()` do pytest criando a raiz com `mode=0o700` (§1), e esse caminho
+nao e mais usado desde que `tmp_path` e declarado aqui; criar a pasta com `os.makedirs` (o que
+`pasta_temporaria` faz) funciona. A terceira e irrelevante: a raiz e interna ao fixture, e
+nenhum teste a recebe pronta.
+
+**Consequencia declarada:** o `tmp_path` da suite fica em `%TEMP%/reversa-analisador-testes`,
+e nao sob `tests/`. A entrada `tests/.tmp/` do `.gitignore` fica como historico.
 
 ## 3. A segunda armadilha: remover com o CWD dentro
 
@@ -80,6 +86,7 @@ import importlib.util
 import os
 import shutil
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 
@@ -88,7 +95,10 @@ import pytest
 _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _PASTA_APP = os.path.join(_RAIZ, "src")
 
-_RAIZ_TEMPORARIA = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".tmp")
+# Ver §2 do docstring: a raiz temporaria vive no temporario do sistema desde a
+# feature 034, porque o sandbox de escrita do harness recusa criar subdiretorio
+# dentro do workspace — e era ali que `tests/.tmp/` ficava.
+_RAIZ_TEMPORARIA = os.path.join(tempfile.gettempdir(), "reversa-analisador-testes")
 
 
 @pytest.fixture

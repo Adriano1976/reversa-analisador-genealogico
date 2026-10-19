@@ -31,6 +31,7 @@ from dataclasses import dataclass
 from core.dna_analysis import dna_analysis as fluxo_dna
 from ports import (
     AnaliseParaRegistrar,
+    CandidatoDoDescarte,
     ConexaoDaAnalise,
     DescartadoDaAnalise,
     KitDaAnalise,
@@ -250,6 +251,18 @@ def projetar_analise(resultados, descartados, mensagem: str,
                 reason=descartado.get("motivo") or "não encontrado",
                 kit=descartado.get("kit"),
                 total_cm=descartado.get("cm"),
+                # Feature 034: a quem a arvore oferecia. Vazio quando a arvore nao
+                # tem ninguem compativel — e' o que separa "revisavel" de "sem saida".
+                candidatos=tuple(
+                    CandidatoDoDescarte(
+                        nome=candidato.get("nome") or "",
+                        prenome=candidato.get("prenome"),
+                        nota=candidato.get("nota"),
+                        nascimento=candidato.get("nascimento"),
+                        compativel=bool(candidato.get("compativel")),
+                    )
+                    for candidato in (descartado.get("candidatos") or ())
+                ),
             )
             for i, descartado in enumerate(descartados)
         ),
@@ -261,7 +274,7 @@ def projetar_analise(resultados, descartados, mensagem: str,
 
 def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
                  dono: str, referencia_da_arvore: str | None = None,
-                 registro=None) -> ResultadoDeAnalise:
+                 registro=None, candidatos_fixos=None) -> ResultadoDeAnalise:
     """Executa a analise e devolve `ResultadoDeAnalise`.
 
     `dono` **nao** e usado para comportamento nesta onda (`RN-06`, `RF-08`): esta na
@@ -277,7 +290,8 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
     # dentro de cada cartao (ver o adendo 017).
     _observacoes: list[str] = []
     resultados, descartados, mensagem = fluxo_dna(caminho_do_csv, root_name, deps, arvore,
-                                                  observacoes_do_arquivo=_observacoes)
+                                                  observacoes_do_arquivo=_observacoes,
+                                                  candidatos_fixos=candidatos_fixos)
 
     aviso = None
     if registro is not None and referencia_da_arvore:

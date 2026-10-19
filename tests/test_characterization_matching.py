@@ -140,7 +140,11 @@ PIPELINE = {
         [{"csv_name": "Zzz Ninguem dos Santos",
           "kit": None,
           "cm": 150,
-          "motivo": "nenhum sobrenome do nome existe no GEDCOM"}],
+          "motivo": "nenhum sobrenome do nome existe no GEDCOM",
+          # Feature 034: o descarte passou a levar os candidatos avaliados. Este nome
+          # nao tem sobrenome que exista no GEDCOM, entao a lista e' vazia — o unico
+          # delta da 034 neste contrato e' a chave nova, nunca o motivo.
+          "candidatos": []}],
         "0 conexões encontradas. 1 descartadas.",
     ),
 }

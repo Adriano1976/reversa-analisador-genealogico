@@ -12,6 +12,13 @@ misturadas em uma so:
    `core.evidence_comparison`) — o cM vira uma LISTA de possibilidades pelo Shared
    cM Project 4.0, e o confronto devolve COMPATIVEL / POSSIVEL / CONFLITANTE /
    INCONCLUSIVO.
+4. **Mitigacao de endogamia** (`core.endogamia`) — roda ao lado e NAO reescreve
+   as tres acima: descarta segmento abaixo de 10 cM, recalcula o total so com o
+   que sobreviveu, sinaliza maior bloco abaixo de 15 cM como `evidência fraca` /
+   `parentesco distante inflado` e aponta `Endogamia estrutural confirmada na
+   árvore` quando ha mais de um caminho mais curto no grafo. O valor bruto
+   continua em `result["cm"]` (contrato de paridade); o mitigado viaja em
+   `result["endogamia"]`.
 
 ## Regra absoluta (nao regredir)
 
@@ -37,6 +44,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from .diagram_domain import resolvedor_de_diagrama
+from .endogamia import DNAAnalyzer, MENSAGEM_ENDEROGAMIA
 from .documentary_relationship import (
     birth_date,
     documental_nao_encontrado,
@@ -62,7 +70,7 @@ from .profundidade_do_caminho import (
     no_na_profundidade_sugerida,
     resumo_da_profundidade,
 )
-from .matching import build_ged_indexes, match_candidates
+from .matching import avaliar_candidatos, build_ged_indexes, match_candidates
 from .name_normalization import (
     drop_short_tokens,
     norm_name,
@@ -262,7 +270,25 @@ def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_
     return chaves, resultado
 
 
-def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None):
+def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None,
+                 candidatos_fixos=None):
+    """Executa a analise de DNA e devolve `(resultados, descartados, mensagem)`.
+
+    ## `candidatos_fixos` (feature 034)
+
+    Mapa `nome no CSV -> (pid, motivo original)`. Quando o operador promove um descarte, a
+    escolha dele **substitui** a decisão do casamento para aquele nome: o cartão nasce do
+    nó indicado e passa por todo o resto do fluxo (parentesco, veredito, janela, sugestão).
+
+    Por que um mapa, e não um parâmetro por chamada: a análise é sem estado de sessão, então
+    a promoção precisa viajar no formulário. O mapa é o que permite várias promoções na
+    mesma página sem gravar nada no disco.
+    """
+    candidatos_fixos = candidatos_fixos or {}
+    # As regras de endogamia sao puras e sem estado: uma instancia por analise e
+    # o suficiente. Os limiares ficam no construtor (`core.endogamia`), e nao
+    # espalhados por literais neste arquivo.
+    analisador_de_dna = DNAAnalyzer()
     """Executa o fluxo completo da analise de DNA.
 
     Retorna `(results_sorted, skipped, message)`. Cada resultado traz, lado a lado
@@ -383,17 +409,45 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
 
     for chave_nome, por_kit in evidencias.items():
         for chave_kit, kit in por_kit.items():
+            # AS REGRAS DE ENDOGAMIA (filtro de 10 cM, total recalculado e maior
+            # bloco) rodam sobre o kit, ANTES do matching. O total BRUTO continua
+            # alimentando `avaliar_candidatos` e `result["cm"]`: a paridade contra
+            # o oraculo congela esse numero e troca-lo aqui mudaria decisoes de
+            # aceitacao. O valor mitigado viaja em `result["endogamia"]`, ao lado
+            # do bruto, para a tela explicar os dois.
+            evidencia_mitigada = analisador_de_dna.avaliar_segmentos(
+                kit.get("segments") or [])
+            kit["endogamia"] = evidencia_mitigada.para_dicionario()
+
             # O matching continua recebendo o cM DO KIT (nunca a soma de kits
             # diferentes), preservando as decisões do fluxo anterior.
-            candidate_pids, reason = match_candidates(
+            candidate_pids, reason, proximos = avaliar_candidatos(
                 arvore, kit["person_name_csv"], kit["total_cm"], ged_index, surname_index, features)
 
+            # A PROMOCAO (feature 034) vem ANTES da recusa: se o operador escolheu um nó,
+            # a decisão do casamento é substituída — e o resto do fluxo é o mesmo, para o
+            # cartão promovido não nascer com menos informação que os outros.
+            promovido = candidatos_fixos.get(kit["person_name_csv"])
+            if promovido:
+                candidate_pids = [promovido[0]]
+                reason = None
+                proximos = []
+
             if not candidate_pids:
+                # A QUEM a arvore oferecia (feature 034): quem cai aqui passa a ver os
+                # tres melhores avaliados, com ano de nascimento. O ano e' o dado que
+                # separa "quase acertou" de "homônimo de outro seculo" — sem ele, o
+                # operador nao tem como decidir se vale promover.
+                candidatos_do_descarte = [
+                    {**candidato, "nascimento": birth_date(arvore[0], candidato["id"])}
+                    for candidato in proximos
+                ]
                 skipped_matches.append({
                     "csv_name": kit["person_name_csv"],
                     "kit": kit["kit"],
                     "cm": kit["total_cm"],
                     "motivo": reason or "não encontrado",
+                    "candidatos": candidatos_do_descarte,
                 })
                 continue
 
@@ -413,6 +467,15 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 ((c, d) for c, d in documentais if (d.get("path") or {}).get("ids")),
                 documentais[0])
             homonimos = documentary.get("homonyms") or {}
+
+            # A ENDOGAMIA ESTRUTURAL, no grafo do GEDCOM. Recebe o grafo por
+            # parametro, converte para nao-direcionado quando preciso (o parser ja
+            # entrega `nx.Graph`) e usa `nx.all_shortest_paths` entre a raiz e o
+            # match. `NetworkXNoPath` e o caso do match sem ligacao documental: o
+            # diagnostico volta vazio e o cartao continua sendo montado.
+            diagnostico_de_endogamia = analisador_de_dna.diagnosticar_endogamia(
+                arvore[2], root_id, pid,
+                mrca_id=(documentary.get("common_ancestor") or {}).get("id"))
 
             # A pessoa da arvore foi escolhida por NOME, e o nome pode ter casado pelo
             # sobrenome e nao pela pessoa. O estado da identificacao NAO muda a escolha —
@@ -536,6 +599,19 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 desenho_da_arvore = deps.gerar_mermaid_da_sugestao(
                     documento_da_validacao, resumo_da_arvore)
 
+            # O DIAGNOSTICO DE ENDOGAMIA em texto, uma vez por cartao. So entra
+            # quando ha fato novo — o filtro descartou algo, havia segmento sem
+            # valor, ou o maior bloco ficou abaixo de 15 cM. Cartao sem ruido nao
+            # ganha aviso: repetir "nada aconteceu" em 142 cartoes e ruido.
+            observacoes_da_endogamia = []
+            if evidencia_mitigada.mensagem and (
+                    evidencia_mitigada.segmentos_descartados
+                    or evidencia_mitigada.segmentos_sem_valor
+                    or evidencia_mitigada.evidencia_fraca):
+                observacoes_da_endogamia.append(evidencia_mitigada.mensagem)
+            if diagnostico_de_endogamia.endogamia_estrutural:
+                observacoes_da_endogamia.append(MENSAGEM_ENDEROGAMIA)
+
             results_list.append({
                 "match_name": nome_na_arvore,
                 "csv_name": kit["person_name_csv"],
@@ -592,7 +668,25 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 "genetic_evidence": evidence,
                 "hypotheses": hypotheses,
                 "comparison": comparison,
-                "observations": _observacoes(documentary, evidence, comparison),
+                # A MITIGACAO DE ENDOGAMIA (regras de 10 cM/15 cM e caminhos no
+                # grafo). `cm` continua sendo o bruto do arquivo; aqui viajam o
+                # total recalculado, o maior bloco pos-filtro e o diagnostico
+                # estrutural. Ver `core.endogamia`.
+                "endogamia": {
+                    **evidencia_mitigada.para_dicionario(),
+                    "arvore": diagnostico_de_endogamia.para_dicionario(),
+                },
+                "observations": list(_observacoes(documentary, evidence, comparison))
+                + observacoes_da_endogamia
+                + (
+                    # A promocao nao apaga a recusa: o cartao diz que nasceu de uma
+                    # decisao do operador e repete o motivo que o sistema tinha dado.
+                    [f"Conexão promovida manualmente a partir da lista de descartes "
+                     f"(o sistema havia recusado: {promovido[1]})."] if promovido else []),
+                # O que a TELA precisa para reenviar as promocoes na proxima analise:
+                # sem isso, promover a segunda conexao apagaria a primeira.
+                "promovido": ({"csv_name": kit["person_name_csv"], "pid": promovido[0],
+                               "motivo": promovido[1]} if promovido else None),
                 "warnings": (documentary.get("warnings") or []) + (evidence.get("warnings") or []),
             })
 
@@ -629,7 +723,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
 # `parsers/csv_ingest` — que e exatamente a dependencia que a RF-09 remove.
 # ---------------------------------------------------------------------------
 __all__ = [
-    "dna_analysis", "Dependencias",
+    "dna_analysis", "Dependencias", "DNAAnalyzer",
     "build_ged_indexes", "match_candidates",
     "norm_name", "split_name_pt", "surnames_set", "top_given_tokens",
     "token_prefixes", "drop_short_tokens", "surname_core_tokens",
