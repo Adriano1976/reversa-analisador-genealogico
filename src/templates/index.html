@@ -460,7 +460,7 @@
                          `observacoes-do-arquivo` FICA no container: e' ela que o teste do
                          adendo 017 usa para achar o bloco e para prender que ele renderiza
                          fora da guarda de `dna_results`. #}
-                      <details class="card observacoes-do-arquivo mb-4" open>
+                      <details class="card observacoes-do-arquivo mb-4">
                         <summary class="sumario-do-cartao">
                           <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
                         </summary>
@@ -483,18 +483,50 @@
                            que o selo do cabecalho do cartao ja dizia. O que so a tabela dava
                            (Parentesco, Janela de vida, Profundidade) subiu para o cabecalho do
                            cartao, que e onde a lista agora vive. Ver o adendo 019. #}
-                        <h2 class="text-center mt-5" id="resultados">Resultado da Análise</h2>
-                        {% set ns = namespace(com_caminho=0, ambiguos=0) %}
+                        <h2 class="text-center mt-5" id="resultados">Resultados das Análises de Conexão</h2>
+                        {# A CONTAGEM EM TRES FAIXAS (feature 033). Ate a 032 a frase tinha DUAS
+                           faixas — "com caminho no GEDCOM" e "apenas com evidencia genetica" — e
+                           chamava de "sem caminho" o que a arvore TEM. A regra da janela de vida
+                           (adendo 016) troca o parentesco apresentado por "nao encontrado", mas o
+                           caminho documental continua guardado em `documentary_do_registro`: o
+                           GEDCOM liga as duas pessoas, a idade e' que torna o parentesco
+                           impossivel. Medido no GEDCOM real em 2026-10: dos 9 caminhos que a
+                           arvore tem, 6 sobrevivem a regra e 3 nao — e a frase antiga mandava o
+                           operador procurar registro faltando onde o trabalho e' procurar
+                           homonimo, exatamente o custo que o adendo 016 descreve.
+
+                           A TERCEIRA FAIXA FECHA A CONTA: `com_caminho + recusados +
+                           sem_caminho` = total. A arvore sugerida NAO e' faixa — ela e' atributo:
+                           um cartao pode ter caminho E sugestao, e somar as duas coisas faria o
+                           numero de "com caminho" crescer sem que um no' documental novo exista.
+                           Por isso ela sai em frase propria, condicionada a existir. #}
+                        {% set ns = namespace(com_caminho=0, ambiguos=0, recusados=0, sugeridos=0) %}
                         {% for r in dna_results %}
-                            {% if r.documentary and r.documentary.path %}{% set ns.com_caminho = ns.com_caminho + 1 %}{% endif %}
+                            {% if r.documentary and r.documentary.path %}
+                                {% set ns.com_caminho = ns.com_caminho + 1 %}
+                            {% elif r.documentary_do_registro and r.documentary_do_registro.path %}
+                                {% set ns.recusados = ns.recusados + 1 %}
+                            {% endif %}
                             {% if r.documentary and r.documentary.ambiguous_identity %}{% set ns.ambiguos = ns.ambiguos + 1 %}{% endif %}
+                            {# A MESMA condicao do bloco do cartao: resumo E desenho. Contar
+                               `sugestao_geracoes` sozinho contaria cartao cujo bloco nao
+                               aparece — e a frase passaria a prometer o que a pagina nao mostra. #}
+                            {% if r.sugestao_resumo and r.sugestao_mermaid %}{% set ns.sugeridos = ns.sugeridos + 1 %}{% endif %}
                         {% endfor %}
-                        <p class="text-center text-muted">
+                        <p class="text-center text-muted contagem-das-conexoes">
                             {{ dna_results | length }} conexões analisadas:
                             <strong>{{ ns.com_caminho }}</strong> com caminho genealógico no GEDCOM
-                            ({{ ns.ambiguos }} com identidade ambígua) e
-                            <strong>{{ dna_results | length - ns.com_caminho }}</strong> apenas com evidência genética
+                            ({{ ns.ambiguos }} com identidade ambígua){% if ns.recusados %},
+                            <strong>{{ ns.recusados }}</strong> com caminho documental recusado pela idade do match{% endif %} e
+                            <strong>{{ dna_results | length - ns.com_caminho - ns.recusados }}</strong> apenas com evidência genética
                             (sem caminho no GEDCOM).
+                            {% if ns.sugeridos %}
+                                {# A arvore sugerida e' HIPOTESE, e a frase diz isso: as geracoes
+                                   marcadas nao existem no GEDCOM. Sem esta ressalva o operador
+                                   leria a sugestao como parentesco documentado. #}
+                                <br><strong>{{ ns.sugeridos }}</strong> {{ 'conexão mostra' if ns.sugeridos == 1 else 'conexões mostram' }}
+                                árvore sugerida — gerações virtuais que não estão no GEDCOM.
+                            {% endif %}
                         </p>
                         {# A LEGENDA DO SELO DE VALIDACAO (feature 031). Ela existe por causa de uma
                            decisao: `Inconclusivo` NAO ganha selo, porque numa analise de 142 cartoes
