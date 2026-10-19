@@ -25,6 +25,12 @@ mesmo match a uma, somando os cM dos segmentos.
   levanta um erro que diz o separador usado, as colunas encontradas, as linhas
   divergentes e a causa provavel — em portugues, sem vazar o texto do erro do
   pandas.
+- **coluna de cM textual ou nula**: `normalizar_cm` aplica
+  `pd.to_numeric(errors="coerce")` na coluna, com fallback de virgula decimal so
+  nas celulas que falharam. O que nao e numero vira `NaN` (e nao zero), e a
+  contagem sai em `df.attrs["cm_nao_numericos"]` para o consumidor decidir. Quem
+  descarta a linha sem cM e o adapter `segmentos_gedmatch`; a leitura preserva o
+  numero de linhas que a agregacao e o aviso de linha torta usam.
 
 Os `attrs` do DataFrame sao o canal escolhido porque a assinatura de
 `read_csv_with_fallback` e contrato: `dna_analysis` e `__all__` a reexportam, e
@@ -173,6 +179,10 @@ def read_csv_with_fallback(path):
         df.attrs["linhas_antes_do_cabecalho"] = cabecalho
         df.attrs["linhas_ignoradas"] = ignoradas
         df.attrs["erro_de_leitura"] = erro_de_leitura
+        # A coluna de cM sai daqui NUMERICA. O core (`genetic_evidence`) e o
+        # adapter de segmentos (`segmentos_gedmatch`) passam a receber float/NaN,
+        # e nao a string crua do CSV — ver `normalizar_cm`.
+        normalizar_cm(df)
         return df
 
     raise CsvIlegivel(
@@ -194,6 +204,50 @@ def detect_columns(df):
     email_cols = [c for c in df.columns if "mail" in c.lower()]
     match_email_col = email_cols[-1] if email_cols else None
     return name_col, cm_col, match_id_col, match_email_col
+
+
+def normalizar_cm(df, cm_col=None):
+    """Converte a coluna de centimorgans para numero, sem derrubar a leitura.
+
+    ## Por que `pd.to_numeric(errors="coerce")` e nao `float()`
+
+    A coluna de cM do GEDmatch nao e garantidamente numerica: export de planilha
+    traz `"n/d"`, `"N/A"`, celula vazia e, em configuracao regional brasileira,
+    virgula decimal. `float()` levanta em todos esses casos, e um `try/except`
+    por linha espalharia tratamento de tipo pelo fluxo. O `coerce` transforma o
+    que nao e numero em `NaN`, de uma vez, e o consumidor decide o que fazer com
+    o nulo — o adapter de segmentos o descarta e conta; o nucleo o trata como
+    ausencia de evidencia.
+
+    ## O que esta funcao NAO faz
+
+    - **Nao descarta linha nenhuma.** O contrato de `read_csv_with_fallback` e
+      devolver uma tabela, e o numero de linhas e usado pela agregacao e pelo
+      aviso de linha torta. Quem descarta linha sem cM e o adapter
+      `segmentos_gedmatch`, que tem contagem propria.
+    - Nao aplica o filtro de 10 cM: limiar e regra de dominio
+      (`core.endogamia`).
+
+    O fallback de virgula so roda nas celulas que falharam no primeiro
+    `to_numeric`: trocar toda virgula por ponto antes poderia ler `1,000` como
+    `1.000` (milhar virando decimal).
+    """
+    if cm_col is None or cm_col not in df.columns:
+        _nome, cm_col, _id, _email = detect_columns(df)
+    if not cm_col or cm_col not in df.columns:
+        return df
+
+    numero = pd.to_numeric(df[cm_col], errors="coerce")
+    if numero.isna().any():
+        alternativa = pd.to_numeric(
+            df[cm_col].astype("string").str.strip().str.replace(",", ".", regex=False),
+            errors="coerce",
+        )
+        numero = numero.fillna(alternativa)
+    df[cm_col] = numero.astype("float64")
+    df.attrs["cm_coluna"] = cm_col
+    df.attrs["cm_nao_numericos"] = int(df[cm_col].isna().sum())
+    return df
 
 
 def aggregate_matches(df, name_col, cm_col, match_id_col, match_email_col):
@@ -225,4 +279,5 @@ def aggregate_matches(df, name_col, cm_col, match_id_col, match_email_col):
 
 
 __all__ = ["read_csv_with_fallback", "detect_columns", "aggregate_matches",
-           "detectar_separador", "localizar_cabecalho", "linhas_irregulares", "SEPARADORES"]
+           "normalizar_cm", "detectar_separador", "localizar_cabecalho",
+           "linhas_irregulares", "SEPARADORES"]
