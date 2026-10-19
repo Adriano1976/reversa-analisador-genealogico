@@ -968,6 +968,27 @@
                                                 </div>
                                             </details>
                                         {% endif %}
+                                        {# A ÁRVORE SUGERIDA (feature 032). Fica logo abaixo do diagrama
+                                           documentado para o operador comparar os dois sem rolar o cartão:
+                                           em cima, o que o GEDCOM afirma; embaixo, como a linha ficaria se
+                                           o hiato for preenchido.
+                                           O resumo fica no TÍTULO, visível sem clique, porque é ele que
+                                           responde "quantas gerações faltam"; o desenho carrega quando o
+                                           operador abre, e o JS já re-renderiza qualquer `details` com
+                                           `.mermaid`. Nenhum nome de pessoa é inventado: os nós são
+                                           `Geração k`. #}
+                                        {% if result.sugestao_resumo and result.sugestao_mermaid %}
+                                            <details class="arvore-sugerida">
+                                                <summary>
+                                                    Árvore sugerida — <strong>{{ result.sugestao_resumo }}</strong><span class="visually-hidden">: gerações intermediárias que o cM estima entre o ancestral e o primeiro descendente documentado, com a conexão rompida marcada</span>
+                                                </summary>
+                                                <div class="graph-container mt-2"><div class="mermaid">{{ result.sugestao_mermaid | safe }}</div></div>
+                                            </details>
+                                        {% elif result.sugestao_aviso %}
+                                            <p class="legenda-informativa sem-sugestao">
+                                                <strong>Árvore sugerida.</strong> {{ result.sugestao_aviso }}
+                                            </p>
+                                        {% endif %}
                                     </div>
                                     {% endif %}
 

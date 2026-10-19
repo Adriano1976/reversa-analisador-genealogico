@@ -373,3 +373,91 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
     lines.append(f'style {sid(B)} fill:#fff8e1,stroke:#f6a821,stroke-width:2px')
 
     return "\n".join(lines)
+
+# ---------------------------------------------------------------------------
+# A arvore sugerida (feature 032)
+# ---------------------------------------------------------------------------
+
+def mermaid_da_sugestao(documental, resumo):
+    """Desenho Mermaid da arvore sugerida: caminho + geracoes virtuais + quebra.
+
+    ## O que entra, e o que NAO entra
+
+    So o caminho documental (`path.ids`) mais as geracoes virtuais. Nenhum no de
+    familia: a familia e' a aresta, e desenha-la dobraria o numero de nos sem dizer
+    nada sobre a linha. A compressao e' a mesma da imagem da feature 030.
+
+    ## Por que `classDef`, se o resto do modulo usa `style`
+
+    Aqui ha exatamente TRES classes repetidas em muitos nos; `classDef` diz isso em tres
+    linhas. No diagrama do caminho documentado cada no tem cor propria, e `style` por no
+    e' mais direto. Os dois sao Mermaid valido, e cada um serve ao seu caso.
+
+    ## A aresta rompida e' a ULTIMA, e isso nao e' estilo
+
+    `linkStyle` indexa as arestas por POSICAO de declaracao, nao por id. Emitir a aresta
+    rompida por ultimo e' o que torna o indice previsivel — e o teste fixa esse indice,
+    porque uma reordenacao mandaria o vermelho tracejado para a aresta errada, em
+    silencio.
+
+    Devolve `None` quando nao ha o que desenhar (sem caminho, sem ancestral ou sem
+    geracao a inserir).
+    """
+    from .visualizer import ROTULO_QUEBRA
+
+    documental = documental or {}
+    resumo = resumo or {}
+    caminho = list((documental.get("path") or {}).get("ids") or [])
+    ancestro = (documental.get("common_ancestor") or {}).get("id")
+    geracoes = int(resumo.get("geracoes") or 0)
+    rotulos = list(resumo.get("rotulos") or [])
+
+    if not caminho or not ancestro or ancestro not in caminho or geracoes <= 0:
+        return None
+
+    nomes = list((documental.get("path") or {}).get("names") or [])
+    sid, lab = _mermaid_sid, _mermaid_label
+    indice = caminho.index(ancestro)
+    filho = caminho[indice - 1] if indice > 0 else None
+
+    def nome(posicao):
+        return nomes[posicao] if posicao < len(nomes) else caminho[posicao]
+
+    linhas = [
+        "graph TD",
+        "  classDef base fill:#a8e6cf,stroke:#4a7c68,stroke-width:2px",
+        "  classDef doc fill:#f5f5f5,stroke:#666666",
+        "  classDef virt fill:#ffd3b6,stroke:#a8724a,stroke-dasharray:4 3",
+    ]
+
+    for posicao, pessoa_id in enumerate(caminho):
+        classe = "base" if posicao == 0 else "doc"
+        linhas.append(f'  {sid(pessoa_id)}["{lab(nome(posicao))}"]:::{classe}')
+
+    virtuais = []
+    for ordem in range(1, geracoes + 1):
+        identificador = f"V{ordem}"
+        rotulo = rotulos[ordem - 1] if ordem - 1 < len(rotulos) else f"Geração {ordem}"
+        linhas.append(f'  {identificador}["{lab(rotulo)}"]:::virt')
+        virtuais.append(identificador)
+
+    arestas = []
+    for posicao in range(len(caminho) - 1):
+        if filho and posicao == indice - 1:
+            continue  # a aresta rompida e' desenhada no fim, marcada
+        arestas.append(f"  {sid(caminho[posicao])} --> {sid(caminho[posicao + 1])}")
+
+    anterior = sid(ancestro)
+    for identificador in virtuais:
+        arestas.append(f"  {anterior} --> {identificador}")
+        anterior = identificador
+    if filho:
+        arestas.append(f"  {anterior} --> {sid(filho)}")
+        arestas.append(f'  {sid(ancestro)} -.->|{lab(ROTULO_QUEBRA)}| {sid(filho)}')
+
+    linhas.extend(arestas)
+    if filho:
+        linhas.append(
+            f"  linkStyle {len(arestas) - 1} stroke:red,stroke-width:2px,"
+            "stroke-dasharray:5 5")
+    return "\n".join(linhas)

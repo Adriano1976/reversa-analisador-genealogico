@@ -30,6 +30,7 @@ from reporting.mermaid_render import (
     anotar_profundidade,
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
+    mermaid_da_sugestao,
 )
 from ports.adaptadores import (
     ArmazenamentoEmDisco,
@@ -49,6 +50,9 @@ _DEPENDENCIAS = Dependencias(
     generate_mermaid_graph,
     generate_mermaid_graph_indirect_bridge,
     anotar_profundidade,
+    # O emissor da arvore sugerida entra pelo mesmo seam (feature 032): `core/` nao
+    # pode importar `reporting/` (ADR-34), entao quem monta o texto e a borda.
+    mermaid_da_sugestao,
 )
 
 # RN-06 e RF-04: NAO ha identidade de usuario. O dono e um marcador unico do

@@ -439,6 +439,63 @@ def injetar_geracoes(grafo, juncao_dados, k, doador_id=None, nasc_ancestral=None
 
 
 # ---------------------------------------------------------------------------
+# Resumo para a tela
+# ---------------------------------------------------------------------------
+
+def resumo_da_sugestao(resultado, documental) -> dict:
+    """Hiato e rótulos das gerações, **sem tocar no grafo**.
+
+    ## Por que esta função existe separada de `arvore_sugerida`
+
+    A tela precisa de um único número — quantas gerações faltam — e `arvore_sugerida`
+    resolve isso copiando o grafo inteiro (`grafo.copy()`, O(V+E)). Numa análise real de
+    142 cartões sobre uma árvore de 35.460 pessoas, isso é a requisição inviável.
+
+    Aqui a conta é a MESMA fórmula da `arvore_sugerida` (RN-07 da `029`), em O(1):
+    `hiato = floor(geracoes + 0.5) - a_up`. Uma casa só para o número, para o cartão e a
+    imagem nunca darem respostas diferentes.
+
+    ## O que ela devolve
+
+    `geracoes` (int), `resumo` (texto do bloco, ou `None`), `rotulos` (as `Geração k`),
+    `aviso` (a frase de ausência, **só em cartão em conflito**) e `codigo`.
+
+    A restrição do aviso a cartão em conflito é decisão de produto (§9 da `032`): repetir a
+    explicação em 142 cartões, a maioria sem conflito, trocaria um silêncio ruidoso por um
+    ruído constante.
+    """
+    resultado = resultado or {}
+    documental = documental or {}
+    degrees = documental.get("degrees") or {}
+    a_up = int(degrees.get("a_up") or 0)
+    geracoes = (resultado.get("mrca_estimado") or {}).get("geracoes")
+    em_conflito = resultado.get("status") == ERRO_CRONICO
+
+    def _sem_sugestao(codigo, aviso):
+        return {"geracoes": 0, "resumo": None, "rotulos": [], "lado": LADO_DOADOR,
+                "codigo": codigo, "aviso": aviso if em_conflito else None}
+
+    if geracoes is None:
+        return _sem_sugestao(
+            SEM_MRCA_ESTIMADO,
+            "O cM deste kit não caiu em nenhuma relação publicada, então não há como "
+            "estimar quantas gerações faltam.")
+
+    hiato = math.floor(float(geracoes) + 0.5) - a_up
+    if hiato <= 0:
+        return _sem_sugestao(
+            HIATO_NAO_POSITIVO,
+            f"O cM estima {math.floor(float(geracoes) + 0.5)} geração(ões) e a árvore já "
+            f"documenta {a_up}: as duas medidas concordam, não há geração a inserir.")
+
+    rotulos = [_rotulo_virtual(ordem) for ordem in range(1, hiato + 1)]
+    resumo = (f"{hiato} geração sugerida" if hiato == 1
+              else f"{hiato} gerações sugeridas")
+    return {"geracoes": hiato, "resumo": resumo, "rotulos": rotulos, "lado": LADO_DOADOR,
+            "codigo": "SUGESTAO_DISPONIVEL", "aviso": None}
+
+
+# ---------------------------------------------------------------------------
 # Orquestração
 # ---------------------------------------------------------------------------
 
@@ -673,5 +730,6 @@ __all__ = [
     "juncao",
     "desacoplar_identidade",
     "injetar_geracoes",
+    "resumo_da_sugestao",
     "arvore_sugerida",
 ]

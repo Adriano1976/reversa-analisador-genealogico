@@ -76,6 +76,7 @@ from .name_normalization import (
 from .relationship_hypotheses import hypotheses_for_evidence
 from utils.text_cleaning import demojibake, strip_bad_utf
 from .registro import get_name
+from .cirurgia_do_grafo import resumo_da_sugestao
 from .validator import (
     ERRO_CRONICO,
     VALIDADO,
@@ -105,10 +106,12 @@ class Dependencias:
     """
 
     __slots__ = ("read_csv", "detect_columns", "aggregate_matches", "generate_mermaid",
-                 "generate_mermaid_indirect", "anotar_profundidade")
+                 "generate_mermaid_indirect", "anotar_profundidade",
+                 "gerar_mermaid_da_sugestao")
 
     def __init__(self, read_csv, detect_columns, aggregate_matches, generate_mermaid,
-                 generate_mermaid_indirect=None, anotar_profundidade=None):
+                 generate_mermaid_indirect=None, anotar_profundidade=None,
+                 gerar_mermaid_da_sugestao=None):
         self.read_csv = read_csv
         self.detect_columns = detect_columns
         self.aggregate_matches = aggregate_matches
@@ -118,6 +121,10 @@ class Dependencias:
         # diagrama ja pronto, e sem ela o fluxo continua inteiro. Ver
         # `reporting.mermaid_render.anotar_profundidade`.
         self.anotar_profundidade = anotar_profundidade
+        # Opcional pelo mesmo motivo (feature 032): sem ela o cartao mostra o resumo da
+        # arvore sugerida e nao o desenho. `core/` nao pode importar `reporting/`
+        # (ADR-34), entao o emissor entra pela borda.
+        self.gerar_mermaid_da_sugestao = gerar_mermaid_da_sugestao
 
 
 
@@ -244,7 +251,7 @@ def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_
     ))
     status = resultado.get("status")
     rotulo, classe = ROTULOS_DE_VALIDACAO.get(status, (None, None))
-    return {
+    chaves = {
         "validacao_status": status,
         "validacao_rotulo": rotulo,
         "validacao_classe": classe,
@@ -252,6 +259,7 @@ def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_
         # carregar texto que nenhuma tela le e a definicao de dado morto.
         "validacao_aviso": _aviso_da_validacao(resultado) if rotulo else None,
     }
+    return chaves, resultado
 
 
 def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None):
@@ -509,13 +517,24 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
             # troca o parentesco pelo "nao encontrado", mas a linha existe — e e sobre ela
             # que o veredito fala. Julgar o texto apresentado daria "inconclusivo"
             # exatamente nos casos em que ha uma linha para julgar.
-            documental_da_validacao = documentary_do_registro or documentary
+            documento_da_validacao = documentary_do_registro or documentary
             comparacao_da_validacao = comparison
             if documentary_do_registro is not None:
-                comparacao_da_validacao = compare(documental_da_validacao, hypotheses, evidence)
-            validacao = _validacao_do_cartao(
-                arvore, root_id, documental_da_validacao, comparacao_da_validacao,
+                comparacao_da_validacao = compare(documento_da_validacao, hypotheses, evidence)
+            validacao, resultado_da_validacao = _validacao_do_cartao(
+                arvore, root_id, documento_da_validacao, comparacao_da_validacao,
                 kit, geracoes_do_kit, ano_base, intervalo_de_geracao)
+
+            # A ARVORE SUGERIDA NA TELA (feature 032). O resumo e' O(1) e nao copia o
+            # grafo: `arvore_sugerida` faria uma copia de O(V+E) por cartao, e a analise
+            # real tem 142. O desenho so' e' montado quando ha' geracao a inserir e o
+            # emissor foi injetado.
+            resumo_da_arvore = resumo_da_sugestao(resultado_da_validacao,
+                                                  documento_da_validacao)
+            desenho_da_arvore = None
+            if resumo_da_arvore["geracoes"] > 0 and deps.gerar_mermaid_da_sugestao:
+                desenho_da_arvore = deps.gerar_mermaid_da_sugestao(
+                    documento_da_validacao, resumo_da_arvore)
 
             results_list.append({
                 "match_name": nome_na_arvore,
@@ -554,6 +573,12 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 "validacao_rotulo": validacao["validacao_rotulo"],
                 "validacao_classe": validacao["validacao_classe"],
                 "validacao_aviso": validacao["validacao_aviso"],
+                # A arvore sugerida na tela (feature 032): quatro chaves, sendo a ultima
+                # a unica que aparece em cartao SEM sugestao — e so' em cartao em conflito.
+                "sugestao_geracoes": resumo_da_arvore["geracoes"],
+                "sugestao_resumo": resumo_da_arvore["resumo"],
+                "sugestao_mermaid": desenho_da_arvore,
+                "sugestao_aviso": resumo_da_arvore["aviso"],
                 "cm": kit["total_cm"],
                 "kit": kit["kit"],
                 "text_path": " → ".join(nomes_do_caminho),

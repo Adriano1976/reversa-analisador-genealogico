@@ -24,11 +24,13 @@ def deps():
     from reporting.mermaid_render import (
         generate_mermaid_graph,
         generate_mermaid_graph_indirect_bridge,
+        mermaid_da_sugestao,
     )
 
     return Dependencias(read_csv_with_fallback, detect_columns,
                         aggregate_matches, generate_mermaid_graph,
-                        generate_mermaid_graph_indirect_bridge)
+                        generate_mermaid_graph_indirect_bridge,
+                        gerar_mermaid_da_sugestao=mermaid_da_sugestao)
 
 
 def arvore_de(fonte):
