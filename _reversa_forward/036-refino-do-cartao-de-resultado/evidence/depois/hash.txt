@@ -1,0 +1,10 @@
+pasta de uploads: %TEMP%\hash-036\uploads (pasta temporária vazia)
+status: 200
+bytes: 30781
+sha256: c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0
+
+Nota de método: a primeira medição desta sessão (43.064 bytes, 06557360…) usou a pasta REAL de
+uploads e listou os arquivos armazenados; o `SHA_DA_TELA` mede a tela VAZIA, com pasta temporária,
+como o fixture `cliente_de_upload` faz. A mudança da 036 vive sob `{% if dna_results %}` e não
+alcança a tela vazia — o valor esperado não se moveu e `tests/test_icone_de_atalho.py` não foi
+editado.

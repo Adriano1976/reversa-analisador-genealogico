@@ -1,0 +1,43 @@
+﻿== 1. Estado geral do working tree (src/ e tests/) ==
+Mudancas PRE-EXISTENTES de rodadas anteriores convivem com as desta feature. As duas
+superficies da 036 sao src/assets/app.css e src/templates/index.html; o teste novo e
+tests/test_cartao_em_tres_faixas.py.
+ M src/app.py
+ M src/application/dna_analysis.py
+ M src/assets/app.css
+ M src/core/dna_analysis.py
+ M src/core/matching.py
+ M src/parsers/csv_ingest.py
+ M src/ports/__init__.py
+ M src/templates/index.html
+ M tests/conftest.py
+ M tests/test_ambiente_temporario_da_suite.py
+ M tests/test_characterization_matching.py
+?? src/core/endogamia.py
+?? src/parsers/segmentos_gedmatch.py
+?? src/reporting/csv_de_descartes.py
+?? tests/test_candidatos_do_descarte.py
+?? tests/test_cartao_em_tres_faixas.py
+?? tests/test_csv_de_descartes.py
+?? tests/test_endogamia.py
+?? tests/test_promocao_de_descarte.py
+
+== 2. Delta real da 036 contra o baseline congelado em evidence/antes ==
+.../evidence/antes => src/assets}/app.css          | 93 ++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
+.../evidence/antes => src/templates}/index.html                    | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+== 3. Hashes antes e depois ==
+antes:
+app.css 9299AF1BDEE9212729FB5F667E041E791EE2395A92894DF7327B651314D3A05C
+index.html 4AC7B12017ADCDF1E4DCEB79EA7756C99E1D7911283F1B5794F2D1C84F74D76F
+depois:
+app.css E78C2171BE8F901954AC7655A7A48114A48BBD53C262CBB4D567777804A620EB
+index.html 9E3BF505DEE8C552D8A58CF109577121CCC8A85F933A34B0A474FA85C5D38188
+
+== 4. Seletores dos blocos irmaos na folha (todos anteriores ao bloco novo) ==
+114: .bloco-descartados > summary .card-header h5{color:var(--muted);font-size:1.05rem}
+185: .observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
+186: .observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
+187: .observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}

@@ -1,0 +1,1 @@
+﻿040df73 chore(reversa): ativa a feature 033 contador em tres faixas

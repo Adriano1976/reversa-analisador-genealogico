@@ -1,0 +1,140 @@
+﻿FFF..FFFFFF                                                              [100%]
+================================== FAILURES ===================================
+___ TestOArranjoDoCabecalho.test_o_titulo_vem_antes_dos_selos_e_dos_sinais ____
+
+self = <test_cartao_em_tres_faixas.TestOArranjoDoCabecalho object at 0x00000271DB32F4D0>
+cabecalho = '\n                                    <h5 class="mb-0">An�lise de conex�o com <strong>Primo Sintetico</strong>\n     ...                                  </span>\n                                    </h5>\n                                '
+
+    def test_o_titulo_vem_antes_dos_selos_e_dos_sinais(self, cabecalho):
+        for marcador in ("titulo-da-conexao", "selos-do-cabecalho", "cabecalho-sinais"):
+>           assert marcador in cabecalho, f"a faixa `{marcador}` sumiu do cabe�alho"
+E           AssertionError: a faixa `titulo-da-conexao` sumiu do cabe�alho
+E           assert 'titulo-da-conexao' in '\n                                    <h5 class="mb-0">An�lise de conex�o com <strong>Primo Sintetico</strong>\n     ...                                  </span>\n                                    </h5>\n                                '
+
+tests\test_cartao_em_tres_faixas.py:73: AssertionError
+___________ TestOArranjoDoCabecalho.test_o_titulo_tem_faixa_propria ___________
+
+self = <test_cartao_em_tres_faixas.TestOArranjoDoCabecalho object at 0x00000271DB32FB10>
+cabecalho = '\n                                    <h5 class="mb-0">An�lise de conex�o com <strong>Primo Sintetico</strong>\n     ...                                  </span>\n                                    </h5>\n                                '
+
+    def test_o_titulo_tem_faixa_propria(self, cabecalho):
+>       assert re.search(
+            r'(?s)<span class="titulo-da-conexao">.*?</span>\s*<span class="selos-do-cabecalho">',
+            cabecalho,
+        ), (
+            "o t�tulo e os selos voltaram a dividir a mesma faixa: o `span` do t�tulo tem de "
+            "fechar antes de a faixa dos selos abrir"
+        )
+E       AssertionError: o t�tulo e os selos voltaram a dividir a mesma faixa: o `span` do t�tulo tem de fechar antes de a faixa dos selos abrir
+E       assert None
+E        +  where None = <function search at 0x00000271D8156CF0>('(?s)<span class="titulo-da-conexao">.*?</span>\\s*<span class="selos-do-cabecalho">', '\n                                    <h5 class="mb-0">An�lise de conex�o com <strong>Primo Sintetico</strong>\n     ...                                  </span>\n                                    </h5>\n                                ')
+E        +    where <function search at 0x00000271D8156CF0> = re.search
+
+tests\test_cartao_em_tres_faixas.py:85: AssertionError
+_____ TestOArranjoDoCabecalho.test_os_selos_ficam_dentro_da_faixa_propria _____
+
+self = <test_cartao_em_tres_faixas.TestOArranjoDoCabecalho object at 0x00000271DB2F6520>
+cabecalho = '\n                                    <h5 class="mb-0">An�lise de conex�o com <strong>Primo Sintetico</strong>\n     ...                                  </span>\n                                    </h5>\n                                '
+
+    def test_os_selos_ficam_dentro_da_faixa_propria(self, cabecalho):
+        faixa = re.search(
+            r'(?s)<span class="selos-do-cabecalho">(.*?)</span>', cabecalho)
+>       assert faixa, "a faixa dos selos n�o existe no cabe�alho"
+E       AssertionError: a faixa dos selos n�o existe no cabe�alho
+E       assert None
+
+tests\test_cartao_em_tres_faixas.py:96: AssertionError
+_______________ TestAFolha.test_as_tres_faixas_tem_area_de_grid _______________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271DB32F9D0>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_as_tres_faixas_tem_area_de_grid(self, folha):
+>       assert "grid-template-areas" in folha, (
+            "a folha perdeu o arranjo em tr�s faixas"
+        )
+E       AssertionError: a folha perdeu o arranjo em tr�s faixas
+E       assert 'grid-template-areas' in '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+tests\test_cartao_em_tres_faixas.py:124: AssertionError
+____________________ TestAFolha.test_o_titulo_mede_1_4_rem ____________________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271DB32FC50>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_o_titulo_mede_1_4_rem(self, folha):
+        regra = re.search(r"\.titulo-da-conexao\{([^}]*)\}", folha)
+>       assert regra, "a regra do t�tulo sumiu da folha"
+E       AssertionError: a regra do t�tulo sumiu da folha
+E       assert None
+
+tests\test_cartao_em_tres_faixas.py:132: AssertionError
+________________ TestAFolha.test_o_casco_e_escopado_no_cartao _________________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271DB2F68B0>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_o_casco_e_escopado_no_cartao(self, folha):
+        regra = re.search(r"details\.card\.cartao-do-resultado\{([^}]*)\}", folha)
+>       assert regra, "o casco do cart�o n�o est� escopado em `.cartao-do-resultado`"
+E       AssertionError: o casco do cart�o n�o est� escopado em `.cartao-do-resultado`
+E       assert None
+
+tests\test_cartao_em_tres_faixas.py:139: AssertionError
+___________________ TestAFolha.test_a_barra_lateral_existe ____________________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271DB2F69E0>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_a_barra_lateral_existe(self, folha):
+>       assert ".cartao-do-resultado::before{" in folha, (
+            "a barra lateral do cart�o sumiu"
+        )
+E       AssertionError: a barra lateral do cart�o sumiu
+E       assert '.cartao-do-resultado::before{' in '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+tests\test_cartao_em_tres_faixas.py:145: AssertionError
+______________ TestAFolha.test_o_hover_do_cabecalho_nao_sublinha ______________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271D9BE7E30>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_o_hover_do_cabecalho_nao_sublinha(self, folha):
+>       assert re.search(
+            r"\.cartao-do-resultado > summary\.sumario-do-cartao:hover\{[^}]*"
+            r"text-decoration:none",
+            folha,
+        ), (
+            "a regra global `details>summary:hover` voltou a valer no cart�o: o cabe�alho "
+            "inteiro sublinha ao passar o mouse"
+        )
+E       AssertionError: a regra global `details>summary:hover` voltou a valer no cart�o: o cabe�alho inteiro sublinha ao passar o mouse
+E       assert None
+E        +  where None = <function search at 0x00000271D8156CF0>('\\.cartao-do-resultado > summary\\.sumario-do-cartao:hover\\{[^}]*text-decoration:none', '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n')
+E        +    where <function search at 0x00000271D8156CF0> = re.search
+
+tests\test_cartao_em_tres_faixas.py:150: AssertionError
+________________ TestAFolha.test_o_telefone_empilha_as_faixas _________________
+
+self = <test_cartao_em_tres_faixas.TestAFolha object at 0x00000271DB360380>
+folha = '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+    def test_o_telefone_empilha_as_faixas(self, folha):
+>       assert '"titulo" "selos" "sinais" "acao"' in folha, (
+            "o arranjo de telefone sumiu: o 'Voltar' volta a disputar a linha do t�tulo"
+        )
+E       AssertionError: o arranjo de telefone sumiu: o 'Voltar' volta a disputar a linha do t�tulo
+E       assert '"titulo" "selos" "sinais" "acao"' in '/* app.css � a folha de estilo da tela, substituindo o `<style>` embutido no template.\n   Mant�m TODOS os nomes de c...istro{\n  background-color:var(--aviso-bg);color:var(--danger);border:1px solid var(--danger);\n  font-weight:600\n}\n'
+
+tests\test_cartao_em_tres_faixas.py:160: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_cartao_em_tres_faixas.py::TestOArranjoDoCabecalho::test_o_titulo_vem_antes_dos_selos_e_dos_sinais
+FAILED tests/test_cartao_em_tres_faixas.py::TestOArranjoDoCabecalho::test_o_titulo_tem_faixa_propria
+FAILED tests/test_cartao_em_tres_faixas.py::TestOArranjoDoCabecalho::test_os_selos_ficam_dentro_da_faixa_propria
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_as_tres_faixas_tem_area_de_grid
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_o_titulo_mede_1_4_rem
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_o_casco_e_escopado_no_cartao
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_a_barra_lateral_existe
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_o_hover_do_cabecalho_nao_sublinha
+FAILED tests/test_cartao_em_tres_faixas.py::TestAFolha::test_o_telefone_empilha_as_faixas
+9 failed, 2 passed in 5.02s
