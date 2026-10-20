@@ -1,0 +1,1829 @@
+{
+ "ged": "0fa3699e246caae1__Arvore_Unificada_Oficial_V1_2.ged",
+ "pessoas": 35460,
+ "cartoes": 93,
+ "descartados": 363,
+ "por_estado": {
+  "identidade": {
+   "confirmada": 54,
+   "a_confirmar": 15,
+   "grafia": 24
+  },
+  "janela_de_vida": {
+   "possivel": 67,
+   "suspeita": 9,
+   "impossivel": 17
+  },
+  "profundidade": {
+   "atencao": 4,
+   "divergencia": 1,
+   "concorda": 7,
+   "sem_dado": 81
+  },
+  "confrontacao_efetiva": {
+   "INCONCLUSIVO": 90,
+   "COMPATIVEL": 3
+  },
+  "documental": {
+   "found": 11,
+   "ambiguous": 1,
+   "not_found": 81
+  }
+ },
+ "cartoes_detalhe": [
+  {
+   "csv_name": "Maria do Carmo Teixeira",
+   "kit": "ET2578466",
+   "pessoa": "@I034c95c6@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Therezinha Carvalho do Nascimento Souza",
+   "kit": "NG2749622",
+   "pessoa": "@I2afe8eff@",
+   "identidade": "a_confirmar",
+   "estado": "COMPATIVEL"
+  },
+  {
+   "csv_name": "Eline Vasconcelos",
+   "kit": "XS4787142",
+   "pessoa": "@Ied570f0d@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Aida Silva Rollemberg",
+   "kit": "WU5354158",
+   "pessoa": "@I0eb171fe@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "João Augusto Guimarães Figueiredo",
+   "kit": "EJ8115026",
+   "pessoa": "@I4ba0daf4@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Sarah C Fontes Vieira",
+   "kit": "TM8854429",
+   "pessoa": "@Iba944286@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Fabiano machado",
+   "kit": "SB6284213",
+   "pessoa": "@I0db6adea@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria de Lourdes Dias",
+   "kit": "KB9655932",
+   "pessoa": "@I82812738@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Izabel Carregosa de Carvalho Vieira",
+   "kit": "TY2562427",
+   "pessoa": "@If064c63c@",
+   "identidade": "confirmada",
+   "estado": "COMPATIVEL"
+  },
+  {
+   "csv_name": "Tereza Fonseca",
+   "kit": "SX7935030",
+   "pessoa": "@I7b6a3a36@",
+   "identidade": "confirmada",
+   "estado": "COMPATIVEL"
+  },
+  {
+   "csv_name": "MARIA AUXILIADORA",
+   "kit": "CM9336900",
+   "pessoa": "@I31afa2fd@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Abilio Jose Hora Ribeiro",
+   "kit": "SG9204861",
+   "pessoa": "@I6e7150b7@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Airton Passos Vasconcelos",
+   "kit": "SD5093704",
+   "pessoa": "@I1508a9c1@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Odonio dos Anjos Filho",
+   "kit": "XF4295586",
+   "pessoa": "@I9fa31fa4@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Edneide Veloso",
+   "kit": "RJ4327178",
+   "pessoa": "@I7f4f83dc@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Silva Dantas",
+   "kit": "KT5423497",
+   "pessoa": "@I0416ae4e@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Valderedo Teles da Silva",
+   "kit": "AD2905747",
+   "pessoa": "@Ibc9f422d@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria da Gloria Santos",
+   "kit": "HD1782597",
+   "pessoa": "@I68f4d8d3@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Benigna Vieira de Melo",
+   "kit": "FR2289478",
+   "pessoa": "@I913eea0b@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Manoel Vieira da Silva",
+   "kit": "TG8027863",
+   "pessoa": "@I02fa7bd1@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Maria Ribeiro e Silva",
+   "kit": "YH4535042",
+   "pessoa": "@I07d383eb@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Ivanda Bezerra de SantAnna",
+   "kit": "KK5486448",
+   "pessoa": "@I3933aa44@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Celio de Andrade Borges",
+   "kit": "LC2353657",
+   "pessoa": "@I6c2b6ae3@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Darcy dos Santos Silva",
+   "kit": "YM6050799",
+   "pessoa": "@I1463b5f3@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Margarida",
+   "kit": "ZC1171551",
+   "pessoa": "@Ib5d0894c@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Matheus de Castro Andrade",
+   "kit": "TJ9069817",
+   "pessoa": "@I9d936e6d@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Mariana Aurea da Silva",
+   "kit": "WF2098279",
+   "pessoa": "@I95b36531@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Joao Ribeiro de Almeida Neto",
+   "kit": "UA7948596",
+   "pessoa": "@I7aa1ec7d@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Lucia dos Santos",
+   "kit": "XV8257990",
+   "pessoa": "@I55ec0f5d@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "PAULO",
+   "kit": "AZ5038371",
+   "pessoa": "@Iea0e39fa@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria de Lourdes Prata de Jesus",
+   "kit": "AF7529068",
+   "pessoa": "@I62577c4d@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria do Carmo dos Santos",
+   "kit": "MW3062586",
+   "pessoa": "@I743e6a49@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Conceição de Oliveira",
+   "kit": "HT7056386",
+   "pessoa": "@I790e3537@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Lucimara Menezes de Jesus Santos",
+   "kit": "QZ6576089",
+   "pessoa": "@I3ba5d429@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Resende dos Santos",
+   "kit": "UV5376615",
+   "pessoa": "@I34d9f287@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Maria Natividade",
+   "kit": "UN9252140",
+   "pessoa": "@I149596fb@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Luzilene Alves",
+   "kit": "JU1659518",
+   "pessoa": "@I03d07348@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Camila Maria de Jesus",
+   "kit": "BN8387325",
+   "pessoa": "@I2a62f22c@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Vieira de Souza",
+   "kit": "HY7011355",
+   "pessoa": "@I7f0577cc@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Adriana Rodrigues de Azevedo",
+   "kit": "LA3682859",
+   "pessoa": "@Ieaba2e8a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Julio Ferreira",
+   "kit": "JA7895498",
+   "pessoa": "@I02fe0c2f@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Sonia Ribeiro Azevedo",
+   "kit": "SM7967234",
+   "pessoa": "@I597cd23b@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*José Francisco Alves",
+   "kit": "WL1143712",
+   "pessoa": "@I68a3f18a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Teles da Silva",
+   "kit": "WJ9082109",
+   "pessoa": "@Iab31cf6c@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Josineide Auria Bitencourt",
+   "kit": "AL9574291",
+   "pessoa": "@Ib70cb370@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Geldo Guimaraes",
+   "kit": "RD2878876",
+   "pessoa": "@Id96b5de6@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Roziane Tavares",
+   "kit": "KH2127574",
+   "pessoa": "@I2985ca1a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Pacheco",
+   "kit": "T141912",
+   "pessoa": "@I1eaf665a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Vanessa Gonçalves Azevedo",
+   "kit": "UW9928391",
+   "pessoa": "@I00fa0074@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Eribaldo Alves dos Santos",
+   "kit": "BC3428541",
+   "pessoa": "@I4800fb02@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "José Aprígio Santos",
+   "kit": "LV3980759",
+   "pessoa": "@I29db6e1d@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Anteogenes da Silva Costa",
+   "kit": "YR2831222",
+   "pessoa": "@Iaad15904@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Edilson dos Santos Alves Júnior",
+   "kit": "LK7680847",
+   "pessoa": "@I3cffe7bc@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Primo Alves de Santana",
+   "kit": "BE2918442",
+   "pessoa": "@I966082e5@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Jose Vicente de Souza",
+   "kit": "ZL6373425",
+   "pessoa": "@I9ead603a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Luiza Bertolucci",
+   "kit": "NY9240436",
+   "pessoa": "@Ic726f337@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Giuliano Bertolucci",
+   "kit": "FW5315193",
+   "pessoa": "@I7eb8f2f6@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Dias da Costa",
+   "kit": "RC1149030",
+   "pessoa": "@I886a65a0@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Francisco Alves Celestino Lima",
+   "kit": "QL9300188",
+   "pessoa": "@I1f548c2c@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Agnus Veloso",
+   "kit": "EK5066955",
+   "pessoa": "@Ic51a482f@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Katia Georgia Sa Azevedo",
+   "kit": "WF2375108",
+   "pessoa": "@Ic8854c0a@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Joao Fernandes Britto Aragao",
+   "kit": "GR1849829",
+   "pessoa": "@I6d18edbe@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Gilson de Freitas Melro",
+   "kit": "TM9020980",
+   "pessoa": "@Ia5455522@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Manoel Messias de Souza",
+   "kit": "BB3504880",
+   "pessoa": "@I5dd621e0@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Antonio Lima de Aragao",
+   "kit": "NP3016046",
+   "pessoa": "@Id8ad9544@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Claudio Miranda",
+   "kit": "MA8448334",
+   "pessoa": "@I7fa07bdc@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Iaraci Martins",
+   "kit": "ZL7068072",
+   "pessoa": "@I14f89ef3@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Antonio Carvalho",
+   "kit": "ND3646535",
+   "pessoa": "@Ie8205219@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Janete dos Santos",
+   "kit": "JE9264870",
+   "pessoa": "@Ie5fabcb5@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "ANTONIO TELES LEITE NETO",
+   "kit": "XK6390252",
+   "pessoa": "@I48d51755@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria São Pedro dos Santos",
+   "kit": "TP2915837",
+   "pessoa": "@Ida6463b4@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Anderson Vieira Machado",
+   "kit": "HX9637744",
+   "pessoa": "@I8b8d9ef9@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Angelina Josefa da Silva",
+   "kit": "FN1546256",
+   "pessoa": "@I352f8fb7@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Walden Alexey Sá Azevedo",
+   "kit": "ZU7806375",
+   "pessoa": "@Idd085c25@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Pedro Fernandes dos Santos",
+   "kit": "CF8016500",
+   "pessoa": "@I0e8c2e08@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Gedalva Sá Azevedo",
+   "kit": "AP5387325",
+   "pessoa": "@If603e9de@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Josefa Auria de Santana",
+   "kit": "JP6413455",
+   "pessoa": "@Id6470e70@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*CARLOS HENRIQUE DE OLIVEIRA",
+   "kit": "BU8957037",
+   "pessoa": "@Ib5d9409c@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Sérgio Augusto Gonçalves de Almeida",
+   "kit": "RQ9791764",
+   "pessoa": "@I478e4873@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*MARIA VIRGINIA GARCIA CUNHA",
+   "kit": "CU4371634",
+   "pessoa": "@Ib81ffa64@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Mauro Alves dos Santos",
+   "kit": "SK1063931",
+   "pessoa": "@Ibd88b9d2@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Antônio Tavares de Menezes",
+   "kit": "HA9684321",
+   "pessoa": "@I4da769fe@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Samuel Alves da Silva",
+   "kit": "YL2122819",
+   "pessoa": "@Ib82d9500@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Eudes Batista de Santana",
+   "kit": "CJ9319145",
+   "pessoa": "@If22f5abe@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Josenilda Auria Bitencourt",
+   "kit": "AX6386463",
+   "pessoa": "@If9478803@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*Danyllo Andrade",
+   "kit": "FW1146028",
+   "pessoa": "@I911cc1d2@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Eliane C C Almeida",
+   "kit": "TA2099645",
+   "pessoa": "@Ib832e69b@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Jose Goncalves de Oliveira",
+   "kit": "EM1545425",
+   "pessoa": "@I56531907@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "*daniel",
+   "kit": "DM1476004",
+   "pessoa": "@Ida58507a@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria das Graças",
+   "kit": "QF2286930",
+   "pessoa": "@I46742098@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Edite Santos",
+   "kit": "UK2901355",
+   "pessoa": "@I1f39fd90@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Marcio Teixeira",
+   "kit": "HK7810996",
+   "pessoa": "@Ic187023c@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Terezinha Auria Bitencourt",
+   "kit": "MH3385393",
+   "pessoa": "@If9478803@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  }
+ ],
+ "motivos_de_descarte": [
+  [
+   "sem candidatos por sobrenome (abreviação/corrupção?)",
+   82
+  ],
+  [
+   "sem sobrenome em comum (filtro anti-falso-positivo)",
+   7
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=84.85, inter=1/1, jacc=0.50)",
+   2
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=76.85, inter=1/1, jacc=0.50)",
+   2
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=74.0, inter=1/1, jacc=0.50)",
+   2
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=84.1, inter=2/1, jacc=1.00)",
+   2
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=68.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=88.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=82, final=78.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=57.4, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=66.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=63.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=69.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=77.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=80.05, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=62.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=66.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=79.95, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=84.5, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=88.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=68.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=82.9, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=59.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=90.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=68.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=86.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=79.3, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.15, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=31.95, inter=0/1, jacc=0.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=65.45, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=88, final=68.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=59.9, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=86.9, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=76.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=59, final=83.55, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=70.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=72.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=67.25, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=80.0, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=79.9, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=81.05, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=85.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=66.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=79.0, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=69.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=55.35, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=86, final=80.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=62.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=76.5, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=84.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=74.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=74.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=89.4, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=73.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=93.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=89, final=91.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=77.9, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=74.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=83.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=73.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=93.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=79.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=70.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=73.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=90.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=67.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=82.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=92.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=70.8, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=75.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=73.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=76.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=87.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=81.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=25, final=82.55, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=75.75, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=75.5, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=22, final=80.6, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=76.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=76.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=100.3, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=20, final=62.0, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=27, final=80.7, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=92, final=72.3, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=78.55, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=58.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=73.1, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=70.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=51.6, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=67.15, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=72.8, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=74.45, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=72.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=77.7, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=80.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=84.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=74.85, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=87.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=89.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=83.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=85.15, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=84.25, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=86.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=65.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=72.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=89, final=83.45, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=76.4, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=56, final=80.55, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=84.8, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=64.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=74.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=76.45, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=79.65, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=65.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=65.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=69.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=83.95, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=80.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=78.45, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=68.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=90.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=75.5, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=49.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=87.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=77.4, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=67.4, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=69.15, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=63.2, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=79.0, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=59, final=68.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=83.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=76.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=65.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=0, final=72.7, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=84.85, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=103.9, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=82.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=60.85, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=83.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=73.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=68.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=77.75, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=47, final=67.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=85.6, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=93, final=86.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=60.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=76.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=69.75, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=77.0, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=22, final=79.85, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=83.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=79.5, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=67.85, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=75.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=62.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=83.95, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=63.75, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=86, final=85.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=76.1, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=95, final=84.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=68.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=85.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=84.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=72.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=62.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=70.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=55.95, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=84.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=65.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=72.2, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=69.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=74.2, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=87.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=63.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=63.6, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=65.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=74.35, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=80.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=71.1, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=65.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=85.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=88, final=76.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=77.6, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=71.35, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=63.85, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=81.2, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=78.45, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=71.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=69.75, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=72.45, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=81.75, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=69.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=64.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=85.9, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=79.65, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=71.6, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=70.8, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=27, final=76.85, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=78.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.9, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=29, final=72.7, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=69.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=64.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=90.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=64.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=65.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=71.95, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=81.35, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=76.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=63.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=64.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=80.05, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=71.4, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=31, final=48.4, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=80.0, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=20, final=68.65, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=25, final=79.8, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=72.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=71.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=72.1, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=73.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=83.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=55.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=84.9, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=88, final=89.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=78.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=81.2, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=78.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=76.8, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=81.5, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=81.35, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=69.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=74.35, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=80.55, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=70.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=73.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=60.15, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=83.4, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=87.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=64.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=86.1, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=80.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=73.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=74.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=0, final=65.7, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=74.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=82.35, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=71.3, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=29, final=68.7, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=79.3, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=89.05, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=70.6, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=77.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=88.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=62.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=76.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=76.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=93.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=72.1, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=72.0, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=75.25, inter=2/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=76.3, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=89, final=81.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=65.9, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=60.65, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=81.15, inter=1/1, jacc=0.50)",
+   1
+  ]
+ ],
+ "candidatos_por_nome": {
+  "Abilio Jose Hora Ribeiro": 1,
+  "Adriana Rodrigues de Azevedo": 1,
+  "Aida Silva Rollemberg": 1,
+  "Airton Passos Vasconcelos": 1,
+  "Anderson Vieira Machado": 1,
+  "Angelina Josefa da Silva": 1,
+  "Anteogenes da Silva Costa": 1,
+  "Antonio Carvalho": 1,
+  "Antonio Lima de Aragao": 1,
+  "Antônio Tavares de Menezes": 1,
+  "Celio de Andrade Borges": 2,
+  "Edilson dos Santos Alves Júnior": 1,
+  "Edneide Veloso": 1,
+  "Eribaldo Alves dos Santos": 1,
+  "Eudes Batista de Santana": 1,
+  "Gedalva Sá Azevedo": 1,
+  "Geldo Guimaraes": 1,
+  "Jose Goncalves de Oliveira": 1,
+  "Jose Vicente de Souza": 3,
+  "Josefa Auria de Santana": 1,
+  "Josenilda Auria Bitencourt": 1,
+  "João Augusto Guimarães Figueiredo": 1,
+  "Katia Georgia Sa Azevedo": 1,
+  "Lucimara Menezes de Jesus Santos": 1,
+  "Luiza Bertolucci": 3,
+  "Luzilene Alves": 1,
+  "MARIA AUXILIADORA": 2,
+  "Margarida": 8,
+  "Maria Izabel Carregosa de Carvalho Vieira": 1,
+  "Maria Lucia dos Santos": 1,
+  "Maria Pacheco": 2,
+  "Maria São Pedro dos Santos": 1,
+  "Maria Teles da Silva": 1,
+  "Maria Vieira de Souza": 2,
+  "Maria da Gloria Santos": 1,
+  "Maria das Graças": 1,
+  "Maria de Lourdes Dias": 1,
+  "Maria do Carmo Teixeira": 1,
+  "Maria do Carmo dos Santos": 2,
+  "Odonio dos Anjos Filho": 1,
+  "PAULO": 1,
+  "Pedro Fernandes dos Santos": 1,
+  "Roziane Tavares": 1,
+  "Samuel Alves da Silva": 1,
+  "Sonia Ribeiro Azevedo": 1,
+  "Sérgio Augusto Gonçalves de Almeida": 1,
+  "Tereza Fonseca": 1,
+  "Valderedo Teles da Silva": 1,
+  "Vanessa Gonçalves Azevedo": 1,
+  "Walden Alexey Sá Azevedo": 1
+ },
+ "candidatos_soma": 66
+}

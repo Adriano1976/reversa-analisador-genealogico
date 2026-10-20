@@ -1,0 +1,1409 @@
+{
+ "ged": "002511737c4645ba__Adriano_Santos_V2.ged",
+ "pessoas": 13716,
+ "cartoes": 9,
+ "descartados": 447,
+ "por_estado": {
+  "identidade": {
+   "a_confirmar": 5,
+   "grafia": 3,
+   "confirmada": 1
+  },
+  "janela_de_vida": {
+   "suspeita": 1,
+   "impossivel": 8
+  },
+  "profundidade": {
+   "concorda": 1,
+   "sem_dado": 8
+  },
+  "confrontacao_efetiva": {
+   "POSSIVEL": 1,
+   "INCONCLUSIVO": 8
+  },
+  "documental": {
+   "found": 1,
+   "not_found": 8
+  }
+ },
+ "cartoes_detalhe": [
+  {
+   "csv_name": "Camila Maria de Jesus",
+   "kit": "BN8387325",
+   "pessoa": "@I28@",
+   "identidade": "a_confirmar",
+   "estado": "POSSIVEL"
+  },
+  {
+   "csv_name": "Manoel Vieira da Silva",
+   "kit": "TG8027863",
+   "pessoa": "@I510@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Eline Vasconcelos",
+   "kit": "XS4787142",
+   "pessoa": "@I3531@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Margarida",
+   "kit": "ZC1171551",
+   "pessoa": "@I325@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Alcina Martins",
+   "kit": "QD7086416",
+   "pessoa": "@I3752@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Pacheco",
+   "kit": "T141912",
+   "pessoa": "@I2686@",
+   "identidade": "confirmada",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Marinalva Sousa",
+   "kit": "DH7447700",
+   "pessoa": "@I8879@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Iaraci Martins",
+   "kit": "ZL7068072",
+   "pessoa": "@I3752@",
+   "identidade": "a_confirmar",
+   "estado": "INCONCLUSIVO"
+  },
+  {
+   "csv_name": "Maria Paixao de Oliveira",
+   "kit": "HL6115855",
+   "pessoa": "@I5502@",
+   "identidade": "grafia",
+   "estado": "INCONCLUSIVO"
+  }
+ ],
+ "motivos_de_descarte": [
+  [
+   "sem candidatos por sobrenome (abreviação/corrupção?)",
+   93
+  ],
+  [
+   "sem sobrenome em comum (filtro anti-falso-positivo)",
+   29
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=75.6, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=68.0, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=70.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=67.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=62.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=67.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=78.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=76.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=64.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=61.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=74, final=65.75, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=58.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=29, final=63.65, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=79.7, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=72.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.95, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=65.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=88.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=68.85, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=65.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=62.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=81.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=70.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=73.0, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=64.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=69.8, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=38, final=76.5, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=31, final=52.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=75.4, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=47, final=63.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=76.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=66.5, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=74.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=71.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=56, final=72.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=73.9, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=72.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=84.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=66.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=75.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=61.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=63.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=84.5, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=68.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=63.9, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=67.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=62.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=68.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=66.75, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=66.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=71.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=65.35, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=88.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=80.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=78.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=65.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=67.4, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=74.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=76.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=31, final=60.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=83.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=65.3, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=75.15, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=31, final=62.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=86, final=83.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=65.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=66.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=82.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=65.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=82.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=81.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=66.9, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=53.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=58.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=47, final=66.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=38, final=75.95, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=75.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=69.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=58.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=72.0, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=69.3, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=64.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=64.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=59.8, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=61.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=62.45, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=70.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=58.4, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=75.3, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=78.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.1, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=91, final=83.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=79.35, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=71.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=56.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=68.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=80.05, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=74.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=61.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=79.9, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=64.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=70.9, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=62.3, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=38, final=68.1, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=71.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=75.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=67.55, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=62.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=68.7, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=76.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=70.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=76.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=64.2, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=60.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=84.25, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=29, final=73.85, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=86.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=64.85, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=59.95, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=65.45, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=74.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=79.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=84.8, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=61.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=68.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=54.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=76.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=75.3, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=67.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=62.8, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=53.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=63.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=72.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=66.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=59.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=66.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=90.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=76.05, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=79.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=74.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=67.25, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=76.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=53.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=65.55, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=72.6, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=86, final=79.1, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=68.3, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=68.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=62.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=72.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=66.5, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=73.65, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=63.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=54.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=67.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=75.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=71.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=71.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=80.3, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=81.8, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=71.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=76.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=57.45, inter=1/1, jacc=0.20)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=72.05, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=85.6, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=83.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=72.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=74.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=75.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=74.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=75.35, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=76.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=77.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=70.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=63.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=57.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=63.35, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=61.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=69.95, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=29, final=60.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=71.75, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=64.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=70.4, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=65.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=68.0, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=56.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=84.55, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=69.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=59.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=67.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=65.3, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=61.35, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=38, final=54.35, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=77.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=59, final=64.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=25, final=66.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=74.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=59.35, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=25, final=59.3, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=76.8, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=62.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=66.9, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=76.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=71.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=58.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=63.55, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=64.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=61.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=91.55, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=69.95, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=60.9, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=57.9, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=60.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=51.85, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=56, final=73.7, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=68.75, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=0, final=48.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=66.6, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=63.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=73.1, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=69.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=62.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=66.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=80.65, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=68.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=61.3, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=65.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=81.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=71.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=17, final=75.1, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=80.95, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=82.4, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=43, final=64.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=64.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=65.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=82.2, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=61.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=55, final=74.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=79.2, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=68.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=63.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=56.6, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=68.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=62.25, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=75, final=64.65, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=70.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=77, final=71.55, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=72.65, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=70.25, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=20, final=68.65, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=33, final=63.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=66.1, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=73.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=74.15, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=61.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=63.8, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=66.7, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=46.9, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=75.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=64.5, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=57.8, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=77.0, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=71, final=78.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=82.65, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=56, final=62.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=81.2, inter=2/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.2, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=76.8, inter=2/1, jacc=0.67)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=60.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=22, final=58.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=72.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=68.1, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=71.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=82.75, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=70.65, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=62.0, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=62.2, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=66.35, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=72.05, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=68.45, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=73.15, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=83, final=83.7, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=68.55, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.75, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=71.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=65.75, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=57, final=73.1, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=65.1, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=50, final=69.5, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=70.2, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=53, final=67.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=66.85, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=53.5, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=62, final=75.0, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=86, final=75.05, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=67.5, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=89.6, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=93.75, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=68.4, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=46, final=57.4, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=40, final=66.15, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=78.45, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=100, final=93.45, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=64.8, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=44, final=67.95, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=78.25, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=80, final=56.05, inter=1/1, jacc=0.33)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=62.6, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=73.6, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=73, final=77.1, inter=1/1, jacc=1.00)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=62.9, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=36, final=61.85, inter=1/1, jacc=0.50)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=60, final=65.95, inter=1/1, jacc=0.25)",
+   1
+  ],
+  [
+   "score insuficiente ou conflito de sobrenome (given=67, final=71.45, inter=1/1, jacc=0.33)",
+   1
+  ]
+ ],
+ "candidatos_por_nome": {
+  "Margarida": 1,
+  "Maria Pacheco": 1
+ },
+ "candidatos_soma": 2
+}
