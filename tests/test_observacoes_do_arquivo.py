@@ -261,16 +261,27 @@ class TestONaoVazamentoParaOCartao:
 # ---------------------------------------------------------------------------
 
 class TestOCartaoNaoFicouMudo:
-    """Separar nao pode esvaziar a secao 5: o que e do cartao tem de continuar nele."""
+    """Separar nao pode esvaziar o cartao: o que e do cartao tem de continuar nele.
+
+    Desde o bloco de endogamia da secao 2, o aviso de bloco pequeno nao fica mais
+    na secao 5: ele continua no cartao, mas no bloco proprio, com os numeros. O
+    que este teste guarda — o aviso NAO subir para o bloco do ARQUIVO — continua
+    valendo, e agora guarda tambem que ele nao aparece duas vezes no cartao.
+    """
 
     def test_o_segmento_fraco_continua_no_cartao_do_seu_kit(self, tmp_path, arvore):
         csv = ("Kit number,Name,cM\n"
                "A1111111,Ana Silva Souza,12.5\n")
         resultados, _descartados, _mensagem, observacoes = _analisar(tmp_path, arvore, csv)
         assert len(resultados) == 1
-        assert any("A1111111" in o and "menos de 15 cM" in o
-                   for o in resultados[0]["observations"]), (
-            "o aviso do kit tem de continuar no cartao daquele kit")
+        cartao = resultados[0]
+        assert cartao["kit"] == "A1111111"
+        assert cartao["endogamia"]["evidencia_fraca"] is True
+        assert "abaixo de 15 cM" in cartao["endogamia"]["mensagem"], (
+            "o aviso do bloco pequeno tem de continuar no cartao daquele kit — "
+            "agora no bloco da secao 2")
+        assert not any("menos de 15 cM" in o for o in cartao["observations"]), (
+            "o mesmo aviso nao pode aparecer tambem na secao 5")
         assert not any("menos de 15 cM" in o for o in observacoes), (
             "e nao pode ter subido para o bloco do arquivo")
 

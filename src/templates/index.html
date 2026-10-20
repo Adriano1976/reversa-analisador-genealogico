@@ -587,6 +587,14 @@
                                         {% if result.cm is not none %}
                                             <span class="badge bg-secondary">DNA: {{ result.cm | cm_br }} cM</span>
                                         {% endif %}
+                                        {# O SELO DA ENDOGAMIA sobe para o cabecalho para ser lido
+                                           com o cartao FECHADO — o mesmo motivo dos selos de
+                                           confrontacao, identidade e validacao. O rotulo, a classe e
+                                           o `title` vem prontos do nucleo (`core.dna_analysis`,
+                                           `_selo_da_endogamia`); o template nao decide texto. #}
+                                        {% if result.endogamia and result.endogamia.selo %}
+                                            <span class="badge {{ result.endogamia.selo.classe }}" title="{{ result.endogamia.selo.titulo }}">{{ result.endogamia.selo.rotulo }}</span>
+                                        {% endif %}
                                         {# O veredito da confrontacao sobe para o cabeçalho. Antes ele vivia so
                                            na secao 4, e numa lista longa era preciso rolar ate la para saber o
                                            que o cartao tinha concluido — que e a informacao que decide se vale
@@ -1052,18 +1060,6 @@
                                                     <div><dt>Cromossomo(s)</dt><dd>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</dd></div>
                                                     <div><dt>Método do valor</dt><dd>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</dd></div>
                                                 </dl>
-                                                {# O FILTRO DE ENDOGAMIA. O texto e montado no
-                                                   nucleo (`core.endogamia`), e nao aqui: o
-                                                   template nao remonta frase de dominio. O total
-                                                   bruto continua no badge `DNA:` do cabecalho; o
-                                                   total recalculado aparece nesta linha, para o
-                                                   operador ver os dois numeros lado a lado. #}
-                                                {% if kit.endogamia and kit.endogamia.mensagem %}
-                                                    <p class="legenda-informativa">
-                                                        <strong>Filtro de endogamia.</strong>
-                                                        {{ kit.endogamia.mensagem }}
-                                                    </p>
-                                                {% endif %}
                                                 <details class="mb-3">
                                                     <summary>Posições</summary>
                                                     <div class="mt-2">
@@ -1079,6 +1075,73 @@
                                             {% endfor %}
                                         {% else %}
                                             <p class="text-muted">Sem evidência genética disponível para esta pessoa.</p>
+                                        {% endif %}
+                                        {# O BLOCO DA ENDOGAMIA (secao 2). Fica FORA do laco de kits
+                                           porque o diagnostico de grafo e do CARTAO, e porque cada
+                                           resultado carrega um kit so. So aparece quando ha fato —
+                                           sem descarte, sem bloco fraco e sem colapso, o cartao nao
+                                           ganha uma caixa vazia. O texto do diagnostico vem do
+                                           nucleo; o template so le os numeros e os rotulos. #}
+                                        {% if result.endogamia and (result.endogamia.segmentos_descartados or result.endogamia.segmentos_sem_valor or result.endogamia.evidencia_fraca or result.endogamia.arvore.endogamia_estrutural) %}
+                                            <div class="endogamia-bloco">
+                                                <p class="endogamia-titulo">
+                                                    {% if result.endogamia.arvore.endogamia_estrutural and result.endogamia.selo %}
+                                                        {{ result.endogamia.selo.rotulo }}
+                                                    {% else %}
+                                                        Filtro de endogamia
+                                                    {% endif %}
+                                                </p>
+                                                <dl class="endogamia-grade">
+                                                    <div><dt>Total bruto (arquivo)</dt><dd>{{ result.endogamia.cm_bruto | cm_br }} cM</dd></div>
+                                                    <div><dt>Total após filtro (≥ {{ result.endogamia.limiares.segmento | cm_br }} cM)</dt><dd class="destaque-endogamia">{{ result.endogamia.total_cm | cm_br }} cM</dd></div>
+                                                    <div><dt>Segmentos descartados</dt><dd>{{ result.endogamia.segmentos_descartados }}{% if result.endogamia.segmentos_descartados %} ({{ result.endogamia.cm_descartado | cm_br }} cM){% endif %}</dd></div>
+                                                    <div><dt>Maior bloco após filtro</dt><dd>{% if result.endogamia.maior_segmento_cm is not none %}{{ result.endogamia.maior_segmento_cm | cm_br }} cM{% else %}—{% endif %}</dd></div>
+                                                    {% if result.endogamia.segmentos_sem_valor %}
+                                                        <div><dt>Linhas sem cM</dt><dd>{{ result.endogamia.segmentos_sem_valor }}</dd></div>
+                                                    {% endif %}
+                                                    {% if result.endogamia.arvore.endogamia_estrutural %}
+                                                        <div><dt>Caminhos mais curtos</dt><dd>{{ result.endogamia.arvore.quantidade_de_caminhos }}{% if result.endogamia.arvore.truncado %}+{% endif %}</dd></div>
+                                                    {% endif %}
+                                                </dl>
+                                                {% if result.endogamia.arvore.endogamia_estrutural %}
+                                                    {# A EXPLICACAO separa o achado estrutural do parentesco
+                                                       documental. Texto do nucleo; o template so o exibe. #}
+                                                    {% if result.endogamia.arvore.explicacao %}
+                                                        <p class="endogamia-texto">{{ result.endogamia.arvore.explicacao }}</p>
+                                                    {% endif %}
+                                                    {# As RECONVERGENCIAS sao o ponto em que as rotas se
+                                                       bifurcam e voltam ao mesmo no — a informacao que o
+                                                       rotulo antigo "MRCA" escondia atras do tronco inteiro. #}
+                                                    {% if result.endogamia.arvore.reconvergencias %}
+                                                        <p class="endogamia-subtitulo">Reconvergências</p>
+                                                        <ul class="endogamia-reconvergencias">
+                                                            {% for rec in result.endogamia.arvore.reconvergencias %}
+                                                                <li>
+                                                                    <strong>{{ rec.divergencia_nome }}</strong> → <strong>{{ rec.convergencia_nome }}</strong>
+                                                                    {% if rec.trechos %}
+                                                                        <span class="endogamia-trechos">
+                                                                            {% for trecho in rec.trechos %}{{ trecho.nomes | join(' → ') }}{% if not loop.last %} <em>ou</em> {% endif %}{% endfor %}
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p class="endogamia-texto">As rotas só compartilham as pontas: não há reconvergência interna isolada.</p>
+                                                    {% endif %}
+                                                    {# O TRONCO COMUM inteiro fica recolhido: e informacao de
+                                                       apoio, nao o diagnostico. #}
+                                                    {% if result.endogamia.arvore.tronco_comum_nomes %}
+                                                        <details class="endogamia-tronco">
+                                                            <summary>Tronco comum ({{ result.endogamia.arvore.tronco_comum_nomes | length }} pessoas)</summary>
+                                                            <p>{{ result.endogamia.arvore.tronco_comum_nomes | join(', ') }}</p>
+                                                        </details>
+                                                    {% endif %}
+                                                {% endif %}
+                                                {% if result.endogamia.mensagem %}
+                                                    <p class="endogamia-texto">{{ result.endogamia.mensagem }}</p>
+                                                {% endif %}
+                                            </div>
                                         {% endif %}
                                     </div>
                                     {% endif %}

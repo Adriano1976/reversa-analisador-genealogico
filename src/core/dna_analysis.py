@@ -44,7 +44,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from .diagram_domain import resolvedor_de_diagrama
-from .endogamia import DNAAnalyzer, MENSAGEM_ENDEROGAMIA
+from .endogamia import CM_MINIMO_SEGMENTO, DNAAnalyzer, MENSAGEM_ENDEROGAMIA
 from .documentary_relationship import (
     birth_date,
     documental_nao_encontrado,
@@ -56,6 +56,7 @@ from .erros import DnaCsvSemColunas, PessoaNaoEncontrada
 from .evidence_comparison import compare
 from .genetic_evidence import build_genetic_evidence, evidence_for
 from .identidade_do_match import conferir, nomes_divergentes
+from .path_finding import MAX_DEPTH
 from .janela_de_vida import (
     IMPOSSIVEL,
     ano_de_referencia,
@@ -83,7 +84,7 @@ from .name_normalization import (
 )
 from .relationship_hypotheses import hypotheses_for_evidence
 from utils.text_cleaning import demojibake, strip_bad_utf
-from .registro import get_name
+from .registro import get_name, ref_id
 from .cirurgia_do_grafo import resumo_da_sugestao
 from .validator import (
     ERRO_CRONICO,
@@ -155,7 +156,7 @@ def _montar_diagrama(deps, documentary: dict, root_id: str, pid: str, dominio: d
     return texto
 
 
-def _observacoes(documentary, evidence, comparison):
+def _observacoes(documentary, evidence, comparison, codigos_suprimidos=None):
     """Secao 5 do cartao: o que o operador precisa saber SOBRE ESTA CONEXAO.
 
     Os avisos de arquivo (`nivel == "arquivo"` em `build_genetic_evidence`, mais os
@@ -164,11 +165,19 @@ def _observacoes(documentary, evidence, comparison):
     despejados no cartao, o aviso de multiplos kits ocupava 710 das 1010 linhas
     desta secao na analise real de 142 cartoes e aparecia em 142 de 142 cartoes.
     Ver `_reversa_sdd/addenda/017-observacao-de-arquivo-nao-e-observacao-de-cartao.md`.
+
+    `codigos_suprimidos` existe para o aviso `segmento_fraco` quando o bloco de
+    endogamia da secao 2 ja diz o mesmo com mais detalhe (total bruto x mitigado,
+    maior bloco, caminhos). A informacao NAO some do cartao: muda de secao. Sem
+    isso, o operador lia a mesma conclusao duas vezes na mesma conexao.
     """
+    suprimidos = codigos_suprimidos or frozenset()
     textos = []
     for aviso in (documentary or {}).get("warnings") or []:
         textos.append(aviso["message"])
     for aviso in (evidence or {}).get("warnings") or []:
+        if aviso.get("code") in suprimidos:
+            continue
         textos.append(aviso["message"])
     textos.extend((comparison or {}).get("observations") or [])
     vistos, unicos = set(), []
@@ -214,6 +223,133 @@ def _aviso_da_validacao(resultado) -> str | None:
     if not detalhe:
         return status or None
     return f"{status}: {detalhe}" if status else detalhe
+
+
+def _nome_do_no(arvore, no) -> str:
+    """Nome de exibicao de um no do grafo: pessoa, casal de familia ou o id.
+
+    O diagnostico de reconvergencia pode cair num no de familia (o casal), e nao
+    numa pessoa. Trocar o id por "HUSB × WIFE" e o que evita a tela mostrar
+    `@F123@` para o operador.
+    """
+    if not no:
+        return ""
+    pessoas = arvore[0] if arvore else {}
+    if no in pessoas:
+        return get_name(pessoas[no])
+    familias = arvore[1] if arvore and len(arvore) > 1 else {}
+    familia = familias.get(no)
+    if familia is not None:
+        nomes = []
+        for rec in familia.sub_records:
+            if rec.tag in ("HUSB", "WIFE"):
+                pid = ref_id(rec.value)
+                if pid in pessoas:
+                    nomes.append(get_name(pessoas[pid]))
+        return " × ".join(nomes) if nomes else "Família"
+    return no
+
+
+def _explicacao_da_endogamia(diagnostico, tem_caminho_documental: bool) -> str:
+    """Frase que separa o achado ESTRUTURAL do parentesco documental.
+
+    O caso que motivou o texto: um cartao dizia "Parentesco documental nao
+    encontrado" na secao 1 e "Endogamia estrutural" no cabecalho. Os dois eram
+    verdadeiros sobre eixos diferentes — a busca documental tem teto de
+    `MAX_DEPTH` iteracoes, a de grafo nao —, mas lidos juntos pareciam
+    contradicao. A frase diz qual e qual.
+    """
+    if diagnostico is None or not diagnostico.endogamia_estrutural:
+        return ""
+    if tem_caminho_documental:
+        return ("Os caminhos mais curtos se bifurcam e voltam ao mesmo ancestral. "
+                "Isso é colapso de pedigree (endogamia): o cM esperado sobe e a "
+                "leitura do grau de parentesco fica menos confiável.")
+    return (f"Sinal estrutural no grafo: há mais de um caminho mais curto, mas o "
+            f"parentesco documental não foi encontrado dentro do limite de {MAX_DEPTH} "
+            "iterações da busca documental. Isto não confirma um parentesco específico.")
+
+
+def _observacao_estrutural(diagnostico, tem_caminho_documental: bool) -> str:
+    """A frase da secao 5, qualificada pelo que a secao 1 conseguiu afirmar.
+
+    Com caminho documental, a frase e a de contrato: `Endogamia estrutural
+    confirmada na árvore`. Sem ele, a mesma estrutura existe, mas chamar de
+    "confirmada" ao lado de "Parentesco documental nao encontrado" foi o que
+    confundiu o operador no caso da Edneide — a frase passa a dizer o que foi e
+    o que NAO foi encontrado.
+    """
+    if diagnostico is None or not diagnostico.endogamia_estrutural:
+        return ""
+    if tem_caminho_documental:
+        return MENSAGEM_ENDEROGAMIA
+    return (f"Sinal estrutural na árvore: {diagnostico.quantidade_de_caminhos} "
+            f"caminhos mais curtos, mas o parentesco documental não foi encontrado "
+            f"dentro do limite de {MAX_DEPTH} iterações. Isto não confirma um "
+            "parentesco específico.")
+
+
+def _selo_da_endogamia(evidencia, diagnostico, tem_caminho_documental: bool) -> dict | None:
+    """Rotulo, classe e `title` do selo de endogamia do cabecalho.
+
+    O selo e a UNICA parte da mitigacao visivel com o cartao fechado: o detalhe
+    numerico fica na secao 2, e a frase estrutural completa fica na secao 5.
+    Devolver `None` quando nao ha fato e o que impede a tela de marcar os 142
+    cartoes com um selo que nao diz nada.
+
+    A prioridade e o colapso de pedigree, que e o achado mais forte. Sem ele, o
+    filtro aparece pelo numero de segmentos descartados; sem descarte, o bloco
+    pequeno vira "Evidência fraca". A classe NAO pode conter `estado-`: a regra
+    `.badge[class*="estado-"]` pinta o texto de branco, e os dois selos sao de
+    aviso (fundo creme).
+
+    ## "Endogamia" x "Sinal estrutural"
+
+    Sem caminho documental, o selo diz **Sinal estrutural na árvore**: o grafo
+    tem mais de uma rota, mas a secao 1 nao encontrou parentesco dentro do teto.
+    Chamar isso de "Endogamia estrutural" sem a ressalva foi o que confundiu o
+    operador no caso real da Edneide.
+    """
+    if diagnostico is not None and diagnostico.endogamia_estrutural:
+        caminhos = diagnostico.quantidade_de_caminhos
+        rotulo = ("Endogamia estrutural" if tem_caminho_documental
+                  else "Sinal estrutural na árvore")
+        if tem_caminho_documental:
+            titulo = (f"{MENSAGEM_ENDEROGAMIA}: {caminhos} caminho(s) mais curto(s) "
+                      "entre a raiz e o match.")
+        else:
+            # O `title` acompanha o rotulo: nao adianta o selo dizer "sinal" e o
+            # tooltip dizer "confirmada" quando a secao 1 nao encontrou caminho.
+            titulo = (f"Sinal estrutural na árvore: {caminhos} caminho(s) mais curto(s). "
+                      f"O parentesco documental não foi encontrado dentro do limite de "
+                      f"{MAX_DEPTH} iterações.")
+        if evidencia.mensagem:
+            titulo = f"{titulo} {evidencia.mensagem}"
+        return {
+            "rotulo": rotulo,
+            "classe": "endogamia-estrutural",
+            "titulo": titulo,
+        }
+    if evidencia.segmentos_descartados:
+        return {
+            "rotulo": (f"Filtro: {evidencia.segmentos_descartados} seg. abaixo de "
+                       f"{CM_MINIMO_SEGMENTO:g} cM"),
+            "classe": "endogamia-filtro",
+            "titulo": evidencia.mensagem,
+        }
+    if evidencia.evidencia_fraca:
+        return {
+            "rotulo": "Evidência fraca",
+            "classe": "endogamia-filtro",
+            "titulo": evidencia.mensagem,
+        }
+    if evidencia.segmentos_sem_valor:
+        return {
+            "rotulo": "Segmentos sem cM",
+            "classe": "endogamia-filtro",
+            "titulo": evidencia.mensagem,
+        }
+    return None
 
 
 def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_do_kit,
@@ -476,6 +612,45 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
             diagnostico_de_endogamia = analisador_de_dna.diagnosticar_endogamia(
                 arvore[2], root_id, pid,
                 mrca_id=(documentary.get("common_ancestor") or {}).get("id"))
+            # O caminho DOCUMENTAL decide como o achado e apresentado: com ele, a
+            # secao 1 e a secao 2 falam do mesmo par; sem ele, o selo vira "Sinal
+            # estrutural na árvore" e o bloco explica que a busca documental parou
+            # no teto de `MAX_DEPTH`, em vez de fingir que confirmou parentesco.
+            tem_caminho_documental = bool((documentary.get("path") or {}).get("ids"))
+            arvore_da_endogamia = diagnostico_de_endogamia.para_dicionario()
+            # Nomes resolvidos: as reconvergencias sao o que a tela mostra; o
+            # tronco comum fica no `details` recolhido. `mrca_nomes` permanece
+            # como alias do tronco para nao quebrar consumidor do campo antigo.
+            arvore_da_endogamia["mrca_nomes"] = [
+                _nome_do_no(arvore, no) for no in diagnostico_de_endogamia.mrca_ids
+            ]
+            arvore_da_endogamia["tronco_comum_nomes"] = [
+                _nome_do_no(arvore, no)
+                for no in diagnostico_de_endogamia.tronco_comum_ids
+            ]
+            arvore_da_endogamia["reconvergencias"] = [
+                {
+                    "divergencia_id": reconvergencia.divergencia_id,
+                    "divergencia_nome": _nome_do_no(arvore, reconvergencia.divergencia_id),
+                    "convergencia_id": reconvergencia.convergencia_id,
+                    "convergencia_nome": _nome_do_no(arvore, reconvergencia.convergencia_id),
+                    "trechos": [
+                        {
+                            "ids": list(trecho),
+                            "nomes": [_nome_do_no(arvore, no) for no in trecho],
+                        }
+                        for trecho in reconvergencia.trechos
+                    ],
+                }
+                for reconvergencia in diagnostico_de_endogamia.reconvergencias
+            ]
+            arvore_da_endogamia["explicacao"] = _explicacao_da_endogamia(
+                diagnostico_de_endogamia, tem_caminho_documental)
+            # O selo do cabecalho e decidido AQUI (o template so le os tres
+            # campos), pela mesma razao dos rotulos de validacao: texto de tela
+            # e regra, e o Jinja nao monta frase de dominio.
+            selo_da_endogamia = _selo_da_endogamia(
+                evidencia_mitigada, diagnostico_de_endogamia, tem_caminho_documental)
 
             # A pessoa da arvore foi escolhida por NOME, e o nome pode ter casado pelo
             # sobrenome e nao pela pessoa. O estado da identificacao NAO muda a escolha —
@@ -599,18 +774,15 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 desenho_da_arvore = deps.gerar_mermaid_da_sugestao(
                     documento_da_validacao, resumo_da_arvore)
 
-            # O DIAGNOSTICO DE ENDOGAMIA em texto, uma vez por cartao. So entra
-            # quando ha fato novo — o filtro descartou algo, havia segmento sem
-            # valor, ou o maior bloco ficou abaixo de 15 cM. Cartao sem ruido nao
-            # ganha aviso: repetir "nada aconteceu" em 142 cartoes e ruido.
-            observacoes_da_endogamia = []
-            if evidencia_mitigada.mensagem and (
-                    evidencia_mitigada.segmentos_descartados
-                    or evidencia_mitigada.segmentos_sem_valor
-                    or evidencia_mitigada.evidencia_fraca):
-                observacoes_da_endogamia.append(evidencia_mitigada.mensagem)
-            if diagnostico_de_endogamia.endogamia_estrutural:
-                observacoes_da_endogamia.append(MENSAGEM_ENDEROGAMIA)
+            # A SECAO 5 GUARDA SO O DIAGNOSTICO ESTRUTURAL. O detalhe numerico
+            # do filtro (total bruto x mitigado, descartados, maior bloco) vive
+            # no bloco proprio da secao 2. Repeti-lo aqui era a duplicacao que o
+            # operador lia duas vezes no mesmo cartao.
+            observacoes_da_endogamia = (
+                [_observacao_estrutural(diagnostico_de_endogamia,
+                                        tem_caminho_documental)]
+                if diagnostico_de_endogamia.endogamia_estrutural else []
+            )
 
             results_list.append({
                 "match_name": nome_na_arvore,
@@ -674,9 +846,28 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 # estrutural. Ver `core.endogamia`.
                 "endogamia": {
                     **evidencia_mitigada.para_dicionario(),
-                    "arvore": diagnostico_de_endogamia.para_dicionario(),
+                    # O que o cabecalho mostra com o cartao fechado: rotulo,
+                    # classe e `title` ja decididos aqui. `None` quando nao ha
+                    # fato, e o template nao renderiza nada.
+                    "selo": selo_da_endogamia,
+                    # Os limiares efetivos do analisador, para a secao 2 citar
+                    # o numero real em vez de repetir 10/15 no HTML.
+                    "limiares": {
+                        "segmento": analisador_de_dna.cm_minimo_segmento,
+                        "maior_bloco": analisador_de_dna.cm_minimo_maior_bloco,
+                    },
+                    "arvore": arvore_da_endogamia,
                 },
-                "observations": list(_observacoes(documentary, evidence, comparison))
+                "observations": list(_observacoes(
+                    documentary, evidence, comparison,
+                    # O bloco da secao 2 ja mostra o bloco pequeno com os numeros;
+                    # repetir o aviso `segmento_fraco` aqui era a segunda leitura
+                    # da mesma conclusao no mesmo cartao.
+                    codigos_suprimidos=(
+                        frozenset({"segmento_fraco"})
+                        if evidencia_mitigada.evidencia_fraca else frozenset()
+                    ),
+                ))
                 + observacoes_da_endogamia
                 + (
                     # A promocao nao apaga a recusa: o cartao diz que nasceu de uma

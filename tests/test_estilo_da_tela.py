@@ -352,6 +352,8 @@ SELOS_DO_TEMPLATE = (
     "badge profundidade-divergencia",
     "badge profundidade-atencao",
     "badge parentesco-do-registro",
+    "badge endogamia-estrutural",
+    "badge endogamia-filtro",
 )
 
 #: WCAG 2.1, nivel AA para texto normal.

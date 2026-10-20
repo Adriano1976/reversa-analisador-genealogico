@@ -247,6 +247,52 @@ details>summary:hover{text-decoration:underline}
 .kit-grid dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .kit-grid .destaque{font-family:var(--serif);font-size:1.6rem;font-weight:600;line-height:1.15}
 
+/* O BLOCO DA ENDOGAMIA (seção 2). Mesma família visual de `.alerta-aviso` — barra
+   à esquerda e fundo de aviso —, com grade de números para o operador comparar o
+   total bruto do arquivo com o total que sobrou do filtro. O selo do cabeçalho é a
+   versão de uma linha do mesmo fato, para ser lida com o cartão fechado. */
+.endogamia-bloco{
+  margin:.75rem 0 .25rem;padding:.65rem .8rem;border:1px solid var(--aviso-line);
+  border-left:4px solid var(--aviso-line);background:var(--aviso-bg);
+  border-radius:.25rem;color:var(--ink)
+}
+.endogamia-titulo{
+  margin:0 0 .45rem;font-size:.78rem;font-weight:600;color:var(--aviso-line);
+  text-transform:uppercase;letter-spacing:.03em
+}
+.endogamia-grade{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:.55rem 1.1rem;margin:0
+}
+.endogamia-grade dt{font-weight:500;color:var(--muted);font-size:.76rem;margin:0}
+.endogamia-grade dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.endogamia-grade .destaque-endogamia{font-weight:600}
+.endogamia-texto{margin:.55rem 0 0;font-size:.86rem;color:var(--ink)}
+.endogamia-subtitulo{
+  margin:.6rem 0 .25rem;font-size:.76rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.03em
+}
+.endogamia-reconvergencias{margin:0;padding-left:1.1rem;font-size:.86rem;color:var(--ink)}
+.endogamia-reconvergencias li{margin-bottom:.3rem}
+.endogamia-reconvergencias li:last-child{margin-bottom:0}
+.endogamia-trechos{display:block;color:var(--muted);font-size:.8rem}
+.endogamia-tronco{margin-top:.5rem;font-size:.82rem;color:var(--ink)}
+.endogamia-tronco summary{cursor:pointer;color:var(--primary)}
+.endogamia-tronco p{margin:.35rem 0 0;color:var(--muted)}
+
+/* Os dois selos da endogamia. O prefixo `estado-` é PROIBIDO: ele pinta o texto
+   de branco (`.badge[class*="estado-"]`), e os dois selos são de aviso — fundo
+   creme. A paleta é a mesma dos vizinhos e o contraste é medido por
+   `tests/test_estilo_da_tela.py` nos dois temas. */
+.badge.endogamia-estrutural{
+  background-color:var(--aviso-bg);color:var(--danger);
+  border:1px solid var(--danger);font-weight:600
+}
+.badge.endogamia-filtro{
+  background-color:var(--aviso-bg);color:var(--ink);
+  border:1px solid var(--aviso-line);font-weight:600
+}
+
 /* A segunda linha do cabeçalho do cartão: o que a tabela do índice dava e que só ela dava —
    Parentesco, Janela de vida e Profundidade. Ela existe para o operador NÃO ter de abrir cartão
    por cartão, e por isso vive no CABEÇALHO, visível com o cartão fechado. `clear:both` porque o

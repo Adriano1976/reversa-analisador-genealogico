@@ -156,13 +156,35 @@ class EvidenciaMitigada:
 
 
 @dataclass(frozen=True, slots=True)
+class Reconvergencia:
+    """Um trecho em que os caminhos se bifurcam e voltam ao MESMO no.
+
+    `divergencia_id` e o ultimo no comum antes da bifurcacao; `convergencia_id` e
+    o no em que todas as rotas voltam a concordar. `trechos` traz o miolo de cada
+    alternativa, **sem os nos de familia** — e a lista que o operador le como
+    "por A -> B ou por C -> D". No caso real da Edneide, ha duas reconvergencias:
+    Januario -> Lourença e Benta -> Antônio.
+    """
+
+    divergencia_id: str
+    convergencia_id: str
+    trechos: tuple[tuple[str, ...], ...]
+
+
+@dataclass(frozen=True, slots=True)
 class DiagnosticoDeEndogamia:
     """Caminhos mais curtos no grafo e o veredito de endogamia estrutural."""
 
     origem: str
     destino: str
     caminhos: tuple[tuple[str, ...], ...]
+    #: MRCA do parentesco documental, quando informado; senao, o tronco comum.
+    #: O nome fica por compatibilidade; a tela usa `reconvergencias` e o
+    #: `tronco_comum_ids` abaixo.
     mrca_ids: tuple[str, ...]
+    #: Tronco que TODAS as rotas compartilham, independente do MRCA documental.
+    tronco_comum_ids: tuple[str, ...]
+    reconvergencias: tuple[Reconvergencia, ...]
     endogamia_estrutural: bool
     truncado: bool
     mensagem: str
@@ -177,6 +199,15 @@ class DiagnosticoDeEndogamia:
             "destino": self.destino,
             "caminhos": [list(caminho) for caminho in self.caminhos],
             "mrca_ids": list(self.mrca_ids),
+            "tronco_comum_ids": list(self.tronco_comum_ids),
+            "reconvergencias": [
+                {
+                    "divergencia_id": item.divergencia_id,
+                    "convergencia_id": item.convergencia_id,
+                    "trechos": [list(trecho) for trecho in item.trechos],
+                }
+                for item in self.reconvergencias
+            ],
             "quantidade_de_caminhos": self.quantidade_de_caminhos,
             "endogamia_estrutural": self.endogamia_estrutural,
             "truncado": self.truncado,
@@ -464,12 +495,14 @@ class DNAAnalyzer:
         ramos significa que os ramos se cruzaram antes. O diagnostico aponta
         `Endogamia estrutural confirmada na árvore`.
 
-        ## MRCA
+        ## MRCA x reconvergencia
 
-        Quando `mrca_id` e informado pelo parentesco documental, ele vence — e o
-        mesmo no que a secao 1 do cartao ja mostra. Sem ele, os candidatos sao os
-        nos de pessoa comuns a **todos** os caminhos (a interseccao), que e o que
-        "o mesmo ancestral comum" significa quando ha mais de um caminho.
+        `mrca_id`, quando informado pelo parentesco documental, e mantido em
+        `mrca_ids` — mas ele e o MRCA **da secao 1**, nao o que a lista de rotas
+        mostra. A lista exibida e `reconvergencias`: os nos em que TODAS as rotas
+        concordam e cujo no anterior diverge. E o ponto em que os caminhos se
+        bifurcam e voltam ao mesmo ancestral; a interseccao inteira e o tronco
+        comum, e nao o ancestral mais recente.
 
         ## Sem caminho
 
@@ -491,10 +524,128 @@ class DNAAnalyzer:
             destino=destino,
             caminhos=caminhos,
             mrca_ids=self._mrca_dos_caminhos(grafo, caminhos, origem, destino, mrca_id),
+            tronco_comum_ids=self._tronco_comum(grafo, caminhos, origem, destino),
+            reconvergencias=self._reconvergencias(grafo, caminhos),
             endogamia_estrutural=endogamia,
             truncado=truncado,
             mensagem=mensagem,
         )
+
+    @staticmethod
+    def _reconvergencias(
+        grafo: nx.Graph | None,
+        caminhos: Sequence[Sequence[str]],
+    ) -> tuple[Reconvergencia, ...]:
+        """Os pontos em que os caminhos se bifurcam e voltam ao MESMO no.
+
+        ## Por que nao a interseccao
+
+        A interseccao de todos os caminhos inclui o tronco comum inteiro: no caso
+        real da Edneide eram 17 pessoas, do pai do Adriano ate a mae dela. Isso
+        nao e "o ancestral mais recente"; e o que TODAS as rotas compartilham. O
+        ponto que explica a endogamia e outro: o no em que todas as rotas
+        concordam **e o no anterior diverge**. Em outras palavras, onde as rotas
+        se separaram e se encontraram de novo.
+
+        ## Como o trecho e montado
+
+        Para cada reconvergencia, o `trechos` traz o miolo de cada alternativa,
+        sem os nos de familia (que sao estruturais, nao gente). No caso da
+        Edneide, a primeira reconvergencia e `Januario -> Lourença`, com os
+        trechos `Dionísio -> Anna` e `Josefa -> Manoel`; a segunda e
+        `Benta -> Antônio`, com `Roza -> Josefa` e `Esméria -> Francisco`.
+
+        Caminhos paralelos que so compartilham as pontas nao produzem
+        reconvergencia — e o resultado vazio e honesto: as rotas nao voltam a um
+        mesmo ancestral no meio.
+        """
+        if len(caminhos) < 2 or len({len(caminho) for caminho in caminhos}) != 1:
+            return ()
+        comprimento = len(caminhos[0])
+        achados: list[Reconvergencia] = []
+        for posicao in range(1, comprimento - 1):
+            if len({caminho[posicao] for caminho in caminhos}) != 1:
+                continue
+            if len({caminho[posicao - 1] for caminho in caminhos}) <= 1:
+                continue
+
+            convergencia_bruta = caminhos[0][posicao]
+            # Volta ate o ultimo no em que TODAS as rotas ainda concordavam:
+            # ele e a divergencia que a convergencia fecha.
+            divergencia_pos = posicao - 1
+            while divergencia_pos > 0 and len(
+                    {caminho[divergencia_pos] for caminho in caminhos}) > 1:
+                divergencia_pos -= 1
+            # O no compartilhado pode ser uma FAMILIA (o casal), e nao uma
+            # pessoa: no caso real da Edneide, a divergencia estava em @F151@,
+            # a familia dos pais do Januario. O ponto que o operador entende e a
+            # pessoa encostada na familia no sentido do caminho — o filho antes
+            # da divergencia e o descendente depois da convergencia.
+            divergencia = (
+                caminhos[0][divergencia_pos]
+                if DNAAnalyzer._e_no_de_pessoa(grafo, caminhos[0][divergencia_pos])
+                else (DNAAnalyzer._pessoa_adjacente(grafo, caminhos, divergencia_pos, -1)
+                      or caminhos[0][divergencia_pos])
+            )
+            convergencia = (
+                convergencia_bruta
+                if DNAAnalyzer._e_no_de_pessoa(grafo, convergencia_bruta)
+                else (DNAAnalyzer._pessoa_adjacente(grafo, caminhos, posicao, +1)
+                      or convergencia_bruta)
+            )
+
+            trechos: list[tuple[str, ...]] = []
+            vistos: set[tuple[str, ...]] = set()
+            for caminho in caminhos:
+                trecho = tuple(
+                    no for no in caminho[divergencia_pos + 1:posicao]
+                    if DNAAnalyzer._e_no_de_pessoa(grafo, no)
+                )
+                if trecho and trecho not in vistos:
+                    vistos.add(trecho)
+                    trechos.append(trecho)
+            achados.append(Reconvergencia(
+                divergencia_id=divergencia,
+                convergencia_id=convergencia,
+                trechos=tuple(trechos),
+            ))
+        return tuple(achados)
+
+    @staticmethod
+    def _e_no_de_pessoa(grafo: nx.Graph | None, no: str) -> bool:
+        """`True` para pessoa; `False` para familia. Sem tipo, inclui."""
+        if grafo is None:
+            return True
+        tipo = grafo.nodes[no].get("type") if no in grafo else None
+        # Sem atributo de tipo (grafo sintetico de teste), nao da para
+        # distinguir: e mais honesto listar do que esconder.
+        return tipo in (None, "person")
+
+    @staticmethod
+    def _pessoa_adjacente(
+        grafo: nx.Graph | None,
+        caminhos: Sequence[Sequence[str]],
+        posicao: int,
+        passo: int,
+    ) -> str | None:
+        """Pessoa comum mais proxima da familia, no sentido do caminho.
+
+        `passo=-1` serve a divergencia (o filho antes da familia dos pais);
+        `passo=+1`, a convergencia (o descendente depois da familia). As pontas
+        (raiz e match) nao entram: elas sao o par analisado, nao o ancestral.
+        """
+        if not caminhos:
+            return None
+        caminho = caminhos[0]
+        indice = posicao + passo
+        while 0 <= indice < len(caminho):
+            no = caminho[indice]
+            if (no not in (caminho[0], caminho[-1])
+                    and DNAAnalyzer._e_no_de_pessoa(grafo, no)
+                    and all(no in outro for outro in caminhos)):
+                return no
+            indice += passo
+        return None
 
     @staticmethod
     def _mrca_dos_caminhos(
@@ -504,7 +655,13 @@ class DNAAnalyzer:
         destino: str,
         mrca_id: str | None,
     ) -> tuple[str, ...]:
-        """Ancestral comum informado, ou a interseccao dos caminhos."""
+        """MRCA documental, quando informado; senao, o tronco comum.
+
+        O nome `mrca_ids` e historico: este valor e o MRCA que a secao 1 do
+        cartao mostra (quando existe) ou, na falta dele, o tronco. A lista que a
+        tela exibe e `reconvergencias`; o tronco inteiro fica em
+        `tronco_comum_ids`.
+        """
         if not caminhos:
             return ()
         # O MRCA do parentesco documental VENCE quando aparece em algum caminho:
@@ -512,21 +669,28 @@ class DNAAnalyzer:
         # chegar a ele por familias diferentes (o que e exatamente o colapso).
         if mrca_id and any(mrca_id in caminho for caminho in caminhos):
             return (mrca_id,)
+        return DNAAnalyzer._tronco_comum(grafo, caminhos, origem, destino)
 
+    @staticmethod
+    def _tronco_comum(
+        grafo: nx.Graph | None,
+        caminhos: Sequence[Sequence[str]],
+        origem: str,
+        destino: str,
+    ) -> tuple[str, ...]:
+        """Interseccao das rotas, sem as pontas e sem os nos de familia.
+
+        E o "tronco compartilhado" que o rotulo antigo chamava de MRCA. Nao e o
+        ancestral mais recente: inclui o caminho comum inteiro. A tela o mostra
+        recolhido, como informacao de apoio.
+        """
+        if not caminhos:
+            return ()
         comuns = set(caminhos[0])
         for caminho in caminhos[1:]:
             comuns &= set(caminho)
         comuns -= {origem, destino}
-
-        def e_pessoa(no: str) -> bool:
-            if grafo is None:
-                return True
-            tipo = grafo.nodes[no].get("type") if no in grafo else None
-            # Sem atributo de tipo (grafo sintetico de teste), nao da para
-            # distinguir: e mais honesto listar do que esconder.
-            return tipo in (None, "person")
-
-        return tuple(sorted(no for no in comuns if e_pessoa(no)))
+        return tuple(sorted(no for no in comuns if DNAAnalyzer._e_no_de_pessoa(grafo, no)))
 
     # -- Cruzamento difuso de nomes ----------------------------------------
 
@@ -647,6 +811,7 @@ __all__ = [
     "DNAAnalyzer",
     "EvidenciaMitigada",
     "DiagnosticoDeEndogamia",
+    "Reconvergencia",
     "CorrespondenciaDeNome",
     "AnaliseDeEndogamia",
     "CM_MINIMO_SEGMENTO",

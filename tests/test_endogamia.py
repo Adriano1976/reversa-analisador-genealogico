@@ -32,8 +32,13 @@ from core.endogamia import (  # noqa: E402
     MENSAGEM_ENDEROGAMIA,
     MENSAGEM_SEM_LIGACAO,
     DNAAnalyzer,
+    DiagnosticoDeEndogamia,
 )
-from core.dna_analysis import dna_analysis  # noqa: E402
+from core.dna_analysis import (  # noqa: E402
+    _observacao_estrutural,
+    _selo_da_endogamia,
+    dna_analysis,
+)
 from core.erros import DnaCsvSemColunas  # noqa: E402
 from parsers.csv_ingest import normalizar_cm, read_csv_with_fallback  # noqa: E402
 from parsers.gedcom_parser import carregar_arvore  # noqa: E402
@@ -67,6 +72,29 @@ def _grafo_com_um_caminho() -> nx.Graph:
     grafo.add_node("match", type="person")
     grafo.add_node("F1", type="family")
     grafo.add_edges_from([("raiz", "F1"), ("F1", "match")])
+    return grafo
+
+
+def _grafo_com_reconvergencia() -> nx.Graph:
+    """Duas rotas que se separam em `P` e voltam a se encontrar em `C`.
+
+    E a forma do caso real da Edneide: nao sao caminhos paralelos que so
+    compartilham as pontas; eles se bifurcam e reconvergem no meio.
+    """
+    grafo = nx.Graph()
+    for no, tipo in (
+        ("raiz", "person"), ("P", "person"), ("A", "person"),
+        ("B", "person"), ("C", "person"), ("match", "person"),
+        ("F0", "family"), ("F1", "family"), ("F2", "family"),
+        ("F3", "family"), ("F4", "family"), ("F5", "family"),
+    ):
+        grafo.add_node(no, type=tipo)
+    grafo.add_edges_from([
+        ("raiz", "F0"), ("F0", "P"),
+        ("P", "F1"), ("F1", "A"), ("A", "F3"), ("F3", "C"),
+        ("P", "F2"), ("F2", "B"), ("B", "F4"), ("F4", "C"),
+        ("C", "F5"), ("F5", "match"),
+    ])
     return grafo
 
 
@@ -223,6 +251,52 @@ class TestEndogamiaEstrutural:
             _grafo_com_dois_caminhos(), "raiz", "match")
         # A interseccao dos dois caminhos tem so as pontas, que sao removidas.
         assert diagnostico.mrca_ids == ()
+
+    def test_reconvergencia_isola_o_ponto_de_volta(self):
+        """O que a tela mostra e P -> C, e nao o tronco comum inteiro."""
+        diagnostico = DNAAnalyzer().diagnosticar_endogamia(
+            _grafo_com_reconvergencia(), "raiz", "match")
+
+        assert diagnostico.quantidade_de_caminhos == 2
+        assert len(diagnostico.reconvergencias) == 1
+        reconvergencia = diagnostico.reconvergencias[0]
+        assert reconvergencia.divergencia_id == "P"
+        assert reconvergencia.convergencia_id == "C"
+        assert set(reconvergencia.trechos) == {("A",), ("B",)}, (
+            "os trechos alternativos sao as pessoas entre a divergencia e a convergencia"
+        )
+
+    def test_o_tronco_comum_nao_e_a_lista_de_reconvergencias(self):
+        """A distincao que o rotulo antigo 'MRCA' escondia."""
+        diagnostico = DNAAnalyzer().diagnosticar_endogamia(
+            _grafo_com_reconvergencia(), "raiz", "match")
+
+        # O tronco inclui P e C (e os nos de familia, filtrados).
+        assert set(diagnostico.tronco_comum_ids) == {"P", "C"}
+        assert diagnostico.tronco_comum_ids == diagnostico.mrca_ids
+        # A reconvergencia e so o ponto de volta, com os trechos.
+        assert [r.convergencia_id for r in diagnostico.reconvergencias] == ["C"]
+
+    def test_sem_caminho_documental_o_selo_vira_sinal_estrutural(self):
+        """A confusao da Edneide: 'Endogamia' ao lado de 'nao encontrado'."""
+        evidencia = DNAAnalyzer().avaliar_segmentos([20.0])
+        diagnostico = DiagnosticoDeEndogamia(
+            origem="a", destino="b",
+            caminhos=(("a", "b"), ("a", "c", "b")),
+            mrca_ids=(), tronco_comum_ids=(), reconvergencias=(),
+            endogamia_estrutural=True, truncado=False,
+            mensagem=MENSAGEM_ENDEROGAMIA,
+        )
+
+        sem_documento = _selo_da_endogamia(evidencia, diagnostico, False)
+        com_documento = _selo_da_endogamia(evidencia, diagnostico, True)
+        assert sem_documento["rotulo"] == "Sinal estrutural na árvore"
+        assert com_documento["rotulo"] == "Endogamia estrutural"
+        assert "20 iterações" in sem_documento["titulo"]
+        # A frase da secao 5 acompanha a distincao.
+        assert _observacao_estrutural(diagnostico, True) == MENSAGEM_ENDEROGAMIA
+        assert "Sinal estrutural" in _observacao_estrutural(diagnostico, False)
+        assert "confirmada" not in _observacao_estrutural(diagnostico, False)
 
     def test_enumeracao_para_no_limite_e_marca_truncado(self):
         grafo = nx.Graph()
@@ -435,6 +509,63 @@ GED_COM_COLAPSO = """0 HEAD
 """
 
 
+GED_COM_RECONVERGENCIA = """0 HEAD
+1 SOUR TEST
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @I1@ INDI
+1 NAME Raiz /Silva/
+1 SEX M
+1 FAMC @F0@
+0 @I2@ INDI
+1 NAME Pedro /Silva/
+1 SEX M
+1 FAMS @F0@
+1 FAMS @F1@
+1 FAMS @F2@
+0 @I3@ INDI
+1 NAME Ana /Silva/
+1 SEX F
+1 FAMC @F1@
+1 FAMS @F3@
+0 @I4@ INDI
+1 NAME Bia /Silva/
+1 SEX F
+1 FAMC @F2@
+1 FAMS @F4@
+0 @I5@ INDI
+1 NAME Caio /Silva/
+1 SEX M
+1 FAMC @F3@
+1 FAMC @F4@
+1 FAMS @F5@
+0 @I6@ INDI
+1 NAME Alvo /Silva/
+1 SEX M
+1 FAMC @F5@
+0 @F0@ FAM
+1 HUSB @I2@
+1 CHIL @I1@
+0 @F1@ FAM
+1 HUSB @I2@
+1 CHIL @I3@
+0 @F2@ FAM
+1 HUSB @I2@
+1 CHIL @I4@
+0 @F3@ FAM
+1 HUSB @I3@
+1 CHIL @I5@
+0 @F4@ FAM
+1 HUSB @I4@
+1 CHIL @I5@
+0 @F5@ FAM
+1 HUSB @I5@
+1 CHIL @I6@
+0 TRLR
+"""
+
+
 def _arvore_de(texto: str, tmp_path):
     caminho = tmp_path / "arvore.ged"
     caminho.write_text(texto, encoding="utf-8")
@@ -464,8 +595,15 @@ class TestIntegracaoNoFluxo:
         assert cartao["endogamia"]["total_cm"] == 0.0
         assert cartao["endogamia"]["segmentos_descartados"] == 3
         assert cartao["endogamia"]["evidencia_fraca"] is True
-        assert any("evidência fraca" in observacao
-                   for observacao in cartao["observations"])
+        # O detalhe do filtro vive na secao 2 (`endogamia["mensagem"]`), e nao
+        # mais na secao 5: a mensagem repetida era a duplicacao que o operador
+        # lia duas vezes no mesmo cartao.
+        assert "evidência fraca" in cartao["endogamia"]["mensagem"]
+        assert "parentesco distante inflado" in cartao["endogamia"]["mensagem"]
+        assert not any("evidência fraca" in observacao
+                       for observacao in cartao["observations"])
+        assert cartao["endogamia"]["selo"]["rotulo"] == "Filtro: 3 seg. abaixo de 10 cM"
+        assert cartao["endogamia"]["selo"]["classe"] == "endogamia-filtro"
 
     def test_filtro_mantem_o_segmento_bom_e_recalcula(self, tmp_path):
         resultados, _descartados, _msg = _analisar(
@@ -479,8 +617,10 @@ class TestIntegracaoNoFluxo:
         assert cartao["endogamia"]["maior_segmento_cm"] == pytest.approx(20.0)
         assert cartao["endogamia"]["segmentos_descartados"] == 1
         assert cartao["endogamia"]["evidencia_fraca"] is False
-        assert any("Total recalculado" in observacao
-                   for observacao in cartao["observations"])
+        assert "Total recalculado" in cartao["endogamia"]["mensagem"]
+        assert not any("Total recalculado" in observacao
+                       for observacao in cartao["observations"])
+        assert cartao["endogamia"]["selo"]["rotulo"] == "Filtro: 1 seg. abaixo de 10 cM"
 
     def test_colapso_de_pedigree_aponta_endogamia_estrutural(self, tmp_path):
         resultados, _descartados, _msg = _analisar(
@@ -490,10 +630,31 @@ class TestIntegracaoNoFluxo:
         cartao = resultados[0]
         assert cartao["endogamia"]["arvore"]["quantidade_de_caminhos"] == 2
         assert cartao["endogamia"]["arvore"]["endogamia_estrutural"] is True
+        assert cartao["endogamia"]["arvore"]["reconvergencias"] == [], (
+            "caminhos paralelos so compartilham as pontas: nao ha reconvergencia interna"
+        )
+        assert cartao["endogamia"]["selo"]["rotulo"] == "Endogamia estrutural"
+        assert cartao["endogamia"]["selo"]["classe"] == "endogamia-estrutural"
         assert any(MENSAGEM_ENDEROGAMIA in observacao
                    for observacao in cartao["observations"]), (
             "a frase exata do diagnostico precisa chegar ao cartao"
         )
+
+    def test_reconvergencia_mostra_o_trecho_que_volta_ao_mesmo_ancestral(self, tmp_path):
+        resultados, _descartados, _msg = _analisar(
+            tmp_path, GED_COM_RECONVERGENCIA,
+            "Name,cM\nAlvo Silva,120\n", "Raiz Silva")
+
+        arvore = resultados[0]["endogamia"]["arvore"]
+        assert arvore["quantidade_de_caminhos"] == 2
+        assert len(arvore["reconvergencias"]) == 1
+        reconvergencia = arvore["reconvergencias"][0]
+        assert reconvergencia["divergencia_nome"] == "Pedro Silva"
+        assert reconvergencia["convergencia_nome"] == "Caio Silva"
+        assert {tuple(trecho["nomes"]) for trecho in reconvergencia["trechos"]} == {
+            ("Ana Silva",), ("Bia Silva",)
+        }, "os trechos alternativos sao as pessoas entre a divergencia e a convergencia"
+        assert "Pedro Silva" in arvore["tronco_comum_nomes"]
 
     def test_match_sem_ligacao_nao_derruba_a_analise(self, tmp_path):
         resultados, _descartados, _msg = _analisar(
@@ -504,3 +665,111 @@ class TestIntegracaoNoFluxo:
         assert cartao["endogamia"]["arvore"]["endogamia_estrutural"] is False
         assert not any(MENSAGEM_ENDEROGAMIA in observacao
                        for observacao in cartao["observations"])
+
+    def test_sem_fato_nenhum_nao_ha_selo_nem_mensagem(self, tmp_path):
+        """Cartao limpo nao ganha selo: 20 + 30 cM, um caminho, sem descarte."""
+        resultados, _descartados, _msg = _analisar(
+            tmp_path, DNA_GED,
+            "Name,cM\nAna Silva Souza,20\nAna Silva Souza,30\n",
+            "Carlos Silva Souza")
+
+        cartao = resultados[0]
+        assert cartao["endogamia"]["selo"] is None
+        assert cartao["endogamia"]["mensagem"] == ""
+        assert cartao["endogamia"]["arvore"]["endogamia_estrutural"] is False
+
+
+# ---------------------------------------------------------------------------
+# O que o template mostra: selo no cabecalho e bloco proprio na secao 2
+# ---------------------------------------------------------------------------
+
+
+def _html(resultados):
+    """Renderiza o template REAL, como `test_formatacao_cm.py` faz.
+
+    Passa pelo Jinja de producao para que um campo renomeado no nucleo quebre
+    aqui, e nao na tela do operador.
+    """
+    from flask import render_template
+
+    from app import app
+
+    with app.test_request_context("/"):
+        return render_template("index.html", dna_results=resultados,
+                               skipped_matches=[], message="1 conexão encontrada.",
+                               success=True)
+
+
+class TestOQueOCartaoMostra:
+
+    def test_filtro_tem_selo_no_cabecalho_e_bloco_na_secao_2(self, tmp_path):
+        resultados, _d, _m = _analisar(
+            tmp_path, DNA_GED,
+            "Name,cM\nAna Silva Souza,6.4\nAna Silva Souza,6.4\nAna Silva Souza,6.4\n",
+            "Carlos Silva Souza")
+        html = _html(resultados)
+
+        assert 'class="badge endogamia-filtro"' in html, (
+            "o selo do filtro nao chegou ao cabecalho do cartao"
+        )
+        assert "Filtro: 3 seg. abaixo de 10 cM" in html
+        assert "endogamia-bloco" in html, "o bloco da secao 2 nao foi renderizado"
+        assert "Total bruto (arquivo)" in html
+        assert "Total após filtro" in html
+        assert "evidência fraca" in html
+
+    def test_o_selo_fica_na_faixa_dos_selos_do_cabecalho(self, tmp_path):
+        """O extrator de cabecalho dos testes corta no primeiro `</div>`; selo ali."""
+        resultados, _d, _m = _analisar(
+            tmp_path, DNA_GED,
+            "Name,cM\nAna Silva Souza,6.4\nAna Silva Souza,6.4\nAna Silva Souza,6.4\n",
+            "Carlos Silva Souza")
+        html = _html(resultados)
+
+        inicio = html.index("selos-do-cabecalho")
+        fim = html.index("voltar-ao-indice")
+        assert "badge endogamia-filtro" in html[inicio:fim]
+
+    def test_colapso_mostra_selo_estrutural_e_os_caminhos(self, tmp_path):
+        resultados, _d, _m = _analisar(
+            tmp_path, GED_COM_COLAPSO, "Name,cM\nAna Silva Souza,120\n",
+            "Carlos Silva Souza")
+        html = _html(resultados)
+
+        assert 'class="badge endogamia-estrutural"' in html
+        assert "Endogamia estrutural" in html
+        assert "Caminhos mais curtos" in html
+        assert "só compartilham as pontas" in html, (
+            "caminhos paralelos sem reconvergencia interna precisam dizer isso"
+        )
+        assert ">MRCA<" not in html, (
+            "o rotulo MRCA saiu: ele listava o tronco inteiro, e nao o ancestral mais recente"
+        )
+        assert MENSAGEM_ENDEROGAMIA in html, (
+            "a frase estrutural continua na secao 5"
+        )
+
+    def test_reconvergencia_aparece_com_os_trechos_e_o_tronco_recolhido(self, tmp_path):
+        resultados, _d, _m = _analisar(
+            tmp_path, GED_COM_RECONVERGENCIA,
+            "Name,cM\nAlvo Silva,120\n", "Raiz Silva")
+        html = _html(resultados)
+
+        assert "Reconvergências" in html
+        assert "Pedro Silva" in html and "Caio Silva" in html
+        assert "Ana Silva" in html and "Bia Silva" in html
+        assert "Tronco comum" in html, (
+            "o tronco inteiro fica no details recolhido, e nao na lista de MRCAs"
+        )
+        assert "só compartilham as pontas" not in html
+
+    def test_sem_fato_nenhum_nao_renderiza_selo_nem_bloco(self, tmp_path):
+        resultados, _d, _m = _analisar(
+            tmp_path, DNA_GED,
+            "Name,cM\nAna Silva Souza,20\nAna Silva Souza,30\n",
+            "Carlos Silva Souza")
+        html = _html(resultados)
+
+        assert "badge endogamia" not in html
+        assert "endogamia-bloco" not in html
+        assert "Filtro de endogamia" not in html
