@@ -81,6 +81,8 @@ ROTULOS_DE_FEATURE = {
     "upload-gedcom": "Upload e parsing de GEDCOM",
     "analise-dna": "An\u00e1lise de DNA",
     "busca-caminho": "Busca de caminho geneal\u00f3gico",
+    "tela-de-entrada": "Tela de entrada",
+    "recursos-da-tela": "Artes da tela",
 }
 
 # Artefatos de INSTRUMENTO do Publisher, e nao conteudo do site: ficam em `_reversa_docs/` e nao

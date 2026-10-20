@@ -551,9 +551,12 @@ publicação é o rótulo curado de cada página de feature:
 | `assets/img/apple-touch-icon.png` nos assets do mini-site | o mesmo, desde 2026-10-20 |
 | `<title>` e `<h1>` de `features/<slug>.html` com o slug | o rótulo humano curado, de `ROTULOS_DE_FEATURE` |
 
-Feature nova exige a linha dela em `ROTULOS_DE_FEATURE`, no script; sem isso a página sai com o slug no
-`<h1>` e um título genérico. Foi o que aconteceu em 2026-10-20 com `tela-de-entrada` e `recursos-da-tela`,
-que ainda publicam sem rótulo curado.
+Feature nova exige **duas** coisas: a linha dela em `ROTULOS_DE_FEATURE`, no script, e o `<title>` da
+página gerada no padrão `<slug> — Analisador Genealógico`, porque é esse slug que a publicação troca pelo
+rótulo. Faltando a linha, o `h1` sai com o slug; faltando o slug no título, o título sai genérico e a troca
+não encontra o que trocar. As duas falhas aconteceram em 2026-10-20 com `tela-de-entrada` e
+`recursos-da-tela`, e as duas foram corrigidas no mesmo dia: hoje as cinco páginas de feature publicam com
+rótulo curado no `h1` e na aba.
 
 ```powershell
 .\.venv\Scripts\python.exe publicar_docs.py --conferir   # compara, e nao escreve
