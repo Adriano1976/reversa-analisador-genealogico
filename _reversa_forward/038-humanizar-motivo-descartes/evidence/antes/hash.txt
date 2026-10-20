@@ -1,0 +1,11 @@
+# T001 — hash da tela de entrada, antes da feature
+
+Fonte: `tests/test_icone_de_atalho.py:168` e `:27`, conferidos pela suíte verde de 2026-10-20.
+
+```
+SHA_DA_TELA     = 7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541
+TAMANHO_ESPERADO = 16504 bytes
+```
+
+A tela medida é `GET /` com a pasta de uploads temporária vazia (fixture `cliente_de_upload`).
+O bloco dos descartados não renderiza nesse estado, então esta feature não deve mover o hash.

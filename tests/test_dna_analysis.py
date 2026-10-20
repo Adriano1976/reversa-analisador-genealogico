@@ -178,21 +178,27 @@ def test_dna_analysis_happy(dna_loaded):
         os.remove(path)
 
 
-#: Os motivos de recusa por sobrenome, catalogados em
-#: `_reversa_sdd/analise-dna/contracts.md`. A assercao de `TT-04` pergunta "veio um
-#: motivo do catalogo?", e nao "o texto contem 'nao' ou 'sem'": o proxy por substring
-#: acusou a mudanca de redacao do adendo `024` como se o filtro anti-falso-positivo
-#: tivesse sido perdido. O filtro nao mudou — o texto e' que deixou de acusar o arquivo
-#: do operador. O motivo de score e' o unico dinamico (carrega os numeros medidos) e por
-#: isso e' conferido por prefixo.
+#: Os motivos de recusa catalogados em `core/motivos_do_descarte.py` (feature 038). A
+#: assercao de `TT-04` pergunta "veio um motivo do catalogo?", e nao "o texto contem 'nao'
+#: ou 'sem'": o proxy por substring acusou a mudanca de redacao do adendo `024` como se o
+#: filtro anti-falso-positivo tivesse sido perdido. O filtro nao mudou — o texto e' que
+#: deixou de acusar o arquivo do operador. Na 038 a formula de score saiu do catalogo de
+#: strings e virou uma causa nomeada; as cinco frases dela entram aqui para a pergunta
+#: continuar sendo "veio do catalogo?".
 MOTIVOS_POR_SOBRENOME = (
     "o sobrenome foi lido como prenome (nome sem sobrenome isolável)",
     "o nome não tem sobrenome (nome único)",
     "sobrenome curto demais para buscar (inicial ou abreviação)",
     "nenhum sobrenome do nome existe no GEDCOM",
-    "sem sobrenome em comum (filtro anti-falso-positivo)",
+    "nenhum sobrenome em comum entre o nome e o da árvore",
 )
-PREFIXO_DO_MOTIVO_DE_SCORE = "score insuficiente ou conflito de sobrenome ("
+MOTIVOS_DE_SEMELHANCA = (
+    "o nome tem uma parte a mais que não aparece na árvore",
+    "há sobrenome em comum, mas de menos para este prenome",
+    "o sobrenome é parecido, mas não o suficiente",
+    "o prenome é diferente do que está na árvore",
+    "o nome é parecido, mas não o suficiente para ser a mesma pessoa",
+)
 
 
 # TT-04: anti-falso-positivo — match sem sobrenome em comum é descartado.
@@ -215,9 +221,8 @@ def test_anti_false_positive(dna_loaded):
         assert len(results) == 0
         assert len(skipped) == 1
         motivo = skipped[0]["motivo"]
-        assert (motivo in MOTIVOS_POR_SOBRENOME
-                or motivo.startswith(PREFIXO_DO_MOTIVO_DE_SCORE)), (
-            f"motivo fora do catalogo de recusa por sobrenome: {motivo!r}")
+        assert (motivo in MOTIVOS_POR_SOBRENOME or motivo in MOTIVOS_DE_SEMELHANCA), (
+            f"motivo fora do catalogo de recusa: {motivo!r}")
     finally:
         os.remove(path)
 

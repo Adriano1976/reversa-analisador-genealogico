@@ -1,0 +1,33 @@
+# T011 — suíte completa, medida depois da feature
+
+Comando:
+
+```
+.\.venv\Scripts\python.exe -m pytest -q --tb=short -p no:cacheprovider
+```
+
+Saída (cauda):
+
+```
+........................................................................ [ 98%]
+......................                                                   [100%]
+1381 passed, 9 skipped in 70.58s (0:01:10)
+```
+
+| Métrica | Antes (T001) | Depois | Delta |
+|---|---|---|---|
+| `passed` | 1336 | **1381** | **+45** |
+| `skipped` | 9 | **9** | 0 |
+| `failed` | 0 | **0** | 0 |
+| exit code | 0 | **0** | — |
+
+Os 45 testes novos: 43 em `tests/test_motivo_humanizado.py`, mais
+`test_a_projecao_leva_a_causa_e_o_detalhe` (`test_candidatos_do_descarte.py`) e
+`test_sem_detalhe_a_nona_coluna_fica_vazia` (`test_csv_de_descartes.py`).
+
+## A decisão ficou congelada
+
+`tests/test_characterization_matching.py` (74 testes, incluindo
+`test_pipeline_caracterizado[sem-intersecao]`) passa **sem que nenhum aceite, descarte, cM ou
+caminho tenha mudado**. O único delta dessa caracterização é a **forma** do descarte: duas
+chaves novas (`motivo_codigo`, `motivo_detalhe`) ao lado do `motivo`, que continua igual.

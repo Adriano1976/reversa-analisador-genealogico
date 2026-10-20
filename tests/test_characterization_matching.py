@@ -141,6 +141,11 @@ PIPELINE = {
           "kit": None,
           "cm": 150,
           "motivo": "nenhum sobrenome do nome existe no GEDCOM",
+          # Feature 038: a causa e o detalhe tecnico passaram a viajar ao lado do texto.
+          # O MOTIVO nao mudou — e' o que este contrato congela desde a 034. Recusa por
+          # sobrenome nao mede nada, entao o detalhe nasce vazio, nunca com zero.
+          "motivo_codigo": "sem_sobrenome_no_gedcom",
+          "motivo_detalhe": "",
           # Feature 034: o descarte passou a levar os candidatos avaliados. Este nome
           # nao tem sobrenome que exista no GEDCOM, entao a lista e' vazia — o unico
           # delta da 034 neste contrato e' a chave nova, nunca o motivo.

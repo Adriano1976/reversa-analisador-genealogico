@@ -1,0 +1,12 @@
+{"ts":"2026-10-20T08:13:00Z","action":"T001","status":"done","files":["_reversa_forward/038-humanizar-motivo-descartes/evidence/antes/suite.txt","_reversa_forward/038-humanizar-motivo-descartes/evidence/antes/hash.txt"]}
+{"ts":"2026-10-20T08:20:00Z","action":"T002","status":"done","files":["tests/test_motivo_humanizado.py"]}
+{"ts":"2026-10-20T08:23:00Z","action":"T003","status":"done","files":["tests/test_motivo_humanizado.py"]}
+{"ts":"2026-10-20T08:26:00Z","action":"T004","status":"done","files":["src/core/motivos_do_descarte.py"]}
+{"ts":"2026-10-20T08:31:00Z","action":"T005","status":"done","files":["src/core/matching.py"]}
+{"ts":"2026-10-20T08:34:00Z","action":"T006","status":"done","files":["src/core/dna_analysis.py"]}
+{"ts":"2026-10-20T08:37:00Z","action":"T007","status":"done","files":["src/ports/__init__.py","src/application/dna_analysis.py"]}
+{"ts":"2026-10-20T08:39:00Z","action":"T008","status":"done","files":["src/reporting/csv_de_descartes.py"]}
+{"ts":"2026-10-20T08:40:00Z","action":"T009","status":"done","files":["src/templates/index.html"]}
+{"ts":"2026-10-20T08:45:00Z","action":"T010","status":"done","files":["tests/test_dna_analysis.py","tests/test_candidatos_do_descarte.py","tests/test_csv_de_descartes.py","tests/test_characterization_matching.py"]}
+{"ts":"2026-10-20T08:48:00Z","action":"T011","status":"done","files":["_reversa_forward/038-humanizar-motivo-descartes/evidence/depois/suite.txt","_reversa_forward/038-humanizar-motivo-descartes/evidence/depois/hash.txt","_reversa_forward/038-humanizar-motivo-descartes/evidence/depois/escopo.txt"]}
+{"ts":"2026-10-20T08:50:00Z","action":"T012","status":"done","files":["_reversa_forward/038-humanizar-motivo-descartes/legacy-impact.md","_reversa_forward/038-humanizar-motivo-descartes/regression-watch.md"]}

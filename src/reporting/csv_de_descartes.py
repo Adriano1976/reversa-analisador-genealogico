@@ -18,6 +18,10 @@ outra ferramenta.
   texto lido.
 - **Uma linha por descarte.** Quando há mais de um candidato compatível, todos vão na
   mesma célula separados por ` | ` — a lista é de nomes a conferir, não de candidatos.
+- **Detalhe técnico ao fim (feature 038).** A coluna Motivo passou a falar português comum;
+  os quatro números que explicam a recusa (`prenome`, `nota`, `sobrenomes em comum`,
+  `grafia`) foram para uma nona coluna, à direita. As oito primeiras não mudaram de nome
+  nem de posição.
 
 Função pura: recebe os descartes como a tela os tem e devolve texto. Não lê arquivo,
 não fala com a rede e não importa `core/` (`ADR-34`).
@@ -36,6 +40,9 @@ CABECALHO = (
     "Nascimento",
     "Prenome",
     "Nota",
+    # A nona coluna nasceu na feature 038. As oito primeiras mantêm nome e posição: a
+    # planilha é lida em outra ferramenta, e quem lê por índice não pode quebrar.
+    "Detalhe técnico",
 )
 
 _PERIGOSOS = ("=", "+", "-", "@")
@@ -101,5 +108,9 @@ def csv_de_descartes(itens) -> str:
             nascimento,
             prenome,
             nota,
+            # Feature 038: os números que explicam a recusa saem da coluna Motivo (que agora
+            # fala português) e vão para cá, rotulados. Vazio quando a recusa não vem do
+            # bloco de semelhança — as causas de sobrenome não medem nada.
+            _texto(item.get("motivo_detalhe")),
         ])
     return "\ufeff" + saida.getvalue()

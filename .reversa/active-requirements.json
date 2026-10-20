@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/036-refino-do-cartao-de-resultado",
-  "feature-id": "036",
-  "short-name": "refino-do-cartao-de-resultado",
-  "started-at": "2026-10-19T18:46:46Z",
+  "feature-dir": "_reversa_forward/038-humanizar-motivo-descartes",
+  "feature-id": "038",
+  "short-name": "humanizar-motivo-descartes",
+  "started-at": "2026-10-20T08:12:00Z",
   "current-stage": "done",
-  "stages-completed": ["requirements", "clarify", "plan", "to-do", "coding", "sync"],
+  "stages-completed": ["requirements", "plan", "to-do", "coding", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

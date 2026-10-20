@@ -1,0 +1,13 @@
+# T011 — hash da tela de entrada, depois da feature
+
+O teste `tests/test_icone_de_atalho.py` (que congela `SHA_DA_TELA`) passou na suíte completa de
+2026-10-20 com o mesmo valor de antes:
+
+```
+SHA_DA_TELA      = 7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541
+TAMANHO_ESPERADO = 16504 bytes
+```
+
+**Nenhuma remeção foi necessária: o hash não mudou.** O bloco dos descartados não renderiza na
+tela de entrada (sem análise carregada), e a única edição de template ficou dentro do
+`{% if skipped_matches %}` — exatamente o que `D-11` previu.

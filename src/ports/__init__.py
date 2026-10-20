@@ -369,6 +369,11 @@ class DescartadoDaAnalise:
     como enum fechado, e fecha-lo aqui exigiria mapear texto em codigo — a
     inferencia a partir de mensagem de contrato que o projeto recusa desde a
     feature 006.
+
+    Desde a feature 038 o texto e' **humano** (o que o operador le) e a causa viaja em
+    `reason_code`, ao lado, sem substituir o texto. `detail` carrega os numeros medidos
+    (`prenome`, `nota`, `sobrenomes em comum`, `grafia`) para quem precisa conferir o
+    calculo. Os tres campos nascem vazios quando a recusa nao vem do bloco de semelhanca.
     """
 
     ordinal: int
@@ -377,6 +382,8 @@ class DescartadoDaAnalise:
     kit: str | None = None
     total_cm: float | None = None
     candidatos: tuple[CandidatoDoDescarte, ...] = ()
+    reason_code: str = ""
+    detail: str = ""
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,24 @@
+# T001 — linha de base, medida antes de qualquer edição
+
+Comando:
+
+```
+.\.venv\Scripts\python.exe -m pytest -q --tb=line -p no:cacheprovider
+```
+
+Saída (cauda):
+
+```
+........................................................................ [ 96%]
+.................................................                        [100%]
+1336 passed, 9 skipped in 89.32s (0:01:29)
+```
+
+- `passed`: **1336**
+- `skipped`: **9**
+- `failed`: **0**
+- exit code: **0**
+
+As duas falhas de `graphviz` que apareceram em rodadas anteriores desta sessão
+(`test_gera_png`, `test_gera_svg`, `import graphviz` sem o binding Python) **não** ocorreram
+nesta rodada: o ambiente passou a importar. Nada foi alterado para isso.

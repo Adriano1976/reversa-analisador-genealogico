@@ -72,6 +72,7 @@ from .profundidade_do_caminho import (
     resumo_da_profundidade,
 )
 from .matching import avaliar_candidatos, build_ged_indexes, match_candidates
+from .motivos_do_descarte import NAO_ENCONTRADO, Motivo
 from .name_normalization import (
     drop_short_tokens,
     norm_name,
@@ -578,11 +579,20 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                     {**candidato, "nascimento": birth_date(arvore[0], candidato["id"])}
                     for candidato in proximos
                 ]
+                # O MOTIVO VIROU OBJETO (feature 038): o texto humano vai para a tela e para a
+                # planilha; o codigo da causa e o detalhe tecnico viajam ao lado, para quem
+                # precisar conferir o calculo. `None` continua sendo "nao encontrado" — e' o
+                # que acontece quando a decisao nao produziu recusa nenhuma.
+                motivo_do_descarte = reason if isinstance(reason, Motivo) else None
                 skipped_matches.append({
                     "csv_name": kit["person_name_csv"],
                     "kit": kit["kit"],
                     "cm": kit["total_cm"],
-                    "motivo": reason or "não encontrado",
+                    "motivo": (motivo_do_descarte.texto if motivo_do_descarte
+                               else (reason or "não encontrado")),
+                    "motivo_codigo": (motivo_do_descarte.codigo if motivo_do_descarte
+                                      else NAO_ENCONTRADO),
+                    "motivo_detalhe": motivo_do_descarte.detalhe if motivo_do_descarte else "",
                     "candidatos": candidatos_do_descarte,
                 })
                 continue

@@ -18,6 +18,15 @@ from __future__ import annotations
 
 from thefuzz import fuzz
 
+from .motivos_do_descarte import (
+    NOME_UNICO,
+    SEM_SOBRENOME_COMUM,
+    SEM_SOBRENOME_NO_GEDCOM,
+    SOBRENOME_CURTO,
+    SOBRENOME_LIDO_COMO_PRENOME,
+    diagnosticar,
+    motivo,
+)
 from .name_normalization import (
     COMMON_SURNAMES,
     GENERIC_GIVENS,
@@ -79,7 +88,11 @@ def build_ged_indexes(arvore: Arvore):
 
 def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_index,
                        features, limite=3):
-    """Retorna `(candidate_pids, reason, proximos)` — a avaliacao completa.
+    """Retorna `(candidate_pids, motivo, proximos)` — a avaliacao completa.
+
+    Desde a feature 038, `motivo` e' um `Motivo` (codigo estavel, texto humano e detalhe
+    tecnico) ou `None` quando o candidato foi aceito. Quem so' quer o texto usa
+    `match_candidates`, que preserva o contrato antigo.
 
     `proximos` são os `limite` melhores candidatos **avaliados**, mesmo quando nenhum
     foi aceito. A ordem deles é a do **operador**, não a da decisão: compatível primeiro
@@ -139,19 +152,19 @@ def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_
                 #     e "coutinho" sobra como prenome).
                 # E' limitacao da decomposicao, nao defeito do arquivo enviado.
                 if len(primeiros) > 1:
-                    reason = "o sobrenome foi lido como prenome (nome sem sobrenome isolável)"
+                    reason = motivo(SOBRENOME_LIDO_COMO_PRENOME)
                 # Um token so': nao havia sobrenome nenhum para perder.
                 else:
-                    reason = "o nome não tem sobrenome (nome único)"
+                    reason = motivo(NOME_UNICO)
             elif not csv_surn_all:
                 # O nome TEM sobrenome, mas nenhum token chega a 3 letras: virou inicial,
                 # e inicial nao e' chave de busca (o fallback por prefixo tambem exige 3).
                 # Aqui — e so' aqui — o motivo antigo ("abreviação") estava certo.
-                reason = "sobrenome curto demais para buscar (inicial ou abreviação)"
+                reason = motivo(SOBRENOME_CURTO)
             else:
                 # O nome tem sobrenome utilizavel, e ele nao esta' na arvore — nem por
                 # prefixo de 3 caracteres. Aqui sim cabe conferir grafia e o GEDCOM.
-                reason = "nenhum sobrenome do nome existe no GEDCOM"
+                reason = motivo(SEM_SOBRENOME_NO_GEDCOM)
         else:
             best_pid = None
             best_score = best_g = -1
@@ -205,7 +218,7 @@ def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_
                 suffix_hit = bool(csv_suffixes & ged_tokens)
                 if csv_surn_all and ged_surn_best and inter_cnt == 0 and not suffix_hit:
                     candidate_pids = []
-                    reason = "sem sobrenome em comum (filtro anti-falso-positivo)"
+                    reason = motivo(SEM_SOBRENOME_COMUM)
                 else:
                     required_intersection = 1
                     if given_norm in GENERIC_GIVENS and len(csv_surn_all) >= 2:
@@ -238,16 +251,29 @@ def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_
                             if any(sn.startswith(tuple(pref_csv)) for sn in cand_surns) and best_g >= 90 and best_score >= 86 and inter_cnt >= 1 and jacc_ok:
                                 ACCEPT = True
 
-                    if ACCEPT:
-                        csv_tokens = drop_short_tokens({t for t in norm_name(match_name).split() if t not in STOP_WORDS})
-                        csv_middle = csv_tokens - {given_norm} - csv_surn_all
-                        if csv_middle and csv_middle.isdisjoint(ged_tokens):
-                            ACCEPT = (best_score >= 96 and best_g >= 92 and inter_cnt >= required_intersection and jacc_ok)
+                    # O SETIMO PORTAO (feature 038). Quando o nome do CSV tem uma parte que
+                    # nao existe na arvore, o aceite ja' obtido e' DESFEITO, a menos que a nota
+                    # seja altissima. Ele so' age depois de todos os outros passarem — e e' por
+                    # isso que ele vem primeiro no diagnostico, e por isso o caso do operador
+                    # (`given=100, final=88.25, inter=1/1, jacc=0.50`) era recusado por ele
+                    # sem que a mensagem antiga dissesse isso.
+                    csv_tokens = drop_short_tokens({t for t in norm_name(match_name).split() if t not in STOP_WORDS})
+                    csv_middle = csv_tokens - {given_norm} - csv_surn_all
+                    meio_ausente = bool(csv_middle and csv_middle.isdisjoint(ged_tokens))
+                    aceito_antes_do_veto = ACCEPT
+                    if ACCEPT and meio_ausente:
+                        ACCEPT = (best_score >= 96 and best_g >= 92 and inter_cnt >= required_intersection and jacc_ok)
 
                     candidate_pids = [best_pid] if ACCEPT else []
                     if not candidate_pids:
-                        reason = (f"score insuficiente ou conflito de sobrenome "
-                                  f"(given={best_g}, final={best_score}, inter={inter_cnt}/{required_intersection}, jacc={jacc:.2f})")
+                        # O TEXTO NAO E' MAIS MONTADO AQUI (feature 038): quem escolhe a causa
+                        # e' `motivos_do_descarte.diagnosticar`, sobre os mesmos valores que a
+                        # decisao acabou de usar. Nenhum limiar foi tocado.
+                        reason = diagnosticar(
+                            prenome=best_g, nota=best_score,
+                            intersecao=inter_cnt, exigidas=required_intersection,
+                            grafia=jacc, grafia_ok=jacc_ok,
+                            meio_vetado=bool(aceito_antes_do_veto and meio_ausente))
 
     return candidate_pids, reason, proximos
 
@@ -258,7 +284,11 @@ def match_candidates(arvore: Arvore, match_name, cm_value, ged_index, surname_in
     Assinatura historica, mantida de proposito: quem so quer a decisao nao precisa
     saber que a avaliacao tambem produz os melhores candidatos. Ver
     `avaliar_candidatos`.
+
+    Desde a feature 038 o motivo viaja como `Motivo` (codigo + texto + detalhe) em
+    `avaliar_candidatos`, mas **aqui ele continua saindo como texto**: este e' o contrato de
+    dois valores que `application/validacao.py` e a caracterizacao de 2026-09-29 consomem.
     """
-    pids, motivo, _ = avaliar_candidatos(arvore, match_name, cm_value, ged_index,
-                                         surname_index, features)
-    return pids, motivo
+    pids, motivo_do_descarte, _ = avaliar_candidatos(arvore, match_name, cm_value, ged_index,
+                                                     surname_index, features)
+    return pids, (motivo_do_descarte.texto if motivo_do_descarte is not None else None)

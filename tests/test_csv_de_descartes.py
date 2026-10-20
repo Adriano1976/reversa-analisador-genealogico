@@ -19,7 +19,10 @@ DESCARTE = {
     "csv_name": "Maria José de Souza Santos",
     "kit": "TG0000001",
     "cm": 12.3,
-    "motivo": "score insuficiente ou conflito de sobrenome (given=55, final=80.05)",
+    "motivo": "o prenome é diferente do que está na árvore",
+    "motivo_codigo": "prenome_diferente",
+    "motivo_detalhe": ("prenome 55 · nota 80,05 · sobrenomes em comum 1 de 1 · "
+                       "grafia do sobrenome 0,5"),
     "candidatos": [
         {"id": "@I1@", "nome": "Angelica Maria De Jesus De Oliveira", "prenome": 55.0,
          "nota": 80.05, "nascimento": "6 AUG 1966", "compativel": False},
@@ -64,7 +67,17 @@ def test_sem_candidato_as_colunas_ficam_vazias():
     sem = {k: v for k, v in DESCARTE.items() if k != "candidatos"}
     linha = _linhas(csv_de_descartes([sem]))[1]
 
-    assert linha[4:] == ["", "", "", ""]
+    assert linha[4:8] == ["", "", "", ""]
+    # A nona coluna e' o detalhe tecnico (feature 038), e ela nao depende de candidato.
+    assert linha[8].startswith("prenome 55")
+
+
+def test_sem_detalhe_a_nona_coluna_fica_vazia():
+    """Recusa por sobrenome nao mede nada: o detalhe nasce vazio, e nao com zero."""
+    sem = {k: v for k, v in DESCARTE.items() if k != "motivo_detalhe"}
+    linha = _linhas(csv_de_descartes([sem]))[1]
+
+    assert linha[8] == ""
 
 
 def test_candidato_incompativel_nao_entra_na_planilha():
@@ -75,7 +88,8 @@ def test_candidato_incompativel_nao_entra_na_planilha():
     ]}
     linha = _linhas(csv_de_descartes([so_fraco]))[1]
 
-    assert linha[4:] == ["", "", "", ""]
+    assert linha[4:8] == ["", "", "", ""]
+    assert linha[8] == DESCARTE["motivo_detalhe"]
 
 
 def test_o_decimal_sai_com_virgula():

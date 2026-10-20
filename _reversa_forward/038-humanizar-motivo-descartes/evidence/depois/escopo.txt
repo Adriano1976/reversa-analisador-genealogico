@@ -1,0 +1,43 @@
+# T011 — escopo tocado pela feature 038
+
+## Arquivos de código
+
+| Arquivo | Mudança |
+|---|---|
+| `src/core/motivos_do_descarte.py` | **novo** — catálogo `código → frase`, `Motivo`, `diagnosticar`, `detalhe_tecnico` |
+| `src/core/matching.py` | motivo vira `Motivo` nos dez pontos de recusa; o veto do token do meio é computado antes de decidir e alimenta o diagnóstico; `match_candidates` continua devolvendo texto |
+| `src/core/dna_analysis.py` | o dicionário do descarte ganha `motivo_codigo` e `motivo_detalhe` |
+| `src/ports/__init__.py` | `DescartadoDaAnalise` ganha `reason_code` e `detail` (default vazio) |
+| `src/application/dna_analysis.py` | projeta os dois campos novos |
+| `src/reporting/csv_de_descartes.py` | nona coluna `Detalhe técnico` |
+| `src/templates/index.html` | uma linha: o texto sob o botão de download diz onde estão os números |
+
+## Arquivos de teste
+
+| Arquivo | Mudança |
+|---|---|
+| `tests/test_motivo_humanizado.py` | **novo** — 43 testes (catálogo, precedência, detalhe, ponta a ponta, tela, planilha) |
+| `tests/test_dna_analysis.py` | catálogo de motivos atualizado: a fórmula de score saiu, as cinco frases entraram |
+| `tests/test_candidatos_do_descarte.py` | comparação texto × `Motivo`; fixture do descarte; teste novo da projeção |
+| `tests/test_csv_de_descartes.py` | cabeçalho de nove colunas; fatias de coluna; teste novo do detalhe vazio |
+| `tests/test_characterization_matching.py` | contrato do descarte ganhou as duas chaves novas — o `motivo` não mudou |
+
+## O que **não** foi tocado
+
+- Nenhum limiar, peso ou ramo de aceitação de `core/matching.py` (só a montagem do texto).
+- Nenhuma tabela, coluna ou migração de banco.
+- `src/assets/app.css`, `src/app.py` e o restante do template.
+- `tests/test_icone_de_atalho.py` (o hash não mudou).
+- `SHA_DA_TELA`, `TAMANHO_ESPERADO`.
+
+## Diff de contexto
+
+```
+src/core/motivos_do_descarte.py          novo (193 linhas)
+src/core/matching.py                     +62 −20
+src/core/dna_analysis.py                 +12 −3
+src/application/dna_analysis.py          +4
+src/ports/__init__.py                    +7
+src/reporting/csv_de_descartes.py        +11
+src/templates/index.html                 2 linhas (1 removida, 1 acrescentada)
+```

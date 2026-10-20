@@ -58,7 +58,10 @@ def test_a_decisao_e_a_mesma_pelos_dois_caminhos():
     pids_avaliados, motivo_avaliados, _ = _avaliar()
 
     assert pids_wrapper == pids_avaliados
-    assert motivo_wrapper == motivo_avaliados
+    # Desde a feature 038 `avaliar_candidatos` devolve `Motivo` e `match_candidates`
+    # continua devolvendo o TEXTO — e' o contrato antigo que esta linha prende. Aceite nao
+    # produz motivo nenhum, e `None` atravessa os dois caminhos do mesmo jeito.
+    assert motivo_wrapper == (motivo_avaliados.texto if motivo_avaliados else None)
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +133,10 @@ DESCARTE = {
     "csv_name": "*Maria de Fátima Oliveira de Jesus",
     "kit": "TG0000001",
     "cm": 12.3,
-    "motivo": "score insuficiente ou conflito de sobrenome (given=55, final=80.05)",
+    "motivo": "o nome tem uma parte a mais que não aparece na árvore",
+    "motivo_codigo": "nome_do_meio_ausente",
+    "motivo_detalhe": ("prenome 100 · nota 88,25 · sobrenomes em comum 1 de 1 · "
+                       "grafia do sobrenome 0,5"),
     "candidatos": [
         {"id": "@I9@", "nome": "Maria de Fátima da Mata Oliveira",
          "nota": 84.1, "prenome": 100.0, "intersecao": 2, "nascimento": "6 AUG 1966",
@@ -147,6 +153,18 @@ def test_a_projecao_leva_os_candidatos():
     descartado = analise.descartados[0]
     assert descartado.candidatos[0].nome == "Maria de Fátima da Mata Oliveira"
     assert descartado.candidatos[0].nascimento == "6 AUG 1966"
+
+
+def test_a_projecao_leva_a_causa_e_o_detalhe():
+    """Feature 038: a causa e os números atravessam a projeção da porta."""
+    from application.dna_analysis import projetar_analise
+
+    analise = projetar_analise([], [DESCARTE], "msg", "arvore", "csv", "adriano")
+
+    descartado = analise.descartados[0]
+    assert descartado.reason == "o nome tem uma parte a mais que não aparece na árvore"
+    assert descartado.reason_code == "nome_do_meio_ausente"
+    assert descartado.detail.startswith("prenome 100")
 
 
 def test_a_projecao_sem_candidato_fica_vazia():

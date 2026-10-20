@@ -249,6 +249,10 @@ def projetar_analise(resultados, descartados, mensagem: str,
                 ordinal=i,
                 csv_name=descartado.get("csv_name") or "",
                 reason=descartado.get("motivo") or "não encontrado",
+                # Feature 038: a causa e o detalhe viajam ao lado do texto, e nao no lugar
+                # dele. Ausentes nas recusas que nao vem do bloco de semelhanca.
+                reason_code=descartado.get("motivo_codigo") or "",
+                detail=descartado.get("motivo_detalhe") or "",
                 kit=descartado.get("kit"),
                 total_cm=descartado.get("cm"),
                 # Feature 034: a quem a arvore oferecia. Vazio quando a arvore nao
