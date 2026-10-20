@@ -40,6 +40,20 @@ Três invariantes que o código e a interface respeitam:
 - **DNA compartilhado não confirma o caminho.** O máximo que a tela afirma é que existe compartilhamento; o
   parentesco documental é apresentado em seção própria, com fonte declarada.
 
+### O veredito de viabilidade, que também não prova nada
+
+Além do confronto, cada comparação entre um kit e uma pessoa recebe um **veredito temporal**, calculado no
+núcleo por `src/core/validator.py`:
+
+| Veredito | Significado |
+| --- | --- |
+| **VALIDADO** | a linha documental é temporalmente viável, o cM é compatível e não há contradição detectável |
+| **INCONCLUSIVO** | falta dado, a data é estimada, o cM não tem faixa publicada, a identidade é ambígua ou há afinidade no caminho |
+| **ERRO CRÔNICO** | há contradição demonstrável: salto impossível, ancestral comum posterior ao descendente, idade por lado fora de 12 a 70, cM incompatível com a profundidade ou doador vivo em linha incompatível |
+
+**VALIDADO não é prova de parentesco**: é a ausência de contradição com os dados disponíveis. O veredito é
+uma checagem a mais no cartão, ao lado do confronto, e não altera o que o GEDCOM afirma.
+
 ## Stack Tecnológica
 
 O projeto usa Python 3.14. O interpretador oficial é o ambiente virtual `.venv`; as dependências de runtime
@@ -55,8 +69,12 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
 | thefuzz | 0.22.1 | Comparação aproximada de nomes |
 | RapidFuzz | 3.14.6 | Backend de matching, fixado para manter resultados reprodutíveis |
 | python-Levenshtein | 0.27.5 | Backend de distância de edição |
-| Bootstrap | 5.3.3 | Componentes da interface |
-| Mermaid | 10 | Diagramas de caminhos |
+| psycopg2-binary | 2.9.13 | Driver do PostgreSQL, importado só quando há `DATABASE_URL` |
+| graphviz | 0.21 | Desenho da árvore sugerida, servido em SVG |
+| Bootstrap | 5.3.3 | Componentes da interface, por CDN |
+| Mermaid | 10 | Diagramas de caminhos, por CDN |
+| Cormorant Garamond e Manrope | — | Tipografia da tela, por CDN |
+| `src/assets/app.css` | — | Folha própria de 985 linhas, servida em `/app.css` |
 
 ## Arquitetura do Projeto
 
@@ -84,7 +102,8 @@ e os adaptadores concretos, que por sua vez usam `src/parsers/`, `src/reporting/
 ### Os três eixos da análise
 
 O núcleo do produto é a separação. O GEDCOM alimenta um eixo, o CSV alimenta outro, e só no fim os dois se
-encontram, em um veredito que nunca reescreve o parentesco documental.
+encontram, em um veredito que nunca reescreve o parentesco documental. Há **duas saídas** nesse encontro: o
+confronto, em quatro estados, e a viabilidade temporal, em três.
 
 ```mermaid
 flowchart LR
@@ -94,12 +113,16 @@ flowchart LR
     PD --> CF["Confronto"]
     PO --> CF
     CF --> R["COMPATÍVEL, POSSÍVEL<br>CONFLITANTE, INCONCLUSIVO"]
+    PD --> VD["Veredito de viabilidade temporal<br>VALIDADO, INCONCLUSIVO, ERRO CRÔNICO"]
+    EG --> VD
 ```
 
 ### O ciclo de uma requisição
 
 O caminho do dado, da borda até a tela, com o registro opcional no fim. A rota adapta, o caso de uso
-orquestra e o núcleo decide.
+orquestra e o núcleo decide. São **cinco rotas**: a do formulário (`/`, com despacho por cinco ações) e
+quatro auxiliares (`/app.css`, `/banner.png`, `/apple-touch-icon.png` e `/descartes.csv`, a única delas que
+só aceita `POST`).
 
 ```mermaid
 sequenceDiagram
@@ -109,27 +132,34 @@ sequenceDiagram
     participant U as Casos de uso
     participant P as Portas e adaptadores
     participant C as Núcleo puro
-    N->>A: POST / com action=dna_analysis
-    A->>P: resolver a árvore pela chave de conteúdo
-    P->>C: carregar_arvore(conteúdo)
-    C-->>A: ArvoreGedcom
+    N->>A: GET / (listas) ou POST / com action
+    A->>P: resolver a árvore escolhida e retratar os arquivos da pasta
+    P-->>A: nomes, chaves e posição, sem abrir o conteúdo
     A->>U: analisar(árvore, matches, dependências)
     U->>C: parentesco documental e evidência genética
-    C-->>U: resultado com o desfecho declarado
+    U->>C: confronto, em quatro estados
+    U->>C: viabilidade temporal por cartão
+    C-->>U: resultado com os desfechos declarados
     U-->>A: resultado, ou erro de domínio tipado
     A->>P: registrar a análise (opcional, se houver banco)
     P-->>A: gravado, ou aviso não bloqueante
-    A-->>N: HTML com as seções separadas e o veredito
+    A-->>N: HTML com as seções separadas, o veredito e a exportação em CSV
 ```
 
 ### UML do domínio
 
 As entidades que sustentam a decisão e as relações entre elas. `ParentescoDocumental` nunca lê cM, e
-`EvidenciaGenetica` nunca conhece o GEDCOM: eles só se encontram no `Confronto`.
+`EvidenciaGenetica` nunca conhece o GEDCOM: eles só se encontram no `Confronto` e, de novo e de forma
+independente, no `Veredito`. O `ArquivoArmazenado` é o único estado que sobrevive ao processo.
 
 ```mermaid
 classDiagram
     direction LR
+    class ArquivoArmazenado {
+        +str chave
+        +str nome_visivel
+        +str posicao
+    }
     class ArvoreGedcom {
         +dict pessoas
         +dict familias
@@ -151,6 +181,7 @@ classDiagram
         +str nome
         +str kit
         +float cm_total
+        +str mrca
     }
     class ParentescoDocumental {
         +str status
@@ -172,6 +203,14 @@ classDiagram
         +str estado
         +list causas
     }
+    class Veredito {
+        +str estado
+        +list motivos
+    }
+    class ArvoreSugerida {
+        +list geracoes_virtuais
+        +list nos_desacoplados
+    }
     class AnaliseRegistrada {
         +dict contexto
         +list kits
@@ -184,6 +223,14 @@ classDiagram
         CONFLITANTE
         INCONCLUSIVO
     }
+    class EstadoDoVeredito {
+        <<enumeration>>
+        VALIDADO
+        INCONCLUSIVO
+        ERRO_CRONICO
+    }
+    ArquivoArmazenado "1" ..> "1" ArvoreGedcom : guarda
+    ArquivoArmazenado "1" ..> "1" MatchDna : origina
     ArvoreGedcom "1" *-- "*" Pessoa : contém
     ArvoreGedcom "1" *-- "*" Familia : contém
     Familia "*" -- "*" Pessoa : vincula
@@ -194,13 +241,23 @@ classDiagram
     Confronto "1" --> "1" ParentescoDocumental : confronta
     Confronto "1" --> "*" Possibilidade : usa a janela
     Confronto --> EstadoDoConfronto : assume
+    Veredito "1" --> "1" ParentescoDocumental : verifica
+    Veredito "1" --> "1" EvidenciaGenetica : verifica
+    Veredito --> EstadoDoVeredito : assume
+    ArvoreSugerida "*" --> "1" Veredito : corrige o que falhou
     AnaliseRegistrada "1" ..> "*" Confronto : registra
+    AnaliseRegistrada "1" ..> "*" Veredito : registra
 ```
+
+O valor real do terceiro estado do veredito é `ERRO CRONICO / QUEBRA DE LINHA`; aqui ele aparece abreviado
+porque nome de valor de enumeração no Mermaid não aceita espaço.
 
 ### A fronteira entre o núcleo e o mundo
 
 O núcleo é puro e depende apenas de `utils/`. Tudo o que é de fora entra por `ports/`, e as setas apontam
-sempre para dentro: não há ciclo entre os oito pacotes.
+sempre para dentro: não há ciclo entre os oito pacotes, e são 23 arestas. Uma delas merece nota: o
+`application/` passou a importar `parsers/` diretamente na fachada de validação, o que afrouxa o desenho
+original da fronteira e está registrado como tal no ADR-25.
 
 ```mermaid
 flowchart LR
@@ -228,6 +285,7 @@ flowchart LR
     APP --> UTILS
     UC --> CORE
     UC --> PORTS
+    UC --> PARSERS
     PORTS --> PARSERS
     PORTS --> UTILS
     PARSERS --> CORE
@@ -399,21 +457,29 @@ use outra porta com `ANALISADOR_PORT`.
 ## Estrutura do Projeto
 
 ```text
-src/                            # raiz de código: 34 arquivos, 4.816 linhas não vazias
-├── app.py                      # Borda HTTP: rota única com despacho por action, variáveis de ambiente, guarda de instância única e montagem das dependências
+src/                            # raiz de código: 49 arquivos, 12.715 linhas não vazias
+├── app.py                      # Borda HTTP: 5 rotas, despacho por 5 actions, variáveis de ambiente, guarda de instância única e montagem das dependências
 ├── application/                # Casos de uso: orquestram o núcleo e traduzem o desfecho
 │   ├── upload_gedcom.py        # Upload: decide se pode gravar, grava sob chave de conteúdo e carrega a árvore
-│   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas
+│   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas e aplica o validador
 │   ├── path_search.py          # Busca de caminho
+│   ├── reenvio.py              # A regra de reenvio de arquivo, escrita em um lugar só
+│   ├── validacao.py            # Fachada de leitura e cruzamento do validador de dados
+│   ├── correcao.py             # Fachada de correção: do GEDCOM e do CSV até a árvore sugerida
 │   └── traducao.py             # Traduz exceção de domínio de volta para o literal da tela
 ├── core/                       # Núcleo puro: decide sem HTTP, sem I/O e sem estado de módulo
 │   ├── documentary_relationship.py  # Parentesco documental: caminho, ancestral comum, homônimos, caminhos múltiplos, colapso de pedigree
 │   ├── genetic_evidence.py     # Evidência genética: kits, cM, segmentos, SNPs (nunca soma kits diferentes)
 │   ├── relationship_hypotheses.py   # cM → possibilidades, pela tabela publicada do Shared cM Project 4.0
 │   ├── evidence_comparison.py  # Confronto GEDCOM × DNA: COMPATÍVEL, POSSÍVEL, CONFLITANTE, INCONCLUSIVO
+│   ├── validator.py            # Viabilidade temporal: VALIDADO, INCONCLUSIVO ou ERRO CRÔNICO
+│   ├── endogamia.py            # Endogamia: filtro de ruído, evidência e reconvergências do colapso de pedigree
+│   ├── janela_de_vida.py       # A data do registro permite que ele tenha doado o DNA? (rotula, não escolhe)
+│   ├── identidade_do_match.py  # O nome do CSV e a pessoa escolhida são a mesma? (rotula, não escolhe)
+│   ├── profundidade_do_caminho.py   # A árvore afirma a profundidade que o próprio kit estima?
+│   ├── cirurgia_do_grafo.py    # Desacoplar a junção e injetar gerações virtuais na árvore sugerida
+│   ├── motivos_do_descarte.py  # Textos humanos dos motivos de descarte
 │   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
-│   ├── identidade_do_match.py  # O nome do CSV e a pessoa escolhida são a mesma? (não escolhe pessoa: só rotula)
-│   ├── janela_de_vida.py       # A data do registro permite que ele tenha doado o DNA? (não escolhe pessoa: só rotula)
 │   ├── name_normalization.py   # Normalização e decomposição de nomes
 │   ├── path_finding.py         # Caminho entre duas pessoas, na árvore recebida por parâmetro
 │   ├── family_navigation.py    # Quem é parente de quem, na árvore recebida por parâmetro
@@ -425,21 +491,27 @@ src/                            # raiz de código: 34 arquivos, 4.816 linhas nã
 │   └── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, fora do fluxo
 ├── ports/                      # A fronteira: os Protocol das portas e os adaptadores concretos
 │   ├── __init__.py             # As portas e o conjunto de dependências que o caso de uso recebe
-│   └── adaptadores.py          # Armazenamento em disco, carregador de GEDCOM e registro em Postgres
+│   └── adaptadores.py          # Armazenamento em disco com _aposentados/, carregador de GEDCOM e registro em Postgres
 ├── parsers/                    # Leitura do mundo de fora
 │   ├── gedcom_parser.py        # Parsing do GEDCOM e construção do grafo networkx
-│   └── csv_ingest.py           # CSV de matches: encoding, separador, preâmbulo e linha torta, com agregação por match
+│   ├── csv_ingest.py           # CSV de matches: encoding, separador, preâmbulo e linha torta, com agregação por match
+│   └── segmentos_gedmatch.py   # Leitura dos segmentos no formato do GEDmatch
 ├── reporting/                  # Transformação de resultado em apresentação
-│   └── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
+│   ├── mermaid_render.py       # Emissão do diagrama Mermaid e contrato de escape do rótulo
+│   ├── visualizer.py           # Desenho da árvore em Graphviz, servido em SVG
+│   ├── lista_de_arquivos.py    # Retrato dos arquivos da pasta, para as listas da tela
+│   └── csv_de_descartes.py     # Exportação da lista de trabalho dos descartes
 ├── utils/                      # Utilitários transversais
 │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   ├── number_format.py        # Formatação de cM, SNPs e posições
 │   ├── name_keys.py            # Normalização de um nome para forma comparável
 │   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e conteúdo do GEDCOM
 ├── templates/
-│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js e ícone da aba)
-├── assets/
-│   └── apple-touch-icon.png    # Arte canônica do ícone de atalho, servida em /apple-touch-icon.png
+│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js, fontes e ícone da aba), 1.824 linhas
+├── assets/                     # As duas artes canônicas e a folha própria
+│   ├── app.css                 # Folha de estilo da tela, servida em /app.css (985 linhas)
+│   ├── apple-touch-icon.png    # Arte canônica do ícone de atalho, servida em /apple-touch-icon.png
+│   └── banner-da-tela.png      # Arte canônica do banner, servida em /banner.png
 └── uploads/                    # Criado em tempo de execução pela aplicação; recebe os arquivos enviados e é a pasta canônica de dados, a única. Não é versionada
 ```
 
@@ -467,17 +539,21 @@ gerador não faz. Com a remoção do workflow de deploy em 2026-10-08, a publica
 sair desta pasta; por isso, depois de regenerar o mini-site, os dois precisam ser sincronizados, senão o
 site publicado continua mostrando a versão anterior sem avisar ninguém.
 
-**Sincronize com `publicar_docs.py`, e não com uma cópia direta.** Uma cópia direta regride o site
-publicado: devolve o slug `analisador-genealogico` ao `<title>`, à marca do topo e ao `<h1>`, volta o
-ícone para o `logo-mini.png` de 64 px e perde o `apple-touch-icon`. Os ajustes, medidos em 2026-10-10
-arquivo por arquivo nos 10 HTMLs, são:
+**Sincronize com `publicar_docs.py`, e não com uma cópia direta.** O script é a autoridade do que o site
+publicado mostra, e o `--conferir` prova isso byte a byte. O gerador passou a aplicar sozinho, em
+2026-10-20, a marca e os ícones (antes eram ajustes só da publicação), então o que resta exclusivamente na
+publicação é o rótulo curado de cada página de feature:
 
 | no gerado | no publicado |
 | --- | --- |
-| `analisador-genealogico` no `<title>`, no `brand` e no `<h1>` | **Analisador Genealógico** |
-| `<link rel="icon" ... sizes="64x64" href=".../logo-mini.png">` | `sizes="512x512"` apontando `logo.png`, mais um `apple-touch-icon` |
-| `<title>` e `<h1>` de `features/<slug>.html` com o slug | o rótulo humano curado de cada feature |
-| (não existe) | `assets/img/apple-touch-icon.png`, copiado de `src/assets/` |
+| **Analisador Genealógico** no `<title>`, no `brand` e no `<h1>` | o mesmo, desde 2026-10-20 |
+| `<link rel="icon" ... sizes="512x512" href=".../logo.png">` mais `apple-touch-icon` | o mesmo, desde 2026-10-20 |
+| `assets/img/apple-touch-icon.png` nos assets do mini-site | o mesmo, desde 2026-10-20 |
+| `<title>` e `<h1>` de `features/<slug>.html` com o slug | o rótulo humano curado, de `ROTULOS_DE_FEATURE` |
+
+Feature nova exige a linha dela em `ROTULOS_DE_FEATURE`, no script; sem isso a página sai com o slug no
+`<h1>` e um título genérico. Foi o que aconteceu em 2026-10-20 com `tela-de-entrada` e `recursos-da-tela`,
+que ainda publicam sem rótulo curado.
 
 ```powershell
 .\.venv\Scripts\python.exe publicar_docs.py --conferir   # compara, e nao escreve
@@ -494,45 +570,44 @@ ali por convenção do projeto, e não um ativo do mini-site. Os rótulos das fe
 
 ### Testes
 
+A suíte tem **85 arquivos em `tests/`**: 79 de teste e 6 de apoio (o `conftest.py`, duas receitas de
+derivação de arte, uma sonda de manutenção, o invólucro de paridade e a verificação no contêiner). Aqui
+estão o ambiente de coleta, as fixtures e as suítes que sustentam a regra; o inventário completo, com a
+descrição de cada arquivo, está em [`_reversa_docs/modulos.html`](./_reversa_docs/modulos.html).
+
 ```text
 tests/
-├── conftest.py                          # Coleta e ambiente temporário da suíte
-├── fixtures/
-│   ├── arvore_atual.py                  # A árvore carregada pelo último parse
-│   ├── helpers.py                       # Helpers compartilhados das fixtures
-│   ├── sample_dna.py                    # GEDCOM e CSVs sintéticos para a análise de DNA
-│   └── sample_gedcom.py                 # GEDCOM sintético para parsing e busca de caminhos
-├── icone_de_atalho.py                   # Receita de derivação da arte do ícone de atalho (não é teste)
-├── test_ambiente_temporario_da_suite.py # O diretório temporário da suíte
-├── test_arvore_devolvida.py             # A árvore devolvida pelo parse como valor
-├── test_busca_de_ancestral_comum.py     # O encontro da BFS bidirecional, com lados de profundidades diferentes
-├── test_characterization_matching.py    # Caracterização: congela a decisão de matching
-├── test_characterization_mermaid.py     # Caracterização: congela a saída Mermaid
-├── test_confrontacao_gedcom_dna.py      # Regra final: os 10 cenários exigidos de confronto
-├── test_dependencias_nucleo.py          # Guardas estruturais do núcleo puro, verificadas por AST
-├── test_deriva_da_arte.py               # A arte de runtime contra a arte canônica
-├── test_desfecho_do_resultado.py        # O modo de renderização vem do desfecho, não do texto
-├── test_dna_analysis.py                 # Agregação de segmentos, fuzzy matching e previsão por cM
-├── test_domain.py                       # Limpeza de mojibake de nomes GEDCOM
-├── test_erros_de_dominio.py             # As exceções de domínio tipadas
-├── test_formatacao_cm.py                # Formatação do total de cM no cartão de resultado
-├── test_icone_de_atalho.py              # A rota do ícone de atalho
-├── test_identidade_do_match.py          # O nome do CSV e a pessoa do GEDCOM: confirmada, grafia ou a confirmar
-├── test_janela_de_vida.py               # A data do registro permite que ele tenha doado o DNA?
-├── test_mermaid_escape.py               # Contrato de escape do rótulo Mermaid
-├── test_path_search.py                  # Busca de ancestrais diretos e caminhos por afinidade
-├── test_persistencia_desabilitada.py    # Persistência desabilitada: nada é gravado
-├── test_persistencia_indisponivel.py    # Persistência indisponível: a análise conclui com aviso
-├── test_porta_de_armazenamento.py       # A porta de armazenamento e a chave derivada do conteúdo
-├── test_profundidade_do_caminho.py      # A árvore afirma a mesma profundidade que o próprio kit estima?
-├── test_projecao_da_analise.py          # A projeção do resultado no payload da porta
-├── test_registro_de_analises.py         # O adaptador Postgres contra o banco (pulado sem banco)
-├── test_rotulos_de_parentesco.py        # A série dos avós em português: trisavô, e não bisbisavô
-├── test_servidor_producao.py            # Bloco de entrada: waitress, instância única e endereço padrão
-├── test_traducao_de_erros.py            # A tabela que devolve o literal da tela
-├── test_upload.py                       # Parsing de GEDCOM e construção do grafo
-└── test_upload_seguranca.py             # Teto de requisição, chave de conteúdo e recusa de GEDCOM inválido
+├── conftest.py                    # Coleta e ambiente temporário da suíte
+├── banner_da_tela.py              # Receita de derivação do banner (não é teste)
+├── icone_de_atalho.py             # Receita de derivação do ícone de atalho (não é teste)
+├── manutencao_de_uploads.py       # Sonda de manutenção da pasta canônica, acima do teto de idade
+├── rodar_paridade.py              # Invólucro do harness de paridade entre candidato e oráculo
+├── verificacao_no_conteiner.py    # Verificação de execução dentro do contêiner
+└── fixtures/                      # 8 arquivos: árvores sintéticas, CSVs e desfechos montados à mão
+    ├── arvore_atual.py            # A árvore carregada pelo último parse
+    ├── arvore_com_datas.py        # Árvore datada, para a janela de vida
+    ├── arvore_para_cirurgia.py    # Caso de desacoplamento e de gerações virtuais
+    ├── helpers.py                 # Helpers compartilhados
+    ├── resultado_para_cartao.py   # Resultado pronto para o cartão
+    ├── sample_dna.py              # GEDCOM e CSVs sintéticos para a análise de DNA
+    ├── sample_gedcom.py           # GEDCOM sintético para parsing e busca de caminhos
+    └── sugestao_para_desenho.py   # Sugestão de correção pronta para o desenho
 ```
+
+| Suíte | O que ela garante |
+| --- | --- |
+| `test_confrontacao_gedcom_dna.py` | os 10 cenários da regra final de confronto |
+| `test_dependencias_nucleo.py` | as guardas do núcleo puro, verificadas por AST |
+| `test_validator.py`, `test_veredito_no_nucleo.py` | o veredito de viabilidade em três estados |
+| `test_endogamia.py` | o aviso de endogamia e as reconvergências |
+| `test_janela_de_vida.py`, `test_identidade_do_match.py`, `test_profundidade_do_caminho.py` | as três checagens que não são de cM: tempo, identidade e profundidade |
+| `test_upload.py`, `test_upload_seguranca.py` | parsing, teto de requisição e recusa de GEDCOM inválido |
+| `test_porta_de_armazenamento.py`, `test_guardas_do_armazenamento.py` | a chave derivada do conteúdo e a aposentadoria |
+| `test_persistencia_*.py`, `test_registro_de_analises.py` | os três estados da persistência (sem banco, banco fora e gravado) |
+| `test_csv_de_descartes.py`, `test_motivo_humanizado.py` | a exportação da lista de trabalho e o texto dos motivos |
+| `test_visualizer*.py` | o desenho da árvore em Graphviz, da origem ao SVG |
+| `test_tres_fases_da_tela.py`, `test_tabela_da_tela.py`, `test_cartao_em_tres_faixas.py` | a tela de entrada e o cartão |
+| `test_characterization_*.py` | o congelamento da decisão de matching e da saída Mermaid |
 
 ## A tela de entrada
 
@@ -728,8 +803,18 @@ com mensagem na tela, e nunca com erro do servidor.
   em vez de deixar o silêncio passar por concordância. O veredito continua sendo INCONCLUSIVO: nenhuma janela
   é emprestada do número de meioses mais próximo, porque isso seria inventar número (ADR-15).
 - **Alertas documentais:** sinaliza datas impossíveis, homônimos, caminhos múltiplos e colapso de pedigree.
+- **Aviso de endogamia:** detecta o colapso de pedigree por múltiplos caminhos curtos, separa ruído de
+  evidência e lista as reconvergências. Avisa, não corrige, e não escolhe pessoa no lugar do operador.
+- **Veredito de viabilidade no cartão:** cada comparação recebe VALIDADO, INCONCLUSIVO ou ERRO CRÔNICO, com
+  os motivos declarados. VALIDADO significa ausência de contradição, não prova de parentesco.
+- **Árvore sugerida:** quando a validação aponta contradição, o núcleo propõe a correção do trecho, com as
+  gerações virtuais e os nós desacoplados, e a tela desenha a sugestão em Graphviz (SVG).
+- **Descartes com motivo e lista de trabalho:** os matches que não entram na conexão aparecem agrupados, com
+  o motivo em texto humano, e a lista pode ser exportada em CSV por `POST /descartes.csv`.
 - **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
+- **Artes da tela por rota:** o ícone de atalho e o banner do topo são derivados da arte canônica por uma
+  receita única em `tests/` e servidos por `/apple-touch-icon.png` e `/banner.png`.
 - **Histórico opcional em PostgreSQL:** registra cada análise em uma transação única quando há
   `DATABASE_URL` configurada, e funciona igual sem banco. A gravação nunca bloqueia nem altera o que a
   tela mostra: se falhar, o operador recebe um aviso e o resultado continua na tela.
@@ -747,11 +832,15 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 
 ## Padrões de Código
 
-- A lógica de negócio está modularizada em `src/` nos pacotes `parsers/`, `core/`, `reporting/` e `utils/`,
-  separada da camada web (`app.py`).
+- A lógica de negócio está modularizada em `src/`: o núcleo puro em `core/`, os casos de uso em
+  `application/`, a fronteira em `ports/`, e a leitura, a apresentação e os utilitários em `parsers/`,
+  `reporting/` e `utils/`, separados da camada web (`app.py`).
 - A regra final da análise fica em módulos separados: `documentary_relationship` (GEDCOM),
   `genetic_evidence` (CSV), `relationship_hypotheses` (Shared cM Project 4.0) e `evidence_comparison`
-  (confronto). O DNA não altera o parentesco documental.
+  (confronto). O DNA não altera o parentesco documental. O `validator` corre em paralelo ao confronto e
+  produz o veredito de viabilidade; ele também não altera o parentesco.
+- As três checagens que estreitam a comparação vivem em módulos próprios e **rotulam, não decidem**:
+  `janela_de_vida` (tempo), `identidade_do_match` (nome) e `profundidade_do_caminho` (profundidade).
 - `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
   apresentação.
 - A árvore é montada a cada requisição e passada ao núcleo como parâmetro; não há estado de domínio compartilhado
@@ -767,11 +856,12 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 ## Testes
 
 - A suíte usa **pytest**; `pytest.ini` configura `tests/` como diretório de testes. A medição com
-  `pytest-cov` em 2026-10-08 registrou **88% de cobertura em `src/`** (1.871 instruções, 223 descobertas),
-  com **302 testes aprovados e 8 pulados**. O resultado varia conforme as alterações; as specs em
+  `pytest-cov` em 2026-10-20 registrou **92% de cobertura em `src/`** (3.859 instruções, 313 descobertas),
+  com **1.381 testes aprovados e 9 pulados**. O resultado varia conforme as alterações; as specs em
   [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
-- Os **8 pulos** são os testes do adaptador de persistência: eles só executam com o driver e um banco
-  disponíveis, e sem `DATABASE_URL` a suíte roda inteira sem banco, de propósito.
+- Os **9 pulos** são os testes do adaptador de persistência: eles só executam com o driver e um banco
+  disponíveis, e sem `DATABASE_URL` a suíte roda inteira sem banco, de propósito. Por isso o pior módulo em
+  cobertura é justamente `src/ports/adaptadores.py` (73%).
 - Instale as dependências de teste no ambiente oficial e execute os testes:
 
   ```powershell
