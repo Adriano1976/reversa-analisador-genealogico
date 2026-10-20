@@ -555,13 +555,21 @@ details.card.cartao-do-resultado{
 }
 .cartao-do-resultado .cabecalho-sinais{grid-area:sinais;clear:none;margin-top:.45rem}
 
-/* O "Voltar" como pílula com chevron à esquerda. O chevron é desenhado em CSS: o markup do
-   link não pode ganhar ícone, porque o teste do rótulo exige texto puro antes do
-   `visually-hidden` (`test_estado_do_resultado.py:222-229`). `currentColor` é o `--primary`
-   que o `summary` já passa para o link. */
+/* O "Voltar" e o indicador de abrir/fechar formam UM grupo flex na coluna de ação.
+   Antes, o link era item do grid e o chevron era um `::after` absoluto do `summary`:
+   quando o cabeçalho ganhava um selo novo e crescia, os dois eram posicionados por
+   referências diferentes e desalinhavam. Um grupo só elimina a dependência da altura.
+
+   O chevron do "Voltar" continua desenhado em CSS (`::before`): o markup do link não
+   pode ganhar ícone, porque o teste do rótulo exige texto puro antes do
+   `visually-hidden` (`test_estado_do_resultado.py:222-229`). `currentColor` é o
+   `--primary` que o `summary` já passa para o link. */
+.controles-do-cabecalho{
+  grid-area:acao;align-self:center;justify-self:end;
+  display:inline-flex;align-items:center;gap:1.2rem
+}
 .cartao-do-resultado .voltar-ao-indice{
-  grid-area:acao;align-self:center;justify-self:end;float:none;
-  display:inline-flex;align-items:center;gap:.4rem;
+  float:none;display:inline-flex;align-items:center;gap:.4rem;
   padding:.4rem .9rem .4rem .75rem;background:var(--surface);
   box-shadow:0 1px 2px rgba(0,0,0,.05)
 }
@@ -571,30 +579,42 @@ details.card.cartao-do-resultado{
   transform:rotate(45deg)
 }
 
-/* O indicador de abrir/fechar vira uma caixa arredondada. A caixa é o `::before` do summary e
-   o chevron continua sendo o `::after` (as regras genéricas acima ficam intactas: os blocos
-   irmãos ainda usam o losango). O `padding-right` abre o espaço da caixa e o chevron é
-   posicionado por cima dela; a rotação de aberto/fechado vem da regra genérica de `[open]`. */
-.cartao-do-resultado > summary.sumario-do-cartao{position:relative;padding-right:3.2rem}
-.cartao-do-resultado > summary.sumario-do-cartao::before{
-  content:"";position:absolute;right:1rem;top:calc(50% - 1rem);
-  width:2rem;height:2rem;border:1px solid var(--line);border-radius:.6rem;
-  background:var(--surface);transition:border-color .15s ease
+/* O indicador de abrir/fechar: caixa arredondada com o mesmo chevron de antes, agora
+   no fluxo e ao lado do "Voltar". A rotação de aberto/fechado acompanha o `[open]`. */
+.indicador-de-abrir{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:2rem;height:2rem;flex:0 0 auto;border:1px solid var(--line);
+  border-radius:.6rem;background:var(--surface);transition:border-color .15s ease
 }
-.cartao-do-resultado > summary.sumario-do-cartao::after{
-  position:absolute;right:1.8rem;top:calc(50% - .25rem);margin:0
+.indicador-de-abrir::after{
+  content:"";width:.5rem;height:.5rem;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);transition:transform .15s ease
 }
-.cartao-do-resultado > summary.sumario-do-cartao:hover::before{border-color:var(--muted)}
+details.card[open] .indicador-de-abrir::after{transform:rotate(-135deg)}
+.controles-do-cabecalho:hover .indicador-de-abrir{border-color:var(--muted)}
+
+/* O cartão NÃO usa mais o losango absoluto do `summary`. A regra genérica fica para
+   os blocos irmãos (descartados, grafo); aqui ela é desligada, e o `padding-right`
+   que reservava espaço para a caixa absoluta sai junto.
+
+   A ESPECIFICIDADE importa: a regra genérica é
+   `details.card > summary.sumario-do-cartao::after` (0,2,3), e um seletor sem
+   `details.card` (0,2,2) perderia — foi o que deixou DOIS chevrons na tela: o do
+   novo `.indicador-de-abrir` e o `::after` genérico. Este seletor (0,3,3) vence. */
+details.card.cartao-do-resultado > summary.sumario-do-cartao{padding-right:0}
+details.card.cartao-do-resultado > summary.sumario-do-cartao::before,
+details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none}
 
 /* O sublinhado do `summary` é global (`details>summary:hover`), e no cartão ele sublinharia as
-   três faixas de uma vez. Este seletor (0,3,1) vence a regra global (0,1,2) sem `!important`.
-   No telefone o "Voltar" desce para a própria linha: abaixo de 575,98 px o título e a pílula
-   não cabem lado a lado. */
+   três faixas de uma vez. Este seletor vence a regra global sem `!important`.
+   No telefone o grupo de controles desce para a própria linha: abaixo de 575,98 px o
+   título e os controles não cabem lado a lado. */
 .cartao-do-resultado > summary.sumario-do-cartao:hover{text-decoration:none}
 @media (max-width:575.98px){
   .conteudo-do-cabecalho{
     grid-template-columns:1fr;
     grid-template-areas:"titulo" "selos" "sinais" "acao"
   }
-  .cartao-do-resultado .voltar-ao-indice{justify-self:start;margin-top:.6rem}
+  .controles-do-cabecalho{justify-self:start;margin-top:.6rem}
 }

@@ -445,6 +445,26 @@ class TestAFolha:
         assert "transform:rotate(45deg)" in folha
         assert "transform:rotate(-135deg)" in folha
 
+    def test_o_chevron_do_cartao_esta_no_fluxo_e_nao_absoluto(self, folha):
+        """O grupo `Voltar` + indicador e um flex; o `::after` absoluto do summary saiu.
+
+        O padding-right que reservava o espaço da caixa absoluta também sai: sem ele,
+        o cabeçalho usa a largura inteira e os controles não competem com os selos.
+        """
+        assert ".controles-do-cabecalho{" in folha
+        assert ".indicador-de-abrir{" in folha
+        assert "padding-right:3.2rem" not in folha, (
+            "o cartão voltou a reservar o espaço do chevron absoluto"
+        )
+        # A regra genérica continua existindo para os blocos irmãos; o cartão a
+        # desliga com especificidade MAIOR. Sem `details.card` no seletor, o
+        # `::after` genérico (0,2,3) vence e a tela mostra dois chevrons.
+        assert "details.card > summary.sumario-do-cartao::after{" in folha
+        assert ("details.card.cartao-do-resultado > summary.sumario-do-cartao::after"
+                "{content:none}") in folha, (
+            "o override perdeu especificidade: o ::after genérico volta a desenhar um segundo chevron"
+        )
+
 
 # ---------------------------------------------------------------------------
 # O bloco dos descartados: o mesmo recolhimento, e o rodape da analise

@@ -644,6 +644,14 @@
                                             <span class="badge {{ result.validacao_classe }}" title="{{ result.validacao_aviso or '' }}">{{ result.validacao_rotulo }}<span class="visually-hidden">: veredito de validação temporal da linha documental</span></span>
                                         {% endif %}
                                         </span>
+                                        {# O CAMINHO DE VOLTA e o indicador de abrir/fechar ficam no
+                                           MESMO contêiner flex. Antes, o "Voltar" era um item do grid e
+                                           o chevron era um `::after` absoluto do `summary`: quando o
+                                           cabeçalho ganhava um selo novo e crescia, os dois passavam a
+                                           ser posicionados por referências diferentes e desalinhavam.
+                                           Agora o grupo inteiro é uma coluna do grid, centrada como um
+                                           bloco único. #}
+                                        <span class="controles-do-cabecalho">
                                         {# O CAMINHO DE VOLTA. Sem ele, o operador que le a analise
                                            completa — cinco secoes, com tabelas e grafo — so chega
                                            a lista de novo rolando a pagina inteira de volta.
@@ -662,6 +670,12 @@
                                            para ONDE o link volta, ja que "Voltar" sozinho nao
                                            nomeia destino nenhum. #}
                                         <a class="voltar-ao-indice" href="#resultados">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
+                                        {# O INDICADOR e decorativo: quem abre e fecha e o
+                                           `summary`. O desenho e o mesmo chevron de antes, mas
+                                           agora dentro da caixa e no fluxo, para o alinhamento
+                                           nao depender da altura do cabecalho. #}
+                                        <span class="indicador-de-abrir" aria-hidden="true"></span>
+                                        </span>
                                         {# A SEGUNDA LINHA DO CABECALHO — o que a tabela do indice
                                            dava e que so ela dava: Parentesco, Janela de vida e
                                            Profundidade. Elas existiam para o operador NAO ter de

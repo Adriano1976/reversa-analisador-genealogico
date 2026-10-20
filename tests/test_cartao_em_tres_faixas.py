@@ -100,6 +100,21 @@ class TestOArranjoDoCabecalho:
                 f"o selo `{selo}` saiu da faixa própria e voltou a competir com o título"
             )
 
+    def test_o_voltar_e_o_chevron_ficam_no_mesmo_grupo_flex(self, cabecalho):
+        """Os dois controles têm de ser irmãos no mesmo contêiner.
+
+        Antes, o "Voltar" era item do grid e o chevron era um `::after` absoluto do
+        `summary`. Quando um selo novo aumentava a altura do cabeçalho, cada um era
+        posicionado por uma referência diferente e o grupo desalinhava.
+        """
+        assert 'class="controles-do-cabecalho"' in cabecalho
+        grupo = cabecalho.split('class="controles-do-cabecalho"', 1)[1]
+        assert "voltar-ao-indice" in grupo
+        assert "indicador-de-abrir" in grupo
+        assert grupo.index("voltar-ao-indice") < grupo.index("indicador-de-abrir"), (
+            "o indicador tem de vir depois do Voltar, como no desenho aprovado"
+        )
+
     def test_o_cabecalho_nao_ganhou_div(self, cabecalho):
         """Um `div` aqui truncaria o extrator dos testes no primeiro `</div>`."""
         assert "<div" not in cabecalho, (
