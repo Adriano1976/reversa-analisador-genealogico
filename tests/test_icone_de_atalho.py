@@ -137,7 +137,35 @@ TAMANHO_ESPERADO = 16504
 #: Com o titulo de volta, a **`RN-23` volta a valer como esta escrita**: a emenda que o adendo `013`
 #: registrou ("escondido se, e somente se, a arte responder") foi RETIRADA. A declaracao desta
 #: entrega esta em `_reversa_sdd/addenda/023-arte-do-topo-sem-o-titulo.md`.
-SHA_DA_TELA = "c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0"
+#:
+#: **Atualizado em 2026-10-20, pela feature 037 (tres fases da tela de entrada).** A tela de
+#: entrada deixou de ter duas abas e passou a ter uma barra lateral com tres fases, mais a fase 1
+#: com contadores, caixa de status e bloco de envio. `c4a34f7b…` (30.781 bytes) →
+#: `794711aa…` (38.484 bytes, +7.703). Medido com a pasta de uploads VAZIA e temporaria, a mesma
+#: montagem do fixture `cliente_de_upload`. A declaracao da entrega esta em
+#: `_reversa_sdd/addenda/037-redesenho-das-tres-fases.md`.
+#:
+#: **Atualizado de novo no mesmo dia pela emenda `E001`**: a masthead passou a duas colunas
+#: (texto a esquerda, arte a direita), emendando a `RN-24`. `794711aa…` (38.484) →
+#: `c5fb4ff7…` (38.476, **-8 bytes**). O saldo negativo e a troca de `text-center mb-4` +
+#: `row justify-content-center` + `col-lg-9` pelas duas colunas nomeadas — menos marcacao do que
+#: antes, com a mesma informacao. A emenda esta no `requirements.md` da feature 037.
+#:
+#: **Terceira medicao do dia, emenda `E005`**: entraram os tres passos da jornada entre a linha
+#: divisoria e as fases. `c5fb4ff7…` (38.476) → `ed4f8734…` (40.222, **+1.746 bytes**), que sao
+#: os tres blocos informativos — texto, marcacao e atributos. As emendas `E002`, `E003` e `E004`
+#: foram so de folha e NAO moveram este hash.
+#:
+#: **Quarta medicao, emenda `E006`**: a fileira de tres abas acima do painel, mais o script que
+#: sincroniza o estado entre ela e a barra lateral. `ed4f8734…` (40.222) → `3bac6c24…`
+#: (42.293, **+2.071 bytes**).
+#:
+#: **Quinta medicao, emenda `E010`**: a tipografia passou a ser a da sugestao visual —
+#: `Cormorant Garamond` nos titulos e `Manrope` no texto. `3bac6c24…` (42.293) → `7375696d…`
+#: (42.290, **-3 bytes**): o link do Google Fonts ficou tres bytes mais curto, e o resto da
+#: mudanca e de folha (familias, pesos, tamanhos e raios). As emendas `E007`, `E008` e `E009`
+#: foram so de folha e NAO moveram este hash.
+SHA_DA_TELA = "7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541"
 
 
 def _cabecalho_png(corpo: bytes):

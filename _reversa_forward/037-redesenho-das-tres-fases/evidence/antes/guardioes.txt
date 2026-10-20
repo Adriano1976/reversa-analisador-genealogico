@@ -1,0 +1,50 @@
+# Testes guardioes da tela de entrada — levantamento para a feature 037
+# Data: 2026-10-20
+# Metodo: leitura de tests/*.py procurando os literais e as estruturas da tela.
+
+## O que prende o byte a byte
+
+- tests/test_icone_de_atalho.py:140   SHA_DA_TELA = "c4a34f7b...", 30.781 bytes
+- tests/test_icone_de_atalho.py:204-215  compara sha256(cliente.get("/")) com a constante
+- tests/test_icone_de_atalho.py:230-234  rel="icon" aparece 1x, data:image 1x
+- tests/test_cabecalho_de_enquadramento.py:79-87  Content-Length == len(corpo)
+
+## O que prende rotulos e presenca
+
+- tests/test_cabecalho_de_enquadramento.py:75  "Buscar Conexão no GEDCOM" no HTML
+- tests/test_cabecalho_de_enquadramento.py:76  "Analisador de DNA" no HTML
+- tests/test_cabecalho_de_enquadramento.py:77  name="action" value="upload_gedcom"
+- tests/test_lista_na_tela.py:48-49   ROTULO_ARVORE / ROTULO_DNA
+- tests/test_lista_na_tela.py:94,97,329  os dois rotulos presentes (substring)
+- tests/test_lista_na_tela.py:317    accept= nos campos de arquivo
+
+## O que prende a tabela
+
+- tests/test_tabela_da_tela.py:83-86    <table>, <thead> e as 6 colunas por nome
+- tests/test_tabela_da_tela.py:95        exatamente 3 <tr> com 2 arquivos (1 cabecalho + 2 itens)
+- tests/test_tabela_da_tela.py:105-106   &#10003; no disponivel, &#9888; ausente
+- tests/test_tabela_da_tela.py:115-116   &#9888; + "sem chave de conteúdo no nome"
+- tests/test_tabela_da_tela.py:129-131   1 linha por grupo, 6 celulas por linha
+- tests/test_tabela_da_tela.py:151-152   'btn btn-sm btn-success">Abrir' e 'btn btn-sm btn-danger">Apagar'
+- tests/test_tabela_da_tela.py:163       a chave de conteudo nunca vira texto visivel
+- tests/test_tabela_da_tela.py:179,190   "1 MB" e "55 KB"
+- tests/test_tabela_da_tela.py:204       title="1.200 bytes"
+- tests/test_tabela_da_tela.py:225-227   exatamente 2 tabelas, a segunda e a de DNA, mesmas colunas
+- tests/test_tabela_da_tela.py:238-241   sem arquivo: nenhuma <table> + "Nenhuma árvore armazenada ainda"
+
+## O que prende o envio
+
+- tests/test_formatos_do_envio.py:81,91,108-137  todo type="file" tem accept, por extensao
+- tests/test_lista_na_tela.py:317                idem
+
+## Fora do escopo desta feature (area de resultados)
+
+- tests/test_estado_do_resultado.py, test_cartoes_recolhiveis.py, test_cartao_em_tres_faixas.py,
+  test_endogamia.py:730 — ancoras dos cartoes, selos e "voltar-ao-indice".
+- tests/test_banner_do_topo.py:270-298 — RN-24 da masthead (texto centralizado e estreito).
+
+## Ausencias confirmadas
+
+- Nenhum teste cita `gedcom_names` nem `datalist`: a troca por combobox nao deixa orfao.
+- Nenhum teste afirma a quantidade de abas: a barra lateral pode substituir as duas fileiras.
+- Nenhum teste exige a frase "Árvore aberta:" acima das fases.

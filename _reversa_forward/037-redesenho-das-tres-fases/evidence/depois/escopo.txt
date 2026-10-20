@@ -1,0 +1,23 @@
+# Escopo do diff — feature 037
+# Comando: git diff --stat -- src/ tests/  (2026-10-20 05:12 -03:00)
+
+ src/assets/app.css            | 300 +++++++++++++++++++-
+ src/templates/index.html      | 627 +++++++++++++++++++++++++++++++-----------
+ tests/test_icone_de_atalho.py |   9 +-
+ 3 files changed, 767 insertions(+), 169 deletions(-)
+
+# Arquivos novos (untracked):
+ tests/test_combobox_de_nomes.py
+ tests/test_tres_fases_da_tela.py
+
+# Conferencias
+ - src/application/ ..................... sem alteracao
+ - src/ports/ ........................... sem alteracao
+ - src/core/ ............................ sem alteracao
+ - src/parsers/ ......................... sem alteracao
+ - docker/ e docker-compose.yml ......... sem alteracao
+ - requirements.txt ..................... sem alteracao
+ - _reversa_sdd/ ........................ sem alteracao (a convergencia e do /reversa-sync)
+
+# Os tres arquivos alterados ja existiam: dois de apresentacao (template e folha) e um de
+# teste (o invariante SHA_DA_TELA, atualizado com medicao registrada em evidence/depois/hash.txt).

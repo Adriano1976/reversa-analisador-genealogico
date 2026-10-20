@@ -1,0 +1,9 @@
+ M .reversa/active-requirements.json
+?? _reversa_bugs/_sondas-matching/_antes.json
+?? _reversa_bugs/_sondas-matching/_impacto.txt
+?? _reversa_bugs/_sondas-matching/_pagina_do_servidor.html
+?? _reversa_bugs/_sondas-matching/_pagina_tratada.html
+?? _reversa_bugs/_sondas-matching/_suite.txt
+?? _reversa_bugs/_sondas-matching/_tratado.json
+?? _reversa_bugs/_sondas-matching/_v2_resumo.json
+?? _reversa_forward/037-redesenho-das-tres-fases/

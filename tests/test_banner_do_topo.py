@@ -267,37 +267,51 @@ class TestTopoDaTela:
             "o `alt` da arte virou o titulo: o leitor de tela anuncia duas vezes"
         )
 
-    def test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita(self, cliente_de_upload):
-        """`RN-24` (`T045`): o texto vai centralizado, em coluna mais estreita que o cartao.
+    def test_o_texto_de_apresentacao_fica_em_coluna_propria_com_a_arte_ao_lado(self, cliente_de_upload):
+        """`RN-24`, **emendada** pela `E001` da feature 037.
 
-        O operador pediu a mesma **forma organizada da documentacao**: paragrafo centrado, com a
-        linha curta. Antes o texto era `text-start` e corria de ponta a ponta do cartao.
+        ## O que a regra dizia, e o que ela diz agora
 
-        ## Por que a assercao e estrutural, e nao "contem `text-center`"
+        A `RN-24` nasceu no adendo `011` pedindo o texto **centralizado** numa coluna mais
+        estreita que o cartão. O operador apontou que a parte de cima continuava com a estética
+        anterior e pediu a redistribuição em **duas colunas**, como na referência visual: texto à
+        esquerda, arte à direita. A emenda está registrada no `requirements.md` da feature 037
+        (`E001`) — ela não foi aplicada em silêncio.
 
-        `text-center` sozinho nao prova nada: o `div` que envolve a masthead inteira ja o tem, e
-        a assercao passaria **vazia** mesmo com o paragrafo alinhado a esquerda. O que esta preso
-        aqui e a ESTRUTURA que produz a coluna — a linha de grade com `justify-content-center` e
-        a coluna `col-lg-*` dentro dela —, mais a ausencia do alinhamento a esquerda que existia.
+        ## Por que a asserção olha a estrutura e a folha
+
+        Um par de colunas não existe no HTML: quem o produz é a grade do `.masthead`. Então o
+        teste prende as duas metades — o HTML com as duas colunas nomeadas e a regra da folha que
+        as coloca lado a lado —, e prende também que a **ordem do documento** não mudou (a arte
+        continua sendo o primeiro elemento; é a grade que a manda para a direita).
         """
-        _app, cliente, _pasta = cliente_de_upload
+        app, cliente, _pasta = cliente_de_upload
 
         corpo = self._corpo(cliente)
-        inicio = corpo.index("Este aplicativo web")
-        bloco = corpo[:inicio]
+        assert 'class="masthead mb-4"' in corpo, "o bloco da masthead sumiu"
+        assert 'class="masthead-arte"' in corpo, "a coluna da arte sumiu"
+        assert 'class="masthead-texto"' in corpo, "a coluna do texto sumiu"
 
-        assert "text-start" not in corpo, (
-            "o texto de apresentacao voltou a ser alinhado a esquerda"
+        inicio_arte = corpo.index('class="masthead-arte"')
+        inicio_texto = corpo.index('class="masthead-texto"')
+        assert inicio_arte < inicio_texto, (
+            "a arte deixou de ser o primeiro elemento do documento: a grade e que a posiciona"
         )
-        assert re.search(r'class="row justify-content-center"', corpo), (
-            "o texto perdeu a linha de grade que o centra e o estreita"
+
+        # O subtítulo, o título e os dois parágrafos vivem DENTRO da coluna do texto: nada de
+        # `</div>` fecha a coluna antes do primeiro parágrafo.
+        assert inicio_texto < corpo.index(SUBTITULO) < corpo.index(TITULO_NA_TELA) < corpo.index(
+            "Este aplicativo web"
+        ), "a ordem subtitulo, titulo e texto mudou dentro da coluna"
+        assert "</div>" not in corpo[inicio_texto:corpo.index("Este aplicativo web")], (
+            "a coluna do texto fecha antes do primeiro paragrafo"
         )
-        assert re.search(r'class="col-lg-\d+"', corpo), (
-            "o texto perdeu a coluna que o estreita: ele volta a correr de ponta a ponta"
+
+        with open(app.config["ESTILO_DA_TELA"], encoding="utf-8") as folha:
+            estilo = folha.read()
+        assert re.search(r"\.masthead\{[^}]*grid-template-columns", estilo, re.S), (
+            "a folha perdeu a grade que coloca texto e arte lado a lado"
         )
-        # A coluna tem de vir DEPOIS do titulo e ANTES do texto: a organizacao e a ordem juntas.
-        assert bloco.rindex('class="col-lg-') < inicio, "a coluna nao envolve o texto"
-        assert bloco.rindex('class="row justify-content-center"') < bloco.rindex('class="col-lg-')
 
     def test_o_texto_de_apresentacao_esta_na_tela_com_as_enfases(self, cliente_de_upload):
         """As duas frases pedidas, e as tres partes que o operador marcou em negrito."""

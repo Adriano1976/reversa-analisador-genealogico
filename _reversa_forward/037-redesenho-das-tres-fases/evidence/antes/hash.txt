@@ -1,0 +1,11 @@
+# Tela de entrada medida com pasta de uploads VAZIA e temporaria
+# Data: 2026-10-20 04:47 -03:00
+# Metodo: mesma montagem do fixture cliente_de_upload de tests/conftest.py —
+#   ANALISADOR_UPLOAD_FOLDER apontando para pasta temporaria + importlib com
+#   __file__ fixado para o Flask achar templates/. NAO e a pasta real de uploads.
+#   Script fora do repositorio: %TEMP%\medir_tela_037.py (nao versionado).
+
+status=200 bytes=30781 sha256=c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0
+
+# Confere com SHA_DA_TELA de tests/test_icone_de_atalho.py:140 — a medicao
+# reproduz o invariante antes de qualquer alteracao.

@@ -1,0 +1,10 @@
+# Baseline da feature 037 — suite ANTES de qualquer mudanca
+# Data: 2026-10-20 04:46 -03:00
+# Comando: py -3.14 -m pytest -q
+# Commit: 058e187 feat(tela): agrupa voltar e indicador num flex do cabecalho
+
+1309 passed, 11 skipped, 1 warning in 91.85s (0:01:31)
+exit code 0
+
+# O warning e o cache do pytest tentando recriar .pytest_cache/v/cache, sem relacao
+# com a feature.

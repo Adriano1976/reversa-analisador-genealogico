@@ -405,20 +405,25 @@ class TestOBlocoRecolhivel:
             "o titulo do bloco nao virou o `summary`: sobra um cabecalho acima de um `details`"
         )
 
-    def test_o_bloco_nasce_aberto(self, cliente_de_upload):
-        """Ele carrega AVISO, e nao detalhe.
+    def test_o_bloco_nasce_fechado(self, cliente_de_upload):
+        """Ele nasce FECHADO desde a emenda `E011` da feature 037.
 
-        O bloco dos descartados pode comecar fechado porque e' o rodape da analise. Este diz
-        coisas que mudam a leitura do resultado — nome em mais de um kit, CSV sem coluna de
-        kit, raiz ambigua —, e o adendo 017 o tirou de dentro dos cartoes justamente para ele
-        ser LIDO. Escondê-lo atras de um clique desfaria aquilo.
+        ## A regra anterior, e por que ela mudou
+
+        O adendo `022` fixou o oposto — aberto — porque o bloco carrega **aviso**, e o adendo
+        `017` o tirou de dentro dos cartoes justamente para ele ser lido. O operador pediu o
+        padrao fechado: o titulo do bloco continua na tela, e abrir e um clique.
+
+        A decisao esta registrada no `requirements.md` da feature 037 (`E011`), com o custo
+        declarado: se o bloco voltar a esconder informacao que muda a leitura do resultado, e'
+        esta a decisao a revisitar.
         """
         _app, cliente, pasta = cliente_de_upload
         pagina = _pagina(cliente, pasta, CSV_DOIS_KITS)
         abertura = re.search(r'<details class="card observacoes-do-arquivo[^"]*"([^>]*)>', pagina)
         assert abertura, "o bloco dos avisos nao esta na tela"
-        assert "open" in abertura.group(1), (
-            "o bloco dos avisos nasceu FECHADO: aviso escondido atras de um clique"
+        assert "open" not in abertura.group(1), (
+            "o bloco dos avisos nasceu ABERTO: a emenda E011 fixou o padrao FECHADO"
         )
 
     def test_os_avisos_ficam_dentro_do_bloco(self, cliente_de_upload):

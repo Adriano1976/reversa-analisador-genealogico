@@ -1,0 +1,1544 @@
+{%- macro tabela_de_arquivos(itens, com_abrir) -%}
+{# A tabela das DUAS abas, escrita UMA vez. Antes esta marcacao existia duas vezes, e so a
+   coluna "Gerenciar" diferia — as duas listas tinham de se ler do mesmo jeito, e duas copias
+   sao duas chances de elas divergirem.
+
+   `com_abrir` e o que distingue a aba de arvores da aba de DNA, e a diferenca e de CONTRATO,
+   nao de gosto: nao existe acao que carregue um CSV sozinho — o relatorio de matches entra
+   pela analise de DNA, que exige uma arvore. Oferecer "Abrir" na aba de DNA prometeria o que a
+   rota nao atende.
+
+   A coluna "Numero" da tela de referencia NAO existe aqui, e a ausencia e deliberada: esta
+   aplicacao nao tem identificador publico de arvore, e a chave de conteudo nao pode ocupar
+   esse lugar — ela e exatamente o que nao pode aparecer para o operador.
+
+   "Tamanho" e "Enviado em" nao sao decoracao: o nome exibido NAO e unico (ha tres itens
+   "Arvore Unificada Oficial V1 2" na pasta real), e sao a data e o tamanho que distinguem um
+   do outro. #}
+<div class="table-responsive mb-3">
+    <table class="table table-sm align-middle mb-0">
+        <thead>
+            <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Situação</th>
+                <th scope="col" class="text-end">Arquivos</th>
+                <th scope="col" class="text-end">Tamanho</th>
+                <th scope="col">Enviado em</th>
+                <th scope="col" class="text-center">Gerenciar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in itens %}
+                <tr>
+                    <td>{{ item.nome_exibido }}</td>
+                    {# O item indisponivel NAO e escondido, e tambem nao e oferecido como se
+                       funcionasse: ele ganha a coluna de situacao, com o motivo escrito. #}
+                    <td class="text-nowrap">
+                        {# O visto e o alerta so existiam como COR e como `title`. Cor nao chega a
+                           quem usa leitor de tela, e `title` nao e anunciado de forma confiavel:
+                           cada marca leva agora o texto equivalente em `visually-hidden`, que o
+                           leitor anuncia e a tela nao mostra (o motivo escrito ja vem ao lado). #}
+                        {% if item.disponivel %}
+                            <span class="text-success fw-bold" title="{{ 'Pode ser aberta' if com_abrir else 'Pode ser usado' }}">&#10003;</span><span class="visually-hidden">Disponível</span>
+                        {% else %}
+                            <span class="text-warning fw-bold" title="{{ item.motivo_indisponivel }}">&#9888;</span><span class="visually-hidden">Indisponível:</span>
+                            <span class="text-muted small">{{ item.motivo_indisponivel }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{ item.quantidade }}</td>
+                    {# O tamanho visivel passou a ser na unidade que se le de relance, a pedido do
+                       operador (2026-10-16): `8,54 MB` e `55 KB` leem melhor do que `8.955.472 bytes`
+                       e `56.307 bytes`. Abaixo de 1 MB o filtro troca para KB sozinho.
+                       O numero EXATO em bytes NAO foi perdido — ele vive no `title` da celula, e e
+                       o que garante que dois arquivos de tamanhos proximos nunca fiquem com o mesmo
+                       texto sem forma de distingui-los. #}
+                    <td class="text-end text-muted small text-nowrap" title="{{ item.bytes | inteiro_br }} bytes">{{ item.bytes | tamanho_br }}</td>
+                    <td class="text-muted small text-nowrap" title="Data de modificação do arquivo no disco">{{ item.modificado_em | data_br }}</td>
+                    <td class="text-center">
+                        <span class="d-inline-flex align-items-center gap-2">
+                            {% if com_abrir and item.disponivel %}
+                                {# A ESCOLHA: um formulario por item, com o nome armazenado no
+                                   campo oculto que o resto da aplicacao ja devolve entre
+                                   requisicoes. Sem ele a lista seria texto puro, e nao haveria
+                                   como selecionar arvore nenhuma. #}
+                                <form method="POST" class="m-0">
+                                    <input type="hidden" name="action" value="selecionar_arvore">
+                                    <input type="hidden" name="gedcom_filename" value="{{ item.nome_armazenado }}">
+                                    <button type="submit" class="btn btn-sm btn-success">Abrir</button>
+                                </form>
+                            {% endif %}
+                            {# O botao de aposentar aparece em TODO item, inclusive no
+                               indisponivel — e justamente nele que ele e mais util. Vermelho
+                               porque e a acao destrutiva da tela; mas nada e apagado, e a
+                               confirmacao diz isso citando o arquivo daquela linha. #}
+                            <form method="POST" class="m-0"
+                                  onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
+                                <input type="hidden" name="action" value="aposentar_arquivo">
+                                <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                            </form>
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro -%}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Conexões Genealógicas</title>
+<!-- icone da aba: logo do projeto em data URI, ver .reversa/_favicon.py -->
+    <link rel="icon" type="image/png" sizes="128x128" href="data:image/png;base64,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">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {# A folha de estilo deixou de ser um `<style>` embutido e passou a ser um arquivo
+       servido por ROTA (`/app.css`), e nao por pasta estatica: `src/static/` e proibida pelo
+       `W004` e o `RN-07` da feature 009 proibe configurar diretorio estatico. O arquivo mora
+       em `src/assets/`, que e a pasta que entra na imagem do container. Ela vem DEPOIS do
+       Bootstrap de proposito: as variaveis `--bs-*` que ela redefine precisam vencer.
+
+       A fonte propria entra por CDN, como o Bootstrap e o Mermaid ja entravam. Se ela nao
+       carregar, a folha cai nas fontes de sistema declaradas no proprio `app.css` — o
+       `Newsreader` tem `Georgia` atras dele e o `IBM Plex Sans` tem `system-ui`. #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="/app.css" rel="stylesheet">
+    {# O TEMA PADRAO E O CLARO, e a escolha do operador e lembrada.
+       Antes desta linha o tema vinha de `matchMedia('(prefers-color-scheme: dark)')`, ou seja,
+       quem tinha o Windows no escuro abria a aplicacao no escuro sem ter pedido. Agora o
+       padrao e branco para todo mundo, e o escuro so entra por escolha explicita no botao.
+       O `try` existe porque `localStorage` pode lancar (modo privativo, cookies bloqueados):
+       nesse caso o operador continua com o padrao claro, e nao com a pagina quebrada.
+       Roda AQUI, antes de qualquer pintura, para nao piscar claro e escurecer depois. #}
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                if (localStorage.getItem('tema') === 'dark') { tema = 'dark'; }
+            } catch (e) { /* sem armazenamento: fica o padrao claro */ }
+            document.documentElement.dataset.bsTheme = tema;
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    {# O CONTROLE DE TEMA. Escrito uma vez, fora dos dois ramos da tela, porque o `<body>` nao
+       esta sob nenhum `if`: existe um botao so no documento, e o `id` nao corre o risco de se
+       repetir.
+
+       O ROTULO DIZ O DESTINO, e nao o estado atual — "Tema escuro" e o que o clique FAZ. E o
+       `aria-pressed` que carrega o estado, para quem usa leitor de tela ouvir "pressionado",
+       que e o que um botao de alternancia deve informar.
+
+       O `<script>` vem imediatamente DEPOIS do botao, e nao no fim do corpo: assim o rotulo ja
+       sai certo na primeira pintura quando o operador tinha escolhido o escuro, sem o piscar de
+       um rotulo que depois se corrige. #}
+    <button type="button" id="botao-tema" class="botao-tema" aria-pressed="false"
+            aria-label="Mudar para o tema escuro">
+        <span class="icone-tema" aria-hidden="true">&#9789;</span>
+        <span class="rotulo-tema">Tema escuro</span>
+    </button>
+    <script>
+        (function () {
+            var botao = document.getElementById('botao-tema');
+            var raiz = document.documentElement;
+
+            function aplicar(tema, guardar) {
+                var escuro = tema === 'dark';
+                raiz.dataset.bsTheme = tema;
+                botao.setAttribute('aria-pressed', escuro ? 'true' : 'false');
+                botao.setAttribute('aria-label',
+                    escuro ? 'Mudar para o tema claro' : 'Mudar para o tema escuro');
+                botao.querySelector('.icone-tema').innerHTML = escuro ? '&#9728;' : '&#9789;';
+                botao.querySelector('.rotulo-tema').textContent =
+                    escuro ? 'Tema claro' : 'Tema escuro';
+                if (guardar) {
+                    try { localStorage.setItem('tema', tema); } catch (e) { /* sem armazenamento */ }
+                }
+            }
+
+            botao.addEventListener('click', function () {
+                aplicar(raiz.dataset.bsTheme === 'dark' ? 'light' : 'dark', true);
+            });
+
+            aplicar(raiz.dataset.bsTheme === 'dark' ? 'dark' : 'light', false);
+        })();
+    </script>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm main-card">
+                    <div class="card-body">
+                        {# O topo da tela: a composicao pedida pelo operador — arte, subtitulo,
+                           titulo e o texto de apresentacao.
+
+                           DUAS COISAS INVERTEM em relacao ao titulo-imagem de antes: a arte cai
+                           para METADE da largura (`w-50`, que e 50% do cartao), e o `<h1>` passa
+                           a ter **texto**, em vez de envolver a imagem. O `alt` da arte volta a
+                           DESCREVER A ILUSTRACAO: com o titulo escrito logo abaixo, repetir o
+                           titulo no `alt` faria o leitor de tela anuncia-lo duas vezes.
+
+                           A masthead (arte, subtitulo e titulo) fica centralizada, e os dois
+                           paragrafos TAMBEM: a `RN-24` pede texto centralizado numa coluna mais
+                           estreita que o cartao (`row justify-content-center` + `col-lg-*`), e o
+                           teste `test_o_texto_de_apresentacao_esta_centralizado_e_em_coluna_estreita`
+                           prende esse arranjo. A ARTE SERVIDA NAO E O ARQUIVO
+                           ENVIADO — ela e uma renderizacao derivada, e a receita esta em
+                           `tests/banner_da_tela.py`. #}
+                        <div class="text-center mb-4">
+                            <img src="/banner.png"
+                                 alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
+                                 class="img-fluid w-50">
+                            <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
+                            {# O `<h1>` e SEMPRE visivel, e a `RN-23` volta a valer como esta escrita.
+                               Ele chegou a ser escondido enquanto a arte do topo trazia "Analisador
+                               Genealógico" desenhado — com os dois visiveis, o produto se nomeava
+                               duas vezes, uma logo abaixo da outra. A arte trocada em 2026-10-16
+                               **nao tem o texto**, entao esconder o `h1` deixaria a tela sem
+                               nenhuma identificacao do produto em portugues: o subtitulo e em
+                               ingles e o `alt` descreve a ilustracao. #}
+                            <h1 class="card-title mb-3">Analisador Genealógico</h1>
+                            {# O texto de apresentacao fica CENTRALIZADO e numa coluna mais
+                               estreita que o cartao, na mesma forma organizada da documentacao
+                               do projeto.
+
+                               Antes ele era alinhado a esquerda (`text-start`) e corria de ponta
+                               a ponta. `col-lg-9` dentro de um `row justify-content-center` da a
+                               largura e o centramento sem CSS proprio — e sem largura FIXA:
+                               abaixo do ponto de quebra `lg` a coluna volta a ocupar o cartao
+                               inteiro, que e o que um telefone precisa. #}
+                            <div class="row justify-content-center">
+                                <div class="col-lg-9">
+                                    <p>
+                                        Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em
+                                        genealogia documental e genética. Seu objetivo é <b>ajudar os usuários a
+                                        compreender como se relacionam com outras pessoas por meio da análise da
+                                        árvore genealógica e de dados de DNA</b>.
+                                    </p>
+                                    <p class="mb-0">
+                                        <b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em
+                                        formato GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em
+                                        formato CSV. <b>A partir do cruzamento desses dados, o aplicativo identifica
+                                        possíveis conexões genealógicas entre duas pessoas.</b>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if message %}
+                            <div class="alert alert-{{ 'success' if success else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+
+                        {% if not gedcom_filename %}
+                            {# Este ramo deixou de ser um formulario de envio e nada mais. Ele
+                               entrega as duas abas com as listas, e o envio se muda para dentro
+                               da aba de arvores. O markup das abas e o MESMO do ramo de baixo,
+                               de proposito: o operador ve a mesma tela antes e depois de
+                               escolher, e o teste que prende os rotulos literais continua
+                               valendo para os dois estados. #}
+                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" aria-controls="path-panel" aria-selected="true" type="button" role="tab">Buscar Conexão no GEDCOM</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" aria-controls="dna-panel" aria-selected="false" type="button" role="tab">Analisador de DNA</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisTabsContent">
+                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha uma árvore que já está armazenada, ou envie uma nova.</p>
+
+                                    {% if arvores_da_lista %}
+                                        {# A tabela da aba, pelo macro unico das duas. `True` aqui
+                                           porque esta aba oferece o formulario de escolha: o item
+                                           disponivel ganha o botao "Abrir", e o indisponivel
+                                           continua listado, marcado e sem botao de escolha. #}
+                                        {{ tabela_de_arquivos(arvores_da_lista, True) }}
+                                    {% else %}
+                                        <p class="text-muted">Nenhuma árvore armazenada ainda. Envie uma para começar.</p>
+                                    {% endif %}
+
+                                    <form method="POST" enctype="multipart/form-data" id="gedcom-upload-form">
+                                        <input type="hidden" name="action" value="upload_gedcom">
+                                        <div class="mb-3">
+                                            <label for="gedcom" class="form-label"><b>Enviar nova árvore</b></label>
+                                            {# `accept` FILTRA O SELETOR, e nao valida nada. Quem
+                                               escolher "Todos os arquivos" — ou arrastar o arquivo
+                                               para dentro do campo — manda o que quiser; a barreira
+                                               de verdade e' a de conteudo
+                                               (`utils.validate.validar_conteudo_gedcom`, que exige a
+                                               declaracao `0 HEAD`), e ela ja' existia. O ganho aqui
+                                               e' nao oferecer o erro: sem o filtro, o operador
+                                               escolhe um .txt, recebe "carregado!" e o arquivo nao
+                                               aparece em aba nenhuma.
+
+                                               SO' `.ged`, e nao `.gedcom`: quem decide a aba e' a
+                                               extensao (`reporting.lista_de_arquivos.ABA_DE_ARVORES`),
+                                               e um `.gedcom` nao entra em aba nenhuma. Oferecer no
+                                               seletor um arquivo que depois some seria pior do que
+                                               escondê-lo. -#}
+                                            <input class="form-control" type="file" id="gedcom" name="gedcom" accept=".ged" required>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">Carregar</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha um relatório de matches que já está armazenado.</p>
+
+                                    {% if relatorios_da_lista %}
+                                        {# A MESMA tabela, pelo macro das duas abas. `False` porque
+                                           esta nao oferece "Abrir": nao existe acao que carregue
+                                           um CSV sozinho — o relatorio de matches entra pela
+                                           analise de DNA, que exige uma arvore. Aposentar, sim,
+                                           porque nao depende de arvore. #}
+                                        {{ tabela_de_arquivos(relatorios_da_lista, False) }}
+                                    {% else %}
+                                        {# Aqui NAO entra formulario de envio, e a razao esta no
+                                           contrato: nao existe acao que guarde um CSV sozinho. O CSV
+                                           entra pela analise de DNA (`action=dna_analysis`, campo
+                                           `matches_csv`), que exige uma arvore — entao o primeiro
+                                           passo e a aba ao lado. Orientar o operador para o caminho
+                                           que existe e mais util do que oferecer um botao que a rota
+                                           nao atende. #}
+                                        <p class="text-muted">Nenhum relatório de matches armazenado ainda. Ele aparece aqui depois da primeira análise de DNA que usar um arquivo CSV — e para chegar lá é preciso ter uma árvore, que se envia na aba <b>Buscar Conexão no GEDCOM</b>.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            {# O caminho de VOLTA, e a identificacao da arvore aberta. Antes
+                               disto a tela de busca nao tinha link nenhum (medido: zero
+                               `<a href>`), e nao dizia SOBRE QUAL arquivo a busca ia rodar — o
+                               aviso do topo so nomeia a arvore em envio ou reenvio.
+
+                               E um LINK, e nao um botao com `action`, por tres razoes: ele volta
+                               por `GET /`, que e o caminho verificado e que sempre entrega a
+                               tela inicial; nao passa pelo despacho de `action`, entao nao corre
+                               o risco de cair no `render_template` do fim e descartar o estado —
+                               defeito ja medido no `selecionar_arvore`; e nao reenvia formulario
+                               nenhum. O nome sai pelo filtro `rotulo_do_arquivo`, sem a chave. #}
+                            <p class="text-muted">
+                                Árvore aberta: <b>{{ gedcom_filename | rotulo_do_arquivo }}</b>
+                                — <a href="/">escolher outra árvore</a>
+                            </p>
+
+                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" aria-controls="path-panel" aria-selected="true" type="button" role="tab">Buscar Conexão no GEDCOM</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" aria-controls="dna-panel" aria-selected="false" type="button" role="tab">Analisador de DNA</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisTabsContent">
+                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
+                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
+                                    <form method="POST" id="path-form">
+                                        <input type="hidden" name="action" value="path_search">
+                                        <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                        <div class="mb-3">
+                                            <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
+                                            <input type="text" class="form-control" id="person1_name" name="person1_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
+                                            <input type="text" class="form-control" id="person2_name" name="person2_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-info">Encontrar Conexão</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
+                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
+                                    <form method="POST" enctype="multipart/form-data" id="dna-form">
+                                        <input type="hidden" name="action" value="dna_analysis">
+                                        <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                        <div class="mb-3">
+                                            {# O CSV pode vir da LISTA ou do arquivo, e a lista tem
+                                               PRECEDENCIA. O campo e NOVO e opcional porque
+                                               reaproveitar `matches_csv` apagaria a prova de que o
+                                               caminho antigo continua igual — e dois inputs com o
+                                               mesmo nome, no mesmo formulario, se atropelam.
+
+                                               `required` sai do campo de arquivo: exigi-lo obrigaria
+                                               o operador a reenviar o que ja esta guardado. O servidor
+                                               continua recusando quando nao vem nenhum dos dois, com a
+                                               mensagem de sempre.
+
+                                               So item DISPONIVEL entra nas opcoes: oferecer um que a
+                                               referencia nao alcanca seria vender o que nao funciona. #}
+                                            <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                            {% if relatorios_da_lista %}
+                                                <select class="form-select" id="matches_csv_filename" name="matches_csv_filename">
+                                                    <option value="">— escolher da lista —</option>
+                                                    {% for item in relatorios_da_lista %}
+                                                        {% if item.disponivel %}
+                                                            <option value="{{ item.nome_armazenado }}">{{ item.nome_exibido }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="form-text">Ou envie um arquivo novo abaixo.</div>
+                                            {% endif %}
+                                            {# Mesma regra do campo da arvore: `accept` filtra o
+                                               seletor e nao valida. A barreira de verdade e' a
+                                               leitura do CSV, que recusa o arquivo sem as colunas de
+                                               Nome e cM (`core.erros.DnaCsvSemColunas`) — e o campo
+                                               e' opcional de proposito, porque o relatorio pode vir
+                                               da lista acima. -#}
+                                            <input class="form-control mt-2" type="file" id="matches_csv" name="matches_csv" accept=".csv">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
+                                            <input type="text" class="form-control" id="root_name" name="root_name" placeholder="Ex: João da Silva" required list="gedcom_names">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <datalist id="gedcom_names">
+                                {% for name in all_names %}
+                                    <option value="{{ name }}">
+                                {% endfor %}
+                            </datalist>
+                        {% endif %}
+
+                        <div id="loading" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Analisando...</span></div>
+                            <p class="mt-2">Analisando... Isso pode levar alguns segundos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-area">
+                    {% if aviso_de_persistencia %}
+                        <div class="alerta-aviso" role="alert">{{ aviso_de_persistencia }}</div>
+                    {% endif %}
+                    {#- AS OBSERVACOES DO ARQUIVO, e nao de um cartao. Valem para a analise
+                       inteira — mesmo nome em mais de um kit, CSV sem coluna de kit, linhas
+                       ignoradas, cabecalho fora do lugar, raiz ambigua — e por isso aparecem
+                       UMA vez, aqui, em vez de serem repetidas dentro de cada cartao. Medido
+                       antes desta mudanca, no arquivo real de 142 cartoes: o aviso de multiplos
+                       kits ocupava 710 das 1010 linhas da secao 5 (70,3%), aparecia em 142 de
+                       142 cartoes e, em 3 dos 5 casos, falava de nomes que a triagem descartou e
+                       que nao tem cartao nenhum. Ver o adendo 017.
+
+                       O bloco fica FORA da guarda de `dna_results`, de proposito: com zero
+                       conexoes aceitas nao ha cartao nenhum, e o aviso do arquivo e justamente
+                       o que explica o zero.
+
+                       Os hifens que abrem e fecham este comentario NAO sao estilo: eles consomem
+                       os dois saltos de linha que o comentario e o `if` abaixo acrescentariam a
+                       tela de ENTRADA, onde `observacoes_do_arquivo` e indefinido e o bloco nao
+                       renderiza. Sem eles a pagina de entrada mudaria de bytes — e o hash dela e
+                       contrato congelado (`tests/test_icone_de_atalho.py`). -#}
+                    {% if observacoes_do_arquivo %}
+                      {# O bloco recolhe como os cartoes — mesmo `details`, mesmo
+                         `sumario-do-cartao`, mesmo losango —, e a diferenca esta no que ele
+                         carrega: AVISO, e nao apendice. Por isso nasce ABERTO. O bloco dos
+                         descartados pode comecar fechado porque e' o rodape da analise; este
+                         diz coisas que mudam a leitura do resultado (nome em mais de um kit,
+                         CSV sem coluna de kit, linhas ignoradas, raiz ambigua), e esconder
+                         aviso atras de um clique contraria o motivo de ele existir: o adendo
+                         017 o tirou de dentro dos cartoes justamente para ele ser LIDO.
+
+                         O `<h2>`/`<h3>` que titulava virou o proprio `<summary>`. A classe
+                         `observacoes-do-arquivo` FICA no container: e' ela que o teste do
+                         adendo 017 usa para achar o bloco e para prender que ele renderiza
+                         fora da guarda de `dna_results`. #}
+                      <details class="card observacoes-do-arquivo mb-4" open>
+                        <summary class="sumario-do-cartao">
+                          <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
+                        </summary>
+                        <div class="card-body">
+                            <p class="text-muted small mb-2">
+                                Valem para o CSV inteiro, não para uma conexão específica. Nenhuma
+                                delas muda um parentesco já calculado.
+                            </p>
+                            {% for observacao in observacoes_do_arquivo %}
+                                <div class="alerta-aviso">{{ observacao }}</div>
+                            {% endfor %}
+                        </div>
+                      </details>
+                    {% endif %}
+                    {% if dna_results %}
+                        {# O TITULO E' O ALVO DO LINK "Voltar" DE CADA CARTAO. Ele era a tabela do
+                           indice, que saiu: enquanto os cartoes nasciam todos abertos, a tabela
+                           era a unica visao geral, mas com os cartoes recolhiveis ela virou uma
+                           SEGUNDA lista de resumos — a coluna "Confrontacao" dizia exatamente o
+                           que o selo do cabecalho do cartao ja dizia. O que so a tabela dava
+                           (Parentesco, Janela de vida, Profundidade) subiu para o cabecalho do
+                           cartao, que e onde a lista agora vive. Ver o adendo 019. #}
+                        <h2 class="text-center mt-5" id="resultados">Resultados das Análises de Conexão</h2>
+                        {# A CONTAGEM EM TRES FAIXAS (feature 033). Ate a 032 a frase tinha DUAS
+                           faixas — "com caminho no GEDCOM" e "apenas com evidencia genetica" — e
+                           chamava de "sem caminho" o que a arvore TEM. A regra da janela de vida
+                           (adendo 016) troca o parentesco apresentado por "nao encontrado", mas o
+                           caminho documental continua guardado em `documentary_do_registro`: o
+                           GEDCOM liga as duas pessoas, a idade e' que torna o parentesco
+                           impossivel. Medido no GEDCOM real em 2026-10: dos 9 caminhos que a
+                           arvore tem, 6 sobrevivem a regra e 3 nao — e a frase antiga mandava o
+                           operador procurar registro faltando onde o trabalho e' procurar
+                           homonimo, exatamente o custo que o adendo 016 descreve.
+
+                           A TERCEIRA FAIXA FECHA A CONTA: `com_caminho + recusados +
+                           sem_caminho` = total. A arvore sugerida NAO e' faixa — ela e' atributo:
+                           um cartao pode ter caminho E sugestao, e somar as duas coisas faria o
+                           numero de "com caminho" crescer sem que um no' documental novo exista.
+                           Por isso ela sai em frase propria, condicionada a existir. #}
+                        {% set ns = namespace(com_caminho=0, ambiguos=0, recusados=0, sugeridos=0) %}
+                        {% for r in dna_results %}
+                            {% if r.documentary and r.documentary.path %}
+                                {% set ns.com_caminho = ns.com_caminho + 1 %}
+                            {% elif r.documentary_do_registro and r.documentary_do_registro.path %}
+                                {% set ns.recusados = ns.recusados + 1 %}
+                            {% endif %}
+                            {% if r.documentary and r.documentary.ambiguous_identity %}{% set ns.ambiguos = ns.ambiguos + 1 %}{% endif %}
+                            {# A MESMA condicao do bloco do cartao: resumo E desenho. Contar
+                               `sugestao_geracoes` sozinho contaria cartao cujo bloco nao
+                               aparece — e a frase passaria a prometer o que a pagina nao mostra. #}
+                            {% if r.sugestao_resumo and r.sugestao_mermaid %}{% set ns.sugeridos = ns.sugeridos + 1 %}{% endif %}
+                        {% endfor %}
+                        <p class="text-center text-muted contagem-das-conexoes">
+                            {{ dna_results | length }} conexões analisadas:
+                            <strong>{{ ns.com_caminho }}</strong> com caminho genealógico no GEDCOM
+                            ({{ ns.ambiguos }} com identidade ambígua){% if ns.recusados %},
+                            <strong>{{ ns.recusados }}</strong> com caminho documental recusado pela idade do match{% endif %} e
+                            <strong>{{ dna_results | length - ns.com_caminho - ns.recusados }}</strong> apenas com evidência genética
+                            (sem caminho no GEDCOM).
+                            {% if ns.sugeridos %}
+                                {# A arvore sugerida e' HIPOTESE, e a frase diz isso: as geracoes
+                                   marcadas nao existem no GEDCOM. Sem esta ressalva o operador
+                                   leria a sugestao como parentesco documentado. #}
+                                <br><strong>{{ ns.sugeridos }}</strong> {{ 'conexão mostra' if ns.sugeridos == 1 else 'conexões mostram' }}
+                                árvore sugerida — gerações virtuais que não estão no GEDCOM.
+                            {% endif %}
+                        </p>
+                        {# A LEGENDA DO SELO DE VALIDACAO (feature 031). Ela existe por causa de uma
+                           decisao: `Inconclusivo` NAO ganha selo, porque numa analise de 142 cartoes
+                           ele e' o caso mais comum e marcar quase todos nao marcaria nenhum. Sem esta
+                           linha, a ausencia do selo seria ambigua entre "validado", "inconclusivo" e
+                           "nao calculado" — e o operador concluiria errado. #}
+                        <p class="text-center text-muted legenda-da-validacao">
+                            O selo <span class="badge validacao-valido">Validado</span> marca a linha temporalmente viável
+                            e <span class="badge validacao-conflito">Linha em conflito</span> marca a contradição biológica
+                            ou temporal (<strong>sem selo = não concluído</strong>, por dado faltante, afinidade ou ambiguidade).
+                        </p>
+                        {# OS DOIS BOTOES QUE IMPEDEM O COLAPSO DE VIRAR TRABALHO. Sem eles, ler a
+                           analise inteira passa a ser um clique por conexao — medido nesta
+                           analise, 142. Nao alteram dado nenhum: so mudam o `open` de cada
+                           `details`, e o `toggle` de cada cartao cuida do diagrama. #}
+                        {% if dna_results | length > 1 %}
+                            <p class="text-center mb-3 controles-dos-cartoes">
+                                <button type="button" class="botao-do-cartao" id="expandir-cartoes">Expandir todas as análises</button>
+                                <button type="button" class="botao-do-cartao" id="recolher-cartoes">Recolher todas</button>
+                            </p>
+                        {% endif %}
+                        {# A TABELA DO INDICE SAIU (adendo 019). Com os cartoes recolhiveis ela
+                           virou uma segunda lista de resumos: a coluna "Confrontacao" repetia o
+                           selo do cabecalho, e as linhas existiam para navegar uma pagina que ja
+                           nao precisa de indice. O que so ela dava — Parentesco, Janela de vida e
+                           Profundidade — passou para o cabecalho de cada cartao, que agora e' a
+                           propria lista. #}
+                        {% for result in dna_results %}
+                            {# CADA CARTAO E UM `<details>` — o operador abre o que quer ler.
+                               O `<summary>` embrulha o `card-header` SEM substitui-lo: o
+                               cabecalho continua sendo `<div class="card-header">`, e assim o
+                               cartao fechado ainda mostra tudo que a extinta tabela do indice
+                               mostrava — nome, cM, parentesco, janela de vida, profundidade e
+                               os vereditos. Quem decide se vale abrir decide pelo cabecalho,
+                               nao por dentro dele.
+
+                               O `details` fica FECHADO por padrao porque a LISTA DE CABECALHOS
+                               e' a visao geral: com a tabela do indice fora (adendo 019), os
+                               sinais de comparacao entre matches tiveram de subir para ca. Um
+                               cartao fechado que so dissesse o nome obrigaria a abrir os 142
+                               para achar as conexoes com janela de vida impossivel ou
+                               profundidade divergente — que e exatamente o trabalho que a
+                               coluna evitava. Os dois botoes acima abrem e fecham todos de uma
+                               vez, para que ler a analise inteira nao vire centenas de cliques.
+
+                               O GRAFO DENTRO DO CARTAO FECHADO e o motivo pelo qual colapsar
+                               tinha sido descartado. Ele deixou de ser impedimento porque o
+                               `toggle` que ja existia para o `grafo-do-registro` passou a valer
+                               para QUALQUER `details` com diagrama: o Mermaid so mede o que
+                               esta aberto. #}
+                            <details class="card cartao-do-resultado" id="resultado-{{ loop.index }}">
+                                <summary class="sumario-do-cartao">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <span class="conteudo-do-cabecalho">
+                                        <span class="titulo-da-conexao">Análise de conexão com <strong>{{ result.match_name }}</strong></span>
+                                        <span class="selos-do-cabecalho">
+                                        {% if result.cm is not none %}
+                                            <span class="badge bg-secondary">DNA: {{ result.cm | cm_br }} cM</span>
+                                        {% endif %}
+                                        {# O SELO DA ENDOGAMIA sobe para o cabecalho para ser lido
+                                           com o cartao FECHADO — o mesmo motivo dos selos de
+                                           confrontacao, identidade e validacao. O rotulo, a classe e
+                                           o `title` vem prontos do nucleo (`core.dna_analysis`,
+                                           `_selo_da_endogamia`); o template nao decide texto. #}
+                                        {% if result.endogamia and result.endogamia.selo %}
+                                            <span class="badge {{ result.endogamia.selo.classe }}" title="{{ result.endogamia.selo.titulo }}">{{ result.endogamia.selo.rotulo }}</span>
+                                        {% endif %}
+                                        {# O veredito da confrontacao sobe para o cabeçalho. Antes ele vivia so
+                                           na secao 4, e numa lista longa era preciso rolar ate la para saber o
+                                           que o cartao tinha concluido — que e a informacao que decide se vale
+                                           ler o resto. O selo e o MESMO (`estado-<status>`), entao a cor nao
+                                           muda de sentido entre o indice, o cabecalho e a secao 4. #}
+                                        {% if result.comparison %}
+                                            {# O rotulo vem de `confrontacao_rotulo`, e NAO de
+                                               `comparison.label`, porque os dois eixos nao podem
+                                               se contradizer no mesmo cabecalho. Medido num
+                                               cartao real: o selo dizia "Compatível" e o aviso
+                                               logo abaixo dizia "nenhuma pessoa com essa idade
+                                               pode ter doado DNA" — os dois certos sobre eixos
+                                               diferentes (o cM cabe na faixa; a identidade nao
+                                               fecha), mas o selo e o mais visivel. Quando a
+                                               janela de vida e impossivel, o rotulo passa a
+                                               dizer os dois. O veredito em si (`comparison`)
+                                               fica intacto, e a secao 4 continua mostrando o
+                                               confronto de cM, que e outra pergunta. #}
+                                            {# O SELLO COMBINADO NAO USA O PREFIXO `estado-`.
+                                               Aquele prefixo e reivindicado por
+                                               `.badge[class*="estado-"]{color:#fff}`, que existe
+                                               para os QUATRO estados — cor cheia com texto branco.
+                                               Este selo e da familia de aviso (creme com texto
+                                               vermelho), e com o prefixo `estado-` o branco vencia
+                                               e o texto sumia: 1,11:1 de contraste, medido em
+                                               2026-10-14. Ver `.identidade-impossivel` na folha. #}
+                                            <span class="badge {% if result.confrontacao_efetiva == 'identidade_impossivel' %}identidade-impossivel{% else %}estado-{{ result.confrontacao_efetiva }}{% endif %}" title="{{ result.comparison.detail or '' }}">{{ result.confrontacao_rotulo }}</span>
+                                        {% endif %}
+                                        {# O SELO DA IDENTIDADE, ao lado dos outros dois. Ele nao e um
+                                           quarto veredito de confrontacao: diz de QUEM e o cartao, e
+                                           por isso vem antes de qualquer conclusao sobre o cM. Sem
+                                           ele, um cartao como o da "Therezinha" que o CSV pede e sai
+                                           com o nome de outra pessoa da familia passa por bom. #}
+                                        {% if result.identidade == 'a_confirmar' %}
+                                            <span class="badge identidade-a-confirmar" title="{{ result.identidade_aviso }}">Identidade a confirmar</span>
+                                        {% endif %}
+                                        {# O VEREDITO DE VIABILIDADE TEMPORAL (feature 031). Sobe para o
+                                           cabecalho pelo mesmo motivo dos outros sinais: e' o que decide se
+                                           vale abrir o cartao. O selo so' existe quando o veredito CONCLUI —
+                                           "Inconclusivo" nao ganha selo, senao marcaria quase todos os 142
+                                           cartoes e deixaria de marcar algum. A classe vem pronta do nucleo e
+                                           NAO contem `estado-`: aquele prefixo pinta o texto de branco, e este
+                                           selo e' de contorno (ver `.validacao-*` na folha). O literal de
+                                           maquina `ERRO CRONICO / QUEBRA DE LINHA` fica no `title`, com o
+                                           motivo e o codigo da anomalia. #}
+                                        {% if result.validacao_rotulo %}
+                                            <span class="badge {{ result.validacao_classe }}" title="{{ result.validacao_aviso or '' }}">{{ result.validacao_rotulo }}<span class="visually-hidden">: veredito de validação temporal da linha documental</span></span>
+                                        {% endif %}
+                                        </span>
+                                        {# O CAMINHO DE VOLTA e o indicador de abrir/fechar ficam no
+                                           MESMO contêiner flex. Antes, o "Voltar" era um item do grid e
+                                           o chevron era um `::after` absoluto do `summary`: quando o
+                                           cabeçalho ganhava um selo novo e crescia, os dois passavam a
+                                           ser posicionados por referências diferentes e desalinhavam.
+                                           Agora o grupo inteiro é uma coluna do grid, centrada como um
+                                           bloco único. #}
+                                        <span class="controles-do-cabecalho">
+                                        {# O CAMINHO DE VOLTA. Sem ele, o operador que le a analise
+                                           completa — cinco secoes, com tabelas e grafo — so chega
+                                           a lista de novo rolando a pagina inteira de volta.
+
+                                           E um LINK, e nao um botao com `action`, pela mesma
+                                           razao do "escolher outra arvore" da tela de busca:
+                                           ele volta por ancora, sem POST, sem passar pelo
+                                           despacho de `action` e sem descartar o estado do
+                                           resultado. O alvo e' o titulo `#resultados`, que
+                                           substituiu a tabela do indice (adendo 019), e o par
+                                           e preso por teste.
+
+                                           O TEXTO VISIVEL fica curto ("Voltar"), porque o
+                                           cartao ja esta sob o titulo "Resultado da Analise"; o
+                                           `visually-hidden` e que diz a quem usa leitor de tela
+                                           para ONDE o link volta, ja que "Voltar" sozinho nao
+                                           nomeia destino nenhum. #}
+                                        <a class="voltar-ao-indice" href="#resultados">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
+                                        {# O INDICADOR e decorativo: quem abre e fecha e o
+                                           `summary`. O desenho e o mesmo chevron de antes, mas
+                                           agora dentro da caixa e no fluxo, para o alinhamento
+                                           nao depender da altura do cabecalho. #}
+                                        <span class="indicador-de-abrir" aria-hidden="true"></span>
+                                        </span>
+                                        {# A SEGUNDA LINHA DO CABECALHO — o que a tabela do indice
+                                           dava e que so ela dava: Parentesco, Janela de vida e
+                                           Profundidade. Elas existiam para o operador NAO ter de
+                                           abrir cartao por cartao; com a tabela fora, este e o
+                                           unico lugar que ainda faz isso, e por isso o cartao
+                                           nasce fechado sem esconder o achado.
+
+                                           Um `span` e nao um `<div>`: um `div` aqui fecharia o
+                                           `card-header` cedo para o extrator de teste, que le
+                                           o cabecalho ate o primeiro `</div>`. O `clear:both`
+                                           da folha e que o joga para baixo do "Voltar", que
+                                           e' flutuante. #}
+                                        <span class="cabecalho-sinais">
+                                            <span class="rotulo-parentesco">{{ result.documentary.label if result.documentary else '—' }}</span>
+                                            {% if result.janela_de_vida == 'impossivel' and result.documentary and result.documentary.path %}
+                                                <span class="badge parentesco-do-registro" title="{{ result.janela_aviso }}">não atribuível ao doador<span class="visually-hidden">: este parentesco é o do registro escolhido, e não o do doador</span></span>
+                                            {% endif %}
+                                            {% if result.janela_de_vida == 'impossivel' %}
+                                                <span class="badge janela-impossivel" title="{{ result.janela_aviso }}">{{ result.idade_na_arvore }} anos<span class="visually-hidden">: idade impossível para quem doou o DNA</span></span>
+                                            {% elif result.janela_de_vida == 'suspeita' %}
+                                                <span class="badge janela-suspeita" title="{{ result.janela_aviso }}">{{ result.idade_na_arvore }} anos<span class="visually-hidden">: idade acima do plausível</span></span>
+                                            {% elif result.janela_de_vida == 'data_imprecisa' %}
+                                                <span class="badge janela-imprecisa" title="{{ result.janela_aviso }}">estimada<span class="visually-hidden">: data de nascimento estimada</span></span>
+                                            {% endif %}
+                                            {% if result.profundidade == 'divergencia' %}
+                                                <span class="badge profundidade-divergencia" title="{{ result.profundidade_aviso }}">{{ result.profundidade_razao | round(1) }}×<span class="visually-hidden">: a árvore afirma o dobro de gerações que este kit estima</span></span>
+                                            {% elif result.profundidade == 'atencao' %}
+                                                <span class="badge profundidade-atencao" title="{{ result.profundidade_aviso }}">{{ result.profundidade_razao | round(1) }}×<span class="visually-hidden">: diferença de profundidade a conferir</span></span>
+                                            {% endif %}
+                                        </span>
+                                        </span>
+                                    </h5>
+                                </div>
+                                </summary>
+                                <div class="card-body">
+
+                                    {# ---------------- 0. VEREDICTO DO DOADOR ---------------- #}
+                                    {# O PRIMEIRO bloco do cartao, quando a data do registro nao
+                                       permite que ele tenha doado o DNA.
+                                       INATINGIVEL DESDE 2026-10-14, pela regra do adendo
+                                       `016-janela-de-vida-veta-o-parentesco`: quando a janela
+                                       de vida e `impossivel`, o cartao passa a ser tratado
+                                       como "Parentesco documental nao encontrado" e o
+                                       caminho nao chega a ser montado — entao nao ha
+                                       diagrama para recolher nem parentesco para
+                                       ressalvar. O ramo fica porque a regra e reversivel
+                                       numa linha (`core.dna_analysis`), e apaga-lo agora
+                                       esconderia o que a reversao teria de restaurar. Nao substitui o aviso da
+                                       janela de vida (0b), que traz os NUMEROS: este diz o que
+                                       fazer com o que vem abaixo.
+                                       O caminho documental NAO e apagado. A arvore realmente tem
+                                       esse caminho, e apresentar a secao 1 como "nao encontrado"
+                                       seria falso — e mandaria o operador procurar registro
+                                       faltando quando o trabalho e procurar homonimo. O que muda
+                                       e a MOLDURA: o parentesco passa a ser apresentado como o DO
+                                       REGISTRO, e o vinculo entre o DNA e esta arvore fica
+                                       declarado como desconhecido. #}
+                                    {% if result.janela_de_vida == 'impossivel' and result.documentary and result.documentary.path %}
+                                        <div class="veredicto-do-doador" role="alert">
+                                            <strong>Nenhum parentesco atribuível ao doador.</strong>
+                                            O GEDCOM <em>tem</em> um caminho para este nome, e ele está preservado
+                                            abaixo — mas o registro escolhido pela busca por nome não pode ser quem
+                                            doou o DNA. O parentesco que você lê na seção 1 é
+                                            <strong>o do registro</strong>, não o do doador: o vínculo entre este
+                                            DNA e esta árvore continua desconhecido.
+                                        </div>
+                                    {% endif %}
+                                    {# ---------------- 0. IDENTIDADE A CONFIRMAR ---------------- #}
+                                    {# Vem ANTES das cinco secoes, e nao como rodape: e um aviso sobre de
+                                       QUEM e o cartao, e vale mais que qualquer numero abaixo dele.
+                                       O aviso nao decide nada e nao descarta o match — ele mostra os
+                                       dois nomes e devolve a conferencia a quem opera, que e a unica
+                                       coisa honesta a fazer enquanto a escolha for por semelhanca de
+                                       nome. `identidade_aviso` ja traz a frase montada no nucleo; o
+                                       template nao remonta texto de dominio. #}
+                                    {% if result.identidade == 'a_confirmar' %}
+                                        <div class="alerta-identidade" role="alert">
+                                            <strong>Identidade a confirmar.</strong>
+                                            {{ result.identidade_aviso }}
+                                            Confira a identidade antes de usar as conclusões desta conexão.
+                                        </div>
+                                    {% endif %}
+
+                                    {# ---------------- 0b. JANELA DE VIDA ---------------- #}
+                                    {# O SEGUNDO aviso sobre de QUEM e o cartao, e o mais grave dos dois: a
+                                       data do proprio registro escolhido nao permite que ele tenha doado
+                                       aquele DNA. Nao descarta o match — medido, 9 das 10 escolhas com
+                                       idade impossivel NAO tem candidato melhor, e descartar faria o
+                                       operador perder a evidencia genetica junto. O que ele faz e dizer
+                                       que o parentesco abaixo e o DO REGISTRO ESCOLHIDO, e nao o do
+                                       doador. Ver `core/janela_de_vida`. #}
+                                    {% if result.janela_de_vida in ('impossivel', 'suspeita', 'data_imprecisa') %}
+                                        <div class="alerta-janela alerta-janela-{{ result.janela_de_vida }}" role="alert">
+                                            <strong>{% if result.janela_de_vida == 'impossivel' %}Idade impossível para o doador do DNA.{% elif result.janela_de_vida == 'suspeita' %}Idade acima do plausível para o doador do DNA.{% else %}Data de nascimento estimada.{% endif %}</strong>
+                                            {{ result.janela_aviso }}
+                                        </div>
+                                    {% endif %}
+
+                                    {# ---------------- 0c. PROFUNDIDADE DO CAMINHO ---------------- #}
+                                    {# A TERCEIRA verificacao, e a unica que fala quando as duas
+                                       anteriores se calam. Ela nao pergunta se a pessoa pode estar
+                                       viva (janela de vida) nem se o cM cabe na faixa publicada
+                                       (confronto): pergunta se a arvore afirma a mesma
+                                       profundidade que o proprio kit informa. Nao descarta o match
+                                       e nao muda veredito nenhum — avisa, como as outras duas.
+                                       Ver `core.profundidade_do_caminho`. #}
+                                    {% if result.profundidade == 'divergencia' %}
+                                        <div class="alerta-profundidade alerta-profundidade-divergencia" role="alert">
+                                            <strong>A árvore afirma o dobro de gerações que este kit estima.</strong>
+                                            {{ result.profundidade_aviso }}
+                                        </div>
+                                    {% elif result.profundidade == 'atencao' %}
+                                        <div class="alerta-profundidade alerta-profundidade-atencao" role="alert">
+                                            <strong>Diferença de profundidade a conferir.</strong>
+                                            {{ result.profundidade_aviso }}
+                                        </div>
+                                    {% endif %}
+
+                                    {# ---------------- 1. PARENTESCO DOCUMENTAL ---------------- #}
+                                    {# O `if` externo mantem o template renderizavel por payload
+                                       antigo (so nome + cM), como o usado em tests/test_formatacao_cm.py. #}
+                                    {% if result.documentary %}
+                                    <div class="secao" style="margin-top:0; border-top:0; padding-top:0;">
+                                        <h5><span class="numero">1.</span> Parentesco documental</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
+
+                                        <p class="mb-1"><strong>Parentesco do registro escolhido:</strong>
+                                            {% if result.documentary.status == 'found' %}
+                                                <span class="badge bg-primary">{{ result.documentary.label }}</span>
+                                            {% elif result.documentary.status == 'ambiguous' %}
+                                                <span class="badge bg-warning text-dark">{{ result.documentary.label }}</span>
+                                                <span class="documental-ambiguo">— identidade ambígua</span>
+                                            {% elif result.documentary.status == 'affinity' %}
+                                                <span class="badge bg-info text-dark">{{ result.documentary.label }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ result.documentary.label }}</span>
+                                            {% endif %}
+                                        </p>
+
+                                        {% if result.documentary.degrees and result.documentary.meioses %}
+                                            <p class="mb-1 small text-muted">
+                                                Distância geracional: {{ result.documentary.degrees.a_up }} gerações acima do ancestral comum no lado de
+                                                <strong>{{ result.documentary.person_a.name }}</strong> e
+                                                {{ result.documentary.degrees.b_up }} no lado de
+                                                <strong>{{ result.documentary.person_b.name }}</strong>
+                                                ({{ result.documentary.meioses }} saltos pai-filho entre as duas pessoas).
+                                            </p>
+                                        {% endif %}
+
+                                        <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong>
+                                            {% if result.text_path %}{{ result.text_path }}{% else %}<em>nenhum caminho encontrado</em>{% endif %}
+                                        </p>
+
+                                        {% if result.documentary.common_ancestor %}
+                                            <p class="mb-1"><strong>Ancestral comum (MRCA) do caminho exibido:</strong>
+                                                {{ result.documentary.common_ancestor.name }}
+                                                {% if result.documentary.common_ancestor.birth %}({{ result.documentary.common_ancestor.birth }}){% endif %}
+                                            </p>
+                                        {% endif %}
+
+                                        {% if result.documentary.common_ancestors and result.documentary.common_ancestors | length > 1 %}
+                                            <details class="mb-2">
+                                                <summary><strong>Ancestrais comuns encontrados ({{ result.documentary.common_ancestors | length }})</strong></summary>
+                                                <ul class="mb-0">
+                                                    {% for ancestral in result.documentary.common_ancestors %}
+                                                        <li>{{ ancestral.name }} — {{ ancestral.distance_a }} + {{ ancestral.distance_b }} gerações ({{ ancestral.total_meioses }} meioses)</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.additional_paths %}
+                                            <details class="mb-2">
+                                                <summary><strong>Mais de um caminho genealógico encontrado ({{ result.documentary.additional_paths | length }} adicional(is))</strong></summary>
+                                                <ul class="mb-0">
+                                                    {% for caminho in result.documentary.additional_paths %}
+                                                        <li>Caminho via <strong>{{ caminho.ancestor_name }}</strong> ({{ caminho.total_meioses }} meioses):
+                                                            {{ caminho.names | join(' → ') }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.evidence %}
+                                            <details class="mb-2">
+                                                <summary><strong>Evidências usadas em cada salto (registro do GEDCOM)</strong></summary>
+                                                <div class="table-responsive mt-2">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Filho(a)</th>
+                                                                <th>Genitor declarado</th>
+                                                                <th>Família</th>
+                                                                <th>Nascimento do filho</th>
+                                                                <th>Nascimento do genitor</th>
+                                                                <th>Idade</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for linha in result.documentary.evidence %}
+                                                                <tr {% if linha.plausible is sameas false %}class="table-danger"{% endif %}>
+                                                                    <td>{{ linha.child_name }}<br><small class="text-muted">{{ linha.child_id }}</small></td>
+                                                                    <td>{{ linha.parent_name }}<br><small class="text-muted">{{ linha.parent_id }}</small></td>
+                                                                    <td>{{ linha.family_id or '—' }}</td>
+                                                                    <td>{{ linha.child_birth or '—' }}</td>
+                                                                    <td>{{ linha.parent_birth or '—' }}</td>
+                                                                    <td>
+                                                                        {% if linha.age_at_birth is none %}
+                                                                            sem data
+                                                                        {% else %}
+                                                                            {{ linha.age_at_birth }} anos
+                                                                            {% if linha.plausible is sameas false %}
+                                                                                <span class="badge bg-danger">incompatível</span>
+                                                                            {% endif %}
+                                                                        {% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </details>
+                                        {% endif %}
+
+                                        {% if result.documentary.homonyms and result.documentary.homonyms.exact_count > 1 %}
+                                            <div class="alerta-aviso">
+                                                <strong>Homônimos no GEDCOM ({{ result.documentary.homonyms.exact_count }} registros).</strong>
+                                                A escolha do registro não foi silenciosa: compare as fichas abaixo.
+                                                <div class="table-responsive mt-2">
+                                                    <table class="table table-sm table-bordered tabela-evidencia align-middle mb-0">
+                                                        <thead class="table-light">
+                                                            <tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Local</th><th>Falecimento</th><th>Pais</th><th>Filhos</th></tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for ficha in result.documentary.homonyms.exact_matches %}
+                                                                <tr>
+                                                                    <td>{{ ficha.id }}</td>
+                                                                    <td>{{ ficha.name }}</td>
+                                                                    <td>{{ ficha.birth or '—' }}</td>
+                                                                    <td>{{ ficha.birth_place or '—' }}</td>
+                                                                    <td>{{ ficha.death or '—' }}</td>
+                                                                    <td>{{ ficha.parent_names | join(', ') if ficha.parent_names else '—' }}</td>
+                                                                    <td>{{ ficha.children | length }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if result.mermaid_data %}
+                                            <details class="grafo-do-registro"{% if result.janela_de_vida != 'impossivel' %} open{% endif %}>
+                                                {# O TITULO DIZ DE QUEM E O DESENHO. Sem ele, a
+                                                   cadeia de 12 ou 13 caixas se apresenta como a
+                                                   resposta; com ele, o operador sabe que abriu o
+                                                   caminho do REGISTRO. Recolhido quando a janela
+                                                   de vida e impossivel: o grafo nao some, so deixa
+                                                   de ser a primeira coisa a ler.
+                                                   INATINGIVEL DESDE 2026-10-14 pela regra do
+                                                   adendo `016`: com a janela impossivel o caminho
+                                                   nao e montado, entao nao ha diagrama para
+                                                   recolher. O ramo fica porque a regra e
+                                                   reversivel numa linha. #}
+                                                <summary>
+                                                    {% if result.janela_de_vida == 'impossivel' %}
+                                                        Caminho do registro escolhido no GEDCOM — <strong>não é o caminho do doador</strong>
+                                                    {% else %}
+                                                        Caminho genealógico no GEDCOM
+                                                    {% endif %}
+                                                </summary>
+                                                <div class="graph-container mt-2"><div class="mermaid">{{ result.mermaid_data | safe }}</div></div>
+                                                {# A LEGENDA DO DIAGRAMA.
+                                                   O diagrama mistura tres cores que existiam desde
+                                                   sempre (verde = quem pediu a analise, vermelho =
+                                                   quem o relatorio de DNA indicou, amarelo =
+                                                   ancestral comum que o GEDCOM afirma) com as marcas
+                                                   da profundidade. Nenhuma delas estava explicada em
+                                                   lugar nenhum da tela: um desenho colorido sem
+                                                   legenda obriga o operador a adivinhar, e adivinhar
+                                                   cor e adivinhar conclusao.
+                                                   A legenda e CONTEXTUAL: descreve o que ESTE
+                                                   diagrama tem. Listar uma cor que nao esta no
+                                                   desenho e ruido; omitir uma que esta seria pior que
+                                                   nao ter legenda. Por isso a marca do ancestral muda
+                                                   de FORMA (amarelo liso, ou amarelo com contorno
+                                                   vermelho tracejado) em vez de virar dois itens que
+                                                   se contradizem. Ver
+                                                   `reporting.mermaid_render.anotar_profundidade`. #}
+                                                <div class="legenda-do-grafo">
+                                                    <p class="legenda-titulo">Como ler as cores do diagrama</p>
+                                                    <ul>
+                                                        <li>
+                                                            <span class="legenda-marca legenda-raiz"></span>
+                                                            <strong>{{ result.documentary.person_a.name if result.documentary and result.documentary.person_a else 'A raiz da análise' }}</strong>
+                                                            — você, o ponto de partida desta análise
+                                                        </li>
+                                                        <li>
+                                                            <span class="legenda-marca legenda-match"></span>
+                                                            <strong>{{ result.match_name }}</strong>
+                                                            — a pessoa do GEDCOM que o relatório de DNA indicou
+                                                        </li>
+                                                        <li>
+                                                            {% if result.profundidade == 'divergencia' %}
+                                                                <span class="legenda-marca legenda-ancestral-nao-sustentado"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                                — <strong>com o elo que o DNA não sustenta</strong>
+                                                            {% elif result.profundidade == 'atencao' %}
+                                                                <span class="legenda-marca legenda-ancestral-nao-sustentado"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                                — <strong>com uma diferença de profundidade a conferir</strong>
+                                                            {% else %}
+                                                                <span class="legenda-marca legenda-ancestral"></span>
+                                                                O ancestral comum que o GEDCOM afirma
+                                                            {% endif %}
+                                                        </li>
+                                                        {% if result.profundidade_no_sugerido %}
+                                                            <li>
+                                                                <span class="legenda-marca legenda-sugerido"></span>
+                                                                Onde o <strong>DNA</strong> sugere o ancestral comum
+                                                                — mais perto que a árvore afirma. É uma pessoa que já
+                                                                estava neste caminho: nada foi inventado no meio dele
+                                                            </li>
+                                                        {% endif %}
+                                                        <li>
+                                                            <span class="legenda-marca legenda-neutro"></span>
+                                                            Sem destaque: o caminho documental comum, sem ressalva
+                                                        </li>
+                                                    </ul>
+                                                    {# O BLOCO INFORMATIVO.
+                                                       Ele nasceu DENTRO do grafo, como um no solto
+                                                       ao lado do desenho — e num `flowchart` toda
+                                                       caixa parece um parente: o operador que ve uma
+                                                       caixa no grafo espera que ela seja uma pessoa
+                                                       ou um vinculo. Aqui ele esta onde sempre
+                                                       deveria ter estado, como TEXTO, separado do
+                                                       desenho, dizendo em uma frase o que os numeros
+                                                       do cartao querem dizer.
+                                                       O texto e montado no nucleo
+                                                       (`core.profundidade_do_caminho`), e nao no
+                                                       template: o template nao remonta frase de
+                                                       dominio. #}
+                                                    {% if result.profundidade_resumo %}
+                                                        <p class="legenda-informativa">
+                                                            <strong>O que os números mostram.</strong>
+                                                            {{ result.profundidade_resumo }}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                            </details>
+                                        {% endif %}
+                                        {# A ÁRVORE SUGERIDA (feature 032). Fica logo abaixo do diagrama
+                                           documentado para o operador comparar os dois sem rolar o cartão:
+                                           em cima, o que o GEDCOM afirma; embaixo, como a linha ficaria se
+                                           o hiato for preenchido.
+                                           O resumo fica no TÍTULO, visível sem clique, porque é ele que
+                                           responde "quantas gerações faltam"; o desenho carrega quando o
+                                           operador abre, e o JS já re-renderiza qualquer `details` com
+                                           `.mermaid`. Nenhum nome de pessoa é inventado: os nós são
+                                           `Geração k`. #}
+                                        {% if result.sugestao_resumo and result.sugestao_mermaid %}
+                                            <details class="arvore-sugerida">
+                                                <summary>
+                                                    Árvore sugerida — <strong>{{ result.sugestao_resumo }}</strong><span class="visually-hidden">: gerações intermediárias que o cM estima entre o ancestral e o primeiro descendente documentado, com a conexão rompida marcada</span>
+                                                </summary>
+                                                <div class="graph-container mt-2"><div class="mermaid">{{ result.sugestao_mermaid | safe }}</div></div>
+                                            </details>
+                                        {% elif result.sugestao_aviso %}
+                                            <p class="legenda-informativa sem-sugestao">
+                                                <strong>Árvore sugerida.</strong> {{ result.sugestao_aviso }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {# ---------------- 2. EVIDÊNCIA GENÉTICA ---------------- #}
+                                    {% if result.genetic_evidence %}
+                                    <div class="secao">
+                                        <h5><span class="numero">2.</span> Evidência genética</h5>
+                                        <p class="rotulo-fonte mb-2">Fonte: {{ result.genetic_evidence.source or 'não identificada no CSV' }}</p>
+                                        {% if result.genetic_evidence.available %}
+                                            {% for kit in result.genetic_evidence.kits %}
+                                                {# A tabela de 9 linhas virou GRADE. Os rotulos sao os MESMOS, e o
+                                                   que mudou foi a forma: `dl` em grade cabe na largura e deixa o
+                                                   numero que importa (o DNA compartilhado) no tamanho de leitura
+                                                   rapida, em vez de nove linhas de altura por kit. As posicoes
+                                                   saem para um `details` porque sao o detalhe miudo — o resumo
+                                                   do kit e o que se le primeiro. #}
+                                                <dl class="kit-grid">
+                                                    <div><dt>DNA compartilhado</dt><dd class="destaque">{{ kit.total_cm | cm_br }} cM</dd></div>
+                                                    <div><dt>Maior segmento</dt><dd>{{ kit.largest_segment_cm | cm_br }} cM</dd></div>
+                                                    <div><dt>Segmentos</dt><dd>{{ kit.segment_count }}</dd></div>
+                                                    <div><dt>SNPs</dt><dd>{{ kit.snps_total | inteiro_br }}</dd></div>
+                                                    <div><dt>Pessoa (como está no CSV)</dt><dd>{{ kit.person_name_csv }}</dd></div>
+                                                    <div><dt>Kit</dt><dd>{{ kit.kit or 'não informado no CSV' }}</dd></div>
+                                                    <div><dt>Cromossomo(s)</dt><dd>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</dd></div>
+                                                    <div><dt>Método do valor</dt><dd>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</dd></div>
+                                                </dl>
+                                                <details class="mb-3">
+                                                    <summary>Posições</summary>
+                                                    <div class="mt-2">
+                                                        {% for segmento in kit.segments %}
+                                                            {% if segmento.chromosome or segmento.start %}
+                                                                chr{{ segmento.chromosome or '?' }}:
+                                                                {{ segmento.start | inteiro_br }}–{{ segmento.end | inteiro_br }}
+                                                                ({{ segmento.cm | cm_br }} cM{% if segmento.snps %}, {{ segmento.snps | inteiro_br }} SNPs{% endif %})<br>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </details>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted">Sem evidência genética disponível para esta pessoa.</p>
+                                        {% endif %}
+                                        {# O BLOCO DA ENDOGAMIA (secao 2). Fica FORA do laco de kits
+                                           porque o diagnostico de grafo e do CARTAO, e porque cada
+                                           resultado carrega um kit so. So aparece quando ha fato —
+                                           sem descarte, sem bloco fraco e sem colapso, o cartao nao
+                                           ganha uma caixa vazia. O texto do diagnostico vem do
+                                           nucleo; o template so le os numeros e os rotulos. #}
+                                        {% if result.endogamia and (result.endogamia.segmentos_descartados or result.endogamia.segmentos_sem_valor or result.endogamia.evidencia_fraca or result.endogamia.arvore.endogamia_estrutural) %}
+                                            <div class="endogamia-bloco">
+                                                <p class="endogamia-titulo">
+                                                    {% if result.endogamia.arvore.endogamia_estrutural and result.endogamia.selo %}
+                                                        {{ result.endogamia.selo.rotulo }}
+                                                    {% else %}
+                                                        Filtro de endogamia
+                                                    {% endif %}
+                                                </p>
+                                                <dl class="endogamia-grade">
+                                                    <div><dt>Total bruto (arquivo)</dt><dd>{{ result.endogamia.cm_bruto | cm_br }} cM</dd></div>
+                                                    <div><dt>Total após filtro (≥ {{ result.endogamia.limiares.segmento | cm_br }} cM)</dt><dd class="destaque-endogamia">{{ result.endogamia.total_cm | cm_br }} cM</dd></div>
+                                                    <div><dt>Segmentos descartados</dt><dd>{{ result.endogamia.segmentos_descartados }}{% if result.endogamia.segmentos_descartados %} ({{ result.endogamia.cm_descartado | cm_br }} cM){% endif %}</dd></div>
+                                                    <div><dt>Maior bloco após filtro</dt><dd>{% if result.endogamia.maior_segmento_cm is not none %}{{ result.endogamia.maior_segmento_cm | cm_br }} cM{% else %}—{% endif %}</dd></div>
+                                                    {% if result.endogamia.segmentos_sem_valor %}
+                                                        <div><dt>Linhas sem cM</dt><dd>{{ result.endogamia.segmentos_sem_valor }}</dd></div>
+                                                    {% endif %}
+                                                    {% if result.endogamia.arvore.endogamia_estrutural %}
+                                                        <div><dt>Caminhos mais curtos</dt><dd>{{ result.endogamia.arvore.quantidade_de_caminhos }}{% if result.endogamia.arvore.truncado %}+{% endif %}</dd></div>
+                                                    {% endif %}
+                                                </dl>
+                                                {% if result.endogamia.arvore.endogamia_estrutural %}
+                                                    {# A EXPLICACAO separa o achado estrutural do parentesco
+                                                       documental. Texto do nucleo; o template so o exibe. #}
+                                                    {% if result.endogamia.arvore.explicacao %}
+                                                        <p class="endogamia-texto">{{ result.endogamia.arvore.explicacao }}</p>
+                                                    {% endif %}
+                                                    {# As RECONVERGENCIAS sao o ponto em que as rotas se
+                                                       bifurcam e voltam ao mesmo no — a informacao que o
+                                                       rotulo antigo "MRCA" escondia atras do tronco inteiro. #}
+                                                    {% if result.endogamia.arvore.reconvergencias %}
+                                                        <p class="endogamia-subtitulo">Reconvergências</p>
+                                                        <ul class="endogamia-reconvergencias">
+                                                            {% for rec in result.endogamia.arvore.reconvergencias %}
+                                                                <li>
+                                                                    <strong>{{ rec.divergencia_nome }}</strong> → <strong>{{ rec.convergencia_nome }}</strong>
+                                                                    {% if rec.trechos %}
+                                                                        <span class="endogamia-trechos">
+                                                                            {% for trecho in rec.trechos %}{{ trecho.nomes | join(' → ') }}{% if not loop.last %} <em>ou</em> {% endif %}{% endfor %}
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p class="endogamia-texto">As rotas só compartilham as pontas: não há reconvergência interna isolada.</p>
+                                                    {% endif %}
+                                                    {# O TRONCO COMUM inteiro fica recolhido: e informacao de
+                                                       apoio, nao o diagnostico. #}
+                                                    {% if result.endogamia.arvore.tronco_comum_nomes %}
+                                                        <details class="endogamia-tronco">
+                                                            <summary>Tronco comum ({{ result.endogamia.arvore.tronco_comum_nomes | length }} pessoas)</summary>
+                                                            <p>{{ result.endogamia.arvore.tronco_comum_nomes | join(', ') }}</p>
+                                                        </details>
+                                                    {% endif %}
+                                                {% endif %}
+                                                {% if result.endogamia.mensagem %}
+                                                    <p class="endogamia-texto">{{ result.endogamia.mensagem }}</p>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {# ---------------- 3. POSSIBILIDADES PELO DNA ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+                                        {% if result.hypotheses %}
+                                            <p class="mb-2">Com base na quantidade de DNA compartilhada, existem diferentes possibilidades de relacionamento.</p>
+                                            {% for bloco in result.hypotheses %}
+                                                <p class="mb-1">
+                                                    <strong>Kit {{ bloco.kit or 'não informado' }}</strong> — {{ bloco.total_cm | cm_br }} cM
+                                                    {% if bloco.confidence %}<span class="badge bg-light text-dark">confiança: {{ bloco.confidence }}</span>{% endif %}
+                                                </p>
+                                                {% if bloco.possible_relationships %}
+                                                    <ul>
+                                                        {% for possibilidade in bloco.possible_relationships %}
+                                                            <li>{{ possibilidade.name_pt }}
+                                                                <small class="text-muted">({{ possibilidade.range_low }}–{{ possibilidade.range_high }} cM na fonte; média {{ possibilidade.average }} cM)</small>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <p class="text-muted">Nenhuma relação publicada cobre exatamente este valor.</p>
+                                                {% endif %}
+                                                <p class="small text-muted">{{ bloco.interpretation }} {{ bloco.confidence_note }}</p>
+                                            {% endfor %}
+                                            <div class="alert alert-warning py-2 mb-0">
+                                                <strong>Atenção:</strong> essas possibilidades são estatísticas, vêm das faixas publicadas do
+                                                Shared cM Project 4.0 ({{ result.hypotheses[0].reference.version }}) e <b>não</b> representam confirmação
+                                                do parentesco documental. As distribuições das relações se sobrepõem: o mesmo valor de cM cabe em
+                                                várias delas. Endogamia e colapso de pedigree aumentam o cM esperado e alargam ainda mais essas faixas.
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted">Sem evidência genética, não há possibilidades de parentesco pelo DNA a listar.</p>
+                                        {% endif %}
+                                    </div>
+
+                                    {# ---------------- 4. CONFRONTAÇÃO ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">4.</span> Confrontação GEDCOM × DNA</h5>
+                                        {% if result.comparison %}
+                                            <p class="mb-2">Status:
+                                                <span class="badge estado-{{ result.comparison.status }}">{{ result.comparison.label }}</span>
+                                            </p>
+                                            {# O selo desta secao e o do eixo do cM, e nao o do
+                                               cabecalho: aqui a pergunta e se o cM cabe na faixa
+                                               publicada para o parentesco documental. Quando a
+                                               identidade nao fecha, os dois numeros podem ser
+                                               verdadeiros ao mesmo tempo, e a linha abaixo diz
+                                               isso em vez de deixar o operador escolher entre
+                                               dois selos contraditorios. #}
+                                            {% if result.confrontacao_efetiva == 'identidade_impossivel' %}
+                                                <p class="small text-muted mb-2">
+                                                    Este veredito é sobre o cM e o parentesco documental, e continua valendo
+                                                    como leitura do <strong>registro escolhido</strong>. Ele não diz que o doador
+                                                    é essa pessoa: a idade do registro não permite que ela tenha doado o DNA
+                                                    — veja o aviso no topo do cartão.
+                                                </p>
+                                            {% endif %}
+                                            <p class="mb-2">{{ result.comparison.message }}</p>
+                                            {% if result.comparison.detail %}
+                                                <p class="small text-muted mb-2">{{ result.comparison.detail }}</p>
+                                            {% endif %}
+                                            {% if result.comparison.expected_range %}
+                                                <p class="small mb-2">
+                                                    Faixa esperada para o parentesco documental:
+                                                    <strong>{{ result.comparison.expected_range.low }}–{{ result.comparison.expected_range.high }} cM</strong>
+                                                    ({{ result.comparison.expected_range.label }})
+                                                </p>
+                                            {% endif %}
+                                            {% if result.comparison.per_kit %}
+                                                <ul class="small mb-2">
+                                                    {% for avaliacao in result.comparison.per_kit %}
+                                                        <li>Kit {{ avaliacao.kit or 'não informado' }}:
+                                                            <strong>{{ avaliacao.status }}</strong> — {{ avaliacao.note }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                            {% if result.comparison.causes %}
+                                                <details>
+                                                    <summary><strong>Possível conflito entre evidências — causas a verificar</strong></summary>
+                                                    <ul class="mt-2">
+                                                        {% for causa in result.comparison.causes %}
+                                                            <li>{{ causa }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </details>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+
+                                    {# ---------------- 5. OBSERVAÇÕES ---------------- #}
+                                    <div class="secao">
+                                        <h5><span class="numero">5.</span> Observações</h5>
+                                        {% if result.observations %}
+                                            {% for observacao in result.observations %}
+                                                <div class="alerta-aviso">{{ observacao }}</div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted small mb-0">Nenhum alerta para esta conexão.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </details>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if skipped_matches %}
+                      {# OS DESCARTADOS TAMBEM RECOLHEM, pelo mesmo motivo dos cartoes: sao
+                         centenas de linhas que o operador raramente le, e o numero no resumo ja
+                         diz de relance o que ele precisa saber. O resumo E' o titulo — o `<h2>`
+                         que existia virou o proprio `<summary>`, e nao um cabecalho acima dele.
+
+                         O comentario mora DENTRO do `{% if %}` de proposito: fora dele ele
+                         acrescentaria um salto de linha a tela de ENTRADA, onde
+                         `skipped_matches` e' indefinido e este bloco nao renderiza — e o hash
+                         daquela tela e' contrato congelado (`tests/test_icone_de_atalho.py`).
+
+                         FORA DOS BOTOES DE EXPANDIR/RECOLHER: aqueles dizem "Expandir todas as
+                         analises", e arrastar 266 descartes junto seria surpresa. #}
+                      <details class="card bloco-descartados">
+                        {# A QUEM A ARVORE OFERECIA (feature 034). O bloco existia desde a `020`
+                           como uma lista de motivos tecnicos — e um motivo tecnico nao diz ao
+                           operador se o descarte foi acerto ou perda. Agora cada linha mostra
+                           os candidatos que o nucleo avaliou, com ano de nascimento: o ano e'
+                           o que separa "quase acertou" de "homonimo de outro seculo".
+                           Medido no GEDCOM real: 76 dos 364 descartes tem candidato, e 7 deles
+                           levariam caminho novo. Os outros 288 nao tem ninguem compativel, e
+                           continuam so' com o motivo. #}
+                        {% set nd = namespace(com_candidato=0) %}
+                        {% for item in skipped_matches %}
+                          {% if item.candidatos | selectattr('compativel') | list %}{% set nd.com_candidato = nd.com_candidato + 1 %}{% endif %}
+                        {% endfor %}
+                        <summary class="sumario-do-cartao">
+                          <div class="card-header"><h5 class="mb-0">Matches descartados ({{ skipped_matches | length }}){% if nd.com_candidato %} · <strong>{{ nd.com_candidato }}</strong> com candidato na árvore{% endif %}</h5></div>
+                        </summary>
+                        <div class="card-body">
+                          <p class="text-muted">
+                            Estes nomes estavam no CSV, mas não foi possível ligá-los a nenhum registro do GEDCOM.
+                            Nada foi inferido a partir do DNA: o motivo da rejeição aparece abaixo.
+                            {% if nd.com_candidato %}
+                              Quando a árvore tem alguém com o mesmo prenome e sobrenome, os candidatos aparecem
+                              com o ano de nascimento — é o que permite decidir se vale corrigir a grafia, procurar
+                              homônimo ou aceitar o descarte.
+                            {% endif %}
+                          </p>
+
+                          {# A LISTA DE TRABALHO (feature 035). Os descartes se resolvem no
+                             cadastro da arvore, que acontece em outra ferramenta — esta acao
+                             leva a lista para la. O JSON viaja no proprio formulario porque a
+                             aplicacao nao tem sessao: sem ele, so' uma nova analise traria os
+                             mesmos dados de volta. Ver `reporting/csv_de_descartes.py`. #}
+                          <form method="POST" action="{{ url_for('descartes_em_csv') }}" class="mb-3">
+                            <input type="hidden" name="dados" value="{{ skipped_matches | tojson | forceescape }}">
+                            <button type="submit" class="botao-do-cartao">Baixar lista de trabalho (CSV)</button>
+                            <span class="text-muted small">com o motivo e os candidatos de cada nome; a coluna Motivo separa quem não tem sobrenome na árvore de quem tem o sobrenome e não o parente.</span>
+                          </form>
+
+                          <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                              <thead>
+                                <tr>
+                                  <th style="width:26%">Nome no CSV</th>
+                                  <th style="width:10%">Kit</th>
+                                  <th style="width:8%">cM</th>
+                                  <th style="width:34%">Candidatos na árvore</th>
+                                  <th>Motivo</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for item in skipped_matches %}
+                                  <tr>
+                                    <td><strong>{{ item.csv_name }}</strong></td>
+                                    <td>{{ item.kit or '—' }}</td>
+                                    <td>{{ item.cm | cm_br if item.cm is not none else '—' }}</td>
+                                    <td>
+                                      {# SO' O CANDIDATO COMPATIVEL ENTRA COMO LISTA (prenome parecido E
+                                         sobrenome em comum). Os demais avaliados sao uteis para explicar
+                                         a recusa, mas apresentados como "melhor avaliado" e em texto
+                                         fraco: medido no GEDCOM real, 281 descartes tem algum
+                                         candidato e apenas 76 tem um COMPATIVEL. Listar os 281 como
+                                         se fossem parentes seria ruido com cara de resposta. #}
+                                      {% set compativeis = item.candidatos | selectattr('compativel') | list %}
+                                      {% if compativeis %}
+                                        <ul class="list-unstyled mb-0 small candidatos-do-descarte">
+                                          {% for candidato in compativeis %}
+                                            <li>
+                                              <strong>{{ candidato.nome }}</strong>
+                                              {% if candidato.nascimento %}<span class="text-muted">(n. {{ candidato.nascimento }})</span>{% endif %}
+                                              <span class="text-muted">· prenome {{ candidato.prenome | round | int if candidato.prenome is not none else '—' }} · nota {{ candidato.nota if candidato.nota is not none else '—' }}</span>
+                                              {# A PROMOCAO (feature 034). Formulario PROPRIO, e nao um botao
+                                                 dentro do formulario da analise: o bloco fica fora dele e
+                                                 formulario aninhado nao e' HTML valido. Os campos repetem o
+                                                 que a analise original usou (arvore, raiz, CSV), porque a
+                                                 aplicacao nao tem sessao — e reenvia as promocoes ja feitas,
+                                                 para a segunda nao apagar a primeira.
+                                                 A DECISAO E' DO OPERADOR: nada e' promovido por nota. #}
+                                              <form method="POST" class="m-0 mt-1 promover-candidato">
+                                                <input type="hidden" name="action" value="dna_analysis">
+                                                <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                                <input type="hidden" name="matches_csv_filename" value="{{ csv_filename_usado }}">
+                                                <input type="hidden" name="root_name" value="{{ root_name_usado }}">
+                                                {% if dna_results %}
+                                                  {% for promovido in dna_results if promovido.promovido %}
+                                                    <input type="hidden" name="promover" value="{{ promovido.promovido.csv_name }}|{{ promovido.promovido.pid }}|{{ promovido.promovido.motivo }}">
+                                                  {% endfor %}
+                                                {% endif %}
+                                                <input type="hidden" name="promover" value="{{ item.csv_name }}|{{ candidato.id }}|{{ item.motivo }}">
+                                                <button type="submit" class="botao-do-cartao">usar este candidato</button>
+                                              </form>
+                                            </li>
+                                          {% endfor %}
+                                        </ul>
+                                      {% elif item.candidatos %}
+                                        {% set fraco = item.candidatos[0] %}
+                                        <span class="text-muted small">
+                                          sem candidato compatível — melhor avaliado: {{ fraco.nome }}
+                                          {% if fraco.nascimento %}(n. {{ fraco.nascimento }}){% endif %}
+                                          · prenome {{ fraco.prenome | round | int if fraco.prenome is not none else '—' }}
+                                          · nota {{ fraco.nota if fraco.nota is not none else '—' }}
+                                        </span>
+                                      {% else %}
+                                        <span class="text-muted">—</span>
+                                      {% endif %}
+                                    </td>
+                                    <td>{{ item.motivo }}</td>
+                                  </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+
+                        </div>
+                      </details>
+                    {% endif %}
+
+
+                    {% if path_result %}
+                        <h2 class="text-center mt-5">Parentesco documental encontrado no GEDCOM</h2>
+                        <div class="card">
+                            <div class="card-header"><h5>Conexão entre: <strong>{{ path_result.person1_name }}</strong> e <strong>{{ path_result.person2_name }}</strong></h5></div>
+                            <div class="card-body">
+                                <p class="rotulo-fonte mb-2">Fonte: GEDCOM — análise sem DNA</p>
+                                <p class="mb-1"><strong>Parentesco encontrado:</strong>
+                                    <span class="badge {% if path_result.documentary.status == 'found' %}bg-primary{% elif path_result.documentary.status == 'ambiguous' %}bg-warning text-dark{% elif path_result.documentary.status == 'affinity' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                                        {{ path_result.documentary.label }}
+                                    </span>
+                                </p>
+                                {% if path_result.documentary.degrees and path_result.documentary.meioses %}
+                                    <p class="mb-1 small text-muted">
+                                        Distância geracional: {{ path_result.documentary.degrees.a_up }} + {{ path_result.documentary.degrees.b_up }} gerações
+                                        ({{ path_result.documentary.meioses }} saltos pai-filho).
+                                    </p>
+                                {% endif %}
+                                <p class="mb-1"><strong>Caminho genealógico no GEDCOM:</strong> {{ path_result.text_path }}</p>
+                                {% if path_result.documentary.common_ancestor %}
+                                    <p class="mb-2"><strong>Ancestral comum (MRCA):</strong> {{ path_result.documentary.common_ancestor.name }}</p>
+                                {% endif %}
+
+                                {% if path_result.documentary.homonyms and path_result.documentary.homonyms.exact_count > 1 %}
+                                    <div class="alerta-aviso">
+                                        <strong>Homônimos no GEDCOM ({{ path_result.documentary.homonyms.exact_count }} registros).</strong>
+                                        A escolha do registro não foi silenciosa: confira os IDs e as datas antes de aceitar o resultado.
+                                    </div>
+                                {% endif %}
+
+                                {% if path_result.mermaid_data %}
+                                    <div class="graph-container"><div class="mermaid">{{ path_result.mermaid_data | safe }}</div></div>
+                                {% endif %}
+
+                                {% if path_result.observations %}
+                                    <h5 class="mt-4"><span class="numero">Observações</span></h5>
+                                    {% for observacao in path_result.observations %}
+                                        <div class="alerta-aviso">{{ observacao }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {# O grafo entra na MESMA identidade da tela. As cores aqui sao literais, e nao
+               `var(--...)`, porque o Mermaid desenha em SVG com os valores que recebe — ele nao
+               le a folha de estilo. O `graph-container` mantem fundo CLARO nos dois temas, e
+               estas cores foram escolhidas para ele: verde-folha na caixa, marrom do tronco na
+               borda e tinta escura no texto. #}
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'strict',
+                theme: 'base',
+                themeVariables: {
+                    fontFamily: 'IBM Plex Sans, sans-serif',
+                    primaryColor: '#E3EEEC', primaryBorderColor: '#2D5F5D',
+                    primaryTextColor: '#172B3A', lineColor: '#566772'
+                }
+            });
+            setTimeout(() => {
+                {# O DIAGRAMA RECOLHIDO NAO PODE SER RENDERIZADO FECHADO. O Mermaid mede o
+                   container para dimensionar o SVG, e dentro de um `details` fechado o
+                   elemento tem tamanho zero: o desenho sai quebrado e — pior — marcado como
+                   `data-processed`, entao abrir depois nao conserta. Por isso a rodada inicial
+                   PULA o que esta dentro de um `details` fechado, e o `toggle` renderiza na
+                   primeira abertura. #}
+                const desenhos = Array.from(document.querySelectorAll(".mermaid"))
+                    .filter((el) => !el.closest("details:not([open])"));
+                if (desenhos.length) {
+                    mermaid.run({ nodes: desenhos });
+                }
+                {# O MESMO CUIDADO VALE PARA O CARTAO INTEIRO, que agora tambem recolhe. O
+                   seletor deixou de ser `details.grafo-do-registro` e passou a ser QUALQUER
+                   `details` que contenha diagrama: o cartao em volta do grafo tem exatamente o
+                   mesmo problema — fechado, o container tem tamanho zero. A condicao
+                   `has(".mermaid")` evita pendurar ouvinte em `details` que nao desenha nada. #}
+                document.querySelectorAll("details").forEach((detalhe) => {
+                    if (!detalhe.querySelector(".mermaid")) return;
+                    detalhe.addEventListener("toggle", () => {
+                        if (!detalhe.open) return;
+                        const pendentes = Array.from(detalhe.querySelectorAll(".mermaid"))
+                            .filter((el) => !el.dataset.processed);
+                        if (pendentes.length) {
+                            mermaid.run({ nodes: pendentes });
+                        }
+                    });
+                });
+            }, 100);
+
+            {# O CARTAO DO ALVO ABRE SOZINHO. O indice manda o operador para `#resultado-N`, e com
+               os cartoes fechados por padrao o clique cairia num cartao recolhido — o operador
+               concluiria que o link nao funciona. Vale para o clique no indice E para quem abre
+               ou recarrega a pagina ja com o `#` na barra de enderecos. #}
+            const abrirCartaoDoAlvo = () => {
+                if (!location.hash) return;
+                const alvo = document.getElementById(location.hash.slice(1));
+                if (alvo && alvo.tagName === "DETAILS") alvo.open = true;
+            };
+            window.addEventListener("hashchange", abrirCartaoDoAlvo);
+            abrirCartaoDoAlvo();
+
+            {# O LINK DENTRO DO `summary` NAO PODE RECOLHER O CARTAO. O "Voltar" mora no cabecalho,
+               que agora e o proprio gatilho do `details`: sem esta guarda, clicar em "Voltar"
+               fecharia o cartao enquanto a pagina rola de volta ao indice. `stopPropagation` no
+               link corta o caminho do evento antes do `summary`, que e quem tem o comportamento
+               de alternar. #}
+            document.querySelectorAll("summary a").forEach((alvo) => {
+                alvo.addEventListener("click", (evento) => evento.stopPropagation());
+            });
+
+            const todosOsCartoes = () => Array.from(document.querySelectorAll("details.cartao-do-resultado"));
+            const expandir = document.getElementById("expandir-cartoes");
+            const recolher = document.getElementById("recolher-cartoes");
+            if (expandir) {
+                expandir.addEventListener("click", () => {
+                    todosOsCartoes().forEach((cartao) => { cartao.open = true; });
+                });
+            }
+            if (recolher) {
+                recolher.addEventListener("click", () => {
+                    todosOsCartoes().forEach((cartao) => { cartao.open = false; });
+                });
+            }
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            {# A GUARDA CONTRA O CANCELAMENTO. O botao "Apagar" abre um `confirm()` no `onsubmit`
+               da propria linha, e o `submit` so acontece se a pessoa confirmar. Sem a primeira
+               linha, CANCELAR tambem ligava o indicador e escondia a area de resultados — o
+               `confirm` barrava o envio, mas nao barrava este ouvinte, e a tela ficava travada
+               em "Analisando..." ate a pessoa recarregar. `defaultPrevented` e o sinal que o
+               `confirm` recusado deixa. #}
+            form.addEventListener('submit', function(e) {
+                if (e.defaultPrevented) return;
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results-area').style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

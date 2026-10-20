@@ -1,0 +1,18 @@
+# Testes novos: o antes e o depois
+# Data: 2026-10-20
+
+# ANTES de qualquer mudanca no template (as duas guardas ja existiam, o codigo ainda era o antigo)
+py -3.14 -m pytest tests/test_tres_fases_da_tela.py tests/test_combobox_de_nomes.py -q
+-> 20 failed, 4 passed
+
+# DEPOIS da implementacao
+py -3.14 -m pytest tests/test_tres_fases_da_tela.py tests/test_combobox_de_nomes.py -q
+-> 25 passed
+
+# Os 4 que passavam antes passavam por vacuidade (ex.: "sem arvore nao ha contador"), e
+# continuam passando com a regra implementada.
+#
+# Guardas da tela reunidas (icone/hash, tres fases, combobox, lista):
+py -3.14 -m pytest tests/test_icone_de_atalho.py tests/test_tres_fases_da_tela.py ^
+    tests/test_combobox_de_nomes.py tests/test_lista_na_tela.py -q
+-> 54 passed

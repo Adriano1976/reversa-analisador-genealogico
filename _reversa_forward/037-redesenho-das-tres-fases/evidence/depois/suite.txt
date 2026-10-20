@@ -1,0 +1,12 @@
+# Suite DEPOIS da feature 037
+# Data: 2026-10-20 05:12 -03:00
+# Comando: py -3.14 -m pytest -q
+
+1334 passed, 11 skipped, 1 warning in 94.73s (0:01:34)
+exit code 0
+
+# Antes (evidence/antes/suite.txt): 1309 passed, 11 skipped, 91.85s.
+# Delta: +25 testes, todos dos dois arquivos novos desta feature.
+#   tests/test_tres_fases_da_tela.py -> 16
+#   tests/test_combobox_de_nomes.py  ->  9
+# Nenhum teste removido, desabilitado ou renomeado.

@@ -1,0 +1,26 @@
+# Tela de entrada medida com pasta de uploads VAZIA e temporaria — DEPOIS
+# Data: 2026-10-20 05:10 -03:00
+# Metodo: o mesmo de evidence/antes/hash.txt (script %TEMP%\medir_tela_037.py, nao versionado,
+#   montagem identica ao fixture cliente_de_upload). Nao e a pasta real de uploads.
+
+antes   status=200 bytes=30781 sha256=c4a34f7b45d423999473c335f90fe1100becd3debfd6c8c25dd004455525fbe0
+depois  status=200 bytes=38484 sha256=794711aa567c948645394d3f9b0202adea229615055acdf355927cdcae7b22d4
+
+delta   +7703 bytes
+
+# A mudanca foi DECLARADA e o valor de SHA_DA_TELA em tests/test_icone_de_atalho.py foi
+# atualizado com o hash novo. Nao houve "conserto" de teste: a medicao veio antes da troca
+# do valor, e o valor antigo e o novo estao no comentario do proprio constante.
+#
+# Composicao do delta: dois blocos de script novos (setas da barra e retorno do arquivo
+# escolhido), a barra lateral com tres botoes, os tres paineis com cabecalho/status/estado
+# vazio, os dois contadores e o bloco de envio reescrito. NAO entra o bloco JSON dos nomes,
+# que so existe com arvore aberta — este hash mede a tela vazia.
+
+# ---------------------------------------------------------------------------------------
+# EMENDA E001 (mesmo dia): a masthead passou a duas colunas. Medicao nova, mesmo metodo:
+#   depois da E001  status=200 bytes=38476 sha256=c5fb4ff702f06a98432a67f59fc493021f4574711ae19cde47aa7c2e7dff8181
+#   delta da emenda: -8 bytes (menos marcacao: saem `text-center`, `row justify-content-center`
+#   e `col-lg-9`; entram as duas colunas nomeadas).
+# O valor vigente em tests/test_icone_de_atalho.py e o da E001.
+

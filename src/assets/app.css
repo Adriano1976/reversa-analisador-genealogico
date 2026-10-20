@@ -46,10 +46,11 @@
      5,66:1 (valido) e 5,92:1 (conflito) no claro; 8,30:1 e 8,42:1 no escuro. Minimo AA para
      texto pequeno: 4,5:1. Ha teste que recalcula isso lendo esta folha. */
   --validacao-valido:#2F6B3A; --validacao-conflito:#A8321F;
-  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
 
   --bs-body-bg:var(--bg); --bs-body-color:var(--ink); --bs-border-color:var(--line);
-  --bs-body-font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bs-body-font-family:var(--sans);
   --bs-secondary-color:var(--muted); --bs-link-color:var(--primary); --bs-link-hover-color:var(--primary-hover);
 }
 :root[data-bs-theme="dark"]{
@@ -80,10 +81,21 @@
   /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
 }
 
-body{background:var(--bg);color:var(--ink);line-height:1.55}
-h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
-h1{font-size:clamp(1.8rem,3.2vw,2.2rem)}
-h2{font-size:1.6rem}
+/* A ESCALA TIPOGRAFICA (emenda E010), tirada de `D:\dados-genealogicos\Importa.css` — a folha da
+   sugestao visual. Duas familias: `Cormorant Garamond` nos titulos e `Manrope` no texto. A
+   familia e o peso sao os da referencia; o TAMANHO do `h1` foi contido (a referencia vai a
+   4,9 rem) porque aqui ele divide a linha com a arte e o cartao tem largura fixa — 3,8 rem no
+   maximo entrega a mesma presenca sem estourar a coluna.
+
+   AS NATIVAS SAO O PLANO B: se o CDN do Google Fonts nao responder, a pilha cai em `Georgia`
+   (titulos) e `system-ui`/`Segoe UI` (texto). E o `display=swap` do link deixa o texto visivel
+   na fonte nativa desde o primeiro quadro. */
+body{background:var(--bg);color:var(--ink);line-height:1.6}
+h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:700;letter-spacing:0}
+h1{font-size:clamp(2.4rem,4.6vw,3.8rem);line-height:1.04}
+h2{font-size:clamp(1.7rem,2.6vw,2.1rem)}
+b,strong{font-weight:800}
+label{font-weight:800;font-size:.82rem}
 
 a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
@@ -126,6 +138,64 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 /* Banner: era 50% do cartão e empurrava o formulário para baixo da dobra */
 .main-card .img-fluid.w-50{width:min(50%,280px)!important}
 
+/* A MASTHEAD EM DUAS COLUNAS (emenda E001 da feature 037).
+   Texto à esquerda, arte à direita. O documento continua com a arte em PRIMEIRO lugar; é a
+   grade que a coloca na coluna 2, e não o HTML — assim a ordem de leitura coincide com o
+   documento em qualquer tela, e no telefone a arte volta para cima.
+
+   O teto de 280 px da arte (feature 027) continua valendo: aqui ela só deixa de ser metade do
+   cartão e passa a preencher a coluna da direita até esse teto. */
+.masthead{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  column-gap:clamp(1rem,3vw,2.5rem);
+  align-items:center;
+  text-align:left;
+  margin-bottom:1.5rem
+}
+/* A ARTE DENTRO DE UMA CAIXA (emenda E009). O painel da direita deixa de ser o vazio ao redor
+   da imagem e passa a ser uma superficie propria: fundo, borda, cantos arredondados e sombra.
+   E o que a referencia visual mostra, e da a arte o mesmo peso do bloco de texto ao lado.
+
+   A sombra e curta e difusa de proposito: sombra longa neste cartao (que ja tem sombra propria
+   em alguns temas) faria o painel flutuar sobre outro painel. No escuro ela e preta e mais
+   opaca, porque sombra marrom sobre fundo quase preto nao aparece. */
+.masthead-arte{
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:clamp(1rem,2.5vw,1.75rem);
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(69,52,29,.10)
+}
+:root[data-bs-theme="dark"] .masthead-arte{box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.masthead-texto{grid-column:1;grid-row:1;min-width:0}
+/* O paragrafo de apresentacao usa a cor secundaria, como na referencia (`p` a 7d7468 la;
+   aqui `--muted`, que da 6,11:1 no claro e 6,48:1 no escuro — acima de AA). */
+.masthead-texto p{color:var(--muted)}
+.masthead .masthead-arte img.img-fluid.w-50{width:100%!important;max-width:280px}
+
+/* A linha acima do título: é o subtítulo que já existia, agora com forma de sobretítulo. */
+.masthead-sobretitulo{
+  margin:0 0 .35rem;
+  color:var(--muted);
+  font-size:.75rem;
+  font-weight:800;
+  letter-spacing:.14em;
+  text-transform:uppercase
+}
+.masthead h1{margin-bottom:.75rem}
+
+@media (max-width:767.98px){
+  .masthead{grid-template-columns:1fr;row-gap:1rem}
+  .masthead-arte{grid-column:1;grid-row:1}
+  .masthead-texto{grid-column:1;grid-row:2}
+}
+
 /* Abas */
 .nav-tabs{--bs-nav-tabs-border-color:var(--line);margin-bottom:1.5rem}
 .nav-tabs .nav-link{color:var(--muted);border:0;border-bottom:3px solid transparent;font-weight:500;background:none}
@@ -155,8 +225,12 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 }
 
 /* Campos */
-.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:6px}
+.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:12px;padding:.65rem .9rem}
 .form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary) 25%,transparent)}
+/* Raio e peso dos controles, tambem da referencia (emenda E010): botoes e links em 700, e os
+   campos com 12 px de raio, que e o que faz o formulario parecer o da sugestao visual. */
+.btn{border-radius:12px;font-weight:700}
+a{font-weight:700}
 .spinner-border.text-primary{color:var(--primary)!important}
 /* O tamanho do indicador vinha do `<style>` embutido e quase se perdeu na troca: sem esta
    regra ele volta ao tamanho padrao do Bootstrap e a espera deixa de ser visivel. */
@@ -448,14 +522,17 @@ html{scroll-padding-top:1rem}
    botao fica acima do cartao, e nao por cima dele. */
 .botao-tema{
   position:fixed;top:1rem;right:1rem;z-index:1030;
-  display:inline-flex;align-items:center;gap:.45rem;
+  display:inline-flex;align-items:center;gap:.4rem;
   background:var(--surface);color:var(--ink);
   border:1px solid var(--line);border-radius:999px;
-  padding:.4rem .85rem;font:inherit;font-size:.85rem;font-weight:500;
+  /* A escala encolheu na feature 037: o controle estava com o mesmo peso visual do titulo da
+     fase, e ele e um ajuste de preferencia, nao uma acao do fluxo. Posicao, rotulo de destino
+     e `aria-pressed` continuam como estavam. */
+  padding:.3rem .7rem;font:inherit;font-size:.8rem;font-weight:500;
   box-shadow:0 1px 4px rgba(0,0,0,.14);cursor:pointer
 }
 .botao-tema:hover{border-color:var(--primary);color:var(--primary)}
-.botao-tema .icone-tema{font-size:1rem;line-height:1}
+.botao-tema .icone-tema{font-size:.95rem;line-height:1}
 @media (max-width:575.98px){
   .botao-tema{top:.5rem;right:.5rem;padding:.35rem .7rem}
 }
@@ -617,4 +694,394 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
     grid-template-areas:"titulo" "selos" "sinais" "acao"
   }
   .controles-do-cabecalho{justify-self:start;margin-top:.6rem}
+}
+
+/* ================================================================================
+   AS TRES FASES DA TELA DE ENTRADA (feature 037)
+
+   A navegacao deixou de ser uma fileira de abas e virou barra lateral. O componente de
+   abas do Bootstrap continua sendo o mecanismo (`.tab-content` / `.tab-pane` / `.active`),
+   e o que muda aqui e SO o desenho: uma coluna de botoes a esquerda, o painel a direita.
+
+   CONTRASTES MEDIDOS (WCAG 2.x, luminancia relativa, pares reais desta folha):
+
+     texto do botao .............. #2A2418 sobre #FFFFFF ....... 15,40:1
+     resumo do botao ............. #6A6150 sobre #FFFFFF ....... 6,11:1
+     resumo no botao ativo ....... #6A6150 sobre #F8F4E9 ....... 5,56:1
+     numero da fase .............. #6A6150 sobre #FFFFFF ....... 6,11:1
+     numero no botao ativo ....... #FFFFFF sobre #3F6B2E ....... 6,26:1
+     rotulo da caixa de status ... #6A6150 sobre #F8F4E9 ....... 5,56:1
+     valor da caixa de status .... #2A2418 sobre #F8F4E9 ...... 14,01:1
+     numero do contador .......... #4A3B1A sobre #FFFFFF ....... 10,87:1
+     legenda do contador ......... #6A6150 sobre #FFFFFF ....... 6,11:1
+     apoio do bloco / nota ....... #6A6150 sobre #FFFFFF ....... 6,11:1
+     link da caixa de status ..... #3F6B2E sobre #F8F4E9 ....... 5,70:1
+
+   No tema escuro:
+
+     texto do botao .............. #EDE7D6 sobre #1F1C14 ....... 13,77:1
+     resumo do botao ............. #A99F88 sobre #1F1C14 ....... 6,48:1
+     resumo no botao ativo ....... #A99F88 sobre #26221A ....... 6,03:1
+     numero da fase .............. #A99F88 sobre #1F1C14 ....... 6,48:1
+     numero no botao ativo ....... #16140F sobre #8DBB6E ....... 8,30:1
+     rotulo da caixa de status ... #A99F88 sobre #26221A ....... 6,03:1
+     valor da caixa de status .... #EDE7D6 sobre #26221A ...... 12,82:1
+     numero do contador .......... #E8D9B0 sobre #1F1C14 ....... 12,14:1
+     legenda do contador ......... #A99F88 sobre #1F1C14 ....... 6,48:1
+     apoio do bloco / nota ....... #A99F88 sobre #1F1C14 ....... 6,48:1
+     link da caixa de status ..... #8DBB6E sobre #26221A ....... 7,14:1
+
+   Minimo AA para texto pequeno: 4,5:1. O pior par desta familia e 5,56:1 (claro).
+   ================================================================================ */
+
+/* A MASTHEAD E AS FASES SAO DUAS AREAS, E PRECISAM PARECER DUAS (emenda E002).
+   Antes desta regra o bloco das fases comecava logo abaixo do texto de apresentacao, e a
+   fronha entre as duas areas sumia — a masthead parecia fazer parte do painel da fase 1.
+   Aqui a area das fases ganha ar acima, um respiro depois da linha, e a linha fina que as
+   separa. A cor e a `--line`, a mesma das bordas dos cartoes, nos dois temas. */
+.fases-da-tela{
+  display:grid;
+  grid-template-columns:minmax(200px,240px) minmax(0,1fr);
+  gap:1.25rem;
+  align-items:start;
+  margin-top:2.75rem;
+  padding-top:2rem;
+  border-top:1px solid var(--line)
+}
+
+/* OS TRES PASSOS DA JORNADA (emenda E005).
+   Ficam na primeira linha da grade das fases, ocupando as duas colunas — largura inteira, acima
+   da barra lateral e do painel. Sao INFORMATIVOS: nao sao clicaveis, nao tem estado ativo e nao
+   substituem a navegacao (por isso nao entram no `tablist`).
+
+   Contraste: a descricao e `--muted` sobre `--surface-2` — 5,56:1 no claro e 6,03:1 no escuro;
+   o numero e branco sobre `--primary` (6,26:1), e no escuro `--on-primary` sobre `--primary`
+   (8,30:1). Todos acima de 4,5:1. */
+.passos-da-jornada{
+  grid-column:1 / -1;
+  grid-row:1;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1rem;
+  margin-bottom:.25rem
+}
+.passo{
+  display:flex;
+  align-items:flex-start;
+  gap:.75rem;
+  padding:.85rem 1rem;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:12px
+}
+.passo-numero{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:2rem;
+  height:2rem;
+  border-radius:50%;
+  background:var(--primary);
+  color:var(--on-primary);
+  font-size:.78rem;
+  font-weight:600;
+  font-variant-numeric:tabular-nums
+}
+.passo-texto{min-width:0}
+.passo-titulo{
+  margin:0 0 .2rem;
+  font-family:var(--bs-body-font-family);
+  font-size:.95rem;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:0
+}
+.passo-descricao{margin:0;font-size:.85rem;line-height:1.4;color:var(--muted)}
+
+/* AS ABAS DAS FASES (emendas E006 a E008).
+   Segundo controle das MESMAS tres fases. Elas ficam na COLUNA DO CONTEUDO, acima do painel —
+   e nao atravessadas sobre a barra lateral. O desenho vem do `.nav-tabs` que ja existia na
+   folha (sublinhado na aba ativa).
+
+   SEM BARRA DE ROLAGEM (emenda E008). A regra antiga tinha `flex-wrap:nowrap` + `overflow-x:auto`
+   para as abas rolarem na horizontal. O efeito colateral era a barra aparecendo na propria
+   fileira (o `overflow-x` arrasta o `overflow-y` junto, e o conteudo passava um pixel da caixa).
+   Agora a fileira QUEBRA em vez de rolar: sao tres rotulos curtos, e quebrar em duas linhas e
+   melhor do que esconder metade deles atras de uma barra. */
+.abas-das-fases{
+  grid-column:2;
+  grid-row:2;
+  margin-bottom:0
+}
+.abas-das-fases .nav-link{white-space:nowrap}
+
+/* ---------------- Barra lateral ---------------- */
+
+.barra-de-fases{
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+  position:sticky;
+  top:1rem;
+  /* A barra comeca na MESMA linha das abas e atravessa a linha do painel (emenda E007): e o que
+     a deixa AO LADO do conteudo, e nao acima dele. */
+  grid-column:1;
+  grid-row:2 / span 2
+}
+
+.fase-botao{
+  display:flex;
+  align-items:flex-start;
+  gap:.6rem;
+  width:100%;
+  padding:.65rem .7rem;
+  text-align:left;
+  font:inherit;
+  color:var(--ink);
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:12px;
+  cursor:pointer
+}
+.fase-botao:hover{background:var(--surface-2);border-color:var(--line)}
+
+/* O item ATIVO nao se distingue so por cor: ganha fundo, borda E uma barra a esquerda.
+   E o que a `RN-13` exige (WCAG 1.4.1). */
+.fase-botao.active{
+  background:var(--surface);
+  border-color:var(--line);
+  box-shadow:inset 4px 0 0 var(--primary), 0 2px 8px rgba(69,52,29,.08)
+}
+:root[data-bs-theme="dark"] .fase-botao.active{box-shadow:inset 4px 0 0 var(--primary), 0 2px 8px rgba(0,0,0,.4)}
+.fase-botao.active .fase-texto strong{font-weight:600}
+
+.fase-numero{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:1.7rem;
+  height:1.7rem;
+  border:1px solid var(--line);
+  border-radius:50%;
+  font-size:.8rem;
+  font-variant-numeric:tabular-nums;
+  color:var(--muted)
+}
+.fase-botao.active .fase-numero{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+
+.fase-texto{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.fase-texto strong{font-size:.95rem;line-height:1.2;color:var(--head)}
+.fase-resumo{font-size:.78rem;line-height:1.35;color:var(--muted)}
+
+/* ---------------- Paineis ---------------- */
+
+.conteudo-das-fases{grid-column:2;grid-row:3;min-width:0}
+.fase{outline:none}
+
+.cabecalho-da-fase{
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:1rem;
+  margin-bottom:1rem
+}
+/* O TITULO DA FASE NAO PODE ENCOLHER (emenda E003). Com `flex-wrap:wrap` e os dois itens
+   dimensionados pelo conteudo, o cabecalho da fase 3 — cujo titulo e mais longo — quebrava
+   antes de caber a caixa de status: o titulo ficava numa coluna estreita, a caixa descia para
+   a linha de baixo e sobrava um vazio a direita. Aqui o texto ocupa o que sobrar (`flex:1`,
+   `min-width:0`) e a caixa de status e quem tem largura propria — as duas areas passam a
+   terminar na mesma borda da nota de ajuda. */
+.identidade-da-fase{flex:1 1 auto;min-width:0}
+.titulo-da-fase{
+  margin:0;
+  font-family:var(--serif);
+  font-size:clamp(1.25rem,2.2vw,1.55rem);
+  color:var(--head);
+  line-height:1.15
+}
+.objetivo-da-fase{margin:.25rem 0 0;font-size:.9rem;color:var(--muted);max-width:52ch}
+
+.caixa-de-status{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem;
+  flex:0 0 auto;
+  min-width:190px;
+  max-width:280px;
+  padding:.6rem .8rem;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:12px
+}
+.status-rotulo{
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted)
+}
+.status-valor{font-size:.95rem;color:var(--ink);overflow-wrap:anywhere}
+.status-dica{font-size:.78rem;color:var(--muted)}
+.status-link{align-self:flex-start;font-size:.8rem;color:var(--primary)}
+.status-link:hover{color:var(--primary-hover)}
+
+.contadores{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:.8rem;
+  margin-bottom:1rem
+}
+.contador{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem;
+  padding:.8rem 1rem;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px
+}
+.contador strong{font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--head)}
+.contador span{font-size:.82rem;color:var(--muted)}
+
+.bloco{
+  margin-bottom:1rem;
+  padding:1rem;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px
+}
+.titulo-do-bloco{margin:0 0 .2rem;font-size:1.05rem;color:var(--head)}
+.apoio-do-bloco{margin:0 0 .8rem;font-size:.84rem;color:var(--muted)}
+
+.nota-de-ajuda{
+  margin-bottom:1rem;
+  padding:.6rem .85rem;
+  font-size:.88rem;
+  color:var(--ink);
+  background:var(--surface-2);
+  border-left:3px solid var(--line);
+  border-radius:0 8px 8px 0
+}
+
+.estado-vazio{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:.45rem;
+  padding:1.2rem;
+  color:var(--muted);
+  border:1px dashed var(--line);
+  border-radius:12px
+}
+.estado-vazio strong{color:var(--ink);font-size:.95rem}
+.estado-vazio span{font-size:.85rem}
+
+/* ---------------- Campos e acoes ---------------- */
+
+.linha-de-campos{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:.9rem;
+  /* ALINHAMENTO PELO TOPO (emenda E004). Com `end`, cada celula era empurrada para baixo pelo
+     proprio conteudo — e as duas colunas da fase 3 tem alturas diferentes (uma leva o seletor
+     de lista e o campo de arquivo, a outra so o nome). O resultado era o rotulo da direita
+     nascendo mais baixo que o da esquerda. Pelo topo, rotulos e campos comecam na mesma linha,
+     e a altura de cada coluna deixa de importar. */
+  align-items:start
+}
+.campo{min-width:0}
+.campo-da-acao{display:flex;align-items:flex-end;align-self:end}
+.linha-da-acao{display:flex;justify-content:flex-end;margin-top:.8rem}
+
+/* A acao principal tem largura natural acima de 576 px e largura total no telefone — a mesma
+   regra da feature 027, aplicada aqui por bloco. */
+.linha-da-acao .btn{width:100%}
+.campo-da-acao .btn{width:100%}
+@media (min-width:576px){
+  .linha-da-acao .btn{width:auto}
+  .campo-da-acao .btn{width:auto}
+}
+
+.campo-de-nome:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem rgba(63,107,46,.15)}
+
+/* ---------------- Bloco de envio ---------------- */
+
+.bloco-de-envio{display:flex;flex-direction:column;gap:.75rem;margin:0}
+.envio-meta{display:flex;flex-direction:column;gap:.2rem}
+.envio-nome{font-size:.92rem;color:var(--ink);overflow-wrap:anywhere}
+.envio-dica{font-size:.8rem;color:var(--muted)}
+.envio-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
+.envio-acoes .form-control{flex:1 1 220px;min-width:0}
+
+/* ---------------- Tabela da fase 1 ---------------- */
+
+.fases-da-tela .table > :not(caption) > * > *{padding:.7rem .9rem}
+.fases-da-tela .table tbody tr:nth-child(odd){background:var(--surface-2)}
+.fases-da-tela .table .btn-sm{padding:.45rem 1rem;font-size:.85rem}
+
+/* As duas acoes da linha ficam EMPILHADAS (o mockup de referencia as empilha): lado a lado,
+   "Abrir" e "Apagar" disputam o mesmo clique. O `gap` de 8 px vem do `gap-2` do markup. */
+.fases-da-tela .table td .d-inline-flex{flex-direction:column;align-items:stretch}
+
+/* ---------------- Combobox de nomes ---------------- */
+
+.lista-de-nomes{
+  position:absolute;
+  z-index:1050;
+  max-height:15rem;
+  overflow-y:auto;
+  padding:.25rem;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  box-shadow:0 10px 24px rgba(69,52,29,.18)
+}
+.lista-de-nomes[hidden]{display:none}
+
+.opcao-de-nome{
+  padding:.45rem .6rem;
+  font-size:.9rem;
+  color:var(--ink);
+  border-radius:6px;
+  cursor:pointer
+}
+.opcao-de-nome:hover,
+.opcao-de-nome.destacada{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--primary)}
+
+.lista-de-nomes-rodape{
+  padding:.4rem .6rem;
+  font-size:.75rem;
+  color:var(--muted);
+  border-top:1px solid var(--line)
+}
+
+/* ---------------- Telefone ---------------- */
+
+@media (max-width:991.98px){
+  /* Em uma coluna, o lugar explicito de cada peca deixa de valer: tudo volta a empilhar na
+     ordem do documento (passos, abas, barra em faixa, painel) — emenda E007. */
+  .fases-da-tela{grid-template-columns:1fr;gap:.9rem;margin-top:2rem;padding-top:1.5rem}
+  .passos-da-jornada,
+  .abas-das-fases,
+  .barra-de-fases,
+  .conteudo-das-fases{grid-column:1;grid-row:auto}
+  .barra-de-fases{
+    position:static;
+    flex-direction:row;
+    gap:.4rem;
+    overflow-x:auto;
+    padding-bottom:.25rem
+  }
+  .fase-botao{flex:1 0 auto;min-width:max-content;align-items:center;padding:.55rem .7rem}
+  .fase-resumo{display:none}
+  .fase-botao.active{box-shadow:inset 0 -3px 0 var(--primary)}
+  .cabecalho-da-fase{flex-wrap:wrap}
+  .caixa-de-status{width:100%;max-width:none}
+}
+
+@media (max-width:575.98px){
+  .contadores{grid-template-columns:1fr 1fr}
+  .bloco{padding:.85rem}
 }

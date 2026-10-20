@@ -1,0 +1,3 @@
+058e187 feat(tela): agrupa voltar e indicador num flex do cabecalho
+727141b feat(endogamia): mostra o bloco de diagnostico e as reconvergencias
+1096903 feat(fio): liga a promocao e a exportacao na rota e na tela

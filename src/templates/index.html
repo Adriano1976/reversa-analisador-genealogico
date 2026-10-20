@@ -101,11 +101,13 @@
        Bootstrap de proposito: as variaveis `--bs-*` que ela redefine precisam vencer.
 
        A fonte propria entra por CDN, como o Bootstrap e o Mermaid ja entravam. Se ela nao
-       carregar, a folha cai nas fontes de sistema declaradas no proprio `app.css` — o
-       `Newsreader` tem `Georgia` atras dele e o `IBM Plex Sans` tem `system-ui`. #}
+       carregar — sem internet, CDN bloqueado —, a folha cai nas fontes NATIVAS declaradas no
+       proprio `app.css`: `Cormorant Garamond` tem `Georgia` atras dele e `Manrope` tem
+       `system-ui`/`Segoe UI`. O `display=swap` faz o texto aparecer na fonte nativa na hora e
+       trocar quando a webfont chega, em vez de esconder o texto enquanto espera. #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="/app.css" rel="stylesheet">
     {# O TEMA PADRAO E O CLARO, e a escolha do operador e lembrada.
        Antes desta linha o tema vinha de `matchMedia('(prefers-color-scheme: dark)')`, ou seja,
@@ -189,43 +191,54 @@
                            prende esse arranjo. A ARTE SERVIDA NAO E O ARQUIVO
                            ENVIADO — ela e uma renderizacao derivada, e a receita esta em
                            `tests/banner_da_tela.py`. #}
-                        <div class="text-center mb-4">
-                            <img src="/banner.png"
-                                 alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
-                                 class="img-fluid w-50">
-                            <p class="text-muted mb-1">Genetic Genealogy Path Analyzer</p>
-                            {# O `<h1>` e SEMPRE visivel, e a `RN-23` volta a valer como esta escrita.
-                               Ele chegou a ser escondido enquanto a arte do topo trazia "Analisador
-                               Genealógico" desenhado — com os dois visiveis, o produto se nomeava
-                               duas vezes, uma logo abaixo da outra. A arte trocada em 2026-10-16
-                               **nao tem o texto**, entao esconder o `h1` deixaria a tela sem
-                               nenhuma identificacao do produto em portugues: o subtitulo e em
-                               ingles e o `alt` descreve a ilustracao. #}
-                            <h1 class="card-title mb-3">Analisador Genealógico</h1>
-                            {# O texto de apresentacao fica CENTRALIZADO e numa coluna mais
-                               estreita que o cartao, na mesma forma organizada da documentacao
-                               do projeto.
+                        {# A MASTHEAD EM DUAS COLUNAS (emenda `E001` da feature 037). O operador
+                           apontou que a parte de cima da tela continuava com a estetica anterior —
+                           arte empilhada sobre o texto, tudo centralizado — e pediu a redistribuicao
+                           em duas colunas, como na referencia visual: texto a esquerda, arte a
+                           direita.
 
-                               Antes ele era alinhado a esquerda (`text-start`) e corria de ponta
-                               a ponta. `col-lg-9` dentro de um `row justify-content-center` da a
-                               largura e o centramento sem CSS proprio — e sem largura FIXA:
-                               abaixo do ponto de quebra `lg` a coluna volta a ocupar o cartao
-                               inteiro, que e o que um telefone precisa. #}
-                            <div class="row justify-content-center">
-                                <div class="col-lg-9">
-                                    <p>
-                                        Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em
-                                        genealogia documental e genética. Seu objetivo é <b>ajudar os usuários a
-                                        compreender como se relacionam com outras pessoas por meio da análise da
-                                        árvore genealógica e de dados de DNA</b>.
-                                    </p>
-                                    <p class="mb-0">
-                                        <b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em
-                                        formato GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em
-                                        formato CSV. <b>A partir do cruzamento desses dados, o aplicativo identifica
-                                        possíveis conexões genealógicas entre duas pessoas.</b>
-                                    </p>
-                                </div>
+                           A ORDEM DO DOCUMENTO NAO MUDA: a arte continua sendo o PRIMEIRO elemento
+                           do bloco, e o subtitulo, o titulo e o texto vem depois. Quem joga a arte
+                           para a direita e a GRADE, por `grid-column`, e nao o HTML — no telefone as
+                           colunas viram uma so e a arte volta para cima, que e a ordem natural.
+                           (`test_a_ordem_e_imagem_subtitulo_titulo_texto` prende exatamente isso.)
+
+                           A ARTE MANTEM `w-50` E O TETO DE 280 px da feature 027. O que muda e que
+                           ela preenche a coluna direita em vez de metade do cartao inteiro. #}
+                        <div class="masthead mb-4">
+                            <div class="masthead-arte">
+                                <img src="/banner.png"
+                                     alt="Ilustração: árvore genealógica, livro aberto e hélice de DNA"
+                                     class="img-fluid w-50">
+                            </div>
+                            <div class="masthead-texto">
+                                <p class="masthead-sobretitulo">Genetic Genealogy Path Analyzer</p>
+                                {# O `<h1>` e SEMPRE visivel, e a `RN-23` volta a valer como esta escrita.
+                                   Ele chegou a ser escondido enquanto a arte do topo trazia "Analisador
+                                   Genealógico" desenhado — com os dois visiveis, o produto se nomeava
+                                   duas vezes, uma logo abaixo da outra. A arte trocada em 2026-10-16
+                                   **nao tem o texto**, entao esconder o `h1` deixaria a tela sem
+                                   nenhuma identificacao do produto em portugues: o subtitulo e em
+                                   ingles e o `alt` descreve a ilustracao. #}
+                                <h1 class="card-title mb-3">Analisador Genealógico</h1>
+                                {# O texto de apresentacao deixou de ser centralizado (emenda `E001`):
+                                   ele ocupa a coluna da esquerda, alinhado a esquerda, e a arte fica
+                                   ao lado. A `RN-24` do adendo `011` — "centralizado em coluna mais
+                                   estreita que o cartao" — foi EMENDADA, e nao silenciosamente
+                                   abandonada; a emenda esta registrada no `requirements.md` da
+                                   feature 037 e a medicao do `SHA_DA_TELA` acompanha. #}
+                                <p>
+                                    Este aplicativo web foi desenvolvido para auxiliar pessoas interessadas em
+                                    genealogia documental e genética. Seu objetivo é <b>ajudar os usuários a
+                                    compreender como se relacionam com outras pessoas por meio da análise da
+                                    árvore genealógica e de dados de DNA</b>.
+                                </p>
+                                <p class="mb-0">
+                                    <b>Para utilizar o aplicativo, basta carregar</b> sua árvore genealógica, em
+                                    formato GEDCOM, e um relatório de DNA do GEDmatch Ancestor Projects, em
+                                    formato CSV. <b>A partir do cruzamento desses dados, o aplicativo identifica
+                                    possíveis conexões genealógicas entre duas pessoas.</b>
+                                </p>
                             </div>
                         </div>
 
@@ -236,185 +249,491 @@
                             </div>
                         {% endif %}
 
-                        {% if not gedcom_filename %}
-                            {# Este ramo deixou de ser um formulario de envio e nada mais. Ele
-                               entrega as duas abas com as listas, e o envio se muda para dentro
-                               da aba de arvores. O markup das abas e o MESMO do ramo de baixo,
-                               de proposito: o operador ve a mesma tela antes e depois de
-                               escolher, e o teste que prende os rotulos literais continua
-                               valendo para os dois estados. #}
-                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" aria-controls="path-panel" aria-selected="true" type="button" role="tab">Buscar Conexão no GEDCOM</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" aria-controls="dna-panel" aria-selected="false" type="button" role="tab">Analisador de DNA</button>
-                                </li>
-                            </ul>
+                        {#- ============================ AS TRES FASES ============================
+                           A tela de entrada deixou de ser um par de ramos com duas abas. Agora
+                           ha UM esqueleto com tres fases, e o que muda entre os dois estados
+                           (sem arvore / com arvore) e o conteudo de cada painel, decidido por
+                           `gedcom_filename`.
 
-                            <div class="tab-content" id="analysisTabsContent">
-                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
-                                    <p class="text-muted">Escolha uma árvore que já está armazenada, ou envie uma nova.</p>
+                           A NAVEGACAO E UMA SO: a barra lateral usa o mesmo `data-bs-toggle="tab"`
+                           do Bootstrap que ja estava na pagina, e nao um segundo mecanismo de
+                           troca de painel. As abas horizontais sairam (adendo 037, Q-01).
+
+                           A FASE ATIVA VEM DO SERVIDOR: sem arvore e a fase 1 (a lista); depois
+                           de enviar ou escolher, a fase 2 (a busca) — o destino do operador nao
+                           e a lista de onde ele veio. O JavaScript so assume a troca a partir do
+                           primeiro clique.
+
+                           A `RN-05` continua valendo: nenhuma rota, `action`, nome de campo ou
+                           variavel de template nasceu aqui. A `RN-14` tambem: nada deste bloco
+                           alcanca a area de resultados.
+                        -#}
+                        {% set fase_ativa = 2 if gedcom_filename else 1 %}
+                        <div class="fases-da-tela">
+                            {# OS TRES PASSOS DA JORNADA (emenda E005). Ficam entre a linha que
+                               separa a masthead e o painel da fase — largura inteira, acima da
+                               barra lateral —, para o operador saber em que ordem as fases
+                               acontecem antes de escolher por onde comecar. Sao informativos:
+                               nao sao clicaveis e nao substituem a navegacao. #}
+                            <section class="passos-da-jornada" aria-label="As três etapas do trabalho">
+                                <article class="passo">
+                                    <span class="passo-numero" aria-hidden="true">01</span>
+                                    <div class="passo-texto">
+                                        <h3 class="passo-titulo">Carregar árvore GEDCOM</h3>
+                                        <p class="passo-descricao">Escolha uma árvore já processada ou envie um novo arquivo.</p>
+                                    </div>
+                                </article>
+                                <article class="passo">
+                                    <span class="passo-numero" aria-hidden="true">02</span>
+                                    <div class="passo-texto">
+                                        <h3 class="passo-titulo">Encontrar conexão documental</h3>
+                                        <p class="passo-descricao">Selecione duas pessoas e trace o caminho genealógico entre elas.</p>
+                                    </div>
+                                </article>
+                                <article class="passo">
+                                    <span class="passo-numero" aria-hidden="true">03</span>
+                                    <div class="passo-texto">
+                                        <h3 class="passo-titulo">Cruzar com evidência genética</h3>
+                                        <p class="passo-descricao">Associe matches CSV ao nome presente no GEDCOM.</p>
+                                    </div>
+                                </article>
+                            </section>
+
+                            {# AS ABAS DAS FASES (emenda E006). Um SEGUNDO controle para as MESMAS
+                               tres fases, logo acima do painel, como na referencia visual. Ele nao
+                               substitui a barra lateral: os dois apontam para os mesmos paineis, e
+                               o script no fim do documento sincroniza `.active` e `aria-selected`
+                               entre eles — sem isso existiriam dois "selecionados" ao mesmo tempo,
+                               que e o defeito classico de controle duplicado.
+
+                               Os rotulos sao os MESMOS da barra lateral (`Q-01` / `Q-06`), e nao
+                               os do mockup: la a primeira aba dizia "Buscar Conexao no GEDCOM" e
+                               abria a lista de arvores, o que trocava o rotulo com a fase 2. #}
+                            <div class="nav nav-tabs abas-das-fases" role="tablist" aria-label="Fases da análise em abas">
+                                <button type="button" role="tab" class="nav-link aba-de-fase{% if fase_ativa == 1 %} active{% endif %}"
+                                        id="aba-fase-1" data-bs-toggle="tab" data-bs-target="#fase-1"
+                                        aria-controls="fase-1" aria-selected="{{ 'true' if fase_ativa == 1 else 'false' }}">Árvores GEDCOM</button>
+                                <button type="button" role="tab" class="nav-link aba-de-fase{% if fase_ativa == 2 %} active{% endif %}"
+                                        id="aba-fase-2" data-bs-toggle="tab" data-bs-target="#fase-2"
+                                        aria-controls="fase-2" aria-selected="{{ 'true' if fase_ativa == 2 else 'false' }}">Buscar Conexão no GEDCOM</button>
+                                <button type="button" role="tab" class="nav-link aba-de-fase"
+                                        id="aba-fase-3" data-bs-toggle="tab" data-bs-target="#fase-3"
+                                        aria-controls="fase-3" aria-selected="false">Analisador de DNA</button>
+                            </div>
+
+                            <nav class="barra-de-fases" role="tablist" aria-orientation="vertical" aria-label="Fases da análise">
+                                <button type="button" role="tab" class="fase-botao{% if fase_ativa == 1 %} active{% endif %}"
+                                        id="fase-1-botao" data-bs-toggle="tab" data-bs-target="#fase-1"
+                                        aria-controls="fase-1" aria-selected="{{ 'true' if fase_ativa == 1 else 'false' }}">
+                                    <span class="fase-numero" aria-hidden="true">1</span>
+                                    <span class="fase-texto">
+                                        <strong>Árvores GEDCOM</strong>
+                                        <span class="fase-resumo">Listagem, envio e abertura da base principal.</span>
+                                    </span>
+                                </button>
+                                <button type="button" role="tab" class="fase-botao{% if fase_ativa == 2 %} active{% endif %}"
+                                        id="fase-2-botao" data-bs-toggle="tab" data-bs-target="#fase-2"
+                                        aria-controls="fase-2" aria-selected="{{ 'true' if fase_ativa == 2 else 'false' }}">
+                                    <span class="fase-numero" aria-hidden="true">2</span>
+                                    <span class="fase-texto">
+                                        <strong>Buscar Conexão no GEDCOM</strong>
+                                        <span class="fase-resumo">Caminho documental entre duas pessoas da árvore.</span>
+                                    </span>
+                                </button>
+                                <button type="button" role="tab" class="fase-botao{% if fase_ativa == 3 %} active{% endif %}"
+                                        id="fase-3-botao" data-bs-toggle="tab" data-bs-target="#fase-3"
+                                        aria-controls="fase-3" aria-selected="false">
+                                    <span class="fase-numero" aria-hidden="true">3</span>
+                                    <span class="fase-texto">
+                                        <strong>Analisador de DNA</strong>
+                                        <span class="fase-resumo">Cruzamento dos matches CSV com o parentesco.</span>
+                                    </span>
+                                </button>
+                            </nav>
+
+                            <div class="conteudo-das-fases tab-content">
+                                {# ------------------------------ FASE 1 ------------------------------ #}
+                                <section class="fase tab-pane fade{% if fase_ativa == 1 %} show active{% endif %}" id="fase-1" role="tabpanel" aria-labelledby="fase-1-botao">
+                                    <header class="cabecalho-da-fase">
+                                        <div class="identidade-da-fase">
+                                            <h2 class="titulo-da-fase">Fase 1 — Árvores GEDCOM</h2>
+                                            <p class="objetivo-da-fase">Escolha uma árvore já armazenada ou envie uma nova: é a base das outras duas fases.</p>
+                                        </div>
+                                        <div class="caixa-de-status">
+                                            <span class="status-rotulo">Árvore atualmente aberta</span>
+                                            {% if gedcom_filename %}
+                                                <strong class="status-valor">{{ gedcom_filename | rotulo_do_arquivo }}</strong>
+                                                {# O caminho de volta para a lista continua sendo um LINK, e nao um
+                                                   botao com `action`: ele volta por `GET /`, que sempre entrega a
+                                                   tela inicial, e nao passa pelo despacho de `action` (o defeito
+                                                   do `selecionar_arvore` ja medido). O nome sai pelo filtro
+                                                   `rotulo_do_arquivo`, sem a chave. #}
+                                                <a class="status-link" href="/">escolher outra árvore</a>
+                                            {% else %}
+                                                <strong class="status-valor">Nenhuma árvore aberta</strong>
+                                                <span class="status-dica">Escolha uma da lista ou envie uma nova.</span>
+                                            {% endif %}
+                                        </div>
+                                    </header>
 
                                     {% if arvores_da_lista %}
-                                        {# A tabela da aba, pelo macro unico das duas. `True` aqui
-                                           porque esta aba oferece o formulario de escolha: o item
-                                           disponivel ganha o botao "Abrir", e o indisponivel
-                                           continua listado, marcado e sem botao de escolha. #}
-                                        {{ tabela_de_arquivos(arvores_da_lista, True) }}
+                                        {# Os DOIS contadores saem da propria lista, sem variavel nova: total
+                                           de itens e quantos estao disponiveis. A `RN-15` proibe numero que a
+                                           aplicacao nao saiba — por isso nao existe "prontas" nem "cliques". #}
+                                        <div class="contadores">
+                                            <div class="contador"><strong>{{ arvores_da_lista | length }}</strong><span>árvores armazenadas</span></div>
+                                            <div class="contador"><strong>{{ arvores_da_lista | selectattr('disponivel') | list | length }}</strong><span>disponíveis para abrir</span></div>
+                                        </div>
+
+                                        <section class="bloco">
+                                            <h3 class="titulo-do-bloco">Escolha uma árvore já armazenada</h3>
+                                            <p class="apoio-do-bloco">Abrir só aparece no item que a referência alcança; apagar aparece em todos, com o motivo ao lado.</p>
+                                            {# A tabela da fase, pelo macro unico das duas. `True` porque esta
+                                               fase oferece o formulario de escolha: o item disponivel ganha o
+                                               botao "Abrir", e o indisponivel continua listado, marcado e sem
+                                               botao de escolha. #}
+                                            {{ tabela_de_arquivos(arvores_da_lista, True) }}
+                                        </section>
                                     {% else %}
-                                        <p class="text-muted">Nenhuma árvore armazenada ainda. Envie uma para começar.</p>
+                                        <section class="bloco">
+                                            <h3 class="titulo-do-bloco">Escolha uma árvore já armazenada</h3>
+                                            <p class="text-muted mb-0">Nenhuma árvore armazenada ainda. Envie uma para começar.</p>
+                                        </section>
                                     {% endif %}
 
-                                    <form method="POST" enctype="multipart/form-data" id="gedcom-upload-form">
-                                        <input type="hidden" name="action" value="upload_gedcom">
-                                        <div class="mb-3">
-                                            <label for="gedcom" class="form-label"><b>Enviar nova árvore</b></label>
-                                            {# `accept` FILTRA O SELETOR, e nao valida nada. Quem
-                                               escolher "Todos os arquivos" — ou arrastar o arquivo
-                                               para dentro do campo — manda o que quiser; a barreira
-                                               de verdade e' a de conteudo
-                                               (`utils.validate.validar_conteudo_gedcom`, que exige a
-                                               declaracao `0 HEAD`), e ela ja' existia. O ganho aqui
-                                               e' nao oferecer o erro: sem o filtro, o operador
-                                               escolhe um .txt, recebe "carregado!" e o arquivo nao
-                                               aparece em aba nenhuma.
+                                    <section class="bloco">
+                                        <form method="POST" enctype="multipart/form-data" id="gedcom-upload-form" class="bloco-de-envio">
+                                            <input type="hidden" name="action" value="upload_gedcom">
+                                            <div class="envio-meta">
+                                                <label for="gedcom" class="form-label"><b>Enviar nova árvore</b></label>
+                                                {# `accept` FILTRA O SELETOR, e nao valida nada. Quem escolher
+                                                   "Todos os arquivos" — ou arrastar o arquivo para dentro do campo
+                                                   — manda o que quiser; a barreira de verdade e' a de conteudo
+                                                   (`utils.validate.validar_conteudo_gedcom`, que exige a
+                                                   declaracao `0 HEAD`), e ela ja' existia. O ganho aqui e' nao
+                                                   oferecer o erro: sem o filtro, o operador escolhe um .txt,
+                                                   recebe "carregado!" e o arquivo nao aparece em fase nenhuma.
 
-                                               SO' `.ged`, e nao `.gedcom`: quem decide a aba e' a
-                                               extensao (`reporting.lista_de_arquivos.ABA_DE_ARVORES`),
-                                               e um `.gedcom` nao entra em aba nenhuma. Oferecer no
-                                               seletor um arquivo que depois some seria pior do que
-                                               escondê-lo. -#}
-                                            <input class="form-control" type="file" id="gedcom" name="gedcom" accept=".ged" required>
+                                                   SO' `.ged`, e nao `.gedcom`: quem decide a fase e' a extensao
+                                                   (`reporting.lista_de_arquivos.ABA_DE_ARVORES`), e um `.gedcom`
+                                                   nao entra em fase nenhuma. Oferecer no seletor um arquivo que
+                                                   depois some seria pior do que escondê-lo. -#}
+                                                <strong class="envio-nome" id="nome-do-arquivo-escolhido">Nenhum arquivo selecionado</strong>
+                                                <span class="envio-dica">Formato GEDCOM. O arquivo novo entra na lista acima.</span>
+                                            </div>
+                                            <div class="envio-acoes">
+                                                <input class="form-control" type="file" id="gedcom" name="gedcom" accept=".ged" required>
+                                                <button type="submit" class="btn btn-primary">Carregar</button>
+                                            </div>
+                                        </form>
+                                    </section>
+                                </section>
+
+                                {# ------------------------------ FASE 2 ------------------------------ #}
+                                <section class="fase tab-pane fade{% if fase_ativa == 2 %} show active{% endif %}" id="fase-2" role="tabpanel" aria-labelledby="fase-2-botao">
+                                    <header class="cabecalho-da-fase">
+                                        <div class="identidade-da-fase">
+                                            <h2 class="titulo-da-fase">Fase 2 — Buscar Conexão no GEDCOM</h2>
+                                            <p class="objetivo-da-fase">Encontre o caminho documental entre duas pessoas, sem DNA.</p>
                                         </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary">Carregar</button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
-                                    <p class="text-muted">Escolha um relatório de matches que já está armazenado.</p>
-
-                                    {% if relatorios_da_lista %}
-                                        {# A MESMA tabela, pelo macro das duas abas. `False` porque
-                                           esta nao oferece "Abrir": nao existe acao que carregue
-                                           um CSV sozinho — o relatorio de matches entra pela
-                                           analise de DNA, que exige uma arvore. Aposentar, sim,
-                                           porque nao depende de arvore. #}
-                                        {{ tabela_de_arquivos(relatorios_da_lista, False) }}
-                                    {% else %}
-                                        {# Aqui NAO entra formulario de envio, e a razao esta no
-                                           contrato: nao existe acao que guarde um CSV sozinho. O CSV
-                                           entra pela analise de DNA (`action=dna_analysis`, campo
-                                           `matches_csv`), que exige uma arvore — entao o primeiro
-                                           passo e a aba ao lado. Orientar o operador para o caminho
-                                           que existe e mais util do que oferecer um botao que a rota
-                                           nao atende. #}
-                                        <p class="text-muted">Nenhum relatório de matches armazenado ainda. Ele aparece aqui depois da primeira análise de DNA que usar um arquivo CSV — e para chegar lá é preciso ter uma árvore, que se envia na aba <b>Buscar Conexão no GEDCOM</b>.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% else %}
-                            {# O caminho de VOLTA, e a identificacao da arvore aberta. Antes
-                               disto a tela de busca nao tinha link nenhum (medido: zero
-                               `<a href>`), e nao dizia SOBRE QUAL arquivo a busca ia rodar — o
-                               aviso do topo so nomeia a arvore em envio ou reenvio.
-
-                               E um LINK, e nao um botao com `action`, por tres razoes: ele volta
-                               por `GET /`, que e o caminho verificado e que sempre entrega a
-                               tela inicial; nao passa pelo despacho de `action`, entao nao corre
-                               o risco de cair no `render_template` do fim e descartar o estado —
-                               defeito ja medido no `selecionar_arvore`; e nao reenvia formulario
-                               nenhum. O nome sai pelo filtro `rotulo_do_arquivo`, sem a chave. #}
-                            <p class="text-muted">
-                                Árvore aberta: <b>{{ gedcom_filename | rotulo_do_arquivo }}</b>
-                                — <a href="/">escolher outra árvore</a>
-                            </p>
-
-                            <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="path-tab" data-bs-toggle="tab" data-bs-target="#path-panel" aria-controls="path-panel" aria-selected="true" type="button" role="tab">Buscar Conexão no GEDCOM</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="dna-tab" data-bs-toggle="tab" data-bs-target="#dna-panel" aria-controls="dna-panel" aria-selected="false" type="button" role="tab">Analisador de DNA</button>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content" id="analysisTabsContent">
-                                <div class="tab-pane fade show active" id="path-panel" role="tabpanel">
-                                    <p class="text-muted">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</p>
-                                    <form method="POST" id="path-form">
-                                        <input type="hidden" name="action" value="path_search">
-                                        <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
-                                        <div class="mb-3">
-                                            <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
-                                            <input type="text" class="form-control" id="person1_name" name="person1_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
-                                            <input type="text" class="form-control" id="person2_name" name="person2_name" required list="gedcom_names" placeholder="Comece a digitar um nome...">
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-info">Encontrar Conexão</button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="tab-pane fade" id="dna-panel" role="tabpanel">
-                                    <p class="text-muted">Carregue sua lista de matches (CSV) e insira o seu nome para cruzar duas evidências independentes: o <b>parentesco documental</b> do GEDCOM e a <b>evidência genética</b> do CSV. O DNA não altera o parentesco encontrado no GEDCOM, e o valor de cM não é usado sozinho para afirmar parentesco.</p>
-                                    <form method="POST" enctype="multipart/form-data" id="dna-form">
-                                        <input type="hidden" name="action" value="dna_analysis">
-                                        <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
-                                        <div class="mb-3">
-                                            {# O CSV pode vir da LISTA ou do arquivo, e a lista tem
-                                               PRECEDENCIA. O campo e NOVO e opcional porque
-                                               reaproveitar `matches_csv` apagaria a prova de que o
-                                               caminho antigo continua igual — e dois inputs com o
-                                               mesmo nome, no mesmo formulario, se atropelam.
-
-                                               `required` sai do campo de arquivo: exigi-lo obrigaria
-                                               o operador a reenviar o que ja esta guardado. O servidor
-                                               continua recusando quando nao vem nenhum dos dois, com a
-                                               mensagem de sempre.
-
-                                               So item DISPONIVEL entra nas opcoes: oferecer um que a
-                                               referencia nao alcanca seria vender o que nao funciona. #}
-                                            <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
-                                            {% if relatorios_da_lista %}
-                                                <select class="form-select" id="matches_csv_filename" name="matches_csv_filename">
-                                                    <option value="">— escolher da lista —</option>
-                                                    {% for item in relatorios_da_lista %}
-                                                        {% if item.disponivel %}
-                                                            <option value="{{ item.nome_armazenado }}">{{ item.nome_exibido }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                                <div class="form-text">Ou envie um arquivo novo abaixo.</div>
+                                        <div class="caixa-de-status">
+                                            <span class="status-rotulo">Consulta baseada em</span>
+                                            {% if gedcom_filename %}
+                                                <strong class="status-valor">{{ gedcom_filename | rotulo_do_arquivo }}</strong>
+                                                <a class="status-link" href="/">Trocar árvore ativa</a>
+                                            {% else %}
+                                                <strong class="status-valor">Nenhuma árvore aberta</strong>
+                                                <span class="status-dica">A busca roda sobre a árvore da fase 1.</span>
                                             {% endif %}
-                                            {# Mesma regra do campo da arvore: `accept` filtra o
-                                               seletor e nao valida. A barreira de verdade e' a
-                                               leitura do CSV, que recusa o arquivo sem as colunas de
-                                               Nome e cM (`core.erros.DnaCsvSemColunas`) — e o campo
-                                               e' opcional de proposito, porque o relatorio pode vir
-                                               da lista acima. -#}
-                                            <input class="form-control mt-2" type="file" id="matches_csv" name="matches_csv" accept=".csv">
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
-                                            <input type="text" class="form-control" id="root_name" name="root_name" placeholder="Ex: João da Silva" required list="gedcom_names">
+                                    </header>
+
+                                    {% if gedcom_filename %}
+                                        <div class="nota-de-ajuda">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</div>
+
+                                        <form method="POST" id="path-form" class="bloco">
+                                            <input type="hidden" name="action" value="path_search">
+                                            <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                            <div class="linha-de-campos">
+                                                <div class="campo">
+                                                    <label for="person1_name" class="form-label"><b>Pessoa 1</b></label>
+                                                    <input type="text" class="form-control campo-de-nome" id="person1_name" name="person1_name" required
+                                                           autocomplete="off" role="combobox" aria-expanded="false"
+                                                           aria-controls="lista-de-nomes" aria-autocomplete="list"
+                                                           placeholder="Comece a digitar um nome...">
+                                                    <div class="form-text">Ex.: nome completo como aparece na árvore.</div>
+                                                </div>
+                                                <div class="campo">
+                                                    <label for="person2_name" class="form-label"><b>Pessoa 2</b></label>
+                                                    <input type="text" class="form-control campo-de-nome" id="person2_name" name="person2_name" required
+                                                           autocomplete="off" role="combobox" aria-expanded="false"
+                                                           aria-controls="lista-de-nomes" aria-autocomplete="list"
+                                                           placeholder="Comece a digitar um nome...">
+                                                    <div class="form-text">Evite abreviações para facilitar a busca.</div>
+                                                </div>
+                                                <div class="campo campo-da-acao">
+                                                    <button type="submit" class="btn btn-info">Encontrar Conexão</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <div class="estado-vazio">
+                                            <strong>Esta fase precisa de uma árvore aberta.</strong>
+                                            <span>A árvore se escolhe ou se envia na fase 1 — Árvores GEDCOM.</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#fase-1">Ir para a fase 1</button>
                                         </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                    {% endif %}
+                                </section>
+
+                                {# ------------------------------ FASE 3 ------------------------------ #}
+                                <section class="fase tab-pane fade" id="fase-3" role="tabpanel" aria-labelledby="fase-3-botao">
+                                    <header class="cabecalho-da-fase">
+                                        <div class="identidade-da-fase">
+                                            <h2 class="titulo-da-fase">Fase 3 — Analisador de DNA</h2>
+                                            <p class="objetivo-da-fase">Cruze o relatório de matches com o parentesco documental do GEDCOM.</p>
                                         </div>
-                                    </form>
-                                </div>
+                                        <div class="caixa-de-status">
+                                            <span class="status-rotulo">Modo de análise</span>
+                                            <strong class="status-valor">Parentesco documental + evidência genética</strong>
+                                            <span class="status-dica">O cM entra como evidência adicional, nunca sozinho.</span>
+                                        </div>
+                                    </header>
+
+                                    <div class="nota-de-ajuda">O DNA <b>não altera</b> o parentesco encontrado no GEDCOM. Ele funciona como evidência adicional, e o valor de cM não deve ser usado sozinho para afirmar parentesco.</div>
+
+                                    {% if gedcom_filename %}
+                                        <form method="POST" enctype="multipart/form-data" id="dna-form" class="bloco">
+                                            <input type="hidden" name="action" value="dna_analysis">
+                                            <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+                                            <div class="linha-de-campos">
+                                                <div class="campo">
+                                                    {# O CSV pode vir da LISTA ou do arquivo, e a lista tem PRECEDENCIA.
+                                                       O campo e NOVO e opcional porque reaproveitar `matches_csv`
+                                                       apagaria a prova de que o caminho antigo continua igual — e dois
+                                                       inputs com o mesmo nome, no mesmo formulario, se atropelam.
+
+                                                       `required` sai do campo de arquivo: exigi-lo obrigaria o operador
+                                                       a reenviar o que ja esta guardado. O servidor continua recusando
+                                                       quando nao vem nenhum dos dois, com a mensagem de sempre.
+
+                                                       So item DISPONIVEL entra nas opcoes: oferecer um que a referencia
+                                                       nao alcanca seria vender o que nao funciona. #}
+                                                    <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                                    {% if relatorios_da_lista %}
+                                                        <select class="form-select" id="matches_csv_filename" name="matches_csv_filename">
+                                                            <option value="">— escolher da lista —</option>
+                                                            {% for item in relatorios_da_lista %}
+                                                                {% if item.disponivel %}
+                                                                    <option value="{{ item.nome_armazenado }}">{{ item.nome_exibido }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <div class="form-text">Ou envie um arquivo novo ao lado.</div>
+                                                    {% endif %}
+                                                    {# Mesma regra do campo da arvore: `accept` filtra o seletor e nao
+                                                       valida. A barreira de verdade e' a leitura do CSV, que recusa o
+                                                       arquivo sem as colunas de Nome e cM (`core.erros.DnaCsvSemColunas`)
+                                                       — e o campo e' opcional de proposito, porque o relatorio pode vir
+                                                       da lista acima. -#}
+                                                    <input class="form-control{% if relatorios_da_lista %} mt-2{% endif %}" type="file" id="matches_csv" name="matches_csv" accept=".csv">
+                                                </div>
+                                                <div class="campo">
+                                                    <label for="root_name" class="form-label"><b>2. Seu Nome (como está no GEDCOM)</b></label>
+                                                    <input type="text" class="form-control campo-de-nome" id="root_name" name="root_name" required
+                                                           autocomplete="off" role="combobox" aria-expanded="false"
+                                                           aria-controls="lista-de-nomes" aria-autocomplete="list"
+                                                           placeholder="Ex: João da Silva">
+                                                    <div class="form-text">Manter a grafia do GEDCOM evita ambiguidade na análise.</div>
+                                                </div>
+                                            </div>
+                                            <div class="linha-da-acao">
+                                                <button type="submit" class="btn btn-success">Analisar Matches de DNA</button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        {% if relatorios_da_lista %}
+                                            <section class="bloco">
+                                                <h3 class="titulo-do-bloco">Relatórios já armazenados</h3>
+                                                {{ tabela_de_arquivos(relatorios_da_lista, False) }}
+                                            </section>
+                                        {% endif %}
+                                        <div class="estado-vazio">
+                                            <strong>Esta fase precisa de uma árvore aberta.</strong>
+                                            <span>A árvore se escolhe ou se envia na fase 1 — Árvores GEDCOM.</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#fase-1">Ir para a fase 1</button>
+                                        </div>
+                                    {% endif %}
+                                </section>
                             </div>
-                            <datalist id="gedcom_names">
-                                {% for name in all_names %}
-                                    <option value="{{ name }}">
-                                {% endfor %}
-                            </datalist>
+                        </div>
+
+                        {% if gedcom_filename %}
+                            {# OS NOMES EM JSON, uma vez. Antes cada nome virava um `<option>` na
+                               `<datalist>`; um GEDCOM real tem dezenas de milhares de nomes, e o
+                               documento carregava um elemento por nome. Aqui o mesmo dado viaja como
+                               lista de strings, e o `tojson` do Flask escapa `<`, `>` e `&` — um nome
+                               contendo `</script>` NAO fecha o bloco (ha teste para isso).
+
+                               A lista que o script preenche vive FORA dos formularios, e os tres
+                               campos apontam para ela por `aria-controls`. #}
+                            <script type="application/json" id="nomes-da-arvore">{{ (all_names | default([], true)) | tojson }}</script>
+                            <div class="lista-de-nomes" id="lista-de-nomes" role="listbox" aria-label="Nomes da árvore" hidden></div>
+                            <div class="visually-hidden" id="status-da-lista" role="status" aria-live="polite"></div>
+                            <script>
+                                (function () {
+                                    'use strict';
+
+                                    var dados = document.getElementById('nomes-da-arvore');
+                                    var lista = document.getElementById('lista-de-nomes');
+                                    if (!dados || !lista) { return; }
+
+                                    var nomes = [];
+                                    try { nomes = JSON.parse(dados.textContent); } catch (erro) { return; }
+                                    if (!nomes || !nomes.length) { return; }
+
+                                    var TETO = 50;
+                                    var ativo = null;
+                                    var opcoes = [];
+                                    var indice = -1;
+
+                                    function semAcento(texto) {
+                                        return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                                    }
+
+                                    var chaves = nomes.map(function (nome) {
+                                        return { texto: nome, chave: semAcento(nome) };
+                                    });
+
+                                    function fechar() {
+                                        lista.hidden = true;
+                                        lista.innerHTML = '';
+                                        opcoes = [];
+                                        indice = -1;
+                                        if (ativo) {
+                                            ativo.setAttribute('aria-expanded', 'false');
+                                            ativo.removeAttribute('aria-activedescendant');
+                                        }
+                                    }
+
+                                    function posicionar() {
+                                        if (!ativo) { return; }
+                                        var caixa = ativo.getBoundingClientRect();
+                                        lista.style.left = (caixa.left + window.pageXOffset) + 'px';
+                                        lista.style.top = (caixa.bottom + window.pageYOffset) + 'px';
+                                        lista.style.width = caixa.width + 'px';
+                                    }
+
+                                    function destacar(novo) {
+                                        if (!opcoes.length) { return; }
+                                        indice = (novo + opcoes.length) % opcoes.length;
+                                        opcoes.forEach(function (opcao, posicao) {
+                                            var marcada = posicao === indice;
+                                            opcao.setAttribute('aria-selected', marcada ? 'true' : 'false');
+                                            opcao.classList.toggle('destacada', marcada);
+                                        });
+                                        ativo.setAttribute('aria-activedescendant', opcoes[indice].id);
+                                    }
+
+                                    function escolher() {
+                                        if (indice < 0 || !opcoes[indice]) { return; }
+                                        ativo.value = opcoes[indice].getAttribute('data-nome');
+                                        fechar();
+                                    }
+
+                                    function abrir() {
+                                        var termo = semAcento(ativo.value.trim());
+                                        var achados = termo ? chaves.filter(function (item) {
+                                            return item.chave.indexOf(termo) !== -1;
+                                        }) : chaves;
+                                        var total = achados.length;
+
+                                        lista.innerHTML = '';
+                                        opcoes = [];
+                                        indice = -1;
+
+                                        achados.slice(0, TETO).forEach(function (item, posicao) {
+                                            var opcao = document.createElement('div');
+                                            opcao.className = 'opcao-de-nome';
+                                            opcao.id = 'opcao-de-nome-' + posicao;
+                                            opcao.setAttribute('role', 'option');
+                                            opcao.setAttribute('aria-selected', 'false');
+                                            opcao.setAttribute('data-nome', item.texto);
+                                            opcao.textContent = item.texto;
+                                            opcao.addEventListener('mousedown', function (evento) {
+                                                evento.preventDefault();
+                                            });
+                                            opcao.addEventListener('click', function () {
+                                                ativo.value = item.texto;
+                                                fechar();
+                                            });
+                                            lista.appendChild(opcao);
+                                            opcoes.push(opcao);
+                                        });
+
+                                        if (total > TETO) {
+                                            var rodape = document.createElement('div');
+                                            rodape.className = 'lista-de-nomes-rodape';
+                                            rodape.textContent = 'mostrando ' + TETO + ' de ' + total + ' nomes — refine a digitação';
+                                            lista.appendChild(rodape);
+                                        }
+
+                                        var status = document.getElementById('status-da-lista');
+                                        if (status) {
+                                            status.textContent = total === 1 ? '1 nome encontrado' : total + ' nomes encontrados';
+                                        }
+
+                                        lista.hidden = false;
+                                        ativo.setAttribute('aria-expanded', 'true');
+                                        posicionar();
+                                    }
+
+                                    var campos = document.querySelectorAll('.campo-de-nome');
+                                    Array.prototype.forEach.call(campos, function (campo) {
+                                        campo.addEventListener('focus', function () {
+                                            ativo = campo;
+                                            if (campo.value.trim()) { abrir(); }
+                                        });
+                                        campo.addEventListener('input', function () {
+                                            ativo = campo;
+                                            if (!lista.hidden) { abrir(); }
+                                        });
+                                        campo.addEventListener('keydown', function (evento) {
+                                            if (evento.key === 'Escape') {
+                                                if (!lista.hidden) { evento.preventDefault(); fechar(); }
+                                                return;
+                                            }
+                                            if (evento.key === 'ArrowDown') {
+                                                evento.preventDefault();
+                                                if (lista.hidden) { abrir(); } else { destacar(indice + 1); }
+                                                return;
+                                            }
+                                            if (evento.key === 'ArrowUp') {
+                                                evento.preventDefault();
+                                                if (!lista.hidden) { destacar(indice - 1); }
+                                                return;
+                                            }
+                                            if (evento.key === 'Enter' && !lista.hidden && indice >= 0) {
+                                                evento.preventDefault();
+                                                escolher();
+                                            }
+                                        });
+                                        campo.addEventListener('blur', function () {
+                                            window.setTimeout(fechar, 120);
+                                        });
+                                    });
+
+                                    document.addEventListener('mousedown', function (evento) {
+                                        var alvo = evento.target;
+                                        if (!alvo || !alvo.classList) { fechar(); return; }
+                                        if (alvo === lista || lista.contains(alvo)) { return; }
+                                        if (alvo.classList.contains('campo-de-nome')) { return; }
+                                        fechar();
+                                    });
+
+                                    window.addEventListener('resize', posicionar);
+                                    window.addEventListener('scroll', posicionar, true);
+                                })();
+                            </script>
                         {% endif %}
 
                         <div id="loading" class="text-center mt-4" style="display: none;">
@@ -449,18 +768,22 @@
                     {% if observacoes_do_arquivo %}
                       {# O bloco recolhe como os cartoes — mesmo `details`, mesmo
                          `sumario-do-cartao`, mesmo losango —, e a diferenca esta no que ele
-                         carrega: AVISO, e nao apendice. Por isso nasce ABERTO. O bloco dos
-                         descartados pode comecar fechado porque e' o rodape da analise; este
-                         diz coisas que mudam a leitura do resultado (nome em mais de um kit,
-                         CSV sem coluna de kit, linhas ignoradas, raiz ambigua), e esconder
-                         aviso atras de um clique contraria o motivo de ele existir: o adendo
-                         017 o tirou de dentro dos cartoes justamente para ele ser LIDO.
+                         carrega: AVISO, e nao apendice. Ele nasce FECHADO desde a emenda
+                         `E011` da feature 037: o operador pediu o padrao fechado, e a leitura
+                         dos avisos passa a ser um clique.
+
+                         O QUE ISSO CUSTA, e fica registrado: o adendo 017 tirou os avisos de
+                         dentro dos cartoes para eles serem LIDOS, e o adendo 022 os deixou
+                         abertos por isso. Fechado, o titulo do bloco continua na tela — quem
+                         abre a analise ve que ha observacoes, e o clique e um so. Se um dia o
+                         bloco voltar a esconder informacao que muda a leitura do resultado, a
+                         decisao a revisitar e' esta.
 
                          O `<h2>`/`<h3>` que titulava virou o proprio `<summary>`. A classe
                          `observacoes-do-arquivo` FICA no container: e' ela que o teste do
                          adendo 017 usa para achar o bloco e para prender que ele renderiza
                          fora da guarda de `dna_results`. #}
-                      <details class="card observacoes-do-arquivo mb-4" open>
+                      <details class="card observacoes-do-arquivo mb-4">
                         <summary class="sumario-do-cartao">
                           <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
                         </summary>
@@ -513,6 +836,12 @@
                                aparece — e a frase passaria a prometer o que a pagina nao mostra. #}
                             {% if r.sugestao_resumo and r.sugestao_mermaid %}{% set ns.sugeridos = ns.sugeridos + 1 %}{% endif %}
                         {% endfor %}
+                        {# O RESUMO EM UM PARAGRAFO SO (emenda E012). Antes eram dois paragrafos —
+                           a contagem e a legenda do selo —, e a frase da arvore sugerida ainda
+                           quebrava com `<br>` no meio. Agora e um bloco unico: contagem, sugestao
+                           e legenda correm no mesmo paragrafo, separadas por ponto. A classe
+                           `legenda-da-validacao` fica no `span`, para o teste que a procura
+                           continuar achando o que procura. #}
                         <p class="text-center text-muted contagem-das-conexoes">
                             {{ dna_results | length }} conexões analisadas:
                             <strong>{{ ns.com_caminho }}</strong> com caminho genealógico no GEDCOM
@@ -524,19 +853,19 @@
                                 {# A arvore sugerida e' HIPOTESE, e a frase diz isso: as geracoes
                                    marcadas nao existem no GEDCOM. Sem esta ressalva o operador
                                    leria a sugestao como parentesco documentado. #}
-                                <br><strong>{{ ns.sugeridos }}</strong> {{ 'conexão mostra' if ns.sugeridos == 1 else 'conexões mostram' }}
+                                <strong>{{ ns.sugeridos }}</strong> {{ 'conexão mostra' if ns.sugeridos == 1 else 'conexões mostram' }}
                                 árvore sugerida — gerações virtuais que não estão no GEDCOM.
                             {% endif %}
-                        </p>
-                        {# A LEGENDA DO SELO DE VALIDACAO (feature 031). Ela existe por causa de uma
-                           decisao: `Inconclusivo` NAO ganha selo, porque numa analise de 142 cartoes
-                           ele e' o caso mais comum e marcar quase todos nao marcaria nenhum. Sem esta
-                           linha, a ausencia do selo seria ambigua entre "validado", "inconclusivo" e
-                           "nao calculado" — e o operador concluiria errado. #}
-                        <p class="text-center text-muted legenda-da-validacao">
-                            O selo <span class="badge validacao-valido">Validado</span> marca a linha temporalmente viável
-                            e <span class="badge validacao-conflito">Linha em conflito</span> marca a contradição biológica
-                            ou temporal (<strong>sem selo = não concluído</strong>, por dado faltante, afinidade ou ambiguidade).
+                            {# A LEGENDA DO SELO DE VALIDACAO (feature 031). Ela existe por causa de uma
+                               decisao: `Inconclusivo` NAO ganha selo, porque numa analise de 142 cartoes
+                               ele e' o caso mais comum e marcar quase todos nao marcaria nenhum. Sem esta
+                               frase, a ausencia do selo seria ambigua entre "validado", "inconclusivo" e
+                               "nao calculado" — e o operador concluiria errado. #}
+                            <span class="legenda-da-validacao">
+                                O selo <span class="badge validacao-valido">Validado</span> marca a linha temporalmente viável
+                                e <span class="badge validacao-conflito">Linha em conflito</span> marca a contradição biológica
+                                ou temporal (<strong>sem selo = não concluído</strong>, por dado faltante, afinidade ou ambiguidade).
+                            </span>
                         </p>
                         {# OS DOIS BOTOES QUE IMPEDEM O COLAPSO DE VIRAR TRABALHO. Sem eles, ler a
                            analise inteira passa a ser um clique por conexao — medido nesta
@@ -1312,7 +1641,7 @@
                           <form method="POST" action="{{ url_for('descartes_em_csv') }}" class="mb-3">
                             <input type="hidden" name="dados" value="{{ skipped_matches | tojson | forceescape }}">
                             <button type="submit" class="botao-do-cartao">Baixar lista de trabalho (CSV)</button>
-                            <span class="text-muted small">com o motivo e os candidatos de cada nome; a coluna Motivo separa quem não tem sobrenome na árvore de quem tem o sobrenome e não o parente.</span>
+                            <span class="text-muted small">com o motivo de cada nome em linguagem comum e os candidatos que a árvore oferecia; os números de cada recusa vão na última coluna, <strong>Detalhe técnico</strong>.</span>
                           </form>
 
                           <div class="table-responsive">
@@ -1538,6 +1867,63 @@
                 document.getElementById('results-area').style.display = 'none';
             });
         });
+    </script>
+
+    {# AS SETAS NA BARRA DE FASES. O componente de abas do Bootstrap trata as setas HORIZONTAIS
+       dentro do `tablist`; a barra desta tela e VERTICAL, e o padrao ARIA pede ↑/↓. Em vez de
+       trocar de mecanismo, este bloco mapeia ↑/↓ para o mesmo `click()` que o plugin ja escuta:
+       foco anda, painel troca, `aria-selected` acompanha. Um unico lugar, tres linhas de regra. #}
+    <script>
+        (function () {
+            /* SINCRONIA ENTRE OS DOIS CONTROLES (emenda E006). A barra lateral e as abas
+               apontam para os mesmos tres paineis. O plugin ativa apenas o botao clicado, entao
+               sem esta guarda os dois ficariam "selecionados" ao mesmo tempo — e o leitor de
+               tela anunciaria dois selecionados para um painel so. */
+            var controles = Array.prototype.slice.call(
+                document.querySelectorAll('[role="tab"][data-bs-target]'));
+            document.addEventListener('shown.bs.tab', function (evento) {
+                var alvo = evento.target.getAttribute('data-bs-target');
+                controles.forEach(function (botao) {
+                    var ativo = botao.getAttribute('data-bs-target') === alvo;
+                    botao.classList.toggle('active', ativo);
+                    botao.setAttribute('aria-selected', ativo ? 'true' : 'false');
+                });
+            });
+
+            var barra = document.querySelector('.barra-de-fases');
+            if (!barra) { return; }
+
+            var botoes = Array.prototype.slice.call(barra.querySelectorAll('.fase-botao'));
+            barra.addEventListener('keydown', function (evento) {
+                if (evento.key !== 'ArrowDown' && evento.key !== 'ArrowUp') { return; }
+                var atual = botoes.indexOf(document.activeElement);
+                if (atual === -1) { return; }
+
+                evento.preventDefault();
+                var passo = evento.key === 'ArrowDown' ? 1 : -1;
+                var proximo = botoes[(atual + passo + botoes.length) % botoes.length];
+                proximo.focus();
+                proximo.click();
+            });
+        })();
+    </script>
+
+    {# O RETORNO DO ARQUIVO ESCOLHIDO. Vale nos dois estados da tela, porque o bloco de
+       envio existe nos dois. E so um rotulo: nao antecipa, nem substitui, a mensagem que o
+       servidor devolve depois do envio — a barreira continua sendo o `accept` (que filtra o
+       seletor) e, de verdade, a validacao de conteudo no servidor. #}
+    <script>
+        (function () {
+            var campo = document.getElementById('gedcom');
+            var rotulo = document.getElementById('nome-do-arquivo-escolhido');
+            if (!campo || !rotulo) { return; }
+
+            var padrao = rotulo.textContent;
+            campo.addEventListener('change', function () {
+                var arquivo = campo.files && campo.files[0];
+                rotulo.textContent = arquivo ? arquivo.name : padrao;
+            });
+        })();
     </script>
 
 </body>
