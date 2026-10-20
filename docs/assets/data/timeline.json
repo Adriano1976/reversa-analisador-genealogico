@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T15:50:16Z",
+  "generatedAt": "2026-10-20T11:49:26Z",
   "sourceName": "cronica ate 2026-09-30, eventos de .reversa/state.json a partir de 2026-10-05 e eventos do ciclo forward a partir de 2026-08-11, todos os posteriores marcados como fora da cronica",
   "project": "analisador-genealogico",
   "sources": [
@@ -19,8 +19,8 @@
     {
       "id": "progress.jsonl",
       "path": "_reversa_forward/*/progress.jsonl",
-      "eventos": 10,
-      "ultimo": "2026-10-08T06:56:45Z"
+      "eventos": 30,
+      "ultimo": "2026-10-20T11:22:00Z"
     }
   ],
   "events": [
@@ -925,6 +925,246 @@
       "foraDaCronica": true,
       "feature": "008-persistencia-postgres-docker",
       "featureId": "008"
+    },
+    {
+      "id": "f003-20261008",
+      "date": "2026-10-08T16:08:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-pasta-app-para-src: 2026-10-08",
+      "detail": "1 ação(ões) em 2026-10-08 (1 done). T021: concluida pelo pipeline de documentacao (/reversa-docs, com reversa-extract-soul antes), nao pelo ciclo de codificacao. Mini-site regenerado: 61 modu...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "003-renomear-pasta-app-para-src",
+      "featureId": "003"
+    },
+    {
+      "id": "f009-20261008",
+      "date": "2026-10-08T19:01:41Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "rota-do-apple-touch-icon: 2026-10-08",
+      "detail": "15 ação(ões) em 2026-10-08 (15 done). T003: sonda independente APROVADA: tipo de cor 2 (truecolor SEM canal alfa) prova opacidade pelo formato, sem biblioteca de imagem; IDAT descompacta em 97.... T012: diff VAZIO em src/templates, src/core, src/parsers, src/reporting e src/utils; src/app.py com 47 insercoes e 1 remocao (a linha de import) T009: rota responde 200 image/png 16504 bytes de dentro do container, cache-control no-cache; do host, GET / = 23906 bytes e favicon.ico = 404 T010: suíte 302 passed (linha de base 282, +20 testes novos) e PARIDADE 100% exit 0; falha-antes registrada: 5 failed / 3 passed antes da rota",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "009-rota-do-apple-touch-icon",
+      "featureId": "009"
+    },
+    {
+      "id": "f010-20261009",
+      "date": "2026-10-09T14:59:51Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "uploads-fora-do-repositorio: 2026-10-09",
+      "detail": "27 ação(ões) em 2026-10-09 (3 corrected, 24 done). BATCH-T001-T012: a primeira gravacao deste lote saiu como UMA linha so: o operador de virgula do PowerShell tem precedencia maior que o + e fundiu os 12 objetos. Rees... BATCH-T001-T012: os carimbos do lote usaram Get-Date no fuso local com sufixo Z literal; o UTC real e 14:34Z, nao 11:34Z. A nota de correcao foi anexada a cada arquiv... T011: defeito medido em T018: o cabecalho do grupo de duplicatas dizia sempre 2 copias (len(grupo) em vez de len(grupo[1])). Corrigido com teste de regress... T023: suite completa 327 passed, 9 skipped, exit 0; pendente do operador: expurgo real (passo 11) e remocao da pasta antiga (passo 12)",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "010-uploads-fora-do-repositorio",
+      "featureId": "010"
+    },
+    {
+      "id": "f012-20261009",
+      "date": "2026-10-09T17:29:59Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "pasta-canonica-no-repositorio: 2026-10-09",
+      "detail": "26 ação(ões) em 2026-10-09 (1 corrected, 25 done). T006: mais 3 testes de mutacao sobre copias em pasta temporaria; 8 testes passam; sonda independente confirma que a copia com as linhas invertidas da ordem... T008: secao Onde ficam os arquivos enviados reescrita: src/uploads declarada canonica e unica, variavel apresentada como sobreposicao de processo usada pel... T009: bloco das duas guardas do Principio I, com a ordem no dockerignore explicada, o teste que as prende nomeado e o aviso de que git clean -xdf apaga a p... T010: quatro afirmacoes falsas corrigidas: a da visao geral (linha 68), o paragrafo da ferramenta com o comando migrar para fora, a linha da arvore do proj...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "012-pasta-canonica-no-repositorio",
+      "featureId": "012"
+    },
+    {
+      "id": "f011-20261009",
+      "date": "2026-10-09T23:40:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "escolher-arquivo-da-lista: 2026-10-09",
+      "detail": "35 ação(ões) em 2026-10-09 (2 corrected, 31 done, 1 failed, 1 partial). DECISAO: Conflito da feature 009 RESOLVIDO: a constante SHA_DA_TELA foi atualizada de 4b7f0b0c para e18d1749 (23906 para 25825 bytes), com o comentario regist... T009: A linha anterior (status partial) foi resolvida em dois pontos. (1) O teste de precedencia era verde vazio: a sentinela nao aparecia no corpo de qual... T011: FASE 2 FECHADA. 3 testes: 2 guardas do contrato de envio (RN-08) e 1 motor (RF-05, o arquivo enviado aparece na lista). Suite 35 failed / 346 passed,... T012: listar(dono) declarado no Protocol, com EntradaArmazenada como tipo de retorno (nome armazenado, bytes, modificado_em) e entrada no __all__. Docstrin...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "011-escolher-arquivo-da-lista",
+      "featureId": "011"
+    },
+    {
+      "id": "f011-20261010",
+      "date": "2026-10-10T18:00:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "escolher-arquivo-da-lista: 2026-10-10",
+      "detail": "29 ação(ões) em 2026-10-10 (1 corrigido, 21 done, 6 nota, 1 resolvido). AUDITORIA: A004, A005 e A006 CORRIGIDOS -- coerencia documental, NENHUMA linha de codigo tocada. A004 corrigida nos dois pontos do requirements.md depois de CON... AMBIENTE: DESVIO DE AMBIENTE, nao defeito de codigo. A variavel DATABASE_URL esta DEFINIDA na sessao do harness (postgresql://...@db:5432/genealogia, o servico... BUG-6RKP: REGISTRO DO BUG ENCERRADO. `spec_verdict: spec-correta` -- o VALOR ESTAVA NO SCHEMA e eu nao o tinha lido: o enum e `spec-correta | spec-desatualizad... ACHADO: ACHADO, sem causa provada. `src/uploads` foi alterada as 00:59:52 de 2026-10-10, durante os testes deste turno: passou de 19 arquivos / 29.166.183 by...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "011-escolher-arquivo-da-lista",
+      "featureId": "011"
+    },
+    {
+      "id": "f025-20261017",
+      "date": "2026-10-17T16:52:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "desempenho-carga-arvore: 2026-10-17",
+      "detail": "20 ação(ões) em 2026-10-17 (20 done). T016: medianas de ponta a ponta nao sao atribuiveis (dispersao 83%); ganho declarado e o da fase removida T006: FAM=2, read_record=49321, index0=3, _init_index=1; carga 34.47/45.96/25.09 (dispersao 83%) T015: diff so no parser e nos testes; sha256 de _profile_big.py e harness.py inalterados T014: FAM=1, read_record=42391, index0=2, _init_index=1; custo removido mediana 1.59 s",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "025-desempenho-carga-arvore",
+      "featureId": "025"
+    },
+    {
+      "id": "f026-20261017",
+      "date": "2026-10-17T19:10:05Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "polimento-visual-da-tela: 2026-10-17",
+      "detail": "15 ação(ões) em 2026-10-17 (15 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "026-polimento-visual-da-tela",
+      "featureId": "026"
+    },
+    {
+      "id": "f027-20261017",
+      "date": "2026-10-17T19:48:46Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "harmonizar-topo-da-tela: 2026-10-17",
+      "detail": "18 ação(ões) em 2026-10-17 (18 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "027-harmonizar-topo-da-tela",
+      "featureId": "027"
+    },
+    {
+      "id": "f030-20261018",
+      "date": "2026-10-18T02:33:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renderizador-graphviz: 2026-10-18",
+      "detail": "19 ação(ões) em 2026-10-18 (19 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "030-renderizador-graphviz",
+      "featureId": "030"
+    },
+    {
+      "id": "f028-20261018",
+      "date": "2026-10-18T04:28:29Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "validador-de-dados-dna: 2026-10-18",
+      "detail": "19 ação(ões) em 2026-10-18 (19 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "028-validador-de-dados-dna",
+      "featureId": "028"
+    },
+    {
+      "id": "f029-20261018",
+      "date": "2026-10-18T05:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "desacoplamento-de-nos: 2026-10-18",
+      "detail": "22 ação(ões) em 2026-10-18 (22 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "029-desacoplamento-de-nos",
+      "featureId": "029"
+    },
+    {
+      "id": "f031-20261018",
+      "date": "2026-10-18T15:07:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "veredito-no-cartao: 2026-10-18",
+      "detail": "15 ação(ões) em 2026-10-18 (15 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "031-veredito-no-cartao",
+      "featureId": "031"
+    },
+    {
+      "id": "f032-20261019",
+      "date": "2026-10-19T10:38:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "arvore-sugerida-na-tela: 2026-10-19",
+      "detail": "14 ação(ões) em 2026-10-19 (14 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "032-arvore-sugerida-na-tela",
+      "featureId": "032"
+    },
+    {
+      "id": "f033-20261019",
+      "date": "2026-10-19T13:05:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "contador-em-tres-faixas: 2026-10-19",
+      "detail": "10 ação(ões) em 2026-10-19 (10 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "033-contador-em-tres-faixas",
+      "featureId": "033"
+    },
+    {
+      "id": "f034-20261019",
+      "date": "2026-10-19T14:58:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "revisao-dos-descartes: 2026-10-19",
+      "detail": "14 ação(ões) em 2026-10-19 (14 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "034-revisao-dos-descartes",
+      "featureId": "034"
+    },
+    {
+      "id": "f035-20261019",
+      "date": "2026-10-19T15:02:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "lista-de-trabalho-dos-descartes: 2026-10-19",
+      "detail": "6 ação(ões) em 2026-10-19 (6 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "035-lista-de-trabalho-dos-descartes",
+      "featureId": "035"
+    },
+    {
+      "id": "f036-20261019",
+      "date": "2026-10-19T19:30:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "refino-do-cartao-de-resultado: 2026-10-19",
+      "detail": "20 ação(ões) em 2026-10-19 (20 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "036-refino-do-cartao-de-resultado",
+      "featureId": "036"
+    },
+    {
+      "id": "f038-20261020",
+      "date": "2026-10-20T08:50:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "humanizar-motivo-descartes: 2026-10-20",
+      "detail": "12 ação(ões) em 2026-10-20 (12 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "038-humanizar-motivo-descartes",
+      "featureId": "038"
+    },
+    {
+      "id": "f037-20261020",
+      "date": "2026-10-20T11:22:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "redesenho-das-tres-fases: 2026-10-20",
+      "detail": "40 ação(ões) em 2026-10-20 (40 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "037-redesenho-das-tres-fases",
+      "featureId": "037"
     }
   ]
 }

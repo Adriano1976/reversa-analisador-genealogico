@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T15:50:51Z",
+  "generatedAt": "2026-10-20T11:49:26Z",
   "project": "analisador-genealogico",
   "sourceStamp": "SDD re-extraido em 2026-10-05 (nivel completo)",
   "specs": [
@@ -12,14 +12,14 @@
       "summary": "Cruza a árvore GEDCOM carregada com um CSV de matches de DNA e responde **três perguntas separadas**, sem nunca misturá-las: *o que o GEDCOM afirma sobre o parentesco*, *o que o arquivo de DNA informa* e *as duas coisas são compatíveis entre si*.",
       "hasRequirements": true,
       "counts": {
-        "requisitosFuncionais": 26,
-        "criteriosGherkin": 10,
-        "tarefas": 32,
+        "requisitosFuncionais": 34,
+        "criteriosGherkin": 12,
+        "tarefas": 46,
         "arquivos": {
-          "requirements.md": 247,
-          "design.md": 214,
-          "tasks.md": 267,
-          "contracts.md": 271
+          "requirements.md": 317,
+          "design.md": 257,
+          "tasks.md": 367,
+          "contracts.md": 346
         }
       }
     },
@@ -31,14 +31,52 @@
       "summary": "Busca a conexão genealógica entre duas pessoas de uma árvore GEDCOM carregada.",
       "hasRequirements": true,
       "counts": {
-        "requisitosFuncionais": 24,
-        "criteriosGherkin": 9,
-        "tarefas": 29,
+        "requisitosFuncionais": 43,
+        "criteriosGherkin": 10,
+        "tarefas": 38,
         "arquivos": {
-          "requirements.md": 217,
-          "design.md": 228,
-          "tasks.md": 242,
-          "contracts.md": 217
+          "requirements.md": 291,
+          "design.md": 256,
+          "tasks.md": 308,
+          "contracts.md": 253
+        }
+      }
+    },
+    {
+      "id": "recursos-da-tela",
+      "slug": "recursos-da-tela",
+      "title": "recursos-da-tela",
+      "endpoint": "",
+      "summary": "Serve as **duas artes de runtime** da tela — o ícone de atalho do sistema móvel e o banner do topo — a partir de caminhos **convencionais** que ninguém declara: `/apple-touch-icon.png` e `/banner.png`.",
+      "hasRequirements": true,
+      "counts": {
+        "requisitosFuncionais": 25,
+        "criteriosGherkin": 9,
+        "tarefas": 22,
+        "arquivos": {
+          "requirements.md": 229,
+          "design.md": 189,
+          "tasks.md": 198,
+          "contracts.md": 197
+        }
+      }
+    },
+    {
+      "id": "tela-de-entrada",
+      "slug": "tela-de-entrada",
+      "title": "tela-de-entrada",
+      "endpoint": "",
+      "summary": "É a **tela inicial** do sistema e a única superfície de **escolha** de arquivos.",
+      "hasRequirements": true,
+      "counts": {
+        "requisitosFuncionais": 24,
+        "criteriosGherkin": 8,
+        "tarefas": 22,
+        "arquivos": {
+          "requirements.md": 171,
+          "design.md": 155,
+          "tasks.md": 176,
+          "contracts.md": 186
         }
       }
     },
@@ -47,17 +85,17 @@
       "slug": "upload-gedcom",
       "title": "Upload e parsing de GEDCOM",
       "endpoint": "action=upload_gedcom",
-      "summary": "Recebe um arquivo GEDCOM enviado pelo navegador, **decide se ele pode ser gravado**, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo).",
+      "summary": "Recebe um arquivo GEDCOM enviado pelo navegador, **decide se ele pode ser gravado**, grava-o sob uma chave derivada do próprio conteúdo, **aposenta as versões anteriores de mesmo nome visível** e devolve a **árvore** como valor ao chamador.",
       "hasRequirements": true,
       "counts": {
-        "requisitosFuncionais": 19,
-        "criteriosGherkin": 6,
-        "tarefas": 20,
+        "requisitosFuncionais": 24,
+        "criteriosGherkin": 10,
+        "tarefas": 26,
         "arquivos": {
-          "requirements.md": 156,
-          "design.md": 154,
-          "tasks.md": 164,
-          "contracts.md": 158
+          "requirements.md": 204,
+          "design.md": 167,
+          "tasks.md": 217,
+          "contracts.md": 198
         }
       }
     }

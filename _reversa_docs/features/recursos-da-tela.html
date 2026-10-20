@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-base-path="../">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="reversa-category" content="diagram">
+<meta name="reversa-producer-agent" content="reversa-docs-storyteller">
+<meta name="reversa-template" content="feature">
+<meta name="reversa-page-id" content="feature-recursos-da-tela">
+<meta name="reversa-visual-style" content="sober">
+<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<title>Analisador Genealógico — Documentação</title>
+<!-- icone da aba: logo do projeto -->
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/logo.png">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/nav.js"></script>
+<style>
+  :root{--bg:#1e2024;--panel:#26282e;--line:#3a3d45;--txt:#d7dae0;--muted:#8b909a;--accent:#4f8cff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;height:100vh;overflow-y:auto;}
+  header.site{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(30,32,36,.92);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;z-index:20;gap:14px;}
+  header.site .brand{font-weight:600;white-space:nowrap;flex:0 0 auto;}
+  header.site .sub{color:var(--muted);font-size:12px;white-space:nowrap;flex:0 0 auto;}
+  nav.reversa-doc-nav{display:flex;gap:4px;flex:1 1 0;justify-content:flex-start;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none;}
+  nav.reversa-doc-nav::-webkit-scrollbar{display:none;}
+  nav.reversa-doc-nav a:first-child{margin-left:auto;}
+  nav.reversa-doc-nav a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:6px;white-space:nowrap;}
+  nav.reversa-doc-nav a:hover{color:var(--txt);background:var(--panel);}
+  nav.reversa-doc-nav a[aria-current="page"]{color:#fff;background:rgba(79,140,255,.16);outline:1px solid rgba(79,140,255,.35);}
+  @media (max-width:1500px){
+    nav.reversa-doc-nav{gap:2px;}
+    nav.reversa-doc-nav a{padding:6px 7px;font-size:12px;}
+  }
+  @media (max-width:1350px){
+    header.site .sub{display:none;}
+  }
+  .seal-mini{width:26px;height:26px;flex:0 0 auto;}
+  main{margin-top:52px;padding:28px;max-width:960px;margin-left:auto;margin-right:auto;}
+  .crumb{color:var(--muted);font-size:13px;margin-bottom:10px;}
+  .crumb a{color:var(--accent);text-decoration:none;}
+  h1{font-size:26px;margin-bottom:6px;}
+  .summary{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:20px;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);}
+  h2{font-size:18px;margin:26px 0 12px;border-left:3px solid var(--accent);padding-left:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border-radius:8px;overflow:hidden;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;}
+  td b{color:#fff;}
+  code{background:#181a1e;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12px;}
+  pre{background:#181a1e;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre-wrap;line-height:1.5;}
+  .warn{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.35);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0;}
+  .tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:inherit;}
+  .tabs button.on{color:#fff;border-color:rgba(79,140,255,.5);background:rgba(79,140,255,.14);}
+  .panel{display:none;margin-top:12px;}
+  .panel.on{display:block;}
+  .acc{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel);}
+  .acc details{border-bottom:1px solid var(--line);}
+  .acc details:last-child{border-bottom:none;}
+  .acc summary{cursor:pointer;padding:12px 14px;font-size:13px;color:var(--txt);list-style:none;display:flex;gap:10px;align-items:baseline;}
+  .acc summary::-webkit-details-marker{display:none;}
+  .acc summary .id{color:var(--accent);font-family:Consolas,monospace;font-size:12px;min-width:58px;}
+  .acc summary .pri{margin-left:auto;color:var(--muted);font-size:11px;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .acc .body{padding:0 14px 14px 14px;color:var(--muted);font-size:13px;line-height:1.6;}
+  .acc details[open] summary{background:rgba(79,140,255,.08);}
+  .note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:16px;}
+  .delta-warn{background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.35);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;margin:18px 0 6px;}
+  .delta-warn h3{font-size:14px;color:#fff;margin-bottom:8px;letter-spacing:.3px;}
+  .delta-warn p{color:var(--muted);margin-bottom:8px;}
+  .delta-warn p:last-child{margin-bottom:0;}
+  .delta-warn a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<header class="site">
+  <img class="seal-mini" src="../assets/img/logo-mini.png" alt="Logo do projeto">
+  <span class="brand">Analisador Genealógico</span>
+  <span class="sub">Feature</span>
+  <nav class="reversa-doc-nav">
+  <a href="../index.html" data-page-id="index">Visão geral</a>
+  <a href="../arquitetura.html" data-page-id="arquitetura">Arquitetura 3D</a>
+  <a href="../modulos.html" data-page-id="modulos">Módulos</a>
+  <a href="../metricas.html" data-page-id="metricas">Métricas</a>
+  <a href="../timeline.html" data-page-id="timeline">Timeline</a>
+  <a href="../glossario.html" data-page-id="glossario">Glossário</a>
+  <a href="../deck.html" data-page-id="deck">Deck</a>
+  <a href="../features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
+  <a href="../features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
+  <a href="../features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+  <a href="../features/tela-de-entrada.html" data-page-id="tela-de-entrada">Tela de entrada</a>
+  <a href="../features/recursos-da-tela.html" data-page-id="recursos-da-tela">Artes da tela</a>
+</nav>
+</header>
+<main>
+  <div class="crumb"><a href="../index.html">Início</a> / <a href="../modulos.html">Módulos</a> / Feature</div>
+  <h1>recursos-da-tela</h1>
+  <div class="meta">
+    <span class="pill">Endpoints <code>GET /apple-touch-icon.png</code> e <code>GET /banner.png</code></span>
+    <span class="pill" id="pillRf"></span>
+    <span class="pill" id="pillGh"></span>
+    <span class="pill" id="pillTk"></span>
+    <span class="pill" id="pillTt"></span>
+    <span class="pill">Spec: recursos-da-tela</span>
+  </div>
+  <p class="summary" id="tldr">Serve as duas artes de runtime da tela, o ícone de atalho do sistema móvel e o banner do topo, por caminhos convencionais, a partir de uma receita única que deriva a arte canônica antes de servi-la. 🟢 CONFIRMADO.</p>
+
+  <div class="delta-warn" id="delta-pos-extracao">
+    <h3>Delta depois da extração: a arte do topo mudou em 2026-10-16</h3>
+    <p>O SDD desta unit foi extraído em 2026-10-10. Depois disso, a arte do topo foi trocada: o arquivo servido em <code>src/assets/banner-da-tela.png</code> tem hoje 318.911 bytes, e não os 317.058 bytes registrados no SDD, e a composição atual não traz o texto desenhado. 🟡 INFERIDO pela diferença entre o SDD e o arquivo, com a troca registrada em comentário no <code>src/app.py</code> (:444 a :455).</p>
+    <p>O que continua valendo: a rota, a derivação e o contrato de degradação. 🟢 CONFIRMADO. O que envelheceu: a âncora de bytes do banner e a justificativa das duas faixas que citava o texto dourado. 🔴 LACUNA: falta decisão humana sobre atualizar a âncora de 317.058 bytes ou tratá-la como registro histórico.</p>
+  </div>
+
+  <h2>Como a Feature Funciona</h2>
+  <div class="tabs" id="tabs">
+    <button data-panel="p-fluxo" class="on">Fluxo</button>
+    <button data-panel="p-receita">Receita de derivação</button>
+    <button data-panel="p-contratos">Contratos</button>
+    <button data-panel="p-tarefas">Tarefas</button>
+  </div>
+
+  <div class="panel on" id="p-fluxo">
+    <table><tbody>
+      <tr><th>Passo</th><th>O que acontece</th><th>Confiança</th></tr>
+      <tr><td><b>1. Duas rotas, um desenho</b></td><td><code>GET /apple-touch-icon.png</code> e <code>GET /banner.png</code> são registradas somente com <code>GET</code>. Qualquer escrita recebe <code>405</code> do roteador, sem validação escrita à mão.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>2. O caminho vem de <code>app.config</code></b></td><td>A rota do ícone lê <code>ARTE_DO_ICONE</code>; a do banner lê <code>ARTE_DO_TOPO</code>. Os caminhos ficam em <code>config</code> para que o caso de ausência seja testável sem tocar no repositório.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>3. Arte ausente</b></td><td><code>os.path.isfile</code> falso devolve <code>("", 404)</code>, com corpo vazio. Nenhuma outra rota muda de resposta, o atalho degrada para o ícone genérico e a tela continua de pé.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>4. Arte presente</b></td><td><code>send_file(caminho, mimetype="image/png")</code> devolve o PNG com <code>Content-Type: image/png</code>.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>5. Revalidação barata</b></td><td>O <code>ETag</code> emitido pelo <code>send_file</code> responde <code>304</code> sem corpo na rebusca com <code>If-None-Match</code>. Não há <code>Cache-Control</code> de validade longa, porque a arte foi trocada duas vezes em um único dia.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>6. Caminho ancorado no app</b></td><td>Os dois caminhos usam <code>dirname(abspath(__file__))</code>. A rota funciona com o processo iniciado de qualquer diretório de trabalho.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>7. Masthead</b></td><td>A ordem do documento é imagem com <code>w-50</code> e <code>alt</code> da ilustração, subtítulo, <code>h1</code> em texto e apresentação. A ordem tem teste próprio.</td><td>🟢 CONFIRMADO</td></tr>
+    </tbody></table>
+    <p class="note">Fonte: <code>_reversa_sdd/recursos-da-tela/design.md</code>, seção Fluxo Principal, e <code>contracts.md</code>, seções 1 e 5. Linhas conferidas em <code>src/app.py</code> (:376 a :441).</p>
+  </div>
+
+  <div class="panel" id="p-receita">
+    <table><tbody>
+      <tr><th>Rota</th><th>Arte de runtime</th><th>Bytes</th><th>Dimensões</th><th>Formato</th><th>Confiança</th></tr>
+      <tr><td><code>/apple-touch-icon.png</code></td><td><code>src/assets/apple-touch-icon.png</code></td><td>16.504</td><td>180 x 180</td><td>PNG RGB, tipo de cor 2, sem canal alfa</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><code>/banner.png</code></td><td><code>src/assets/banner-da-tela.png</code></td><td>318.911</td><td>1024 x 547</td><td>PNG RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
+    </tbody></table>
+    <p class="note">Tamanhos e dimensões medidos nos arquivos em 2026-10-20. O SDD registra 317.058 bytes para o banner; a diferença está no delta e nas Lacunas Declaradas.</p>
+
+    <table style="margin-top:14px"><tbody>
+      <tr><th>Fonte canônica</th><th>Arquivo</th><th>Bytes</th><th>Dimensões</th><th>Formato</th><th>Confiança</th></tr>
+      <tr><td>Ícone</td><td><code>docs/assets/img/logo.png</code></td><td>32.317</td><td>512 x 512</td><td>RGBA, com 32,5% de pixels de alfa 0</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>Banner</td><td><code>docs/assets/img/banner-analisador.png</code></td><td>1.101.780</td><td>1024 x 547</td><td>RGBA, com alfa 255 em 100% dos pixels; o SDD descreve RGB sem alfa</td><td>🟡 INFERIDO</td></tr>
+    </tbody></table>
+    <p class="note">As fontes moram em <code>docs/</code>, que não entra na imagem. A arte derivada é commitada em <code>src/assets/</code>.</p>
+
+    <table style="margin-top:14px"><tbody>
+      <tr><th>Receita do ícone</th><th>O que faz</th><th>Por quê</th><th>Confiança</th></tr>
+      <tr><td><b>1. Abrir a canônica</b></td><td>Abre <code>docs/assets/img/logo.png</code> em RGBA.</td><td>É a fonte única da arte. A imagem tem 32,5% de pixels totalmente transparentes e os quatro cantos em <code>(0,0,0,0)</code>.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>2. Compor sobre branco</b></td><td>Compõe a canônica sobre branco opaco <code>(255,255,255,255)</code>.</td><td>O sistema móvel compõe transparência sobre preto no ícone de atalho. Servir a arte crua daria um quadrado preto com o desenho por cima, incluindo as aberturas internas entre folhas e galhos.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>3. Reamostrar</b></td><td>Reamostra para 180 x 180 com LANCZOS.</td><td>É a medida que o sistema espera. Outra medida é reamostrada por ele e perde nitidez.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>4. Converter e manter cantos retos</b></td><td>Converte para RGB e não aplica raio de canto.</td><td>O sistema aplica a própria máscara arredondada. Arredondar aqui produziria arredondamento duplo, com um anel de fundo no canto.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>5. Gravar e ancorar</b></td><td>Salva PNG com <code>optimize=True</code> e fixa <code>TAMANHO_ESPERADO = 16504</code>.</td><td>O tamanho é a âncora que denuncia reamostragem, fundo ou compressão diferentes.</td><td>🟢 CONFIRMADO</td></tr>
+    </tbody></table>
+    <p class="note">Receita em <code>tests/icone_de_atalho.py</code>: <code>arte_derivada</code> (:72), <code>bytes_da_arte</code> (:87), <code>gravar_arte</code> (:94). Para regerar: <code>python -m tests.icone_de_atalho</code>.</p>
+
+    <table style="margin-top:14px"><tbody>
+      <tr><th>Receita do banner</th><th>O que faz</th><th>Por quê</th><th>Confiança</th></tr>
+      <tr><td><b>1. Abrir a canônica</b></td><td>Abre <code>docs/assets/img/banner-analisador.png</code> e converte para RGB.</td><td>A receita trabalha sobre RGB. A fonte atual é RGBA, mas todos os pixels são opacos, então a conversão não altera o desenho.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>2. Marcar o fundo globalmente</b></td><td><code>mascara_do_fundo</code> percorre todos os pixels e marca o fundo onde ele estiver.</td><td>A árvore, o livro e o texto formam anúncios fechados. A primeira versão, por inundação a partir da borda, deixou o pixel <code>(300,150)</code> opaco e 8.379 pixels de fundo opacos numa amostra de 1/9 da imagem.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>3. Faixa alta</b></td><td>Brilho maior ou igual a 190 com saturação menor ou igual a 50 é fundo.</td><td>Nessa faixa o fundo pode estar tingido, então o teto de saturação é largo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>4. Faixa média</b></td><td>Brilho entre 160 e 190 com saturação menor ou igual a 12 é fundo.</td><td>O quadriculado é neutro e a tinta clara da arte é levemente quente. Com um limite único, as letras do texto dourado ficaram ocas na composição anterior. O teste atual mede 455 pixels opacos nessa faixa e exige pelo menos 150.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>5. Piso absoluto</b></td><td>Brilho abaixo de 160 nunca é fundo.</td><td>O cinza mais escuro do fundo mede 185 e a sombra mais clara da arte mede 141. O piso de 160 fica entre os dois.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>6. Alfa proporcional</b></td><td>Na segunda passada, a fronteira recebe alfa proporcional à distância do fundo.</td><td>Entre a arte e o xadrez há uma faixa de 1 a 2 pixels de cinza intermediário. Deixá-la opaca desenharia um halo claro em volta de tudo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>7. Gravar</b></td><td>Salva RGBA em <code>src/assets/banner-da-tela.png</code>. Não há âncora de bytes no código.</td><td>A arte atual mede 318.911 bytes. O SDD registra 317.058 bytes, medidos antes da troca de 2026-10-16.</td><td>🟡 INFERIDO</td></tr>
+    </tbody></table>
+    <p class="note">Receita em <code>tests/banner_da_tela.py</code>: <code>_e_fundo</code> (:76), <code>mascara_do_fundo</code> (:110), <code>arte_limpa</code> (:127), <code>residuo_de_fundo</code> (:180). Para regerar: <code>python -m tests.banner_da_tela</code>.</p>
+
+    <table style="margin-top:14px"><tbody>
+      <tr><th>Por que derivar</th><th>O que aconteceria se servisse a arte crua ou editada à mão</th><th>Confiança</th></tr>
+      <tr><td><b>Defeito visível</b></td><td>O ícone cru vira quadrado preto no atalho. O banner cru desenha a grade cinza do quadriculado atrás do logo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Reprodutibilidade</b></td><td>Editar à mão quebra a fonte única e o teste de deriva. A receita regenera a arte a partir da canônica, com os mesmos parâmetros.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Imagem e runtime</b></td><td>A fonte canônica mora em <code>docs/</code>, que não entra na imagem. Gerar no runtime exigiria a fonte dentro do container, e gerar no import seria I/O no <code>src/app.py</code>.</td><td>🟢 CONFIRMADO</td></tr>
+    </tbody></table>
+
+    <div class="warn"><b>O que o teste de deriva cobre hoje.</b> <code>tests/test_deriva_da_arte.py</code> regenera o ícone com a receita e compara pixel a pixel com o arquivo commitado; os cinco testes passam. O banner não tem essa comparação com <code>arte_limpa()</code>: ele é verificado por propriedades em <code>tests/test_banner_do_topo.py</code>, com RGBA, faixa transparente, resíduo zero na caixa de regressão e os pontos opacos. 🔴 LACUNA: decidir se a cobertura por propriedade basta para o banner ou se falta um teste de deriva equivalente ao do ícone.</div>
+  </div>
+
+  <div class="panel" id="p-contratos">
+    <table><tbody>
+      <tr><th>Contrato</th><th>O que fixa</th><th>Confiança</th></tr>
+      <tr><td><b>HTTP 200</b></td><td>PNG do ícone ou do banner, com <code>Content-Type: image/png</code> e <code>ETag</code>.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>HTTP 404</b></td><td>Arte ausente devolve corpo vazio, sem HTML de erro e sem mensagem.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>HTTP 304</b></td><td>Revalidação com <code>If-None-Match</code> que casa devolve <code>304</code> sem corpo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>HTTP 405</b></td><td><code>POST</code>, <code>PUT</code>, <code>DELETE</code> e <code>PATCH</code> nos dois caminhos são recusados pelo roteador.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Descoberta</b></td><td>O ícone é descoberto por caminho convencional na raiz. O template não o declara, e o <code>GET /</code> continua byte a byte o mesmo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Ícone da aba</b></td><td>Continua sendo um <code>data URI</code> embutido no documento, não uma segunda rota.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Caminhos não servidos</b></td><td><code>favicon.ico</code> e <code>apple-touch-icon-precomposed.png</code> devolvem <code>404</code>; a superfície é deliberadamente ausente.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Pasta</b></td><td>A arte de runtime mora em <code>src/assets/</code>, porque o <code>.dockerignore</code> é lista de permissão. <code>src/static/</code> é proibida (W004) e <code>src/uploads/</code> é reexcluído depois de <code>!src/**</code>.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Arte commitada</b></td><td>A arte derivada é commitada, não gerada em tempo de execução. A fonte canônica não entra na imagem.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Receita</b></td><td>Fonte única em <code>tests/</code>, com import preguiçoso da biblioteca de imagem, que não está em <code>requirements.txt</code>.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Deriva</b></td><td>Comparação por pixel, nunca por <code>sha256</code>. O teste do ícone prova que detecta um pixel alterado e que recompressão não é deriva.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Masthead</b></td><td>Imagem com <code>w-50</code> e <code>alt</code> da ilustração, subtítulo, <code>h1</code> em texto e apresentação, nessa ordem, com teste próprio.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Mensagens</b></td><td>Não há mensagem ao operador: <code>404</code> vazio, <code>405</code> padrão do Flask e <code>304</code> sem corpo.</td><td>🟡 INFERIDO</td></tr>
+      <tr><td><b>Log</b></td><td>A ausência de arte não é registrada em lugar nenhum. O <code>404</code> é indistinguível de uma rota que não existe.</td><td>🔴 LACUNA</td></tr>
+    </tbody></table>
+    <p class="note">Fonte: <code>_reversa_sdd/recursos-da-tela/contracts.md</code>, seções 1 a 8.</p>
+  </div>
+
+  <div class="panel" id="p-tarefas">
+    <table><tbody>
+      <tr><th>Ordem</th><th>Bloco</th><th>Tarefas</th><th>Confiança</th></tr>
+      <tr><td>1</td><td><b>As duas rotas</b>, antes das artes existirem</td><td>T-01 a T-07</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>2</td><td><b>Receita do ícone</b></td><td>T-08 a T-10</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>3</td><td><b>Receita do banner</b>, com T-14 antes de T-11</td><td>T-11 a T-15. T-15 registra 317.058 bytes no SDD; o arquivo atual tem 318.911.</td><td>🟡 INFERIDO</td></tr>
+      <tr><td>4</td><td><b>Contrato da deriva e da pasta</b></td><td>T-16 a T-20</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>5</td><td><b>Masthead</b></td><td>T-21 e T-22</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>6</td><td><b>Testes de contrato</b></td><td>TT-01 a TT-16</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td>7</td><td><b>Verificação dentro do container</b></td><td>TT-17 não existe no repositório. É a lacuna L-33.</td><td>🔴 LACUNA</td></tr>
+    </tbody></table>
+    <p class="note">As tarefas de produção vão de T-01 a T-22; as de teste, de TT-01 a TT-17. Não há tarefa de migração de dados: a unit não persiste nada. 🟢 CONFIRMADO.</p>
+  </div>
+
+  <h2>Requisitos Funcionais</h2>
+  <p class="note">Os requisitos abaixo vêm da tabela de <code>_reversa_sdd/recursos-da-tela/requirements.md</code>. A contagem da pílula é lida de <code>window.RV_DATA.featuresIndex["recursos-da-tela"]</code>, com fallback para o snapshot embutido nesta página.</p>
+  <div class="acc" id="rfAcc"></div>
+
+  <h2>Critérios de Aceitação</h2>
+  <pre>Dado que a arte do ícone existe em src/assets/
+Quando o cliente requisita GET /apple-touch-icon.png
+Então a resposta é 200, com Content-Type image/png
+E o corpo tem 16.504 bytes
+E o PNG é 180x180 e declara tipo de cor 2 no IHDR
+
+Dado que a arte do banner existe em src/assets/
+Quando o cliente requisita GET /banner.png
+Então a resposta é 200, com Content-Type image/png
+E o PNG é RGBA
+E a caixa de regressão (778,232) a (918,338) tem resíduo de fundo ZERO
+E os onze pontos de arte continuam opacos
+
+Dado que a arte não está no disco
+Quando o cliente requisita a rota
+Então a resposta é 404 com corpo VAZIO
+E nenhuma outra rota altera a resposta por causa disso
+
+Dado que o cliente já buscou a arte e recebeu o ETag
+Quando ele revalida com If-None-Match
+Então a resposta é 304 SEM corpo
+E nenhuma validade longa de cache foi prometida
+
+Dado o caminho convencional do ícone de atalho
+Quando o cliente tenta POST no mesmo caminho
+Então a resposta é 405, pelo roteador, sem uma linha de validação própria
+
+Dado o documento da tela
+Quando a masthead é renderizada
+Então a ordem é imagem, subtítulo, título em texto e apresentação
+E a arte aparece com w-50
+E o alt descreve a ilustração, e não o título
+
+Dado que alguém altera UM pixel do arquivo commitado
+Quando o teste de deriva roda
+Então ele detecta a divergência
+
+Dado que alguém recomprime o mesmo desenho
+Quando o teste de deriva roda
+Então ele NÃO reporta deriva, porque a comparação é por pixel
+
+Dado que alguém acrescenta pillow ao requirements.txt
+Quando o teste de deriva roda
+Então ele falha, porque a biblioteca de imagem não é dependência de runtime</pre>
+  <p class="note">Fonte: <code>requirements.md</code>, seção Critérios de Aceitação. 🟢 CONFIRMADO. O teste atual lista 12 coordenadas opacas, e não 11; a divergência está nas Lacunas Declaradas. 🟡 INFERIDO.</p>
+
+  <h2>Rastreabilidade de Código</h2>
+  <table><tbody>
+    <tr><th>Arquivo</th><th>Símbolo ou evidência</th><th>Confiança</th></tr>
+    <tr><td><b>src/app.py</b></td><td><code>ARTE_DO_ICONE</code> (:376 a :381); <code>icone_de_atalho</code> (:384 a :402); <code>ARTE_DO_TOPO</code> (:422 a :427); <code>banner_do_topo</code> (:430 a :441)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>src/assets/apple-touch-icon.png</b></td><td>16.504 bytes, 180 x 180, RGB, tipo de cor 2</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>src/assets/banner-da-tela.png</b></td><td>318.911 bytes, 1024 x 547, RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>tests/icone_de_atalho.py</b></td><td><code>ARTE_CANONICA</code> (:53), <code>ARTE_DE_RUNTIME</code> (:56), <code>LADO</code> (:59), <code>FUNDO</code> (:63), <code>TAMANHO_ESPERADO</code> (:69), <code>arte_derivada</code> (:72), <code>bytes_da_arte</code> (:87), <code>gravar_arte</code> (:94)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>tests/banner_da_tela.py</b></td><td><code>FONTE</code> (:43), <code>ARTE_DE_RUNTIME</code> (:44), <code>CLARO_MINIMO</code> (:68), <code>SATURACAO_MAXIMA</code> (:69), <code>SATURACAO_MINIMA_ESCURA</code> (:73), <code>_e_fundo</code> (:76), <code>mascara_do_fundo</code> (:110), <code>arte_limpa</code> (:127), <code>residuo_de_fundo</code> (:180), <code>main</code> (:204)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>tests/test_deriva_da_arte.py</b></td><td><code>_imagens_diferem</code> (:29); arte commitada igual à receita (:46); sensibilidade a um pixel (:54); recompressão não é deriva (:71); arte sob <code>src/</code> e fora de <code>static/</code> (:89); Pillow fora de <code>requirements.txt</code> (:98)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>tests/test_icone_de_atalho.py</b></td><td><code>_cabecalho_png</code> (:171), 180 x 180 (:201), tipo de cor 2 (:207), 16.504 bytes (:221), <code>sha256</code> do HTML (:232), template sem o ícone (:249), <code>data URI</code> (:258), <code>405</code> (:269), <code>ETag</code> (:278), <code>304</code> (:283), sem validade longa (:294), caminhos não servidos (:309), tela de pé sem a arte (:323)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>tests/test_banner_do_topo.py</b></td><td><code>TestArteDerivada</code> (:335), RGBA (:348), faixa transparente (:352), resíduo zero na caixa (:371), pontos opacos (:389), faixa estreita (:436), ordem da masthead (:177), <code>w-50</code> (:168), <code>alt</code> próprio (:255)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>.dockerignore</b></td><td>Lista de permissão (<code>*</code>, <code>!requirements.txt</code>, <code>!src/</code>, <code>!src/**</code>) nas linhas 12 a 15; <code>src/uploads/</code> reexcluído na linha 24</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>src/templates/index.html</b></td><td>Masthead (:208 a :235), <code>img</code> com <code>w-50</code> (:210 a :212), <code>h1</code> em texto (:223)</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>docs/assets/img/logo.png</b> e <b>banner-analisador.png</b></td><td>As fontes canônicas da receita, com 32.317 e 1.101.780 bytes; não entram na imagem</td><td>🟢 CONFIRMADO</td></tr>
+  </tbody></table>
+
+  <h2>Avisos contratados</h2>
+  <p class="note">Esta unit não declara nenhum aviso ao operador: <code>contracts.md</code>, seção 6, fixa que arte ausente responde <code>404</code> com corpo vazio, escrita responde <code>405</code> do roteador e revalidação responde <code>304</code> sem corpo, sem texto, código de aviso nem log. 🟢 CONFIRMADO.</p>
+
+  <h2>Lacunas Declaradas</h2>
+  <table><tbody>
+    <tr><th>Origem</th><th>Lacuna</th><th>Confiança</th></tr>
+    <tr><td><b>L-33</b></td><td>A arte servida não é verificada dentro do container. Os testes rodam no host, onde <code>docs/</code> existe; se a arte falhar dentro da imagem, o resultado é o <code>404</code> silencioso, sem log e sem teste. O design registra a decisão de um health check no arranque, agendada para depois do Passo 4, mas não há verificação no <code>src/app.py</code> atual. Pergunta ao humano: o health check foi implementado em outro lugar ou segue pendente?</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>L-34</b></td><td>O <code>sha256</code> do HTML de <code>GET /</code> em <code>test_icone_de_atalho.py</code> é um invariante mantido à mão, atualizado três vezes em 2026-10-10. Enquanto cada atualização for uma decisão humana registrada, ele prende o que promete; se virar rotina, deixa de prender.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Âncora do banner</b></td><td>O SDD registra 317.058 bytes para <code>banner-da-tela.png</code>; o arquivo atual tem 318.911 bytes, depois da troca de arte de 2026-10-16. Pergunta ao humano: atualizar a âncora no SDD ou tratá-la como registro histórico da composição anterior?</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Deriva do banner</b></td><td><code>test_deriva_da_arte.py</code> regenera e compara apenas o ícone. O banner é verificado por propriedades em <code>test_banner_do_topo.py</code>, não por igualdade pixel a pixel com <code>arte_limpa()</code>. Pergunta ao humano: a cobertura por propriedade basta para o banner ou falta um teste de deriva equivalente ao do ícone?</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Pontos opacos</b></td><td>O <code>RF-17</code> e a seção Critérios de Aceitação falam em onze pontos; o teste atual lista 12 coordenadas. A contagem mudou com a composição de 2026-10-16. Pergunta ao humano: atualizar o <code>RF-17</code> e o critério, ou manter o número do SDD como histórico?</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Cache</b></td><td>As duas rotas servem o arquivo do disco a cada requisição, sem cache em memória. Não há medição de impacto para os 318.911 bytes do banner.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Folga dos limites</b></td><td><code>CLARO_MINIMO = 160</code>, <code>SATURACAO_MAXIMA = 50</code> e o teto 12 saem de medição com folga declarada, não de experimento controlado. Não há estudo de quanto sobra em cada direção.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Caixa de regressão</b></td><td>A caixa <code>(778,232)</code> a <code>(918,338)</code> descreve a composição que tinha abajur, e essa composição não existe mais. A caixa continua valendo como região de fundo, mas pode ser lida como medida da arte atual.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Receita em tests/</b></td><td>A transformação que produz a arte entregue ao operador é código de teste. É o preço de manter Pillow fora do runtime, e o preço continua valendo enquanto a arte mudar.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Sem log nem métrica</b></td><td>A ausência de arte não é registrada. O <code>404</code> é indistinguível, nos registros, de uma rota que não existe.</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Integridade em runtime</b></td><td>Arte corrompida em disco é servida como está. Não há validação de integridade em runtime, só o teste de deriva, que roda fora da aplicação.</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Fonte do banner</b></td><td>O SDD descreve a fonte como RGB sem alfa; o arquivo atual é RGBA com alfa 255 em 100% dos pixels. O comportamento não muda, mas a descrição envelheceu.</td><td>🟡 INFERIDO</td></tr>
+  </tbody></table>
+</main>
+
+<!-- PAYLOAD -->
+<script type="application/json" id="rv-snapshot">{"generatedAt":"2026-10-20T11:55:00Z","spec":{"id":"recursos-da-tela","slug":"recursos-da-tela","title":"Recursos da tela","endpoint":"GET /apple-touch-icon.png e GET /banner.png","counts":{"requisitosFuncionais":25,"criteriosGherkin":9,"tarefas":22,"tarefasDeTeste":17}},"tldr":"Serve as duas artes de runtime da tela, o ícone de atalho do sistema móvel e o banner do topo, por caminhos convencionais, a partir de uma receita única que deriva a arte canônica antes de servi-la. 🟢 CONFIRMADO.","requirements":[{"id":"RF-01","text":"Registrar as duas rotas somente com GET, deixando a recusa de escrita para o roteador.","pri":"Must","crit":"POST, PUT e DELETE nos dois caminhos devolvem 405, sem validação própria. 🟢 CONFIRMADO"},{"id":"RF-02","text":"Servir o arquivo apontado por app.config[\"ARTE_DO_ICONE\"] e por app.config[\"ARTE_DO_TOPO\"].","pri":"Must","crit":"Trocar a chave muda o arquivo servido, sem tocar no código. 🟢 CONFIRMADO"},{"id":"RF-03","text":"Degradar para 404 com resposta vazia quando a arte não está no disco.","pri":"Must","crit":"Corpo vazio, 404, e nenhuma outra rota altera a resposta. 🟢 CONFIRMADO"},{"id":"RF-04","text":"Declarar mimetype=\"image/png\" nas duas respostas.","pri":"Must","crit":"Content-Type: image/png no 200. 🟢 CONFIRMADO"},{"id":"RF-05","text":"Ancorar os caminhos no arquivo do app, e não no diretório corrente.","pri":"Must","crit":"A rota funciona com o processo iniciado de qualquer diretório de trabalho. 🟢 CONFIRMADO"},{"id":"RF-06","text":"Sustentar a revalidação por ETag, sem validade longa de cache.","pri":"Must","crit":"ETag no 200; If-None-Match devolve 304 sem corpo; nenhum Cache-Control de validade longa. 🟢 CONFIRMADO"},{"id":"RF-07","text":"Ser descoberto por caminho convencional, sem declaração no documento.","pri":"Must","crit":"O template não menciona /apple-touch-icon.png; o GET / continua byte a byte o mesmo. 🟢 CONFIRMADO"},{"id":"RF-08","text":"Manter o ícone da aba como data URI embutido.","pri":"Must","crit":"Nenhuma segunda rota de ícone é criada. 🟢 CONFIRMADO"},{"id":"RF-09","text":"Não responder em favicon.ico nem em apple-touch-icon-precomposed.png.","pri":"Should","crit":"Os dois caminhos devolvem 404. 🟢 CONFIRMADO"},{"id":"RF-10","text":"Derivar o ícone: canônica composta sobre branco, 180x180, cantos retos.","pri":"Must","crit":"O PNG derivado tem 180x180 e tipo de cor 2, sem canal alfa. 🟢 CONFIRMADO"},{"id":"RF-11","text":"Fixar 16.504 bytes como âncora do ícone derivado.","pri":"Should","crit":"Reamostragem, fundo ou compressão diferentes mudam o tamanho e o teste cai. 🟢 CONFIRMADO"},{"id":"RF-12","text":"Provar a opacidade pelo IHDR, sem biblioteca de imagem.","pri":"Should","crit":"O teste lê o tipo de cor do cabeçalho e não importa PIL. 🟢 CONFIRMADO"},{"id":"RF-13","text":"Derivar o banner com remoção de fundo global.","pri":"Must","crit":"O fundo é removido onde ele estiver, inclusive dentro dos bolsões fechados da arte. 🟢 CONFIRMADO"},{"id":"RF-14","text":"Aplicar as duas faixas de brilho e saturação, com o piso em 160.","pri":"Must","crit":"Pixel abaixo de 160 nunca é fundo; a faixa estreita preserva tinta clara e quase neutra. O caso do texto dourado é da composição anterior. 🟡 INFERIDO"},{"id":"RF-15","text":"Aplicar alfa proporcional na fronteira.","pri":"Must","crit":"Nenhum halo claro em volta da arte no composto. 🟢 CONFIRMADO"},{"id":"RF-16","text":"Medir o resíduo com limite mais estrito que o da regra, exigindo zero na caixa de regressão.","pri":"Must","crit":"A caixa (778,232) a (918,338) tem resíduo zero. 🟢 CONFIRMADO"},{"id":"RF-17","text":"Preservar onze pontos de arte opacos.","pri":"Must","crit":"O teste atual lista 12 coordenadas opacas, e não 11; os pontos cobrem arte escura pouco saturada e arte clara quase neutra. 🟡 INFERIDO"},{"id":"RF-18","text":"Manter as artes derivadas commitadas em src/assets/.","pri":"Must","crit":"O arquivo existe no repositório e a rota o serve sem gerar nada. 🟢 CONFIRMADO"},{"id":"RF-19","text":"Manter a receita com fonte única em tests/, importada pelo teste de deriva.","pri":"Must","crit":"O ícone é importado por test_deriva_da_arte.py; o banner não é regenerado nem comparado por pixel, só medido por propriedades. 🟡 INFERIDO"},{"id":"RF-20","text":"Comparar a deriva por pixel, nunca por sha256.","pri":"Must","crit":"O teste do ícone compara pixel a pixel e recompressão não é deriva; o banner não tem comparação pixel a pixel com a receita. 🟡 INFERIDO"},{"id":"RF-21","text":"Provar que a comparação detecta um pixel alterado.","pri":"Must","crit":"O teste de deriva do ícone demonstra a própria sensibilidade, para não passar por vacuidade. 🟢 CONFIRMADO"},{"id":"RF-22","text":"Não incluir a biblioteca de imagem em requirements.txt.","pri":"Must","crit":"Há teste que falha se pillow ou PIL== aparecer no arquivo. 🟢 CONFIRMADO"},{"id":"RF-23","text":"Falhar se a arte estiver numa pasta estática.","pri":"Must","crit":"src/static/ é proibida (W004) e o teste guarda isso. 🟢 CONFIRMADO"},{"id":"RF-24","text":"Manter a masthead na ordem imagem, subtítulo, título em texto e apresentação.","pri":"Must","crit":"A ordem tem teste próprio. 🟢 CONFIRMADO"},{"id":"RF-25","text":"Reduzir a arte do topo a w-50, com alt que descreve a ilustração.","pri":"Should","crit":"O alt não repete o título; o h1 traz o texto. 🟢 CONFIRMADO"}]}</script>
+<script>
+(function(){
+  "use strict";
+
+  // Os dados chegam por assets/js/data.js (window.RV_DATA). O snapshot embutido
+  // abaixo e usado quando a chave injetada esta ausente ou e mais antiga que a extracao atual.
+  function parseSnapshot(){
+    var el = document.getElementById("rv-snapshot");
+    if(!el) return {};
+    try { return JSON.parse(el.textContent) || {}; } catch(e){ return {}; }
+  }
+  function stampOf(o){
+    var t = (o && o.generatedAt) ? Date.parse(o.generatedAt) : NaN;
+    return isNaN(t) ? null : t;
+  }
+  function pickData(injected, embedded){
+    if(!injected) return embedded;
+    var a = stampOf(injected), b = stampOf(embedded);
+    if(b === null) return injected;
+    if(a === null) return embedded;
+    if(a >= b) return injected;
+    if(window.console && console.warn){
+      console.warn("RV_DATA de " + injected.generatedAt + " esta anterior ao snapshot de " + embedded.generatedAt + "; usando o snapshot embutido.");
+    }
+    return embedded;
+  }
+
+  var SLUG = "recursos-da-tela";
+  var snap = parseSnapshot();
+
+  var idx = (window.RV_DATA && window.RV_DATA.featuresIndex) || null;
+  var specIdx = (idx && idx[SLUG]) || null;
+  if(!specIdx && idx && idx.specs){
+    idx.specs.forEach(function(s){ if(s.slug === SLUG || s.id === SLUG) specIdx = s; });
+  }
+  var spec = pickData(specIdx, snap.spec) || snap.spec || {};
+  var list = (snap.requirements) || (spec && spec.requirements) || [];
+
+  function set(id, v){ var el = document.getElementById(id); if(el && v !== undefined && v !== null) el.textContent = v; }
+
+  var c = {};
+  var snapCounts = (snap.spec && snap.spec.counts) || {};
+  var specCounts = (spec && spec.counts) || {};
+  ["requisitosFuncionais","criteriosGherkin","tarefas","tarefasDeTeste"].forEach(function(k){
+    if(specCounts[k] !== undefined) c[k] = specCounts[k];
+    else if(snapCounts[k] !== undefined) c[k] = snapCounts[k];
+  });
+  if(c.requisitosFuncionais !== undefined){
+    set("pillRf", c.requisitosFuncionais + " requisitos funcionais");
+    set("pillGh", c.criteriosGherkin + " cenários Gherkin");
+    set("pillTk", c.tarefas + " tarefas");
+  }
+  if(c.tarefasDeTeste !== undefined) set("pillTt", c.tarefasDeTeste + " tarefas de teste");
+  if(snap.tldr) set("tldr", snap.tldr);
+
+  // Requisitos funcionais como accordion
+  var acc = document.getElementById("rfAcc");
+  if(acc){
+    if(!list.length){
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "Requisitos não disponíveis.";
+      acc.appendChild(p);
+    }
+    list.forEach(function(r, i){
+      var d = document.createElement("details");
+      if(i === 0) d.open = true;
+      var s = document.createElement("summary");
+      var id = document.createElement("span");
+      id.className = "id";
+      id.textContent = r.id || "";
+      s.appendChild(id);
+      s.appendChild(document.createTextNode(r.text || ""));
+      var pr = document.createElement("span");
+      pr.className = "pri";
+      pr.textContent = r.pri || "";
+      s.appendChild(pr);
+      d.appendChild(s);
+      var body = document.createElement("div");
+      body.className = "body";
+      body.textContent = "Critério de aceite: " + (r.crit || "não declarado");
+      d.appendChild(body);
+      acc.appendChild(d);
+    });
+  }
+
+  // Abas
+  var tabs = document.getElementById("tabs");
+  if(tabs){
+    tabs.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest("button[data-panel]") : null;
+      if(!b) return;
+      Array.prototype.forEach.call(tabs.querySelectorAll("button"), function(x){ x.classList.toggle("on", x === b); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function(p){ p.classList.remove("on"); });
+      var alvo = document.getElementById(b.getAttribute("data-panel"));
+      if(alvo) alvo.classList.add("on");
+    });
+  }
+})();
+</script>
+<!-- Gerado pelo Reversa-Docs-Storyteller em 2026-10-20. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Storyteller em 2026-10-20.</div>
+</body>
+</html>

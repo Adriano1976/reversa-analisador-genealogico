@@ -6,11 +6,12 @@
 <meta name="reversa-category" content="diagram">
 <meta name="reversa-producer-agent" content="reversa-docs-analyst">
 <meta name="reversa-template" content="metricas">
-<meta name="reversa-generated-at" content="2026-10-08T19:23:55Z">
+<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
 <!-- TITLE -->
-<title>Métricas — analisador-genealogico</title>
+<title>Métricas — Analisador Genealógico</title>
 <!-- icone da aba: logo do projeto -->
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/img/logo-mini.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/logo.png">
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <!-- PAGE_ID -->
 <meta name="reversa-page-id" content="metricas">
 <!-- VISUAL_STYLE -->
@@ -72,7 +73,7 @@
 
 
 
-  <span class="brand">analisador-genealogico</span>
+  <span class="brand">Analisador Genealógico</span>
   <span class="sub">Métricas</span>
     <nav class="reversa-doc-nav">
   <a href="index.html" data-page-id="index">Visão geral</a>
@@ -85,6 +86,8 @@
   <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
   <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
   <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+  <a href="features/tela-de-entrada.html" data-page-id="tela-de-entrada">Tela de entrada</a>
+  <a href="features/recursos-da-tela.html" data-page-id="recursos-da-tela">Artes da tela</a>
 </nav>
 </header>
 
@@ -101,10 +104,10 @@
   </div>
 
   <div class="fontes">
-    <b class="tit">Ciclos de pacote: zero.</b> O grafo de dependências entre os 8 pacotes tem 20 arestas e nenhum ciclo.
+    <b class="tit">Ciclos de pacote: zero.</b> O grafo de dependências entre os 8 pacotes tem 23 arestas e nenhum ciclo.
     O núcleo (<code>core/</code>) ficou puro: depende só de <code>utils/</code>, sem alcançar <code>application/</code>, <code>parsers/</code>, <code>reporting/</code> nem <code>src/</code>.
     O mundo externo entra por <code>ports/</code>, que é quem conversa com <code>parsers/</code> e <code>utils/</code>.
-    A leitura é do grafo de imports entre pacotes, calculado sobre <code>assets/data/deps.json</code>. Zero aqui é conquista arquitetural, não ausência de dado.
+    A leitura é do grafo de imports entre pacotes, calculado sobre <code>assets/data/deps.json</code>. Zero aqui é conquista arquitetural, registrada no ADR-34, não ausência de dado.
   </div>
 
   <div class="grid">
@@ -120,25 +123,25 @@
     <h3>Números do projeto (SDD)</h3>
     <div style="padding:6px 8px 10px">
       <div class="summary" style="margin-bottom:6px">
-        <div class="kpi"><b id="kSddRf">-</b><span>Requisitos funcionais (19 + 26 + 24)</span></div>
-        <div class="kpi"><b id="kSddTarefas">-</b><span>Tarefas (20 + 32 + 29)</span></div>
-        <div class="kpi"><b id="kSddGherkin">-</b><span>Cenários Gherkin (6 + 10 + 9)</span></div>
+        <div class="kpi"><b id="kSddRf">-</b><span>Requisitos funcionais (24 + 34 + 43 + 24 + 25)</span></div>
+        <div class="kpi"><b id="kSddTarefas">-</b><span>Tarefas (26 + 46 + 38 + 22 + 22)</span></div>
+        <div class="kpi"><b id="kSddGherkin">-</b><span>Cenários Gherkin (10 + 12 + 10 + 8 + 9)</span></div>
         <div class="kpi"><b id="kSddAdrs">-</b><span>ADRs documentadas</span></div>
-        <div class="kpi"><b id="kSddLacunas">-</b><span>Lacunas abertas (1 crítica)</span></div>
+        <div class="kpi"><b id="kSddLacunas">-</b><span>Lacunas abertas (nenhuma crítica)</span></div>
         <div class="kpi"><b id="kSddFechadas">-</b><span>Lacunas fechadas nesta rodada</span></div>
       </div>
       <ul style="list-style:none; color:#8b909a; font-size:12.5px; line-height:1.7; padding:4px 2px 0;">
-        <li><b style="color:#aeb9d0">Ciclos de pacote:</b> zero em 2026-10-08, contra 2 ciclos na medição anterior de 2026-10-06. O blob de 61 módulos foi reorganizado em pacotes por responsabilidade (ADR 11) e o núcleo passou a depender apenas de utils/. A imagem de arquitetura e o treemap por pasta continuam a mesma ideia: 10 pastas, 8 pacotes e 20 arestas de dependência.</li>
-        <li><b style="color:#aeb9d0">Confiança da extração:</b> 1.922 afirmações catalogadas na apuração final, com 92,8% de confiança geral (1.737 verdes, 95 amarelas e 90 vermelhas). O relatório nasceu com 1.923 afirmações, 91,5% e 109 vermelhas; as 16 decisões humanas desta rodada elevaram a confiança e derrubaram as vermelhas de 109 para 90. Fonte: _reversa_sdd/confidence-report.md.</li>
-        <li><b style="color:#aeb9d0">Suíte de testes:</b> 164 passam e 15 erros, idêntico no interpretador global e no .venv. Os 15 erros são todos de tests/test_upload_seguranca.py, em setup, por PermissionError ao criar ou limpar o diretório temporário no Windows: são pré-existentes e não são regressão (164 + 15 = 179 itens coletados).</li>
-        <li><b style="color:#aeb9d0">Cobertura de src/:</b> 83% (1.520 instruções, 253 descobertas). Pior módulo: number_format.py, com 53%. Fonte: _reversa_sdd/confidence-report.md.</li>
-        <li><b style="color:#aeb9d0">Lacuna crítica restante:</b> L-16 / M-03 / P-02, corrida entre requisições concorrentes. O estado do GEDCOM é global de processo e é reescrito a cada requisição, com o servidor atendendo em 4 threads; a guarda de instância única cobre processos, não threads. O mecanismo é confirmado por leitura do código e o alcance não foi medido.</li>
-        <li><b style="color:#aeb9d0">Requisitos funcionais por feature:</b> upload-gedcom 19, analise-dna 26, busca-caminho 24.</li>
+        <li><b style="color:#aeb9d0">Ciclos de pacote:</b> zero em 2026-10-20, contra 2 ciclos na medição de 2026-10-06. O código cresceu de 61 para 142 módulos e de 9.972 para 30.965 linhas não vazias, e o grafo continua acíclico: 11 pastas, 8 pacotes e 23 arestas de dependência. A quebra está registrada no ADR-34.</li>
+        <li><b style="color:#aeb9d0">Confiança da extração:</b> 3.420 afirmações catalogadas na re-extração de 2026-10-10, com 90,4% de confiança geral (2.957 verdes, 270 amarelas e 193 vermelhas). A rodada anterior, de 2026-10-05, fechava com 1.922 afirmações e 92,8%: o número de afirmações subiu 1,8× e a confiança caiu, porque a revisão passou a medir o que antes era só declarado. Fonte: _reversa_sdd/confidence-report.md.</li>
+        <li><b style="color:#aeb9d0">Suíte de testes:</b> 1.381 aprovados e 9 pulados, medidos em 2026-10-20. Os 9 pulos são os testes do adaptador de persistência, que só executam com banco e driver disponíveis; sem <code>DATABASE_URL</code> a suíte roda inteira sem banco, de propósito.</li>
+        <li><b style="color:#aeb9d0">Cobertura de src/:</b> 92% (3.859 instruções, 313 descobertas), medida em 2026-10-20 com pytest-cov. Pior módulo: ports/adaptadores.py, com 73%, justamente o adaptador de banco que os pulos deixam sem exercício.</li>
+        <li><b style="color:#aeb9d0">Lacunas:</b> nenhuma crítica. São 22 lacunas abertas, 12 moderadas e 10 cosméticas, e 21 foram fechadas na rodada de 2026-10-10. Fonte: _reversa_sdd/gaps.md, de 2026-10-13, no resumo que o próprio arquivo declara.</li>
+        <li><b style="color:#aeb9d0">Requisitos funcionais por unidade:</b> upload-gedcom 24, analise-dna 34, busca-caminho 43, tela-de-entrada 24 e recursos-da-tela 25.</li>
       </ul>
     </div>
   </div>
 
-  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs. Método de contagem declarado: LOC são linhas não vazias (o SDD conta linhas totais, então src/app.py aparece com 232 linhas aqui e 267 lá); complexidade são nós de decisão do AST; os cenários Gherkin contam linhas de passo Dado nos requirements.md; ciclos são ciclos de importação no grafo de pacotes. Fontes: assets/data/metrics.json (contagens de 2026-10-08 sobre a extração determinística de 2026-10-06 que gerou assets/data/modules.json e assets/data/deps.json) e _reversa_sdd/confidence-report.md (revisão de 2026-10-05). Página gerada em 2026-10-08.</p>
+  <p class="note">Dados extraídos estaticamente do código fonte pela pipeline Reversa Docs. Método de contagem declarado: LOC são linhas não vazias (o SDD conta linhas totais, então src/app.py aparece com 789 linhas aqui e 881 lá); complexidade são nós de decisão do AST; os cenários Gherkin contam linhas de passo Dado nos requirements.md; ciclos são ciclos de importação no grafo de pacotes. Fontes: assets/data/metrics.json (contagens de 2026-10-20 sobre o código de 2026-10-20), _reversa_sdd/confidence-report.md (re-extração de 2026-10-10) e _reversa_sdd/gaps.md (revisão de 2026-10-13). Página atualizada em 2026-10-20.</p>
 </main>
 
 <!-- PAYLOAD -->
@@ -702,7 +705,7 @@
   set("kSddTarefas", S.tasks ? soma(S.tasks) : "-");
   set("kSddGherkin", S.gherkin ? soma(S.gherkin) : "-");
   set("kSddAdrs", S.adrs !== undefined ? S.adrs : ((S.adrIds || []).length || "-"));
-  set("kSddLacunas", S.gapsAbertasLinhas !== undefined ? S.gapsAbertasLinhas : "-");
+  set("kSddLacunas", S.gapsAbertasTotal !== undefined ? S.gapsAbertasTotal : (S.gapsAbertasLinhas !== undefined ? S.gapsAbertasLinhas : "-"));
   set("kSddFechadas", S.gapsFechadasNaRodada !== undefined ? S.gapsFechadasNaRodada : "-");
 
   // 1. Treemap de LOC por pasta
@@ -813,7 +816,7 @@
   });
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Analyst em 2026-10-08. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Analyst em 2026-10-08.</div>
+<!-- Gerado pelo Reversa-Docs-Analyst em 2026-10-20 (atualizacao de dados e estrutura). -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Analyst em 2026-10-20.</div>
 </body>
 </html>

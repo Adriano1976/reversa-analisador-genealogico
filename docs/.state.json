@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "startedAt": "2026-10-08T15:48:22Z",
-  "lastCheckpoint": "2026-10-08T19:24:15Z",
-  "pipelineDurationMs": 1051762,
+  "startedAt": "2026-10-20T11:34:00Z",
+  "lastCheckpoint": "2026-10-20T12:12:35Z",
+  "pipelineDurationMs": 2315854,
   "completedAgents": [
     "mapper",
     "analyst",
@@ -14,32 +14,32 @@
     "index.html": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:39765f06280c5cb44c4c7180fad0da6302d80fac0533437ef966b9c5bedc0438"
+      "hash": "sha256:64ea1b3ed79bdab39fe1b8e0d353c4a76e23c80151a47c271db241de9ddde16c"
     },
     "arquitetura.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:48034c02317e25ba94786aa69cac6aa8b3201aed9347133e3bb674b5ec5c8780"
+      "hash": "sha256:5501bf74bd9bd7aeb501eebac6f524fe8177d6300bc8b33b3a5482134cc41f38"
     },
     "modulos.html": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:fea052f1c3194d978c0c688a37816a4034a4c0f27e2f38df0ef2435f50d0fc56"
+      "hash": "sha256:818fd7803335a100f5024c4c8fd56008cae17ab5ec8c1e359f9d32cc9ad529bd"
     },
     "metricas.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:d4f099f243cb6889b7552cef92cc3ce737e6a8517a6f1d077e4c82aacd8bba12"
+      "hash": "sha256:7a9a6c40fe4e2fe47d13bdab39fc20c9e28cb5c546da25ebfe6cf1ae8d77c6f7"
     },
     "deck.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:eed430a47981d6b5d712f639d364a740cfe438e5857df82330410c2b72db1be6"
+      "hash": "sha256:4eac074d84a4d89c5dea678b3431f280c7765ba4381efb4875d6ba3ce8db34a8"
     },
     "glossario.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:b01e11f82a45303deb7cf15b0944385657fd4435ff8a82d476ae21a32b894425"
+      "hash": "sha256:194373facc24cb07e43ae3ca2ad05dc7c2fe52e5c36011f951e327874b3b1153"
     },
     "assets/data/soul.json": {
       "status": "created",
@@ -49,62 +49,52 @@
     "features/upload-gedcom.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:5ef6af01b6c9c3a3bee72665d9479ef4d04630e9154ef8a5c1840bc9f45f9897"
+      "hash": "sha256:9c77e5461a177ea1ce1f81f0493658ad6fe0b76a0382bc2be0af0c3e014014ab"
     },
     "features/busca-caminho.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:1079b5c576d0e2b438490eb6cbc6016ec2ebb0173e32bf2bb89b7b9d189a8ecd"
+      "hash": "sha256:4b4f6f210aa176f4482b543696c4675ce6ea7f0db58301d3ad1152ecc8571861"
     },
     "features/analise-dna.html": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:51243473609211ec38edca32c15f77ca165b3440ddfd1663644fe0e50a1d79fd"
+      "hash": "sha256:729d53ffdecd3a81398beb72274c1c413faa560c17505aebe9c8f34da3d3ae37"
     },
     "assets/data/modules.json": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:85c42ccce1abcd234f4c65677f6be6fcb5853ec30bf905d80c855553eb718b46"
+      "hash": "sha256:78d11a61f01489bd4220e56cda2b7ae1ff2ba9ef051bcc4336d15b5a75227365"
     },
     "assets/data/deps.json": {
       "status": "created",
       "agent": "reversa-docs-mapper",
-      "hash": "sha256:d00400a56d6dab31c0cea48bd6a95c1ccba14cc5d5f6f6a3a0fd4004a2f576de"
+      "hash": "sha256:5f33d1968db2ddfa4672f5c70e8d6888b9468557e30c35a90d8a050152b1fa06"
     },
     "assets/data/metrics.json": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:87eab3ff6890dce0d1590aeb7d3fbcbdfd0c3e68fb65650c4a972f6c279b83c3"
+      "hash": "sha256:f97ada12ad5a936e31fb90f83199f5bb142872e2d119b117b63087b780cb7fe1"
     },
     "assets/data/features-index.json": {
       "status": "created",
       "agent": "reversa-docs-storyteller",
-      "hash": "sha256:2f6c26b7ddc17982c327ea4c72f519ec102873451c788cd37c5ebb684833dd90"
+      "hash": "sha256:ca3e7a0f0c014bccffa63291417008fdf41f4654659fcd5375d180848148efa2"
     },
     "assets/js/data.js": {
       "status": "created",
       "agent": "reversa-docs-publisher",
-      "hash": "sha256:1da0f0d69b556f6649e4f2a6d53db022dbba5cc8de5dca9836b25106dba29da2"
-    },
-    "assets/img/seal.svg": {
-      "status": "created",
-      "agent": "reversa-docs-publisher",
-      "hash": "sha256:d8708da25cec9b45716b3b0c78e37f0fb4accbb7485b040607379f00c7691c7a"
-    },
-    "assets/img/seal-mini.svg": {
-      "status": "created",
-      "agent": "reversa-docs-publisher",
-      "hash": "sha256:824634d6f3fd2e7e4b86215af80e914e12ba66e221b4a05e9d4e5fadf173baa4"
+      "hash": "sha256:337de09bc6c627102c9be83626ed5c3eb586098ac4a6c20a202ad480b42bbd90"
     },
     "timeline.html": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:078ce6ad9e5bd27683c9a77cbc7cbe561ee9e2ffa621d50e52ae44c62c3b9516"
+      "hash": "sha256:ccc511b1d4cd06db5844523b04d7882608039b3a6b92b9184d5251b0256edb78"
     },
     "assets/data/timeline.json": {
       "status": "created",
       "agent": "reversa-docs-analyst",
-      "hash": "sha256:982c7ebaa72b4b00c7b95d6dc021ecfa992fdff581f6ebad039b1652656ddf06"
+      "hash": "sha256:eb79a3d956bd6bd1b9810156e4d66984fb3187d486ef55580722944563040087"
     },
     "assets/img/logo.png": {
       "status": "created",
@@ -115,6 +105,21 @@
       "status": "created",
       "agent": "reversa-docs-publisher",
       "hash": "sha256:5911a995e09ee5134b1fe130e2225dca4309acfe764f54a3330bb7848335c774"
+    },
+    "features/tela-de-entrada.html": {
+      "status": "created",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:f61b193081f7e0ebf25c71ffea2b25d2a067a6e74bccc013eeeed55f50b4bc3b"
+    },
+    "features/recursos-da-tela.html": {
+      "status": "missing",
+      "agent": "reversa-docs-storyteller",
+      "hash": "sha256:bc5116f37d11151527eb37c848620d71d38f8441347416e5c207574ffea67d2c"
+    },
+    "assets/img/apple-touch-icon.png": {
+      "status": "created",
+      "agent": "reversa-docs-publisher",
+      "hash": "sha256:c89e29e2fc0292879dcc9a1929fccd31a0f740099e1cbc61f00121b5e576175f"
     }
   },
   "pagesGenerated": [
@@ -127,7 +132,9 @@
     "timeline.html",
     "features/upload-gedcom.html",
     "features/busca-caminho.html",
-    "features/analise-dna.html"
+    "features/analise-dna.html",
+    "features/tela-de-entrada.html",
+    "features/recursos-da-tela.html"
   ],
   "pagesOmitted": [
     {
@@ -175,8 +182,8 @@
     "highcharts.js",
     "three.min.js"
   ],
-  "smokeTestCheckedPages": 10,
-  "smokeTestCheckedAssets": 39,
+  "smokeTestCheckedPages": 12,
+  "smokeTestCheckedAssets": 68,
   "dataJsKeys": [
     "modules",
     "deps",
@@ -189,46 +196,46 @@
     "config"
   ],
   "regeneration": {
-    "kind": "re-extração completa do mini-site",
-    "reason": "O mini-site havia sido gerado em 2026-10-01 e descrevia o código anterior ao refactor que achatou `analisador-genealogico/reconstructed/` para `src/`, e o SDD anterior à re-extração de 2026-10-05. Todos os caminhos de módulo, as contagens, as métricas e as 3 features estavam defasados.",
-    "backup": ".backup-20261006-004310/",
-    "sourceStamp": "re-extração do SDD de 2026-10-05",
+    "kind": "atualizacao de dados e estrutura, com as duas unidades novas",
+    "reason": "O mini-site era de 2026-10-08 e descrevia 61 modulos, 9.972 linhas, 3 unidades e 23 ADRs. O codigo chegou a 142 modulos e 30.965 linhas, o SDD foi re-extraido em 2026-10-10 (2 unidades novas, 36 ADRs) e o forward chegou a feature 038.",
+    "backup": ".backup-20261020-084841/",
+    "sourceStamp": "codigo de 2026-10-20; SDD re-extraido em 2026-10-10; gaps.md de 2026-10-13; soul regerado em 2026-10-20",
     "whatChanged": [
-      "mapper: 61 modulos (era 37), 9972 linhas nao-vazias, 10 pastas (entram application/ e ports/), 8 pacotes, 20 arestas de pacote e 0 ciclos (eram 2); todo o vermelho de ciclo removido das duas paginas, e o achado atribuido aos commits diretos 2443273 e 87bcea5, nao as features 005/006",
-      "analyst: metrics.json com 1549 pontos de decisao e o KPI de ciclos em 0 tratado como conquista; timeline.json de 86 para 96 eventos com a TERCEIRA fonte, os progress.jsonl do forward (10 eventos agregados por feature e dia), levando o intervalo ate 2026-10-08",
-      "storyteller: soul.json derivado do soul.md de 2026-10-08: 44 conceitos (eram 24) e 7 lacunas (eram 4); deck com 0 ciclos e as 6 decisoes fundadoras, sem o percentual de cobertura de 2026-10-05 nem os 179 itens; bloco de delta 005-008 acrescentado nas 3 features, com as citacoes de arquivo e linha antigas declaradas como validas para 2026-10-05",
-      "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
-      "publisher: index.html com os cards reescritos (61 modulos, 20 arestas e 0 ciclos, 9972 linhas, 96 eventos, 44 conceitos, 6 decisoes) e a assinatura de 2026-10-08",
-      "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde",
-      "publisher: data.js reconstruido com as 6 chaves de dados (antes so tinha modules e timeline, o que deixava glossario.html e deck.html vazios e o nav sem links); selo novo a partir do seed do soul.md regenerado; 10 paginas com mini-selo e nav estatico de 10 links; index.html com 6 cards e as 3 features; auto-discovery com 0 HTMLs auxiliares; smoke test verde"
+      "modulos: 61 -> 142; linhas nao vazias: 9.972 -> 30.965; pastas: 10 -> 11 (entrou assets/, com app.css)",
+      "grafo: 8 pacotes e 20 -> 23 arestas, 0 ciclos, agora registrado no ADR-34",
+      "SDD: 3 -> 5 unidades, 69 -> 150 requisitos, 81 -> 154 tarefas, 23 -> 36 ADRs",
+      "duas paginas novas de feature (tela-de-entrada, recursos-da-tela) e nav de 10 -> 12 itens",
+      "timeline: 96 -> 116 eventos (8 do state.json, 30 agregados do forward, ate 2026-10-20)",
+      "metricas: 3.420 afirmacoes a 90,4%; 1.381 testes e 9 pulados; cobertura de 92%",
+      "lacunas: 22 abertas (12 moderadas, 10 cosmeticas), nenhuma critica, 21 fechadas na rodada",
+      "marca portada da copia publicada: titulo e marca Analisador Genealogico, favicon de 512 e apple-touch-icon, agora gerados pelo injetor",
+      "snapshot embutido de cada pagina regerado a partir de assets/data",
+      "corrigidos dois defeitos do proprio extrator: linha NENHUMA contada como lacuna critica e tarefas legadas (T036/T044) somadas a recursos-da-tela",
+      "publisher: data.js reconstruido com as 6 chaves de dados, nav de 12 itens, mini-selo e icone em 12 paginas, apple-touch-icon nos assets e smoke test verde em 12/12 paginas e 68 assets locais"
     ],
     "tooling": "templates/documentation/ NAO existe nesta instalacao: sem viewer.html, .tpl, sidebar.js, extract_modules.py, extract_deps.py, convert_chronicle.py ou convert_soul.py. A extracao de dados foi feita por scripts deterministicos proprios, guardados em .reversa/: _docs_extract_modules.py, _docs_extract_metrics.py, _docs_extract_features.py, _docs_nav.py, _docs_build_datajs.py, _docs_inject_pages.py, _docs_smoke_test.py, _docs_render_check.js e _docs_state.py.",
-    "verifiedBy": "Tres verificacoes independentes: (1) node .reversa/_docs_render_check.js carrega o data.js num window falso e confere o inventario das 6 chaves de dados, os 10 itens do nav e a sintaxe do script inline das 10 paginas via vm.Script; (2) .reversa/_docs_smoke_test.py sobe http.server efemero, faz GET nas 10 paginas e nos 29 assets locais e valida os links relativos contra o disco; (3) markdownlint nos artefatos de texto do SDD.",
-    "seal": {
-      "seedSource": ".reversa/soul.md",
-      "seedHash": "sha256:57d09b0c7c4a588d1abc035c83606909dd3bfa2c73aa667ba46e248873be4f39",
-      "sealSvgBytes": 1387,
-      "sealMiniSvgBytes": 677
+    "verifiedBy": "Tres verificacoes independentes, todas executadas no fim da rodada: (1) node _docs_render_check.js carrega o data.js num window falso e confere o inventario das 6 chaves, os 12 itens do nav e a sintaxe do script inline das 12 paginas; (2) _docs_smoke_test.py sobe http.server efemero, faz GET nas 12 paginas e nos 68 assets locais e valida os links relativos contra o disco; (3) _docs_finalize.py recalcula os hashes e confere nav, logo, ausencia de fetch() e de script externo.",
+    "logo": {
+      "instaladoEm": "2026-10-08",
+      "atualizadoEm": "2026-10-20",
+      "hero": "assets/img/logo.png",
+      "mini": "assets/img/logo-mini.png",
+      "iconeDaAba": "assets/img/logo.png (512x512)",
+      "appleTouchIcon": "assets/img/apple-touch-icon.png",
+      "removeu": [
+        "assets/img/seal.svg",
+        "assets/img/seal-mini.svg"
+      ]
     },
     "soul": {
       "regeneratedAt": "2026-10-08",
       "by": "reversa-extract-soul, gravado pelo orquestrador (o subagente nao tinha escopo de escrita)",
       "previousPreservedAt": ".reversa/soul.20261006-0142.md",
       "previousBytes": 15559,
-      "currentBytes": 25122
-    },
-    "logo": {
-      "instaladoEm": "2026-10-08",
-      "hero": "assets/img/logo.png",
-      "mini": "assets/img/logo-mini.png",
-      "removeu": [
-        "assets/img/seal.svg",
-        "assets/img/seal-mini.svg"
-      ],
-      "motivo": "decisao do usuario: o logo do projeto substitui o selo generativo derivado da seed"
+      "currentBytes": 22894
     }
   },
-  "regenerationStamp": "2026-10-08 (features 005 a 008)",
+  "regenerationStamp": "2026-10-20 (dados e estrutura, codigo ate a feature 038)",
   "publisherIsolatedRun": {
     "startedAt": "2026-10-08T15:48:22Z",
     "lastCheckpoint": "2026-10-08T19:24:15Z",

@@ -8,10 +8,11 @@
 <meta name="reversa-template" content="index">
 <meta name="reversa-page-id" content="index">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-08T19:23:55Z">
-<title>analisador-genealogico — Documentação</title>
+<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<title>Analisador Genealógico — Documentação</title>
 <!-- icone da aba: logo do projeto -->
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/img/logo-mini.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/img/logo.png">
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <script src="assets/js/data.js"></script>
 <script src="assets/js/nav.js"></script>
 <style>
@@ -55,7 +56,7 @@
   <img class="seal-mini" src="assets/img/logo-mini.png" alt="Logo do projeto">
 
 
-  <span class="brand">analisador-genealogico</span>
+  <span class="brand">Analisador Genealógico</span>
   <span class="sub">Documentação</span>
     <nav class="reversa-doc-nav">
   <a href="index.html" data-page-id="index">Visão geral</a>
@@ -68,22 +69,24 @@
   <a href="features/upload-gedcom.html" data-page-id="upload-gedcom">Upload de GEDCOM</a>
   <a href="features/busca-caminho.html" data-page-id="busca-caminho">Busca de caminho</a>
   <a href="features/analise-dna.html" data-page-id="analise-dna">Análise de DNA</a>
+  <a href="features/tela-de-entrada.html" data-page-id="tela-de-entrada">Tela de entrada</a>
+  <a href="features/recursos-da-tela.html" data-page-id="recursos-da-tela">Artes da tela</a>
 </nav>
 </header>
 
 <section class="hero">
 <img class="seal" src="assets/img/logo.png" alt="Logo do projeto: livro aberto com hélice de DNA e árvore genealógica">
   <div class="tag">Genetic Genealogy Path Analyzer</div>
-  <h1>analisador-genealogico</h1>
-  <p>Aplicação web Flask para genealogistas genéticos. Cruza uma árvore GEDCOM com um relatório de DNA em CSV e responde como duas pessoas se conectam, separando três eixos que não se contaminam: o parentesco que o GEDCOM afirma, a evidência que o arquivo de DNA traz e o confronto entre os dois. Depois das features 005 a 008 o núcleo ficou puro, o mundo externo entra por <code>ports/</code> e o histórico das análises pode ser gravado em PostgreSQL. Documentação atualizada em 2026-10-08.</p>
+  <h1>Analisador Genealógico</h1>
+  <p>Aplicação web Flask para genealogistas genéticos. Cruza uma árvore GEDCOM com um relatório de DNA em CSV e responde como duas pessoas se conectam, separando três eixos que não se contaminam: o parentesco que o GEDCOM afirma, a evidência que o arquivo de DNA traz e o confronto entre os dois. Depois das features 005 a 008 o núcleo ficou puro, o mundo externo entra por <code>ports/</code> e o histórico das análises pode ser gravado em PostgreSQL. Até a feature 038 entraram a endogamia com reconvergências, os descartes com motivo e exportação, o veredito no cartão, a árvore sugerida e a tela de entrada com escolha de arquivo. Documentação atualizada em 2026-10-20.</p>
 </section>
 
 <div class="section-title">Arquitetura e estrutura</div>
 <div class="grid">
-  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 61 módulos em 10 pastas: núcleo puro em core/, casos de uso em application/ e o mundo externo entrando por ports/.</p></a>
-  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com 8 pacotes e 20 arestas. O grafo é acíclico: os 2 ciclos da extração anterior foram quebrados em 2026-10-06.</p></a>
-  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: 9 972 linhas não vazias, LOC por pasta, complexidade, histograma, sankey de dependências e linguagens.</p></a>
-  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>96 eventos de três fontes: a crônica, os checkpoints do state.json e o ciclo forward, até 2026-10-08.</p></a>
+  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 142 módulos em 11 pastas: núcleo puro em core/, casos de uso em application/, o mundo externo entrando por ports/ e a tela em templates/ e assets/.</p></a>
+  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com 8 pacotes e 23 arestas. O grafo é acíclico, e a quebra dos 2 ciclos antigos está registrada no ADR-34.</p></a>
+  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: 30 965 linhas não vazias, LOC por pasta, complexidade, histograma, sankey de dependências e linguagens.</p></a>
+  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>116 eventos de três fontes: a crônica, os checkpoints do state.json e o ciclo forward, até 2026-10-20.</p></a>
   <a class="card" href="glossario.html"><div class="ico">📖</div><h3>Glossário</h3><p>44 conceitos do domínio, de GEDCOM e cM a porta, adaptador, meioses, colapso de pedigree e contrato de escape do Mermaid.</p></a>
   <a class="card" href="deck.html"><div class="ico">🎞️</div><h3>Deck</h3><p>Apresentação navegável em 10 slides com a história, os números e as 6 decisões fundadoras.</p></a>
 </div>
@@ -103,7 +106,9 @@
   var links = {
     "upload-gedcom": ["📤", "Upload e parsing de GEDCOM", "Recebe o .ged, decide se pode gravar, guarda sob chave derivada do conteúdo e monta o grafo de pessoas e famílias."],
     "busca-caminho": ["🔎", "Busca de caminho genealógico", "Conexão direta pelo ancestral comum ou indireta por afinidade, com o parentesco documental completo e diagrama Mermaid."],
-    "analise-dna": ["🧬", "Análise de DNA e confronto", "Separa o que o GEDCOM afirma, o que o arquivo de DNA informa e se os dois são compatíveis entre si."]
+    "analise-dna": ["🧬", "Análise de DNA e confronto", "Separa o que o GEDCOM afirma, o que o arquivo de DNA informa e se os dois são compatíveis entre si."],
+    "tela-de-entrada": ["🖥️", "Tela de entrada e escolha de arquivo", "A tela inicial e a única superfície de escolha: envia, seleciona a árvore da lista e aposenta o que sai de uso."],
+    "recursos-da-tela": ["🖼️", "Artes da tela por rota", "O ícone de atalho e o banner servidos por rota, derivados da arte canônica por receita única."]
   };
   specs.forEach(function(s){
     var meta = links[s.slug] || [s.slug, s.title, s.summary];
@@ -116,7 +121,7 @@
   });
 })();
 </script>
-<!-- Gerado pelo Reversa-Docs-Publisher em 2026-10-08. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-08, sobre a re-extração do SDD de 2026-10-05 e as features 005 a 008 do ciclo forward.</div>
+<!-- Gerado pelo Reversa-Docs-Publisher em 2026-10-20. -->
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-20, sobre a re-extração do SDD de 2026-10-10 e o código até a feature 038.</div>
 </body>
 </html>
