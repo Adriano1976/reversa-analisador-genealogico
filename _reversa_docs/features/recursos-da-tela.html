@@ -107,9 +107,9 @@
   <p class="summary" id="tldr">Serve as duas artes de runtime da tela, o ícone de atalho do sistema móvel e o banner do topo, por caminhos convencionais, a partir de uma receita única que deriva a arte canônica antes de servi-la. 🟢 CONFIRMADO.</p>
 
   <div class="delta-warn" id="delta-pos-extracao">
-    <h3>Delta depois da extração: a arte do topo mudou em 2026-10-16</h3>
-    <p>O SDD desta unit foi extraído em 2026-10-10. Depois disso, a arte do topo foi trocada: o arquivo servido em <code>src/assets/banner-da-tela.png</code> tem hoje 318.911 bytes, e não os 317.058 bytes registrados no SDD, e a composição atual não traz o texto desenhado. 🟡 INFERIDO pela diferença entre o SDD e o arquivo, com a troca registrada em comentário no <code>src/app.py</code> (:444 a :455).</p>
-    <p>O que continua valendo: a rota, a derivação e o contrato de degradação. 🟢 CONFIRMADO. O que envelheceu: a âncora de bytes do banner e a justificativa das duas faixas que citava o texto dourado. 🔴 LACUNA: falta decisão humana sobre atualizar a âncora de 317.058 bytes ou tratá-la como registro histórico.</p>
+    <h3>Delta depois da extração: a arte do topo mudou em 2026-10-16 e de novo em 2026-10-21</h3>
+    <p>O SDD desta unit foi extraído em 2026-10-10. Depois disso, a arte do topo foi trocada duas vezes: o arquivo servido em <code>src/assets/banner-da-tela.png</code> tem hoje 438.161 bytes, em 1408 x 752, e não os 317.058 bytes registrados no SDD, e a composição atual não traz o texto desenhado. A troca de 2026-10-21 mudou também a natureza da fonte: ela passou a chegar <b>transparente</b> (70,8 % dos pixels em alfa 0), e a receita deixou de remover fundo nesse caso. 🟡 INFERIDO pela diferença entre o SDD e o arquivo, com a troca registrada em comentário no <code>src/app.py</code> (:444 a :455).</p>
+    <p>O que continua valendo: a rota, a derivação e o contrato de degradação. 🟢 CONFIRMADO. O que envelheceu: a âncora de bytes do banner, a descrição da fonte como "RGB sem alfa" e a justificativa das duas faixas que citava o texto dourado. 🔴 LACUNA: falta decisão humana sobre atualizar a âncora de 317.058 bytes ou tratá-la como registro histórico.</p>
   </div>
 
   <h2>Como a Feature Funciona</h2>
@@ -138,14 +138,14 @@
     <table><tbody>
       <tr><th>Rota</th><th>Arte de runtime</th><th>Bytes</th><th>Dimensões</th><th>Formato</th><th>Confiança</th></tr>
       <tr><td><code>/apple-touch-icon.png</code></td><td><code>src/assets/apple-touch-icon.png</code></td><td>16.504</td><td>180 x 180</td><td>PNG RGB, tipo de cor 2, sem canal alfa</td><td>🟢 CONFIRMADO</td></tr>
-      <tr><td><code>/banner.png</code></td><td><code>src/assets/banner-da-tela.png</code></td><td>318.911</td><td>1024 x 547</td><td>PNG RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><code>/banner.png</code></td><td><code>src/assets/banner-da-tela.png</code></td><td>438.161</td><td>1408 x 752</td><td>PNG RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
     </tbody></table>
-    <p class="note">Tamanhos e dimensões medidos nos arquivos em 2026-10-20. O SDD registra 317.058 bytes para o banner; a diferença está no delta e nas Lacunas Declaradas.</p>
+    <p class="note">Tamanhos e dimensões medidos nos arquivos em 2026-10-21, depois da segunda troca de arte. O SDD registra 317.058 bytes para o banner; a diferença está no delta e nas Lacunas Declaradas.</p>
 
     <table style="margin-top:14px"><tbody>
       <tr><th>Fonte canônica</th><th>Arquivo</th><th>Bytes</th><th>Dimensões</th><th>Formato</th><th>Confiança</th></tr>
       <tr><td>Ícone</td><td><code>docs/assets/img/logo.png</code></td><td>32.317</td><td>512 x 512</td><td>RGBA, com 32,5% de pixels de alfa 0</td><td>🟢 CONFIRMADO</td></tr>
-      <tr><td>Banner</td><td><code>docs/assets/img/banner-analisador.png</code></td><td>1.101.780</td><td>1024 x 547</td><td>RGBA, com alfa 255 em 100% dos pixels; o SDD descreve RGB sem alfa</td><td>🟡 INFERIDO</td></tr>
+      <tr><td>Banner</td><td><code>docs/assets/img/banner-analisador.png</code></td><td>175.212</td><td>1408 x 752</td><td>PNG de paleta com alfa real (<code>tRNS</code>): 70,8 % dos pixels em alfa 0 e a opacidade total gravada como 254</td><td>🟢 CONFIRMADO</td></tr>
     </tbody></table>
     <p class="note">As fontes moram em <code>docs/</code>, que não entra na imagem. A arte derivada é commitada em <code>src/assets/</code>.</p>
 
@@ -161,19 +161,19 @@
 
     <table style="margin-top:14px"><tbody>
       <tr><th>Receita do banner</th><th>O que faz</th><th>Por quê</th><th>Confiança</th></tr>
-      <tr><td><b>1. Abrir a canônica</b></td><td>Abre <code>docs/assets/img/banner-analisador.png</code> e converte para RGB.</td><td>A receita trabalha sobre RGB. A fonte atual é RGBA, mas todos os pixels são opacos, então a conversão não altera o desenho.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>1. Abrir a canônica</b></td><td>Abre <code>docs/assets/img/banner-analisador.png</code> e decide a receita pelo alfa da fonte.</td><td>Fonte <b>opaca</b> com quadriculado gravado segue para a remoção de fundo; fonte já <b>transparente</b> (a de 2026-10-21, com 70,8 % dos pixels em alfa 0) é reencodada em RGBA sem remoção. Converter a fonte transparente para RGB jogaria o alfa fora e o fundo voltaria como bloco opaco.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>2. Marcar o fundo globalmente</b></td><td><code>mascara_do_fundo</code> percorre todos os pixels e marca o fundo onde ele estiver.</td><td>A árvore, o livro e o texto formam anúncios fechados. A primeira versão, por inundação a partir da borda, deixou o pixel <code>(300,150)</code> opaco e 8.379 pixels de fundo opacos numa amostra de 1/9 da imagem.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>3. Faixa alta</b></td><td>Brilho maior ou igual a 190 com saturação menor ou igual a 50 é fundo.</td><td>Nessa faixa o fundo pode estar tingido, então o teto de saturação é largo.</td><td>🟢 CONFIRMADO</td></tr>
-      <tr><td><b>4. Faixa média</b></td><td>Brilho entre 160 e 190 com saturação menor ou igual a 12 é fundo.</td><td>O quadriculado é neutro e a tinta clara da arte é levemente quente. Com um limite único, as letras do texto dourado ficaram ocas na composição anterior. O teste atual mede 455 pixels opacos nessa faixa e exige pelo menos 150.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>4. Faixa média</b></td><td>Brilho entre 160 e 190 com saturação menor ou igual a 12 é fundo.</td><td>O quadriculado é neutro e a tinta clara da arte é levemente quente. Com um limite único, as letras do texto dourado ficaram ocas na composição anterior. O teste atual mede 1.119 pixels opacos nessa faixa e exige pelo menos 150.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>5. Piso absoluto</b></td><td>Brilho abaixo de 160 nunca é fundo.</td><td>O cinza mais escuro do fundo mede 185 e a sombra mais clara da arte mede 141. O piso de 160 fica entre os dois.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>6. Alfa proporcional</b></td><td>Na segunda passada, a fronteira recebe alfa proporcional à distância do fundo.</td><td>Entre a arte e o xadrez há uma faixa de 1 a 2 pixels de cinza intermediário. Deixá-la opaca desenharia um halo claro em volta de tudo.</td><td>🟢 CONFIRMADO</td></tr>
-      <tr><td><b>7. Gravar</b></td><td>Salva RGBA em <code>src/assets/banner-da-tela.png</code>. Não há âncora de bytes no código.</td><td>A arte atual mede 318.911 bytes. O SDD registra 317.058 bytes, medidos antes da troca de 2026-10-16.</td><td>🟡 INFERIDO</td></tr>
+      <tr><td><b>7. Gravar</b></td><td>Salva RGBA em <code>src/assets/banner-da-tela.png</code>. Não há âncora de bytes no código.</td><td>A arte atual mede 438.161 bytes, em 1408 x 752. O SDD registra 317.058 bytes, medidos antes da troca de 2026-10-16.</td><td>🟡 INFERIDO</td></tr>
     </tbody></table>
-    <p class="note">Receita em <code>tests/banner_da_tela.py</code>: <code>_e_fundo</code> (:76), <code>mascara_do_fundo</code> (:110), <code>arte_limpa</code> (:127), <code>residuo_de_fundo</code> (:180). Para regerar: <code>python -m tests.banner_da_tela</code>.</p>
+    <p class="note">Receita em <code>tests/banner_da_tela.py</code>: <code>_e_fundo</code> (:95), <code>mascara_do_fundo</code> (:129), <code>fonte_ja_tem_fundo_transparente</code> (:146), <code>arte_limpa</code> (:169), <code>residuo_de_fundo</code> (:232). Para regerar: <code>python -m tests.banner_da_tela</code>.</p>
 
     <table style="margin-top:14px"><tbody>
       <tr><th>Por que derivar</th><th>O que aconteceria se servisse a arte crua ou editada à mão</th><th>Confiança</th></tr>
-      <tr><td><b>Defeito visível</b></td><td>O ícone cru vira quadrado preto no atalho. O banner cru desenha a grade cinza do quadriculado atrás do logo.</td><td>🟢 CONFIRMADO</td></tr>
+      <tr><td><b>Defeito visível</b></td><td>O ícone cru vira quadrado preto no atalho. O banner cru desenhava a grade cinza do quadriculado atrás do logo — até 2026-10-21, quando a arte passou a chegar transparente.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>Reprodutibilidade</b></td><td>Editar à mão quebra a fonte única e o teste de deriva. A receita regenera a arte a partir da canônica, com os mesmos parâmetros.</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td><b>Imagem e runtime</b></td><td>A fonte canônica mora em <code>docs/</code>, que não entra na imagem. Gerar no runtime exigiria a fonte dentro do container, e gerar no import seria I/O no <code>src/app.py</code>.</td><td>🟢 CONFIRMADO</td></tr>
     </tbody></table>
@@ -207,7 +207,7 @@
       <tr><th>Ordem</th><th>Bloco</th><th>Tarefas</th><th>Confiança</th></tr>
       <tr><td>1</td><td><b>As duas rotas</b>, antes das artes existirem</td><td>T-01 a T-07</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td>2</td><td><b>Receita do ícone</b></td><td>T-08 a T-10</td><td>🟢 CONFIRMADO</td></tr>
-      <tr><td>3</td><td><b>Receita do banner</b>, com T-14 antes de T-11</td><td>T-11 a T-15. T-15 registra 317.058 bytes no SDD; o arquivo atual tem 318.911.</td><td>🟡 INFERIDO</td></tr>
+      <tr><td>3</td><td><b>Receita do banner</b>, com T-14 antes de T-11</td><td>T-11 a T-15. T-15 registra 317.058 bytes no SDD; o arquivo atual tem 438.161.</td><td>🟡 INFERIDO</td></tr>
       <tr><td>4</td><td><b>Contrato da deriva e da pasta</b></td><td>T-16 a T-20</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td>5</td><td><b>Masthead</b></td><td>T-21 e T-22</td><td>🟢 CONFIRMADO</td></tr>
       <tr><td>6</td><td><b>Testes de contrato</b></td><td>TT-01 a TT-16</td><td>🟢 CONFIRMADO</td></tr>
@@ -272,7 +272,7 @@ Então ele falha, porque a biblioteca de imagem não é dependência de runtime<
     <tr><th>Arquivo</th><th>Símbolo ou evidência</th><th>Confiança</th></tr>
     <tr><td><b>src/app.py</b></td><td><code>ARTE_DO_ICONE</code> (:376 a :381); <code>icone_de_atalho</code> (:384 a :402); <code>ARTE_DO_TOPO</code> (:422 a :427); <code>banner_do_topo</code> (:430 a :441)</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>src/assets/apple-touch-icon.png</b></td><td>16.504 bytes, 180 x 180, RGB, tipo de cor 2</td><td>🟢 CONFIRMADO</td></tr>
-    <tr><td><b>src/assets/banner-da-tela.png</b></td><td>318.911 bytes, 1024 x 547, RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>src/assets/banner-da-tela.png</b></td><td>438.161 bytes, 1408 x 752, RGBA, tipo de cor 6</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>tests/icone_de_atalho.py</b></td><td><code>ARTE_CANONICA</code> (:53), <code>ARTE_DE_RUNTIME</code> (:56), <code>LADO</code> (:59), <code>FUNDO</code> (:63), <code>TAMANHO_ESPERADO</code> (:69), <code>arte_derivada</code> (:72), <code>bytes_da_arte</code> (:87), <code>gravar_arte</code> (:94)</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>tests/banner_da_tela.py</b></td><td><code>FONTE</code> (:43), <code>ARTE_DE_RUNTIME</code> (:44), <code>CLARO_MINIMO</code> (:68), <code>SATURACAO_MAXIMA</code> (:69), <code>SATURACAO_MINIMA_ESCURA</code> (:73), <code>_e_fundo</code> (:76), <code>mascara_do_fundo</code> (:110), <code>arte_limpa</code> (:127), <code>residuo_de_fundo</code> (:180), <code>main</code> (:204)</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>tests/test_deriva_da_arte.py</b></td><td><code>_imagens_diferem</code> (:29); arte commitada igual à receita (:46); sensibilidade a um pixel (:54); recompressão não é deriva (:71); arte sob <code>src/</code> e fora de <code>static/</code> (:89); Pillow fora de <code>requirements.txt</code> (:98)</td><td>🟢 CONFIRMADO</td></tr>
@@ -280,7 +280,7 @@ Então ele falha, porque a biblioteca de imagem não é dependência de runtime<
     <tr><td><b>tests/test_banner_do_topo.py</b></td><td><code>TestArteDerivada</code> (:335), RGBA (:348), faixa transparente (:352), resíduo zero na caixa (:371), pontos opacos (:389), faixa estreita (:436), ordem da masthead (:177), <code>w-50</code> (:168), <code>alt</code> próprio (:255)</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>.dockerignore</b></td><td>Lista de permissão (<code>*</code>, <code>!requirements.txt</code>, <code>!src/</code>, <code>!src/**</code>) nas linhas 12 a 15; <code>src/uploads/</code> reexcluído na linha 24</td><td>🟢 CONFIRMADO</td></tr>
     <tr><td><b>src/templates/index.html</b></td><td>Masthead (:208 a :235), <code>img</code> com <code>w-50</code> (:210 a :212), <code>h1</code> em texto (:223)</td><td>🟢 CONFIRMADO</td></tr>
-    <tr><td><b>docs/assets/img/logo.png</b> e <b>banner-analisador.png</b></td><td>As fontes canônicas da receita, com 32.317 e 1.101.780 bytes; não entram na imagem</td><td>🟢 CONFIRMADO</td></tr>
+    <tr><td><b>docs/assets/img/logo.png</b> e <b>banner-analisador.png</b></td><td>As fontes canônicas da receita, com 32.317 e 175.212 bytes; não entram na imagem</td><td>🟢 CONFIRMADO</td></tr>
   </tbody></table>
 
   <h2>Avisos contratados</h2>
@@ -291,16 +291,16 @@ Então ele falha, porque a biblioteca de imagem não é dependência de runtime<
     <tr><th>Origem</th><th>Lacuna</th><th>Confiança</th></tr>
     <tr><td><b>L-33</b></td><td>A arte servida não é verificada dentro do container. Os testes rodam no host, onde <code>docs/</code> existe; se a arte falhar dentro da imagem, o resultado é o <code>404</code> silencioso, sem log e sem teste. O design registra a decisão de um health check no arranque, agendada para depois do Passo 4, mas não há verificação no <code>src/app.py</code> atual. Pergunta ao humano: o health check foi implementado em outro lugar ou segue pendente?</td><td>🔴 LACUNA</td></tr>
     <tr><td><b>L-34</b></td><td>O <code>sha256</code> do HTML de <code>GET /</code> em <code>test_icone_de_atalho.py</code> é um invariante mantido à mão, atualizado três vezes em 2026-10-10. Enquanto cada atualização for uma decisão humana registrada, ele prende o que promete; se virar rotina, deixa de prender.</td><td>🟡 INFERIDO</td></tr>
-    <tr><td><b>Âncora do banner</b></td><td>O SDD registra 317.058 bytes para <code>banner-da-tela.png</code>; o arquivo atual tem 318.911 bytes, depois da troca de arte de 2026-10-16. Pergunta ao humano: atualizar a âncora no SDD ou tratá-la como registro histórico da composição anterior?</td><td>🔴 LACUNA</td></tr>
+    <tr><td><b>Âncora do banner</b></td><td>O SDD registra 317.058 bytes para <code>banner-da-tela.png</code>; o arquivo atual tem 438.161 bytes, depois das trocas de arte de 2026-10-16 e 2026-10-21. Pergunta ao humano: atualizar a âncora no SDD ou tratá-la como registro histórico da composição anterior?</td><td>🔴 LACUNA</td></tr>
     <tr><td><b>Deriva do banner</b></td><td><code>test_deriva_da_arte.py</code> regenera e compara apenas o ícone. O banner é verificado por propriedades em <code>test_banner_do_topo.py</code>, não por igualdade pixel a pixel com <code>arte_limpa()</code>. Pergunta ao humano: a cobertura por propriedade basta para o banner ou falta um teste de deriva equivalente ao do ícone?</td><td>🔴 LACUNA</td></tr>
     <tr><td><b>Pontos opacos</b></td><td>O <code>RF-17</code> e a seção Critérios de Aceitação falam em onze pontos; o teste atual lista 12 coordenadas. A contagem mudou com a composição de 2026-10-16. Pergunta ao humano: atualizar o <code>RF-17</code> e o critério, ou manter o número do SDD como histórico?</td><td>🔴 LACUNA</td></tr>
-    <tr><td><b>Cache</b></td><td>As duas rotas servem o arquivo do disco a cada requisição, sem cache em memória. Não há medição de impacto para os 318.911 bytes do banner.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Cache</b></td><td>As duas rotas servem o arquivo do disco a cada requisição, sem cache em memória. Não há medição de impacto para os 438.161 bytes do banner.</td><td>🟡 INFERIDO</td></tr>
     <tr><td><b>Folga dos limites</b></td><td><code>CLARO_MINIMO = 160</code>, <code>SATURACAO_MAXIMA = 50</code> e o teto 12 saem de medição com folga declarada, não de experimento controlado. Não há estudo de quanto sobra em cada direção.</td><td>🟡 INFERIDO</td></tr>
     <tr><td><b>Caixa de regressão</b></td><td>A caixa <code>(778,232)</code> a <code>(918,338)</code> descreve a composição que tinha abajur, e essa composição não existe mais. A caixa continua valendo como região de fundo, mas pode ser lida como medida da arte atual.</td><td>🟡 INFERIDO</td></tr>
     <tr><td><b>Receita em tests/</b></td><td>A transformação que produz a arte entregue ao operador é código de teste. É o preço de manter Pillow fora do runtime, e o preço continua valendo enquanto a arte mudar.</td><td>🟡 INFERIDO</td></tr>
     <tr><td><b>Sem log nem métrica</b></td><td>A ausência de arte não é registrada. O <code>404</code> é indistinguível, nos registros, de uma rota que não existe.</td><td>🔴 LACUNA</td></tr>
     <tr><td><b>Integridade em runtime</b></td><td>Arte corrompida em disco é servida como está. Não há validação de integridade em runtime, só o teste de deriva, que roda fora da aplicação.</td><td>🔴 LACUNA</td></tr>
-    <tr><td><b>Fonte do banner</b></td><td>O SDD descreve a fonte como RGB sem alfa; o arquivo atual é RGBA com alfa 255 em 100% dos pixels. O comportamento não muda, mas a descrição envelheceu.</td><td>🟡 INFERIDO</td></tr>
+    <tr><td><b>Fonte do banner</b></td><td>O SDD descreve a fonte como RGB sem alfa; a fonte atual é um PNG de paleta com alfa real (70,8 % dos pixels em alfa 0) e a derivada preserva esse alfa. O comportamento não muda, mas a descrição envelheceu.</td><td>🟡 INFERIDO</td></tr>
   </tbody></table>
 </main>
 
