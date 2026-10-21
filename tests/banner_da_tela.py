@@ -32,6 +32,13 @@ pelo `W004`.
 ## Como regerar
 
     .venv\\Scripts\\python.exe -m tests.banner_da_tela
+
+## A fonte pode chegar ja' transparente (2026-10-21)
+
+`fonte_ja_tem_fundo_transparente` decide entre as duas receitas: fonte **opaca** com xadrez
+gravado (as artes de 2026-10-10 e 2026-10-16) segue pela remocao global; fonte **com alfa
+real** e' reencodada em `RGBA` sem remocao nenhuma. Sem essa distincao, a arte nova perderia
+a transparencia no `convert("RGB")` e o fundo voltaria opaco.
 """
 from __future__ import annotations
 
@@ -71,6 +78,18 @@ SATURACAO_MAXIMA = 50
 # cinza neutro (medido: sat 0..7) e a tinta clara da arte e levemente quente (sat >= 20). O teto
 # largo acima faria o texto dourado perder o preenchimento. Ver `_e_fundo`.
 SATURACAO_MINIMA_ESCURA = 12
+
+#: A partir de quanto um pixel conta como **opaco**.
+#:
+#: ## Por que não 255 (medido em 2026-10-21)
+#:
+#: A arte desta data veio em PNG de paleta com alfa real, e o exportador gravou a opacidade
+#: total como `254`, não `255`: medido, 70,8 % dos pixels estão em `0` e 26,6 % em `254`.
+#: Comparar com 255 exato faz a arte inteira parecer transparente — `histograma[255] == 0` —,
+#: e foi o que a primeira medição desta troca mostrou. "Opaco" aqui significa **a partir de
+#: 250**, e nenhum pixel que a remoção de fundo coma chega perto disso (a remoção marca o
+#: fundo como transparente, e a fronteira fica com alfa baixo).
+ALFA_OPACO = 250
 
 
 def _e_fundo(pixel: tuple[int, int, int]) -> bool:
@@ -124,8 +143,38 @@ def mascara_do_fundo(imagem) -> bytearray:
     return marca
 
 
+def fonte_ja_tem_fundo_transparente(imagem) -> bool:
+    """A fonte ja' tem transparencia DE VERDADE, e nao quadriculado gravado no bitmap?
+
+    ## Por que isso passou a importar (2026-10-21)
+
+    As duas artes anteriores chegaram em `RGB`, **sem** canal alfa, com o xadrez de
+    transparencia desenhado nos pixels — e por isso a receita remove o fundo. A arte desta
+    data chegou em PNG de paleta com canal alfa real: os quatro cantos estao em `alfa 0` e
+    o desenho tem borda suave (`alfa 254` no miolo da pintura).
+
+    Nesse caso, `convert("RGB")` jogaria a transparencia fora e o fundo voltaria como um
+    bloco **opaco** — exatamente o defeito que esta receita existe para evitar. Quando a
+    fonte ja' tem alfa util, a derivada e' a propria fonte reencodada em `RGBA` e nenhuma
+    remocao roda: nao ha o que remover.
+    """
+    if imagem.mode not in ("RGBA", "LA", "P", "PA"):
+        return False
+    alfa = imagem.convert("RGBA").getchannel("A")
+    total = imagem.size[0] * imagem.size[1]
+    transparentes = total - alfa.histogram()[255]
+    return transparentes > total * 0.01
+
+
 def arte_limpa():
     """A arte de runtime: o fundo xadrez removido, com alfa suave na fronteira.
+
+    ## Fonte com alfa: a receita nao roda
+
+    Desde 2026-10-21 a fonte pode chegar **ja' transparente** (ver
+    `fonte_ja_tem_fundo_transparente`). Nesse caso a derivada e' a fonte em `RGBA`, e as
+    duas passadas abaixo — a remocao global e o alfa de fronteira — nao tem objeto: elas
+    existem para tirar um xadrez que so' existe em fonte opaca.
 
     ## A segunda passada, e por que ela existe
 
@@ -139,7 +188,10 @@ def arte_limpa():
 
     if not os.path.isfile(FONTE):
         raise SystemExit(f"arte canonica ausente: {FONTE}")
-    original = Image.open(FONTE).convert("RGB")
+    original = Image.open(FONTE)
+    if fonte_ja_tem_fundo_transparente(original):
+        return original.convert("RGBA")
+    original = original.convert("RGB")
     largura, altura = original.size
     pixels = original.load()
     marca = mascara_do_fundo(original)
@@ -196,7 +248,7 @@ def residuo_de_fundo(imagem) -> int:
     for y in range(imagem.size[1]):
         for x in range(imagem.size[0]):
             r, g, b, a = pixels[x, y]
-            if a == 255 and min(r, g, b) >= 185 and (max(r, g, b) - min(r, g, b)) <= limite:
+            if a >= ALFA_OPACO and min(r, g, b) >= 185 and (max(r, g, b) - min(r, g, b)) <= limite:
                 total += 1
     return total
 
@@ -206,7 +258,7 @@ def main() -> int:
     os.makedirs(os.path.dirname(ARTE_DE_RUNTIME), exist_ok=True)
     limpa.save(ARTE_DE_RUNTIME, format="PNG", optimize=True)
 
-    opacos = limpa.getchannel("A").histogram()[255]
+    opacos = sum(limpa.getchannel("A").histogram()[ALFA_OPACO:])
     total = limpa.size[0] * limpa.size[1]
     print(f"fonte     : {FONTE}")
     print(f"derivada  : {ARTE_DE_RUNTIME}")

@@ -19,6 +19,19 @@ nada. Quem pegou o defeito foi compor a arte sobre magenta e olhar. O teste abai
 caixa exata do bloco que sobrou — `(778,232)` a `(918,338)`, sob o cone de luz do abajur, onde
 a luz ambar tinge o quadriculado e a saturacao passa de 42 —, com um limite **mais estrito** que
 o da regra, para nao repetir o erro de medir o residuo com a propria regra.
+
+## A arte de 2026-10-21 mudou o problema
+
+A arte trocada nesta data (arvore saindo de um livro aberto) chegou em PNG de paleta **com
+canal alfa de verdade** — 70,8 % dos pixels em `alfa 0`, e nao quadriculado desenhado. Duas
+consequencias medidas:
+
+1. A receita **nao remove fundo** para essa fonte (ver `fonte_ja_tem_fundo_transparente`):
+   converter para `RGB` jogaria a transparencia fora e o fundo voltaria como bloco opaco — o
+   defeito de sempre, por outro caminho. A guarda contra esse caminho e' o teste de
+   transparencia: com a conversao errada ele mede 0 %.
+2. O exportador grava a opacidade total como **`254`**, nao `255` (medido: `histograma[255]` e'
+   zero). Por isso "opaco" aqui significa `alfa >= ALFA_OPACO` (250), e nao `== 255`.
 """
 from __future__ import annotations
 
@@ -34,7 +47,13 @@ for _caminho in (_RAIZ, os.path.join(_RAIZ, "src")):
     if _caminho not in sys.path:
         sys.path.insert(0, _caminho)
 
-from tests.banner_da_tela import ARTE_DE_RUNTIME, FONTE, residuo_de_fundo  # noqa: E402
+from tests.banner_da_tela import (  # noqa: E402
+    ALFA_OPACO,
+    ARTE_DE_RUNTIME,
+    FONTE,
+    fonte_ja_tem_fundo_transparente,
+    residuo_de_fundo,
+)
 
 CAMINHO = "/banner.png"
 # `RN-16` (T036) dizia que o titulo vivia no `alt`, e NAO como texto na tela. A `RN-23` (T044)
@@ -80,11 +99,12 @@ class TestRotaDaArte:
         assert len(resposta.get_data()) > 1000, "a resposta veio vazia ou truncada"
 
     def test_a_arte_servida_e_a_derivada_e_nao_a_fonte(self, cliente_de_upload):
-        """A fonte tem o quadriculado gravado; a servida nao pode ser ela.
+        """A arte servida e' a derivada, e nao a fonte canonica.
 
-        A comparacao e por TAMANHO, e nao por bytes: a fonte e `RGB` com o xadrez embutido e
-        mede 817.469 bytes; a derivada tem alfa e mede menos. Se alguem trocar a rota para
-        servir a fonte, a tela ganha a grade cinza de volta e este teste cai.
+        A comparacao e' por TAMANHO, e nao por bytes. Os numeros de hoje: a fonte e' um PNG de
+        paleta de **175.212 bytes** (1408x752, com alfa) e a derivada e' o mesmo desenho
+        reencodado em `RGBA`, **438.161 bytes**. Se alguem trocar a rota para servir a fonte, ou
+        para servir a fonte convertida em `RGB` (que perde o alfa), este teste cai.
         """
         _app, cliente, _pasta = cliente_de_upload
 
@@ -350,22 +370,24 @@ class TestArteDerivada:
         assert arte.mode == "RGBA", f"a arte de runtime esta em {arte.mode}"
 
     def test_a_arte_transparente_e_uma_fatia_util_da_imagem(self, arte):
-        """Nem zero (quadriculado intacto) nem quase tudo (arte comida).
+        """Nem zero (fundo intacto) nem quase tudo (arte comida).
 
         O limite e LARGO de proposito, e a segunda metade da prova e o teste das partes claras:
-        aqui se prende que houve remocao, la se prende que a arte sobreviveu. A composicao atual
-        (arvore, livro e texto, sem microscopio nem abajur) ocupa menos da tela e mede **71,8 %**
-        transparente — o limite antigo, de 60 %, valia para a composicao anterior, que era mais
-        larga. Ajustar o teto NAO afrouxa a prova: quem responde "a arte continua la" e o teste
-        seguinte, ponto a ponto.
+        aqui se prende que houve remocao, la se prende que a arte sobreviveu.
+
+        ## Este e' o teste que pega a conversao errada da fonte com alfa
+
+        A arte de 2026-10-21 ja' chega transparente (26,6 % opaca, **73,4 % transparente**). Se
+        a receita voltar a converter a fonte para `RGB` antes de derivar, a transparencia some e
+        este teste mede **0 %** — e' o defeito que ele existe para impedir agora.
         """
         total = arte.size[0] * arte.size[1]
-        opacos = arte.convert("RGBA").getchannel("A").histogram()[255]
+        opacos = sum(arte.convert("RGBA").getchannel("A").histogram()[ALFA_OPACO:])
         transparentes = 100 * (total - opacos) / total
 
         assert 10 <= transparentes <= 90, (
-            f"{transparentes:.1f} % transparente. Zero significa quadriculado nao removido; "
-            "quase tudo significa que a regra comeu a arte"
+            f"{transparentes:.1f} % transparente. Zero significa que a transparencia da fonte "
+            "foi perdida na conversao; quase tudo significa que a arte sumiu"
         )
 
     def test_a_arte_nao_tem_bloco_de_quadriculado(self, arte):
@@ -375,6 +397,9 @@ class TestArteDerivada:
         ambar tingia o quadriculado e a saturacao passava do limite. A composicao de hoje nao tem
         abajur, e essa caixa e FUNDO — mas ela fica como caixa de regressao: qualquer pixel de
         fundo opaco ali significa que o quadriculado voltou a sobreviver a remocao.
+
+        Medido na arte de 2026-10-21: **0 px** na caixa. A arte nova ja' chega transparente, entao
+        a caixa nao prova a remocao hoje — ela continua como guarda para uma fonte opaca futura.
 
         `residuo_de_fundo` usa `SATURACAO_MAXIMA - 5`, mais apertado que a regra de remocao.
         Medir o residuo com o mesmo limite da regra devolveria sempre zero, e foi esse erro que
@@ -387,50 +412,44 @@ class TestArteDerivada:
         )
 
     def test_a_arte_nao_perdeu_as_partes_claras_que_sao_arte(self, arte):
-        """O outro lado do risco: a regra que remove fundo claro nao pode furar a pintura.
+        """A arte derivada continua com os elementos do desenho, ponto a ponto.
 
-        ## Estes pontos foram MEDIDOS na composicao de 2026-10-16
+        ## Estes pontos foram MEDIDOS na composicao de 2026-10-21
 
-        Todos verificados como opacos no arquivo de runtime. Eles cobrem as duas familias de
-        risco:
+        A composicao mudou de novo nesta data (arvore saindo de um livro aberto, 1408x752), e
+        os doze pontos foram re-medidos no arquivo de runtime: todos em `alfa 254`. Eles cobrem
+        as duas familias de risco que a receita de remocao pode comer quando roda:
 
-        - **arte ESCURA e pouco saturada** (capa `sat=53`, lombada `sat=35`, base do livro
-          `sat=22`) — o que um limite de brilho baixo demais comecaria a comer;
-        - **arte CLARA e quase neutra** — o que um teto de saturacao largo demais come. Os dois
-          pontos centrais sao desta familia, e foram escolhidos a **>= 4 px de qualquer pixel de
-          fundo**: prendem TINTA, e nao a antialiasing da borda.
+        - **arte ESCURA** (galhos `(54,40,31)`, capa `(126,95,65)`) — o que um limite de brilho
+          baixo demais comecaria a comer;
+        - **arte CLARA** (paginas `(228,205,161)`, hélice `(188,166,136)`) — o que um teto de
+          saturacao largo demais come.
 
-        ## O ponto que saiu em 2026-10-16, e por que ele caiu
+        ## O que este teste mede HOJE, e o que ele media antes
 
-        A composicao anterior tinha um ponto no **preenchimento do texto dourado**
-        (`(270, 212)`, `sat~24`), e era ele que prendia a faixa ESTREITA de saturacao — foi com um
-        teto unico que as letras de "Analisador Genealogico" ficaram OCAS.
-
-        A arte atual **nao tem o texto**: `(270, 212)` virou fundo e este teste caiu, corretamente.
-        A familia continua representada pelos dois pontos centrais; a contagem que a prende sem
-        depender de um pixel esta em
-        `test_a_faixa_estreita_de_saturacao_continua_protegendo_tinta`.
-
-        Se alguem "resolver" um residuo de fundo baixando o brilho ou alargando a saturacao, um
-        destes pontos vira buraco e este teste cai.
+        Para a arte de 2026-10-21 a remocao **nao roda** (a fonte ja' tem alfa), entao aqui a
+        assercao garante que a derivada preservou o desenho — nao que a regra poupou tinta. Ela
+        continua valendo para as duas coisas: se a fonte voltar a ser opaca, a regra roda de
+        novo e este e' o teste que acusa quando ela comer um destes pontos.
         """
         rgba = arte.convert("RGBA")
         for rotulo, (x, y) in {
-            "folha alta esquerda": (170, 75),
-            "folha alta direita": (860, 75),
-            "galho esquerdo": (300, 130),
-            "galho direito": (700, 130),
-            "tinta clara e quase neutra, no centro (1)": (511, 255),
-            "tinta clara e quase neutra, no centro (2)": (489, 377),
-            "pagina esquerda": (430, 360),
-            "pagina direita": (600, 360),
-            "lombada": (512, 420),
-            "capa esquerda": (370, 470),
-            "capa direita": (660, 470),
-            "base do livro": (512, 500),
+            "folha alta esquerda": (230, 120),
+            "folha alta direita": (1180, 120),
+            "galho esquerdo": (430, 190),
+            "galho direito": (930, 190),
+            "galho direito, mais alto": (1100, 180),
+            "tronco, abaixo da forquilha": (700, 340),
+            "hélice de DNA, sobre o livro": (700, 470),
+            "página esquerda": (560, 450),
+            "página direita": (850, 450),
+            "lombada": (700, 640),
+            "capa esquerda": (470, 620),
+            "base do livro": (700, 660),
         }.items():
-            assert rgba.getpixel((x, y))[3] == 255, (
-                f"a arte perdeu {rotulo} em ({x}, {y}): a remocao de fundo comeu tinta"
+            assert rgba.getpixel((x, y))[3] >= ALFA_OPACO, (
+                f"a arte perdeu {rotulo} em ({x}, {y}): "
+                f"alfa {rgba.getpixel((x, y))[3]}"
             )
 
     def test_a_faixa_estreita_de_saturacao_continua_protegendo_tinta(self, arte):
@@ -443,13 +462,14 @@ class TestArteDerivada:
 
         ## Os numeros sao medidos, nao escolhidos
 
-        Na arte derivada de 2026-10-16: **455 pixels** opacos nesta faixa. Com o teto largo:
-        **zero**. O piso de 150 fica com folga de 3x para baixo de proposito — pixels de borda
-        mudam com qualquer ajuste na segunda passada da receita, e o que este teste prende e a
-        ORDEM DE GRANDEZA, nao o valor exato.
+        Na arte derivada de 2026-10-21: **1.119 pixels** opacos nesta faixa. Na composicao
+        anterior eram 455. O piso de 150 fica com folga para baixo de proposito — pixels de
+        borda mudam com qualquer ajuste, e o que este teste prende e a ORDEM DE GRANDEZA, nao
+        o valor exato.
 
-        Este teste existe porque o ponto por pixel que fazia esse papel saiu com o texto: sem ele,
-        alargar o teto passaria despercebido.
+        Para a arte de 2026-10-21 a remocao nao roda (fonte ja' transparente), entao a contagem
+        aqui mede a tinta clara que a arte TEM. Ela volta a ser guarda da regra no dia em que a
+        fonte chegar opaca de novo.
         """
         rgba = arte.convert("RGBA")
         pixels = rgba.load()
@@ -459,14 +479,14 @@ class TestArteDerivada:
         for y in range(altura):
             for x in range(largura):
                 r, g, b, alfa = pixels[x, y]
-                if alfa != 255:
+                if alfa < ALFA_OPACO:
                     continue
                 maior, menor = max(r, g, b), min(r, g, b)
                 if 160 <= maior < 190 and 12 < (maior - menor) <= 50:
                     na_faixa += 1
 
         assert na_faixa >= 150, (
-            f"so' {na_faixa} pixels opacos na faixa estreita de saturacao (medido: 455). O teto "
+            f"so' {na_faixa} pixels opacos na faixa estreita de saturacao (medido: 1.119). O teto "
             "de `SATURACAO_MINIMA_ESCURA` foi alargado, ou o brilho minimo baixou, e a tinta clara "
             "da arte esta sendo tratada como fundo"
         )

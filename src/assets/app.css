@@ -153,26 +153,29 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
   text-align:left;
   margin-bottom:1.5rem
 }
-/* A ARTE DENTRO DE UMA CAIXA (emenda E009). O painel da direita deixa de ser o vazio ao redor
-   da imagem e passa a ser uma superficie propria: fundo, borda, cantos arredondados e sombra.
-   E o que a referencia visual mostra, e da a arte o mesmo peso do bloco de texto ao lado.
+/* A ARTE SOBRE O CARTÃO, SEM CAIXA (2026-10-21).
+   A emenda E009 punha a arte dentro de um painel com fundo, borda e sombra. Com a arte nova,
+   que chega **transparente**, esse painel virou uma moldura clara em volta de um desenho que já
+   tem contorno próprio — o operador pediu para tirar o fundo.
 
-   A sombra e curta e difusa de proposito: sombra longa neste cartao (que ja tem sombra propria
-   em alguns temas) faria o painel flutuar sobre outro painel. No escuro ela e preta e mais
-   opaca, porque sombra marrom sobre fundo quase preto nao aparece. */
+   A saída não foi só apagar o painel: um `box-shadow` sobre fundo transparente aparece como uma
+   névoa quadrada atrás da arte. A sombra passou para o `img` como `drop-shadow`, que segue o
+   ALFA do desenho (folhas, tronco, livro) e desenha a silhueta, não um retângulo.
+
+   No escuro ela é preta e mais opaca, porque sombra marrom sobre fundo quase preto não aparece. */
 .masthead-arte{
   grid-column:2;
   grid-row:1;
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:clamp(1rem,2.5vw,1.75rem);
-  background:var(--surface-2);
-  border:1px solid var(--line);
-  border-radius:16px;
-  box-shadow:0 12px 28px rgba(69,52,29,.10)
+  padding:clamp(.5rem,1.5vw,1rem);
+  background:transparent;
+  border:0;
+  box-shadow:none
 }
-:root[data-bs-theme="dark"] .masthead-arte{box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.masthead-arte img{filter:drop-shadow(0 10px 18px rgba(69,52,29,.16))}
+:root[data-bs-theme="dark"] .masthead-arte img{filter:drop-shadow(0 8px 16px rgba(0,0,0,.55))}
 .masthead-texto{grid-column:1;grid-row:1;min-width:0}
 /* O paragrafo de apresentacao usa a cor secundaria, como na referencia (`p` a 7d7468 la;
    aqui `--muted`, que da 6,11:1 no claro e 6,48:1 no escuro — acima de AA). */
