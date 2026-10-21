@@ -194,6 +194,20 @@ Duas emendas na **área de resultados** — a primeira vez que esta feature mexe
 
 O `SHA_DA_TELA` **não** mudou (`7375696d…`, 42.290 bytes): o resumo e o bloco de observações vivem sob `{% if dna_results %}` e `{% if observacoes_do_arquivo %}`, e o hash mede a tela vazia.
 
+## Atualização 2026-10-21
+
+**A emenda `E009` foi revertida.** A caixa da arte — `background: var(--surface-2)`, `border: 1px solid var(--line)`, `border-radius: 16px` e `box-shadow` — deixou de existir. O motivo não foi estético: em 2026-10-21 a arte do topo passou a chegar **transparente**, e o fundo da caixa virou a única superfície entre o desenho e o cartão. O operador pediu para tirar o fundo, e o fundo era a caixa.
+
+A sombra que a `E009` criou **continua existindo**, agora como `filter: drop-shadow(...)` na própria imagem, que segue a silhueta do desenho em vez de desenhar um retângulo. Sem essa troca, uma `box-shadow` sobre fundo transparente viraria névoa quadrada atrás da arte.
+
+O que a `E009` estabeleceu e **permanece**: a arte ocupa a coluna 2 da grade, alinhada ao bloco de texto por `align-items:center`. O que saiu foi só a superfície.
+
+Registro completo — incluindo a troca da arte que motivou tudo — em `_reversa_sdd/addenda/2026-10-21-arte-transparente-e-sombra-na-silhueta.md`.
+
+**Contagem desta atualização:** `regra-removida` 1 · `regra-alterada` 1 — **2 impactos**, que somados aos 29 anteriores dão **31** no adendo.
+
+O `SHA_DA_TELA` **não** mudou: a alteração é de folha de estilo, e o hash mede o HTML.
+
 
 
 
