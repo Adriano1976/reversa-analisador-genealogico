@@ -73,8 +73,12 @@ dois lados ou meia-relação. Custo das duas colunas medido à parte: ~8 ms nas 
   e volta dos graus, as três meias-relações fora da tabela completa, a ausência de probabilidade e a
   folha sem import.
 - As cinco observações sem peso (redação das frases, cortes 15/40/60/85 % da posição, `nome_do_grau(1)`
-  agora `pai/mãe`, a coluna ser a única sem fonte externa, e a divergência de `meioses` nas linhas de
-  primos) estão no mesmo arquivo. **A divergência de `meioses` segue aberta e requer decisão humana.**
+  agora `pai/mãe`, a coluna ser a única sem fonte externa, e a convenção de `meioses` nas linhas de
+  primos) estão no mesmo arquivo. **Correção de 2026-10-22:** a convenção de `meioses` é **declarada**,
+  não um defeito — `core/validator.py` registra que a coluna é "a chave da relação, não o total do
+  caminho" e deriva o total da chave. O ponto que segue aberto é outro: `core/evidence_comparison`
+  passa um **total** a `meioses_window`, cuja coluna guarda **chaves**, e isso desloca a envoltória das
+  relações não publicadas.
 
 ## Fontes
 

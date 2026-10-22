@@ -30,8 +30,13 @@
   cartão nenhum.
 - 🟡 **A coluna do antepassado é a única sem fonte externa no bloco 3.** Ela não
   envelhece com a versão 5.0 do Shared cM Project; o que envelhece é `SCP40_ROWS`.
-- 🟡 **`meioses` das linhas de primos não é o mesmo número de `documentary_label`.**
-  Achado durante a investigação desta feature, **não tratado**: `1C` guarda 2 na tabela
-  e `documentary_label(2,2)` devolve 4. Só alcança o caminho de envoltória por meioses,
-  usado nas relações não publicadas (`1C6R` e companhia), onde a janela sai deslocada
-  para mais fundo. Requer decisão humana.
+- 🟡 **`meioses` das linhas de primos não é o mesmo número de `documentary_label` — e a
+  convenção é DECLARADA.** `1C` guarda 2 na tabela e `documentary_label(2,2)` devolve 4; a
+  diferença está documentada em `core/validator.py` ("a coluna `meioses` de `SCP40_ROWS` é a
+  chave da relação, não o total do caminho"), e aquele módulo deriva o total da chave em
+  `_meioses_totais_da_relacao`. **Correção de 2026-10-22:** a nota anterior desta linha dizia
+  "a tabela está errada e requer decisão humana" — não está; o que merece decisão é outro
+  ponto, em `core/evidence_comparison._janela_do_documental`, que passa um **total** de
+  `documentary_label` (4 para 1C) a `meioses_window`, cuja coluna guarda **chaves** (2 para
+  1C). Só alcança a envoltória das relações não publicadas (`1C6R` e companhia), onde a janela
+  sai deslocada para mais fundo.

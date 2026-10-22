@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Bloco 3 — o destaque da hipótese (feature 044)</title>
+<!--
+  Mock ESTÁTICO da caixa de destaque do bloco 3 (feature 044).
+
+  Abre offline: a folha de estilo é a de verdade, por caminho relativo; o shim cobre
+  as classes do Bootstrap 5, que aqui não chegam por CDN.
+
+  Os três casos são valores que EXISTEM no arquivo real (Famílias_Sergipanas.csv):
+  9,05 cM, 42,6 cM e 154,5 cM. Eles são um destaque, dois e três — e são os mesmos
+  que os testes prendem por valor.
+-->
+<link rel="stylesheet" href="../../../src/assets/app.css">
+<style>
+  .table{width:100%;border-collapse:collapse}
+  .table-sm td,.table-sm th{padding:.35rem .5rem}
+  .text-muted{color:var(--muted)}
+  .badge{display:inline-block;padding:.15rem .45rem;border-radius:999px;font-size:.75rem;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
+  main{padding:1.5rem;max-width:1100px;margin:0 auto}
+  h5{color:var(--head);font-family:var(--serif,Georgia,serif);margin:1.5rem 0 .5rem}
+  .secao{border-top:1px solid var(--line);padding-top:.75rem;margin-top:1.5rem}
+  .nota-de-mock{font-size:.8rem;color:var(--muted);border-left:3px solid var(--line);padding-left:.6rem;margin:1rem 0}
+</style>
+</head>
+<body>
+<main>
+  <div class="nota-de-mock">
+    Mock estático da feature <code>044</code>. O bloco 3 continua listando todas as relações
+    compatíveis; o que entrou foi uma <strong>leitura</strong> no topo — até três relações, pela
+    distância da média publicada, com o critério, a contagem e a negativa no próprio texto.
+  </div>
+
+  <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+
+  <!-- ---------------------------------------------------------------- 1 -->
+  <div class="secao">
+    <p><strong>Kit AB1234567</strong> — 9,05 cM <span class="badge">confiança: muito baixa</span></p>
+
+    <div class="destaque-da-hipotese">
+      <p class="destaque-rotulo">Hipótese mais próxima da média publicada</p>
+      <ul class="destaque-itens">
+        <li><strong>Primos de 8º grau</strong> — 1,9 cM da média publicada (11 cM) · onde procurar: <strong>octavós</strong></li>
+      </ul>
+      <p class="destaque-ressalva">
+        Entre as 11 relações compatíveis, esta é a mais próxima da média das faixas publicadas — e isso
+        não é confirmação: o parentesco documental continua vindo do GEDCOM.
+      </p>
+    </div>
+
+    <div class="tabela-das-hipoteses">
+      <table class="table table-sm align-middle mb-1">
+        <thead>
+          <tr><th>Relação</th><th>Faixa na fonte</th><th>Onde o valor cai</th><th>Antepassado comum mais recente</th></tr>
+        </thead>
+        <tbody>
+          <tr class="linha-destacada">
+            <td>Primos de 8º grau</td>
+            <td class="faixa-da-hipotese">0–42 cM <small class="text-muted">média 11 cM · distância da média 1,9 cM</small></td>
+            <td class="posicao-da-hipotese"><span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 22%"></span></span><span class="rotulo-da-posicao">abaixo do centro</span></td>
+            <td class="mrca-da-hipotese">octavós <small class="text-muted">9 gerações acima, nos dois lados</small></td>
+          </tr>
+          <tr>
+            <td>Primos de 7º grau</td>
+            <td class="faixa-da-hipotese">0–57 cM <small class="text-muted">média 14 cM · distância da média 4,9 cM</small></td>
+            <td class="posicao-da-hipotese"><span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 16%"></span></span><span class="rotulo-da-posicao">abaixo do centro</span></td>
+            <td class="mrca-da-hipotese">heptavós <small class="text-muted">8 gerações acima, nos dois lados</small></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sentido-da-ordem">… e as outras 9 relações compatíveis.</p>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 2 -->
+  <div class="secao">
+    <p><strong>Kit EG7701661</strong> — 42,6 cM <span class="badge">confiança: muito baixa</span></p>
+
+    <div class="destaque-da-hipotese">
+      <p class="destaque-rotulo">Duas relações praticamente empatadas pela distância da média</p>
+      <ul class="destaque-itens">
+        <li><strong>Primos de 3º grau (1× removido)</strong> — 5,4 cM da média publicada (48 cM) · onde procurar: <strong>trisavós e tetravós</strong></li>
+        <li><strong>Primos de 4º grau</strong> — 7,6 cM da média publicada (35 cM) · onde procurar: <strong>tetravós</strong></li>
+      </ul>
+      <p class="destaque-ressalva">
+        Entre as 15 relações compatíveis, estas são as mais próximas da média das faixas publicadas — e
+        isso não é confirmação: o parentesco documental continua vindo do GEDCOM.
+      </p>
+    </div>
+    <p class="sentido-da-ordem">… e as outras 13 relações compatíveis. Os dois destaques são vizinhos de <b>uma remoção</b>: o cM não distingue um do outro.</p>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 3 -->
+  <div class="secao">
+    <p><strong>Kit AZ4078391</strong> — 154,5 cM <span class="badge">confiança: muito baixa</span></p>
+
+    <div class="destaque-da-hipotese">
+      <p class="destaque-rotulo">Três relações praticamente empatadas pela distância da média</p>
+      <ul class="destaque-itens">
+        <li><strong>Primos de 2º grau (1× removido)</strong> — 32,5 cM da média publicada (122 cM) · onde procurar: <strong>bisavós e trisavós</strong></li>
+        <li><strong>Meio-primos de 2º grau</strong> — 34,5 cM da média publicada (120 cM) · onde procurar: <strong>bisavós (um de dois)</strong></li>
+        <li><strong>Primos de 1º grau (3× removidos)</strong> — 37,5 cM da média publicada (117 cM) · onde procurar: <strong>avós e tetravós</strong></li>
+      </ul>
+      <p class="destaque-ressalva">
+        Entre as 9 relações compatíveis, estas são as mais próximas da média das faixas publicadas — e
+        isso não é confirmação: o parentesco documental continua vindo do GEDCOM.
+      </p>
+    </div>
+    <p class="sentido-da-ordem">
+      … e as outras 6 relações compatíveis. Este é o <b>único</b> kit do arquivo real que chega a três
+      destaques — nos outros 455 a distância separa: 423 ficam com um só e 32 com dois.
+    </p>
+  </div>
+</main>
+</body>
+</html>

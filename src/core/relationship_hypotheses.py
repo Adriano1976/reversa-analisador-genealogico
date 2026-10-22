@@ -56,10 +56,23 @@ sobe ate o antepassado. `tests/test_mrca_e_posicao_na_faixa.py` faz a **ida e
 volta**: joga esses graus em `core.documentary_relationship.documentary_label` e
 exige que a chave devolvida seja a mesma. Duas fontes que discordem quebram o
 teste, e nao a tela.
+
+## O destaque e' heuristica do projeto, como a confianca
+
+A fonte **nao ranqueia** nada: publica faixa e media por relacao, e declara que as
+distribuicoes se sobrepoem. O bloco 3 da tela aponta ate tres relacoes mesmo assim,
+porque a pergunta "qual delas?" e' do operador — e a resposta e' do projeto, nao da
+fonte. Duas constantes fazem o corte: `BANDA_DE_DESTAQUE` (1,5x a menor distancia) e
+`MAXIMO_DE_DESTAQUES` (3).
+
+O que impede o destaque de virar veredito nao e' a constante, e' o texto: o rotulo
+fala em "media publicada", a ressalva diz **entre quantas** relacoes a escolha foi
+feita e nega confirmacao. Retirar qualquer uma dessas tres partes muda a natureza do
+bloco — e' o mesmo cuidado que `_confianca` pede ao se declarar heuristica.
 """
 from __future__ import annotations
 
-from .graus_de_parentesco import nome_do_grau
+from .graus_de_parentesco import nome_do_grau, nome_do_primo
 
 SCP40_META = {
     "version": "4.0",
