@@ -714,6 +714,12 @@ class TestOQueOCartaoMostra:
         )
         assert "Filtro: 3 seg. abaixo de 10 cM" in html
         assert "endogamia-bloco" in html, "o bloco da secao 2 nao foi renderizado"
+        # Feature 041: o titulo do bloco nomeia o filtro (objeto + limiar), e o limite vem
+        # do payload — nao ha um segundo "10" escrito no template.
+        assert "Filtro de segmentos (10 cM)" in html, (
+            "o titulo do bloco deixou de nomear o filtro de segmentos"
+        )
+        assert "Filtro de endogamia" not in html
         assert "Total bruto (arquivo)" in html
         assert "Total após filtro" in html
         assert "evidência fraca" in html
@@ -772,4 +778,4 @@ class TestOQueOCartaoMostra:
 
         assert "badge endogamia" not in html
         assert "endogamia-bloco" not in html
-        assert "Filtro de endogamia" not in html
+        assert "Filtro de segmentos (10 cM)" not in html
