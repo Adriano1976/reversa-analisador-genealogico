@@ -60,7 +60,12 @@ def test_sem_promocao_o_nome_continua_descartado(tree, csv_no_intersecao):
     resultados, descartados, _ = dna_analysis(csv_no_intersecao, "Carlos Silva Souza",
                                               deps(), tree)
 
-    assert resultados == []
+    # Feature 039/E002: o descarte de cM alto sem correspondencia tambem ganha um
+    # cartao na lista de resultados. O que este teste prende e' que ele NAO foi
+    # promovido: o cartao e' o de sem correspondencia, e o item continua descartado.
+    assert len(resultados) == 1
+    assert resultados[0]["sem_correspondencia"] is True
+    assert resultados[0]["match_name"] == NOME
     assert descartados[0]["csv_name"] == NOME
     assert descartados[0]["motivo"] == MOTIVO
 
@@ -93,7 +98,8 @@ def test_promocao_de_outro_nome_nao_afeta_este(tree, csv_no_intersecao):
         csv_no_intersecao, "Carlos Silva Souza", deps(), tree,
         candidatos_fixos={"Outro Nome Qualquer": (_pessoa(tree), MOTIVO)})
 
-    assert resultados == []
+    assert len(resultados) == 1
+    assert resultados[0]["sem_correspondencia"] is True
     assert descartados[0]["csv_name"] == NOME
 
 
@@ -167,6 +173,7 @@ class _ResultadoFalso:
     observacoes_do_arquivo = ()
     mensagem = "ok"
     aviso_de_persistencia = None
+    sem_correspondencia = ()
 
 
 def test_a_rota_entrega_as_promocoes_ao_caso_de_uso(monkeypatch):

@@ -1,0 +1,19 @@
+# E003 — suíte depois da limpeza
+
+Comando:
+
+```
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+```
+
+Resultado:
+
+```
+1409 passed, 9 skipped, 1 warning in 96.43s (0:01:36)
+```
+
+- Antes da E003 (E002): **1412 passed, 9 skipped**.
+- Delta: **−3 testes** — os 10 testes do seletor viraram 6 da regra + 1 da ordem dos
+  cartões; o arquivo `tests/test_sem_correspondencia.py` passou de 18 para 15 testes.
+- O warning é o cache do pytest (`WinError 183`), pré-existente e alheio à feature.
+- `test_icone_de_atalho.py` passou: `SHA_DA_TELA` e `TAMANHO_ESPERADO` inalterados.

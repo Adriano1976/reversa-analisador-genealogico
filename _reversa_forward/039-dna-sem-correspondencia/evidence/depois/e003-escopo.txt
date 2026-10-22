@@ -1,0 +1,41 @@
+# E003 — escopo da limpeza
+
+## Arquivos de código
+
+| Arquivo | Mudança |
+|---|---|
+| `src/core/sem_correspondencia.py` | **reescrito** — sai `selecionar` e a projeção/ordem; ficam `CM_MINIMO_SEM_CORRESPONDENCIA`, `nomes_com_cartao_aceito` e `elegivel` |
+| `src/core/dna_analysis.py` | o laço dos cartões usa `elegivel`/`nomes_com_cartao_aceito`; o import muda; o construtor do cartão não muda |
+| `src/application/dna_analysis.py` | sai o import/chamada do seletor; `sem_correspondencia` é derivado dos cartões; a projeção histórica não muda |
+| `src/app.py` | só o comentário do campo; o valor passado é o mesmo |
+
+## Arquivos de teste
+
+| Arquivo | Mudança |
+|---|---|
+| `tests/test_sem_correspondencia.py` | 10 testes do seletor viram 6 da regra + 1 da ordem dos cartões; os 8 do cartão continuam; total 15 |
+
+## Linhas
+
+| Arquivo | Antes | Depois | Δ |
+|---|---:|---:|---:|
+| `src/core/sem_correspondencia.py` | 88 | 70 | −18 |
+| `src/core/dna_analysis.py` | 1111 | 1102 | −9 |
+| `src/application/dna_analysis.py` | 341 | 339 | −2 |
+| `tests/test_sem_correspondencia.py` | 276 | 251 | −25 |
+| **total** | **1816** | **1762** | **−54** |
+
+## O que saiu
+
+- `selecionar(resultados, descartados, limite_cm=...)`;
+- a projeção de quatro campos (`csv_name`, `kit`, `cm`, `mrca_generations`);
+- a ordenação interna do seletor (que não era a ordem da tela);
+- a segunda varredura de `descartados` e o risco de o resumo contar diferente da lista.
+
+## O que **não** mudou
+
+- `src/core/matching.py`, `candidatos_fixos`, `skipped_matches` (448), a lista
+  "Matches descartados", o CSV de nove colunas e o botão "usar este candidato";
+- o template (a linha do resumo e a seção 2 do cartão), o CSS, o `SHA_DA_TELA`;
+- o `mrca_generations` do dicionário de descarte (o B+ não foi aplicado); ele segue sem
+  consumidor na tela, e o cartão lê o MRCA de `genetic_evidence`.

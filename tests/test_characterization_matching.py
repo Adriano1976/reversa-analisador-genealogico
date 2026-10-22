@@ -134,9 +134,15 @@ PIPELINE = {
     ),
     "sem-intersecao": (
         DNA_CSV_NO_INTERSECTION,
-        None,
-        None,
-        None,
+        # Feature 039/E002: o descarte de cM alto sem correspondencia passou a ser
+        # TAMBEM um cartao na lista de resultados. A forma congelada aqui e' a do
+        # cartao; a decisao de matching continua a mesma, e o item continua na lista
+        # completa de descartes.
+        {"match_name": "Zzz Ninguem dos Santos", "cm": 150,
+         "text_path": "", "csv_name": "Zzz Ninguem dos Santos",
+         "sem_correspondencia": True},
+        "not_found",
+        "INCONCLUSIVO",
         [{"csv_name": "Zzz Ninguem dos Santos",
           "kit": None,
           "cm": 150,
@@ -149,8 +155,11 @@ PIPELINE = {
           # Feature 034: o descarte passou a levar os candidatos avaliados. Este nome
           # nao tem sobrenome que exista no GEDCOM, entao a lista e' vazia — o unico
           # delta da 034 neste contrato e' a chave nova, nunca o motivo.
-          "candidatos": []}],
-        "0 conexões encontradas. 1 descartadas.",
+          "candidatos": [],
+          # Feature 039: o MRCA do kit viaja ao lado do descarte. A fixture nao traz a
+          # coluna, entao o valor e' None — e a decisao continua a mesma.
+          "mrca_generations": None}],
+        "1 conexões encontradas. 1 descartadas.",
     ),
 }
 
@@ -169,7 +178,10 @@ def test_pipeline_caracterizado(tree, caso):
     if esperado_res:
         campos = list(esperado_res)
         assert [{k: r[k] for k in campos} for r in res] == [esperado_res]
-        assert res[0]["documentary"]["label"] == "Irmãos"
+        if esperado_res.get("sem_correspondencia"):
+            assert res[0]["documentary"]["label"] == "Parentesco documental não encontrado"
+        else:
+            assert res[0]["documentary"]["label"] == "Irmãos"
         assert res[0]["documentary"]["status"] == esperado_doc
         assert res[0]["comparison"]["status"] == esperado_comparacao
         assert res[0]["hypotheses"][0]["possible_relationships"]

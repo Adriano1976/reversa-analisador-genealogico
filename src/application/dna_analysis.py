@@ -62,6 +62,9 @@ class ResultadoDeAnalise:
     mensagem: str
     aviso_de_persistencia: str | None = None
     observacoes_do_arquivo: tuple = ()
+    # FEATURE 039: os cartoes sem correspondencia, na ordem da tela. Derivado de
+    # `resultados`; a tela usa o tamanho.
+    sem_correspondencia: tuple = ()
 
 
 # ---------------------------------------------------------------------------
@@ -235,7 +238,14 @@ def projetar_analise(resultados, descartados, mensagem: str,
     das conexoes e a ordem em que elas chegaram — que ja e a ordem de apresentacao
     decidida pelo nucleo —, e ela vira `result_ordinal` sem reordenacao nenhuma
     (`RN-08`, `E-01`).
+
+    FEATURE 039/E002: o cartao sem correspondencia e' uma leitura de TELA. A tabela
+    `match_result` exige `matched_person_xref` NOT NULL com FK para
+    `analysis_person`, e nao ha pessoa na arvore para esses cartoes; eles continuam
+    registrados em `skipped_match`, como descartes. Por isso a projecao os filtra
+    antes de montar as conexoes; a tela continua com eles.
     """
+    resultados = [r for r in resultados if not r.get("sem_correspondencia")]
     pessoas, raiz = _pessoas(resultados)
     return AnaliseParaRegistrar(
         tree_ref=referencia_da_arvore,
@@ -297,6 +307,10 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
                                                   observacoes_do_arquivo=_observacoes,
                                                   candidatos_fixos=candidatos_fixos)
 
+    # FEATURE 039: os cartoes sem correspondencia JA' estao em `resultados`; a tela so'
+    # precisa do tamanho. Derivar daqui impede que a contagem e a lista divirjam.
+    sem_correspondencia = tuple(r for r in resultados if r.get("sem_correspondencia"))
+
     aviso = None
     if registro is not None and referencia_da_arvore:
         try:
@@ -318,6 +332,7 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
         mensagem=mensagem,
         aviso_de_persistencia=aviso,
         observacoes_do_arquivo=tuple(_observacoes),
+        sem_correspondencia=sem_correspondencia,
     )
 
 

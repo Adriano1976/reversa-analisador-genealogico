@@ -1,0 +1,31 @@
+# E003 — análise real depois da limpeza
+
+Arquivos:
+
+- árvore: `D:\dados-genealogicos\Arquivos  GEDCOM\Adriano_Santos_v3_tratado.ged`
+- CSV: `D:\dados-genealogicos\GEDmatch Ancestor Projects\Famílias_Sergipanas.csv`
+- raiz: `Adriano Santos`
+- chamada: `application.dna_analysis.dna_analysis(...)`, sem registro e sem `DATABASE_URL`
+
+Saída:
+
+```
+cartoes 68 aceitos 8 sem 60 descartes 448
+com_caminho 1 recusados 1 so_dna 6
+mensagem: 68 conexões encontradas. 448 descartadas.
+csv_colunas 9 csv_linhas 449
+sem_item Clezia Santos -> ('AZ4078391', 154.5, 3.27)
+sem_item Airton Passos Vasconcelos -> ('SD5093704', 51.3, 4.06)
+primeiro_sem: Clezia Santos 154.5 AZ4078391
+```
+
+Leitura:
+
+- os **68 cartões** continuam iguais: **8 aceitos** (1 com caminho, 1 recusado pela idade
+  do match e 6 sem caminho) + **60 sem correspondência**;
+- os 60 são os **próprios cartões** em `ResultadoDeAnalise.sem_correspondencia`; a contagem
+  do resumo continua 60 e não há segunda seleção;
+- a lista completa continua com **448 descartes** e o CSV com **9 colunas / 449 linhas**;
+- Clezia Santos (154,5 cM, `AZ4078391`, MRCA 3,27) é o primeiro cartão sem correspondência;
+  Airton Passos Vasconcelos (51,3 cM, `SD5093704`, MRCA 4,06) está presente;
+- a mensagem de contrato, a ordem e a promoção não mudaram; `SHA_DA_TELA` inalterado.

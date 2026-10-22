@@ -1,0 +1,47 @@
+# T011/E002 — escopo tocado pela feature 039
+
+## Arquivos de código
+
+| Arquivo | Mudança |
+|---|---|
+| `src/core/sem_correspondencia.py` | **novo** — `CM_MINIMO_SEM_CORRESPONDENCIA = 20.0`; `selecionar` e o filtro de `nomes_com_cartao` que ignora o cartão sem correspondência |
+| `src/core/dna_analysis.py` | o descarte ganha `mrca_generations`; os itens de cM alto sem correspondência viram cartões com `documentary` `not_found`, as cinco seções e sem diagrama; a lista completa não é filtrada |
+| `src/application/dna_analysis.py` | `ResultadoDeAnalise.sem_correspondencia`; o caso de uso chama o seletor depois do núcleo; a projeção histórica filtra os cartões sem correspondência (não há pessoa para `match_result.matched_person_xref`) |
+| `src/app.py` | o ramo `dna_analysis` passa `sem_correspondencia` ao `render_template` |
+| `src/templates/index.html` | o bloco separado sai; o resumo ganha a frase "Desses, N cartões sem correspondência…"; os itens são cartões da lista |
+| `src/assets/app.css` | a regra do bloco removido sai (diff líquido zero contra o HEAD) |
+
+## Arquivos de teste
+
+| Arquivo | Mudança |
+|---|---|
+| `tests/test_sem_correspondencia.py` | **novo/reescrito** — 18 testes: 10 do seletor (corte 20/19,9, cartão não exclui o item) e 8 do cartão na lista (inclui a projeção histórica) |
+| `tests/test_characterization_matching.py` | o caso de 150 cM passa a ser cartão **e** descarte; a mensagem vira "1 conexões… 1 descartadas." |
+| `tests/test_dna_analysis.py` | TT-04: o anti-falso-positivo gera o cartão de sem correspondência, não um cartão aceito |
+| `tests/test_observacoes_do_arquivo.py` | "cartão zero" passa a significar "cartão aceito zero" |
+| `tests/test_promocao_de_descarte.py` | o caso sem promoção passa a ter o cartão de sem correspondência, além do descarte |
+| `tests/test_estilo_da_tela.py` | a classe `bloco-sem-correspondencia` sai (diff líquido zero contra o HEAD) |
+
+## O que **não** foi tocado
+
+- `src/core/matching.py` — nenhum limiar, peso, ramo de aceitação ou desempate.
+- `src/ports/__init__.py`, `init.sql`, `skipped_match` — nenhuma porta, coluna ou migração.
+- `src/reporting/csv_de_descartes.py` — as nove colunas continuam iguais.
+- `tests/test_cartoes_recolhiveis.py` e `tests/test_icone_de_atalho.py` — passaram sem edição.
+- `SHA_DA_TELA` e `TAMANHO_ESPERADO` — inalterados.
+
+## Diff de contexto (arquivos rastreados, sem `.reversa/`)
+
+```
+src/app.py                              +4
+src/application/dna_analysis.py        +17
+src/core/dna_analysis.py              +184
+src/templates/index.html                +4
+tests/test_characterization_matching.py +24 -?
+tests/test_dna_analysis.py              +6 -?
+tests/test_observacoes_do_arquivo.py    +8 -?
+tests/test_promocao_de_descarte.py     +11 -?
+```
+
+Novos: `src/core/sem_correspondencia.py`, `tests/test_sem_correspondencia.py`,
+`_reversa_forward/039-dna-sem-correspondencia/`, `_reversa_sdd/addenda/039-dna-sem-correspondencia.md`.

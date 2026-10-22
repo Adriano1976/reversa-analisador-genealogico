@@ -51,6 +51,7 @@ from .documentary_relationship import (
     documentary_relationship,
     homonym_dossier,
     intervalo_de_geracao_mediano,
+    person_summary,
 )
 from .erros import DnaCsvSemColunas, PessoaNaoEncontrada
 from .evidence_comparison import compare
@@ -73,6 +74,7 @@ from .profundidade_do_caminho import (
 )
 from .matching import avaliar_candidatos, build_ged_indexes, match_candidates
 from .motivos_do_descarte import NAO_ENCONTRADO, Motivo
+from .sem_correspondencia import elegivel, nomes_com_cartao_aceito
 from .name_normalization import (
     drop_short_tokens,
     norm_name,
@@ -407,6 +409,132 @@ def _validacao_do_cartao(arvore, root_id, documental, comparacao, kit, geracoes_
     return chaves, resultado
 
 
+def _cartao_sem_correspondencia(*, arvore, root_id, ano_base, kit, chave_nome, chave_kit,
+                                por_kit, evidencia_mitigada, descarte, avisos, analisador):
+    """Monta o cartao de um match sem nenhuma pessoa compativel na arvore (emenda 039/E002).
+
+    O cartao tem o **mesmo tratamento** dos classificados "Parentesco documental nao
+    encontrado": mesmo cabecalho, mesmo rotulo, as cinco secoes e o mesmo comportamento
+    de recolhimento. O que ele NAO tem e pessoa do GEDCOM: `documentary.person_b` fica
+    ausente, o caminho fica `None` e o diagrama nao existe.
+
+    Nao decide nada: recebe o kit e o descarte ja produzidos, le a evidencia genetica do
+    proprio kit e devolve o dicionario que a tela consome. A lista completa de descartes
+    continua intacta; este cartao e' uma leitura dela, nao uma promocao.
+    """
+    pessoa_ausente = {
+        "id": None, "name": None, "sex": None, "birth": None, "birth_year": None,
+        "birth_place": None, "death": None, "death_year": None,
+        "parents": [], "parent_names": [], "spouses": [], "children": [],
+        "family_as_child": [],
+    }
+    aviso_sem = {
+        "code": "sem_correspondencia",
+        "message": ("Nenhuma pessoa com nome compatível foi encontrada no GEDCOM para este "
+                    "match. O cM é um sinal de DNA; não há parentesco documental a afirmar."),
+    }
+    documentary = {
+        "status": "not_found",
+        "source": "GEDCOM",
+        "label": "Parentesco documental não encontrado",
+        "relationship_key": None,
+        "meioses": None,
+        "degrees": None,
+        "person_a": person_summary(arvore, root_id),
+        "person_b": pessoa_ausente,
+        "common_ancestor": None,
+        "path": None,
+        "common_ancestors": [],
+        "additional_paths": [],
+        "evidence": [],
+        "homonyms": {},
+        "ambiguous_identity": False,
+        "warnings": [aviso_sem],
+    }
+
+    evidence = evidence_for(por_kit, avisos=avisos, kit_key=chave_kit)
+    hypotheses = hypotheses_for_evidence(evidence)
+    comparison = compare(documentary, hypotheses, evidence)
+    comparison["detail"] = (
+        "Há evidência genética, mas nenhuma pessoa com nome compatível foi encontrada no "
+        "GEDCOM. Nenhum caminho foi inventado a partir do DNA."
+    )
+    comparison["causes"] = [
+        "o nome do CSV não corresponde a nenhum registro do GEDCOM",
+        "o ramo do match pode não estar cadastrado na árvore",
+        "nome de casada, grafia ou abreviação fora do GEDCOM",
+    ]
+
+    geracoes_do_kit = next(
+        (k.get("mrca_generations") for k in ((evidence or {}).get("kits") or [])
+         if k.get("mrca_generations")), None)
+    arvore_da_endogamia = {
+        "endogamia_estrutural": False,
+        "explicacao": "Sem pessoa na árvore para diagnosticar endogamia estrutural.",
+        "reconvergencias": [],
+        "mrca_nomes": [],
+        "tronco_comum_nomes": [],
+    }
+    endogamia = {
+        **evidencia_mitigada.para_dicionario(),
+        "selo": None,
+        "limiares": {
+            "segmento": analisador.cm_minimo_segmento,
+            "maior_bloco": analisador.cm_minimo_maior_bloco,
+        },
+        "arvore": arvore_da_endogamia,
+    }
+    observations = list(_observacoes(documentary, evidence, comparison))
+
+    return {
+        "match_name": descarte["csv_name"],
+        "csv_name": descarte["csv_name"],
+        "identidade": "a_confirmar",
+        "identidade_aviso": ("Nenhuma pessoa com nome compatível na árvore; não há registro "
+                             "para comparar."),
+        "janela_de_vida": "sem_dado",
+        "idade_na_arvore": None,
+        "data_de_nascimento": None,
+        "data_imprecisa": False,
+        "ano_de_referencia": ano_base,
+        "janela_aviso": None,
+        "profundidade": "sem_dado",
+        "profundidade_razao": None,
+        "geracoes_documentais": None,
+        "geracoes_do_kit": geracoes_do_kit,
+        "profundidade_no_sugerido": None,
+        "profundidade_resumo": "Sem caminho documental para comparar.",
+        "profundidade_aviso": None,
+        "confrontacao_efetiva": (comparison or {}).get("status"),
+        "confrontacao_rotulo": (comparison or {}).get("label"),
+        "validacao_status": "INCONCLUSIVO",
+        "validacao_rotulo": None,
+        "validacao_classe": None,
+        "validacao_aviso": None,
+        "sugestao_geracoes": 0,
+        "sugestao_resumo": None,
+        "sugestao_mermaid": None,
+        "sugestao_aviso": ("Sem pessoa na árvore, não há caminho documental para sugerir "
+                           "correção."),
+        "cm": kit["total_cm"],
+        "kit": kit["kit"],
+        "text_path": "",
+        "mermaid_data": None,
+        "documentary": documentary,
+        "documentary_do_registro": None,
+        "genetic_evidence": evidence,
+        "hypotheses": hypotheses,
+        "comparison": comparison,
+        "endogamia": endogamia,
+        "observations": observations,
+        "promovido": None,
+        # A marca que separa este cartao de um cartao ACEITO. `nomes_com_cartao_aceito`
+        # a ignora (o item nao exclui a si mesmo) e a aplicacao a usa para contar.
+        "sem_correspondencia": True,
+        "warnings": (documentary.get("warnings") or []) + (evidence.get("warnings") or []),
+    }
+
+
 def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None,
                  candidatos_fixos=None):
     """Executa a analise de DNA e devolve `(resultados, descartados, mensagem)`.
@@ -518,6 +646,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
 
     results_list = []
     skipped_matches = []
+    sem_candidatos = []
     documental_por_pessoa = {}
     dossie_por_nome = {}
 
@@ -570,6 +699,10 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 reason = None
                 proximos = []
 
+            avisos_deste_cartao = [aviso for aviso in avisos_de_cartao
+                                   if aviso.get("chave_nome") == chave_nome
+                                   and aviso.get("chave_kit") == chave_kit]
+
             if not candidate_pids:
                 # A QUEM a arvore oferecia (feature 034): quem cai aqui passa a ver os
                 # tres melhores avaliados, com ano de nascimento. O ano e' o dado que
@@ -584,7 +717,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 # precisar conferir o calculo. `None` continua sendo "nao encontrado" — e' o
                 # que acontece quando a decisao nao produziu recusa nenhuma.
                 motivo_do_descarte = reason if isinstance(reason, Motivo) else None
-                skipped_matches.append({
+                descarte = {
                     "csv_name": kit["person_name_csv"],
                     "kit": kit["kit"],
                     "cm": kit["total_cm"],
@@ -594,6 +727,24 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                                       else NAO_ENCONTRADO),
                     "motivo_detalhe": motivo_do_descarte.detalhe if motivo_do_descarte else "",
                     "candidatos": candidatos_do_descarte,
+                    # FEATURE 039: o MRCA estimado do kit viaja ao lado do descarte. E' o
+                    # mesmo valor que a profundidade do cartao usa; aqui ele nao decide
+                    # nada, so' da contexto ao operador. `None` quando o CSV nao traz a
+                    # coluna.
+                    "mrca_generations": kit.get("mrca_generations"),
+                }
+                skipped_matches.append(descarte)
+                # FEATURE 039/E002: o mesmo item pode virar cartao na lista de resultados,
+                # com o tratamento de "Parentesco documental nao encontrado". A lista
+                # completa de descartes continua intacta; o cartao e' uma leitura dela.
+                sem_candidatos.append({
+                    "kit": kit,
+                    "chave_nome": chave_nome,
+                    "chave_kit": chave_kit,
+                    "por_kit": por_kit,
+                    "evidencia_mitigada": evidencia_mitigada,
+                    "descarte": descarte,
+                    "avisos": avisos_deste_cartao,
                 })
                 continue
 
@@ -701,11 +852,6 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
             # como nao encontrado, ele responde o que responde para esse grupo. Inverter a
             # ordem faria o cartao dizer "nao encontrado" na secao 1 e comparar o cM com um
             # parentesco na secao 4 — a contradicao que esta regra existe para eliminar.
-            # Só os avisos DESTE par (nome, kit): o mesmo filtro que separa arquivo de
-            # cartao impede que um desvio de MRCA de outro match apareca aqui.
-            avisos_deste_cartao = [aviso for aviso in avisos_de_cartao
-                                   if aviso.get("chave_nome") == chave_nome
-                                   and aviso.get("chave_kit") == chave_kit]
             evidence = evidence_for(por_kit, avisos=avisos_deste_cartao, kit_key=chave_kit)
             hypotheses = hypotheses_for_evidence(evidence)
             comparison = compare(documentary, hypotheses, evidence)
@@ -897,6 +1043,23 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                                "motivo": promovido[1]} if promovido else None),
                 "warnings": (documentary.get("warnings") or []) + (evidence.get("warnings") or []),
             })
+
+    # FEATURE 039: o cartao sem correspondencia nasce da MESMA regra da triagem
+    # (`core.sem_correspondencia.elegivel`). O conjunto de nomes com cartao aceito e'
+    # calculado uma vez; o cartao sem correspondencia nao exclui o proprio item. A lista
+    # completa de descartes nao e' filtrada; o cartao e' uma leitura dela.
+    nomes_com_cartao = nomes_com_cartao_aceito(results_list)
+    for candidato in sem_candidatos:
+        descarte = candidato["descarte"]
+        if not elegivel(descarte, nomes_com_cartao):
+            continue
+        results_list.append(_cartao_sem_correspondencia(
+            arvore=arvore, root_id=root_id, ano_base=ano_base,
+            kit=candidato["kit"], chave_nome=candidato["chave_nome"],
+            chave_kit=candidato["chave_kit"], por_kit=candidato["por_kit"],
+            evidencia_mitigada=candidato["evidencia_mitigada"],
+            descarte=descarte, avisos=candidato["avisos"],
+            analisador=analisador_de_dna))
 
     # Ordem de apresentacao (nao e ordem de confianca): primeiro o que tem
     # caminho documental ou identidade a esclarecer, depois o que so tem DNA.

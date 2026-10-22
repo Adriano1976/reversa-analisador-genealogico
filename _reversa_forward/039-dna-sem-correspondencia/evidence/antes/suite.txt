@@ -1,0 +1,19 @@
+# T001 — suíte completa, antes da feature 039
+
+Comando:
+
+```
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+```
+
+Saída (cauda):
+
+```
+1394 passed, 9 skipped, 1 warning in 109.03s (0:01:49)
+```
+
+Exit code: **0**.
+
+Observação: a linha acima é a medição de ANTES. Ela foi colhida antes de qualquer
+arquivo da feature 039 ser tocado; o número de testes novos (17) aparece na medição de
+depois.

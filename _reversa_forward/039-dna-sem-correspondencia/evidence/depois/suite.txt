@@ -1,0 +1,27 @@
+# T011 — suíte completa, depois da feature 039
+
+Comando:
+
+```
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+```
+
+Saída (cauda):
+
+```
+1412 passed, 9 skipped, 1 warning in 86.24s (0:01:26)
+```
+
+Exit code: **0**.
+
+| Métrica | Antes (T001) | Depois | Delta |
+|---|---:|---:|---:|
+| `passed` | 1394 | **1412** | **+18** |
+| `skipped` | 9 | **9** | 0 |
+| `failed` | 0 | **0** | 0 |
+| exit code | 0 | **0** | — |
+
+Os 18 testes novos estão em `tests/test_sem_correspondencia.py`: 10 do seletor e 8 do
+cartão na lista de resultados. A caracterização de matching passa com o único delta de
+**forma** no descarte (`mrca_generations`) e com o caso de 150 cM virando cartão **e**
+descarte; nenhum limiar de matching, veredito, cM ou caminho mudou.

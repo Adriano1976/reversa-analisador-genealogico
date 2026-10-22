@@ -238,10 +238,14 @@ class TestONaoVazamentoParaOCartao:
         assert len(observacoes) == 1
 
     def test_sem_cartao_nenhum_o_aviso_do_arquivo_nao_se_perde(self, tmp_path, arvore):
-        """Era o caso de `*Carol`, `*DPF` e `Moacir Andrade`: nome avisado, cartao zero."""
+        """Era o caso de `*Carol`, `*DPF` e `Moacir Andrade`: nome avisado, cartão zero."""
         resultados, descartados, _mensagem, observacoes = _analisar(
             tmp_path, arvore, CSV_SEM_CARTAO)
-        assert resultados == []
+        # Feature 039/E002: "cartão zero" passou a significar "cartão ACEITO zero";
+        # os dois nomes viram cartões de sem correspondência, e o aviso do arquivo
+        # continua fora deles (é o que o teste prende).
+        assert len(resultados) == 2
+        assert all(r.get("sem_correspondencia") for r in resultados)
         assert len(descartados) == 2
         assert len(observacoes) == 1
         assert "Zzz Ninguem" in observacoes[0]

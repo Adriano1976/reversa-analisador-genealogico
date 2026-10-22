@@ -1,0 +1,40 @@
+# T012/E002 — análise real, depois das emendas da feature 039
+
+Arquivos:
+
+- árvore: `D:\dados-genealogicos\Arquivos  GEDCOM\Adriano_Santos_v3_tratado.ged`
+- CSV: `D:\dados-genealogicos\GEDmatch Ancestor Projects\Famílias_Sergipanas.csv`
+- raiz: `Adriano Santos`
+- chamada: `application.dna_analysis.dna_analysis(...)`, sem registro e sem `DATABASE_URL`
+
+Saída:
+
+```
+MENSAGEM: 68 conexões encontradas. 448 descartadas.
+cartoes: 68 (aceitos: 8 + sem correspondencia: 60)
+descartes: 448 sem_correspondencia: 60
+
+primeiros cartoes na ordem da tela:
+  aceito   Maria Candida de Jesus (CSV Camila Maria de Jesus)  15,1 cM  caminho
+  sem      Clezia Santos                                      154,5 cM  Parentesco documental não encontrado  MRCA 3,27
+  sem      Maria José de Souza Santos                          52,5 cM  Parentesco documental não encontrado
+  sem      Airton Passos Vasconcelos                           51,3 cM  Parentesco documental não encontrado  MRCA 4,06
+  sem      Marcelo Spinelli Oliveira                           50,5 cM  Parentesco documental não encontrado
+  ... (60 cartões sem correspondência no total)
+
+CSV: 9 colunas; 449 linhas (cabeçalho + 448 descartes).
+```
+
+Observações:
+
+- o corte é **20,0 cM** (E001); o recorte passou de 9 para **60 itens**;
+- os 60 itens são **cartões** na lista de resultados, com o rótulo
+  "Parentesco documental não encontrado", `documentary.path = None` e `mermaid_data = None`;
+  o primeiro deles é Clezia Santos (154,5 cM, AZ4078391), e Airton Passos Vasconcelos
+  (51,3 cM, SD5093704) também está presente;
+- os 8 cartões **aceitos** continuam com o mesmo conjunto: o primeiro com caminho é o
+  registro `Maria Candida de Jesus`, que o CSV chama `Camila Maria de Jesus` (15,1 cM);
+- os 60 continuam nos **448** descartes e no CSV de nove colunas; o item aparece nos dois
+  lugares por decisão do operador, e o resumo diz isso;
+- `SHA_DA_TELA` continua `7375696d…` (16.504 bytes); quem o prende é
+  `tests/test_icone_de_atalho.py`, que passou na suíte de 1411 testes.

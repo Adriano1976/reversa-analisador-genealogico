@@ -849,6 +849,9 @@
                             <strong>{{ ns.recusados }}</strong> com caminho documental recusado pela idade do match{% endif %} e
                             <strong>{{ dna_results | length - ns.com_caminho - ns.recusados }}</strong> apenas com evidência genética
                             (sem caminho no GEDCOM).
+                            {% if sem_correspondencia %}
+                                Desses, <strong>{{ sem_correspondencia | length }}</strong> {{ 'cartão' if sem_correspondencia | length == 1 else 'cartões' }} sem correspondência na árvore (sem pessoa com nome compatível; também na lista completa de descartes).
+                            {% endif %}
                             {% if ns.sugeridos %}
                                 {# A arvore sugerida e' HIPOTESE, e a frase diz isso: as geracoes
                                    marcadas nao existem no GEDCOM. Sem esta ressalva o operador
@@ -1400,6 +1403,7 @@
                                                     <div><dt>SNPs</dt><dd>{{ kit.snps_total | inteiro_br }}</dd></div>
                                                     <div><dt>Pessoa (como está no CSV)</dt><dd>{{ kit.person_name_csv }}</dd></div>
                                                     <div><dt>Kit</dt><dd>{{ kit.kit or 'não informado no CSV' }}</dd></div>
+                                                    <div><dt>MRCA estimado</dt><dd>{% if kit.mrca_generations is not none %}{{ kit.mrca_generations | cm_br }} gerações{% else %}não informado{% endif %}</dd></div>
                                                     <div><dt>Cromossomo(s)</dt><dd>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</dd></div>
                                                     <div><dt>Método do valor</dt><dd>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</dd></div>
                                                 </dl>

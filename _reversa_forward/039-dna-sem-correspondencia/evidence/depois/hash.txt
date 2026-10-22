@@ -1,0 +1,10 @@
+# T011 — hash da tela de entrada, depois da feature 039
+
+```
+SHA_DA_TELA      = 7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541
+TAMANHO_ESPERADO = 16504 bytes
+```
+
+**Inalterado.** `tests/test_icone_de_atalho.py` passou na suíte de 1411 testes. O bloco
+novo está dentro do `{% if skipped_matches %}`, que é falso na tela de entrada; nenhum
+whitespace da tela vazia mudou.

@@ -730,6 +730,10 @@ def index():
                     all_names=all_names,
                     dna_results=resultado.resultados,
                     skipped_matches=resultado.descartados,
+                    # FEATURE 039: os cartoes de cM alto sem correspondencia. A lista
+                    # `resultados` ja' os traz; este campo e' o recorte que o resumo
+                    # conta. O template nao filtra nem ordena.
+                    sem_correspondencia=resultado.sem_correspondencia,
                     observacoes_do_arquivo=resultado.observacoes_do_arquivo,
                     message=mensagem_final,
                     aviso_de_persistencia=resultado.aviso_de_persistencia,

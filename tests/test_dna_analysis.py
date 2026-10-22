@@ -207,7 +207,8 @@ def test_anti_false_positive(dna_loaded):
 
     Usa ``DNA_CSV_NO_INTERSECTION`` (nomes sem sobreposição de tokens com
     ``Carlos Silva Souza``) e confirma que:
-    - Nenhum resultado válido é retornado.
+    - Nenhum resultado ACEITO é retornado; o cartão que existe é o de sem
+      correspondência (feature 039/E002), não um parentesco.
     - O match vai para ``skipped`` com um motivo do catálogo de recusa por sobrenome.
 
     Args:
@@ -218,7 +219,8 @@ def test_anti_false_positive(dna_loaded):
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(DNA_CSV_NO_INTERSECTION)
         results, skipped, msg = dna_analysis(path, "Carlos Silva Souza", _deps(), atual())
-        assert len(results) == 0
+        assert len(results) == 1
+        assert results[0]["sem_correspondencia"] is True
         assert len(skipped) == 1
         motivo = skipped[0]["motivo"]
         assert (motivo in MOTIVOS_POR_SOBRENOME or motivo in MOTIVOS_DE_SEMELHANCA), (

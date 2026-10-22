@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/038-humanizar-motivo-descartes",
-  "feature-id": "038",
-  "short-name": "humanizar-motivo-descartes",
-  "started-at": "2026-10-20T08:12:00Z",
-  "current-stage": "done",
-  "stages-completed": ["requirements", "plan", "to-do", "coding", "sync"],
+  "feature-dir": "_reversa_forward/039-dna-sem-correspondencia",
+  "feature-id": "039",
+  "short-name": "dna-sem-correspondencia",
+  "started-at": "2026-10-22T05:23:31Z",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
