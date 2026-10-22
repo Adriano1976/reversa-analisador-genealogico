@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grafo de Bugs · desempenho</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 24px; background: #0d151d; color: #e8eef5;
+         font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 28px 0 10px; color: #c7d3e0; }
+  .meta { color: #8fa3b8; font-size: 13px; margin-bottom: 18px; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+  .card { background: #16202b; border: 1px solid #24313f; border-radius: 10px;
+           padding: 12px 16px; min-width: 140px; }
+  .card .n { font-size: 24px; font-weight: 600; }
+  .card .r { color: #8fa3b8; font-size: 12px; }
+  .grafo { background: #111a23; border: 1px solid #24313f; border-radius: 10px;
+            padding: 12px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border-bottom: 1px solid #24313f; padding: 7px 9px; text-align: left; }
+  th { color: #8fa3b8; font-weight: 600; }
+  a { color: #6fb3ff; }
+  .legenda { color: #8fa3b8; font-size: 12px; margin-top: 10px; }
+  .restrito { color: #e6b422; }
+</style>
+</head>
+<body>
+<h1>Grafo de Bugs · desempenho</h1>
+<div class="meta">Gerado por <code>/reversa-debugger-graph</code> em 2026-10-21T16:32:33-03:00 ·
+1 bugs no contexto · 0 inconsistencias ·
+legenda: arestas tracejadas = relacao <code>proposed</code> (hipotese)</div>
+
+<div class="cards">
+  <div class="card"><div class="n">1</div><div class="r">bugs no contexto</div></div>
+  <div class="card"><div class="n">0</div><div class="r">resolved</div></div>
+  <div class="card"><div class="n">1</div><div class="r">abertos / ativos visiveis</div></div>
+  <div class="card"><div class="n">0</div><div class="r">restritos (fora das views)</div></div>
+  <div class="card"><div class="n">0</div><div class="r">inconsistencias</div></div>
+</div>
+
+<h2>Grafo</h2>
+<div class="grafo">
+<svg viewBox="0 0 1000 380" width="100%" height="auto" role="img" aria-label="Grafo de bugs do contexto desempenho">
+<defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8fa3b8"/></marker></defs>
+<a href="../../../_reversa_bugs/desempenho/bugs/BUG-20261021-7O7V-analise-de-dna-com-308-linhas-leva-6-minutos/bug.md">
+<rect x="370" y="156" width="260" height="70" rx="9" fill="#16202b" stroke="#f2545b" stroke-width="2"/>
+<text x="500" y="176" fill="#e8eef5" font-size="13" text-anchor="middle">#13 7O7V</text>
+<text x="500" y="194" fill="#c7d3e0" font-size="11" text-anchor="middle">Análise de DNA com 19.403 pessoas e 308 linh</text>
+<text x="500" y="212" fill="#e6b422" font-size="11" text-anchor="middle">active · high</text>
+</a>
+</svg>
+<div class="legenda">Cada no e um link para o <code>bug.md</code> correspondente. Borda vermelha:
+severidade <code>high</code> ou <code>critical</code>; amarela: <code>medium</code>. Nos com
+"(contexto ...)" vivem em outro contexto e aparecem aqui por causa da relacao.</div>
+</div>
+
+<h2>Bugs abertos / ativos</h2>
+<table>
+<thead><tr><th>#</th><th>ID</th><th>Severidade</th><th>Prioridade</th><th>Titulo</th>
+<th>area/module/feature</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>13</td><td><a href="../../../_reversa_bugs/desempenho/bugs/BUG-20261021-7O7V-analise-de-dna-com-308-linhas-leva-6-minutos/bug.md">BUG-20261021-7O7V</a></td><td>high</td><td>P1</td><td>Análise de DNA com 19.403 pessoas e 308 linhas de CSV leva cerca de 6 minutos</td><td>analisador-genealogico/dna-analysis/analise-dna</td><td>active</td></tr>
+</tbody>
+</table>
+
+<h2>Concluidos (travados)</h2>
+<table>
+<thead><tr><th>#</th><th>ID</th><th>resolution_kind</th><th>Titulo</th></tr></thead>
+<tbody>
+<tr><td colspan="4">Nenhum bug travado neste contexto.</td></tr>
+</tbody>
+</table>
+<p class="legenda restrito">0 bug(s) com <code>visibility: restricted</code> ficam
+fora desta view; no <code>index.md</code> do contexto eles aparecem apenas como identificador.</p>
+</body>
+</html>

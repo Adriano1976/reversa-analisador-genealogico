@@ -1,0 +1,42 @@
+Gate 2, depois do change set (2026-10-21)
+
+## Testes novos
+
+    .\.venv\Scripts\python.exe -m pytest tests\test_desempenho_das_fichas.py -q -p no:cacheprovider
+    ....                                                                     [100%]
+    4 passed in 6.34s
+
+## Suite inteira
+
+    .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+    1385 passed, 9 skipped in 386.90s (0:06:26)
+
+## Medicao antes/depois (mesmo probe, mesmos parametros)
+
+    python _reversa_bugs\desempenho\probes\medir_fases.py --pessoas 19403 --exatas 100 --pool 208
+
+    antes:  parse 10,41 s  analise 42,68 s  total 53,08 s
+    depois: parse  9,41 s  analise 18,71 s  total 28,13 s
+
+    analise 2,28x mais rapida; total 1,89x.
+    Resultado identico: 101 cartoes e 208 descartes nas duas execucoes.
+
+## Paridade
+
+    .\.venv\Scripts\python.exe tests\rodar_paridade.py
+    RESULTADO: 25 DIVERGENCIAS
+    exit code 1
+
+As 25 divergencias sao PRE-EXISTENTES e nao passam pelo codigo alterado:
+
+- `ancestral[...]`: o probe chama `PF.find_ancestral_path` (harness.py:346). O ultimo
+  commit em `src/core/path_finding.py` e `b39d148` (2026-10-14), "acha o ancestral comum
+  com profundidades diferentes", POSTERIOR ao checkpoint de paridade de 2026-10-13.
+  `find_ancestral_path` nao chama `get_children` nem `person_summary`.
+- `dna[...].descartados`: diferenca de TEXTO do motivo (candidato humanizado, feature 038,
+  2026-10-20) contra o oraculo congelado. O motivo nao e produzido por `person_summary`.
+- `get_children` e chamado em um unico lugar (`person_summary`, documentary_relationship.py:253),
+  e nenhum dos dois probes acima o consome.
+
+O change set nao toca `path_finding.py`, `matching.py` nem os textos de motivo. A
+divergencia de paridade nao e atribuivel a este bug.

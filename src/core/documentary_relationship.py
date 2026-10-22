@@ -179,36 +179,77 @@ def _ids(people, sub_tag, pid):
     return [ref_id(r.value) for r in people[pid].sub_records if r.tag == sub_tag] if pid in people else []
 
 
+#: Nome do atributo privado onde o indice pai -> filhos fica preso ao GRAFO da
+#: arvore. Nao e estado de modulo: o indice nasce e morre com a arvore daquela
+#: requisicao, entao nao ha retencao entre requisicoes nem chave de conteudo
+#: para colidir (o problema do L-24). Duas threads que compartilhem a mesma
+#: arvore montam o mesmo mapa; a atribuicao e atomica e o mapa e somente leitura.
+_ATRIBUTO_DE_FILHOS = "_indice_de_filhos_do_documental"
+
+
+def _construir_indice_de_filhos(families) -> dict:
+    """Pai -> filhos, na ordem em que a varredura de familias os encontra.
+
+    Reproduz `get_children` de antes: percorre as familias na ordem do dicionario,
+    acrescenta os filhos de cada familia ao pai e a mae e deduplica por pessoa. A
+    ordem e contrato observavel, por isso a construcao nao reordena nada.
+    """
+    mapa = {}
+    for fam in families.values():
+        husb = wife = None
+        filhos = []
+        for rec in fam.sub_records:
+            tag = rec.tag
+            if tag == "HUSB":
+                husb = ref_id(rec.value)
+            elif tag == "WIFE":
+                wife = ref_id(rec.value)
+            elif tag == "CHIL":
+                filhos.append(rec.value)
+        for pai in (husb, wife):
+            if not pai:
+                continue
+            destino = mapa.setdefault(pai, [])
+            for valor in filhos:
+                cid = ref_id(valor)
+                if cid not in destino:
+                    destino.append(cid)
+    return mapa
+
+
+def _indice_de_filhos(arvore) -> dict:
+    """O indice da arvore, montado uma vez e preso ao grafo dela."""
+    grafo = arvore[2]
+    mapa = getattr(grafo, _ATRIBUTO_DE_FILHOS, None)
+    if mapa is None:
+        mapa = _construir_indice_de_filhos(arvore[1])
+        setattr(grafo, _ATRIBUTO_DE_FILHOS, mapa)
+    return mapa
+
+
 def get_children(arvore, person_id):
     """Filhos declarados em qualquer familia em que a pessoa seja HUSB ou WIFE."""
-    filhos = []
-    people, families = arvore[0], arvore[1]
-    for fam in families.values():
-        husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
-        wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)
-        if person_id in (husb, wife):
-            for rec in fam.sub_records:
-                if rec.tag == "CHIL":
-                    cid = ref_id(rec.value)
-                    if cid not in filhos:
-                        filhos.append(cid)
-    return filhos
+    return list(_indice_de_filhos(arvore).get(person_id, []))
 
 
 def person_summary(arvore, person_id) -> dict:
     """Ficha comparavel de uma pessoa, para desambiguar homonimos."""
+    people = arvore[0]
+    birth = birth_date(people, person_id)
+    death = death_date(people, person_id)
+    parents = get_parents(arvore, person_id)
     return {
         "id": person_id,
-        "name": get_name(arvore[0].get(person_id)),
-        "sex": next((r.value for r in arvore[0][person_id].sub_records if r.tag == "SEX"), None) if person_id in arvore[0] else None,
-        "birth": birth_date(arvore[0], person_id),
-        "birth_year": parse_year(birth_date(arvore[0], person_id)),
-        "birth_place": _local_de(arvore[0], person_id, "BIRT"),
-        "death": death_date(arvore[0], person_id),
-        "death_year": parse_year(death_date(arvore[0], person_id)),
-        "parents": get_parents(arvore, person_id),
-        "parent_names": [get_name(arvore[0].get(p)) for p in get_parents(arvore, person_id)],
-        "spouses": _ids(arvore[0], "FAMS", person_id),
+        "name": get_name(people.get(person_id)),
+        "sex": next((r.value for r in people[person_id].sub_records if r.tag == "SEX"), None) if person_id in people else None,
+        "birth": birth,
+        "birth_year": parse_year(birth),
+        "birth_place": _local_de(people, person_id, "BIRT"),
+        "death": death,
+        "death_year": parse_year(death),
+        "parents": parents,
+        "parent_names": [get_name(people.get(p)) for p in parents],
+        "spouses": _ids(people, "FAMS", person_id),
         "children": get_children(arvore, person_id),
         "family_as_child": arvore[3].get(person_id, []),
     }
@@ -232,8 +273,8 @@ def normalizar(nome: str) -> str:
     return " ".join(sem_acento.lower().split())
 
 
-def _diferencas(arvore, ids) -> list:
-    """Campos em que as fichas divergem — o que o operador precisa olhar."""
+def _diferencas_de_fichas(fichas) -> list:
+    """Campos em que as fichas JA MONTADAS divergem, o que o operador precisa olhar."""
     campos = [
         ("birth", "data de nascimento"),
         ("birth_place", "local de nascimento"),
@@ -242,9 +283,6 @@ def _diferencas(arvore, ids) -> list:
         ("children", "filhos"),
         ("sex", "sexo"),
     ]
-    # As fichas sao montadas UMA vez: `person_summary` varre as familias do
-    # arquivo, e refazer isso por campo custava 6x por homonimo.
-    fichas = [person_summary(arvore, i) for i in ids]
     divergencias = []
     for campo, rotulo in campos:
         valores = {str(ficha.get(campo)) for ficha in fichas}
@@ -310,6 +348,10 @@ def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
     exatos = list(_indice_por_nome(arvore).get(alvo, []))
     parecidos = [pid for pid in (similar_ids or []) if pid not in exatos]
     fichas = [person_summary(arvore, pid) for pid in exatos]
+    # As duas leituras saem da MESMA lista de fichas: `_diferencas` era chamado
+    # uma vez para `differences` e outra dentro de `identical_data`, e cada
+    # chamada remontava todas as fichas (medido: 6 para 2 homonimos).
+    differences = _diferencas_de_fichas(fichas) if len(exatos) > 1 else []
     return {
         "query": name_query,
         "exact_count": len(exatos),
@@ -317,8 +359,8 @@ def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
         "similar_count": len(parecidos),
         "similar_matches": [person_summary(arvore, pid) for pid in parecidos[:5]],
         "ambiguous": len(exatos) > 1,
-        "differences": _diferencas(arvore, exatos) if len(exatos) > 1 else [],
-        "identical_data": bool(len(exatos) > 1 and not _diferencas(arvore, exatos)),
+        "differences": differences,
+        "identical_data": bool(len(exatos) > 1 and not differences),
     }
 
 

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de correção · BUG-20261021-7O7V</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px; background: #0f1720; color: #dbe6ef;
+    font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.55;
+  }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; color: #f2f7fb; }
+  h2 { font-size: 1.05rem; margin: 34px 0 10px; color: #7fd1c8; letter-spacing: .02em; }
+  .sub { color: #8fa3b5; font-size: .9rem; }
+  .card { background: #16232e; border: 1px solid #24384a; border-radius: 12px; padding: 18px 20px; margin-top: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .kv { background: #13202a; border: 1px solid #223444; border-radius: 8px; padding: 10px 12px; }
+  .kv b { display: block; color: #8fa3b5; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  code, .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: .85em; color: #a8d8ff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .88rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #223444; vertical-align: top; }
+  th { color: #8fa3b5; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 600; }
+  .high { background: #4a1f24; color: #ff9aa2; border: 1px solid #7a2f38; }
+  .ok { background: #123a34; color: #7fe0c8; border: 1px solid #1f5a50; }
+  .warn { background: #3d3316; color: #f0cf7a; border: 1px solid #6b5a24; }
+  a { color: #8fd0ff; }
+  .flow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+  .node { border: 1px solid #2d5f5d; background: #142b2a; border-radius: 10px; padding: 12px 16px; }
+  .node.alvo { border-color: #7fd1c8; box-shadow: 0 0 0 1px #7fd1c8 inset; }
+  .edge { color: #8fa3b5; font-size: .78rem; text-align: center; }
+  ul { margin: 8px 0 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  .nota { color: #8fa3b5; font-size: .84rem; }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>Plano de correção · <span class="mono">BUG-20261021-7O7V</span></h1>
+  <p class="sub">Contexto <b>desempenho</b> · bug nº 13 · 2026-10-21 · severidade <span class="pill high">high</span> · prioridade <b>P1</b></p>
+
+  <h2>O defeito</h2>
+  <div class="card">
+    <p>A análise de DNA leva cerca de <b>6 minutos</b> com a árvore de 19.403 pessoas e o CSV de 308
+    linhas. O indicador “Analisando… Isso pode levar alguns segundos.” permanece enquanto o servidor
+    trabalha, então a espera está no processamento, antes de a página chegar.</p>
+    <p class="nota">Registro completo: <a href="../bug.md">bug.md</a> · reprodução e perfil:
+    <a href="../evidence/reproduction.md">evidence/reproduction.md</a></p>
+  </div>
+
+  <h2>Causa raiz</h2>
+  <div class="card">
+    <p><span class="pill warn">estado: supported</span> Evidência no perfil sintético; a extensão para
+    o arquivo real ainda é hipótese, porque o dado do operador não foi lido.</p>
+    <ul>
+      <li><code>person_summary</code> chama <code>get_children</code>, que varre <b>todas as famílias</b>
+      a cada ficha. Em 101 cartões, <code>person_summary</code> foi chamado <b>1.024 vezes</b> e
+      <code>get_children</code> acumulou <b>66,7 s</b> (perfil), com 7,97 milhões de chamadas a
+      <code>next</code>.</li>
+      <li><code>homonym_dossier</code> monta as fichas e chama <code>_diferencas</code> <b>duas vezes</b>
+      (uma para <code>differences</code>, outra dentro de <code>identical_data</code>), e cada chamada
+      remonta as fichas: <b>24,2 s</b>.</li>
+      <li>O pool de sobrenomes em <code>avaliar_candidatos</code> é o terceiro custo (<b>34,6 s</b>,
+      1,4 milhão de chamadas ao rapidfuzz), e fica <b>fora</b> desta correção.</li>
+    </ul>
+    <p class="nota">Medido: 19.405 pessoas, 309 linhas, 101 cartões. Parse 10,4 s e análise 42,7 s sem
+    perfil. O caso real tem 6 min, então o ganho aqui é proporcional, não uma prova do alvo final.</p>
+  </div>
+
+  <h2>Estratégia escolhida</h2>
+  <div class="card">
+    <p><b>Correção direta</b>, em três mudanças pequenas no mesmo módulo, todas preservando o
+    resultado: nenhuma decisão de negócio, nenhum limiar e nenhuma ordem mudam.</p>
+  </div>
+
+  <h2>Correction Change Set proposto</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>CHG</th><th>Tipo</th><th>Artefato</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td>CHG-001</td><td>code</td><td><code>src/core/documentary_relationship.py</code></td>
+            <td>Índice pai→filhos construído uma vez por árvore; <code>get_children</code> passa a ser
+            consulta a dicionário, com a mesma ordem e a mesma deduplicação.</td></tr>
+        <tr><td>CHG-002</td><td>code</td><td><code>src/core/documentary_relationship.py</code></td>
+            <td><code>homonym_dossier</code> monta as fichas uma vez e deriva <code>differences</code> e
+            <code>identical_data</code> da mesma lista.</td></tr>
+        <tr><td>CHG-003</td><td>code</td><td><code>src/core/documentary_relationship.py</code></td>
+            <td><code>person_summary</code> calcula nascimento, falecimento e pais uma vez, em vez de
+            duas ou três.</td></tr>
+        <tr><td>CHG-004</td><td>code</td><td><code>src/core/dna_analysis.py</code> e
+            <code>src/core/path_search.py</code></td>
+            <td>Limpeza do índice no fim de cada fluxo, para não reter a árvore entre requisições.</td></tr>
+        <tr><td>CHG-005</td><td>test</td><td><code>tests/test_desempenho_das_fichas.py</code></td>
+            <td>Contador de varreduras (reprodução) e paridade com a implementação de referência
+            (regressão).</td></tr>
+      </tbody>
+    </table>
+    <p class="nota">O índice é derivado da árvore e vive só dentro da requisição. A chave é a
+    identidade do dicionário de famílias, com referência forte enquanto durar, então não há a colisão
+    de <code>_chave_de</code> (L-24) e não há retenção entre requisições. O <code>_INDICE_DE_NOMES</code>
+    não é tocado.</p>
+  </div>
+
+  <h2>Testes planejados</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Teste</th><th>Tipo</th><th>O que prova</th></tr></thead>
+      <tbody>
+        <tr><td><code>test_person_summary_nao_varre_as_familias_por_ficha</code></td><td>reprodução</td>
+            <td>Com um dicionário de famílias que conta <code>.values()</code>, 50 fichas devem
+            produzir no máximo <b>1</b> varredura. Hoje produz 50 e falha.</td></tr>
+        <tr><td><code>test_get_children_ordem_e_deduplicacao</code></td><td>regressão</td>
+            <td>Mesmos filhos, na mesma ordem, para pessoa em várias famílias, comparado com a
+            varredura de referência copiada no teste.</td></tr>
+        <tr><td><code>test_person_summary_identica_a_referencia</code></td><td>regressão</td>
+            <td>Todos os campos da ficha iguais aos de hoje, pessoa a pessoa.</td></tr>
+        <tr><td><code>test_dossie_calcula_diferencas_uma_vez</code></td><td>regressão</td>
+            <td><code>differences</code> e <code>identical_data</code> iguais aos de hoje para
+            homônimos, com contagem de chamadas de <code>person_summary</code>.</td></tr>
+        <tr><td>Suíte inteira + paridade</td><td>regressão</td>
+            <td>1.048+ testes passando e <code>tests/rodar_paridade.py</code> em 100 %.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Riscos</h2>
+  <div class="card">
+    <p><span class="pill warn">change_risk: média</span></p>
+    <ul>
+      <li><b>Blast radius:</b> <code>documentary_relationship.py</code> é compartilhado por
+      <code>analise-dna</code> e <code>busca-caminho</code>; a paridade cobre os dois.</li>
+      <li><b>Paridade:</b> a ordem dos filhos e a deduplicação são contrato observável; o índice
+      reproduz a varredura na mesma ordem de famílias.</li>
+      <li><b>Concorrência:</b> o índice é por árvore e por requisição; quatro threads com árvores
+      diferentes não compartilham entrada.</li>
+      <li><b>Fora do escopo:</b> o pool de sobrenomes (<code>avaliar_candidatos</code>) e o parse por
+      requisição. Se a medição do operador mostrar que ainda domina, entram como otimização própria.</li>
+    </ul>
+  </div>
+
+  <h2>Relações do bug</h2>
+  <div class="flow">
+    <a class="node alvo" href="../bug.md"><b>BUG-20261021-7O7V</b><br><span class="nota">este bug · open · P1</span></a>
+    <span class="edge">related-to<br>proposed</span>
+    <a class="node" href="../../../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md"><b>BUG-20260929-QMLY</b><br><span class="nota">upload sem limites · resolved</span></a>
+  </div>
+
+  <h2>Matriz de relações</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Origem</th><th>Tipo</th><th>Destino</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../bug.md">BUG-20261021-7O7V</a></td><td>related-to</td>
+            <td><a href="../../../../upload-gedcom/bugs/BUG-20260929-QMLY-upload-sem-limites/bug.md">BUG-20260929-QMLY</a></td>
+            <td>proposed</td></tr>
+      </tbody>
+    </table>
+    <p class="nota">Só há um bug nesta sessão; não há ordem de correção encadeada a sugerir.</p>
+  </div>
+
+  <h2>Reconciliação pós-execução (2026-10-21)</h2>
+  <div class="card">
+    <ul>
+      <li>O <b>CHG-004</b> do plano (limpeza do índice) <b>não foi necessário</b>: o índice ficou preso
+      ao grafo da árvore, então não há estado de módulo nem retenção entre requisições, e não há o que
+      limpar.</li>
+      <li>Com isso, os números fecharam em: CHG-001 a CHG-003 de código, CHG-004 de teste e CHG-005 de
+      especificação (adendo do veredito <code>spec-gap</code>).</li>
+      <li>Medido depois: análise de <b>42,68 s para 18,71 s</b> (2,28x) e total de <b>53,08 s para
+      28,13 s</b>, com o mesmo resultado de 101 cartões e 208 descartes.</li>
+    </ul>
+  </div>
+
+  <h2>O que este plano não faz</h2>
+  <div class="card">
+    <ul>
+      <li>Não lê <code>src/uploads/</code> nem os arquivos do operador.</li>
+      <li>Não muda rota, contrato de tela, limiar, texto ou ordem de resultado.</li>
+      <li>Não promete 60 s no arquivo real: o alvo depende da medição do operador depois do fix.</li>
+    </ul>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,24 @@
+Gate 1, tests antes do change set (2026-10-21)
+
+Comando:
+    .\.venv\Scripts\python.exe -m pytest tests\test_desempenho_das_fichas.py -q -p no:cacheprovider
+
+Saida (resumo):
+    FF.F                                                                     [100%]
+    FAILED tests/test_desempenho_das_fichas.py::test_person_summary_nao_varre_as_familias_por_ficha
+    FAILED tests/test_desempenho_das_fichas.py::test_dossie_calcula_as_diferencas_uma_vez
+    2 failed, 2 passed in 4.81s
+
+Mensagens das duas falhas:
+
+    AssertionError: person_summary varreu as familias 50 vezes para 50 fichas;
+    o indice por arvore deve fazer uma varredura so
+    assert 50 <= 1
+
+    AssertionError: o dossie montou 6 fichas para 2 homonimos;
+    as mesmas fichas estao sendo remontadas
+    assert 6 <= 3
+
+Os dois testes de regressao passaram:
+    test_get_children_mesma_ordem_e_deduplicacao
+    test_dossie_preserva_os_campos

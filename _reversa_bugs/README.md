@@ -83,6 +83,9 @@ Um bug NÃO pode ser `resolved: fixed` com `traceability.specs`, `root_cause` (c
 |----------|---------------------------|-----------------|
 | `busca-caminho` | `busca-caminho/` | Resolução de pessoa por nome, conexão direta/indireta e renderização do grafo (Mermaid e o artefato HTML de grafo) |
 | `upload-gedcom` | `upload-gedcom/` | Recebimento, armazenamento e parsing do arquivo GEDCOM, e o estado global em memória que ele alimenta |
+| `analise-dna` | `analise-dna/` | Processamento do CSV de DNA, matching, cartões de resultado e a árvore sugerida |
+| `seguranca` | (transversal) | Achados da auditoria de segurança de 2026-10-13, com as medições em `inspections/` |
+| `desempenho` | (transversal) | Lentidão do fluxo inteiro, sem separar processamento de visualização (criado em 2026-10-21) |
 
 ---
 *Gerado pelo Reversa em 2026-09-29.*
