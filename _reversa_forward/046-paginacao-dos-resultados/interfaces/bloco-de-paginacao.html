@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Bloco de paginação dos resultados (feature 046)</title>
+<!--
+  Mock ESTÁTICO do controle de paginação da lista de conexões (feature 046).
+
+  Abre offline: a folha de estilo é a de verdade, por caminho relativo; o shim cobre as
+  classes do Bootstrap 5, que aqui não chegam por CDN.
+
+  O QUE ESTE ARQUIVO É: o contrato de marcação do bloco. Os `id`, as classes, o atributo
+  `aria-current` e o `disabled` do "Anterior" na primeira página são o que os testes vão
+  prender — não a aparência.
+
+  O QUE ELE NÃO É: um mock do script. Aqui a página 3 já vem desenhada à mão; no sistema,
+  quem troca os cartões visíveis é o script, e os 68 cartões continuam no documento.
+-->
+<link rel="stylesheet" href="../../../src/assets/app.css">
+<style>
+  main{padding:1.5rem;max-width:1100px;margin:0 auto}
+  .nota-de-mock{font-size:.8rem;color:var(--muted);border-left:3px solid var(--line);padding-left:.6rem;margin:1rem 0}
+  h2{color:var(--head);font-family:var(--serif,Georgia,serif);font-size:1.15rem;margin:2rem 0 .25rem}
+  .contagem-das-conexoes{color:var(--muted);font-size:.9rem}
+  .cartao-simulado{border:1px solid var(--line);border-radius:.4rem;padding:.6rem .8rem;margin:.4rem 0;background:var(--surface)}
+  .secao{border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+</style>
+</head>
+<body>
+<main>
+  <div class="nota-de-mock">
+    Mock estático da feature <code>046</code>. O controle fica <strong>entre o parágrafo de contagem
+    e o primeiro cartão</strong>, dentro da guarda <code>{% if dna_results %}</code>. Ele só existe
+    quando há mais de uma página.
+  </div>
+
+  <h2>Resultados das Análises de Conexão</h2>
+  <p class="contagem-das-conexoes">
+    68 conexões analisadas: <strong>8</strong> com caminho genealógico no GEDCOM (0 com identidade
+    ambígua) e <strong>60</strong> apenas com evidência genética (sem caminho no GEDCOM). Desses,
+    <strong>60</strong> cartões sem correspondência na árvore.
+  </p>
+
+  <!-- ---------------------------------------------------------------- 1 -->
+  <div class="secao">
+    <p><strong>Caso 1, 68 cartões a 10 por página.</strong> Sete páginas, a primeira corrente, e o
+    "Anterior" desabilitado — é o estado que o HTML entrega, sem script nenhum.</p>
+
+    <nav class="paginacao-das-conexoes" aria-label="Paginação das conexões">
+      <label class="rotulo-do-tamanho" for="tamanho-da-pagina">Conexões por página</label>
+      <select class="seletor-do-tamanho" id="tamanho-da-pagina">
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
+      <span class="posicao-da-pagina" id="posicao-da-pagina">Página 1 de 7</span>
+      <button type="button" class="botao-de-pagina" id="pagina-anterior" disabled>Anterior</button>
+      <span class="numeros-das-paginas" id="numeros-das-paginas">
+        <button type="button" class="numero-de-pagina" data-pagina="1" aria-current="page">1</button>
+        <button type="button" class="numero-de-pagina" data-pagina="2">2</button>
+        <button type="button" class="numero-de-pagina" data-pagina="3">3</button>
+        <button type="button" class="numero-de-pagina" data-pagina="4">4</button>
+        <button type="button" class="numero-de-pagina" data-pagina="5">5</button>
+        <button type="button" class="numero-de-pagina" data-pagina="6">6</button>
+        <button type="button" class="numero-de-pagina" data-pagina="7">7</button>
+      </span>
+      <button type="button" class="botao-de-pagina" id="pagina-seguinte">Próxima</button>
+    </nav>
+
+    <div class="cartao-simulado">Cartão 1 a 10 visíveis; 11 a 68 com <code>hidden</code>, no documento.</div>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 2 -->
+  <div class="secao">
+    <p><strong>Caso 2, página 3 de 7.</strong> O corrente anda no meio, e os dois botões de passo
+    ficam habilitados. É o estado que o script produz depois de um clique.</p>
+
+    <nav class="paginacao-das-conexoes" aria-label="Paginação das conexões">
+      <label class="rotulo-do-tamanho" for="tamanho-da-pagina-2">Conexões por página</label>
+      <select class="seletor-do-tamanho" id="tamanho-da-pagina-2">
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
+      <span class="posicao-da-pagina">Página 3 de 7</span>
+      <button type="button" class="botao-de-pagina">Anterior</button>
+      <span class="numeros-das-paginas">
+        <button type="button" class="numero-de-pagina" data-pagina="1">1</button>
+        <button type="button" class="numero-de-pagina" data-pagina="2">2</button>
+        <button type="button" class="numero-de-pagina" data-pagina="3" aria-current="page">3</button>
+        <button type="button" class="numero-de-pagina" data-pagina="4">4</button>
+        <button type="button" class="numero-de-pagina" data-pagina="5">5</button>
+        <button type="button" class="numero-de-pagina" data-pagina="6">6</button>
+        <button type="button" class="numero-de-pagina" data-pagina="7">7</button>
+      </span>
+      <button type="button" class="botao-de-pagina">Próxima</button>
+    </nav>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 3 -->
+  <div class="secao">
+    <p><strong>Caso 3, 68 cartões a 30 por página.</strong> Três páginas: os números são reconhecidos
+    pelo script, mas o <strong>seletor é o mesmo</strong> — é ele que carrega a escolha.</p>
+
+    <nav class="paginacao-das-conexoes" aria-label="Paginação das conexões">
+      <label class="rotulo-do-tamanho" for="tamanho-da-pagina-3">Conexões por página</label>
+      <select class="seletor-do-tamanho" id="tamanho-da-pagina-3">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30" selected>30</option>
+      </select>
+      <span class="posicao-da-pagina">Página 1 de 3</span>
+      <button type="button" class="botao-de-pagina" disabled>Anterior</button>
+      <span class="numeros-das-paginas">
+        <button type="button" class="numero-de-pagina" data-pagina="1" aria-current="page">1</button>
+        <button type="button" class="numero-de-pagina" data-pagina="2">2</button>
+        <button type="button" class="numero-de-pagina" data-pagina="3">3</button>
+      </span>
+      <button type="button" class="botao-de-pagina">Próxima</button>
+    </nav>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 4 -->
+  <div class="secao">
+    <p><strong>Caso 4, 8 cartões a 10 por página.</strong> Tudo cabe numa página, então
+    <strong>nada é renderizado</strong> — nem o controle, nem o seletor, nem o indicador. É a mesma
+    ideia da guarda dos botões de expandir/recolher.</p>
+    <div class="cartao-simulado">Os 8 cartões, sem controle acima.</div>
+  </div>
+
+  <div class="nota-de-mock">
+    Contrato do bloco: <code>nav.paginacao-das-conexoes</code> com
+    <code>label.rotulo-do-tamanho</code>, <code>select.seletor-do-tamanho</code> (três
+    <code>option</code> 10/20/30, com a escolha em <code>selected</code>),
+    <code>span.posicao-da-pagina</code>, <code>button.botao-de-pagina</code> (anterior e próxima),
+    <code>span.numeros-das-paginas</code> com <code>button.numero-de-pagina</code>, cada um com
+    <code>data-pagina</code>, e <code>aria-current="page"</code> no corrente.
+  </div>
+</main>
+</body>
+</html>

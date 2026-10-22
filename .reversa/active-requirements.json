@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/045-humanizar-geracao-de-diferenca",
-  "feature-id": "045",
-  "short-name": "humanizar-geracao-de-diferenca",
-  "started-at": "2026-10-22T18:52:00Z",
+  "feature-dir": "_reversa_forward/046-paginacao-dos-resultados",
+  "feature-id": "046",
+  "short-name": "paginacao-dos-resultados",
+  "started-at": "2026-10-22T19:02:00Z",
   "current-stage": "sync",
-  "stages-completed": ["requirements", "roadmap", "actions", "coding", "verificacao", "sync"],
+  "stages-completed": ["requirements", "clarify", "roadmap", "actions", "coding", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

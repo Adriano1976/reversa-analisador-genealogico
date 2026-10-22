@@ -1270,3 +1270,103 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 
 .linha-destacada{background:var(--surface-2)}
 .linha-destacada td:first-child{font-weight:600;color:var(--head)}
+
+/* ---------------------------------------------------------------------------
+   A PAGINACAO da lista de conexoes (2026-10-22, feature 046)
+   Um controle discreto, na mesma linguagem dos botoes de expandir/recolher:
+   contorno, nao cor de acao. A pagina corrente e' a UNICA peca pintada, porque
+   e' a unica que responde "onde eu estou".
+
+   A ultima regra e' a que sustenta o resto: `hidden` e' o atributo mais fragil da
+   plataforma — qualquer `display` o vence. Sem esta guarda, um `display` de
+   biblioteca reabre a lista inteira e a paginacao vira decoracao.
+   --------------------------------------------------------------------------- */
+
+.paginacao-das-conexoes{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem .75rem;
+  margin:0 0 1rem
+}
+
+.rotulo-do-tamanho{
+  margin:0;
+  font-size:.85rem;
+  color:var(--muted)
+}
+
+.seletor-do-tamanho{
+  font-family:var(--bs-body-font-family);
+  font-size:.85rem;
+  color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:.5rem;
+  padding:.2rem .45rem;
+  cursor:pointer
+}
+
+.seletor-do-tamanho:focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:1px
+}
+
+.posicao-da-pagina{
+  font-size:.85rem;
+  color:var(--muted)
+}
+
+.botao-de-pagina{
+  font-family:var(--bs-body-font-family);
+  font-size:.85rem;
+  font-weight:500;
+  color:var(--primary);
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:.2rem .85rem;
+  cursor:pointer
+}
+
+.botao-de-pagina:hover:not(:disabled){border-color:var(--primary)}
+
+.botao-de-pagina:disabled{
+  color:var(--muted);
+  opacity:.55;
+  cursor:default
+}
+
+.numeros-das-paginas{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.25rem
+}
+
+.numero-de-pagina{
+  font-family:var(--bs-body-font-family);
+  font-size:.85rem;
+  min-width:2rem;
+  color:var(--primary);
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:.5rem;
+  padding:.2rem .35rem;
+  cursor:pointer
+}
+
+.numero-de-pagina:hover{border-color:var(--primary)}
+
+/* A pagina corrente. O seletor e' o ATRIBUTO, e nao uma classe: e' o mesmo dado que o
+   leitor de tela anuncia, entao nao ha como a cor e o anuncio divergirem. */
+.numero-de-pagina[aria-current="page"]{
+  color:var(--on-primary);
+  background:var(--primary);
+  border-color:var(--primary);
+  font-weight:600
+}
+
+/* A guarda: o cartao fora da pagina sai do desenho, do foco e da arvore de
+   acessibilidade. Sem o `!important`, o `display:block` de qualquer regra de card vence. */
+details.cartao-do-resultado[hidden]{display:none !important}

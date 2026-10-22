@@ -921,6 +921,46 @@
                                 <button type="button" class="botao-do-cartao" id="recolher-cartoes">Recolher todas</button>
                             </p>
                         {% endif %}
+                        {# A PAGINACAO DA LISTA (feature 046). O pedido foi "10 por pagina, podendo
+                           escolher 10, 20 ou 30", e a decisao de ONDE paginar e' o que explica este
+                           bloco existir no HTML em vez de no script.
+
+                           POR QUE NO CLIENTE: a analise nao e' cacheada entre requisicoes
+                           (`_reversa_sdd/architecture.md#1`) — cada POST reparseia o GEDCOM inteiro,
+                           e no arquivo real isso custa de 12 a 31 s. Paginar no servidor seria
+                           reanalisar a cada clique.
+
+                           POR QUE NO HTML: a suite deste projeto prende marcacao RENDERIZADA e nao
+                           executa JavaScript. Um controle montado no `DOMContentLoaded` passaria a
+                           existir so' no navegador, e nenhum teste o veria — o que violaria o
+                           principio III.
+
+                           `total_de_paginas` e' calculado para o tamanho PADRAO (10); os numeros
+                           menores que aparecem ao escolher 20 ou 30 sao refeitos pelo script, e o
+                           que ele le' como padrao e' o `selected` daqui — nunca uma constante dele.
+
+                           A guarda `> 1` e' a mesma ideia dos botoes acima: uma analise que cabe
+                           numa pagina nao ganha controle nenhum. #}
+                        {% set por_pagina = 10 %}
+                        {% set total_de_paginas = ((dna_results | length) + por_pagina - 1) // por_pagina %}
+                        {% if total_de_paginas > 1 %}
+                            <nav class="paginacao-das-conexoes" aria-label="Paginação das conexões">
+                                <label class="rotulo-do-tamanho" for="tamanho-da-pagina">Conexões por página</label>
+                                <select class="seletor-do-tamanho" id="tamanho-da-pagina">
+                                    {% for tamanho in [10, 20, 30] %}
+                                        <option value="{{ tamanho }}"{% if tamanho == por_pagina %} selected{% endif %}>{{ tamanho }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="posicao-da-pagina" id="posicao-da-pagina">Página 1 de {{ total_de_paginas }}</span>
+                                <button type="button" class="botao-de-pagina" id="pagina-anterior" disabled>Anterior</button>
+                                <span class="numeros-das-paginas" id="numeros-das-paginas">
+                                    {% for n in range(1, total_de_paginas + 1) %}
+                                        <button type="button" class="numero-de-pagina" data-pagina="{{ n }}"{% if n == 1 %} aria-current="page"{% endif %}>{{ n }}</button>
+                                    {% endfor %}
+                                </span>
+                                <button type="button" class="botao-de-pagina" id="pagina-seguinte">Próxima</button>
+                            </nav>
+                        {% endif %}
                         {# A TABELA DO INDICE SAIU (adendo 019). Com os cartoes recolhiveis ela
                            virou uma segunda lista de resumos: a coluna "Confrontacao" repetia o
                            selo do cabecalho, e as linhas existiam para navegar uma pagina que ja
@@ -1933,17 +1973,30 @@
                 });
             }, 100);
 
+            const todosOsCartoes = () => Array.from(document.querySelectorAll("details.cartao-do-resultado"));
+
+            {# QUEM SABE REVELAR A PAGINA DE UM CARTAO. Nasce nulo e e' preenchido pelo bloco da
+               paginacao, mais abaixo. Existe separado porque `abrirCartaoDoAlvo` precisa revelar a
+               pagina ANTES de abrir o cartao, e as duas coisas moram em pontos diferentes daqui. #}
+            let mostrarPaginaDo = null;
+
             {# O CARTAO DO ALVO ABRE SOZINHO. O indice manda o operador para `#resultado-N`, e com
                os cartoes fechados por padrao o clique cairia num cartao recolhido — o operador
                concluiria que o link nao funciona. Vale para o clique no indice E para quem abre
-               ou recarrega a pagina ja com o `#` na barra de enderecos. #}
+               ou recarrega a pagina ja com o `#` na barra de enderecos.
+
+               A ORDEM DAS DUAS ULTIMAS LINHAS E' O CONTRATO (feature 046): revelar a pagina
+               primeiro, abrir depois. Aberto o cartao escondido, o `toggle` dispara e o Mermaid
+               mede um container de tamanho ZERO — o diagrama sai vazio sem erro nenhum. #}
             const abrirCartaoDoAlvo = () => {
                 if (!location.hash) return;
                 const alvo = document.getElementById(location.hash.slice(1));
-                if (alvo && alvo.tagName === "DETAILS") alvo.open = true;
+                if (!alvo || alvo.tagName !== "DETAILS") return;
+                if (mostrarPaginaDo) mostrarPaginaDo(alvo);
+                alvo.open = true;
+                alvo.scrollIntoView({ block: "start" });
             };
             window.addEventListener("hashchange", abrirCartaoDoAlvo);
-            abrirCartaoDoAlvo();
 
             {# O LINK DENTRO DO `summary` NAO PODE RECOLHER O CARTAO. O "Voltar" mora no cabecalho,
                que agora e o proprio gatilho do `details`: sem esta guarda, clicar em "Voltar"
@@ -1954,17 +2007,120 @@
                 alvo.addEventListener("click", (evento) => evento.stopPropagation());
             });
 
-            const todosOsCartoes = () => Array.from(document.querySelectorAll("details.cartao-do-resultado"));
+            {# A PAGINACAO DA LISTA (feature 046). Os 68 cartoes ja estao no documento; paginar e'
+               marcar e desmarcar `hidden` neles. Nao ha re-render, nao ha rede e nao ha estado
+               persistido: o cartao que sai de vista continua aberto, com o diagrama desenhado, e
+               volta igual quando a pagina volta.
+
+               O TAMANHO PADRAO nao mora aqui: quem o declara e' o `<option selected>` do HTML, e
+               este bloco apenas o le'. Um `10` repetido nos dois lugares e' como o padrao se perde.
+
+               SEM O CONTROLE (analise que cabe numa pagina, ou tela de entrada), o bloco inteiro
+               nao roda e `cartoesDaPagina` continua devolvendo todos — os botoes de expandir e
+               recolher seguem funcionando como antes. #}
+            let cartoesDaPagina = () => todosOsCartoes();
+            const paginacao = document.querySelector(".paginacao-das-conexoes");
+            if (paginacao) {
+                const cartoes = todosOsCartoes();
+                const seletorDeTamanho = document.getElementById("tamanho-da-pagina");
+                const numerosDasPaginas = document.getElementById("numeros-das-paginas");
+                const posicaoDaPagina = document.getElementById("posicao-da-pagina");
+                const botaoAnterior = document.getElementById("pagina-anterior");
+                const botaoSeguinte = document.getElementById("pagina-seguinte");
+                let porPagina = parseInt(seletorDeTamanho.value, 10) || 10;
+                let pagina = 1;
+
+                const totalDePaginas = () => Math.max(1, Math.ceil(cartoes.length / porPagina));
+
+                {# A fatia visivel. E' ela que os botoes de expandir/recolher consomem, e e' por
+                   isso que eles deixam de alcancar os 68: abrir cartao que ninguem ve' nao e' o
+                   que o operador pediu, e o cartao abriria escondido, com o mesmo problema de
+                   medicao do diagrama. #}
+                cartoesDaPagina = () => {
+                    const inicio = (pagina - 1) * porPagina;
+                    return cartoes.slice(inicio, inicio + porPagina);
+                };
+
+                {# OS NUMEROS SAO REFEITOS A CADA DESENHO, porque o total muda com o tamanho: 68 a
+                   10 dao 7, a 20 dao 4, a 30 dao 3. #}
+                const desenharOsNumeros = () => {
+                    numerosDasPaginas.textContent = "";
+                    for (let n = 1; n <= totalDePaginas(); n += 1) {
+                        const botao = document.createElement("button");
+                        botao.type = "button";
+                        botao.className = "numero-de-pagina";
+                        botao.dataset.pagina = String(n);
+                        botao.textContent = String(n);
+                        if (n === pagina) botao.setAttribute("aria-current", "page");
+                        numerosDasPaginas.appendChild(botao);
+                    }
+                };
+
+                const desenhar = () => {
+                    const visiveis = cartoesDaPagina();
+                    cartoes.forEach((cartao) => { cartao.hidden = true; });
+                    visiveis.forEach((cartao) => { cartao.hidden = false; });
+                    posicaoDaPagina.textContent = "Página " + pagina + " de " + totalDePaginas();
+                    botaoAnterior.disabled = pagina <= 1;
+                    botaoSeguinte.disabled = pagina >= totalDePaginas();
+                    desenharOsNumeros();
+                };
+
+                const irPara = (destino, rolar) => {
+                    pagina = Math.min(Math.max(1, destino), totalDePaginas());
+                    desenhar();
+                    if (!rolar) return;
+                    const titulo = document.getElementById("resultados");
+                    if (titulo) titulo.scrollIntoView({ block: "start" });
+                };
+
+                {# O CARTAO DO LINK DIRETO. Acha o indice do cartao na lista INTEIRA — a ordem da
+                   pagina e' a mesma — e leva para a pagina que o contem, sem rolar: quem rola e'
+                   o `abrirCartaoDoAlvo`, depois de abrir. #}
+                mostrarPaginaDo = (cartao) => {
+                    const indice = cartoes.indexOf(cartao);
+                    if (indice < 0) return;
+                    irPara(Math.floor(indice / porPagina) + 1, false);
+                };
+
+                {# TROCAR O TAMANHO VOLTA PARA A PRIMEIRA PAGINA. A lista mudou de tamanho, e so'
+                   a primeira posicao significa a mesma coisa antes e depois. #}
+                seletorDeTamanho.addEventListener("change", () => {
+                    const escolhido = parseInt(seletorDeTamanho.value, 10);
+                    if (!escolhido) return;
+                    porPagina = escolhido;
+                    irPara(1, false);
+                });
+
+                numerosDasPaginas.addEventListener("click", (evento) => {
+                    const botao = evento.target.closest(".numero-de-pagina");
+                    if (!botao) return;
+                    irPara(parseInt(botao.dataset.pagina, 10), true);
+                });
+
+                botaoAnterior.addEventListener("click", () => irPara(pagina - 1, true));
+                botaoSeguinte.addEventListener("click", () => irPara(pagina + 1, true));
+
+                {# O PRIMEIRO DESENHO NAO ROLA. Ele acontece no carregamento da pagina, e rolar
+                   aqui jogaria o operador para o meio do documento so' porque a analise chegou. #}
+                irPara(1, false);
+            }
+
+            {# O ALVO DO `#` SO' PODE ABRIR AGORA: com a paginacao montada, o cartao do link direto
+               pode estar em qualquer pagina. Chamado antes do bloco acima, ele abriria um cartao
+               ainda escondido — e o diagrama mediria zero. #}
+            abrirCartaoDoAlvo();
+
             const expandir = document.getElementById("expandir-cartoes");
             const recolher = document.getElementById("recolher-cartoes");
             if (expandir) {
                 expandir.addEventListener("click", () => {
-                    todosOsCartoes().forEach((cartao) => { cartao.open = true; });
+                    cartoesDaPagina().forEach((cartao) => { cartao.open = true; });
                 });
             }
             if (recolher) {
                 recolher.addEventListener("click", () => {
-                    todosOsCartoes().forEach((cartao) => { cartao.open = false; });
+                    cartoesDaPagina().forEach((cartao) => { cartao.open = false; });
                 });
             }
         });

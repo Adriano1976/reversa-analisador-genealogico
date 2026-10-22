@@ -165,7 +165,13 @@ TAMANHO_ESPERADO = 16504
 #: (42.290, **-3 bytes**): o link do Google Fonts ficou tres bytes mais curto, e o resto da
 #: mudanca e de folha (familias, pesos, tamanhos e raios). As emendas `E007`, `E008` e `E009`
 #: foram so de folha e NAO moveram este hash.
-SHA_DA_TELA = "7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541"
+#: **Sexta medicao, feature 046**: o controle de paginacao da lista de conexoes. O markup do
+#: controle mora dentro de `{% if dna_results %}` e **nao aparece** na tela de entrada vazia; o que
+#: moveu o hash foi o `<script>` — o motor da paginacao, os quatro ouvintes e a revelacao da pagina
+#: do alvo antes de abrir o cartao. `7375696d…` (42.290) → `05f2179a…` (46.264, **+3.974 bytes**),
+#: todos de script. O `TAMANHO_ESPERADO` acima **nao muda**: ele mede o PNG do icone, e a arte
+#: nao foi tocada.
+SHA_DA_TELA = "05f2179adca5fa17b7073c472df308e6672753ce3d8f34e0e52f0c36b5d0934d"
 
 
 def _cabecalho_png(corpo: bytes):

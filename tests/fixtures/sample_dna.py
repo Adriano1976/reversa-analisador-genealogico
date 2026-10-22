@@ -116,3 +116,32 @@ DNA_CSV_HIPOTESE_DOIS_DESTAQUES = (
     "Name,cM,Chromosome,SNPs,Kit,Source\n"
     "Ana Silva Souza,42.6,1,1500,AB1234567,Genera\n"
 )
+
+# ---------------------------------------------------------------------------
+# Feature 046 — a paginacao da lista de resultados
+# ---------------------------------------------------------------------------
+
+def _csv_de_conexoes(quantidade: int) -> str:
+    """CSV com `quantidade` kits distintos para a MESMA pessoa do GEDCOM.
+
+    Cada kit vira uma evidencia `(nome, kit)` e, por consequencia, um cartao: **medido** em
+    2026-10-22, 14 kits produzem 14 cartoes. E o jeito mais barato de variar o numero de
+    cartoes, que e exatamente o numero de que a paginacao depende — o GEDCOM sintetico tem
+    cinco pessoas, e inventar N pessoas exigiria reescrever o `DNA_GED` inteiro.
+
+    A coluna `Chromosome`/`SNPs` vem preenchida para a evidencia nao ser marcada como fraca
+    por falta de dado; o cM decresce para a ordem de apresentacao dos cartoes ser previsivel.
+    """
+    linhas = ["Name,cM,Chromosome,SNPs,Kit"]
+    for i in range(quantidade):
+        linhas.append(f"Ana Silva Souza,{200 - i},1,1500,AB{1000000 + i:07d}")
+    return "\n".join(linhas) + "\n"
+
+
+# 68 conexoes: o numero medido no arquivo real em 2026-10-22. A 10 por pagina dao 7 paginas,
+# com a ultima de 8 — o caso que o mock da interface e o onboarding usam como referencia.
+DNA_CSV_SESSENTA_E_OITO_CONEXOES = _csv_de_conexoes(68)
+
+# 8 conexoes: cabe inteiro numa pagina de 10, entao NENHUM controle de paginacao deve
+# aparecer no documento (a mesma ideia da guarda `length > 1` dos botoes de recolher).
+DNA_CSV_OITO_CONEXOES = _csv_de_conexoes(8)
