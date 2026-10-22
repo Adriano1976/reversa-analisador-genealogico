@@ -1,0 +1,30 @@
+# Linha de base — suíte
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+
+## Limitação declarada
+
+A primeira edição de código desta feature aconteceu **antes** de a linha de base ser medida
+nesta sessão; o `actions.md` põe a medição em `T001`, e a ordem de execução foi invertida por
+mim. Não há, portanto, execução da suíte "antes" nesta pasta — e inventar uma seria mentir
+sobre o instrumento.
+
+O valor de referência usado é o que está registrado na entrega imediatamente anterior:
+
+| Referência | Onde |
+|---|---|
+| `1409 passed, 9 skipped` (depois da E003 da feature 039) | `_reversa_sdd/addenda/039-dna-sem-correspondencia.md` e `_reversa_forward/039-dna-sem-correspondencia/actions.md` («Notas de execução») |
+| `1411 passed, 9 skipped` (antes da E003 da 039) | idem |
+
+## Primeira medição depois das edições
+
+```
+1492 passed, 9 skipped, 1 warning in 105.52s
+```
+
+**Delta: +83 testes, todos dos quatro arquivos novos desta feature** — a conta fecha exatamente:
+`test_fontes_de_laboratorio.py` + `test_qualidade_da_medida.py` + `test_cobertura_do_arquivo.py`
++ `test_fonte_e_cobertura_na_tela.py` = 83 casos.
+
+Nenhum teste foi removido, renomeado ou teve asserção afrouxada.

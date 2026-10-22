@@ -735,6 +735,9 @@ def index():
                     # conta. O template nao filtra nem ordena.
                     sem_correspondencia=resultado.sem_correspondencia,
                     observacoes_do_arquivo=resultado.observacoes_do_arquivo,
+                    # FEATURE 040: o retrato do arquivo. `None` fora deste ramo, que e' o
+                    # que mantem o painel fora da tela de entrada.
+                    cobertura=resultado.cobertura,
                     message=mensagem_final,
                     aviso_de_persistencia=resultado.aviso_de_persistencia,
                     # O que a promocao de um descarte precisa para reenviar a MESMA

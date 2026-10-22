@@ -1,0 +1,65 @@
+# Verificação depois da feature — escopo e tela
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+
+## 1. Tela de entrada (`SHA_DA_TELA`)
+
+```
+SHA_DA_TELA ........ 7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541
+TAMANHO_ESPERADO ... 16504 bytes
+```
+
+Inalterados; `tests/test_icone_de_atalho.py` passa.
+
+## 2. Texto de formulário como rótulo de fonte: zero
+
+Varredura no HTML servido pela análise real (68 cartões):
+
+| Medida | Valor |
+|---|---:|
+| ocorrências de `Fonte: ` | 136 (68 cartões + `Fonte: GEDCOM` dos blocos documentais) |
+| `Fonte: não declarada` | 8 |
+| `Fonte: <texto de formulário>` (`Selecione`/`Outro`/`Select`/`Other`) | **0** |
+| `Fonte: <laboratório>` | 60 |
+
+O texto cru aparece **uma vez**, e dentro da etiqueta:
+
+```html
+<p class="rotulo-fonte mb-2">Fonte: não declarada
+  <span class="etiqueta-da-fonte">Selecione uma empresa ou fonte</span></p>
+```
+
+## 3. O painel no HTML
+
+```html
+<details class="card cobertura-do-arquivo mb-4" id="cobertura" open>
+  <summary class="sumario-do-cartao">
+    <div class="card-header cabecalho-da-cobertura"><h5 class="mb-0">Cobertura do arquivo</h5></div>
+  </summary>
+  <div class="card-body">
+    <p class="text-muted small mb-3">Vale para o CSV inteiro, não para uma conexão específica. …</p>
+    <div class="numeros-da-cobertura">
+      <div class="numero-da-cobertura"><div class="valor-da-cobertura">617</div>
+        <div class="rotulo-da-cobertura">linhas no CSV</div></div>
+      …
+```
+
+- Renderiza **uma vez**, aberto, antes de "Resultados das Análises de Conexão".
+- O cabeçalho usa `cabecalho-da-cobertura` além de `card-header`: sem isso, o helper
+  `_cabecalhos()` de `tests/test_estado_do_resultado.py` o tomaria por cartão de resultado.
+- Nenhuma cor de estado; a linha da medida é texto.
+
+## 4. Ressalva de escopo
+
+`Qualidade da medida, não do parentesco.` aparece **68 vezes** — uma por cartão, exatamente os
+68 cartões com evidência genética.
+
+## 5. O que a feature não tocou
+
+| Item | Verificação |
+|---|---|
+| Confronto, viabilidade, caminho, hipóteses | nenhum campo lido foi alterado; suíte e caracterização passam |
+| Ordem dos cartões e contagem "68 conexões analisadas" | inalteradas |
+| Lista "Matches descartados" e CSV de nove colunas | inalterados (`test_csv_de_descartes.py` passa) |
+| Histórico (6 tabelas) | sem coluna nova, sem migração |

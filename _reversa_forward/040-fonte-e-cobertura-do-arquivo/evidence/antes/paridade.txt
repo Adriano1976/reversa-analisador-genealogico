@@ -1,0 +1,21 @@
+# Linha de base — paridade
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+
+## Limitação declarada
+
+O harness de paridade **não pôde ser executado antes das edições**: ele grava um coletor
+temporário em `_reversa_sdd/parity/` e o ambiente desta sessão bloqueia escrita de processo
+filho no workspace (o bloqueio foi reproduzido três vezes, inclusive com permissão ampla).
+Portanto não existe medição "antes" nesta pasta.
+
+## Referência registrada no projeto
+
+| Data | Medição | Onde |
+|---|---|---|
+| `2026-10-13` | `PARIDADE 100 % (zero divergência)`, exit 0, 6/6 fixtures | `.reversa/state.json` → `checkpoints.passo4_2026_10_13.verificacao_por_execucao.paridade` |
+
+Essa é a última medição registrada. Ela é **anterior** às features 024, 034 e 038, que mexeram
+em aceitação e no texto do motivo de descarte — justamente onde a paridade diverge hoje (ver
+`evidence/depois/paridade.txt`).

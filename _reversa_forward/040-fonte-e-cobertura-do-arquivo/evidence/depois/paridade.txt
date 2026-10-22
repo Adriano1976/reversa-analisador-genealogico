@@ -1,0 +1,57 @@
+# Verificação depois da feature — paridade
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+> Comando: `.\.venv\Scripts\python.exe tests\rodar_paridade.py`
+> Resultado: **30 divergências, exit 1** — **nenhuma atribuída a esta feature**
+
+## 1. O que o harness compara
+
+`_reversa_sdd/parity/harness.py` captura, da análise de DNA, apenas:
+
+```python
+"results": [{"match_name", "cm", "caminho"}],
+"descartados": [{"csv_name", "motivo"}],
+"modo": <categoria da mensagem>,
+```
+
+e, do probe de decomposição, `are_spouses` e `find_indirect_path`/ancestral. **O payload da
+evidência não é capturado** — `source`, `source_raw`, `source_motivo`, `medida` e `cobertura`
+não chegam ao coletor.
+
+## 2. As 30 divergências, por probe
+
+| Probe | Divergências | Assunto |
+|---|---:|---|
+| `dna[...].results` / `.descartados` | 10 | o candidato **aceita** matches que o oráculo recusa, e o texto do motivo é o humanizado (`034`/`038`) contra o técnico antigo |
+| `ancestral[...]` | 18 | caminho ancestral: oráculo `[None, None]`, candidato devolve o caminho |
+| `aceitacao`, `decomposicao` | 0 | — |
+
+Fixture a fixture: `basic.ged` 10, `deep25.ged` 6, `mojibake_latin1.ged` 8, `no_name.ged` 2,
+`variants.ged` 4.
+
+## 3. Por que não são desta feature
+
+1. **O coletor não lê nada do que esta feature mudou** (item 1). As chaves aditivas não
+   aparecem em nenhuma observação comparada.
+2. **O texto divergente é anterior.** O oráculo diz
+   `sem candidatos por sobrenome (abreviação/corrupção?)`; o candidato diz
+   `nenhum sobrenome do nome existe no GEDCOM` — essa humanização é a feature **038**
+   (`/_reversa_sdd/addenda/038-humanizar-motivo-descartes.md`), de 2026-10-22, posterior à
+   última medição de paridade (2026-10-13).
+3. **A aceitação divergente é de matching**, não de fonte/cobertura: o candidato aceita
+   `Conceição Gouvea` e `Zzz Ninguem dos Santos`, que o oráculo recusa — mudança de regra das
+   features 024/034, também posteriores a 2026-10-13.
+4. **`ancestral` é busca de caminho** — `find_ancestral_path`/`documentary_relationship`, que
+   esta feature não toca.
+
+## 4. O que fica pendente (e é pré-existente)
+
+A paridade **não está em 100%** desde pelo menos a feature 038, e isso não foi detectado por
+nenhuma entrega intermediária. O achado está registrado em
+`_reversa_forward/040-fonte-e-cobertura-do-arquivo/legacy-impact.md` e no `regression-watch.md`
+como observação sem peso, para decisão humana: ou o oráculo é atualizado de forma declarada, ou
+as divergências são tratadas como regressão real — o que exige investigação própria.
+
+**O que se pode afirmar com a medição disponível:** a entrega 040 não alterou nenhuma das
+observações comparadas pelo harness, porque nenhuma delas lê os campos que a 040 acrescentou.

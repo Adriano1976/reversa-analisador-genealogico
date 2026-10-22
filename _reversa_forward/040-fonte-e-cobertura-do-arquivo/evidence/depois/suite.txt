@@ -1,0 +1,24 @@
+# Verificação depois da feature — suíte
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+> Comando: `.\.venv\Scripts\python.exe -m pytest -q`
+
+```
+1492 passed, 9 skipped, 1 warning in 105.52s (0:01:45)
+```
+
+- **Nenhuma falha.** Os 9 pulados são os mesmos de sempre (banco/driver ausente no `.venv`).
+- **+83 casos** em relação à referência da feature 039 (`1409 passed, 9 skipped`), exatamente
+  os quatro arquivos novos.
+- O `warning` é o `PytestCacheWarning` de `.pytest_cache` — pré-existente, do ambiente, sem
+  relação com a entrega.
+
+## Dois testes que falharam na primeira execução e foram corrigidos
+
+| Teste | Causa | Correção |
+|---|---|---|
+| `test_icone_de_atalho.py::test_a_tela_nao_mudou_sem_mudanca_declarada` | o `{% if %}` do painel, em linha própria, emitia `\n` + espaços na tela de entrada | o `{% if %}` passou para a **mesma linha** do `{% endif %}` anterior |
+| `test_estado_do_resultado.py::TestOSeloDaConfrontacao::…` | o `_cabecalhos()` do teste captura todo `class="card-header"`, e o painel vinha antes dos cartões | o cabeçalho do painel ganhou a classe `cabecalho-da-cobertura`, deixando de se passar por cartão de resultado |
+
+Nenhum teste existente foi alterado para passar.

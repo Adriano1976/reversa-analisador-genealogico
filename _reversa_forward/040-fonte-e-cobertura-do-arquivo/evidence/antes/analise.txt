@@ -1,0 +1,26 @@
+# Estado da análise antes da feature (reconstruído)
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+
+**Natureza deste arquivo:** não é uma captura — é reconstrução do comportamento anterior a
+partir do código trocado (`git diff`) e da execução da mesma análise depois da mudança. Está
+declarado assim para não passar por medição.
+
+## O que a tela mostrava com o arquivo real
+
+| Item | Antes |
+|---|---|
+| Cartões | 68 (8 aceitos + 60 sem correspondência, como na feature 039) |
+| Descartes | 448 |
+| Painel "Cobertura do arquivo" | **não existia** |
+| Linha "Medida ..." no bloco 2 | **não existia** |
+| Fonte de um cartão com célula de formulário | `Fonte: Selecione uma empresa ou fonte` (texto cru, vindo de `evidence_for` → `kits[0]["source"]`) |
+| Fonte de um cartão com `GENERA` | `Fonte: GENERA` (caixa do arquivo) |
+| Fonte quando a primeira linha do kit era `-` e a terceira dizia `Genera` | `Fonte: -` (a regra era "primeira não vazia") |
+
+## Por que não há números de cobertura "antes"
+
+Porque eles não existiam em lugar nenhum: a tela só tinha números por cartão (bloco 2) e a
+contagem de conexões. O 74%, o 88%, a mediana 9,05 e as 59 células sem laboratório só passaram
+a ser calculados nesta feature — antes, para sabê-los, era preciso abrir o CSV.

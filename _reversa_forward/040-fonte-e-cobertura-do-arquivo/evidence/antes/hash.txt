@@ -1,0 +1,22 @@
+# Linha de base — hash da tela de entrada
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+
+O `SHA_DA_TELA` é um invariante mantido à mão em `tests/test_icone_de_atalho.py`. O valor
+abaixo é o **mesmo antes e depois** desta feature — e o teste que o prende passou nas duas
+execuções.
+
+| Medida | Valor |
+|---|---|
+| `SHA_DA_TELA` | `7375696d9716a86eeecf43973b8a5ef8fa0b550acd0d997a91c580e3ae45b541` |
+| `TAMANHO_ESPERADO` | `16504` bytes |
+| Onde | `tests/test_icone_de_atalho.py:22-27,165` |
+
+**Como o painel não mexe nisso:** o `{% if cobertura ... %}` do painel começa na **mesma
+linha** do `{% endif %}` do bloco "Observações do arquivo". Com `cobertura` ausente (tela de
+entrada), o ramo falso não emite nenhum byte — inclusive nenhum espaço ou quebra de linha.
+
+Primeira tentativa, registrada porque o erro ensina: a versão inicial punha o `{% if %}` em
+linha própria, e dois testes de hash falharam por **whitespace**. A correção foi declarada no
+template, no comentário acima do bloco.

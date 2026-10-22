@@ -45,6 +45,7 @@ from datetime import datetime
 
 from .diagram_domain import resolvedor_de_diagrama
 from .endogamia import CM_MINIMO_SEGMENTO, DNAAnalyzer, MENSAGEM_ENDEROGAMIA
+from . import cobertura_do_arquivo
 from .documentary_relationship import (
     birth_date,
     documental_nao_encontrado,
@@ -536,7 +537,7 @@ def _cartao_sem_correspondencia(*, arvore, root_id, ano_base, kit, chave_nome, c
 
 
 def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None,
-                 candidatos_fixos=None):
+                 candidatos_fixos=None, cobertura=None):
     """Executa a analise de DNA e devolve `(resultados, descartados, mensagem)`.
 
     ## `candidatos_fixos` (feature 034)
@@ -623,6 +624,11 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
         )
 
     evidencias, avisos_da_evidencia = build_genetic_evidence(df)
+    # FEATURE 040 — o retrato do ARQUIVO, derivado das evidencias ja' montadas. O coletor
+    # opcional existe pelo mesmo motivo de `observacoes_do_arquivo`: o retorno de tres
+    # posicoes e' contrato de paridade, e um quarto valor quebraria todos os chamadores.
+    if cobertura is not None:
+        cobertura.update(cobertura_do_arquivo.medir(evidencias, len(df)))
     ged_index, surname_index, features = build_ged_indexes(arvore)
 
     raiz_ambigua = homonym_dossier(arvore, root_name)

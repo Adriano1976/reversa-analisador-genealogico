@@ -40,13 +40,17 @@ import re
 
 from .erros import DnaCsvSemColunas
 from .name_normalization import norm_name
+from . import fontes_de_laboratorio as fontes
+from . import qualidade_da_medida as qualidade
 from .relationship_hypotheses import possible_relationships
 from utils.number_format import formatar_cm
 from utils.text_cleaning import demojibake
 
 # Abaixo disto o segmento e tratado como evidencia fraca: segmentos pequenos
-# aparecem com frequencia em pares sem relacao genealogica recente.
-LIMITE_SEGMENTO_FRACO = 15.0
+# aparecem com frequencia em pares sem relacao genealogica recente. O valor e o mesmo
+# do piso de maior bloco da qualidade da medida (feature 040): quem manda no numero e
+# `qualidade_da_medida.PISO_MAIOR_BLOCO_CM`, para nao existirem dois 15,0 no projeto.
+LIMITE_SEGMENTO_FRACO = qualidade.PISO_MAIOR_BLOCO_CM
 
 # Sentinela do agrupamento sem kit. O ESPACO A ESQUERDA nao e decorativo: `_clean`
 # faz strip em todo valor do CSV, entao nenhum kit real pode comecar com espaco -
@@ -229,7 +233,13 @@ def build_genetic_evidence(df):
         registrada = evidencias.setdefault(chave_nome, {}).setdefault(chave_kit, {
             "kit": kit or None,
             "person_name_csv": nome,
-            "source": fonte or None,
+            # `source` nasce vazio e e' preenchido no fim do laco, com o rotulo canonico
+            # (feature 040). `_fontes` guarda as celulas cruas do kit para a escolha e para
+            # a deteccao de divergencia; sai do payload antes de devolver.
+            "source": None,
+            "source_raw": None,
+            "source_motivo": None,
+            "_fontes": [],
             "total_cm": 0.0,
             "segments": [],
             "records_used": 0,
@@ -254,7 +264,7 @@ def build_genetic_evidence(df):
             "snps": snps,
         })
         if fonte and not registrada["source"]:
-            registrada["source"] = fonte
+            registrada["_fontes"].append(fonte)
 
     for chave_nome, por_kit in evidencias.items():
         kits = list(por_kit)
@@ -283,6 +293,31 @@ def build_genetic_evidence(df):
             ev["snps_largest_segment"] = com_cm[0]["snps"] if com_cm else None
             ev["chromosomes"] = sorted({s["chromosome"] for s in ev["segments"] if s["chromosome"]},
                                        key=lambda c: (len(c), c))
+            # FEATURE 040 — a fonte deixa de ser o texto cru e vira rotulo canonico, com
+            # o original preservado. Sem coluna de fonte, `source` continua `None` para a
+            # tela cair no texto "fonte nao identificada no CSV".
+            if colunas["source"]:
+                escolhido, divergentes = fontes.escolher(ev["_fontes"])
+                ev["source"] = escolhido.texto
+                ev["source_raw"] = escolhido.bruto or None
+                ev["source_motivo"] = None if escolhido.e_laboratorio else escolhido.motivo
+                if divergentes and ("fontes_divergentes", chave_nome, chave_kit) not in vistos:
+                    vistos.add(("fontes_divergentes", chave_nome, chave_kit))
+                    avisos.append({
+                        "code": "fontes_divergentes",
+                        "nivel": "cartao",
+                        "chave_nome": chave_nome,
+                        "chave_kit": chave_kit,
+                        "message": (f"O kit {ev['kit'] or 'sem kit'} declara mais de um laboratorio "
+                                    f"no mesmo arquivo: {escolhido.texto} e "
+                                    f"{', '.join(divergentes)}. O rotulo exibido e' o primeiro, e "
+                                    "nenhum valor foi somado entre eles."),
+                    })
+            ev.pop("_fontes", None)
+            # FEATURE 040 — qualidade da MEDIDA (total, maior bloco, SNPs). Nao e'
+            # parentesco: o estado descreve o dado, e a tela sempre diz isso.
+            ev["medida"] = qualidade.avaliar(ev["total_cm"], ev["largest_segment_cm"],
+                                             ev["snps_total"])
             valores_mrca = ev.pop("mrca_values", [])
             # Media e nao a primeira linha: a coluna e uma estimativa PARA O KIT, entao o
             # valor representativo e o do conjunto de segmentos que entraram no total de cM.
@@ -356,6 +391,14 @@ def evidence_for(dossie: dict, avisos=None, kit_key: str = None) -> dict:
     return {
         "available": True,
         "source": kits[0]["source"] or "fonte não identificada no CSV",
+        # FEATURE 040: o texto cru que originou o rotulo, para a tela exibir a etiqueta
+        # quando os dois diferem (ou quando o valor nao e' laboratorio).
+        "source_original": kits[0].get("source_raw"),
+        # FEATURE 042: o motivo e a frase que explica, no cartao, por que aquele valor
+        # nao e' laboratorio. Sem isso a tela mostrava a etiqueta crua sem dizer o que ela e'.
+        "source_motivo": kits[0].get("source_motivo"),
+        "source_explicacao": fontes.explicacao(
+            kits[0].get("source_motivo"), kits[0].get("source_raw")),
         "kits": kits,
         "totals": {
             "cm": total,

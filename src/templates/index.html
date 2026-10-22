@@ -797,6 +797,47 @@
                             {% endfor %}
                         </div>
                       </details>
+                    {% endif %}{% if cobertura and cobertura.evidencias %}{# FEATURE 040 — o retrato do ARQUIVO. Fica FORA da guarda
+                       `dna_results`, de proposito: um arquivo com evidencias e zero cartoes ainda
+                       tem cobertura. `cobertura` e' `None` fora do ramo de DNA. O `{% if %}` comeca
+                       na MESMA linha do `{% endif %}` anterior de proposito: assim o ramo falso nao
+                       emite nem um espaco, e o `SHA_DA_TELA` da tela de entrada continua identico.
+                       Nenhuma regra mora aqui: os numeros vem do nucleo e o template so' interpola;
+                       as frases sao compostas com eles, como a contagem em tres faixas (033). #}
+                        <details class="card cobertura-do-arquivo mb-4" id="cobertura" open>
+                            <summary class="sumario-do-cartao">
+                                <div class="card-header cabecalho-da-cobertura"><h5 class="mb-0">Cobertura do arquivo</h5></div>
+                            </summary>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Vale para o CSV inteiro, não para uma conexão específica.
+                                    Nenhum número aqui muda um parentesco já calculado.
+                                </p>
+                                <div class="numeros-da-cobertura">
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.linhas | inteiro_br }}</div><div class="rotulo-da-cobertura">linhas no CSV</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.evidencias | inteiro_br }}</div><div class="rotulo-da-cobertura">pessoas (nome + kit)</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.kits | inteiro_br }}</div><div class="rotulo-da-cobertura">kits distintos</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.quantidade_de_laboratorios }}</div><div class="rotulo-da-cobertura">{% if cobertura.tem_coluna_de_fonte %}laboratórios em {{ cobertura.grafias }} grafias{% else %}nenhuma fonte declarada{% endif %}</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.cromossomos }}</div><div class="rotulo-da-cobertura">cromossomos cobertos</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.mediana_cm | cm_br }}</div><div class="rotulo-da-cobertura">mediana de cM por pessoa</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.percentual_abaixo_do_piso }}%</div><div class="rotulo-da-cobertura">segmentos abaixo de 10 cM</div></div>
+                                    <div class="numero-da-cobertura"><div class="valor-da-cobertura">{{ cobertura.percentual_sem_bloco }}%</div><div class="rotulo-da-cobertura">sem bloco de 15 cM</div></div>
+                                </div>
+                                <ul class="frases-da-cobertura">
+                                    <li><strong>{{ cobertura.segmentos_abaixo_do_piso }} de {{ cobertura.segmentos }}</strong> segmentos estão abaixo do piso de 10 cM e são descartados pelo filtro de endogamia.</li>
+                                    <li><strong>{{ cobertura.total_acima_com_bloco_abaixo }} de {{ cobertura.total_acima }}</strong> pessoas passam de 15 cM somados, mas nenhum bloco chega a 15 cM — o total vem de vários blocos pequenos.</li>
+                                    <li><strong>{{ cobertura.evidencias_snps_baixo }}</strong> pessoas têm menos de 900 SNPs somados: a chamada do segmento é mais frágil que o cM sugere.</li>
+                                    <li>O arquivo <strong>não declara o corte</strong> usado na busca que o gerou: ausência de um nome aqui não é ausência de parentesco — é ausência <em>neste arquivo</em>.</li>
+                                    <li>{% if cobertura.sem_laboratorio_total %}<strong>{{ cobertura.sem_laboratorio_total }}</strong> células de fonte não trazem laboratório ({% for texto, quantidade in cobertura.sem_laboratorio %}{{ texto }}: {{ quantidade }}{% if not loop.last %}; {% endif %}{% endfor %}).{% else %}Todas as células de fonte trazem um laboratório reconhecido.{% endif %}</li>
+                                </ul>
+                                {% if cobertura.laboratorios %}
+                                    <p class="text-muted small mb-1 mt-3">Evidências por laboratório</p>
+                                    <p class="rotulos-dos-laboratorios">
+                                        {% for rotulo, quantidade in cobertura.laboratorios %}<span class="etiqueta-da-fonte">{{ rotulo }} {{ quantidade | inteiro_br }}</span>{% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </details>
                     {% endif %}
                     {% if dna_results %}
                         {# O TITULO E' O ALVO DO LINK "Voltar" DE CADA CARTAO. Ele era a tabela do
@@ -1387,7 +1428,7 @@
                                     {% if result.genetic_evidence %}
                                     <div class="secao">
                                         <h5><span class="numero">2.</span> Evidência genética</h5>
-                                        <p class="rotulo-fonte mb-2">Fonte: {{ result.genetic_evidence.source or 'não identificada no CSV' }}</p>
+                                        <p class="rotulo-fonte mb-2">Fonte: {{ result.genetic_evidence.source or 'não identificada no CSV' }}{% if result.genetic_evidence.source_original and result.genetic_evidence.source_original != result.genetic_evidence.source and result.genetic_evidence.source_original not in ['-', ''] %} <span class="etiqueta-da-fonte">{{ result.genetic_evidence.source_original }}</span>{% endif %}{% if result.genetic_evidence.source_explicacao %} — {{ result.genetic_evidence.source_explicacao }}{% endif %}</p>
                                         {% if result.genetic_evidence.available %}
                                             {% for kit in result.genetic_evidence.kits %}
                                                 {# A tabela de 9 linhas virou GRADE. Os rotulos sao os MESMOS, e o
@@ -1407,6 +1448,19 @@
                                                     <div><dt>Cromossomo(s)</dt><dd>{{ kit.chromosomes | join(', ') if kit.chromosomes else 'não informado no CSV' }}</dd></div>
                                                     <div><dt>Método do valor</dt><dd>{{ kit.method }} ({{ kit.records_used }} registro(s) do CSV)</dd></div>
                                                 </dl>
+                                                {# FEATURE 040 — qualidade da MEDIDA. Nao e' selo de parentesco: o
+                                                   texto carrega a ressalva e o estado nao recolore nada. Sem cor de
+                                                   fundo de proposito: 75% das evidencias do arquivo real sao
+                                                   `insuficiente`, e pintar tres faixas transformaria a excecao em
+                                                   regra visual (D-11 do roadmap). #}
+                                                {% if kit.medida %}
+                                                    <p class="medida-da-evidencia">
+                                                        <strong>{{ kit.medida.rotulo }}</strong> — total {{ kit.medida.numeros.total_cm | cm_br }} cM,
+                                                        maior bloco {% if kit.medida.numeros.maior_bloco_cm is not none %}{{ kit.medida.numeros.maior_bloco_cm | cm_br }} cM{% else %}não informado{% endif %}
+                                                        e {% if kit.medida.numeros.snps is not none %}{{ kit.medida.numeros.snps | inteiro_br }} SNPs{% else %}SNPs não informados{% endif %}.{% if kit.medida.motivos_texto %} Motivo: {% for motivo in kit.medida.motivos_texto %}{{ motivo }}{% if not loop.last %}; {% else %}.{% endif %}{% endfor %}{% endif %}
+                                                        {{ kit.medida.ressalva }}
+                                                    </p>
+                                                {% endif %}
                                                 <details class="mb-3">
                                                     <summary>Posições</summary>
                                                     <div class="mt-2">

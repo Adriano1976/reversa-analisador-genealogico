@@ -1088,3 +1088,183 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   .contadores{grid-template-columns:1fr 1fr}
   .bloco{padding:.85rem}
 }
+
+/* ---------------- Cobertura do arquivo e medida da evidencia (feature 040) ----------------
+   O painel e' de ESCOPO-ARQUIVO: usa a mesma forma declarada nos adendos 017 e 022 (`details`
+   aberto, `summary` titulando, `card-body`). Nenhum numero aqui carrega cor: a informacao esta'
+   no texto e no rotulo, e a cor de estado foi recusada de proposito (D-11 do roadmap). */
+
+.numeros-da-cobertura{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:.75rem;
+  margin-bottom:1rem
+}
+
+.numero-da-cobertura{
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:.6rem .75rem
+}
+
+.valor-da-cobertura{
+  font-family:var(--serif);
+  font-size:1.7rem;
+  line-height:1.05;
+  color:var(--head)
+}
+
+.rotulo-da-cobertura{
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:.15rem
+}
+
+.frases-da-cobertura{
+  margin:0;
+  padding-left:1.1rem;
+  font-size:.9rem
+}
+
+.frases-da-cobertura li{margin-bottom:.35rem}
+
+.etiqueta-da-fonte{
+  display:inline-block;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:.05rem .45rem;
+  font-size:.75rem;
+  color:var(--muted);
+  background:var(--surface-2)
+}
+
+.rotulos-dos-laboratorios{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+  margin:0
+}
+
+.medida-da-evidencia{
+  margin:.85rem 0 0;
+  font-size:.9rem
+}
+
+.medida-da-evidencia strong{color:var(--head)}
+
+/* ---------------------------------------------------------------------------
+   Bloco 3 — a tabela das possibilidades (2026-10-22)
+   A lista de nomes virou tabela para mostrar duas colunas que ela escondia:
+   onde o valor cai dentro da faixa publicada e onde procurar o antepassado
+   comum. Nenhuma das duas e probabilidade.
+   --------------------------------------------------------------------------- */
+.tabela-das-hipoteses{
+  overflow-x:auto;
+  margin-bottom:.35rem
+}
+
+.tabela-das-hipoteses table{
+  min-width:640px;
+  font-size:.9rem
+}
+
+.tabela-das-hipoteses thead th{
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--muted);
+  font-weight:600;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap
+}
+
+.tabela-das-hipoteses tbody td{
+  border-bottom:1px solid var(--line);
+  vertical-align:middle
+}
+
+.tabela-das-hipoteses tbody tr:last-child td{border-bottom:none}
+
+.faixa-da-hipotese{white-space:nowrap}
+
+.faixa-da-hipotese small{display:block}
+
+.posicao-da-hipotese{white-space:nowrap}
+
+/* A barra e a faixa publicada; a marca e o valor observado dentro dela. */
+.barra-da-faixa{
+  position:relative;
+  display:inline-block;
+  width:64px;
+  height:6px;
+  border-radius:999px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  vertical-align:middle;
+  margin-right:.4rem
+}
+
+.marca-da-faixa{
+  position:absolute;
+  top:-2px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--head);
+  transform:translateX(-50%)
+}
+
+.rotulo-da-posicao{
+  font-size:.8rem;
+  color:var(--muted)
+}
+
+.mrca-da-hipotese small{display:block;font-size:.78rem}
+
+.sentido-da-ordem{
+  margin:0 0 .35rem;
+  font-size:.8rem;
+  color:var(--muted)
+}
+
+/* ---------------------------------------------------------------------------
+   O DESTAQUE da hipotese (2026-10-22, feature 044)
+   A tela aponta a relacao mais proxima da media publicada — com o criterio, com a
+   contagem do conjunto e com a negativa. A caixa e' enfase, nao veredito: a lista
+   completa fica logo abaixo, e a linha destacada continua sendo uma linha da lista.
+   --------------------------------------------------------------------------- */
+.destaque-da-hipotese{
+  border-left:3px solid var(--primary);
+  background:var(--surface-2);
+  border-radius:0 10px 10px 0;
+  padding:.55rem .75rem;
+  margin:0 0 .6rem
+}
+
+.destaque-rotulo{
+  margin:0 0 .3rem;
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:var(--primary)
+}
+
+.destaque-itens{
+  margin:0;
+  padding-left:1.1rem;
+  font-size:.9rem
+}
+
+.destaque-itens li{margin-bottom:.2rem}
+.destaque-itens strong{color:var(--head)}
+
+.destaque-ressalva{
+  margin:.35rem 0 0;
+  font-size:.78rem;
+  color:var(--muted)
+}
+
+.linha-destacada{background:var(--surface-2)}
+.linha-destacada td:first-child{font-weight:600;color:var(--head)}

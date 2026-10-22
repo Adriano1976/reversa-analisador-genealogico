@@ -1,0 +1,81 @@
+# Verificação depois da feature — análise real
+
+> Feature: `040-fonte-e-cobertura-do-arquivo`
+> Data: `2026-10-22`
+> Entrada: `Adriano_Santos_v3_tratado.ged` (19.403 pessoas) + `Famílias_Sergipanas.csv` (617 linhas)
+> Raiz: `Adriano Santos`
+
+## 1. Resultado da análise
+
+| Medida | Valor |
+|---|---:|
+| Cartões | **68** |
+| Descartes | **448** |
+| Carga da árvore | 85,7 s |
+| Análise | 12,7 s |
+| HTML servido | 2.482.461 caracteres |
+
+Os 68 cartões e 448 descartes são **os mesmos** da feature 039 (68 = 8 aceitos + 60 sem
+correspondência): a 040 não mexe em aceitação, ordem nem contagem.
+
+## 2. Cobertura do arquivo (o painel)
+
+```
+linhas ................ 617
+evidências ............ 456
+kits .................. 456
+laboratórios .......... 11 (de 45 grafias)
+cromossomos ........... 22
+mediana de cM ......... 9,05
+segmentos ............. 617
+abaixo do piso 10 cM .. 456 (74%)
+sem bloco de 15 cM .... 402 (88%)
+SNPs < 900 ............ 232
+total ≥ 15 com bloco < 15 ... 58 de 112
+sem laboratório ....... 59
+   texto de formulário ..... 40
+   empresa não confirmada .. 11
+   nome de projeto ......... 7
+   haplogrupo .............. 1
+```
+
+Contagem por laboratório (a lista do painel):
+
+```
+Genera 184 · MyHeritage 117 · não declarada 59 · meuDNA 49 · FTDNA 22 ·
+23andMe 15 · Ancestry 5 · DNA Land 1 · FamilyTreeDNA 1 · Genos 1 ·
+Living DNA 1 · MundoDNA 1
+```
+
+## 3. Estado da medida nos 68 cartões
+
+| Estado | Cartões |
+|---|---:|
+| `Medida robusta` | 35 |
+| `Medida parcial` | 28 |
+| `Medida insuficiente` | 5 |
+
+Nas **456 evidências** do arquivo (não só nos cartões), a distribuição medida é 50 / 62 / 344 —
+a mesma da investigação.
+
+## 4. Fonte nos cartões
+
+| Fonte exibida | Cartões |
+|---|---:|
+| laboratório reconhecido | 60 |
+| `não declarada` (com etiqueta do texto original) | 8 |
+
+As oito células não declaradas dos cartões trazem uma das formas medidas (`Selecione uma
+empresa ou fonte`, `Outro (insira o nome abaixo)`, `Minha herança`, …), sempre **dentro** da
+etiqueta — nunca como rótulo.
+
+## 5. Duas correções de número em relação ao previsto no plano
+
+O catálogo definitivo mudou dois números em uma unidade, para melhor, e os documentos foram
+corrigidos:
+
+- **`GEN` sozinho** é reconhecido como `Genera` (antes caía em `outro`): Genera 183 → **184**.
+- **"Minha herança" tem três grafias** (`Minha herança`, `Minha Herança`, `Minha heran`), não
+  duas: empresa não confirmada 10 → **11** e MyHeritage 118 → **117**.
+- A mediana é exibida como **9,05** (o formatador de cM mantém as duas casas do valor); o plano
+  dizia `9,0`.
