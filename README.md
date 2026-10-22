@@ -810,8 +810,9 @@ com mensagem na tela, e nunca com erro do servidor.
   evidência e lista as reconvergências. Avisa, não corrige, e não escolhe pessoa no lugar do operador.
 - **Veredito de viabilidade no cartão:** cada comparação recebe VALIDADO, INCONCLUSIVO ou ERRO CRÔNICO, com
   os motivos declarados. VALIDADO significa ausência de contradição, não prova de parentesco.
-- **Árvore sugerida:** quando a validação aponta contradição, o núcleo propõe a correção do trecho, com as
-  gerações virtuais e os nós desacoplados, e a tela desenha a sugestão em Graphviz (SVG).
+- **Árvore sugerida:** quando há um salto documentado biologicamente impossível que localize a quebra, o
+  núcleo propõe a correção do trecho, com as gerações virtuais, e a tela desenha a hipótese em Mermaid. Sem
+  salto que localize a quebra — ou com identidade do match a confirmar —, o cartão diz por que não há sugestão.
 - **Descartes com motivo e lista de trabalho:** os matches que não entram na conexão aparecem agrupados, com
   o motivo em texto humano, e a lista pode ser exportada em CSV por `POST /descartes.csv`.
 - **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.

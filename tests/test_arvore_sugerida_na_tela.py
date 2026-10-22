@@ -85,3 +85,18 @@ def test_cartao_validado_nao_mostra_nem_bloco_nem_frase():
 
     assert "arvore-sugerida" not in cartao
     assert "sem-sugestao" not in cartao
+
+
+def test_inconclusivo_com_sugestao_barrada_mostra_a_frase_e_nao_o_bloco():
+    """O portão de 2026-10-21: sem evidência de onde quebrou, o cartão explica.
+
+    O silêncio faria o operador ler "não implementado" — o problema que a feature
+    032 nasceu para resolver.
+    """
+    cartao = _cartao(fixo.resultado_inconclusivo(sugestao_aviso=(
+        "Não é possível localizar a quebra: o veredito é INCONCLUSIVO; "
+        "a identidade do match está a confirmar.")))
+
+    assert "sem-sugestao" in cartao
+    assert "Não é possível localizar a quebra" in cartao
+    assert "arvore-sugerida" not in cartao

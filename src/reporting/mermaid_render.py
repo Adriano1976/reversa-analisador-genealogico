@@ -387,11 +387,25 @@ def mermaid_da_sugestao(documental, resumo):
     familia: a familia e' a aresta, e desenha-la dobraria o numero de nos sem dizer
     nada sobre a linha. A compressao e' a mesma da imagem da feature 030.
 
+    ## Por que `flowchart BT`, e nao `graph TD` (corrigido em 2026-10-21)
+
+    O diagrama DOCUMENTADO logo acima usa `flowchart BT` com as arestas do filho para o
+    pai: o ancestral fica em cima e o doador embaixo. A sugestao usava `graph TD` com as
+    MESMAS arestas, e o resultado era um desenho com duas convencoes ao mesmo tempo — a
+    metade do doador virava de cabeca para baixo e o operador lia a cadeia no sentido
+    errado. Agora as duas usam BT, e TODA seta aponta do descendente para o ascendente.
+
+    ## O match e' vermelho, como no diagrama documentado
+
+    O ultimo no do caminho e' a pessoa alcancada (o match). Ele recebe a mesma cor que
+    `generate_mermaid_graph` usa para `p2`, para que os dois desenhos — o que o GEDCOM
+    afirma e o que a hipotese proporia — possam ser comparados sem legenda nova.
+
     ## Por que `classDef`, se o resto do modulo usa `style`
 
-    Aqui ha exatamente TRES classes repetidas em muitos nos; `classDef` diz isso em tres
-    linhas. No diagrama do caminho documentado cada no tem cor propria, e `style` por no
-    e' mais direto. Os dois sao Mermaid valido, e cada um serve ao seu caso.
+    Aqui ha exatamente QUATRO classes repetidas em muitos nos; `classDef` diz isso em
+    quatro linhas. No diagrama do caminho documentado cada no tem cor propria, e `style`
+    por no e' mais direto. Os dois sao Mermaid valido, e cada um serve ao seu caso.
 
     ## A aresta rompida e' a ULTIMA, e isso nao e' estilo
 
@@ -419,19 +433,26 @@ def mermaid_da_sugestao(documental, resumo):
     sid, lab = _mermaid_sid, _mermaid_label
     indice = caminho.index(ancestro)
     filho = caminho[indice - 1] if indice > 0 else None
+    match = caminho[-1]
 
     def nome(posicao):
         return nomes[posicao] if posicao < len(nomes) else caminho[posicao]
 
     linhas = [
-        "graph TD",
+        "flowchart BT",
         "  classDef base fill:#a8e6cf,stroke:#4a7c68,stroke-width:2px",
         "  classDef doc fill:#f5f5f5,stroke:#666666",
+        "  classDef match fill:#ffebee,stroke:#ef5350,stroke-width:2px",
         "  classDef virt fill:#ffd3b6,stroke:#a8724a,stroke-dasharray:4 3",
     ]
 
     for posicao, pessoa_id in enumerate(caminho):
-        classe = "base" if posicao == 0 else "doc"
+        if posicao == 0:
+            classe = "base"
+        elif pessoa_id == match:
+            classe = "match"
+        else:
+            classe = "doc"
         linhas.append(f'  {sid(pessoa_id)}["{lab(nome(posicao))}"]:::{classe}')
 
     virtuais = []
@@ -445,15 +466,24 @@ def mermaid_da_sugestao(documental, resumo):
     for posicao in range(len(caminho) - 1):
         if filho and posicao == indice - 1:
             continue  # a aresta rompida e' desenhada no fim, marcada
-        arestas.append(f"  {sid(caminho[posicao])} --> {sid(caminho[posicao + 1])}")
+        # Antes do ancestral o caminho SOBE (filho -> pai). Depois dele o caminho
+        # DESCE (pai -> filho), e a aresta tem de ser invertida para que TODA seta
+        # continue apontando para o ascendente — sem isso, o ramo do match e' desenhado
+        # ao contrario dentro do mesmo grafico.
+        if posicao < indice:
+            arestas.append(f"  {sid(caminho[posicao])} --> {sid(caminho[posicao + 1])}")
+        else:
+            arestas.append(f"  {sid(caminho[posicao + 1])} --> {sid(caminho[posicao])}")
 
+    # Em BT a seta sobe. A cadeia e' emitida do descendente para o ancestral, como as
+    # arestas do caminho: `V1 --> Joaquim` le "Geração 1 e' filha de Joaquim".
     anterior = sid(ancestro)
     for identificador in virtuais:
-        arestas.append(f"  {anterior} --> {identificador}")
+        arestas.append(f"  {identificador} --> {anterior}")
         anterior = identificador
     if filho:
-        arestas.append(f"  {anterior} --> {sid(filho)}")
-        arestas.append(f'  {sid(ancestro)} -.->|{lab(ROTULO_QUEBRA)}| {sid(filho)}')
+        arestas.append(f"  {sid(filho)} --> {anterior}")
+        arestas.append(f'  {sid(filho)} -.->|{lab(ROTULO_QUEBRA)}| {sid(ancestro)}')
 
     linhas.extend(arestas)
     if filho:

@@ -16,6 +16,7 @@ from core.cirurgia_do_grafo import (  # noqa: E402
     AFINIDADE_NAO_INJETAVEL,
     DOIS_LADOS_ACUSADOS,
     HIATO_NAO_POSITIVO,
+    JUNCAO_NAO_EVIDENCIADA,
     LADO_DOADOR,
     LADO_MATCH,
     NATUREZA,
@@ -205,6 +206,20 @@ def test_sem_caminho_documental(tmp_path):
 
     assert sugestao["grafo"] is None
     assert _codigos(sugestao) == [SEM_CAMINHO_DOCUMENTAL]
+
+
+def test_sem_salto_impossivel_nao_gera_sugestao(tmp_path):
+    """Sem junção evidenciada, a cirurgia não escolhe um lado por padrão (2026-10-21)."""
+    arvore = _arvore(tmp_path)
+    documental = _documental(arvore)
+    documental["evidence"] = [
+        {**salto, "plausible": None} for salto in documental["evidence"]]
+
+    sugestao = arvore_sugerida(arvore, documental, _resultado())
+
+    assert sugestao["grafo"] is None
+    assert _codigos(sugestao) == [JUNCAO_NAO_EVIDENCIADA]
+    assert sugestao["geracoes_virtuais"] == []
 
 
 # ---------------------------------------------------------------------------

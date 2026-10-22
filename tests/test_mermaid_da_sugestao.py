@@ -36,21 +36,22 @@ def _arestas(texto: str) -> list:
 # Estrutura e cores
 # ---------------------------------------------------------------------------
 
-def test_o_desenho_abre_como_grafo_e_traz_as_tres_classes():
+def test_o_desenho_abre_como_grafo_e_traz_as_quatro_classes():
     texto = mermaid_da_sugestao(DOCUMENTAL, _resumo())
 
-    assert texto.startswith("graph TD")
+    assert texto.startswith("flowchart BT")
     assert "classDef base fill:#a8e6cf,stroke:#4a7c68" in texto
     assert "classDef doc fill:#f5f5f5,stroke:#666666" in texto
+    assert "classDef match fill:#ffebee,stroke:#ef5350" in texto
     assert "classDef virt fill:#ffd3b6,stroke:#a8724a" in texto
 
 
-def test_o_doador_e_base_e_os_demais_sao_documentais():
+def test_o_doador_e_base_o_match_e_vermelho_e_o_resto_e_documental():
     texto = mermaid_da_sugestao(DOCUMENTAL, _resumo())
 
     assert 'N_I1["Doador"]:::base' in texto
     assert 'N_I2["Pai"]:::doc' in texto
-    assert 'N_I4["Primo"]:::doc' in texto
+    assert 'N_I4["Primo"]:::match' in texto
 
 
 def test_as_geracoes_virtuais_se_chamam_geracao_k():
@@ -65,18 +66,20 @@ def test_as_geracoes_virtuais_se_chamam_geracao_k():
 # Cadeia e quebra
 # ---------------------------------------------------------------------------
 
-def test_a_cadeia_liga_o_ancestral_ao_filho_passando_pelas_geracoes():
+def test_a_cadeia_liga_o_filho_ao_ancestral_passando_pelas_geracoes():
     texto = mermaid_da_sugestao(DOCUMENTAL, _resumo(2))
 
-    assert "N_I10 --> V1" in texto
-    assert "V1 --> V2" in texto
-    assert "V2 --> N_I2" in texto
+    # Em BT a seta sobe: a cadeia é emitida do descendente para o ascendente, como as
+    # demais arestas do desenho.
+    assert "V1 --> N_I10" in texto
+    assert "V2 --> V1" in texto
+    assert "N_I2 --> V2" in texto
 
 
 def test_a_aresta_rompida_e_tracejada_e_rotulada():
     texto = mermaid_da_sugestao(DOCUMENTAL, _resumo())
 
-    assert f"N_I10 -.->|{ROTULO_QUEBRA}| N_I2" in texto
+    assert f"N_I2 -.->|{ROTULO_QUEBRA}| N_I10" in texto
 
 
 def test_a_aresta_rompida_e_a_ultima_e_o_linkstyle_aponta_para_ela():
@@ -84,15 +87,17 @@ def test_a_aresta_rompida_e_a_ultima_e_o_linkstyle_aponta_para_ela():
     arestas = _arestas(texto)
 
     assert "-.->" in arestas[-1], "a aresta rompida tem de ser a última"
-    assert arestas[-1].strip().startswith("N_I10 -.->")
+    assert arestas[-1].strip().startswith("N_I2 -.->")
     assert f"linkStyle {len(arestas) - 1} stroke:red" in texto
 
 
 def test_o_trecho_vertical_do_caminho_continua_desenhado():
     texto = mermaid_da_sugestao(DOCUMENTAL, _resumo())
 
+    # Lado do doador sobe (filho -> pai); lado do match desce no caminho, então a
+    # aresta é invertida para continuar apontando para o ascendente.
     assert "N_I1 --> N_I2" in texto
-    assert "N_I10 --> N_I4" in texto
+    assert "N_I4 --> N_I10" in texto
 
 
 # ---------------------------------------------------------------------------

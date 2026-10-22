@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from application.correcao import sugerir_correcao  # noqa: E402
 from core.cirurgia_do_grafo import (  # noqa: E402
+    JUNCAO_NAO_EVIDENCIADA,
     NATUREZA,
     SEM_CAMINHO_DOCUMENTAL,
     SUGESTAO_INDISPONIVEL,
@@ -69,16 +70,24 @@ def test_linha_valida_nao_gera_sugestao(tmp_path):
     assert resultado["resumo"]["com_sugestao"] == 0
 
 
-def test_multiplos_kits_so_o_quebrado_recebe_sugestao(tmp_path):
+def test_multiplos_kits_nao_emprestam_veredito_um_do_outro(tmp_path):
+    """Os dois kits do mesmo nome são avaliados separadamente.
+
+    A árvore não tem salto impossível: o kit de 800 cM é VALIDADO e o de 25 cM é
+    ERRO_CRONICO por incompatibilidade de cM. Sem salto que localize a quebra, nenhum
+    dos dois recebe árvore (portão de 2026-10-21) — e o veredito de um não contamina
+    o outro.
+    """
     ged = _arquivo(tmp_path, "valido.ged", GED_LINHA_VALIDA)
     csv = _arquivo(tmp_path, "dois_kits.csv", CSV_DOIS_KITS)
 
     resultado = sugerir_correcao(ged, csv, "Doador Sintetico", ano_referencia=2026)
 
     assert resultado["resumo"]["comparacoes"] == 2
-    com_sugestao = [item for item in resultado["sugestoes"] if item["grafo"] is not None]
-    assert len(com_sugestao) == 1
-    assert resultado["resumo"]["com_sugestao"] == 1
+    codigos = [_codigos(item) for item in resultado["sugestoes"]]
+    assert [SUGESTAO_INDISPONIVEL] in codigos
+    assert [JUNCAO_NAO_EVIDENCIADA] in codigos
+    assert resultado["resumo"]["com_sugestao"] == 0
 
 
 def test_kit_sem_match_nao_gera_sugestao(tmp_path):

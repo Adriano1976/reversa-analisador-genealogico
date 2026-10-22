@@ -65,6 +65,8 @@ from .documentary_relationship import (
     birth_date,
     parse_year,
 )
+from .identidade_do_match import A_CONFIRMAR
+from .janela_de_vida import IMPOSSIVEL
 from .registro import get_name, ref_id
 from .validator import ERRO_CRONICO
 
@@ -94,6 +96,15 @@ DOIS_LADOS_ACUSADOS = "DOIS_LADOS_ACUSADOS"
 SUGESTAO_INSUFICIENTE = "SUGESTAO_INSUFICIENTE"
 RAMO_BASE_VIOLADO = "RAMO_BASE_VIOLADO"
 
+#: Portões da sugestão na TELA (decisão de 2026-10-21). O código diz qual foi o
+#: primeiro motivo que impediu a árvore; a mensagem lista todos os que se aplicam.
+#: Sem eles, todo cartão em que o cM estima mais gerações do que a árvore documenta
+#: ganhava uma "árvore sugerida" mesmo sem saber ONDE a linha quebrou.
+SUGESTAO_SEM_CONFLITO = "SUGESTAO_SEM_CONFLITO"
+IDENTIDADE_A_CONFIRMAR = "IDENTIDADE_A_CONFIRMAR"
+JANELA_INCOMPATIVEL = "JANELA_INCOMPATIVEL"
+JUNCAO_NAO_EVIDENCIADA = "JUNCAO_NAO_EVIDENCIADA"
+
 #: Ordem de saída dos avisos, a mesma da tabela de códigos do requirements (§4.4).
 _ORDEM_DOS_AVISOS = {
     SUGESTAO_INDISPONIVEL: 0,
@@ -104,7 +115,11 @@ _ORDEM_DOS_AVISOS = {
     JUNCAO_NAO_LOCALIZADA: 5,
     DOIS_LADOS_ACUSADOS: 6,
     SUGESTAO_INSUFICIENTE: 7,
-    RAMO_BASE_VIOLADO: 8,
+    SUGESTAO_SEM_CONFLITO: 8,
+    IDENTIDADE_A_CONFIRMAR: 9,
+    JANELA_INCOMPATIVEL: 10,
+    JUNCAO_NAO_EVIDENCIADA: 11,
+    RAMO_BASE_VIOLADO: 12,
 }
 
 
@@ -277,6 +292,17 @@ def juncao(arvore, documental, indice_familias=None) -> tuple:
     Uma junção por lado acusado. Cada uma é o par ``família × ancestral`` que a
     cirurgia vai cortar, mais o filho daquele lado — que continua no lugar e passa a
     pendurar na cadeia virtual.
+
+    ## Sem salto implausível não há junção (decisão de 2026-10-21)
+
+    Quando NENHUM salto do caminho é biologicamente impossível, não há evidência de
+    onde as gerações faltam — e cortar o lado do doador por padrão era um palpite com
+    cara de diagnóstico. Antes, ``_lados_acusados`` vazio caía em ``[LADO_DOADOR]``;
+    agora a função devolve ``JUNCAO_NAO_EVIDENCIADA`` e a cirurgia não emite árvore.
+
+    A busca pela família continua acontecendo antes do portão de propósito: um caminho
+    que nem tem família ligando o salto é outro defeito (``JUNCAO_NAO_LOCALIZADA``), e
+    o código não pode escondê-lo atrás do portão novo.
     """
     documental = documental or {}
     caminho = (documental.get("path") or {}).get("ids") or []
@@ -288,7 +314,9 @@ def juncao(arvore, documental, indice_familias=None) -> tuple:
 
     indice_ancestral = caminho.index(ancestral_id)
     indice = indice_familias or _indice_de_familias(arvore)
-    lados = _lados_acusados(documental, indice_ancestral) or [LADO_DOADOR]
+    lados = _lados_acusados(documental, indice_ancestral)
+    sem_evidencia = not lados
+    lados = lados or [LADO_DOADOR]
 
     juncoes: list = []
     for lado in lados:
@@ -312,6 +340,12 @@ def juncao(arvore, documental, indice_familias=None) -> tuple:
     if not juncoes:
         return [], [_aviso(JUNCAO_NAO_LOCALIZADA,
                            "O ancestral é uma das pontas do caminho; não há junção a cortar.")]
+
+    if sem_evidencia:
+        return [], [_aviso(
+            JUNCAO_NAO_EVIDENCIADA,
+            "Nenhum salto do caminho é biologicamente impossível; não há evidência de "
+            "onde faltam gerações.")]
 
     # Dois lados acusados podem compartilhar a MESMA família de junção (dois filhos do
     # mesmo ancestral). Cortar a mesma aresta duas vezes falharia na segunda, então a
@@ -442,7 +476,77 @@ def injetar_geracoes(grafo, juncao_dados, k, doador_id=None, nasc_ancestral=None
 # Resumo para a tela
 # ---------------------------------------------------------------------------
 
-def resumo_da_sugestao(resultado, documental) -> dict:
+def _anos_da_juncao(documental, a_up, hiato):
+    """Anos do salto documentado da junção e do salto que a cadeia proporia.
+
+    O salto documentado é o que liga o ancestral ao primeiro descendente do lado do
+    doador — o mesmo que a cirurgia corta. Devolve ``None`` quando falta data em uma
+    das pontas, quando o filho é mais velho que o pai ou quando o caminho não tem
+    esse salto. A leitura é do dicionário ``documental``; nenhuma árvore é tocada.
+    """
+    evidencia = documental.get("evidence") or []
+    if a_up <= 0 or a_up > len(evidencia):
+        return None
+    salto = evidencia[a_up - 1] or {}
+    pai = parse_year(salto.get("parent_birth"))
+    filho = parse_year(salto.get("child_birth"))
+    if pai is None or filho is None or filho <= pai:
+        return None
+    return filho - pai, (filho - pai) / (hiato + 1)
+
+
+def _bloqueios_da_sugestao(resultado, documental, a_up, hiato, *, identidade, janela):
+    """Motivos para NÃO emitir a árvore, e o código do primeiro deles.
+
+    A ordem é a da gravidade para o operador: veredito, identidade, janela, junção
+    sem salto impossível e, por último, a cadeia que criaria uma idade impossível.
+    Todos os motivos aplicáveis entram na mensagem; só o primeiro vira ``codigo``.
+
+    ## Por que a cadeia é medida no TRECHO, e não no caminho inteiro
+
+    A guarda antiga da ``arvore_sugerida`` dividia os anos do doador pelo caminho
+    todo. No caso medido em 2026-10-21 (Joaquim, depois de 1886; Maria José, 1928),
+    isso dava ``(1976 - 1886) / 6 = 15`` anos por geração e a cadeia passava — embora
+    as quatro gerações entre o pai e a filha coubessem em 42 anos, ~10,5 cada. Aqui
+    a conta é a do trecho: ``(filho - ancestral) / (hiato + 1)``. Só bloqueia quando
+    o salto documentado era possível e a cadeia o torna impossível; se o salto já
+    era impossível, a sugestão melhora o quadro e a guarda da cirurgia a declara
+    insuficiente em vez de escondê-la.
+    """
+    status = resultado.get("status")
+    motivos: list = []
+    codigo = None
+
+    def bloquear(novo, motivo):
+        nonlocal codigo
+        codigo = codigo or novo
+        motivos.append(motivo)
+
+    if status != ERRO_CRONICO:
+        bloquear(SUGESTAO_SEM_CONFLITO, f"o veredito é {status}")
+    if identidade == A_CONFIRMAR:
+        bloquear(IDENTIDADE_A_CONFIRMAR, "a identidade do match está a confirmar")
+    if janela == IMPOSSIVEL:
+        bloquear(JANELA_INCOMPATIVEL, "a pessoa do GEDCOM não poderia ter doado DNA")
+    if not any(salto.get("plausible") is False
+               for salto in documental.get("evidence") or []):
+        bloquear(JUNCAO_NAO_EVIDENCIADA,
+                 "nenhum salto documentado é biologicamente impossível")
+
+    anos = _anos_da_juncao(documental, a_up, hiato)
+    if anos is not None:
+        documentado, proposto = anos
+        if (IDADE_MINIMA_GENITOR <= documentado <= IDADE_MAXIMA_GENITOR
+                and not (IDADE_MINIMA_GENITOR <= proposto <= IDADE_MAXIMA_GENITOR)):
+            bloquear(
+                SUGESTAO_INSUFICIENTE,
+                f"a cadeia de {hiato} geração(ões) daria {proposto:.1f} anos por geração, "
+                f"fora de {IDADE_MINIMA_GENITOR}–{IDADE_MAXIMA_GENITOR}")
+
+    return motivos, codigo
+
+
+def resumo_da_sugestao(resultado, documental, *, identidade=None, janela=None) -> dict:
     """Hiato e rótulos das gerações, **sem tocar no grafo**.
 
     ## Por que esta função existe separada de `arvore_sugerida`
@@ -458,11 +562,22 @@ def resumo_da_sugestao(resultado, documental) -> dict:
     ## O que ela devolve
 
     `geracoes` (int), `resumo` (texto do bloco, ou `None`), `rotulos` (as `Geração k`),
-    `aviso` (a frase de ausência, **só em cartão em conflito**) e `codigo`.
+    `aviso` (a frase de ausência) e `codigo`.
 
-    A restrição do aviso a cartão em conflito é decisão de produto (§9 da `032`): repetir a
-    explicação em 142 cartões, a maioria sem conflito, trocaria um silêncio ruidoso por um
-    ruído constante.
+    ## Os portões (decisão de 2026-10-21)
+
+    O número do hiato existe sempre que o cM estima mais gerações do que a árvore
+    documenta; a **árvore sugerida** não. Ela só é emitida quando há evidência de
+    onde a linha quebrou — ver `_bloqueios_da_sugestao`. Sem os portões, um cartão
+    INCONCLUSIVO exibia "3 gerações sugeridas" e mandava o operador cavar o ramo
+    errado (caso medido: Maria Cândida de Jesus, 15,1 cM, contra uma tia-avó de
+    850 cM esperados).
+
+    O `aviso` continua restrito ao cartão em conflito **quando não há o que sugerir**
+    (§9 da `032`): repetir a explicação em 142 cartões trocaria um silêncio ruidoso
+    por um ruído constante. Quando HÁ hiato mas um portão o barra, a frase aparece
+    mesmo fora do conflito: sumir em silêncio faria o operador ler "não implementado",
+    que é o problema que a `032` nasceu para resolver.
     """
     resultado = resultado or {}
     documental = documental or {}
@@ -471,9 +586,11 @@ def resumo_da_sugestao(resultado, documental) -> dict:
     geracoes = (resultado.get("mrca_estimado") or {}).get("geracoes")
     em_conflito = resultado.get("status") == ERRO_CRONICO
 
-    def _sem_sugestao(codigo, aviso):
+    def _sem_sugestao(codigo, aviso, mostrar=None):
+        if mostrar is None:
+            mostrar = em_conflito
         return {"geracoes": 0, "resumo": None, "rotulos": [], "lado": LADO_DOADOR,
-                "codigo": codigo, "aviso": aviso if em_conflito else None}
+                "codigo": codigo, "aviso": aviso if mostrar else None}
 
     if geracoes is None:
         return _sem_sugestao(
@@ -487,6 +604,14 @@ def resumo_da_sugestao(resultado, documental) -> dict:
             HIATO_NAO_POSITIVO,
             f"O cM estima {math.floor(float(geracoes) + 0.5)} geração(ões) e a árvore já "
             f"documenta {a_up}: as duas medidas concordam, não há geração a inserir.")
+
+    motivos, codigo = _bloqueios_da_sugestao(resultado, documental, a_up, hiato,
+                                             identidade=identidade, janela=janela)
+    if motivos:
+        return _sem_sugestao(
+            codigo,
+            "Não é possível localizar a quebra: " + "; ".join(motivos) + ".",
+            mostrar=True)
 
     rotulos = [_rotulo_virtual(ordem) for ordem in range(1, hiato + 1)]
     resumo = (f"{hiato} geração sugerida" if hiato == 1
@@ -661,25 +786,33 @@ def arvore_sugerida(arvore, documental, resultado, doador_id=None) -> dict:
         nula["avisos"] = [aviso]
         return nula
 
+    nome_ancestral = get_name(arvore[0][ancestral_id]) if ancestral_id in arvore[0] else ancestral_id
+
     for dados_juncao in juncoes:
         k = por_lado.get(dados_juncao["lado"], 0)
         if k <= 0:
             continue
-        geracoes_lado = a_up if dados_juncao["lado"] == LADO_DOADOR else b_up
-        ano_descendente = nasc_doador if dados_juncao["lado"] == LADO_DOADOR else nasc_match
-        total_geracoes = geracoes_lado + k
-        if ano_descendente is None or nasc_ancestral is None or total_geracoes <= 0:
+        # A IDADE É MEDIDA NO TRECHO, não no caminho inteiro. Dividir os anos do
+        # doador pelo total de gerações diluía a cadeia: em 2026-10-21, Joaquim
+        # (depois de 1886) e Maria José (1928) com 3 gerações inseridas davam
+        # (1976 - 1886) / 6 = 15 anos por geração, dentro de 12–70, embora as
+        # quatro gerações entre o pai e a filha coubessem em 42 anos (~10,5 cada).
+        ano_filho = parse_year(birth_date(arvore[0], dados_juncao["filho_id"]))
+        total_geracoes = k + 1
+        if ano_filho is None or nasc_ancestral is None or total_geracoes <= 0:
             continue
-        idade = (ano_descendente - nasc_ancestral) / total_geracoes
+        idade = (ano_filho - nasc_ancestral) / total_geracoes
         if not (IDADE_MINIMA_GENITOR <= idade <= IDADE_MAXIMA_GENITOR):
+            nome_filho = (get_name(arvore[0][dados_juncao["filho_id"]])
+                          if dados_juncao["filho_id"] in arvore[0]
+                          else dados_juncao["filho_id"])
             avisos.append(_aviso(
                 SUGESTAO_INSUFICIENTE,
-                f"Com {total_geracoes} geração(ões) no lado do {dados_juncao['lado']}, sobram "
-                f"{idade:.1f} anos por geração, fora de "
+                f"Com {total_geracoes} geração(ões) entre {nome_ancestral} e {nome_filho}, "
+                f"sobram {idade:.1f} anos por geração, fora de "
                 f"{IDADE_MINIMA_GENITOR}–{IDADE_MAXIMA_GENITOR}: a sugestão não resolve a "
                 "contradição temporal que o validador acusou."))
 
-    nome_ancestral = get_name(arvore[0][ancestral_id]) if ancestral_id in arvore[0] else ancestral_id
     aplicado = sum(por_lado.values())
     justificativa = (
         f"A linha documental declara {a_up} geração(ões) entre o doador e "
@@ -725,6 +858,10 @@ __all__ = [
     "DOIS_LADOS_ACUSADOS",
     "SUGESTAO_INSUFICIENTE",
     "RAMO_BASE_VIOLADO",
+    "SUGESTAO_SEM_CONFLITO",
+    "IDENTIDADE_A_CONFIRMAR",
+    "JANELA_INCOMPATIVEL",
+    "JUNCAO_NAO_EVIDENCIADA",
     "ramo_base",
     "ramo_base_intacto",
     "juncao",

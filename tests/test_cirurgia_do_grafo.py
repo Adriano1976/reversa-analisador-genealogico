@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from core.cirurgia_do_grafo import (  # noqa: E402
     AFINIDADE_NAO_INJETAVEL,
+    JUNCAO_NAO_EVIDENCIADA,
     JUNCAO_NAO_LOCALIZADA,
     LADO_DOADOR,
     LADO_MATCH,
@@ -157,6 +158,20 @@ def test_juncao_dois_lados_quando_as_familias_diferem(tmp_path):
     assert avisos == []
     assert [item["lado"] for item in juncoes] == [LADO_DOADOR, LADO_MATCH]
     assert {item["familia_id"] for item in juncoes} == {"@F2@", "@F4@"}
+
+
+def test_juncao_sem_salto_impossivel_nao_e_evidenciada(tmp_path):
+    """Sem salto implausível, cortar o lado do doador seria palpite (2026-10-21)."""
+    arvore = _arvore(tmp_path)
+    documental = documentary_relationship(arvore, "@I1@", "@I4@")
+    documental["evidence"] = [
+        {**salto, "plausible": None} for salto in documental["evidence"]]
+
+    juncoes, avisos = juncao(arvore, documental)
+
+    assert juncoes == []
+    assert avisos[0]["codigo"] == JUNCAO_NAO_EVIDENCIADA
+    assert "não há evidência de onde faltam gerações" in avisos[0]["mensagem"]
 
 
 # ---------------------------------------------------------------------------

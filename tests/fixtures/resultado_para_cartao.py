@@ -65,18 +65,19 @@ def resultado(status: str = "ERRO CRONICO / QUEBRA DE LINHA", **overrides) -> di
     return base
 
 
-DIAGRAMA_DE_EXEMPLO = """graph TD
+DIAGRAMA_DE_EXEMPLO = """flowchart BT
   classDef base fill:#a8e6cf,stroke:#4a7c68,stroke-width:2px
   classDef doc fill:#f5f5f5,stroke:#666666
+  classDef match fill:#ffebee,stroke:#ef5350,stroke-width:2px
   classDef virt fill:#ffd3b6,stroke:#a8724a,stroke-dasharray:4 3
   N_I1["Doador Sintetico"]:::base
   N_I2["Pai Sintetico"]:::doc
-  N_I10["Ancestral Sintetico"]:::doc
+  N_I10["Ancestral Sintetico"]:::match
   V1["Geração 1"]:::virt
   N_I1 --> N_I2
-  N_I10 --> V1
-  V1 --> N_I2
-  N_I10 -.->|DESVIO DE CONEXÃO / QUEBRA DE LINHA| N_I2
+  V1 --> N_I10
+  N_I2 --> V1
+  N_I2 -.->|DESVIO DE CONEXÃO / QUEBRA DE LINHA| N_I10
   linkStyle 3 stroke:red,stroke-width:2px,stroke-dasharray:5 5"""
 
 

@@ -773,12 +773,19 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
                 arvore, root_id, documento_da_validacao, comparacao_da_validacao,
                 kit, geracoes_do_kit, ano_base, intervalo_de_geracao)
 
-            # A ARVORE SUGERIDA NA TELA (feature 032). O resumo e' O(1) e nao copia o
-            # grafo: `arvore_sugerida` faria uma copia de O(V+E) por cartao, e a analise
-            # real tem 142. O desenho so' e' montado quando ha' geracao a inserir e o
+            # A ÁRVORE SUGERIDA NA TELA (feature 032). O resumo é O(1) e não copia o
+            # grafo: `arvore_sugerida` faria uma cópia de O(V+E) por cartão, e a análise
+            # real tem 142. O desenho só é montado quando há geração a inserir e o
             # emissor foi injetado.
+            #
+            # A IDENTIDADE E A JANELA ENTRAM COMO PORTÃO (decisão de 2026-10-21). Um
+            # cartão cujo nome do CSV não confirma a pessoa do GEDCOM — ou cuja pessoa
+            # não poderia ter doado DNA — não recebe árvore sugerida: a correção seria
+            # construída sobre a pessoa errada. O estado já era calculado e mostrado;
+            # o que faltava era ele ter consequência.
             resumo_da_arvore = resumo_da_sugestao(resultado_da_validacao,
-                                                  documento_da_validacao)
+                                                  documento_da_validacao,
+                                                  identidade=identidade, janela=janela)
             desenho_da_arvore = None
             if resumo_da_arvore["geracoes"] > 0 and deps.gerar_mermaid_da_sugestao:
                 desenho_da_arvore = deps.gerar_mermaid_da_sugestao(
