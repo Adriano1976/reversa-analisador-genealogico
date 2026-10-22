@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Bloco 3 — a tabela das possibilidades (feature 043)</title>
+<!--
+  Mock ESTÁTICO do bloco 3 depois da feature 043.
+
+  Abre offline: a folha de estilo é a de verdade, por caminho relativo, e o
+  fragmento abaixo é o que o template renderiza. O shim no topo existe só porque
+  o Bootstrap 5 chega por CDN na tela real e aqui não há rede.
+
+  Os números são de uma análise real (Adriano_Santos_v3_tratado.ged +
+  Famílias_Sergipanas.csv), não de arquivo inventado: dois cartões, um a 154,5 cM
+  e outro a 15,1 cM.
+-->
+<link rel="stylesheet" href="../../../src/assets/app.css">
+<style>
+  /* Shim mínimo das classes do Bootstrap 5 que o fragmento usa. */
+  .table{width:100%;border-collapse:collapse}
+  .table-sm td,.table-sm th{padding:.35rem .5rem}
+  .text-muted{color:var(--muted)}
+  .badge{display:inline-block;padding:.15rem .45rem;border-radius:999px;font-size:.75rem;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
+  .mb-1{margin-bottom:.25rem}
+  .mb-2{margin-bottom:.5rem}
+  main{padding:1.5rem;max-width:1100px;margin:0 auto}
+  h5{color:var(--head);font-family:var(--serif,Georgia,serif);margin:1.5rem 0 .5rem}
+  .secao{border-top:1px solid var(--line);padding-top:.75rem}
+  .nota-de-mock{font-size:.8rem;color:var(--muted);border-left:3px solid var(--line);padding-left:.6rem;margin:1rem 0}
+</style>
+</head>
+<body>
+<main>
+  <div class="nota-de-mock">
+    Mock estático da feature <code>043</code>. O bloco 3 deixou de ser uma lista de nomes e virou
+    tabela de quatro colunas. Nenhuma coluna é probabilidade: a de posição descreve a faixa
+    publicada, e a do antepassado comum é a definição do parentesco.
+  </div>
+
+  <div class="secao">
+    <h5><span class="numero">3.</span> Possibilidades de parentesco pelo DNA</h5>
+    <p class="mb-2">Com base na quantidade de DNA compartilhada, existem diferentes possibilidades de relacionamento.</p>
+
+    <p class="mb-1">
+      <strong>Kit AZ4078391</strong> — 154,5 cM
+      <span class="badge">confiança: muito baixa</span>
+    </p>
+    <div class="tabela-das-hipoteses">
+      <table class="table table-sm align-middle mb-1">
+        <thead>
+          <tr>
+            <th scope="col">Relação</th>
+            <th scope="col">Faixa na fonte</th>
+            <th scope="col">Onde o valor cai</th>
+            <th scope="col">Antepassado comum mais recente</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Primos de 2º grau (1× removido)</td>
+            <td class="faixa-da-hipotese">14–353 cM <small class="text-muted">média 122 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 41%"></span></span>
+              <span class="rotulo-da-posicao">no centro</span>
+            </td>
+            <td class="mrca-da-hipotese">bisavós e trisavós <small class="text-muted">3 e 4 gerações acima</small></td>
+          </tr>
+          <tr>
+            <td>Meio-primos de 2º grau</td>
+            <td class="faixa-da-hipotese">10–325 cM <small class="text-muted">média 120 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 46%"></span></span>
+              <span class="rotulo-da-posicao">no centro</span>
+            </td>
+            <td class="mrca-da-hipotese">bisavós (um de dois) <small class="text-muted">3 gerações acima, nos dois lados; só um dos bisavós é compartilhado</small></td>
+          </tr>
+          <tr>
+            <td>Primos de 1º grau (3× removidos)</td>
+            <td class="faixa-da-hipotese">25–238 cM <small class="text-muted">média 117 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 61%"></span></span>
+              <span class="rotulo-da-posicao">acima do centro</span>
+            </td>
+            <td class="mrca-da-hipotese">avós e tetravós <small class="text-muted">2 e 5 gerações acima</small></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sentido-da-ordem">
+      Ordenado da relação mais próxima da média da faixa para a mais distante.
+      O antepassado comum <b>não</b> vem da fonte: é a definição do parentesco — primo de
+      2º grau tem os bisavós por definição, e não por estatística.
+    </p>
+    <p class="text-muted" style="font-size:.85rem">… e as outras 6 relações compatíveis com 154,5 cM: 9 no total.</p>
+  </div>
+
+  <div class="secao">
+    <h5>O mesmo bloco no caso fundo — 15,1 cM</h5>
+    <p class="mb-1">
+      <strong>Kit BN8387325</strong> — 15,1 cM
+      <span class="badge">confiança: muito baixa</span>
+    </p>
+    <div class="tabela-das-hipoteses">
+      <table class="table table-sm align-middle mb-1">
+        <thead>
+          <tr>
+            <th scope="col">Relação</th>
+            <th scope="col">Faixa na fonte</th>
+            <th scope="col">Onde o valor cai</th>
+            <th scope="col">Antepassado comum mais recente</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Primos de 7º grau</td>
+            <td class="faixa-da-hipotese">0–57 cM <small class="text-muted">média 14 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 26%"></span></span>
+              <span class="rotulo-da-posicao">abaixo do centro</span>
+            </td>
+            <td class="mrca-da-hipotese">heptavós <small class="text-muted">8 gerações acima, nos dois lados</small></td>
+          </tr>
+          <tr>
+            <td>Primos de 6º grau</td>
+            <td class="faixa-da-hipotese">0–71 cM <small class="text-muted">média 18 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 21%"></span></span>
+              <span class="rotulo-da-posicao">abaixo do centro</span>
+            </td>
+            <td class="mrca-da-hipotese">hexavós <small class="text-muted">7 gerações acima, nos dois lados</small></td>
+          </tr>
+          <tr>
+            <td>Primos de 8º grau</td>
+            <td class="faixa-da-hipotese">0–42 cM <small class="text-muted">média 11 cM</small></td>
+            <td class="posicao-da-hipotese">
+              <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: 36%"></span></span>
+              <span class="rotulo-da-posicao">abaixo do centro</span>
+            </td>
+            <td class="mrca-da-hipotese">octavós <small class="text-muted">9 gerações acima, nos dois lados</small></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sentido-da-ordem">
+      Ordenado da relação mais próxima da média da faixa para a mais distante. Aqui são 13 relações
+      compatíveis — a razão pela qual um percentual por linha seria precisão que o dado não tem.
+    </p>
+  </div>
+</main>
+</body>
+</html>

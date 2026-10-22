@@ -1504,13 +1504,70 @@
                                                     {% if bloco.confidence %}<span class="badge bg-light text-dark">confiança: {{ bloco.confidence }}</span>{% endif %}
                                                 </p>
                                                 {% if bloco.possible_relationships %}
-                                                    <ul>
-                                                        {% for possibilidade in bloco.possible_relationships %}
-                                                            <li>{{ possibilidade.name_pt }}
-                                                                <small class="text-muted">({{ possibilidade.range_low }}–{{ possibilidade.range_high }} cM na fonte; média {{ possibilidade.average }} cM)</small>
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
+                                                    {# O DESTAQUE — a unica leitura de "qual delas" no bloco. Vem com o
+                                                       criterio (distancia da media publicada), com a contagem do conjunto
+                                                       e com a negativa dentro do texto; a lista completa continua abaixo.
+                                                       Banda e teto vivem em `core.relationship_hypotheses`. #}
+                                                    {% if bloco.destaque %}
+                                                        <div class="destaque-da-hipotese">
+                                                            <p class="destaque-rotulo">{{ bloco.destaque.rotulo }}</p>
+                                                            <ul class="destaque-itens">
+                                                                {% for item in bloco.destaque.itens %}
+                                                                    <li>
+                                                                        <strong>{{ item.nome }}</strong> — {{ item.distancia | cm_br }} cM da média publicada
+                                                                        ({{ item.media }} cM)
+                                                                        {% if item.onde %} · onde procurar: <strong>{{ item.onde }}</strong>{% endif %}
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                            <p class="destaque-ressalva">{{ bloco.destaque.ressalva }}</p>
+                                                        </div>
+                                                    {% endif %}
+                                                    {# A lista de nomes virou TABELA porque o operador precisava de duas
+                                                       colunas que a lista escondia: onde o valor cai dentro da faixa
+                                                       publicada, e onde procurar o antepassado comum. Nenhuma das
+                                                       duas e probabilidade — ver `core.relationship_hypotheses`. #}
+                                                    <div class="tabela-das-hipoteses">
+                                                        <table class="table table-sm align-middle mb-1">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Relação</th>
+                                                                    <th scope="col">Faixa na fonte</th>
+                                                                    <th scope="col">Onde o valor cai</th>
+                                                                    <th scope="col">Antepassado comum mais recente</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for possibilidade in bloco.possible_relationships %}
+                                                                    <tr{% if possibilidade.destaque %} class="linha-destacada"{% endif %}>
+                                                                        <td>{{ possibilidade.name_pt }}</td>
+                                                                        <td class="faixa-da-hipotese">{{ possibilidade.range_low }}–{{ possibilidade.range_high }} cM
+                                                                            <small class="text-muted">média {{ possibilidade.average }} cM · distância da média {{ possibilidade.distancia_da_media | cm_br }} cM</small>
+                                                                        </td>
+                                                                        <td class="posicao-da-hipotese">
+                                                                            {# A barra e a faixa publicada; a marca e o valor observado
+                                                                               posicionado dentro dela. #}
+                                                                            <span class="barra-da-faixa"><span class="marca-da-faixa" style="left: {{ possibilidade.posicao.percentual }}%"></span></span>
+                                                                            <span class="rotulo-da-posicao">{{ possibilidade.posicao.rotulo }}</span>
+                                                                        </td>
+                                                                        <td class="mrca-da-hipotese">
+                                                                            {% if possibilidade.mrca %}
+                                                                                {{ possibilidade.mrca.rotulo }}
+                                                                                <small class="text-muted">{{ possibilidade.mrca.detalhe }}</small>
+                                                                            {% else %}
+                                                                                <span class="text-muted">não publicado</span>
+                                                                            {% endif %}
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <p class="sentido-da-ordem">
+                                                        Ordenado da relação mais próxima da média da faixa para a mais distante.
+                                                        O antepassado comum <b>não</b> vem da fonte: é a definição do parentesco — primo de
+                                                        2º grau tem os bisavós por definição, e não por estatística.
+                                                    </p>
                                                 {% else %}
                                                     <p class="text-muted">Nenhuma relação publicada cobre exatamente este valor.</p>
                                                 {% endif %}

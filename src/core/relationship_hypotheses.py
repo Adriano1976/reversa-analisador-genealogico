@@ -42,8 +42,24 @@ O que a fonte diz e o que ela **nao** diz, porque isso muda a leitura da tela:
 - Relacoes **nao publicadas** na 4.0 (nao invente numero para elas): 1C4R, 1C5R,
   1C6R, 3C2R, 2º bisavô/avó e 3º bisavô/avó. Faltam justamente as mais distantes,
   que e onde o caso real deste repositorio cai.
+
+## O antepassado comum nao vem da fonte, e sim da definicao
+
+A coluna "Antepassado comum mais recente" do bloco 3 nao e um dado do Shared cM
+Project: e a **definicao** de cada parentesco. Primo de 2º grau tem os bisavos como
+antepassado comum porque e isso que "primo de 2º grau" quer dizer — nao porque a
+fonte publicou. Por isso ela nao tem versao, nao envelhece com a 5.0 e nao precisa
+de ressalva estatistica.
+
+A tabela `GRAUS_ATE_O_MRCA` guarda, por chave publicada, quantas geracoes cada lado
+sobe ate o antepassado. `tests/test_mrca_e_posicao_na_faixa.py` faz a **ida e
+volta**: joga esses graus em `core.documentary_relationship.documentary_label` e
+exige que a chave devolvida seja a mesma. Duas fontes que discordem quebram o
+teste, e nao a tela.
 """
 from __future__ import annotations
+
+from .graus_de_parentesco import nome_do_grau
 
 SCP40_META = {
     "version": "4.0",
@@ -106,6 +122,229 @@ SCP40_NOT_PUBLISHED = {
     "DIRECT_4": "trisavô/avó: não analisada na versão 4.0",
     "DIRECT_5": "tetravô/avó: não analisada na versão 4.0",
 }
+
+
+# ---------------------------------------------------------------------------
+# Quantas geracoes cada lado sobe ate o antepassado comum mais recente
+# ---------------------------------------------------------------------------
+# Nao e dado da fonte: e a definicao de cada parentesco. Primo de 2º grau -> bisavos.
+# As chaves sao as mesmas de `SCP40_ROWS`, e o teste de ida e volta garante que os
+# graus aqui concordam com `core.documentary_relationship.documentary_label`.
+GRAUS_ATE_O_MRCA = {
+    "PARENT_CHILD": (0, 1),
+    "SIBLINGS": (1, 1),
+    "GRANDPARENT": (0, 2),
+    "AUNT_UNCLE": (1, 2),
+    "DIRECT_3": (0, 3),
+    "GREAT_AUNT_1": (1, 3),
+    "GREAT_AUNT_2": (1, 4),
+    "1C": (2, 2),
+    "1C1R": (2, 3),
+    "1C2R": (2, 4),
+    "1C3R": (2, 5),
+    "2C": (3, 3),
+    "2C1R": (3, 4),
+    "2C2R": (3, 5),
+    "2C3R": (3, 6),
+    "3C": (4, 4),
+    "3C1R": (4, 5),
+    "4C": (5, 5),
+    "4C1R": (5, 6),
+    "5C": (6, 6),
+    "5C1R": (6, 7),
+    "6C": (7, 7),
+    "7C": (8, 8),
+    "8C": (9, 9),
+}
+
+# As tres meias-relacoes ficam FORA de `GRAUS_ATE_O_MRCA` de proposito: o grau delas
+# e o mesmo do equivalente completo, e e justamente isso que `documentary_label` nao
+# consegue dizer — `(1,1)` devolve SIBLINGS, e nao HALF_SIBLINGS. O que muda nao e a
+# profundidade, e sim quantos dos dois lados do casal sao compartilhados.
+GRAUS_DAS_MEIAS_RELACOES = {
+    "HALF_SIBLINGS": (1, 1),
+    "HALF_1C": (2, 2),
+    "HALF_2C": (3, 3),
+}
+
+#: Rotulo da posicao do valor observado dentro da faixa publicada. Descreve a fonte;
+#: nao e probabilidade, e nao soma nada com nada.
+POSICOES_NA_FAIXA = {
+    "ponta_inferior": "na ponta inferior",
+    "abaixo_do_centro": "abaixo do centro",
+    "centro": "no centro",
+    "acima_do_centro": "acima do centro",
+    "ponta_superior": "na ponta superior",
+}
+
+# ---------------------------------------------------------------------------
+# O DESTAQUE: a tela aponta a hipotese mais proxima, e diz com que criterio
+# ---------------------------------------------------------------------------
+# A fonte nao ranqueia nada — ela publica faixa e media por relacao. O destaque e'
+# heuristica DO PROJETO, como `_confianca`, e a tela precisa apresenta-lo como tal.
+#
+# Duas constantes, e a segunda existe para o cartao nao virar um segundo bloco 3:
+#
+# - BANDA_DE_DESTAQUE: a segunda (e a terceira) so' e' destacada quando a distancia
+#   dela a media nao passa deste fator vezes a distancia da primeira. Sem banda, o
+#   destaque seria um numero fixo de linhas escolhidas por nada.
+# - MAXIMO_DE_DESTAQUES: teto, para que um empate largo nao vire lista nova.
+#
+# Medido em 2026-10-22 nos 456 kits do arquivo real (`Famílias_Sergipanas.csv`), com
+# a banda de 1,5x: **423 com um destaque, 32 com dois, 1 com tres**. A mediana de
+# d2/d1 e' 1,88 — a segunda costuma estar quase duas vezes mais longe que a primeira.
+# Os 32 casos de dois sao, quase todos, vizinhos de UMA remocao (4C com 4C1R, 5C com
+# 5C1R): exatamente o que o cM nao distingue. O unico caso de tres e' o kit
+# AZ4078391, com 154,5 cM.
+BANDA_DE_DESTAQUE = 1.5
+MAXIMO_DE_DESTAQUES = 3
+
+ROTULOS_DE_DESTAQUE = {
+    1: "Hipótese mais próxima da média publicada",
+    2: "Duas relações praticamente empatadas pela distância da média",
+    3: "Três relações praticamente empatadas pela distância da média",
+}
+
+
+def _geracoes(quantidade: int) -> str:
+    """`1 geração acima` / `3 gerações acima` — o singular e um caso a parte."""
+    return "1 geração" if quantidade == 1 else f"{quantidade} gerações"
+
+
+def graus_ate_o_mrca(chave: str):
+    """As duas subidas ate o antepassado comum, ou None para chave desconhecida."""
+    return GRAUS_ATE_O_MRCA.get(chave) or GRAUS_DAS_MEIAS_RELACOES.get(chave)
+
+
+def mrca_da_relacao(chave: str):
+    """Onde procurar o antepassado comum, em palavras, para a chave canonica.
+
+    Devolve `graus`, `rotulo` e `detalhe`. O rotulo e o conjunto de antepassados
+    (`bisavós`); o detalhe diz a profundidade e, quando os dois lados nao sobem o
+    mesmo numero de geracoes, diz que sao dois. A profundidade e **por lado** porque
+    numa relacao com remocao — "primo de 2º grau dos pais", o 2C1R — o antepassado
+    esta a 3 geracoes de uma pessoa e a 4 da outra. Escolher um dos lados seria
+    inventar qual das duas pessoas e a raiz.
+    """
+    graus = graus_ate_o_mrca(chave)
+    if not graus:
+        return None
+
+    baixo, alto = graus
+    meia = chave in GRAUS_DAS_MEIAS_RELACOES
+
+    if baixo == alto:
+        palavra = nome_do_grau(alto, plural_ancestral=True)
+        rotulo = f"{palavra} (um de dois)" if meia else palavra
+        detalhe = f"{_geracoes(alto)} acima, nos dois lados"
+        if meia:
+            detalhe += f"; só um dos {palavra} é compartilhado"
+        return {"graus": [baixo, alto], "rotulo": rotulo, "detalhe": detalhe}
+
+    maior = max(baixo, alto)
+    if 0 in (baixo, alto):
+        # Ascendente direto: de um lado o antepassado E a outra pessoa.
+        return {
+            "graus": [baixo, alto],
+            "rotulo": nome_do_grau(maior, plural_ancestral=True),
+            "detalhe": f"{_geracoes(maior)} acima; um dos dois é o próprio antepassado",
+        }
+
+    return {
+        "graus": [baixo, alto],
+        "rotulo": (f"{nome_do_grau(baixo, plural_ancestral=True)} "
+                   f"e {nome_do_grau(alto, plural_ancestral=True)}"),
+        "detalhe": f"{baixo} e {alto} gerações acima",
+    }
+
+
+def destaque_das_candidatas(candidatas: list, total_cm: float):
+    """O bloco de destaque do cartao, ou None sem candidata.
+
+    Escolhe as candidatas cuja distancia a media nao passa de `BANDA_DE_DESTAQUE`
+    vezes a MENOR distancia, no maximo `MAXIMO_DE_DESTAQUES`. Marca cada escolhida
+    com `destaque=True` na propria candidata (a lista continua inteira: o destaque
+    e' leitura, nao substituicao).
+
+    Devolve `quantidade`, `rotulo`, `itens` (nome, distancia, media e onde procurar)
+    e `ressalva` — a frase que impede o destaque de ser lido como conclusao. O
+    numero de relacoes compativeis entra na ressalva porque e' o que o destaque
+    esconde: uma hipotese destacada entre 13 nao tem a forca de uma entre duas.
+    """
+    if not candidatas:
+        return None
+
+    distancias = [abs(c["average"] - total_cm) for c in candidatas]
+    limite = min(distancias) * BANDA_DE_DESTAQUE
+    escolhidas = [c for c in candidatas if abs(c["average"] - total_cm) <= limite]
+    escolhidas = escolhidas[:MAXIMO_DE_DESTAQUES]
+
+    for candidata in candidatas:
+        candidata["destaque"] = False
+    for candidata in escolhidas:
+        candidata["destaque"] = True
+
+    itens = [{
+        "nome": candidata["name_pt"],
+        "distancia": round(abs(candidata["average"] - total_cm), 1),
+        "media": candidata["average"],
+        "onde": (candidata.get("mrca") or {}).get("rotulo"),
+        "mrca": candidata.get("mrca"),
+    } for candidata in escolhidas]
+
+    quantidade = len(itens)
+    total = len(candidatas)
+    if total == 1:
+        abertura = "A única relação compatível"
+    else:
+        abertura = f"Entre as {total} relações compatíveis"
+    if quantidade == 1:
+        fecho = ("esta é a mais próxima da média das faixas publicadas — e isso não é "
+                 "confirmação: o parentesco documental continua vindo do GEDCOM.")
+    else:
+        fecho = ("estas são as mais próximas da média das faixas publicadas — e isso não é "
+                 "confirmação: o parentesco documental continua vindo do GEDCOM.")
+
+    return {
+        "quantidade": quantidade,
+        "rotulo": ROTULOS_DE_DESTAQUE[quantidade],
+        "itens": itens,
+        "ressalva": f"{abertura}, {fecho}",
+    }
+
+
+def posicao_na_faixa(total_cm: float, faixa_baixa: float, faixa_alta: float) -> dict:
+    """Onde o valor observado cai DENTRO da faixa publicada da relacao.
+
+    Nao e probabilidade e nao e "confianca": e a leitura da faixa publicada contra o
+    numero observado. Serve para o operador ver o que a lista hoje esconde — um
+    valor na ponta inferior da faixa de `Primos de 1º grau` e tecnicamente
+    compativel e, ao mesmo tempo, o membro mais fraco daquela faixa.
+    """
+    largura = faixa_alta - faixa_baixa
+    if largura <= 0:
+        fracao = 0.5
+    else:
+        fracao = (float(total_cm) - faixa_baixa) / largura
+        fracao = min(1.0, max(0.0, fracao))
+
+    if fracao <= 0.15:
+        chave = "ponta_inferior"
+    elif fracao <= 0.40:
+        chave = "abaixo_do_centro"
+    elif fracao < 0.60:
+        chave = "centro"
+    elif fracao < 0.85:
+        chave = "acima_do_centro"
+    else:
+        chave = "ponta_superior"
+
+    return {
+        "fracao": round(fracao, 4),
+        "percentual": int(round(fracao * 100)),
+        "chave": chave,
+        "rotulo": POSICOES_NA_FAIXA[chave],
+    }
 
 
 def row_for_key(key: str):
@@ -209,8 +448,20 @@ def possible_relationships(total_cm) -> dict:
             candidatas.append({
                 "key": chave, "name_en": nome_en, "name_pt": nome_pt, "meioses": meioses,
                 "average": media, "range_low": baixo, "range_high": alto,
+                # A distancia a media e' a grandeza que ORDENA a lista, e agora tambem a
+                # que decide o destaque. Vai no payload para a tela poder dizer
+                # "32,5 cM da media" em vez de pedir que o operador acredite na ordem.
+                "distancia_da_media": round(abs(media - cm), 1),
+                "destaque": False,
+                # Duas colunas que nao vem do cM: onde procurar o antepassado comum
+                # (definicao do parentesco) e onde o valor cai dentro da faixa
+                # publicada (leitura da fonte). Ver `mrca_da_relacao` e
+                # `posicao_na_faixa`.
+                "mrca": mrca_da_relacao(chave),
+                "posicao": posicao_na_faixa(cm, baixo, alto),
             })
     candidatas.sort(key=lambda c: (abs(c["average"] - cm), c["name_en"]))
+    bloco_destaque = destaque_das_candidatas(candidatas, cm)
 
     confianca, explicacao = _confianca(len(candidatas), cm)
     if candidatas:
@@ -227,6 +478,9 @@ def possible_relationships(total_cm) -> dict:
     return {
         "total_cm": cm,
         "possible_relationships": candidatas,
+        # O destaque e' a UNICA leitura de "qual delas" que o bloco faz, e ele vem
+        # com o criterio, com a contagem e com a negativa dentro de `ressalva`.
+        "destaque": bloco_destaque,
         "confidence": confianca,
         "confidence_note": explicacao,
         "interpretation": leitura,
@@ -260,5 +514,8 @@ def hypotheses_for_evidence(evidence: dict) -> list:
 __all__ = [
     "SCP40_ROWS", "SCP40_META", "SCP40_NOT_PUBLISHED", "row_for_key", "rows_by_meioses",
     "meioses_window", "meioses_maximo_publicado", "meioses_publicados",
+    "GRAUS_ATE_O_MRCA", "GRAUS_DAS_MEIAS_RELACOES", "POSICOES_NA_FAIXA",
+    "BANDA_DE_DESTAQUE", "MAXIMO_DE_DESTAQUES", "ROTULOS_DE_DESTAQUE",
+    "graus_ate_o_mrca", "mrca_da_relacao", "posicao_na_faixa", "destaque_das_candidatas",
     "possible_relationships", "hypotheses_for_evidence",
 ]

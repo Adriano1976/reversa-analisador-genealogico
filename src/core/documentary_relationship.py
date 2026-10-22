@@ -32,6 +32,7 @@ from collections import deque
 from statistics import median
 
 from .family_navigation import get_parents
+from .graus_de_parentesco import ROMANO, nome_do_grau  # reexportados: `nome_do_grau` e publico daqui
 from .registro import get_name, ref_id
 from .path_finding import MAX_DEPTH, find_ancestral_path
 from utils.text_cleaning import demojibake
@@ -423,61 +424,24 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
 # Parentesco documental
 # ---------------------------------------------------------------------------
 
-_ROMANO = {1: "1º", 2: "2º", 3: "3º", 4: "4º", 5: "5º", 6: "6º", 7: "7º", 8: "8º", 9: "9º", 10: "10º"}
-
 # ---------------------------------------------------------------------------
-# O nome do avo e do neto, por grau
+# O nome do avo, do neto e dos antepassados comuns, por grau
 #
-# A sequencia portuguesa e `avô → bisavô → trisavô → tetravô → pentavô → hexavô →
-# heptavô → octavô → nonavô → decavô`, e a mesma para os netos com `-neto`. A fonte
-# e a nomenclatura genealogica corrente: pais, avos, bisavos, trisavos, tetravos,
-# pentavos, hexavos...
+# A serie inteira — e o racional dela, incluindo o defeito de 2026-10-14 que a
+# tabela de palavras inteiras corrige — mora em `core.graus_de_parentesco` desde
+# 2026-10-22. A mudanca de casa nao mudou palavra nenhuma: `nome_do_grau` e
+# `ROMANO` sao importados no topo deste modulo e continuam publicos daqui.
 #
-# ## O defeito que isto corrige (2026-10-14)
+# ## Por que saiu daqui
 #
-# O codigo montava a palavra repetindo `"bis" * (acima - 2)`, o que produzia
-# `bisbisavô`, `bisbisbisavô` e — no cartao da Margarida — a palavra de 64
-# caracteres `Tio/Tia-bisbisbisbisbisbisbisbisavô/avó ↔ Sobrinho(a)-bisbisbisbisbisbisbisbisneto(a)`.
-# `bisbisavô` nao existe em portugues: o prefixo do terceiro grau e `tris-`, e nao
-# `bis-` repetido. O rotulo aparecia em 1 dos 62 cartoes da analise real; a varredura
-# de (0,0) a (12,12) mostrou que o defeito atingia todo grau a partir do quarto.
-#
-# ## As palavras vao INTEIRAS na tabela, e nao como prefixo + radical
-#
-# A primeira versao desta correcao concatenava prefixo e radical e produziu
-# `tetraavô` e `pentaavô`: os prefixos `tetra-` e `penta-` ja terminam em vogal, e o
-# radical comeca com outra. A forma correta contrai (`tetravô`, `pentavô`), e nao
-# alonga. Guardar a palavra pronta elimina a classe inteira desse erro — e ha teste
-# para cada grau, justamente porque concatenar aqui e tentador.
-#
-# `trisneto`, e nao `trineto`: mesma familia de `bisneto`, mesmo radical.
+# `core.relationship_hypotheses` e a tabela do Shared cM Project: um modulo SEM
+# IMPORT NENHUM, que traduz cM em possibilidades no caminho do CSV. A coluna do
+# antepassado comum mais recente precisa da terceira forma da serie — o plural
+# `bisavós`, e nao `bisavô/avó`. Importar `documentary_relationship` de la
+# arrastaria `path_finding` e `networkx` para dentro daquele caminho; duplicar as
+# palavras criaria uma segunda fonte para a mesma serie. Um modulo que nao
+# importa nada resolve as duas coisas, e e por isso que ele existe.
 # ---------------------------------------------------------------------------
-_PALAVRAS_DO_GRAU = {
-    3: ("bisavô/avó", "bisneto(a)"),
-    4: ("trisavô/avó", "trisneto(a)"),
-    5: ("tetravô/avó", "tetraneto(a)"),
-    6: ("pentavô/avó", "pentaneto(a)"),
-    7: ("hexavô/avó", "hexaneto(a)"),
-    8: ("heptavô/avó", "heptaneto(a)"),
-    9: ("octavô/avó", "octaneto(a)"),
-    10: ("nonavô/avó", "nonaneto(a)"),
-}
-
-
-def nome_do_grau(graus: int, plural_neto: bool = False) -> str:
-    """`avô`/`avó` (ou `neto`/`neta`) com o grau, em portugues correto.
-
-    `graus=2` e o avo, `3` o bisavo, `4` o trisavo. Acima de `10` a serie continua
-    com o ordinal em algarismo — `11º avô` — porque `undecavô` e forma que quase
-    ninguem reconhece, e um rotulo que o operador nao entende e pior que um numerado.
-    """
-    if graus <= 2:
-        return "neto(a)" if plural_neto else "avô/avó"
-    palavras = _PALAVRAS_DO_GRAU.get(graus)
-    if palavras:
-        return palavras[1] if plural_neto else palavras[0]
-    ordinal = _ROMANO.get(graus - 2, f"{graus - 2}º")
-    return f"{ordinal} {'neto(a)' if plural_neto else 'avô/avó'}"
 
 
 def documentary_label(deg_a: int, deg_b: int) -> dict:
@@ -526,7 +490,7 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
 
     grau, removidos = menor - 1, maior - menor
     chave = f"{grau}C" + (f"{removidos}R" if removidos else "")
-    rotulo = f"Primos de {_ROMANO.get(grau, str(grau))} grau"
+    rotulo = f"Primos de {ROMANO.get(grau, str(grau))} grau"
     if removidos == 1:
         rotulo += " (1× removido)"
     elif removidos > 1:
@@ -798,5 +762,9 @@ __all__ = [
     "homonym_dossier", "hop_evidence", "find_all_common_ancestors",
     "parse_year", "birth_date", "death_date", "get_children", "normalizar",
     "intervalo_de_geracao_mediano",
+    # Reexportados de `core.graus_de_parentesco` desde 2026-10-22: continuam publicos
+    # daqui para quem ja os importava, e e o que impede que a linha de import seja
+    # lida como codigo morto e apagada.
+    "nome_do_grau", "ROMANO",
     "MAX_DEPTH", "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
 ]

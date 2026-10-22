@@ -1,0 +1,6 @@
+{"ts":"2026-10-22T17:31:00Z","action":"T001","status":"done","files":["src/core/graus_de_parentesco.py","src/core/documentary_relationship.py"]}
+{"ts":"2026-10-22T17:34:00Z","action":"T002","status":"done","files":["src/core/relationship_hypotheses.py"]}
+{"ts":"2026-10-22T17:37:00Z","action":"T003","status":"done","files":["src/templates/index.html"]}
+{"ts":"2026-10-22T17:38:00Z","action":"T004","status":"done","files":["src/assets/app.css"]}
+{"ts":"2026-10-22T17:42:00Z","action":"T005","status":"done","files":["tests/test_mrca_e_posicao_na_faixa.py","tests/test_tabela_do_bloco_3.py","tests/test_rotulos_de_parentesco.py"]}
+{"ts":"2026-10-22T17:50:00Z","action":"T006","status":"done","files":[]}

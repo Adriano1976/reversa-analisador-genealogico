@@ -1,11 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/039-dna-sem-correspondencia",
-  "feature-id": "039",
-  "short-name": "dna-sem-correspondencia",
-  "started-at": "2026-10-22T05:23:31Z",
-  "current-stage": "requirements",
-  "stages-completed": [],
+  "feature-dir": "_reversa_forward/043-tabela-do-antepassado-comum",
+  "feature-id": "043",
+  "short-name": "tabela-do-antepassado-comum",
+  "started-at": "2026-10-22T17:30:00Z",
+  "current-stage": "sync",
+  "stages-completed": ["requirements", "roadmap", "actions", "coding", "verificacao", "sync"],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
