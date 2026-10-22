@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/043-tabela-do-antepassado-comum",
-  "feature-id": "043",
-  "short-name": "tabela-do-antepassado-comum",
-  "started-at": "2026-10-22T17:30:00Z",
+  "feature-dir": "_reversa_forward/045-humanizar-geracao-de-diferenca",
+  "feature-id": "045",
+  "short-name": "humanizar-geracao-de-diferenca",
+  "started-at": "2026-10-22T18:52:00Z",
   "current-stage": "sync",
   "stages-completed": ["requirements", "roadmap", "actions", "coding", "verificacao", "sync"],
   "paused-features": [

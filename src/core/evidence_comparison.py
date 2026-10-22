@@ -101,8 +101,8 @@ def _avaliar_kit(bloco: dict, janela: dict, meioses_documental) -> dict:
     # contem o valor TEM FAIXA QUE SE SOBREPOE a janela documental — isto e,
     # quando as duas distribuicoes se tocam e o cM nao consegue separa-las.
     # Distancia em meioses NAO serve de criterio aqui: irmaos (1613–3488) e
-    # primos de 1o grau com 1 remocao (102–980) estao a uma meiosa de distancia e
-    # mesmo assim nao se sobrepoem.
+    # primos de 1o grau com uma geracao de diferenca (102–980) estao a uma meiosa de
+    # distancia e mesmo assim nao se sobrepoem.
     sobrepostas = [
         c for c in candidatas
         if c["range_low"] <= janela["range_high"] and c["range_high"] >= janela["range_low"]

@@ -10,7 +10,7 @@ O caso medido, em 2026-10-14, sobre `Arvore_Unificada_Oficial_V1_2.ged` +
 `Familias_Sergipanas.csv`: o kit `TG8027863` (25,4 cM) chama-se "Manoel Vieira da Silva" e o
 GEDmatch informa, para esse kit, nascimento em **1936**; a arvore tem **quatro** registros com
 esse nome, e o motor escolheu o de **1793** — 233 anos em 2026. O cartao exibia "Primos de 1o
-grau com 7x remocao" com ancestral comum nascido em **ABT 1720**.
+grau (sete geracoes de diferenca)" com ancestral comum nascido em **ABT 1720**.
 
 Medido nos 62 cartoes da analise real: **10** escolhas com janela de vida impossivel, das quais
 **9 nao tem candidato melhor** — a arvore simplesmente nao contem a pessoa certa. Nenhuma regra

@@ -12,7 +12,7 @@ Duas verificacoes ja existiam, e elas nao cobrem este caso:
 Falta a pergunta que nao depende de ninguem estar vivo: **a arvore afirma a mesma
 profundidade que o kit informa?** Medido em 2026-10-14 nos 62 cartoes reais, existe um
 cartao em que as duas primeiras verificacoes ficam caladas e esta acusa: kit `XS4787142`,
-19,2 cM, "Primos de 8º grau com 2× remoção", doadora nascida em **1976** — idade
+19,2 cM, "Primos de 8º grau (duas gerações de diferença)", doadora nascida em **1976** — idade
 perfeitamente plausivel, entao a janela de vida nao tem o que dizer. A arvore afirma
 **10,0** geracoes medias ate o ancestral comum; o proprio relatorio de DNA, na coluna
 `MRCA` que o app lia e descartava, estima **4,77** para esse kit. A arvore afirma mais que

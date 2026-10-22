@@ -73,7 +73,7 @@ class TestARotuloMudaComAQuantidade:
     def test_duas_hipoteses_destacadas(self):
         pagina = _pagina(DNA_CSV_HIPOTESE_DOIS_DESTAQUES)  # 42,6 cM
         assert "Duas relações praticamente empatadas pela distância da média" in pagina
-        assert "Primos de 3º grau (1× removido)" in pagina
+        assert "Primos de 3º grau (uma geração de diferença)" in pagina
         assert "Primos de 4º grau" in pagina
         assert "estas são as mais próximas" in pagina
 
@@ -111,7 +111,7 @@ class TestAListaContinuaInteira:
     def test_o_destaque_nao_remove_linhas(self):
         pagina = _pagina(DNA_CSV_HIPOTESE_TRES_DESTAQUES)
         assert pagina.count("<tr") >= 9
-        assert "Primos de 1º grau (1× removido)" in pagina, (
+        assert "Primos de 1º grau (uma geração de diferença)" in pagina, (
             "a relação mais distante da média sumiu da tabela"
         )
 

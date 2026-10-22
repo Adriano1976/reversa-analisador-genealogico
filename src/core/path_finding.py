@@ -73,7 +73,7 @@ def find_ancestral_path(arvore: Arvore, start_id, end_id, max_depth=MAX_DEPTH):
       abandonado — e os **quatro** ancestrais comuns ja estavam nos dois conjuntos de
       visitados, sem que ninguem comparasse;
     - resultado: "Parentesco documental nao encontrado" para um par que tem caminho de
-      **16 nos** e parentesco "Primos de 5º grau com 3× remoção".
+      **16 nos** e parentesco "Primos de 5º grau (três gerações de diferença)".
 
     Nao era o teto: subir `max_depth` para 40, 60, 80, 120 ou 200 nao muda o resultado,
     porque quem interrompe a busca e a fila vazia, e nao o limite de iteracoes. Por isso

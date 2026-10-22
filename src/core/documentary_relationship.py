@@ -32,7 +32,7 @@ from collections import deque
 from statistics import median
 
 from .family_navigation import get_parents
-from .graus_de_parentesco import ROMANO, nome_do_grau  # reexportados: `nome_do_grau` e publico daqui
+from .graus_de_parentesco import ROMANO, nome_do_grau, nome_do_primo  # reexportados
 from .registro import get_name, ref_id
 from .path_finding import MAX_DEPTH, find_ancestral_path
 from utils.text_cleaning import demojibake
@@ -490,11 +490,9 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
 
     grau, removidos = menor - 1, maior - menor
     chave = f"{grau}C" + (f"{removidos}R" if removidos else "")
-    rotulo = f"Primos de {ROMANO.get(grau, str(grau))} grau"
-    if removidos == 1:
-        rotulo += " (1× removido)"
-    elif removidos > 1:
-        rotulo += f" com {removidos}× remoção"
+    # O rotulo tem FONTE UNICA em `nome_do_primo`: a mesma relacao aparece na tabela
+    # publicada (bloco 3) e aqui, e as duas versoes nao podem divergir. Ver 045.
+    rotulo = nome_do_primo(grau, removidos)
     return {"key": chave, "label": rotulo, "meioses": meioses,
             "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": grau, "removed": removidos}}
 

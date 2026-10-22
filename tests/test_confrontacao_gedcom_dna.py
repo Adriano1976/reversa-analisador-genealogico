@@ -736,7 +736,7 @@ def test_9_cm_pequeno_nao_classifica_parentesco():
     assert len(bloco["possible_relationships"]) > 1
     assert bloco["confidence"] != "alta"
     nomes = {c["name_pt"] for c in bloco["possible_relationships"]}
-    assert "Primos de 4º grau" in nomes and "Primos de 2º grau (2× removidos)" in nomes
+    assert "Primos de 4º grau" in nomes and "Primos de 2º grau (duas gerações de diferença)" in nomes
 
     resultados, _, _ = _analisar(_so_basico(**{"Vicente Vieira Souza": 6.4}))
     resultado = resultados[0]
@@ -783,12 +783,12 @@ def test_rotulo_documental_cobre_toda_a_tabela_de_parentesco():
         (1, 3): "Tio/Tia-avô/avó ↔ Sobrinho(a)-neto(a)",
         (1, 4): "Tio/Tia-bisavô/avó ↔ Sobrinho(a)-bisneto(a)",
         (2, 2): "Primos de 1º grau",
-        (2, 3): "Primos de 1º grau (1× removido)",
-        (2, 4): "Primos de 1º grau com 2× remoção",
+        (2, 3): "Primos de 1º grau (uma geração de diferença)",
+        (2, 4): "Primos de 1º grau (duas gerações de diferença)",
         (3, 3): "Primos de 2º grau",
         (4, 4): "Primos de 3º grau",
         (5, 5): "Primos de 4º grau",
-        (4, 8): "Primos de 3º grau com 4× remoção",
+        (4, 8): "Primos de 3º grau (quatro gerações de diferença)",
     }
     for (a, b), esperado in casos.items():
         assert documentary_label(a, b)["label"] == esperado, (a, b)

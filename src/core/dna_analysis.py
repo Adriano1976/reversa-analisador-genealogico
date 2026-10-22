@@ -868,7 +868,7 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
             # verificacao, e a unica que fala quando nenhuma das outras duas tem o que
             # dizer: medido, o cartao `XS4787142` (19,2 cM) casa com uma doadora nascida em
             # 1976 — idade plausivel, entao a janela de vida se cala — e a versao 4.0 nao
-            # publica faixa para "Primos de 8º grau com 2× remoção", entao o confronto se
+            # publica faixa para "Primos de 8º grau (duas gerações de diferença)", entao o confronto se
             # cala. Ainda assim a arvore afirma 10,0 geracoes contra as 4,77 que o proprio
             # relatorio de DNA estima. Ver `core.profundidade_do_caminho`.
             geracoes_do_kit = next(

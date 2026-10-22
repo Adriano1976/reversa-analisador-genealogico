@@ -76,6 +76,47 @@ _PRIMEIROS_GRAUS = {
 }
 
 
+#: As palavras de contagem ate dez. Acima disso, o algarismo, porque "onze geracoes de
+#: diferenca" ja' e' numero que se le melhor em digito.
+_PALAVRAS_DE_CONTAGEM = {
+    1: "uma", 2: "duas", 3: "três", 4: "quatro", 5: "cinco",
+    6: "seis", 7: "sete", 8: "oito", 9: "nove", 10: "dez",
+}
+
+
+def geracoes_de_diferenca(quantidade: int) -> str:
+    """`uma geração de diferença` / `três gerações de diferença`.
+
+    Substitui o jargao `1× removido` / `3× removidos` na tela (2026-10-22). A forma
+    antiga tinha dois defeitos: a concordancia oscilava (`1× removido`, `2×
+    removidos`) e o termo e' vocabulario de quem ja' conhece a tabela — "removido" de
+    que, exatamente? "Uma geracao de diferenca" diz o mesmo sem exigir o dicionario, e
+    e' a traducao corrente de *once removed*.
+
+    "Diferenca" continua sendo **geracional**, e nao de idade: os dois primos estao a
+    um salto pai-filho de distancia na linha do ancestral comum.
+    """
+    palavra = _PALAVRAS_DE_CONTAGEM.get(quantidade, str(quantidade))
+    if quantidade == 1:
+        return f"{palavra} geração de diferença"
+    return f"{palavra} gerações de diferença"
+
+
+def nome_do_primo(grau: int, removidos: int = 0) -> str:
+    """`Primos de 2º grau` / `Primos de 2º grau (uma geração de diferença)`.
+
+    Fonte unica do rotulo do primo. Ela existe porque a mesma relacao aparece em dois
+    lugares que nao podem divergir: o parentesco **documental** (`documentary_label`,
+    no GEDCOM) e a tabela **publicada** (`SCP40_ROWS`, no bloco 3). Antes da 045 cada
+    um escrevia a sua versao — `(1× removido)` na tabela e `(1× removido)` /
+    `com 2× remoção` no documental, com concordancia diferente para o mesmo fato.
+    """
+    rotulo = f"Primos de {ROMANO.get(grau, str(grau))} grau"
+    if removidos:
+        rotulo += f" ({geracoes_de_diferenca(removidos)})"
+    return rotulo
+
+
 def nome_do_grau(graus: int, plural_neto: bool = False, plural_ancestral: bool = False) -> str:
     """`avô`/`avó` (ou `neto`/`neta`, ou `avós`) com o grau, em portugues correto.
 
@@ -105,4 +146,4 @@ def nome_do_grau(graus: int, plural_neto: bool = False, plural_ancestral: bool =
     return f"{ordinal} {'neto(a)' if plural_neto else 'avô/avó'}"
 
 
-__all__ = ["ROMANO", "nome_do_grau"]
+__all__ = ["ROMANO", "nome_do_grau", "nome_do_primo", "geracoes_de_diferenca"]

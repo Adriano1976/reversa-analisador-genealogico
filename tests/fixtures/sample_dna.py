@@ -109,8 +109,9 @@ DNA_CSV_HIPOTESE_TRES_DESTAQUES = (
     "Ana Silva Souza,154.5,1,1500,AB1234567,Genera\n"
 )
 
-# 42,6 cM: duas relacoes dentro da banda, e as duas sao vizinhas de uma remocao
-# (Primos de 3º grau 1x removido e Primos de 4º grau) — o que o cM nao distingue.
+# 42,6 cM: duas relacoes dentro da banda, e as duas sao vizinhas de uma geracao de
+# diferenca (Primos de 3º grau com uma geracao de diferenca e Primos de 4º grau) — o
+# que o cM nao distingue.
 DNA_CSV_HIPOTESE_DOIS_DESTAQUES = (
     "Name,cM,Chromosome,SNPs,Kit,Source\n"
     "Ana Silva Souza,42.6,1,1500,AB1234567,Genera\n"

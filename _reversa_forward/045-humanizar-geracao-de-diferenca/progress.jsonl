@@ -1,0 +1,5 @@
+{"ts":"2026-10-22T18:56:00Z","action":"T001","status":"done","files":["src/core/graus_de_parentesco.py"]}
+{"ts":"2026-10-22T18:58:00Z","action":"T002","status":"done","files":["src/core/documentary_relationship.py"]}
+{"ts":"2026-10-22T18:59:00Z","action":"T003","status":"done","files":["src/core/relationship_hypotheses.py"]}
+{"ts":"2026-10-22T19:02:00Z","action":"T004","status":"done","files":["tests/test_rotulos_de_parentesco.py","tests/test_confrontacao_gedcom_dna.py","tests/test_tabela_do_bloco_3.py","tests/test_destaque_da_hipotese.py","tests/test_destaque_na_tela.py","tests/fixtures/sample_dna.py"]}
+{"ts":"2026-10-22T19:06:00Z","action":"T005","status":"done","files":[]}

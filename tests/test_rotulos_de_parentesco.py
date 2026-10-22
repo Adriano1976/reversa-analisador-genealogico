@@ -34,6 +34,8 @@ for _caminho in (_RAIZ, os.path.join(_RAIZ, "src")):
         sys.path.insert(0, _caminho)
 
 from core.documentary_relationship import documentary_label, nome_do_grau  # noqa: E402
+from core.graus_de_parentesco import geracoes_de_diferenca, nome_do_primo  # noqa: E402
+from core.relationship_hypotheses import SCP40_ROWS  # noqa: E402
 
 #: A serie portuguesa, do avo ao nono. A fonte e a nomenclatura genealogica corrente:
 #: pais, avos, bisavos, trisavos, tetravos, pentavos, hexavos, heptavos, octavos, nonavos.
@@ -125,6 +127,58 @@ class TestORotuloDoCartao:
         assert not DEFEITO.search(rotulo), f"rotulo malformado em ({deg_a},{deg_b}): {rotulo!r}"
 
 
+class TestAGeracaoDeDiferenca:
+    """`uma geração de diferença`, e não `1× removido` (2026-10-22).
+
+    O termo antigo tinha dois defeitos: a concordância oscilava (`1× removido` contra
+    `2× removidos`, no mesmo par de rótulos) e "removido" é vocabulário de quem já
+    conhece a tabela — removido de quê? A forma nova diz o mesmo sem dicionário, e é a
+    tradução corrente do inglês *once removed*.
+    """
+
+    @pytest.mark.parametrize("quantidade,esperado", [
+        (1, "uma geração de diferença"),
+        (2, "duas gerações de diferença"),
+        (3, "três gerações de diferença"),
+        (4, "quatro gerações de diferença"),
+        (10, "dez gerações de diferença"),
+        (11, "11 gerações de diferença"),
+    ])
+    def test_a_contagem_por_extenso(self, quantidade, esperado):
+        assert geracoes_de_diferenca(quantidade) == esperado
+
+    def test_o_singular_nao_recebe_s(self):
+        assert "gerações" not in geracoes_de_diferenca(1)
+
+    @pytest.mark.parametrize("grau,removidos,esperado", [
+        (1, 0, "Primos de 1º grau"),
+        (2, 1, "Primos de 2º grau (uma geração de diferença)"),
+        (3, 2, "Primos de 3º grau (duas gerações de diferença)"),
+    ])
+    def test_o_nome_do_primo(self, grau, removidos, esperado):
+        assert nome_do_primo(grau, removidos) == esperado
+
+    def test_o_rotulo_do_bloco_3_e_o_do_documental_sao_o_mesmo(self):
+        """Fonte única: `SCP40_ROWS` e `documentary_label` não podem divergir.
+
+        Antes desta mudança os dois escreviam a mesma relação de dois jeitos — a
+        tabela dizia `(1× removido)` e o documental dizia `com 2× remoção` para a
+        mesma contagem de gerações.
+        """
+        for grau in range(1, 6):
+            for removidos in range(0, 4):
+                if not removidos:
+                    continue
+                chave = f"{grau}C{removidos}R"
+                linha = next((l for l in SCP40_ROWS if l[0] == chave), None)
+                rotulo_documental = documentary_label(grau + 1, grau + 1 + removidos)["label"]
+                assert rotulo_documental == nome_do_primo(grau, removidos)
+                if linha:
+                    assert linha[2] == rotulo_documental, (
+                        f"{chave}: a tabela publicada e o documental dizem coisas diferentes"
+                    )
+
+
 class TestOsOutrosRamosNaoForamTocados:
     """Irmaos, tio/tia e primos nao usam a serie dos avos, e nao podiam ter mudado."""
 
@@ -132,10 +186,10 @@ class TestOsOutrosRamosNaoForamTocados:
         (1, 1, "Irmãos"),
         (1, 2, "Tio/Tia ↔ Sobrinho(a)"),
         (2, 2, "Primos de 1º grau"),
-        (2, 3, "Primos de 1º grau (1× removido)"),
-        (2, 4, "Primos de 1º grau com 2× remoção"),
-        (4, 7, "Primos de 3º grau com 3× remoção"),
-        (6, 9, "Primos de 5º grau com 3× remoção"),
+        (2, 3, "Primos de 1º grau (uma geração de diferença)"),
+        (2, 4, "Primos de 1º grau (duas gerações de diferença)"),
+        (4, 7, "Primos de 3º grau (três gerações de diferença)"),
+        (6, 9, "Primos de 5º grau (três gerações de diferença)"),
     ])
     def test_os_rotulos_continuam_iguais(self, deg_a, deg_b, esperado):
         """O par e `(menor, maior)` das subidas ate o MRCA.

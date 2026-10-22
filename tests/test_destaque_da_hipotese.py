@@ -67,7 +67,7 @@ class TestOsTresCasosDoArquivoReal:
         destaque = possible_relationships(42.6)["destaque"]
         assert destaque["quantidade"] == 2
         assert [item["nome"] for item in destaque["itens"]] == [
-            "Primos de 3º grau (1× removido)",
+            "Primos de 3º grau (uma geração de diferença)",
             "Primos de 4º grau",
         ]
 
@@ -76,9 +76,9 @@ class TestOsTresCasosDoArquivoReal:
         destaque = possible_relationships(154.5)["destaque"]
         assert destaque["quantidade"] == 3
         assert [item["nome"] for item in destaque["itens"]] == [
-            "Primos de 2º grau (1× removido)",
+            "Primos de 2º grau (uma geração de diferença)",
             "Meio-primos de 2º grau",
-            "Primos de 1º grau (3× removidos)",
+            "Primos de 1º grau (três gerações de diferença)",
         ]
         assert [item["distancia"] for item in destaque["itens"]] == [32.5, 34.5, 37.5]
 

@@ -243,7 +243,7 @@ a{font-weight:700}
 .table{--bs-table-bg:transparent;--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
 .table-light,.table > :not(caption) > * > .table-light{--bs-table-bg:var(--surface-2);--bs-table-color:var(--ink);--bs-table-border-color:var(--line)}
 .table thead th{font-weight:500;color:var(--muted);white-space:nowrap}
-.tabela-evidencia{font-size:.85rem}
+.tabela-evidencia{font-family:var(--sans);font-size:.85rem}
 
 /* Seções do relatório: sentença normal em vez de CAIXA ALTA espaçada */
 .secao{margin-top:1.75rem;border-top:1px solid var(--line);padding-top:1rem}
@@ -920,10 +920,11 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   border-radius:12px
 }
 .status-rotulo{
-  font-size:.68rem;
+  font-size:.75rem;
   letter-spacing:.08em;
   text-transform:uppercase;
-  color:var(--muted)
+  color:var(--muted);
+  line-height:1.35
 }
 .status-valor{font-size:.95rem;color:var(--ink);overflow-wrap:anywhere}
 .status-dica{font-size:.78rem;color:var(--muted)}
@@ -1166,6 +1167,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 
 .tabela-das-hipoteses table{
   min-width:640px;
+  font-family:var(--sans);
   font-size:.9rem
 }
 

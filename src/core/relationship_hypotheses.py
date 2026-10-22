@@ -100,19 +100,19 @@ SCP40_ROWS = [
     ("GREAT_AUNT_1", "Great-Aunt / Uncle", "Tio/Tia-avô/avó ↔ Sobrinho(a)-neto(a)", 4, 850, 330, 1467),
     ("GREAT_AUNT_2", "Great-Great-Aunt / Uncle", "Tio/Tia-bisavô/avó ↔ Sobrinho(a)-bisneto(a)", 5, 420, 186, 713),
     ("1C", "1C", "Primos de 1º grau", 2, 866, 396, 1397),
-    ("1C1R", "1C1R", "Primos de 1º grau (1× removido)", 3, 433, 102, 980),
-    ("1C2R", "1C2R", "Primos de 1º grau (2× removidos)", 4, 221, 33, 471),
-    ("1C3R", "1C3R", "Primos de 1º grau (3× removidos)", 5, 117, 25, 238),
+    ("1C1R", "1C1R", nome_do_primo(1, 1), 3, 433, 102, 980),
+    ("1C2R", "1C2R", nome_do_primo(1, 2), 4, 221, 33, 471),
+    ("1C3R", "1C3R", nome_do_primo(1, 3), 5, 117, 25, 238),
     ("2C", "2C", "Primos de 2º grau", 4, 229, 41, 592),
-    ("2C1R", "2C1R", "Primos de 2º grau (1× removido)", 5, 122, 14, 353),
-    ("2C2R", "2C2R", "Primos de 2º grau (2× removidos)", 6, 71, 0, 244),
-    ("2C3R", "2C3R", "Primos de 2º grau (3× removidos)", 7, 51, 0, 154),
+    ("2C1R", "2C1R", nome_do_primo(2, 1), 5, 122, 14, 353),
+    ("2C2R", "2C2R", nome_do_primo(2, 2), 6, 71, 0, 244),
+    ("2C3R", "2C3R", nome_do_primo(2, 3), 7, 51, 0, 154),
     ("3C", "3C", "Primos de 3º grau", 6, 73, 0, 234),
-    ("3C1R", "3C1R", "Primos de 3º grau (1× removido)", 7, 48, 0, 192),
+    ("3C1R", "3C1R", nome_do_primo(3, 1), 7, 48, 0, 192),
     ("4C", "4C", "Primos de 4º grau", 8, 35, 0, 139),
-    ("4C1R", "4C1R", "Primos de 4º grau (1× removido)", 9, 28, 0, 126),
+    ("4C1R", "4C1R", nome_do_primo(4, 1), 9, 28, 0, 126),
     ("5C", "5C", "Primos de 5º grau", 10, 25, 0, 117),
-    ("5C1R", "5C1R", "Primos de 5º grau (1× removido)", 11, 21, 0, 80),
+    ("5C1R", "5C1R", nome_do_primo(5, 1), 11, 21, 0, 80),
     ("6C", "6C", "Primos de 6º grau", 12, 18, 0, 71),
     ("7C", "7C", "Primos de 7º grau", 14, 14, 0, 57),
     ("8C", "8C", "Primos de 8º grau", 16, 11, 0, 42),
@@ -206,9 +206,9 @@ POSICOES_NA_FAIXA = {
 # Medido em 2026-10-22 nos 456 kits do arquivo real (`Famílias_Sergipanas.csv`), com
 # a banda de 1,5x: **423 com um destaque, 32 com dois, 1 com tres**. A mediana de
 # d2/d1 e' 1,88 — a segunda costuma estar quase duas vezes mais longe que a primeira.
-# Os 32 casos de dois sao, quase todos, vizinhos de UMA remocao (4C com 4C1R, 5C com
-# 5C1R): exatamente o que o cM nao distingue. O unico caso de tres e' o kit
-# AZ4078391, com 154,5 cM.
+# Os 32 casos de dois sao, quase todos, vizinhos de UMA geracao de diferenca (4C com
+# 4C1R, 5C com 5C1R): exatamente o que o cM nao distingue. O unico caso de tres e' o
+# kit AZ4078391, com 154,5 cM.
 BANDA_DE_DESTAQUE = 1.5
 MAXIMO_DE_DESTAQUES = 3
 
@@ -235,7 +235,7 @@ def mrca_da_relacao(chave: str):
     Devolve `graus`, `rotulo` e `detalhe`. O rotulo e o conjunto de antepassados
     (`bisavós`); o detalhe diz a profundidade e, quando os dois lados nao sobem o
     mesmo numero de geracoes, diz que sao dois. A profundidade e **por lado** porque
-    numa relacao com remocao — "primo de 2º grau dos pais", o 2C1R — o antepassado
+    numa relacao com diferenca de geracao — "primo de 2º grau dos pais", o 2C1R — o antepassado
     esta a 3 geracoes de uma pessoa e a 4 da outra. Escolher um dos lados seria
     inventar qual das duas pessoas e a raiz.
     """

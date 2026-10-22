@@ -28,7 +28,7 @@ from parsers import gedcom_parser  # noqa: E402
 from tests.fixtures.helpers import arvore_de, deps  # noqa: E402
 from tests.fixtures.sample_dna import DNA_CSV_FONTE_SUJA, DNA_GED  # noqa: E402
 
-# 200 cM: a primeira linha e "Primos de 1º grau (2× removidos)", cuja faixa e 33–471.
+# 200 cM: a primeira linha e "Primos de 1º grau (duas gerações de diferença)", cuja faixa e 33–471.
 CSV_200 = DNA_CSV_FONTE_SUJA
 # Acima do maximo publicado (3.720 cM): nenhuma relacao cobre o valor.
 CSV_SEM_COBERTURA = "Name,cM,Kit,Source\nAna Silva Souza,5000,AB1234567,Genera\n"
@@ -81,7 +81,7 @@ class TestATabela:
 
     def test_a_primeira_linha_traz_relacao_posicao_e_antepassado(self):
         pagina = _com_tabela()
-        assert "Primos de 1º grau (2× removidos)" in pagina
+        assert "Primos de 1º grau (duas gerações de diferença)" in pagina
         assert "avós e trisavós" in pagina, (
             "o antepassado comum de um 1C2R tem dois lados (2 e 4 geracoes), "
             "e os dois precisam aparecer"
