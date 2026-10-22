@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulação — o arquivo fala de si mesmo (sem FamilySearch)</title>
+<style>
+:root{--bg:#F5F1E6;--surface:#fff;--surface-2:#F8F4E9;--ink:#2A2418;--head:#4A3B1A;
+--muted:#6A6150;--line:#DDD4BF;--primary:#3F6B2E;--danger:#A8321F;--aviso-bg:#FBF3DC;
+--aviso-line:#A8741F;--sucesso-bg:#EDF4E6;--sucesso-line:#3F6B2E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.55 Manrope,system-ui,-apple-system,'Segoe UI',sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:40px 24px 64px}
+h1,h2,h3{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;color:var(--head);line-height:1.15}
+h1{font-size:42px;margin:4px 0 8px}
+h2{font-size:29px;margin:0 0 10px}
+h3{font-size:21px;margin:0 0 4px}
+p{margin:0 0 12px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.86em;background:#EDE7D6;padding:1px 5px;border-radius:4px}
+.olho{letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted);margin-bottom:6px}
+.sub{color:var(--muted);font-size:17px;max-width:74ch}
+.secao{margin-top:46px}
+.rotulo{display:inline-block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-bottom:10px}
+.rotulo.antes{border-color:#C9BBA0;background:#F1EAD9}
+.rotulo.depois{border-color:var(--sucesso-line);background:var(--sucesso-bg);color:var(--primary)}
+.cartao{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.cartao + .cartao{margin-top:18px}
+.cabeca{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px}
+.fonte{font-size:14px;color:var(--muted)}
+.fonte b{color:var(--ink);font-weight:600}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 18px}
+.campo .k{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.campo .v{font-size:19px;font-weight:600}
+.aviso{border:1px solid var(--aviso-line);background:var(--aviso-bg);border-radius:10px;
+padding:12px 14px;margin-top:16px;font-size:14.5px}
+.ok{border:1px solid var(--sucesso-line);background:var(--sucesso-bg);border-radius:10px;
+padding:12px 14px;margin-top:16px;font-size:14.5px}
+.painel{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--primary);
+border-radius:12px;padding:20px 24px;margin-bottom:18px}
+.painel h3{margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px}
+.tile{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tile .n{font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;line-height:1.05;color:var(--head)}
+.tile .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+.frases{margin:16px 0 0;padding:14px 0 0 18px;border-top:1px dashed var(--line);font-size:14.5px}
+.frases li{margin-bottom:7px}
+table{border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--line);
+border-radius:12px;overflow:hidden;font-size:14.5px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.hoje{color:var(--danger)}
+td.depois{color:var(--primary);font-weight:600}
+.tag{display:inline-block;font-size:11.5px;border-radius:999px;padding:2px 8px;
+border:1px solid var(--line);background:var(--surface-2);color:var(--muted)}
+.rodape{margin-top:42px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="olho">Simulação estática · dados reais de <code>Famílias_Sergipanas.csv</code></p>
+<h1>O arquivo fala de si mesmo</h1>
+<p class="sub">Pacote mínimo <b>sem</b> FamilySearch e <b>sem</b> link: vocabulário de fonte, painel de
+cobertura do arquivo e estado da medida. Nenhum veredito muda — o que muda é o que a tela consegue dizer
+sobre o próprio arquivo.</p>
+
+<section class="secao">
+  <span class="rotulo antes">Hoje</span>
+  <h2>O cartão mostra o campo como veio</h2>
+  <p class="sub">A “Fonte” é exibida literalmente: o texto de formulário
+  <code>Outro (insira o nome abaixo)</code> aparece como se fosse o nome do laboratório. E o arquivo não diz
+  nada sobre si mesmo — para saber que 456 dos 617 segmentos ficaram abaixo do piso de 10 cM, é preciso abrir
+  o CSV.</p>
+
+  <article class="cartao">
+    <div class="cabeca">
+      <h3>Airton Passos Vasconcelos</h3>
+      <div class="fonte">Fonte: <b>Outro (insira o nome abaixo)</b> · Kit <code>SD5093704</code></div>
+    </div>
+    <div class="grade">
+      <div class="campo"><div class="k">DNA compartilhado</div><div class="v">51,3 cM</div></div>
+      <div class="campo"><div class="k">Maior segmento</div><div class="v">13,7 cM</div></div>
+      <div class="campo"><div class="k">Segmentos</div><div class="v">5</div></div>
+      <div class="campo"><div class="k">SNPs</div><div class="v">7.349</div></div>
+      <div class="campo"><div class="k">MRCA estimado</div><div class="v">4,06 gerações</div></div>
+      <div class="campo"><div class="k">Cromossomo(s)</div><div class="v">3, 7, 20</div></div>
+    </div>
+    <div class="aviso">
+      <b>Filtro de endogamia</b> — total bruto 51,3 cM; após o filtro de ≥ 10 cM por segmento: 37,9 cM.
+      2 segmento(s) abaixo do piso somam 13,4 cM.
+    </div>
+  </article>
+</section>
+
+<section class="secao">
+  <span class="rotulo depois">Depois</span>
+  <h2>Um painel antes dos cartões, e uma linha de qualidade em cada um</h2>
+
+  <div class="painel">
+    <h3>O que este arquivo cobre</h3>
+    <div class="tiles">
+      <div class="tile"><div class="n">617</div><div class="l">linhas no CSV</div></div>
+      <div class="tile"><div class="n">456</div><div class="l">pessoas (nome + kit)</div></div>
+      <div class="tile"><div class="n">456</div><div class="l">kits distintos</div></div>
+      <div class="tile"><div class="n">11</div><div class="l">laboratórios em 45 grafias</div></div>
+      <div class="tile"><div class="n">22</div><div class="l">cromossomos cobertos</div></div>
+      <div class="tile"><div class="n">9,0</div><div class="l">mediana de cM por pessoa</div></div>
+      <div class="tile"><div class="n">74%</div><div class="l">segmentos abaixo de 10 cM</div></div>
+      <div class="tile"><div class="n">88%</div><div class="l">sem bloco de 15 cM</div></div>
+    </div>
+    <ul class="frases">
+      <li><b>456 de 617</b> segmentos estão abaixo do piso de 10 cM e são descartados pelo filtro de endogamia.</li>
+      <li><b>58 de 112</b> pessoas passam de 15 cM <i>somados</i>, mas nenhum bloco chega a 15 cM — o total vem
+        de vários blocos pequenos.</li>
+      <li><b>232</b> pessoas têm menos de 900 SNPs somados: a chamada do segmento é mais frágil que o cM sugere.</li>
+      <li>O arquivo <b>não declara o corte</b> usado na busca que o gerou. Ausência de um nome aqui não é
+        ausência de parentesco — é ausência <i>neste arquivo</i>.</li>
+      <li><b>50</b> células de fonte não trazem laboratório: 40 são texto de formulário, 8 são nome de projeto,
+        1 é haplogrupo e 1 não é reconhecida.</li>
+    </ul>
+  </div>
+
+  <article class="cartao">
+    <div class="cabeca">
+      <h3>Airton Passos Vasconcelos</h3>
+      <div class="fonte">Fonte: <b>não declarada</b> — o arquivo traz
+        <span class="tag">Outro (insira o nome abaixo)</span> texto de formulário ·
+        Kit <code>SD5093704</code></div>
+    </div>
+    <div class="grade">
+      <div class="campo"><div class="k">DNA compartilhado</div><div class="v">51,3 cM</div></div>
+      <div class="campo"><div class="k">Maior segmento</div><div class="v">13,7 cM</div></div>
+      <div class="campo"><div class="k">Segmentos</div><div class="v">5</div></div>
+      <div class="campo"><div class="k">SNPs</div><div class="v">7.349</div></div>
+      <div class="campo"><div class="k">MRCA estimado</div><div class="v">4,06 gerações</div></div>
+      <div class="campo"><div class="k">Cromossomo(s)</div><div class="v">3, 7, 20</div></div>
+    </div>
+    <div class="aviso"><b>Medida parcial</b> — menor bloco de 13,7 cM (abaixo de 15). Sustenta menos conclusão
+      que um bloco contíguo grande. Qualidade da <i>medida</i>, não do parentesco.</div>
+  </article>
+
+  <article class="cartao">
+    <div class="cabeca">
+      <h3>Clezia Santos</h3>
+      <div class="fonte">Fonte: <b>Genera</b> · Kit <code>AZ4078391</code></div>
+    </div>
+    <div class="grade">
+      <div class="campo"><div class="k">DNA compartilhado</div><div class="v">154,5 cM</div></div>
+      <div class="campo"><div class="k">Maior segmento</div><div class="v">56,9 cM</div></div>
+      <div class="campo"><div class="k">Segmentos</div><div class="v">6</div></div>
+      <div class="campo"><div class="k">SNPs</div><div class="v">15.959</div></div>
+      <div class="campo"><div class="k">MRCA estimado</div><div class="v">3,27 gerações</div></div>
+      <div class="campo"><div class="k">Cromossomo(s)</div><div class="v">1, 2, 4, 7, 15, 22</div></div>
+    </div>
+    <div class="ok"><b>Medida robusta</b> — total 154,5 cM, maior segmento 56,9 cM e 15.959 SNPs.
+      Qualidade da <i>medida</i>, não do parentesco.</div>
+  </article>
+</section>
+
+<section class="secao">
+  <h2>O que muda, campo por campo</h2>
+  <table>
+    <tr><th>Onde</th><th>Hoje</th><th>Depois</th></tr>
+    <tr><td>Fonte do cartão</td><td class="hoje">“Outro (insira o nome abaixo)”</td>
+        <td class="depois">“não declarada” + texto original em etiqueta</td></tr>
+    <tr><td>Fonte, no arquivo</td><td class="hoje">45 grafias para ~11 laboratórios</td>
+        <td class="depois">45 grafias → 11 laboratórios + 50 sem laboratório</td></tr>
+    <tr><td>Qualidade da medida</td><td class="hoje">só “segmento fraco” abaixo de 15 cM</td>
+        <td class="depois">robusta · parcial · insuficiente, com os três números</td></tr>
+    <tr><td>Cobertura do arquivo</td><td class="hoje">só por cartão</td>
+        <td class="depois">painel antes dos cartões: 8 números e 5 frases</td></tr>
+    <tr><td>Corte da busca</td><td class="hoje">não é mencionado</td>
+        <td class="depois">“não declarado pelo arquivo”</td></tr>
+    <tr><td>Caminho, cM, confronto, viabilidade</td><td class="hoje">como estão</td>
+        <td class="depois">inalterados — nenhuma regra de parentesco muda</td></tr>
+  </table>
+</section>
+
+<section class="secao">
+  <h2>Distribuição de fonte, depois de normalizar</h2>
+  <table>
+    <tr><th>Rótulo exibido</th><th>Pessoas</th></tr>
+    <tr><td>Genera</td><td>183</td></tr>
+    <tr><td>MyHeritage</td><td>127</td></tr>
+    <tr><td>meuDNA</td><td>49</td></tr>
+    <tr><td>FTDNA</td><td>22</td></tr>
+    <tr><td>23andMe</td><td>15</td></tr>
+    <tr><td>Ancestry</td><td>5</td></tr>
+    <tr><td>FamilyTreeDNA</td><td>1</td></tr>
+    <tr><td>Living DNA</td><td>1</td></tr>
+    <tr><td>Genos</td><td>1</td></tr>
+    <tr><td>DNA Land</td><td>1</td></tr>
+    <tr><td>MundoDNA</td><td>1</td></tr>
+    <tr><td><i>não declarada</i></td><td>49</td></tr>
+    <tr><td><i>outro</i></td><td>1</td></tr>
+  </table>
+</section>
+
+<p class="rodape">Maquete estática, sem Bootstrap e sem CDN: abre offline. Números calculados a partir de
+<code>Famílias_Sergipanas.csv</code> com os mesmos módulos do app (<code>parsers.csv_ingest</code>,
+<code>core.genetic_evidence</code>) e os pisos de <code>core.endogamia</code>. A tela real obedece ao template
+<code>src/templates/index.html</code>; esta página é uma simulação de conteúdo e hierarquia, não uma captura
+do app.</p>
+
+</div>
+</body>
+</html>
