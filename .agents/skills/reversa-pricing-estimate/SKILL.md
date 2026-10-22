@@ -6,7 +6,7 @@ license: MIT
 compatibility: Claude Code, Codex, Cursor, Gemini CLI e demais agentes compativeis com Agent Skills.
 metadata:
   author: sandeco
-  version: "1.1.0"
+  version: "1.2.0"
   framework: reversa
   phase: pricing
   stage: estimate
@@ -28,7 +28,7 @@ Voce e o precificador de features do REVERSA. Sua missao e cruzar o profile de c
 
 ## Antes de comecar
 
-1. Leia `.reversa/state.json` para resolver `output_folder`, default `_reversa_sdd`
+1. Leia `.reversa/state.json` para resolver `output_folder`, default `_reversa_sdd`, e `forward_folder`, default `_reversa_sdd/forward`
 2. Carregue:
    - `agents/reversa-pricing-estimate/references/effort-formula.md`
    - `agents/reversa-pricing-estimate/references/value-formula.md`
@@ -39,7 +39,7 @@ Voce e o precificador de features do REVERSA. Sua missao e cruzar o profile de c
 ## Resolucao da feature ativa
 
 1. Leia `.reversa/active-requirements.json` para `feature-dir`
-2. Se ausente, liste features e peca escolha numerada
+2. Se ausente ou invalido, liste os subdiretorios de `<forward_folder>/` no formato `NNN-*` ou `YYYYMMDD-HHMMSS-*` que tenham `size.json` em `<output_folder>/_pricing/<feature>/`, apresente menu numerado e aguarde escolha. Se nenhum tiver size, falhe com: "Nenhuma feature com size.json. Rode `/reversa-pricing-size` primeiro."
 
 ## Pre-requisitos
 
@@ -48,6 +48,7 @@ Voce e o precificador de features do REVERSA. Sua missao e cruzar o profile de c
 3. Se profile nao existir, falhe com: "Nao encontrei profile.json. Rode `/reversa-pricing-profile` antes."
 4. Se size nao existir, falhe com: "Nao encontrei size.json para essa feature. Rode `/reversa-pricing-size` antes."
 5. Aceite `size.schema_version = "1.1"` como preferencial. Se vier `1.0`, avise que o size usa formula antiga e recomende recalcular
+6. Aceite `profile.schema_version = "1.1"` ou `"1.2"`. Com `1.1`, siga como hoje. Com `1.2`, leia tambem `profile.field_origins` (um objeto com `hourly_rate`, `margin_percent`, `tax_regime` e `pricing_models`, cada um com `origin`, `source` e `researched_at`) para usar na secao "Confianca dos insumos"
 
 ## Recalculo
 
@@ -190,6 +191,28 @@ Se `profile.billing_currency` e `profile.exchange_rate_to_local` estao preenchid
 3. Mostre a taxa usada: `1 <billing_currency> = <exchange_rate_to_local> <currency>`
 4. Avise que o cambio e manual e nao atualizado em tempo real
 
+## Confianca dos insumos
+
+Esta secao so se aplica quando `profile.schema_version = "1.2"`. Com profile `1.1` nao existe `field_origins`: nao gere a secao e nao altere `guidance_pt_br`.
+
+Com profile `1.2`:
+
+1. Percorra `profile.field_origins` na ordem `hourly_rate`, `margin_percent`, `tax_regime`, `pricing_models`
+2. Para cada campo cuja `origin` nao seja `digitado`, gere uma linha no formato literal:
+
+```
+`<campo>`: `<origem>` (`<source>`, `<researched_at>`)
+```
+
+   Onde `<campo>` e o nome do campo, `<origem>` e o valor de `origin` (`pesquisado` ou `padrao`), `<source>` e o valor de `source` e `<researched_at>` e o valor de `researched_at`. Se `source` ou `researched_at` for `null`, escreva `nao informado` no lugar.
+3. Se houver pelo menos um campo com origem `pesquisado` ou `padrao`:
+   - Acrescente ao final de `guidance_pt_br` a frase literal: "Valores pesquisados ou padrao reduzem a confianca desta estimativa. Revise taxa hora, markup e regime antes de enviar proposta."
+   - No `estimate.md`, insira a secao `## Confianca dos insumos` imediatamente antes de `## Como escolher entre os tres`, com a lista de linhas do passo 2 seguida da mesma frase literal
+4. Se todos os quatro campos tiverem origem `digitado`:
+   - Nao altere `guidance_pt_br`
+   - No `estimate.md`, insira a secao `## Confianca dos insumos` imediatamente antes de `## Como escolher entre os tres`, contendo apenas a frase literal: "Todos os insumos do profile foram informados por voce."
+5. Mostre a mesma lista no chat, logo apos a tabela de cenarios, para o usuario saber de onde veio cada valor antes de decidir
+
 ## Persistencia
 
 Grave `estimate.json` conforme `estimate-schema.json`:
@@ -254,7 +277,10 @@ Disclaimer: os numeros nesta estimativa sao aproximacoes para orientacao de orca
 1. Caminho absoluto de `estimate.json` e `estimate.md`, se gravados
 2. Caminho dos `.bak`, se houve recalculo
 3. Cenarios indisponiveis, se houver
-4. Proximo passo sugerido
+4. Proximo passo sugerido:
+   - Se `<output_folder>/_pricing/advisor.json` existe com `tracks.product = true` e `<output_folder>/_pricing/product/product.json` ausente, sugira `/reversa-pricing-product`
+   - Senao, sugira `/reversa-pricing` para ver o estado do time e precificar outra feature
+   - Em qualquer caso, acrescente a frase: "Use `/reversa-pricing` para ver o estado do time."
 
 Termine com:
 

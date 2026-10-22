@@ -104,6 +104,22 @@ Este e o template Markdown que o agente `reversa-pricing-estimate` usa para gera
 
 </se>
 
+## Confianca dos insumos
+
+<secao gerada somente com profile.schema_version == "1.2"; com profile 1.1, omitir a secao inteira>
+
+<se houver origem diferente de digitado, uma linha por campo, neste formato literal>
+
+- `<campo>`: `<origem>` (`<source ou "nao informado">`, `<researched_at ou "nao informado">`)
+
+Valores pesquisados ou padrao reduzem a confianca desta estimativa. Revise taxa hora, markup e regime antes de enviar proposta.
+
+<se todos os campos forem digitados>
+
+Todos os insumos do profile foram informados por voce.
+
+</se>
+
 ## Como escolher entre os tres
 
 <orientacao_pt_br_baseada_nos_cenarios>

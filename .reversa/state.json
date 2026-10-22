@@ -1,5 +1,5 @@
 {
-  "version": "1.3.4",
+  "version": "1.3.6",
   "project": "teste_reversa",
   "user_name": "Adriano",
   "chat_language": "pt-br",
@@ -97,14 +97,28 @@
       "concluido_em": "2026-10-13T13:32:00-03:00",
       "motivo": "o codigo mudou depois da re-extracao de 2026-10-10 (a folha de estilo virou rota em 2026-10-12, commit b173d70; o Host passou a ter lista em 2026-10-13, commit 4ad9f63; e os demais commits do dia) e a paridade recoletada em 2026-10-13 09:34 nao tinha veredito registrado em lugar nenhum",
       "features_varridas": 12,
-      "watch_items": {"total": 67, "verde": 61, "amarelo": 5, "vermelho": 1},
+      "watch_items": {
+        "total": 67,
+        "verde": 61,
+        "amarelo": 5,
+        "vermelho": 1
+      },
       "vermelho": "010-W008, o MESMO da passada anterior (renomeacoes historicas de 2026-10-09/10); a medicao de hoje mostra integridade preservada e nome alterado, e a triagem segue pendente de decisao humana",
-      "amarelos": ["004-W003", "004-W008", "006-W005", "006-W019", "007-W023"],
+      "amarelos": [
+        "004-W003",
+        "004-W008",
+        "006-W005",
+        "006-W019",
+        "007-W023"
+      ],
       "verificacao_por_execucao": {
         "suite": "605 passam / 9 pulados / 0 falham, em 48,05 s",
         "paridade": "PARIDADE 100 % (zero divergencia), exit 0, 6/6 fixtures, por tests/rodar_paridade.py",
         "observacoes_dos_coletores": "205 itens identicos byte a byte entre candidato e oraculo (_obs_cand.json == _obs_oracle.json, sha256 ee1efee9)",
-        "varreduras": ["_t020_varredura.py: APROVADO", "_t011_varredura.py: APROVADO"],
+        "varreduras": [
+          "_t020_varredura.py: APROVADO",
+          "_t011_varredura.py: APROVADO"
+        ],
         "sonda_de_mensagens": "5 divergencias contra o baseline do oraculo de 2026-10-07, TODAS por mudanca declarada e contratada (recusa fixa, rotulo no lugar da chave, aviso de substituicao)"
       },
       "arquivos_gravados": [
@@ -112,7 +126,10 @@
         "_reversa_sdd/addenda/011-escolher-arquivo-da-lista.md: linha de superacao pela re-extracao de 2026-10-10"
       ],
       "conferencia_da_reconciliacao": "O plan.md registrava 8 adendos marcados com 2026-10-10, e apenas 7 carregavam a linha: o 011 era o oitavo e foi marcado agora. Os adendos 013 (2026-10-12) e 014 (2026-10-11) sao POSTERIORES a re-extracao de 2026-10-10 e por isso NAO foram marcados: os deltas deles ainda nao foram absorvidos por nenhuma extracao.",
-      "candidatos_a_arquivamento_nao_executado": ["003-W001..W005 (3 verdes)", "004-W001, W002, W004, W005, W006, W007 (3 verdes)"],
+      "candidatos_a_arquivamento_nao_executado": [
+        "003-W001..W005 (3 verdes)",
+        "004-W001, W002, W004, W005, W006, W007 (3 verdes)"
+      ],
       "motivo_de_nao_arquivar": "a tabela principal proibe mover watch items para Arquivadas automaticamente; a decisao e humana",
       "residuo_declarado": "Reexecutar os instrumentos regravou _reversa_forward/006-fronteira-aplicacao-ports/evidence/mensagens_depois.json e _reversa_forward/007-dono-no-port-e-baseline/evidence/T011-varredura.txt (saidas de instrumento, agora com o estado atual do app); as quebras de linha foram normalizadas para LF",
       "proximo_do_projeto": "com o Passo 4 fechado, as correcoes de codigo agendadas podem comecar (L-24/E-05, L-30, L-25, L-33, L-28/X-05), e a primeira da fila e a L-24, que exige medicao antes de decidir"
@@ -130,7 +147,13 @@
         "primary_language": "Python 3.14.6 (.venv e o interpretador oficial)",
         "main_framework": "Flask 3.1.3 servido por waitress 3.0.2",
         "architecture": "hexagonal: app.py (borda) -> application/ (casos de uso) -> ports/ (adaptadores) -> core/ (dominio puro)",
-        "modules_identified": ["upload-gedcom", "tela-de-entrada", "analise-dna", "busca-caminho", "recursos-da-tela"],
+        "modules_identified": [
+          "upload-gedcom",
+          "tela-de-entrada",
+          "analise-dna",
+          "busca-caminho",
+          "recursos-da-tela"
+        ],
         "surface": "8 rotas/acoes: GET / + 5 actions de POST (upload_gedcom, aposentar_arquivo, selecionar_arvore, dna_analysis, path_search) + GET /banner.png + GET /apple-touch-icon.png",
         "surface_changed": "SIM - entraram 2 rotas de arte e 2 actions desde 2026-10-05",
         "database": "presente e OPCIONAL: PostgreSQL 16 em docker-compose, init.sql com 6 tabelas; sem DATABASE_URL o registrador e nulo",
@@ -172,7 +195,13 @@
       "phase": "escavacao",
       "phase_completed": true,
       "modules_total": 5,
-      "modules_analyzed": ["upload-gedcom", "tela-de-entrada", "analise-dna", "busca-caminho", "recursos-da-tela"],
+      "modules_analyzed": [
+        "upload-gedcom",
+        "tela-de-entrada",
+        "analise-dna",
+        "busca-caminho",
+        "recursos-da-tela"
+      ],
       "modules_pending": [],
       "next_module": "transversais (code-analysis.md, data-dictionary.md, .reversa/context/modules.json)",
       "paused_at": "2026-10-10 - pausa pedida pelo usuario apos o modulo tela-de-entrada, para retomar com contexto limpo; retomada na mesma data seguiu por analise-dna, busca-caminho e recursos-da-tela",
@@ -426,7 +455,12 @@
           "unit": "upload-gedcom",
           "status": "concluida",
           "completed_at": "2026-10-10T23:55:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 24,
           "tarefas": 26,
           "testes": 20,
@@ -436,7 +470,12 @@
           "unit": "tela-de-entrada",
           "status": "concluida",
           "completed_at": "2026-10-11T00:40:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 24,
           "tarefas": 22,
           "testes": 14,
@@ -454,7 +493,12 @@
           "unit": "analise-dna",
           "status": "concluida",
           "completed_at": "2026-10-11T01:30:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 34,
           "tarefas": 46,
           "testes": 27,
@@ -474,7 +518,12 @@
           "unit": "busca-caminho",
           "status": "concluida",
           "completed_at": "2026-10-11T02:20:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 43,
           "tarefas": 38,
           "testes": 24,
@@ -494,7 +543,12 @@
           "unit": "recursos-da-tela",
           "status": "concluida",
           "completed_at": "2026-10-11T03:00:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 25,
           "tarefas": 22,
           "testes": 17,
@@ -543,12 +597,36 @@
           "precedente_do_projeto": "O oraculo de 2026-09-28 achou no primeiro minuto um erro de spec que sobreviveu a 6 agentes e 7 gates humanos, porque todos operavam no nivel das specs. Medir primeiro e a licao registrada em .reversa do proprio projeto."
         },
         "decisoes_pendentes_e_recomendacao": [
-          {"achado": "L-29 / P-07", "tema": "dado pessoal de pessoas vivas sem retencao, expurgo ou consentimento", "recomendacao": "DECLARAR A PROIBICAO AGORA (uso restrito a propria arvore do operador) e levar retencao/expurgo como REQUISITO DO ALVO, como ja foi feito com os 4 requisitos encaminhados em 2026-10-05. Nao construir retencao no legado durante uma extracao."},
-          {"achado": "L-24 / E-05", "tema": "colisao da chave do cache de nomes", "recomendacao": "MEDIR PRIMEIRO (ver acima); depois corrigir no legado como feature forward. A correcao e pequena (acrescentar a chave algo derivado do conteudo), NAO muda comportamento nenhum, e o TT-20 ja esta escrito. id() NAO serve como chave - e reciclado."},
-          {"achado": "L-28 / X-05", "tema": "nao ha teste do caminho feliz de escrita no banco", "recomendacao": "Criar um ambiente de teste COM o driver: venv dedicado ou alvo de teste dentro do container. NAO mexer no .venv/ oficial - ele e o interpretador da paridade e foi realinhado de proposito em 2026-10-05."},
-          {"achado": "L-33", "tema": "a arte servida nao e verificada dentro do container", "recomendacao": "Um teste que rode NA IMAGEM, ou um health check no arranque. E exatamente o caso que a escolha de src/assets/ existe para evitar, e hoje nada o pega."},
-          {"achado": "L-30", "tema": "o motivo 'fora da forma' ficou inalcancavel e a docstring descreve uma validacao removida", "recomendacao": "CORRIGIR A DOCSTRING E MANTER O RAMO. Custo mais baixo e mais honesto: zero mudanca de comportamento, uma linha de comentario que hoje descreve a _FORMATO_CHAVE removida em 2026-10-10."},
-          {"achado": "L-25", "tema": "ordem de common_ancestors sensivel ao PYTHONHASHSEED", "recomendacao": "Dar a ela o mesmo tratamento que o matching recebeu em 2026-10-05: um quarto criterio deterministico. Mesma classe de defeito, e o desenho ja existe no projeto."}
+          {
+            "achado": "L-29 / P-07",
+            "tema": "dado pessoal de pessoas vivas sem retencao, expurgo ou consentimento",
+            "recomendacao": "DECLARAR A PROIBICAO AGORA (uso restrito a propria arvore do operador) e levar retencao/expurgo como REQUISITO DO ALVO, como ja foi feito com os 4 requisitos encaminhados em 2026-10-05. Nao construir retencao no legado durante uma extracao."
+          },
+          {
+            "achado": "L-24 / E-05",
+            "tema": "colisao da chave do cache de nomes",
+            "recomendacao": "MEDIR PRIMEIRO (ver acima); depois corrigir no legado como feature forward. A correcao e pequena (acrescentar a chave algo derivado do conteudo), NAO muda comportamento nenhum, e o TT-20 ja esta escrito. id() NAO serve como chave - e reciclado."
+          },
+          {
+            "achado": "L-28 / X-05",
+            "tema": "nao ha teste do caminho feliz de escrita no banco",
+            "recomendacao": "Criar um ambiente de teste COM o driver: venv dedicado ou alvo de teste dentro do container. NAO mexer no .venv/ oficial - ele e o interpretador da paridade e foi realinhado de proposito em 2026-10-05."
+          },
+          {
+            "achado": "L-33",
+            "tema": "a arte servida nao e verificada dentro do container",
+            "recomendacao": "Um teste que rode NA IMAGEM, ou um health check no arranque. E exatamente o caso que a escolha de src/assets/ existe para evitar, e hoje nada o pega."
+          },
+          {
+            "achado": "L-30",
+            "tema": "o motivo 'fora da forma' ficou inalcancavel e a docstring descreve uma validacao removida",
+            "recomendacao": "CORRIGIR A DOCSTRING E MANTER O RAMO. Custo mais baixo e mais honesto: zero mudanca de comportamento, uma linha de comentario que hoje descreve a _FORMATO_CHAVE removida em 2026-10-10."
+          },
+          {
+            "achado": "L-25",
+            "tema": "ordem de common_ancestors sensivel ao PYTHONHASHSEED",
+            "recomendacao": "Dar a ela o mesmo tratamento que o matching recebeu em 2026-10-05: um quarto criterio deterministico. Mesma classe de defeito, e o desenho ja existe no projeto."
+          }
         ],
         "correcoes_de_catalogo_a_confirmar_pelo_revisor": [
           "CAUSAS_POSSIVEL tem 8 itens, e nao 9 (medido por importacao: [0] + [3:8] + [10:] = 1+5+2). code-analysis.md 4.4 e modules.json BR-D-35 afirmam 9 e estao ERRADOS. Ha teste dedicado (TT-19).",
@@ -597,18 +675,35 @@
         "limpeza do bytecode orfao dos modulos que deixaram de existir"
       ],
       "arquivos_removidos": [
-        "src/application/reenvio.py", "src/assets/banner-da-tela.png",
-        "tests/banner_da_tela.py", "tests/test_aposentar_arquivo.py", "tests/test_banner_do_topo.py",
-        "tests/test_campo_de_escolha_do_csv.py", "tests/test_forma_da_referencia.py",
-        "tests/test_gedcom_ilegivel_nao_derruba.py", "tests/test_reenvio_do_arquivo.py",
-        "tests/test_reenvio_do_csv.py", "tests/test_tabela_da_tela.py", "tests/test_voltar_para_a_lista.py"
+        "src/application/reenvio.py",
+        "src/assets/banner-da-tela.png",
+        "tests/banner_da_tela.py",
+        "tests/test_aposentar_arquivo.py",
+        "tests/test_banner_do_topo.py",
+        "tests/test_campo_de_escolha_do_csv.py",
+        "tests/test_forma_da_referencia.py",
+        "tests/test_gedcom_ilegivel_nao_derruba.py",
+        "tests/test_reenvio_do_arquivo.py",
+        "tests/test_reenvio_do_csv.py",
+        "tests/test_tabela_da_tela.py",
+        "tests/test_voltar_para_a_lista.py"
       ],
       "arquivos_restaurados": [
-        "src/app.py", "src/application/traducao.py", "src/application/upload_gedcom.py", "src/core/erros.py",
-        "src/ports/__init__.py", "src/ports/adaptadores.py", "src/reporting/lista_de_arquivos.py",
-        "src/templates/index.html", "src/utils/validate.py", "tests/test_icone_de_atalho.py",
-        "tests/test_lista_de_arquivos.py", "tests/test_lista_na_tela.py", "tests/test_path_search.py",
-        "tests/test_traducao_de_erros.py", "tests/test_upload_seguranca.py"
+        "src/app.py",
+        "src/application/traducao.py",
+        "src/application/upload_gedcom.py",
+        "src/core/erros.py",
+        "src/ports/__init__.py",
+        "src/ports/adaptadores.py",
+        "src/reporting/lista_de_arquivos.py",
+        "src/templates/index.html",
+        "src/utils/validate.py",
+        "tests/test_icone_de_atalho.py",
+        "tests/test_lista_de_arquivos.py",
+        "tests/test_lista_na_tela.py",
+        "tests/test_path_search.py",
+        "tests/test_traducao_de_erros.py",
+        "tests/test_upload_seguranca.py"
       ],
       "verificacao": {
         "src_e_tests_iguais_a_7c8140a": "git diff --stat 7c8140a -- src tests = VAZIO, e nenhum arquivo nao rastreado sobrou em src/ ou tests/",
@@ -711,7 +806,16 @@
       "adendos": {
         "total": 17,
         "marcados_nesta_rodada": 8,
-        "ids_marcados": ["005-nucleo-puro-src", "006-fronteira-aplicacao-ports", "007-dono-no-port-e-baseline", "008-persistencia-postgres-docker", "009-rota-do-apple-touch-icon", "010-uploads-fora-do-repositorio", "011-escolher-arquivo-da-lista", "012-pasta-canonica-no-repositorio"],
+        "ids_marcados": [
+          "005-nucleo-puro-src",
+          "006-fronteira-aplicacao-ports",
+          "007-dono-no-port-e-baseline",
+          "008-persistencia-postgres-docker",
+          "009-rota-do-apple-touch-icon",
+          "010-uploads-fora-do-repositorio",
+          "011-escolher-arquivo-da-lista",
+          "012-pasta-canonica-no-repositorio"
+        ],
         "ja_superados_em_rodadas_anteriores": 9,
         "caso_especial": "O adendo 011 NAO tinha secao '## Vigencia' - usa estrutura numerada de secoes 1 a 5. A secao foi ACRESCENTADA AO FINAL (append-only: nenhuma linha anterior tocada, nenhuma outra secao alterada), com nota explicando o motivo.",
         "nada_apagado": true
@@ -861,19 +965,31 @@
           "unit": "upload-gedcom",
           "status": "concluida",
           "completed_at": "2026-09-30T20:45:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md"]
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md"
+          ]
         },
         {
           "unit": "analise-dna",
           "status": "concluida",
           "completed_at": "2026-09-30T21:05:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md"]
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md"
+          ]
         },
         {
           "unit": "busca-caminho",
           "status": "concluida",
           "completed_at": "2026-09-30T21:30:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md"]
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md"
+          ]
         }
       ],
       "next_file": null,
@@ -897,7 +1013,12 @@
           "unit": "upload-gedcom",
           "status": "concluida",
           "completed_at": "2026-10-05T22:05:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 19,
           "tarefas": 20,
           "testes": 13
@@ -906,7 +1027,12 @@
           "unit": "analise-dna",
           "status": "concluida",
           "completed_at": "2026-10-05T23:20:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 26,
           "tarefas": 32,
           "testes": 18,
@@ -916,7 +1042,12 @@
           "unit": "busca-caminho",
           "status": "concluida",
           "completed_at": "2026-10-06T00:35:00Z",
-          "files": ["requirements.md", "design.md", "tasks.md", "contracts.md"],
+          "files": [
+            "requirements.md",
+            "design.md",
+            "tasks.md",
+            "contracts.md"
+          ],
           "rfs": 24,
           "tarefas": 29,
           "testes": 18,
@@ -1020,7 +1151,11 @@
       "summary": {
         "primary_language": "Python 3.14.6",
         "main_framework": "Flask 3.1.3",
-        "modules_identified": ["upload-gedcom", "analise-dna", "busca-caminho"],
+        "modules_identified": [
+          "upload-gedcom",
+          "analise-dna",
+          "busca-caminho"
+        ],
         "database": "ausente",
         "ci_cd": "ausente",
         "docker": "ausente",
@@ -1065,7 +1200,11 @@
           "analisador-genealogico/reconstructed/dna_analysis.py"
         ],
         "business_rules_catalogued": 53,
-        "by_module": { "upload-gedcom": 11, "busca-caminho": 17, "analise-dna": 25 },
+        "by_module": {
+          "upload-gedcom": 11,
+          "busca-caminho": 17,
+          "analise-dna": 25
+        },
         "entities_declared": 5,
         "entities_used_in_flow": 2,
         "algorithms_documented": 10,
@@ -1146,9 +1285,30 @@
       "cross_review": false,
       "cross_review_reason": "nivel essencial nao oferece revisao cruzada (Passo 0 do agente); nenhuma engine externa foi consultada",
       "confidence": {
-        "unit_specs": { "verde": 496, "amarelo": 32, "vermelho": 28, "total": 556, "pct": 89.2, "confianca_geral_pct": 92.1 },
-        "transversais": { "verde": 203, "amarelo": 37, "vermelho": 30, "total": 270, "pct": 75.2, "confianca_geral_pct": 82.0 },
-        "extracao_completa": { "verde": 699, "amarelo": 69, "vermelho": 58, "total": 826, "pct": 84.6, "confianca_geral_pct": 88.8 }
+        "unit_specs": {
+          "verde": 496,
+          "amarelo": 32,
+          "vermelho": 28,
+          "total": 556,
+          "pct": 89.2,
+          "confianca_geral_pct": 92.1
+        },
+        "transversais": {
+          "verde": 203,
+          "amarelo": 37,
+          "vermelho": 30,
+          "total": 270,
+          "pct": 75.2,
+          "confianca_geral_pct": 82
+        },
+        "extracao_completa": {
+          "verde": 699,
+          "amarelo": 69,
+          "vermelho": 58,
+          "total": 826,
+          "pct": 84.6,
+          "confianca_geral_pct": 88.8
+        }
       },
       "reclassifications_vs_previous_extraction": 8,
       "internal_upgrades": 4,
@@ -1225,10 +1385,35 @@
         ".reversa/context/modules.json"
       ],
       "confidence_after": {
-        "unit_specs": { "verde": 509, "amarelo": 30, "vermelho": 29, "total": 568, "pct": 89.6, "confianca_geral_pct": 92.3 },
-        "transversais": { "verde": 206, "amarelo": 23, "vermelho": 22, "total": 251, "pct": 82.1, "confianca_geral_pct": 86.7 },
-        "extracao_completa": { "verde": 715, "amarelo": 53, "vermelho": 51, "total": 819, "pct": 87.3, "confianca_geral_pct": 90.5 },
-        "antes_das_respostas": { "total": 826, "confianca_geral_pct": 88.8, "vermelho": 58 }
+        "unit_specs": {
+          "verde": 509,
+          "amarelo": 30,
+          "vermelho": 29,
+          "total": 568,
+          "pct": 89.6,
+          "confianca_geral_pct": 92.3
+        },
+        "transversais": {
+          "verde": 206,
+          "amarelo": 23,
+          "vermelho": 22,
+          "total": 251,
+          "pct": 82.1,
+          "confianca_geral_pct": 86.7
+        },
+        "extracao_completa": {
+          "verde": 715,
+          "amarelo": 53,
+          "vermelho": 51,
+          "total": 819,
+          "pct": 87.3,
+          "confianca_geral_pct": 90.5
+        },
+        "antes_das_respostas": {
+          "total": 826,
+          "confianca_geral_pct": 88.8,
+          "vermelho": 58
+        }
       },
       "self_corrections": [
         "Criei dois IDs T-19 em analise-dna/tasks.md (determinismo e tratamento de erro) e um T-18 fora de ordem. Renumerado: T-18 (erro), T-19 (determinismo), T-20 (faixas heuristicas), com secao propria para as duas divergencias deliberadas.",
@@ -1249,7 +1434,14 @@
     "extraction_complete_reextracao_2026_09_30": {
       "completed_at": "2026-09-30T22:00:00Z",
       "kind": "re-extracao integral do _reversa_sdd/",
-      "agents_run": ["scout", "archaeologist", "detective", "architect", "writer", "reviewer"],
+      "agents_run": [
+        "scout",
+        "archaeologist",
+        "detective",
+        "architect",
+        "writer",
+        "reviewer"
+      ],
       "agents_run_count": 6,
       "doc_level": "essencial",
       "snapshot_of_previous": ".reversa/snapshots/2026-09-30-pre-reextracao/",
@@ -1278,7 +1470,11 @@
       "summary": {
         "primary_language": "Python 3.14.6",
         "main_framework": "Flask 3.1.3 servido por waitress 3.0.2",
-        "modules_identified": ["upload-gedcom", "analise-dna", "busca-caminho"],
+        "modules_identified": [
+          "upload-gedcom",
+          "analise-dna",
+          "busca-caminho"
+        ],
         "surface_unchanged": "3 valores de action e rota unica, iguais aos da extracao anterior",
         "database": "ausente",
         "ci_cd": "PASSou a existir: .github/workflows/deploy-pages.yml publica _reversa_docs/ no GitHub Pages",
@@ -1319,7 +1515,11 @@
     "archaeologist_reextracao_2026_10_05": {
       "reextraction": true,
       "doc_level": "completo",
-      "modules_analyzed": ["upload-gedcom", "analise-dna", "busca-caminho"],
+      "modules_analyzed": [
+        "upload-gedcom",
+        "analise-dna",
+        "busca-caminho"
+      ],
       "modules_pending": [],
       "last_module_completed_at": "2026-10-05T17:00:00Z",
       "phase_completed": true,
@@ -1463,7 +1663,11 @@
         "head": "d845ef8 2026-10-05",
         "session_login_auth_role_permission_in_src": "zero (os 44 casamentos de termo-chave sao atributos HTML role= e funcoes *_tokens)",
         "flask_session_imported": false,
-        "campos_status_encontrados": ["documentary.status", "comparison.status", "comparison.per_kit[].status"],
+        "campos_status_encontrados": [
+          "documentary.status",
+          "comparison.status",
+          "comparison.per_kit[].status"
+        ],
         "campos_flag_enabled_active_state": "nenhum",
         "probe_pythonhashseed": "set de 7 xref_id iterado em 3 sementes: nenhuma posicao em comum",
         "lint_artefatos_novos": "0 problemas fora de MD013; 363 MD013 (condicao PRE-EXISTENTE de todo o _reversa_sdd/: so o code-analysis.md tem 61)"
@@ -1602,11 +1806,39 @@
       ],
       "verificacoes_executadas": 10,
       "confidence_final": {
-        "units": { "verde": 941, "amarelo": 35, "vermelho": 34, "total": 1010, "pct": 94.9 },
-        "transversais": { "verde": 751, "amarelo": 54, "vermelho": 41, "total": 846, "pct": 92.0 },
-        "adrs": { "verde": 45, "amarelo": 6, "vermelho": 15, "total": 66, "pct": 72.7 },
-        "extracao_completa": { "verde": 1737, "amarelo": 95, "vermelho": 90, "total": 1922, "confianca_geral_pct": 92.8 },
-        "antes_das_decisoes": { "total": 1923, "confianca_geral_pct": 91.5, "vermelho": 109 },
+        "units": {
+          "verde": 941,
+          "amarelo": 35,
+          "vermelho": 34,
+          "total": 1010,
+          "pct": 94.9
+        },
+        "transversais": {
+          "verde": 751,
+          "amarelo": 54,
+          "vermelho": 41,
+          "total": 846,
+          "pct": 92
+        },
+        "adrs": {
+          "verde": 45,
+          "amarelo": 6,
+          "vermelho": 15,
+          "total": 66,
+          "pct": 72.7
+        },
+        "extracao_completa": {
+          "verde": 1737,
+          "amarelo": 95,
+          "vermelho": 90,
+          "total": 1922,
+          "confianca_geral_pct": 92.8
+        },
+        "antes_das_decisoes": {
+          "total": 1923,
+          "confianca_geral_pct": 91.5,
+          "vermelho": 109
+        },
         "metodo": "ocorrencia dos marcadores por arquivo, excluindo as linhas de legenda"
       },
       "reclassificacoes": {
@@ -1680,7 +1912,24 @@
         "criticas": 1,
         "moderadas": 8,
         "cosmeticas": 5,
-        "fechadas_nesta_rodada": ["L-06", "L-08", "L-14", "L-15", "L-17", "L-19", "L-21", "L-22", "L-23", "M-02", "M-04", "P-01", "P-03", "P-04", "P-05", "E-03"],
+        "fechadas_nesta_rodada": [
+          "L-06",
+          "L-08",
+          "L-14",
+          "L-15",
+          "L-17",
+          "L-19",
+          "L-21",
+          "L-22",
+          "L-23",
+          "M-02",
+          "M-04",
+          "P-01",
+          "P-03",
+          "P-04",
+          "P-05",
+          "E-03"
+        ],
         "fechadas_total": 16,
         "critica_restante": "L-16 / M-03 / P-02 - corrida entre requisicoes concorrentes (estado global reescrito por requisicao com 4 threads). O usuario NUNCA observou resultado cruzado; a probabilidade percebida cai, mas o mecanismo segue confirmado e o alcance nao medido",
         "nenhuma_depende_de_decisao_do_usuario": true,
@@ -1695,8 +1944,15 @@
       "kind": "passo-04-verificacao-de-regressao-semantica",
       "features_com_regression_watch": 4,
       "watch_items_em_tabela_principal": 13,
-      "features_sem_watch_item": ["001-reconstrua-o-conteudo-da-index", "002-integrar-rota-app-modulos"],
-      "verdictos": { "verde": 12, "amarelo": 1, "vermelho": 0 },
+      "features_sem_watch_item": [
+        "001-reconstrua-o-conteudo-da-index",
+        "002-integrar-rota-app-modulos"
+      ],
+      "verdictos": {
+        "verde": 12,
+        "amarelo": 1,
+        "vermelho": 0
+      },
       "block_on_red": false,
       "arquivos_atualizados": [
         "_reversa_forward/001-reconstrua-o-conteudo-da-index/regression-watch.md (bloco datado + 2 verificacoes de contexto)",
@@ -1732,7 +1988,11 @@
           "bug-BUG-20260929-QMLY-v001.md",
           "bug-BUG-20261004-EWSJ-v001.md"
         ],
-        "ja_superados_em_rodada_anterior": ["001-reconstrua-o-conteudo-da-index.md", "002-integrar-rota-app-modulos.md", "003-refactor-code-quality.md"],
+        "ja_superados_em_rodada_anterior": [
+          "001-reconstrua-o-conteudo-da-index.md",
+          "002-integrar-rota-app-modulos.md",
+          "003-refactor-code-quality.md"
+        ],
         "mudanca_de_decisao_declarada": "o bug-J6PQ-v001 havia sido PRESERVADO de proposito em 2026-09-30, com a justificativa de que nenhum artefato principal cobria o contrato de escape. Essa premissa deixou de valer nesta rodada: busca-caminho/contracts.md secao 5 e adrs/05 passaram a cobrir o assunto por inteiro. A mudanca de situacao esta declarada no proprio adendo."
       },
       "legacy_untouched": "NAO - ja registrado em code_changes_authorized do checkpoint do Revisor; nenhuma edicao adicional nesta passada"
@@ -1740,13 +2000,42 @@
     "extraction_complete_reextracao_2026_10_05": {
       "completed_at": "2026-10-06T03:20:00Z",
       "kind": "re-extracao integral do _reversa_sdd/ a partir do codigo de 2026-10-05",
-      "agents_run": ["scout", "archaeologist", "detective", "architect", "writer", "reviewer"],
+      "agents_run": [
+        "scout",
+        "archaeologist",
+        "detective",
+        "architect",
+        "writer",
+        "reviewer"
+      ],
       "agents_run_count": 6,
       "doc_level": "completo",
-      "fases_concluidas": ["reconhecimento", "escavacao", "interpretacao", "geracao", "revisao"],
+      "fases_concluidas": [
+        "reconhecimento",
+        "escavacao",
+        "interpretacao",
+        "geracao",
+        "revisao"
+      ],
       "snapshot_da_extracao_anterior": ".reversa/snapshots/2026-10-05-pre-reextracao/ (33 arquivos, 349701 bytes, sha256 por arquivo)",
       "artefatos_gerados_ou_reescritos": {
-        "transversais": ["inventory.md", "dependencies.md", "code-analysis.md", "data-dictionary.md", "domain.md", "state-machines.md", "permissions.md", "architecture.md", "c4-context.md", "c4-containers.md", "c4-components.md", "erd-complete.md", "confidence-report.md", "questions.md", "gaps.md"],
+        "transversais": [
+          "inventory.md",
+          "dependencies.md",
+          "code-analysis.md",
+          "data-dictionary.md",
+          "domain.md",
+          "state-machines.md",
+          "permissions.md",
+          "architecture.md",
+          "c4-context.md",
+          "c4-containers.md",
+          "c4-components.md",
+          "erd-complete.md",
+          "confidence-report.md",
+          "questions.md",
+          "gaps.md"
+        ],
         "flowcharts": 3,
         "specs_de_unit": 12,
         "adrs": 23,
@@ -1755,9 +2044,28 @@
         "traceability": 2,
         "total_aproximado": 60
       },
-      "preservados_sem_regeneracao": ["_reversa_sdd/migration/", "_reversa_sdd/oracle/", "_reversa_sdd/parity/", "_reversa_sdd/screens/", "_reversa_sdd/addenda/", "_reversa_sdd/design-system/", "_reversa_sdd/traceability/bugs.md"],
-      "confianca_final": { "afirmacoes": 1922, "verde": 1737, "amarelo": 95, "vermelho": 90, "confianca_geral_pct": 92.8 },
-      "lacunas": { "abertas_linhas": 14, "ids_distintos": 17, "criticas": 1, "fechadas_nesta_rodada": 16 },
+      "preservados_sem_regeneracao": [
+        "_reversa_sdd/migration/",
+        "_reversa_sdd/oracle/",
+        "_reversa_sdd/parity/",
+        "_reversa_sdd/screens/",
+        "_reversa_sdd/addenda/",
+        "_reversa_sdd/design-system/",
+        "_reversa_sdd/traceability/bugs.md"
+      ],
+      "confianca_final": {
+        "afirmacoes": 1922,
+        "verde": 1737,
+        "amarelo": 95,
+        "vermelho": 90,
+        "confianca_geral_pct": 92.8
+      },
+      "lacunas": {
+        "abertas_linhas": 14,
+        "ids_distintos": 17,
+        "criticas": 1,
+        "fechadas_nesta_rodada": 16
+      },
       "regression_check": "concluido nesta sessao em 2026-10-06T03:20Z (ver checkpoint passo4_regressao_2026_10_05): 4 features, 13 watch items, 12 verdes e 1 amarelo, ZERO vermelhos",
       "adendos_superados": 6,
       "codigo_do_legado_alterado": "SIM - 6 arquivos, todos por decisao explicita do usuario registrada em _reversa_sdd/questions.md e cobertos por reversa-config.json: src/core/matching.py, src/app.py, src/core/genetic_evidence.py, requirements.txt, tests/test_characterization_matching.py, tests/test_confrontacao_gedcom_dna.py",
@@ -1801,6 +2109,7 @@
     "opencode"
   ],
   "agents": [
+    "impeccable",
     "reversa",
     "reversa-add",
     "reversa-agents-help",
@@ -1850,8 +2159,12 @@
     "reversa-paradigm-advisor",
     "reversa-plan",
     "reversa-pre-spec",
+    "reversa-pricing",
+    "reversa-pricing-advisor",
     "reversa-pricing-estimate",
+    "reversa-pricing-product",
     "reversa-pricing-profile",
+    "reversa-pricing-research",
     "reversa-pricing-size",
     "reversa-principles",
     "reversa-prune",
@@ -1972,6 +2285,11 @@
     ".agents\\skills\\reversa-standardize",
     ".reversa\\reversa-config.json",
     ".reversa\\hooks\\check-legacy-policy.mjs",
-    ".reversa\\hooks\\README.md"
+    ".reversa\\hooks\\README.md",
+    ".agents\\skills\\impeccable",
+    ".agents\\skills\\reversa-pricing",
+    ".agents\\skills\\reversa-pricing-advisor",
+    ".agents\\skills\\reversa-pricing-product",
+    ".agents\\skills\\reversa-pricing-research"
   ]
 }

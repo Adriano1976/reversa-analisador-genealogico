@@ -1,0 +1,24 @@
+{
+  "schema-version": 1,
+  "started-at": "2026-10-20T08:04:24Z",
+  "status": "done",
+  "answers": {
+    "target": "sync",
+    "doubts": "file",
+    "optional-stages": false,
+    "on-failure": "stop"
+  },
+  "queue": [
+    {
+      "item": "038-humanizar-motivo-descartes",
+      "feature-dir": "_reversa_forward/038-humanizar-motivo-descartes",
+      "status": "done",
+      "last-stage": "sync",
+      "note": "Adendo 038 vigente em _reversa_sdd/addenda/"
+    }
+  ],
+  "warnings": [
+    "2026-10-20: .reversa/forward-autonomous.json.tmp ficou no disco — o shell sandbox nega Remove-Item e Move-Item no workspace; o checkpoint foi gravado direto pelo editor de arquivos.",
+    "2026-10-20: nenhum gancho opcional executado (hooks.yml vazio); nenhum arquivo que o coding quisesse apagar."
+  ]
+}

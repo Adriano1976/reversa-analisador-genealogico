@@ -30,9 +30,11 @@ O Reversa é um time de especialistas. Cada agente faz uma coisa só — e faz b
 | Implementar ou evoluir código a partir das specs | `/reversa-forward` | Code Forward Agents |
 | Planejar a migração de um legado | `/reversa-migrate` | Migration Agents |
 | Gerar um mini-site visual da documentação | `/reversa-docs` | Documentation Agents |
+| Descobrir como vender e quanto cobrar pelo software ou por uma feature | `/reversa-pricing` | Pricing and Size Agents |
+| Desenhar, criticar, auditar ou polir uma interface de front-end | `/impeccable` | Front-end Team (Impeccable) |
 | Entender qual agente usar | `/reversa-agents-help` | Guia de agentes |
 
-Os times de Pricing e Translators têm comandos especializados. Use `/reversa-pricing-profile`, `/reversa-pricing-size`, `/reversa-pricing-estimate` ou `/reversa-n8n` conforme a necessidade.
+O time de Pricing entra por `/reversa-pricing`. Translators usam `/reversa-n8n`.
 
 ---
 
@@ -163,12 +165,43 @@ O estilista cataloga o guarda-roupa: paleta de cores, tipografia, espaçamentos,
 
 ---
 
+## 💰 Reversa Pricing: o consultor de preço
+**Comando:** `/reversa-pricing`
+
+Um bom consultor de preço não começa pelo número. Antes, ele pergunta como você quer vender: por encomenda para um cliente, como licença, aluguel, assinatura ou numa loja de apps. Só depois de saber o modelo ele chama cada especialista: quem pesquisa o mercado, quem anota como você cobra, quem mede a obra, quem monta o orçamento e quem calcula quantos clientes pagam a conta. No fim, você nunca recebe um número só: recebe faixas, cenários e o que cada preço exige.
+
+> Use o Reversa Pricing quando quiser saber quanto cobrar pelo software ou por uma feature, seja você iniciante ou experiente. Ele detecta onde você parou em `_pricing/` e conduz `Advisor → Profile → Product` (produto) ou `Size → Estimate` (serviço, por feature). O Research entra quando você prefere pesquisar em vez de informar.
+
+**Os seis especialistas:**
+
+| Agente | Analogia | Comando |
+|---|---|---|
+| **Advisor** | O consultor que pergunta como você quer vender antes de falar em número | `/reversa-pricing-advisor` |
+| **Research** | O pesquisador que vai ao mercado e volta com faixa, fonte e data | `/reversa-pricing-research` |
+| **Profile** | O contador que anota como você cobra, ou pesquisa por você | `/reversa-pricing-profile` |
+| **Size** | O engenheiro que mede a obra pela planta, não pelo tijolo | `/reversa-pricing-size` |
+| **Estimate** | O orçamentista que entrega três cenários, nunca um número só | `/reversa-pricing-estimate` |
+| **Product** | O planejador que diz quantos clientes pagam a conta em cada preço | `/reversa-pricing-product` |
+
+---
+
+## 🎨 Impeccable: o diretor de arte do front-end
+**Comando:** `/impeccable`
+
+Um diretor de arte premiado não aceita o template que todo mundo usa. Ele olha a tela que você já tem, pergunta para quem ela existe e o que o visitante precisa conseguir fazer, e só então decide: deixar mais ousada, mais quieta, mais clara, mais rápida. Ele trabalha com 24 comandos de design (`critique`, `audit`, `polish`, `bolder`, `quieter`, `animate`, `typeset`, `layout`, `harden`, entre outros) e verifica o resultado olhando a tela renderizada, não só o código.
+
+> Use o Impeccable quando a interface precisa de design de verdade: site, landing page, dashboard, formulário, componente ou tela nativa. Rode `/impeccable init` uma vez por projeto e depois `/impeccable <comando> <alvo>`. É o framework [Impeccable](https://impeccable.style) de Paul Bakaus, entregue junto com o Reversa sob a licença Apache 2.0.
+
+---
+
 ## Sequência recomendada
 
 ```
 Projeto legado: /reversa → descoberta e especificações
 Projeto novo:   /reversa-new → PRD e specs → /reversa-forward
 Migração:       /reversa → /reversa-migrate → /reversa-forward
+Precificar:     /reversa-pricing → advisor → profile → product | size → estimate
+Front-end:      /impeccable init → /impeccable <comando> <alvo>
 
 Pipeline legado manual:
 Scout → Archaeologist (N sessões) → Detective → Architect → Writer → Reviewer

@@ -1,0 +1,21 @@
+{
+  "schema-version": 1,
+  "started-at": "2026-10-20T08:04:24Z",
+  "status": "running",
+  "answers": {
+    "target": "sync",
+    "doubts": "file",
+    "optional-stages": false,
+    "on-failure": "stop"
+  },
+  "queue": [
+    {
+      "item": "Nova feature: humanizar os motivos dos Matches descartados (trocar given/final/inter/jacc por linguagem leiga, na tela e no CSV exportado)",
+      "feature-dir": "",
+      "status": "running",
+      "last-stage": "",
+      "note": ""
+    }
+  ],
+  "warnings": []
+}

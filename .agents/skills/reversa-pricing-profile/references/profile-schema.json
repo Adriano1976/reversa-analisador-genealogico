@@ -1,13 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "reversa-pricing-profile-v1.1",
+  "$id": "reversa-pricing-profile-v1.2",
   "title": "Reversa Pricing Profile",
-  "description": "Perfil de cobrança gerado pelo agente reversa-pricing-profile, consumido pelos agentes reversa-pricing-size e reversa-pricing-estimate.",
+  "description": "Perfil de cobrança gerado pelo agente reversa-pricing-profile, consumido por size, estimate e product.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "created_at",
+    "mode",
     "country",
     "currency",
     "seniority",
@@ -21,18 +22,24 @@
     "includes_vat",
     "vat_pass_through_warning",
     "tax_regime_confidence",
-    "pricing_models"
+    "pricing_models",
+    "field_origins"
   ],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.1",
-      "description": "Versão do schema. v1 = 1.0."
+      "const": "1.2",
+      "description": "Versão do schema. v1 = 1.0, v1.1 adicionou campos tributários, v1.2 adicionou modo, região e origem dos campos."
     },
     "created_at": {
       "type": "string",
       "format": "date-time",
       "description": "Timestamp ISO 8601 UTC da criação ou da última regeneração do profile."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["experiente", "leigo"],
+      "description": "experiente = o usuário informou os valores (sei informar); leigo = a taxa hora foi pesquisada e os demais campos receberam padrão (pesquisar)."
     },
     "country": {
       "type": "string",
@@ -43,6 +50,21 @@
       "type": "string",
       "pattern": "^[A-Z]{3}$",
       "description": "Código ISO 4217 da moeda local."
+    },
+    "region": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "city": {
+          "type": ["string", "null"],
+          "description": "Cidade de atuação informada pelo usuário em modo leigo."
+        },
+        "state": {
+          "type": ["string", "null"],
+          "description": "Estado ou província de atuação informada pelo usuário em modo leigo."
+        }
+      },
+      "description": "Região usada pela pesquisa de taxa hora. null em modo experiente ou quando o usuário pulou."
     },
     "seniority": {
       "type": "string",
@@ -55,8 +77,8 @@
     },
     "hourly_rate_mode": {
       "type": "string",
-      "enum": ["direto", "derivado"],
-      "description": "direto = usuário informou o valor; derivado = calculado a partir de monthly_target_income e billable_hours_per_month."
+      "enum": ["direto", "derivado", "pesquisado"],
+      "description": "direto = usuário informou o valor; derivado = calculado a partir de monthly_target_income e billable_hours_per_month; pesquisado = escolhido dentro da faixa do reversa-pricing-research e confirmado pelo usuário."
     },
     "monthly_target_income": {
       "type": ["number", "null"],
@@ -138,7 +160,7 @@
           "cliente_internacional"
         ]
       },
-      "description": "Pode ser vazio quando o usuário escolhe pular essa pergunta."
+      "description": "Pode ser vazio quando o usuário escolhe pular essa pergunta ou em modo leigo."
     },
     "billing_currency": {
       "type": ["string", "null"],
@@ -149,6 +171,45 @@
       "type": ["number", "null"],
       "exclusiveMinimum": 0,
       "description": "Câmbio manual: quantas unidades de currency valem 1 unidade de billing_currency. null quando não cobra em moeda estrangeira."
+    },
+    "research_ref": {
+      "type": ["string", "null"],
+      "description": "Caminho de _pricing/research/hourly_rate.json quando a taxa hora foi pesquisada. null caso contrário."
+    },
+    "field_origins": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hourly_rate", "margin_percent", "tax_regime", "pricing_models"],
+      "description": "Origem de cada campo sensível do profile: digitado pelo usuário, pesquisado pelo research ou padrão do agente.",
+      "properties": {
+        "hourly_rate": { "$ref": "#/$defs/field_origin" },
+        "margin_percent": { "$ref": "#/$defs/field_origin" },
+        "tax_regime": { "$ref": "#/$defs/field_origin" },
+        "pricing_models": { "$ref": "#/$defs/field_origin" }
+      }
+    }
+  },
+  "$defs": {
+    "field_origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "source", "researched_at"],
+      "properties": {
+        "origin": {
+          "type": "string",
+          "enum": ["digitado", "pesquisado", "padrao"],
+          "description": "digitado = informado pelo usuário; pesquisado = vindo do reversa-pricing-research e confirmado; padrao = valor padrão do agente aceito sem alteração."
+        },
+        "source": {
+          "type": ["string", "null"],
+          "description": "Fonte do valor: caminho do research mais nomes das fontes, ou nome do padrão aplicado. null quando digitado."
+        },
+        "researched_at": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Data de acesso da pesquisa (sources[0].accessed_at do research, AAAA-MM-DD). null quando não pesquisado."
+        }
+      }
     }
   },
   "allOf": [
