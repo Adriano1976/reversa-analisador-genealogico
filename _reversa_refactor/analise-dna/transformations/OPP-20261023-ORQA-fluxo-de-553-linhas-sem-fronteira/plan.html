@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de reestruturação · OPP-20261023-ORQA</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  h3 { font-size: 14px; margin: 20px 0 8px; color: #d8d8d8; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  td.num { text-align: right; font-family: Consolas, Menlo, monospace; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; background: #1b2b1b; border: 1px solid #3a5a3a;
+         color: #a8e6a8; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.no { background: #2b1b1b; border-color: #5a3a3a; color: #ffb4b4; }
+  .tag.wa { background: #2b2618; border-color: #5a4a2a; color: #e8c87a; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de reestruturação · <code>OPP-20261023-ORQA</code></h1>
+<div class="meta">
+  Contexto <code>analise-dna</code> · alvo <code>src/core/dna_analysis.py</code> ·
+  verbo <code>restructure</code> · 2026-10-23 · gate 1 de 2
+</div>
+
+<div class="cards">
+  <div class="card bad"><div class="v">539</div><div class="k">linhas em dna_analysis</div></div>
+  <div class="card bad"><div class="v">370</div><div class="k">linhas no laço por kit</div></div>
+  <div class="card bad"><div class="v">18</div><div class="k">nomes capturados do escopo</div></div>
+  <div class="card good"><div class="v">~190</div><div class="k">linhas depois</div></div>
+  <div class="card"><div class="v">13</div><div class="k">campos do contexto</div></div>
+</div>
+
+<h2>O trecho, hoje</h2>
+<p>
+  Depois da poda da <code>DOCF</code>, o módulo tem <strong>1.094 linhas</strong> e
+  <code>dna_analysis</code> ocupa <strong>539</strong> delas (539-1077), com 21
+  condicionais e 140 chamadas. O corpo útil é um laço aninhado de
+  <strong>370 linhas</strong> (668-1037) que executa catorze etapas do mesmo cartão
+  em sequência, sem uma única fronteira nomeada.
+</p>
+
+<pre><span class="cmt">for chave_nome, por_kit in evidencias.items():</span>
+<span class="cmt">    for chave_kit, kit in por_kit.items():</span>
+        <span class="cmt"># 670-696  endogamia do kit, matching, promoção, avisos      (27 linhas)</span>
+        <span class="cmt"># 698-741  recusa: monta o descarte e faz `continue`          (44 linhas)</span>
+        <span class="cmt"># 743-758  escolhe o parentesco documental                    (16 linhas)</span>
+        <span class="cmt"># 760-806  endogamia estrutural, selo, nomes do grafo         (47 linhas)</span>
+        <span class="cmt"># 808-841  identidade, janela de vida, regra do operador      (34 linhas)</span>
+        <span class="cmt"># 843-898  confronto, profundidade, anotação do diagrama      (56 linhas)</span>
+        <span class="cmt"># 900-944  rótulo efetivo, validação, árvore sugerida          (45 linhas)</span>
+        <span class="cmt"># 946-1037 monta o cartão de 40 chaves                        (92 linhas)</span>
+</pre>
+
+<p>
+  O laço captura <strong>18 nomes</strong> do escopo da função: <code>arvore</code>,
+  <code>root_id</code>, <code>deps</code>, <code>ged_index</code>,
+  <code>surname_index</code>, <code>features</code>, <code>dominio</code>,
+  <code>ano_base</code>, <code>intervalo_de_geracao</code>,
+  <code>analisador_de_dna</code>, <code>candidatos_fixos</code>,
+  <code>avisos_de_cartao</code>, <code>documental_por_pessoa</code>,
+  <code>dossie_por_nome</code>, <code>_dossie</code>, <code>results_list</code>,
+  <code>skipped_matches</code> e <code>sem_candidatos</code>.
+</p>
+
+<h2>Smells e refatorações do catálogo</h2>
+<table>
+  <tr><th>Smell</th><th>Refatoração (Fowler)</th><th>Efeito</th></tr>
+  <tr>
+    <td>Long Method</td>
+    <td>Extract Method: <code>_cartao_do_kit</code></td>
+    <td>o laço passa a ser uma chamada; o passo por kit ganha contrato e nome</td>
+  </tr>
+  <tr>
+    <td>Data Clump: 18 nomes soltos atravessam o laço</td>
+    <td>Introduce Parameter Object: <code>_ContextoDaAnalise</code></td>
+    <td>18 capturas viram uma referência; a assinatura extraída fica com 4 parâmetros</td>
+  </tr>
+  <tr>
+    <td>Closure com cache de módulo (<code>_dossie</code>)</td>
+    <td>Extract Function para o módulo, recebendo o contexto</td>
+    <td>o cache vira campo do contexto, e não variável livre de uma função de 539 linhas</td>
+  </tr>
+  <tr>
+    <td>Control Flag: <code>continue</code> no meio do laço</td>
+    <td>Replace Control Flag with Return</td>
+    <td>o caso "sem candidato" devolve descarte em vez de pular o restante do corpo</td>
+  </tr>
+</table>
+
+<h2>O contexto</h2>
+<p>
+  Tudo o que <strong>não muda entre kits</strong>, mais os dois caches da análise.
+  Congelado: os campos não são reatribuídos. Os dois dicionários de cache são
+  preenchidos pela primeira consulta e reaproveitados pelos kits seguintes, que é o
+  que evita repetir a varredura de cerca de 35 mil nomes por cartão.
+</p>
+
+<pre><span class="cmt">@dataclass(frozen=True, slots=True)</span>
+<span class="add">class _ContextoDaAnalise:</span>
+    arvore: tuple
+    root_id: str
+    deps: Dependencias
+    ged_index: dict
+    surname_index: dict
+    features: dict
+    dominio: dict
+    ano_base: int
+    intervalo_de_geracao: int
+    analisador: DNAAnalyzer
+    candidatos_fixos: dict
+    documental_por_pessoa: dict   <span class="cmt"># cache da analise</span>
+    dossie_por_nome: dict         <span class="cmt"># cache da analise</span>
+</pre>
+
+<div class="note">
+  <strong>Por que isso não é conversão a OO.</strong> O objeto não tem comportamento de
+  domínio e não reifica algoritmo: é um invólucro de entradas, no mesmo formato que
+  <code>core/endogamia.py</code> já usa em cinco <code>@dataclass(frozen=True,
+  slots=True)</code>. <code>paradigm_decision.md</code> recusa reificar o matching e a
+  busca como objetos com estado, e é isso que ele continua recusando.
+</div>
+
+<h2>A assinatura nova</h2>
+<pre><span class="add">def _cartao_do_kit(</span>
+    contexto: _ContextoDaAnalise,
+    por_kit: dict,
+    chave_kit: str,
+    kit: dict,
+    avisos_deste_cartao: list,
+) -> tuple[dict | None, dict | None, EvidenciaMitigada]:
+    <span class="cmt">"""Um kit vira cartao, ou vira descarte quando nao ha candidato.</span>
+<span class="cmt"></span>
+<span class="cmt">    Devolve (cartao, descarte, evidencia_mitigada): exatamente um dos dois</span>
+<span class="cmt">    primeiros e None. O terceiro volta sempre porque o cartao sem</span>
+<span class="cmt">    correspondencia da etapa seguinte precisa dele.</span>
+<span class="cmt">    """</span>
+</pre>
+
+<h2>O que muda no chamador</h2>
+<pre><span class="del">-    for chave_nome, por_kit in evidencias.items():</span>
+<span class="del">-        for chave_kit, kit in por_kit.items():</span>
+<span class="del">-            ... 370 linhas ...</span>
+<span class="add">+    contexto = _ContextoDaAnalise(</span>
+<span class="add">+        arvore=arvore, root_id=root_id, deps=deps,</span>
+<span class="add">+        ged_index=ged_index, surname_index=surname_index, features=features,</span>
+<span class="add">+        dominio=dominio, ano_base=ano_base,</span>
+<span class="add">+        intervalo_de_geracao=intervalo_de_geracao,</span>
+<span class="add">+        analisador=analisador_de_dna, candidatos_fixos=candidatos_fixos,</span>
+<span class="add">+        documental_por_pessoa={}, dossie_por_nome={},</span>
+<span class="add">+    )</span>
+<span class="add">+</span>
+<span class="add">+    for chave_nome, por_kit in evidencias.items():</span>
+<span class="add">+        for chave_kit, kit in por_kit.items():</span>
+<span class="add">+            avisos_deste_cartao = [...]</span>
+<span class="add">+            cartao, descarte, evidencia_mitigada = _cartao_do_kit(</span>
+<span class="add">+                contexto, por_kit, chave_kit, kit, avisos_deste_cartao)</span>
+<span class="add">+            if cartao is not None:</span>
+<span class="add">+                results_list.append(cartao)</span>
+<span class="add">+                continue</span>
+<span class="add">+            skipped_matches.append(descarte)</span>
+<span class="add">+            sem_candidatos.append({...</span>
+</pre>
+
+<h2>Duas fases, dois diffs</h2>
+<table>
+  <tr><th>Fase</th><th>O que faz</th><th>Resultado</th></tr>
+  <tr>
+    <td><span class="tag">1</span> este gate</td>
+    <td>contexto, <code>_dossie</code> de módulo, Extract Method do laço, <code>continue</code> vira retorno</td>
+    <td><code>dna_analysis</code> de 539 para cerca de 190 linhas; <code>_cartao_do_kit</code> nomeado</td>
+  </tr>
+  <tr>
+    <td><span class="tag wa">2</span> depois do verde</td>
+    <td>dentro de <code>_cartao_do_kit</code>, extrair cinco etapas: parentesco, endogamia, janela, confronto e validação</td>
+    <td>o passo por kit cai de 370 para cerca de 150 linhas, sem criar assinaturas de 8 parâmetros</td>
+  </tr>
+</table>
+<div class="note">
+  A fase 2 só é barata <strong>depois</strong> da fase 1: com o contexto, cada etapa
+  recebe 3 a 5 parâmetros. Se a fase 2 fosse feita primeiro, cada extração precisaria
+  carregar os 18 nomes, que é o mesmo data clump um nível abaixo.
+</div>
+
+<h2>O que fica de fora</h2>
+<table>
+  <tr><th>Item</th><th>Motivo</th></tr>
+  <tr>
+    <td>A assinatura pública de <code>dna_analysis</code></td>
+    <td>é contrato de paridade e está fixada em <code>analise-dna/design.md</code>. Não muda</td>
+  </tr>
+  <tr>
+    <td><code>_ordem</code>, <code>_montar_diagrama</code>, <code>_observacoes</code></td>
+    <td>ancorados em <code>core/dna_analysis.py</code> pela spec, que não está em caminho liberado. Movem-se na <code>CTAO</code>, com desvio registrado</td>
+  </tr>
+  <tr>
+    <td>Os dois construtores de cartão de 40 chaves</td>
+    <td>duplicação de contrato. É a <code>OPP-20261023-CTAO</code></td>
+  </tr>
+  <tr>
+    <td>Renomear variáveis em português ou inglês</td>
+    <td>fora do escopo do <code>restructure</code>; o módulo mistura os dois idiomas por herança do legado</td>
+  </tr>
+</table>
+
+<h2>Rede de segurança</h2>
+<table>
+  <tr><th>Instrumento</th><th>O que fixa</th></tr>
+  <tr><td>Suíte completa</td><td><strong>1625 passed, 9 skipped</strong> (105,64 s antes da poda, 106,01 s depois dela)</td></tr>
+  <tr><td><code>test_characterization_matching.py</code></td><td>saída congelada por fixture: caminho, cM, confronto e mensagem</td></tr>
+  <tr><td><code>test_confrontacao_gedcom_dna.py</code></td><td>os quatro estados do confronto</td></tr>
+  <tr><td>Digest de equivalência (novo)</td><td>sha256 do JSON canônico de <code>(results_sorted, skipped_matches, message)</code>, para duas fixtures, antes e depois</td></tr>
+</table>
+<div class="note ok">
+  O digest é mais estrito que os testes: compara <strong>todo</strong> o dicionário
+  devolvido, e não só os campos que algum teste lembra de conferir. Se ele divergir,
+  a transformação para, mesmo com a suíte verde.
+</div>
+
+<h2>Risco e reversão</h2>
+<ul>
+  <li>Risco principal: nome trocado ou ordem de efeito alterada na movimentação. O digest pega os dois.</li>
+  <li>Risco secundário: <code>continue</code> convertido em retorno errado no caso sem candidato. A fixture de descarte da suíte cobre.</li>
+  <li>Reversão: <code>git apply -R</code> no <code>CHG-001.diff</code>, que é gerado do estado atual e verificado com <code>git apply --check</code> antes de aplicar.</li>
+</ul>
+
+<div class="foot">
+  Gerado pelo Reversa-Refactor em 2026-10-23. Nada foi alterado: este plano aguarda aprovação no gate 1.
+</div>
+
+</div>
+</body>
+</html>

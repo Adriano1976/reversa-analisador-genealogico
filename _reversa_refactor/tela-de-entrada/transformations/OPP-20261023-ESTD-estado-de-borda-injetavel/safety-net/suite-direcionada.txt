@@ -1,0 +1,18 @@
+Testes direcionados da ESTD
+Medida em: 2026-10-23T13:32:00-03:00
+Comando: .venv\Scripts\python.exe -m pytest -q tests/test_estado_de_borda_injetavel.py
+
+Resultado:
+  4 passed in 8.95s
+
+Os quatro testes fixam:
+
+1. `create_app` guarda as quatro dependencias injetadas em
+   `extensions["analisador"]`, inclusive `registro=None`;
+2. `GET /` em duas instancias usa o armazenamento de cada uma, e nao o global;
+3. `registro=None` e distinto de "nao injetado";
+4. o app de modulo continua com os quatro objetos padrao.
+
+Antes da suite completa, o diff foi aplicado numa copia isolada de `src/` e as
+duas instancias foram exercitadas com `GET /` cada uma. As duas chamaram o
+proprio armazenamento. Nenhuma linha do repositorio foi tocada nessa prova.

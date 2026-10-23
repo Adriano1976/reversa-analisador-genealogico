@@ -1,0 +1,11 @@
+markdownlint-cli2 nao foi executado
+Medida em: 2026-10-23T13:50:00-03:00
+
+Motivo: o repositorio tem `.markdownlint-cli2.jsonc`, mas nao tem `node_modules`
+instalado. O `npx` existe no PATH, e `npx markdownlint-cli2 README.md` baixaria o
+pacote da rede, o que nao foi feito nesta sessao.
+
+Provas usadas no lugar:
+  - `git diff --check` sem erro de whitespace;
+  - conferencia de que os 54 caminhos da arvore existem no disco;
+  - suite completa verde, 1625 passed, 9 skipped.

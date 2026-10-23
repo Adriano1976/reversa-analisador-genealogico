@@ -1,0 +1,87 @@
+diff --git a/tests/test_profundidade_do_caminho.py b/tests/test_profundidade_do_caminho.py
+index 5082fe8..7921c15 100644
+--- a/tests/test_profundidade_do_caminho.py
++++ b/tests/test_profundidade_do_caminho.py
+@@ -23,6 +23,7 @@ O que justifica sao os outros dois motivos, e os dois sao de falha silenciosa:
+ """
+ from __future__ import annotations
+ 
++import ast
+ import os
+ import re
+ import sys
+@@ -928,16 +929,36 @@ class TestOCartaoDoDoadorImpossivel:
+         assert "flowchart BT" in pagina
+ 
+     def test_o_nucleo_exige_impossivel_e_caminho_para_vetar(self):
+-        """A guarda mora em `core.dna_analysis`, e nao no template — mas tem de existir."""
+-        caminho_nucleo = os.path.join(_RAIZ, "src", "core", "dna_analysis.py")
++        """A guarda mora no nucleo, e nao no template — mas tem de existir.
++
++        Depois da OPP-20261023-CTAO a regra saiu de `core.dna_analysis.py` para
++        `core.passo_por_kit.py`, que e onde o passo por kit decide o que o cartao
++        apresenta. O arquivo lido acompanha; as assercoes sao as mesmas.
++        """
++        caminho_nucleo = os.path.join(_RAIZ, "src", "core", "passo_por_kit.py")
+         with open(caminho_nucleo, encoding="utf-8") as arquivo:
+             nucleo = arquivo.read()
+         assert "if janela == IMPOSSIVEL and (documentary.get(\"path\") or {}).get(\"ids\")" in nucleo, (
+             "a regra da janela de vida perdeu a guarda de caminho"
+         )
+-        assert "documental_nao_encontrado(arvore, root_id, pid" in nucleo, (
++        # Por AST, e nao por texto. Prender o TEXTO da chamada amarrou esta guarda
++        # aos nomes dos argumentos do momento, e a OPP-20261023-ORQA a quebrou sem
++        # mudar comportamento nenhum (o digest de equivalencia seguiu identico).
++        # O invariante e a chamada existir com os tres primeiros argumentos
++        # posicionais: a raiz, o no escolhido e o id do match.
++        chamadas_ao_grupo = [
++            no
++            for no in ast.walk(ast.parse(nucleo))
++            if isinstance(no, ast.Call)
++            and isinstance(no.func, ast.Name)
++            and no.func.id == "documental_nao_encontrado"
++        ]
++        assert chamadas_ao_grupo, (
+             "a regra deixou de reaproveitar a forma do grupo 'nao encontrado'"
+         )
++        assert any(len(chamada.args) >= 3 for chamada in chamadas_ao_grupo), (
++            "a chamada perdeu os tres primeiros argumentos posicionais"
++        )
+         assert "documentary_do_registro" in nucleo, (
+             "o parentesco retirado deixou de ser guardado: a regra ficaria irreversivel"
+         )
+diff --git a/tests/test_veredito_no_nucleo.py b/tests/test_veredito_no_nucleo.py
+index 23e07d6..086ba51 100644
+--- a/tests/test_veredito_no_nucleo.py
++++ b/tests/test_veredito_no_nucleo.py
+@@ -16,6 +16,7 @@ from application.validacao import (  # noqa: E402
+     intervalo_de_geracao_mediano as intervalo_da_fachada,
+ )
+ from core import dna_analysis as nucleo  # noqa: E402
++from core import validacao_no_cartao  # noqa: E402
+ from core.dna_analysis import dna_analysis  # noqa: E402
+ from core.documentary_relationship import (  # noqa: E402
+     intervalo_de_geracao_mediano as intervalo_do_nucleo,
+@@ -100,14 +101,20 @@ def test_a_classe_nunca_contem_estado(tmp_path):
+ # ---------------------------------------------------------------------------
+ 
+ def test_uma_chamada_ao_validador_por_resultado(tmp_path, monkeypatch):
++    """O espiao mora no modulo que CHAMA o validador, e nao no que monta o cartao.
++
++    Depois da OPP-20261023-CTAO a chamada saiu de `core.dna_analysis` para
++    `core.validacao_no_cartao`. Patchar a origem (`core.validator`) nao serviria:
++    o nome ja foi importado, e o espiao precisa estar no ponto de uso.
++    """
+     chamadas = {"total": 0}
+-    original = nucleo.validar_comparacao
++    original = validacao_no_cartao.validar_comparacao
+ 
+     def espiao(comparacao):
+         chamadas["total"] += 1
+         return original(comparacao)
+ 
+-    monkeypatch.setattr(nucleo, "validar_comparacao", espiao)
++    monkeypatch.setattr(validacao_no_cartao, "validar_comparacao", espiao)
+     _arvore, resultados = _analisar(tmp_path, GED_SALTO_IMPOSSIVEL, CSV_SALTO)
+ 
+     assert len(resultados) == 1

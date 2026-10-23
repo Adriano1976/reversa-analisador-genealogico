@@ -38,13 +38,14 @@ _reversa_refactor/
 
 | Contexto | Alvo principal | Oportunidades |
 |----------|----------------|---------------|
-| `analise-dna` | `src/application/dna_analysis.py`, `src/application/projecao_analise.py` e `src/core/dna_analysis.py` | 13 |
+| `analise-dna` | `src/application/dna_analysis.py`, `src/application/projecao_analise.py` e `src/core/` (Dna + 8 módulos) | 19 |
 | `arquitetura-src` | `src/` inteiro: acoplamento, ciclos de pacote e duplicação | 4 |
 | `busca-caminho` | `src/core/path_search.py` | 4 |
 | `contrato-de-dados-src` | contrato dos dicionários de domínio e caminhos de importação | 2 |
 | `documentacao-sdd` | desvio entre `_reversa_sdd/` e o código, criado pelas transformações de 2026-10-06 | 1 |
+| `documentacao-do-projeto` | `README.md`: árvore de `src/` e descrição da arquitetura | 1 |
 | `pacote-reconstructed` | árvore do pacote (histórico, já em `src/`) | 9 |
-| `tela-de-entrada` | `src/app.py`: rotas web, assets, despacho de acoes e servidor | 5 |
+| `tela-de-entrada` | `src/app.py`: rotas web, assets, despacho de acoes, composicao e servidor | 6 |
 | `upload-gedcom` | `src/parsers/`, `src/core/gedcom_state.py` e `src/app.py` | 3 (1 declined) |
 | `verificacao-de-tipos` | `pyrefly.toml` e as anotações de tipo de `tests/` | 1 |
 
@@ -193,6 +194,8 @@ era o registro.
 | #43 | `OPP-20261023-DEAD` | tela-de-entrada | prune | **applied** | guarda inalcançável unificada; checagem mantida para estreitar tipo |
 | #41 | `OPP-20261023-SERV` | tela-de-entrada | decouple | **declined** | `tests/test_servidor_producao.py` exige o bloco de servidor no AST de `app.py` |
 | #42 | `OPP-20261023-FACT` | tela-de-entrada | modularize | **applied** | `create_app(config=None)` com 6 testes; suite 1621 passed, 9 skipped |
+| #44 | `OPP-20261023-ESTD` | tela-de-entrada | decouple | **applied** | estado de borda injetável: 10 leituras de global em handlers viraram 0; 4 testes novos |
+| #45 | `OPP-20261023-RDME` | documentacao-do-projeto | standardize | **applied** | README alinhado: 54 arquivos na árvore, 0 faltando; suíte 1625/9 |
 
 ### O que a conciliação corrigiu
 
@@ -237,14 +240,94 @@ O limite declarado no plano continua valendo: a fábrica isola **configuração*
 não o estado de borda (`_ARMAZENAMENTO`, `_CARREGADOR`, `_REGISTRO`). Isolar isso
 é `decouple`, e fica para outra oportunidade.
 
+### ESTD, o isolamento de estado
+
+A `OPP-20261023-ESTD` foi aberta na sequência para fechar esse limite e foi
+aprovada e aplicada no mesmo dia. `create_app` passou a aceitar `armazenamento`,
+`carregador`, `registro` e `dependencias` como parâmetros keyword-only, guardados
+em `extensions["analisador"]`; as 10 leituras de global em handlers viraram 0. A
+suíte foi de 1621 para **1625 passed, 9 skipped**, com 4 testes novos.
+
+A independência das quatro é deliberada: injetar só `armazenamento` não reconstrói
+o `carregador`, que continua apontando para o armazenamento real. Um teste de
+upload totalmente isolado injeta os dois.
+
+### RDME, o README de volta ao código
+
+A `OPP-20261023-RDME` fechou a defasagem que a FACT e a ESTD criaram. A árvore do
+README passou a listar os 54 arquivos conferidos, com `src/web/`,
+`projecao_analise.py` e os cinco módulos de `core/` que faltavam; a contagem passou
+a declarar o método e a data. A suíte continuou em **1625 passed, 9 skipped**,
+porque só documentação mudou.
+
+### ORQA, CTAO e DOCF: a auditoria de `core/dna_analysis.py`
+
+Na mesma data, um segundo pedido mirou **um arquivo**: verificar orientação a objeto,
+padrão de projeto, alta coesão e baixo acoplamento em `src/core/dna_analysis.py`,
+achar função sem utilidade, limpar o código e dividir em módulos menores se possível.
+O arquivo tem **1.108 linhas**. A medição respondeu:
+
+| Configuração | Situação | Evidência |
+|---|---|---|
+| Orientação a objeto | 🟡 parcial | uma classe (`Dependencias`, Parameter Object); o núcleo já usa `@dataclass(frozen=True, slots=True)` em `core/endogamia.py` |
+| Padrão de projeto | 🟡 parcial | Parameter Object e Facade; a Fachada é o único padrão sem consumidor interno |
+| Alta coesão | 🔴 baixa no módulo | cinco razões para mudar; oito das dez funções têm 61 linhas ou menos |
+| Baixo acoplamento | 🟡, com um ponto 🔴 | 56 nomes de 21 módulos; `Dependencias` é consumida por `core/path_search.py` sem dono |
+
+A função sem utilidade que o pedido procurava **não existe**: as 10 funções e a classe
+têm chamador. O peso morto é outro, e está medido: um docstring órfão de 14 linhas
+dentro de `dna_analysis` (expressão de string, avaliada e descartada) e `DNAAnalyzer`
+declarado em `__all__` sem nenhum consumidor no projeto.
+
+| # | ID | Verbo | Custo | Efeito esperado |
+|---|---|---|---|---|
+| #46 | `OPP-20261023-ORQA` | restructure | medium | **aplicada em 2026-10-23**: `dna_analysis` de 539 para 205 linhas |
+| #47 | `OPP-20261023-CTAO` | modularize | medium | **aplicada em 2026-10-23**: oito módulos de 43 a 470 linhas |
+| #48 | `OPP-20261023-DOCF` | prune | low | **aplicada em 2026-10-23**: 1.108 → 1.094 linhas, suíte 1625/9 |
+| #49 | `OPP-20261023-ETAP` | restructure | medium | **aplicada em 2026-10-23**: `_cartao_do_kit` de 368 para 224 linhas |
+| #50 | `OPP-20261023-UNCA` | restructure | low | **aplicada em 2026-10-23**: as 40 chaves do cartão declaradas uma vez e guardadas por teste |
+
+Duas recusas ficaram registradas na própria `DOCF`, com a medição: a fachada de 12
+imports sem uso tem consumidor em instrumentos congelados de `_reversa_sdd/parity/`
+(caminho não liberado pela config), e `Dependencias.aggregate_matches` é argumento
+posicional obrigatório de 34 chamadores em `_reversa_bugs/`, também fora dos globs.
+Nenhuma das duas foi roteada. **A `DOCF` e a `ORQA` foram aplicadas** em 2026-10-23,
+cada uma sob gate de plano e de diff. A `DOCF` levou o módulo de 1.108 para 1.094
+linhas. A `ORQA` levou `dna_analysis` de **539 para 205 linhas**, com o passo por kit
+em `_cartao_do_kit` e o estado em `_ContextoDaAnalise`; a suíte ficou em **1625
+passed, 9 skipped** (108,78 s), e o digest de equivalência seguiu idêntico.
+
+A `ORQA` quebrou uma guarda textual em `tests/test_profundidade_do_caminho.py`, que
+prendia a chamada literal `documental_nao_encontrado(arvore, root_id, pid`. O diff
+foi revertido, a guarda virou verificação por AST e os dois diffs entraram juntos.
+A decomposição interna que sobrou virou a `OPP-20261023-ETAP` (#49), aplicada na
+sequência: `_cartao_do_kit` caiu de 368 para **224 linhas**, com seis etapas
+nomeadas. Fechando a auditoria, a `CTAO` (#47) dividiu o arquivo em **oito módulos**
+de 43 a 470 linhas; `dna_analysis.py` caiu de 1.258 para **321 linhas**.
+
+A `CTAO` também quebrou dois testes que apontavam para o arquivo antigo, e o mesmo
+procedimento valeu: diff revertido, correções separadas em `CHG-002`, nenhuma
+asserção afrouxada. Um teste mudou de arquivo lido, o outro de módulo patcheado.
+
+Com isso a auditoria de `src/core/dna_analysis.py` está fechada: 1.108 linhas em um
+arquivo viraram 1.363 em oito, com o mesmo comportamento provado por um digest
+sha256 que atravessou as transformações sem mudar um byte.
+
+A `UNCA` (#50) fechou a última consequência do corte: o contrato de 40 chaves do
+cartão passou a ser declarado uma vez em `src/core/contrato_do_cartao.py` e guardado
+por dois testes que comparam o conjunto de cada construtor. Os testes nasceram
+verdes, provando que os dois construtores já respeitavam o contrato; o que faltava
+era alguém avisar no dia em que um lado mudasse sem o outro.
+
 ## Gate de edição do legado: LIBERADO em 2026-09-29
 
 `.reversa/reversa-config.json` está em `allowLegacyEdits: true`. Os globs liberados evoluíram por
 edição do próprio usuário, e hoje são dezessete:
 `["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml", "publicar_docs.py", "src/**", ".vscode/**", "requirements.txt", ".markdownlint-cli2.jsonc", "_docs_auxiliary/**", "docker/**", "docker-compose.yml", "init.sql", ".dockerignore", "docs/**", "*.ps1", ".github/**"]`.
 
-As **34 oportunidades aplicadas** estão listadas abaixo; o lote de 2026-10-03 (sete
-transformações) e o de 2026-10-23 (oito, contando a FACT) ocupam uma linha cada.
+As **42 oportunidades aplicadas** estão listadas abaixo; o lote de 2026-10-03 (sete
+transformações) e o de 2026-10-23 (dezesseis, contando FACT, ESTD, RDME, DOCF, ORQA,
+ETAP, CTAO, UNCA e GRDA) ocupam uma linha cada.
 | Oportunidade | Verbo | Arquivo | Estado |
 |--------------|-------|---------|--------|
 | `OPP-20260929-TPSH` | restructure | `reconstructed/path_search.py` | aplicada |
@@ -270,6 +353,14 @@ transformações) e o de 2026-10-23 (oito, contando a FACT) ocupam uma linha cad
 | `OPP-20261006-ESKO` | standardize | `src/core/path_search.py`, `tests/test_path_search.py`, `tests/test_mermaid_escape.py` e `_reversa_sdd/parity/harness.py` | aplicada em 2026-10-06 |
 | `OPP-20261023-MPRA` a `OPP-20261023-DISP` | modularize, restructure, simplify, standardize, prune | `src/application/{dna_analysis,projecao_analise}.py`, `src/app.py`, `src/web/rotas_assets.py` (novo) e `src/templates/index.html` | 7 aplicadas em 2026-10-23 |
 | `OPP-20261023-FACT` | modularize | `src/app.py` (`create_app`) e `tests/test_fabrica_do_app.py` (novo) | aplicada em 2026-10-23 |
+| `OPP-20261023-ESTD` | decouple | `src/app.py` e `tests/test_estado_de_borda_injetavel.py` (novo) | aplicada em 2026-10-23 |
+| `OPP-20261023-RDME` | standardize | `README.md` | aplicada em 2026-10-23 |
+| `OPP-20261023-DOCF` | prune | `src/core/dna_analysis.py` | aplicada em 2026-10-23 |
+| `OPP-20261023-ORQA` | restructure | `src/core/dna_analysis.py` e `tests/test_profundidade_do_caminho.py` | aplicada em 2026-10-23 |
+| `OPP-20261023-ETAP` | restructure | `src/core/dna_analysis.py` | aplicada em 2026-10-23 |
+| `OPP-20261023-CTAO` | modularize | `src/core/` (sete módulos novos), `src/core/dna_analysis.py`, `tests/test_profundidade_do_caminho.py` e `tests/test_veredito_no_nucleo.py` | aplicada em 2026-10-23 |
+| `OPP-20261023-UNCA` | restructure | `src/core/contrato_do_cartao.py` (novo) e `tests/test_contrato_do_cartao.py` (novo) | aplicada em 2026-10-23 |
+| `OPP-20261023-GRDA` | standardize | `tests/test_uso_do_cm_estimator.py` (novo) | aplicada em 2026-10-23 |
 
 Nenhuma delas escreveu fora dos globs liberados na época. `tests/**` passou a ser usado na
 `OPP-20260929-Z6IO`, que removeu seis supressões de tipo obsoletas. Promover as redes de segurança por
@@ -282,6 +373,8 @@ pytest 9.1.1, `pytest.ini`):
 
 - Suíte no `HEAD 221b6c1` (cópia limpa via `git archive`): **1615 passed, 9 skipped**, 190,29 s.
 - Suíte no working tree depois do lote de 2026-10-23 e da limpeza: **1615 passed, 9 skipped**, 197,00 s.
+- Suíte depois da FACT (`create_app` + 6 testes): **1621 passed, 9 skipped**, 294,19 s.
+- Suíte depois da ESTD (estado injetável + 4 testes): **1625 passed, 9 skipped**, 157,14 s.
 - Verificação de tipos: **não medida**, porque o `pyrefly` não está instalado no `.venv`
   (`No module named pyrefly`). Os 27 erros de 2026-10-06 vieram de outro ambiente e não
   servem de critério hoje.

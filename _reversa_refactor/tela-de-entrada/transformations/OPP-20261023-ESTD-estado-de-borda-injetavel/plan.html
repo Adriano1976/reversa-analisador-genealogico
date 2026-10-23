@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261023-ESTD · plano de desacoplamento</title>
+<style>
+  :root {
+    --fundo: #0d1117; --painel: #161b22; --painel-2: #1c2330; --borda: #2d3646;
+    --texto: #d7dee9; --fraco: #8b98ab; --acento: #58a6ff; --verde: #3fb950;
+    --amarelo: #d29922; --vermelho: #f85149;
+    --mono: "Cascadia Code", "Fira Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto);
+         font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
+  main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+  header { border-bottom: 1px solid var(--borda); padding-bottom: 24px; margin-bottom: 32px; }
+  .sobre { color: var(--fraco); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { font-size: 29px; margin: 8px 0 6px; }
+  h2 { font-size: 20px; margin: 40px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--borda); }
+  h3 { font-size: 15px; margin: 24px 0 8px; color: var(--acento); }
+  p { margin: 10px 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .tag { border: 1px solid var(--borda); background: var(--painel); border-radius: 999px;
+         padding: 4px 12px; font-size: 12px; color: var(--fraco); }
+  .tag b { color: var(--texto); font-weight: 600; }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 20px 0; }
+  .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 10px; padding: 14px 16px; }
+  .cartao .numero { font-size: 26px; font-weight: 700; color: var(--acento); }
+  .cartao .rotulo { font-size: 12px; color: var(--fraco); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--borda); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--painel-2); color: var(--fraco); font-weight: 600; }
+  code { font-family: var(--mono); font-size: 13px; background: var(--painel-2); padding: 2px 5px; border-radius: 4px; }
+  pre { background: var(--painel); border: 1px solid var(--borda); border-radius: 10px;
+        padding: 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .nota { border-left: 3px solid var(--acento); background: var(--painel);
+          padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .alerta { border-left-color: var(--amarelo); }
+  .fora { border-left-color: var(--vermelho); }
+  ul, ol { margin: 8px 0; padding-left: 24px; }
+  li { margin: 6px 0; }
+  .gate { margin-top: 40px; border: 1px solid var(--verde); border-radius: 12px;
+          padding: 20px; background: rgba(63, 185, 80, .07); }
+  .gate h2 { border: none; margin-top: 0; color: var(--verde); }
+  .fraco { color: var(--fraco); }
+  .ok { color: var(--verde); }
+  .atencao { color: var(--amarelo); }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="sobre">Reversa Refactor · plano do especialista · gate 1 de 2</div>
+  <h1>OPP-20261023-ESTD (#44) · estado de borda injetável</h1>
+  <p class="fraco">
+    Contexto <b>tela-de-entrada</b>. Especialista <code>decouple</code>. O alvo é a
+    topologia: os handlers deixam de ler quatro nomes de módulo e passam a ler uma
+    instância injetada no app. Nenhuma linha de <code>src/</code> foi tocada até aqui.
+  </p>
+  <div class="meta">
+    <span class="tag"><b>modo</b> gated</span>
+    <span class="tag"><b>rede</b> require-characterization</span>
+    <span class="tag"><b>confiança</b> 🟢 verde</span>
+    <span class="tag"><b>custo</b> medium</span>
+    <span class="tag"><b>alvo</b> src/app.py</span>
+  </div>
+</header>
+
+<h2>1. Acoplamento hoje, medido</h2>
+
+<p>
+  Quatro objetos de estado são criados no import de <code>src/app.py</code> e lidos
+  diretamente por seis funções. O <code>create_app()</code> da FACT monta a
+  instância Flask, mas não recebe nenhum deles.
+</p>
+
+<table>
+  <tr><th>Objeto</th><th>Construção</th><th>Leituras</th><th>Funções que leem</th></tr>
+  <tr><td><code>_DEPENDENCIAS</code></td><td>linha 47</td><td>2</td><td><code>_acao_dna_analysis</code>, <code>_acao_path_search</code></td></tr>
+  <tr><td><code>_ARMAZENAMENTO</code></td><td>linha 190</td><td>5</td><td><code>_listas_da_tela</code>, <code>_acao_upload_gedcom</code>, <code>_acao_aposentar_arquivo</code>, <code>_acao_dna_analysis</code> (2)</td></tr>
+  <tr><td><code>_CARREGADOR</code></td><td>linha 191</td><td>2</td><td><code>_arvore_do_formulario</code>, <code>_acao_upload_gedcom</code></td></tr>
+  <tr><td><code>_REGISTRO</code></td><td>linha 210</td><td>1</td><td><code>_acao_dna_analysis</code></td></tr>
+</table>
+
+<div class="cartoes">
+  <div class="cartao"><div class="numero">4</div><div class="rotulo">objetos de estado no escopo do módulo</div></div>
+  <div class="cartao"><div class="numero">10</div><div class="rotulo">leituras diretas do global em handlers</div></div>
+  <div class="cartao"><div class="numero">6</div><div class="rotulo">funções acopladas ao global</div></div>
+  <div class="cartao"><div class="numero">0</div><div class="rotulo">dependências injetáveis em <code>create_app</code></div></div>
+</div>
+
+<h3>Saída do módulo</h3>
+<p>
+  <code>src/app.py</code> importa de sete pacotes internos
+  (<code>application</code>, <code>core</code>, <code>parsers</code>,
+  <code>ports</code>, <code>reporting</code>, <code>utils</code>,
+  <code>web</code>) e de Flask/Werkzeug. Esse acoplamento de saída não muda: a
+  costura é sobre o estado que entra nos handlers, não sobre os imports.
+</p>
+
+<h3>Acoplamento de teste</h3>
+<table>
+  <tr><th>Teste</th><th>O que faz hoje</th></tr>
+  <tr><td><code>tests/test_promocao_de_descarte.py:198</code></td><td><code>monkeypatch</code> em <code>type(modulo_app._ARMAZENAMENTO).resolver</code></td></tr>
+  <tr><td><code>tests/test_persistencia_desabilitada.py:88</code></td><td>afirma <code>modulo._REGISTRO is None</code> sem <code>DATABASE_URL</code></td></tr>
+</table>
+
+<h2>2. Costura proposta</h2>
+
+<p>
+  Injeção por construtor no composition root, com um único ponto de leitura nos
+  handlers. O app de módulo continua usando os mesmos objetos como padrão.
+</p>
+
+<pre><code>_SEM_INJECAO = object()
+CHAVE_DA_BORDA = "analisador"
+
+
+def _estado_de_borda() -> dict:
+    return current_app.extensions[CHAVE_DA_BORDA]
+
+
+def create_app(config=None, *, armazenamento=None, carregador=None,
+               registro=_SEM_INJECAO, dependencias=None) -> Flask:
+    aplicacao = Flask(__name__)
+    ...
+    aplicacao.extensions[CHAVE_DA_BORDA] = {
+        "armazenamento": _ARMAZENAMENTO if armazenamento is None else armazenamento,
+        "carregador": _CARREGADOR if carregador is None else carregador,
+        "registro": _REGISTRO if registro is _SEM_INJECAO else registro,
+        "dependencias": _DEPENDENCIAS if dependencias is None else dependencias,
+    }
+    ...
+</code></pre>
+
+<p>
+  A sentinela existe só para o registro, porque <code>None</code> é um valor
+  válido: significa persistência desligada. Para os outros três, <code>None</code>
+  não é um valor válido, e o padrão do módulo entra.
+</p>
+
+<h3>Acoplamento esperado depois</h3>
+
+<table>
+  <tr><th>Medida</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td>Leituras do global dentro de handlers</td><td>10</td><td><b>0</b></td></tr>
+  <tr><td>Pontos de acesso ao estado</td><td>10</td><td><b>1</b> (<code>_estado_de_borda</code>)</td></tr>
+  <tr><td>Dependências injetáveis em <code>create_app</code></td><td>0</td><td><b>4</b></td></tr>
+  <tr><td><code>monkeypatch</code> em global necessário em teste</td><td>2</td><td><b>0</b> necessários</td></tr>
+  <tr><td>Instâncias que compartilham o armazenamento</td><td>todas</td><td><b>só as que não injetarem</b></td></tr>
+</table>
+
+<p class="fraco">
+  Os quatro nomes de módulo continuam existindo como padrão do app de módulo. O
+  que deixa de existir é a leitura deles dentro dos handlers.
+</p>
+
+<h2>3. Sequência de passos</h2>
+
+<table>
+  <tr><th>#</th><th>Passo</th><th>Refatoração</th></tr>
+  <tr><td>1</td><td>Criar <code>_SEM_INJECAO</code>, <code>CHAVE_DA_BORDA</code> e <code>_estado_de_borda()</code></td><td>Extract Helper</td></tr>
+  <tr><td>2</td><td>Ampliar <code>create_app</code> com os quatro parâmetros keyword-only e preencher <code>extensions</code></td><td>Parameterize Constructor / Dependency Injection</td></tr>
+  <tr><td>3</td><td>Trocar as dez leituras por <code>_estado_de_borda()["..."]</code></td><td>Replace Global with Context</td></tr>
+  <tr><td>4</td><td>Atualizar a docstring de <code>create_app</code>: o limite deixa de valer</td><td>Documentation</td></tr>
+  <tr><td>5</td><td>Acrescentar testes de injeção</td><td>Characterization Test</td></tr>
+</table>
+
+<h2>4. O que fica de fora</h2>
+
+<div class="nota fora">
+  <p><b>Mover o estado para outro módulo.</b> Não é necessário para injetar, e
+  mudaria a topologia de pacotes, que é território de <code>modularize</code>.</p>
+</div>
+
+<ul>
+  <li>Trocar as portas de <code>src/ports/</code> ou o <code>Protocol</code> da fronteira.</li>
+  <li>Tirar o <code>dono</code> das assinaturas: é costura declarada do <code>ADR-26</code>.</li>
+  <li>Mudar a regra dos três estados da persistência (<code>ADR-27</code>).</li>
+  <li>Mexer em <code>src/web/rotas_assets.py</code>: ele lê só <code>current_app.config</code>.</li>
+  <li>Trocar <code>Dependencias</code> de classe concreta para <code>Protocol</code>: é outra oportunidade.</li>
+</ul>
+
+<h2>5. Riscos e mitigação</h2>
+
+<table>
+  <tr><th>Risco</th><th>Mitigação</th></tr>
+  <tr><td><code>current_app</code> fora de contexto de requisição</td><td>os seis pontos só rodam em requisição; a suíte inteira exercita upload, aposentar, listar, DNA e busca</td></tr>
+  <tr><td><code>test_promocao_de_descarte.py</code> troca o método da classe de <code>_ARMAZENAMENTO</code></td><td>o app de módulo usa a mesma instância; o patch de classe continua valendo</td></tr>
+  <tr><td><code>test_persistencia_desabilitada.py</code> afirma <code>_REGISTRO is None</code></td><td>o nome de módulo permanece como padrão</td></tr>
+  <tr><td><code>test_promocao_de_descarte.py:195</code> troca <code>_arvore_do_formulario</code></td><td><code>index</code> continua chamando o nome global; a troca segue funcionando</td></tr>
+  <tr><td><code>registro=None</code> como valor válido</td><td>sentinela <code>_SEM_INJECAO</code>, distinta de <code>None</code></td></tr>
+</table>
+
+<h2>6. Rede de segurança e critério de aceite</h2>
+
+<p>
+  A suíte atual tem 1621 passed e 9 skipped. Entram quatro testes de injeção:
+</p>
+
+<ol>
+  <li><code>create_app(armazenamento=fake)</code> guarda o fake em <code>extensions</code>;</li>
+  <li><code>GET /</code> na instância nova chama <code>fake.listar</code>, e não o armazenamento de disco;</li>
+  <li><code>create_app(registro=None)</code> grava <code>None</code>, distinto de não injetado;</li>
+  <li>o app de módulo continua com os quatro objetos padrão.</li>
+</ol>
+
+<table>
+  <tr><th>Critério</th><th>Antes</th><th>Depois esperado</th></tr>
+  <tr><td>Leituras do global em handlers</td><td>10</td><td>0</td></tr>
+  <tr><td>Dependências injetáveis</td><td>0</td><td>4</td></tr>
+  <tr><td>Suíte</td><td>1621 passed, 9 skipped</td><td>1625 passed, 9 skipped</td></tr>
+  <tr><td>Verificação de tipos</td><td colspan="2" class="atencao">não medida: <code>pyrefly</code> não está no <code>.venv</code></td></tr>
+</table>
+
+<div class="gate">
+  <h2>Gate 1: aprovar o plano</h2>
+  <p>
+    Nada foi editado em <code>src/</code>. Aprovado o plano, o gate 2 mostra o diff
+    completo, com a prova em cópia isolada e a suíte antes e depois. Só depois da
+    aprovação do diff a transformação é aplicada.
+  </p>
+  <p class="fraco">
+    Para recusar: diga o que quer mudar no plano, ou peça para deixar a ESTD
+    parada em <code>proposed</code>.
+  </p>
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de modularização · OPP-20261023-CTAO</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  td.num { text-align: right; font-family: Consolas, Menlo, monospace; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; background: #1b2b1b; border: 1px solid #3a5a3a;
+         color: #a8e6a8; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.no { background: #2b1b1b; border-color: #5a3a3a; color: #ffb4b4; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de modularização · <code>OPP-20261023-CTAO</code></h1>
+<div class="meta">
+  Contexto <code>analise-dna</code> · alvo <code>src/core/dna_analysis.py</code> ·
+  verbo <code>modularize</code> · 2026-10-23 · gate 1 de 2
+</div>
+
+<div class="cards">
+  <div class="card bad"><div class="v">1.258</div><div class="k">linhas hoje</div></div>
+  <div class="card bad"><div class="v">19</div><div class="k">símbolos no arquivo</div></div>
+  <div class="card good"><div class="v">8</div><div class="k">arquivos depois</div></div>
+  <div class="card"><div class="v">430</div><div class="k">maior módulo</div></div>
+  <div class="card good"><div class="v">45</div><div class="k">menor módulo</div></div>
+</div>
+
+<h2>As responsabilidades misturadas hoje</h2>
+<table>
+  <tr><th>Responsabilidade</th><th>Símbolos</th><th>Linhas</th></tr>
+  <tr>
+    <td>Contrato de borda (o que o núcleo consome de fora)</td>
+    <td><code>Dependencias</code></td>
+    <td class="num">32</td>
+  </tr>
+  <tr>
+    <td>Estado da análise e cache do dossiê</td>
+    <td><code>_ContextoDaAnalise</code>, <code>_dossie</code></td>
+    <td class="num">41</td>
+  </tr>
+  <tr>
+    <td>Texto e classe CSS de tela</td>
+    <td><code>ROTULOS_DE_VALIDACAO</code>, <code>_aviso_da_validacao</code>, <code>_explicacao_da_endogamia</code>, <code>_observacao_estrutural</code>, <code>_selo_da_endogamia</code></td>
+    <td class="num">134</td>
+  </tr>
+  <tr>
+    <td>Veredito de viabilidade temporal</td>
+    <td><code>_validacao_do_cartao</code></td>
+    <td class="num">52</td>
+  </tr>
+  <tr>
+    <td>Diagnóstico de endogamia no cartão</td>
+    <td><code>_nome_do_no</code>, <code>_endogamia_estrutural</code></td>
+    <td class="num">89</td>
+  </tr>
+  <tr>
+    <td>Pipeline de um kit (matching ao cartão)</td>
+    <td><code>_recusa_do_kit</code>, <code>_parentesco_do_kit</code>, <code>_confronto_do_kit</code>, <code>_profundidade_do_caminho</code>, <code>_rotulo_do_confronto</code>, <code>_cartao_do_kit</code>, <code>_montar_diagrama</code>, <code>_observacoes</code></td>
+    <td class="num">405</td>
+  </tr>
+  <tr>
+    <td>Cartão do match sem pessoa na árvore</td>
+    <td><code>_cartao_sem_correspondencia</code></td>
+    <td class="num">124</td>
+  </tr>
+  <tr>
+    <td>Caso de uso e ordem de apresentação</td>
+    <td><code>dna_analysis</code>, <code>_ordem</code></td>
+    <td class="num">205</td>
+  </tr>
+  <tr>
+    <td>Fachada de compatibilidade</td>
+    <td>imports de 42-100 e <code>__all__</code></td>
+    <td class="num">~65</td>
+  </tr>
+</table>
+
+<h2>Fronteira proposta</h2>
+<table>
+  <tr><th>Arquivo</th><th>Responsabilidade única</th><th>Exporta</th><th>Linhas</th></tr>
+  <tr>
+    <td><code>core/dependencias.py</code></td>
+    <td>o contrato de borda do núcleo</td>
+    <td><code>Dependencias</code></td>
+    <td class="num">~45</td>
+  </tr>
+  <tr>
+    <td><code>core/contexto_da_analise.py</code></td>
+    <td>o estado que não muda entre kits, com os caches</td>
+    <td><code>_ContextoDaAnalise</code>, <code>_dossie</code></td>
+    <td class="num">~70</td>
+  </tr>
+  <tr>
+    <td><code>core/rotulos_do_cartao.py</code></td>
+    <td>as palavras e as classes CSS que o operador lê</td>
+    <td><code>ROTULOS_DE_VALIDACAO</code> e as quatro frases</td>
+    <td class="num">~180</td>
+  </tr>
+  <tr>
+    <td><code>core/validacao_no_cartao.py</code></td>
+    <td>o veredito de viabilidade temporal</td>
+    <td><code>_validacao_do_cartao</code></td>
+    <td class="num">~75</td>
+  </tr>
+  <tr>
+    <td><code>core/endogamia_no_cartao.py</code></td>
+    <td>o diagnóstico estrutural e o selo</td>
+    <td><code>_nome_do_no</code>, <code>_endogamia_estrutural</code></td>
+    <td class="num">~110</td>
+  </tr>
+  <tr>
+    <td><code>core/passo_por_kit.py</code></td>
+    <td>transformar um kit em cartão ou descarte</td>
+    <td>os cinco passos e <code>_cartao_do_kit</code></td>
+    <td class="num">~430</td>
+  </tr>
+  <tr>
+    <td><code>core/cartao_sem_correspondencia.py</code></td>
+    <td>o cartão do match sem pessoa no GEDCOM</td>
+    <td><code>_cartao_sem_correspondencia</code></td>
+    <td class="num">~145</td>
+  </tr>
+  <tr>
+    <td><code>core/dna_analysis.py</code></td>
+    <td>o caso de uso, a ordem e a fachada</td>
+    <td><code>dna_analysis</code>, <code>_ordem</code>, reexportações</td>
+    <td class="num">~300</td>
+  </tr>
+</table>
+
+<h2>Dependências depois do corte</h2>
+<pre>dna_analysis
+  ├─ passo_por_kit ─────────┬─ contexto_da_analise ── dependencias
+  │                         ├─ endogamia_no_cartao ── rotulos_do_cartao
+  │                         └─ validacao_no_cartao ── rotulos_do_cartao
+  └─ cartao_sem_correspondencia ── passo_por_kit</pre>
+<div class="note ok">
+  O grafo é estritamente descendente. Nenhum módulo folha importa um módulo que o
+  importa, então não nasce ciclo. <code>core/</code> continua importando só
+  <code>utils/</code>, como o <strong>D2</strong> da alma exige.
+</div>
+
+<h2>O que a alma e a spec exigem preservar</h2>
+<table>
+  <tr><th>Exigência</th><th>Como o plano cumpre</th></tr>
+  <tr>
+    <td>D2: núcleo puro, árvore por parâmetro, <code>core/</code> importa só <code>utils/</code></td>
+    <td>nenhum módulo novo importa <code>parsers/</code>, <code>reporting/</code> ou framework</td>
+  </tr>
+  <tr>
+    <td>Assinatura de <code>dna_analysis</code> é contrato de paridade</td>
+    <td>não muda: <code>(csv_path, root_name, deps, arvore, observacoes_do_arquivo=None, candidatos_fixos=None, cobertura=None)</code></td>
+  </tr>
+  <tr>
+    <td><code>_ordem</code> ancorado em <code>core/dna_analysis.py</code> por <code>design.md</code></td>
+    <td>fica onde está</td>
+  </tr>
+  <tr>
+    <td>Instrumentos congelados de <code>_reversa_sdd/parity/</code> importam <code>Dependencias</code> e 11 nomes da fachada de <code>core.dna_analysis</code></td>
+    <td>as reexportações continuam em <code>__all__</code>; nenhum instrumento precisa ser editado</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>Desvio documental declarado.</strong> <code>analise-dna/requirements.md:296</code>
+  diz que <code>_montar_diagrama</code> e <code>_observacoes</code> moram em
+  <code>src/core/dna_analysis.py</code>. Este plano os move para
+  <code>passo_por_kit.py</code> e mantém a reexportação, de modo que o caminho de
+  import da spec continua válido. A linha da tabela segue imprecisa quanto ao
+  arquivo, e <code>_reversa_sdd/**</code> não está em caminho liberado para
+  corrigi-la. É o mesmo tipo de desvio que a <code>OPP-20261006-W4KD</code> registra.
+</div>
+
+<h2>O que fica de fora</h2>
+<table>
+  <tr><th>Item</th><th>Por quê</th></tr>
+  <tr>
+    <td>Unificar os dois construtores de cartão (40 e 41 chaves)</td>
+    <td>não é <code>modularize</code>: é mudança de estrutura interna, e mexe no contrato do dicionário. Fica para uma oportunidade própria, agora fácil de enxergar porque os dois vão morar em arquivos vizinhos</td>
+  </tr>
+  <tr>
+    <td>Renomear funções com <code>_</code> para público</td>
+    <td>fora do escopo; a fachada de compatibilidade depende dos nomes atuais</td>
+  </tr>
+  <tr>
+    <td>Atualizar <code>_reversa_sdd/</code></td>
+    <td>fora dos globs liberados</td>
+  </tr>
+</table>
+
+<h2>Rede de segurança</h2>
+<table>
+  <tr><th>Instrumento</th><th>O que prova</th></tr>
+  <tr><td>Suíte completa</td><td><strong>1625 passed, 9 skipped</strong> hoje (95,87 s)</td></tr>
+  <tr><td>Digest de equivalência</td><td><code>b8d186c8…b570b5dd</code> nos três cenários, igual ao de antes da ORQA</td></tr>
+  <tr><td>Import de cada módulo novo</td><td>exercitado pelo próprio digest, que importa <code>core.dna_analysis</code></td></tr>
+  <tr><td>Guarda de núcleo puro</td><td><code>tests/test_dependencias_nucleo.py</code>, que varre imports por AST</td></tr>
+</table>
+
+<h2>Risco e reversão</h2>
+<ul>
+  <li>Risco principal: import circular ou nome perdido na mudança. O grafo acima é descendente e o digest importa o módulo inteiro.</li>
+  <li>Risco secundário: um teste que importe um símbolo privado do arquivo antigo. <code>tests/test_endogamia.py</code> importa <code>_observacao_estrutural</code> e <code>_selo_da_endogamia</code>; o import passa a apontar para <code>core.rotulos_do_cartao</code>.</li>
+  <li>Reversão: um único <code>CHG-001.diff</code> com todos os arquivos, verificado com <code>git apply --check</code>.</li>
+</ul>
+
+<div class="foot">
+  Gerado pelo Reversa-Refactor em 2026-10-23. Nada foi movido: este plano aguarda aprovação no gate 1.
+</div>
+
+</div>
+</body>
+</html>

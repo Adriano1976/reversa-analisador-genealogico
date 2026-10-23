@@ -14,7 +14,7 @@ roi:
   impact: fecha a defesa textual do ADR-19 (as faixas continuam alcançáveis por importação) e a dívida #18, tirando do pacote 65 linhas de heurística já retirada do fluxo, sem tocar em comportamento algum
   cost: low
   est_return: 65 linhas e 2 testes a menos de heurística aposentada, com a defesa contra uso indevido passando de textual para estrutural
-state: proposed
+state: declined
 promoted_to: null
 traceability:
   soul: [.reversa/soul.md#d2-núcleo-de-domínio-em-pacotes-por-responsabilidade-sob-uma-camada-de-rota-fina, .reversa/soul.md#4-lacunas]
@@ -210,5 +210,38 @@ remoção. O módulo é puro, o comportamento está congelado por dois testes e 
 isso que a confiança verde afirma. A elegibilidade está bloqueada, e o bloqueio está na tabela de
 cenários acima.
 
+## Decisão de 2026-10-23: declinada
+
+Depois de a auditoria de `src/core/dna_analysis.py` fechar (OPPs 46 a 50), esta
+oportunidade foi reexaminada e **declinada**. O cenário A continua sendo o único que
+produz o retorno descrito, e continua exigindo duas coisas que o refactor não pode
+fazer sozinho:
+
+1. liberar `_reversa_sdd/parity/**` e os artefatos de spec no
+   `.reversa/reversa-config.json`, que é ato do usuário;
+2. decidir, no ciclo forward, o que acontece com `RF-25` e `BR-D-62`, que é aposentar
+   uma regra catalogada, e não podar código.
+
+A medição desta data confirmou o bloqueio e não encontrou consumidor novo: nenhum
+módulo de `src/` importa `core.cm_estimator`. Os únicos consumidores seguem sendo
+`tests/test_dna_analysis.py` e o coletor que o `harness.py` escreve em disco e executa
+por string.
+
+O raciocínio que pesou: remover o módulo **aposenta uma dimensão da matriz de
+paridade**, que é o instrumento que registra a equivalência entre reconstrução e
+oráculo. Perder isso em silêncio, sem atualizar os artefatos que descrevem a
+comparação, seria pior que a dívida #18.
+
+### O que a decisão preserva
+
+A dívida continua rastreável em `_reversa_sdd/architecture.md` (#18) e no
+`ADR-19`. O módulo continua marcado como legado no próprio docstring, e agora tem uma
+guarda estrutural: a `OPP-20261023-GRDA`, aberta nesta data, falha se qualquer módulo
+de produção voltar a importar `core.cm_estimator`. É a metade da defesa que o
+`roi.est_return` prometia, sem a parte que quebrava a paridade.
+
+Reabrir esta oportunidade é legítimo: basta que o caminho seja liberado e que a
+aposentadoria de `RF-25`/`BR-D-62` seja decidida.
+
 ---
-*Gerado pelo Reversa-Refactor em 2026-10-08.*
+*Gerado pelo Reversa-Refactor em 2026-10-08. Declinada em 2026-10-23, com a medição acima.*

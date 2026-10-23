@@ -1,0 +1,14 @@
+Suite DEPOIS do lote da RDME (so documentacao)
+Medida em: 2026-10-23T13:49:12-03:00
+Arvore medida: working tree com README.md atualizado
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1625 passed, 9 skipped in 74.14s (0:01:14)
+
+Mesma contagem do estado anterior: 1625 passed, 9 skipped. Nenhuma linha de
+src/ ou tests/ mudou; a suite roda apenas como confirmacao de que a padronizacao
+do README nao tocou em semantica.

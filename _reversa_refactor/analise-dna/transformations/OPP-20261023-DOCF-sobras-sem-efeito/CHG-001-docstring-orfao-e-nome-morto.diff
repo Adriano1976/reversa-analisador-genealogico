@@ -1,0 +1,33 @@
+diff --git a/src/core/dna_analysis.py b/src/core/dna_analysis.py
+--- a/src/core/dna_analysis.py
++++ b/src/core/dna_analysis.py
+@@ -555,20 +555,6 @@
+     # o suficiente. Os limiares ficam no construtor (`core.endogamia`), e nao
+     # espalhados por literais neste arquivo.
+     analisador_de_dna = DNAAnalyzer()
+-    """Executa o fluxo completo da analise de DNA.
+-
+-    Retorna `(results_sorted, skipped, message)`. Cada resultado traz, lado a lado
+-    e sem misturar: `documentary` (GEDCOM), `genetic_evidence` (DNA),
+-    `hypotheses` (possibilidades) e `comparison` (confronto).
+-
+-    `observacoes_do_arquivo` e uma lista opcional que a funcao **preenche** com os
+-    avisos que valem para o arquivo inteiro — mesmo nome em mais de um kit, CSV sem
+-    coluna de kit, linhas ignoradas, cabecalho fora do lugar, raiz ambigua. Eles
+-    **nao** entram em cartao nenhum (medido: eram 70,3% das linhas da secao 5 e
+-    apareciam em 142 de 142 cartoes), e por isso precisam de canal proprio na tela.
+-    Quem nao passa a lista nao perde o dado: `build_genetic_evidence` continua
+-    publica e devolve os mesmos avisos com `nivel == "arquivo"`.
+-    """
+     root_person_ids = [pid for pid, p in arvore[0].items()
+                        if root_name.lower() in get_name(p).lower()]
+     if not root_person_ids:
+@@ -1100,7 +1086,7 @@
+ # `parsers/csv_ingest` — que e exatamente a dependencia que a RF-09 remove.
+ # ---------------------------------------------------------------------------
+ __all__ = [
+-    "dna_analysis", "Dependencias", "DNAAnalyzer",
++    "dna_analysis", "Dependencias",
+     "build_ged_indexes", "match_candidates",
+     "norm_name", "split_name_pt", "surnames_set", "top_given_tokens",
+     "token_prefixes", "drop_short_tokens", "surname_core_tokens",

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de poda · OPP-20261023-DOCF</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  .block { border-left-color: #e05252; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  .del { color: #ff8a8a; }
+  .add { color: #9ae6a0; }
+  .cmt { color: #7a7a7a; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  td.num { text-align: right; font-family: Consolas, Menlo, monospace; }
+  ul, ol { font-size: 13.5px; color: #d8d8d8; }
+  .tag { display: inline-block; background: #1b2b1b; border: 1px solid #3a5a3a;
+         color: #a8e6a8; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; }
+  .tag.no { background: #2b1b1b; border-color: #5a3a3a; color: #ffb4b4; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de poda · <code>OPP-20261023-DOCF</code></h1>
+<div class="meta">
+  Contexto <code>analise-dna</code> · alvo <code>src/core/dna_analysis.py</code> ·
+  verbo <code>prune</code> · 2026-10-23 · gate 1 de 2
+</div>
+
+<div class="cards">
+  <div class="card"><div class="v">2</div><div class="k">candidatos</div></div>
+  <div class="card good"><div class="v">2</div><div class="k">provados mortos</div></div>
+  <div class="card"><div class="v">0</div><div class="k">órfãos suspeitos</div></div>
+  <div class="card bad"><div class="v">15</div><div class="k">linhas removidas</div></div>
+  <div class="card"><div class="v">1.094</div><div class="k">linhas depois</div></div>
+</div>
+
+<h2>Por que esta poda vem antes das outras duas</h2>
+<p>
+  A <code>ORQA</code> vai reescrever o corpo de <code>dna_analysis</code> e a
+  <code>CTAO</code> vai mover símbolos para outros arquivos. As duas tocam a mesma
+  região do arquivo. Podar antes evita carregar 14 linhas mortas para dentro do
+  código novo, e o diff desta poda fica pequeno o bastante para ser lido inteiro.
+</p>
+
+<h2>Candidatos e classificação</h2>
+<table>
+  <tr><th>#</th><th>Trecho</th><th>Tamanho</th><th>Classificação</th></tr>
+  <tr>
+    <td>1</td>
+    <td>expressão de string solta dentro de <code>dna_analysis</code>, linhas 558-571</td>
+    <td class="num">14 linhas</td>
+    <td><span class="tag">morto</span></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><code>"DNAAnalyzer"</code> em <code>__all__</code>, linha 1103</td>
+    <td class="num">1 nome</td>
+    <td><span class="tag">morto</span></td>
+  </tr>
+</table>
+
+<h2>Prova de morte · candidato 1</h2>
+<p>
+  O trecho vem logo depois de <code>analisador_de_dna = DNAAnalyzer()</code> e antes
+  de <code>root_person_ids = ...</code>. Tem a forma de um docstring, mas não é: a
+  docstring de uma função é o primeiro statement, e o primeiro é o da linha 541.
+  Este é o segundo, então o Python o avalia e descarta.
+</p>
+<pre><span class="cmt">$ python -c "analise por ast do modulo"</span>
+<span class="cmt">--- expressoes de string soltas (nao-docstring) ---</span>
+  linha  558  dentro de dna_analysis  -&gt; 'Executa o fluxo completo da analise de DNA.\n\n    Retorna `(r'...
+</pre>
+<p>Classificação por AST: <code>Expr(Constant(str))</code>. Uma constante string não tem efeito colateral.</p>
+
+<table>
+  <tr><th>Condição da prova</th><th>Resultado</th></tr>
+  <tr>
+    <td>Sem referência estática</td>
+    <td>nenhum <code>Name</code>, <code>Attribute</code> ou <code>Subscript</code> a alcança: o nó não tem pai que o consuma</td>
+  </tr>
+  <tr>
+    <td>Sem entrada dinâmica</td>
+    <td>não é <code>__doc__</code>; <code>inspect.getdoc(dna_analysis)</code> devolve o texto da linha 541, antes e depois</td>
+  </tr>
+  <tr>
+    <td>Conteúdo sobrevive</td>
+    <td>as mesmas afirmações estão no docstring do módulo (1-41) e no docstring real (541-552)</td>
+  </tr>
+</table>
+
+<h2>Prova de morte · candidato 2</h2>
+<p>
+  <code>DNAAnalyzer</code> é importado de <code>core.endogamia</code> (linha 47) e usado
+  no corpo (linha 557). O import e o uso <strong>não mudam</strong>. O que sai é a
+  declaração em <code>__all__</code>, que só governa <code>from ... import *</code>.
+</p>
+<pre><span class="cmt">$ varredura de todo o .py do projeto, por ast</span>
+consumidores de <span class="add">DNAAnalyzer</span> a partir de <span class="add">core.dna_analysis</span>: <span class="del">0</span>
+<span class="cmt">$ varredura de `import *` do modulo</span>
+ocorrencias: <span class="del">0</span>
+<span class="cmt">$ quem inspeciona `__all__` dinamicamente (getattr/dir/inspect)</span>
+ocorrencias: <span class="del">0</span>
+</pre>
+<p>
+  Onde a classe é usada de fato: <code>core/endogamia.py</code> (definição, linha 278, e
+  nove usos internos) e <code>tests/test_endogamia.py</code>, que a importa de
+  <code>core.endogamia</code> (linhas 27-34). Nenhum dos dois passa por este
+  <code>__all__</code>.
+</p>
+
+<h2>Conferência contra a alma</h2>
+<div class="note ok">
+  <strong>D1</strong> ancora a separação dos três eixos em
+  <code>src/core/dna_analysis.py</code>, na seção "Regra absoluta (nao regredir)" do
+  cabeçalho, que fica nas linhas 23-30 e <strong>não é tocada</strong>.<br>
+  <strong>D2</strong> declara o núcleo puro e a árvore como valor de entrada. Nenhuma
+  das duas remoções toca pureza, assinatura ou árvore.<br>
+  Nenhum dos dois candidatos implementa regra de negócio confirmada: um é texto
+  descartado pelo interpretador, o outro é declaração de exportação.
+</div>
+
+<h2>O que NÃO será removido, e por quê</h2>
+<table>
+  <tr><th>Candidato</th><th>Medição</th><th>Decisão</th></tr>
+  <tr>
+    <td><code>Dependencias.aggregate_matches</code></td>
+    <td>atribuído na linha 130 e nunca lido</td>
+    <td><span class="tag no">órfão suspeito</span> argumento posicional obrigatório de 34 chamadores em <code>_reversa_bugs/_sondas-matching/</code> e <code>_reversa_sdd/parity/</code>, caminhos fora dos globs liberados</td>
+  </tr>
+  <tr>
+    <td><code>Dependencias.generate_mermaid_indirect</code></td>
+    <td>lido em <code>src/core/path_search.py:187</code></td>
+    <td><span class="tag no">não é morto</span></td>
+  </tr>
+  <tr>
+    <td>12 imports sem uso no corpo</td>
+    <td>consumidos por <code>__all__</code> em dois instrumentos de <code>_reversa_sdd/parity/</code> e em <code>tests/test_characterization_matching.py</code></td>
+    <td><span class="tag no">não é morto</span> e o ganho é nulo</td>
+  </tr>
+  <tr>
+    <td><code>getattr(deps, "anotar_profundidade", None)</code></td>
+    <td>o slot sempre existe</td>
+    <td><span class="tag no">mantido</span> cerimônia de uma linha, o custo de remover é maior que o de manter</td>
+  </tr>
+</table>
+
+<h2>Remoção proposta</h2>
+<pre><span class="cmt">--- a/src/core/dna_analysis.py</span>
+<span class="cmt">+++ b/src/core/dna_analysis.py</span>
+<span class="cmt">@@ -553,19 +553,5 @@</span>
+     candidatos_fixos = candidatos_fixos or {}
+     <span class="cmt"># As regras de endogamia sao puras e sem estado: uma instancia por analise e</span>
+     <span class="cmt"># o suficiente. Os limiares ficam no construtor (`core.endogamia`), e nao</span>
+     <span class="cmt"># espalhados por literais neste arquivo.</span>
+     analisador_de_dna = DNAAnalyzer()
+<span class="del">-    """Executa o fluxo completo da analise de DNA.</span>
+<span class="del">-</span>
+<span class="del">-    Retorna `(results_sorted, skipped, message)`. Cada resultado traz, lado a lado</span>
+<span class="del">-    e sem misturar: `documentary` (GEDCOM), `genetic_evidence` (DNA),</span>
+<span class="del">-    `hypotheses` (possibilidades) e `comparison` (confronto).</span>
+<span class="del">-    [ ... 7 linhas sobre `observacoes_do_arquivo` ... ]</span>
+<span class="del">-    """</span>
+     root_person_ids = [pid for pid, p in arvore[0].items()
+                        if root_name.lower() in get_name(p).lower()]
+
+<span class="cmt">@@ -1102,7 +1088,7 @@</span>
+ __all__ = [
+<span class="del">-    "dna_analysis", "Dependencias", "DNAAnalyzer",</span>
+<span class="add">+    "dna_analysis", "Dependencias",</span>
+     "build_ged_indexes", "match_candidates",
+     "norm_name", "split_name_pt", "surnames_set", "top_given_tokens",
+     "token_prefixes", "drop_short_tokens", "surname_core_tokens",
+     "soft_prefix_jaccard", "strip_bad_utf", "demojibake",
+ ]
+</pre>
+
+<h2>Rede de segurança</h2>
+<table>
+  <tr><th>Momento</th><th>Resultado</th></tr>
+  <tr><td>antes (medido nesta sessão, 2026-10-23)</td><td><strong>1625 passed, 9 skipped</strong> em 105,64 s</td></tr>
+  <tr><td>depois (exigido no gate 2)</td><td><strong>1625 passed, 9 skipped</strong></td></tr>
+  <tr><td>asserção extra</td><td><code>inspect.getdoc(dna_analysis)</code> idêntico antes e depois</td></tr>
+</table>
+<div class="note">
+  O <code>preservation.method</code> desta transformação é <code>death-proof</code>, e a
+  prova bruta fica em <code>before-after/</code>. A reversão é o
+  <code>CHG-001.diff</code>, gerado no gate 2.
+</div>
+
+<div class="foot">
+  Gerado pelo Reversa-Refactor em 2026-10-23. Nada foi removido: este plano aguarda aprovação no gate 1.
+</div>
+
+</div>
+</body>
+</html>

@@ -1,5 +1,7 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-10-23T03:45:00-03:00 a partir de 5 oportunidades -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-refactor em 2026-10-23T13:10:00-03:00 a partir de 6 oportunidades -->
 <!-- Reconciliado em 2026-10-23: OPP-20261023-DISP passou a applied (diff reconstruido e verificado); evidencia de suite substituida por medicao real; OPP-20261023-SERV permanece declined. -->
+<!-- FACT aplicada em 2026-10-23 (create_app + 6 testes). ESTD aberta no mesmo dia como proposta de decouple. -->
+<!-- ESTD aplicada em 2026-10-23: 10 leituras de global em handlers viraram 0; suite 1625 passed, 9 skipped. -->
 
 # Indice de qualidade de codigo: tela-de-entrada
 
@@ -14,6 +16,7 @@
 | #41 | `OPP-20261023-SERV` | decouple | 🟢 green | logica de rede, socket exclusivo de SO e Waitress embutidos no app | low | declined | recusada: `tests/test_servidor_producao.py` exige o bloco no AST de `app.py` |
 | #42 | `OPP-20261023-FACT` | modularize | 🟡 yellow | instancia Flask criada como singleton global no import, junto de config, seguranca e rotas | medium | **applied** | composition root explicito (`create_app`), com isolamento de configuracao; 6 testes novos |
 | #43 | `OPP-20261023-DEAD` | prune | 🟢 green | guarda `arvore is None` declarada inalcancavel pelo proprio comentario | low | **applied** | ramo morto unificado; checagem mantida para estreitar tipo |
+| #44 | `OPP-20261023-ESTD` | decouple | 🟢 green | estado de borda em quatro nomes de modulo, lido por handlers, impedia isolamento por instancia | medium | **applied** | 0 leituras de global em handlers; 4 dependencias injetaveis; 4 testes novos |
 
 ## Transformacoes
 
@@ -24,6 +27,7 @@
 | `OPP-20261023-SERV` | declined | - | - | contrato estatico de AST em `tests/test_servidor_producao.py` |
 | `OPP-20261023-FACT` | applied | [transformation.md](../transformations/OPP-20261023-FACT-padrao-application-factory/transformation.md) | `CHG-001-fabrica-do-app.diff` (317 linhas) | 1615 passed, 9 skipped antes; 1621 passed, 9 skipped depois |
 | `OPP-20261023-DEAD` | applied | [transformation.md](../transformations/OPP-20261023-DEAD-verificacao-inalcancavel-de-arvore/transformation.md) | `CHG-001-guarda-unificada.diff` (19 linhas) | 1615/9 no lote + prova de inalcancabilidade |
+| `OPP-20261023-ESTD` | applied | [transformation.md](../transformations/OPP-20261023-ESTD-estado-de-borda-injetavel/transformation.md) | `CHG-001-estado-de-borda-injetavel.diff` (236 linhas) | 1621 passed, 9 skipped antes; 1625 passed, 9 skipped depois |
 
 ## Auditoria de 2026-10-23
 
@@ -51,6 +55,11 @@ aplicada no mesmo dia. `create_app(config=None)` existe em `src/app.py`, o app d
 modulo e criado por ele, e `tests/test_fabrica_do_app.py` acrescenta 6 testes. A
 suite foi de 1615 para 1621 passed, com as mesmas 9 exclusoes. O limite segue
 declarado: a fabrica isola configuracao, nao o estado de borda.
+
+A `OPP-20261023-ESTD` foi aberta em seguida para fechar esse limite e foi
+aprovada e aplicada no mesmo dia: as 10 leituras de global em handlers viraram 0,
+`create_app` passou a aceitar as quatro dependencias keyword-only, e a suite foi
+de 1621 para 1625 passed, 9 skipped.
 
 ## Legenda
 

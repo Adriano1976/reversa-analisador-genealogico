@@ -1,0 +1,21 @@
+Suite DEPOIS da ESTD (injecao de estado de borda)
+Medida em: 2026-10-23T13:35:56-03:00
+Arvore medida: working tree com `create_app` recebendo as quatro dependencias,
+`extensions["analisador"]` e handlers lendo `_estado_de_borda()`
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1625 passed, 9 skipped in 157.14s (0:02:37)
+
+Conferencia: 1621 testes da linha de base mais os 4 testes de
+`tests/test_estado_de_borda_injetavel.py` = 1625. As 9 exclusoes sao as mesmas.
+Nenhuma falha, nenhum erro de coleta.
+
+Acoplamento medido neste estado:
+  leituras do global dentro de handlers: 0
+  pontos de acesso ao estado: 1 (_estado_de_borda)
+  dependencias injetaveis em create_app: 4
+  chaves de extensao: 1 ("analisador")

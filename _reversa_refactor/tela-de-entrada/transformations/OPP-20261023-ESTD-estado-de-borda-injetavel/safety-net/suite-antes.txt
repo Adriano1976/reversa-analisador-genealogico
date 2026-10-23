@@ -1,0 +1,20 @@
+Suite ANTES da ESTD (estado com a FACT aplicada, sem injecao de estado)
+Medida em: 2026-10-23T04:16:45-03:00
+Arvore medida: working tree com `create_app` e os quatro objetos de estado no modulo
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1621 passed, 9 skipped, 1 warning em 294,19 s (0:04:54)
+
+Esta e a medicao registrada em
+`OPP-20261023-FACT .../safety-net/suite-depois.txt`: entre ela e a aplicacao da
+ESTD nenhum arquivo de src/ ou tests/ mudou.
+
+Acoplamento medido neste estado:
+  objetos de estado no modulo: 4
+  leituras do global dentro de handlers: 10
+  funcoes acopladas ao global: 6
+  dependencias injetaveis em create_app: 0

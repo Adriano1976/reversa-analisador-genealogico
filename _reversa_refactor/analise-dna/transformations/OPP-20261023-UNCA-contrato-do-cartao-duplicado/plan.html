@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de reestruturação · OPP-20261023-UNCA</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #161313; color: #f5f5f5;
+         font-family: -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.55; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 30px 0 10px; color: #e8e8e8;
+       border-bottom: 1px solid #2e2828; padding-bottom: 6px; }
+  .meta { color: #9a9a9a; font-size: 13px; margin-bottom: 18px; }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+  .card { background: #241f1f; border: 1px solid #3a3333; border-radius: 10px;
+          padding: 12px 16px; min-width: 150px; }
+  .card .v { font-size: 22px; font-weight: 600; }
+  .card .k { font-size: 12px; color: #9a9a9a; margin-top: 2px; }
+  .card.bad .v { color: #ffb4b4; }
+  .card.good .v { color: #a8e6a8; }
+  .note { background: #241f1f; border-left: 3px solid #e0b452; padding: 12px 16px;
+          border-radius: 6px; font-size: 13px; color: #d8d8d8; margin: 14px 0; }
+  .ok { border-left-color: #66bb6a; }
+  pre { background: #1d1919; border: 1px solid #3a3333; border-radius: 8px;
+        padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+        font-family: Consolas, Menlo, monospace; }
+  code { font-family: Consolas, Menlo, monospace; font-size: 12.5px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #2e2828;
+           vertical-align: top; }
+  th { color: #9a9a9a; font-weight: 500; }
+  td.num { text-align: right; font-family: Consolas, Menlo, monospace; }
+  ul { font-size: 13.5px; color: #d8d8d8; }
+  .foot { color: #7a7a7a; font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Plano de reestruturação · <code>OPP-20261023-UNCA</code></h1>
+<div class="meta">
+  Contexto <code>analise-dna</code> · alvo <code>passo_por_kit.py</code> e
+  <code>cartao_sem_correspondencia.py</code> · verbo <code>restructure</code> ·
+  2026-10-23 · gate 1 de 2
+</div>
+
+<div class="cards">
+  <div class="card bad"><div class="v">40</div><div class="k">chaves no cartão normal</div></div>
+  <div class="card bad"><div class="v">41</div><div class="k">no sem correspondência</div></div>
+  <div class="card"><div class="v">1</div><div class="k">chave de diferença real</div></div>
+  <div class="card bad"><div class="v">0</div><div class="k">testes que fixam o conjunto</div></div>
+  <div class="card good"><div class="v">2</div><div class="k">arquivos depois</div></div>
+</div>
+
+<h2>O que está duplicado</h2>
+<p>
+  Não são os valores: é a <strong>lista de chaves</strong>. O cartão normal e o cartão
+  do match sem correspondência declaram as mesmas 40 chaves, e a única diferença
+  legítima é a marca <code>sem_correspondencia</code>. Medido por AST:
+</p>
+<pre>cartao normal : 40 chaves
+sem correspond: 41 chaves
+so no normal  : []
+so no sem_corr: ['sem_correspondencia']
+mesma ordem?  : False</pre>
+<div class="note">
+  A ordem já divergiu. Como o template lê por nome, isso não quebra nada hoje, mas
+  mostra que as duas listas andam separadas. Uma chave nova em um lado só produz campo
+  vazio na tela para metade dos cartões, sem erro nenhum.
+</div>
+
+<h2>Por que não unificar os construtores</h2>
+<p>
+  Seria a leitura óbvia e é a errada. O cartão sem correspondência é uma versão
+  <strong>degenerada</strong>: quase todo campo tem valor constante. Uma função única
+  precisaria de um modo ou de uma base com sobreposição, e passaria a ter dois
+  caminhos internos em vez de um. Trocaria uma duplicação de dado por uma duplicação
+  de fluxo.
+</p>
+
+<h2>A transformação</h2>
+<table>
+  <tr><th>Arquivo</th><th>O que entra</th></tr>
+  <tr>
+    <td><code>src/core/contrato_do_cartao.py</code> (novo)</td>
+    <td><code>CHAVES_DO_CARTAO</code>, tupla canônica com as 40 chaves, e <code>CHAVE_SEM_CORRESPONDENCIA</code></td>
+  </tr>
+  <tr>
+    <td><code>tests/test_contrato_do_cartao.py</code> (novo)</td>
+    <td>produz um cartão de cada tipo com as fixtures existentes e compara o conjunto de chaves com a tupla</td>
+  </tr>
+</table>
+<div class="note ok">
+  O teste é a parte que vale. A tupla sozinha não impede nada; o teste transforma
+  "esqueci a chave no outro construtor" em falha vermelha, que é a única forma de
+  impedir a divergência silenciosa.
+</div>
+
+<h2>Fronteira de comportamento</h2>
+<ul>
+  <li>Nenhum valor muda. Os dois construtores continuam montando os dicionários como hoje, na ordem em que estão.</li>
+  <li>Nenhum arquivo existente é editado. A tupla é dado novo, e o teste só lê.</li>
+  <li>O digest de equivalência continua válido, porque nada do fluxo é tocado.</li>
+</ul>
+
+<h2>Rede de segurança</h2>
+<table>
+  <tr><th>Instrumento</th><th>Resultado</th></tr>
+  <tr><td>Suíte</td><td><strong>1625 passed, 9 skipped</strong> em 96,61 s</td></tr>
+  <tr><td>Digest de equivalência</td><td><code>b8d186c8…b570b5dd</code></td></tr>
+  <tr><td>Teste novo</td><td>2 asserções, uma por tipo de cartão</td></tr>
+</table>
+
+<h2>Fora de escopo</h2>
+<ul>
+  <li>Unificar os construtores, pelos motivos acima.</li>
+  <li>Reordenar as chaves dos dicionários: mudaria o diff sem ganho, e a ordem não é contrato.</li>
+  <li>Tipar o cartão como <code>TypedDict</code>: o verificador não cobra chave em dicionário literal, e o teste já cobre o que importa.</li>
+</ul>
+
+<div class="foot">
+  Gerado pelo Reversa-Refactor em 2026-10-23. Nada foi escrito no projeto: este plano aguarda aprovação no gate 1.
+</div>
+
+</div>
+</body>
+</html>

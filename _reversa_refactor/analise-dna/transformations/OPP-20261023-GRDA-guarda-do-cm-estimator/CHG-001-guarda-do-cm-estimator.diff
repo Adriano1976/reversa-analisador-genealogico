@@ -1,0 +1,96 @@
+diff --git a/tests/test_uso_do_cm_estimator.py b/tests/test_uso_do_cm_estimator.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_uso_do_cm_estimator.py
+@@ -0,0 +1,91 @@
++"""A proibicao do ADR-19 sobre `cm_estimator`, verificada em vez de declarada.
++
++## Por que este arquivo existe
++
++`OPP-20261023-GRDA`. O `ADR-19` declara `core.cm_estimator` fora do fluxo e proibe o
++uso em codigo novo, e o modulo repete o aviso no proprio docstring. Nada disso era
++verificado: um import acrescentado em qualquer modulo de `src/` passava na suite em
++silencio, e o projeto passaria a ter duas autoridades sobre cM, a tabela escrita a mao
++e a do Shared cM Project 4.0 que `relationship_hypotheses` usa.
++
++A `OPP-20261008-JXQN` queria remover o modulo e foi declinada: a remocao aposenta uma
++dimensao da matriz de paridade e exige decisao sobre `RF-25`/`BR-D-62`. Esta guarda
++entrega a metade que cabe no refactor, sem tocar em instrumento congelado.
++
++## O que a guarda nao faz
++
++Nao impede o uso do modulo pelos instrumentos de verificacao (`tests/` e o coletor que
++o `harness.py` escreve por string). Ela olha apenas `src/`.
++"""
++from __future__ import annotations
++
++import ast
++import pathlib
++
++RAIZ = pathlib.Path(__file__).resolve().parents[1]
++FONTE = RAIZ / "src"
++PERMITIDO = FONTE / "core" / "cm_estimator.py"
++
++PROIBIDO = "core.cm_estimator"
++
++
++def _importa_cm_estimator(arvore: ast.AST) -> int | None:
++    """Linha do primeiro import de `cm_estimator`, ou None.
++
++    Cobre as quatro formas que alcancam o modulo:
++
++    - `import core.cm_estimator`
++    - `from core.cm_estimator import ...`
++    - `from core import cm_estimator`
++    - `from . import cm_estimator` e `from .cm_estimator import ...`, que sao as
++      formas relativas usadas dentro de `src/core/`
++    """
++    for no in ast.walk(arvore):
++        if isinstance(no, ast.Import):
++            for alias in no.names:
++                if alias.name == PROIBIDO or alias.name.startswith(PROIBIDO + "."):
++                    return no.lineno
++        elif isinstance(no, ast.ImportFrom):
++            if no.level == 0:
++                if no.module == PROIBIDO:
++                    return no.lineno
++                if no.module == "core" and any(
++                    alias.name == "cm_estimator" for alias in no.names
++                ):
++                    return no.lineno
++            else:
++                if no.module == "cm_estimator":
++                    return no.lineno
++                if no.module is None and any(
++                    alias.name == "cm_estimator" for alias in no.names
++                ):
++                    return no.lineno
++    return None
++
++
++def test_nenhum_modulo_de_producao_importa_cm_estimator():
++    culpados: dict[str, int] = {}
++    for arquivo in sorted(FONTE.rglob("*.py")):
++        if arquivo == PERMITIDO or "__pycache__" in arquivo.parts:
++            continue
++        linha = _importa_cm_estimator(ast.parse(arquivo.read_text(encoding="utf-8")))
++        if linha is not None:
++            culpados[arquivo.relative_to(RAIZ).as_posix()] = linha
++
++    assert not culpados, (
++        "o ADR-19 proibe uso novo de core.cm_estimator; "
++        f"imports encontrados: {culpados}"
++    )
++
++
++def test_a_varredura_acusa_import_proibido_e_ignora_comentario():
++    """Prova negativa: sem isto, a guarda poderia estar passando por acidente."""
++    assert _importa_cm_estimator(
++        ast.parse("from core.cm_estimator import get_relationships_by_cm\n")
++    ) == 1
++    assert _importa_cm_estimator(ast.parse("from core import cm_estimator\n")) == 1
++    assert _importa_cm_estimator(ast.parse("import core.cm_estimator\n")) == 1
++    assert _importa_cm_estimator(ast.parse("from . import cm_estimator\n")) == 1
++    assert _importa_cm_estimator(
++        ast.parse("# from core.cm_estimator import get_relationships_by_cm\n")
++    ) is None

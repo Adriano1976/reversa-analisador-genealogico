@@ -1,0 +1,21 @@
+Conferencia da arvore do README depois do lote
+Medida em: 2026-10-23T13:50:00-03:00
+Metodo: leitura do bloco ```text de "## Estrutura do Projeto" e conferencia de
+cada caminho de arquivo contra o disco, incluindo templates, assets e web/.
+
+Resultado:
+  54 arquivos conferidos, 0 faltando
+
+A arvore tinha 46 arquivos conferidos antes do lote. Os oito novos sao:
+  src/application/projecao_analise.py
+  src/core/cobertura_do_arquivo.py
+  src/core/fontes_de_laboratorio.py
+  src/core/graus_de_parentesco.py
+  src/core/qualidade_da_medida.py
+  src/core/sem_correspondencia.py
+  src/web/__init__.py
+  src/web/rotas_assets.py
+
+Contagem declarada no README:
+  55 arquivos .py com 11.099 linhas nao vazias
+  59 arquivos no total, sem cache e sem uploads

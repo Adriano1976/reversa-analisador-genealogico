@@ -78,10 +78,11 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
 
 ## Arquitetura do Projeto
 
-O Flask recebe os arquivos e renderiza HTML no servidor. O código tem quatro camadas com papéis
-distintos: `src/app.py` é a borda HTTP, `src/application/` orquestra os casos de uso, `src/core/` decide
-sem conhecer HTTP nem disco, e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas
-e os adaptadores concretos, que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
+O Flask recebe os arquivos e renderiza HTML no servidor. A borda HTTP é `src/app.py`, que monta a
+aplicação em `create_app()` e registra a rota principal, e `src/web/`, que concentra as rotas de assets
+e download. `src/application/` orquestra os casos de uso, `src/core/` decide sem conhecer HTTP nem disco,
+e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas e os adaptadores concretos,
+que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
 
 - Os arquivos enviados são gravados na **pasta canônica de dados**, `src/uploads/`, sob nomes derivados do
   conteúdo. O destino é resolvido por `_pasta_uploads()` e pode ser sobreposto por `ANALISADOR_UPLOAD_FOLDER`
@@ -457,8 +458,8 @@ use outra porta com `ANALISADOR_PORT`.
 ## Estrutura do Projeto
 
 ```text
-src/                            # raiz de código: 49 arquivos, 12.715 linhas não vazias
-├── app.py                      # Borda HTTP: 5 rotas, despacho por 5 actions, variáveis de ambiente, guarda de instância única e montagem das dependências
+src/                            # raiz de código: 63 arquivos .py com 11.388 linhas não vazias; 67 arquivos no total (sem cache e uploads), medido em 2026-10-23
+├── app.py                      # Borda HTTP: create_app, 5 rotas, 5 actions, Blueprint de assets, guarda de instância única e estado de borda injetável
 ├── application/                # Casos de uso: orquestram o núcleo e traduzem o desfecho
 │   ├── upload_gedcom.py        # Upload: decide se pode gravar, grava sob chave de conteúdo e carrega a árvore
 │   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas e aplica o validador
@@ -466,6 +467,7 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n�
 │   ├── reenvio.py              # A regra de reenvio de arquivo, escrita em um lugar só
 │   ├── validacao.py            # Fachada de leitura e cruzamento do validador de dados
 │   ├── correcao.py             # Fachada de correção: do GEDCOM e do CSV até a árvore sugerida
+│   ├── projecao_analise.py     # Projeção pura do resultado para o payload da porta (Mapper)
 │   └── traducao.py             # Traduz exceção de domínio de volta para o literal da tela
 ├── core/                       # Núcleo puro: decide sem HTTP, sem I/O e sem estado de módulo
 │   ├── documentary_relationship.py  # Parentesco documental: caminho, ancestral comum, homônimos, caminhos múltiplos, colapso de pedigree
@@ -483,11 +485,24 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n�
 │   ├── name_normalization.py   # Normalização e decomposição de nomes
 │   ├── path_finding.py         # Caminho entre duas pessoas, na árvore recebida por parâmetro
 │   ├── family_navigation.py    # Quem é parente de quem, na árvore recebida por parâmetro
-│   ├── dna_analysis.py         # Fachada do cruzamento para o caso de uso
+│   ├── dna_analysis.py         # Caso de uso do cruzamento, ordem de apresentação e fachada de compatibilidade
+│   ├── dependencias.py         # O que o núcleo consome de fora, entregue pela borda
+│   ├── contexto_da_analise.py  # Estado que não muda entre kits, com os caches da análise
+│   ├── passo_por_kit.py        # Um kit vira cartão ou descarte: casamento, parentesco, confronto e profundidade
+│   ├── rotulos_do_cartao.py    # Palavras e classes CSS que o operador lê no cartão
+│   ├── validacao_no_cartao.py  # Veredito de viabilidade temporal do cartão
+│   ├── endogamia_no_cartao.py  # Diagnóstico estrutural, selo e frase da seção 5
+│   ├── cartao_sem_correspondencia.py  # Cartão do match sem pessoa compatível no GEDCOM
+│   ├── contrato_do_cartao.py   # As 40 chaves do cartão de análise, declaradas uma vez e guardadas por teste
 │   ├── path_search.py          # Fachada da busca de caminhos para o caso de uso
 │   ├── diagram_domain.py       # Consultas de domínio que o desenho do Mermaid precisa
 │   ├── erros.py                # Exceções de domínio tipadas, com raiz ErroDeDominio
 │   ├── registro.py             # Nome de exibição e identificador do registro
+│   ├── cobertura_do_arquivo.py # Retrato do arquivo: linhas, pessoas, kits, laboratórios e mediana
+│   ├── fontes_de_laboratorio.py   # Catálogo de laboratórios para o valor da coluna de fonte
+│   ├── graus_de_parentesco.py  # Nome do avô, do neto e do antepassado comum, por grau
+│   ├── qualidade_da_medida.py  # Estado de qualidade de uma medida de DNA (total, maior bloco e SNPs)
+│   ├── sem_correspondencia.py  # Triagem dos matches de cM alto sem correspondência na árvore
 │   └── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, fora do fluxo
 ├── ports/                      # A fronteira: os Protocol das portas e os adaptadores concretos
 │   ├── __init__.py             # As portas e o conjunto de dependências que o caso de uso recebe
@@ -501,6 +516,9 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n�
 │   ├── visualizer.py           # Desenho da árvore em Graphviz, servido em SVG
 │   ├── lista_de_arquivos.py    # Retrato dos arquivos da pasta, para as listas da tela
 │   └── csv_de_descartes.py     # Exportação da lista de trabalho dos descartes
+├── web/                        # Borda HTTP extraída do app.py: Blueprint de assets e downloads
+│   ├── __init__.py             # Declara a responsabilidade do pacote de borda HTTP
+│   └── rotas_assets.py         # Rotas de /apple-touch-icon.png, /banner.png, /app.css e /descartes.csv
 ├── utils/                      # Utilitários transversais
 │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   ├── number_format.py        # Formatação de cM, SNPs e posições

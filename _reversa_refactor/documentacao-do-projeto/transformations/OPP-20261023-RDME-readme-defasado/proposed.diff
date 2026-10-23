@@ -1,0 +1,61 @@
+diff --git a/README.md b/README.md
+index 543485b..8546641 100644
+--- a/README.md
++++ b/README.md
+@@ -78,10 +78,11 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
+ 
+ ## Arquitetura do Projeto
+ 
+-O Flask recebe os arquivos e renderiza HTML no servidor. O código tem quatro camadas com papéis
+-distintos: `src/app.py` é a borda HTTP, `src/application/` orquestra os casos de uso, `src/core/` decide
+-sem conhecer HTTP nem disco, e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas
+-e os adaptadores concretos, que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
++O Flask recebe os arquivos e renderiza HTML no servidor. A borda HTTP é `src/app.py`, que monta a
++aplicação em `create_app()` e registra a rota principal, e `src/web/`, que concentra as rotas de assets
++e download. `src/application/` orquestra os casos de uso, `src/core/` decide sem conhecer HTTP nem disco,
++e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas e os adaptadores concretos,
++que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
+ 
+ - Os arquivos enviados são gravados na **pasta canônica de dados**, `src/uploads/`, sob nomes derivados do
+   conteúdo. O destino é resolvido por `_pasta_uploads()` e pode ser sobreposto por `ANALISADOR_UPLOAD_FOLDER`
+@@ -457,8 +458,8 @@ use outra porta com `ANALISADOR_PORT`.
+ ## Estrutura do Projeto
+ 
+ ```text
+-src/                            # raiz de código: 49 arquivos, 12.715 linhas não vazias
+-├── app.py                      # Borda HTTP: 5 rotas, despacho por 5 actions, variáveis de ambiente, guarda de instância única e montagem das dependências
++src/                            # raiz de código: 55 arquivos .py com 11.099 linhas não vazias; 59 arquivos no total (sem cache e uploads), medido em 2026-10-23
++├── app.py                      # Borda HTTP: create_app, 5 rotas, 5 actions, Blueprint de assets, guarda de instância única e estado de borda injetável
+ ├── application/                # Casos de uso: orquestram o núcleo e traduzem o desfecho
+ │   ├── upload_gedcom.py        # Upload: decide se pode gravar, grava sob chave de conteúdo e carrega a árvore
+ │   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas e aplica o validador
+@@ -466,6 +467,7 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n
+ │   ├── reenvio.py              # A regra de reenvio de arquivo, escrita em um lugar só
+ │   ├── validacao.py            # Fachada de leitura e cruzamento do validador de dados
+ │   ├── correcao.py             # Fachada de correção: do GEDCOM e do CSV até a árvore sugerida
++│   ├── projecao_analise.py     # Projeção pura do resultado para o payload da porta (Mapper)
+ │   └── traducao.py             # Traduz exceção de domínio de volta para o literal da tela
+ ├── core/                       # Núcleo puro: decide sem HTTP, sem I/O e sem estado de módulo
+ │   ├── documentary_relationship.py  # Parentesco documental: caminho, ancestral comum, homônimos, caminhos múltiplos, colapso de pedigree
+@@ -488,6 +490,11 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n
+ │   ├── diagram_domain.py       # Consultas de domínio que o desenho do Mermaid precisa
+ │   ├── erros.py                # Exceções de domínio tipadas, com raiz ErroDeDominio
+ │   ├── registro.py             # Nome de exibição e identificador do registro
++│   ├── cobertura_do_arquivo.py # Retrato do arquivo: linhas, pessoas, kits, laboratórios e mediana
++│   ├── fontes_de_laboratorio.py   # Catálogo de laboratórios para o valor da coluna de fonte
++│   ├── graus_de_parentesco.py  # Nome do avô, do neto e do antepassado comum, por grau
++│   ├── qualidade_da_medida.py  # Estado de qualidade de uma medida de DNA (total, maior bloco e SNPs)
++│   ├── sem_correspondencia.py  # Triagem dos matches de cM alto sem correspondência na árvore
+ │   └── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, fora do fluxo
+ ├── ports/                      # A fronteira: os Protocol das portas e os adaptadores concretos
+ │   ├── __init__.py             # As portas e o conjunto de dependências que o caso de uso recebe
+@@ -501,6 +508,9 @@ src/                            # raiz de código: 49 arquivos, 12.715 linhas n
+ │   ├── visualizer.py           # Desenho da árvore em Graphviz, servido em SVG
+ │   ├── lista_de_arquivos.py    # Retrato dos arquivos da pasta, para as listas da tela
+ │   └── csv_de_descartes.py     # Exportação da lista de trabalho dos descartes
++├── web/                        # Borda HTTP extraída do app.py: Blueprint de assets e downloads
++│   ├── __init__.py             # Declara a responsabilidade do pacote de borda HTTP
++│   └── rotas_assets.py         # Rotas de /apple-touch-icon.png, /banner.png, /app.css e /descartes.csv
+ ├── utils/                      # Utilitários transversais
+ │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
+ │   ├── number_format.py        # Formatação de cM, SNPs e posições
