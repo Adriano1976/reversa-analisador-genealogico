@@ -1,0 +1,30 @@
+Suite DEPOIS da realocacao para src/web/ (OPP-20261023-ASST, CHG-005)
+Medida em: 2026-10-23T03:58:55-03:00
+Arvore medida: working tree com src/web/rotas_assets.py e src/web/__init__.py
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1615 passed, 9 skipped, 1 warning in 128.75s (0:02:08)
+
+Mesma contagem da linha de base do lote (1615 passed, 9 skipped). O unico aviso e
+o PytestCacheWarning de gravacao do cache.
+
+Testes direcionados rodados antes da suite completa:
+  tests/test_csv_de_descartes.py
+  tests/test_icone_de_atalho.py
+  tests/test_banner_do_topo.py
+  tests/test_estilo_da_tela.py
+  tests/test_deriva_da_arte.py
+Resultado: 113 passed em 11.70s.
+
+Conferencia de camada: `reporting/`, `ports/`, `application/`, `core/`, `utils/`
+e `parsers/` nao importam Flask. Apenas `app.py` e o novo pacote `web/` conhecem
+o framework.
+
+Conferencia de importacao: o modulo carrega e o url_map mantem as cinco rotas
+mais o static do Flask:
+  /apple-touch-icon.png, /banner.png, /app.css, /descartes.csv, /
+Blueprint registrado: assets.

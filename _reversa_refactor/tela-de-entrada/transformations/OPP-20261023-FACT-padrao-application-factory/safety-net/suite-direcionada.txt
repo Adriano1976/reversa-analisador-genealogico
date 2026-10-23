@@ -1,0 +1,16 @@
+Testes direcionados da FACT
+Medida em: 2026-10-23T04:11:07-03:00
+Comando: .venv\Scripts\python.exe -m pytest -q tests/test_fabrica_do_app.py
+
+Resultado:
+  6 passed in 8.57s
+
+Os seis testes fixam: instancia nova, as cinco rotas com os metodos certos,
+copia da configuracao padrao, sobreposicao por `config`, nao alteracao do app de
+modulo e registro dos dois tratadores de erro mais os ganchos.
+
+Antes desta execucao, a primeira coleta falhou com `ModuleNotFoundError: No
+module named 'app'`: o `tests/conftest.py` so insere `src/` no `sys.path` dentro
+do fixture `cliente_de_upload`, e o teste novo importa `app` no topo. O teste
+passou a inserir o caminho explicitamente, como `tests/test_arvore_devolvida.py`
+ja faz. Nenhuma linha de `src/` mudou por causa disso.

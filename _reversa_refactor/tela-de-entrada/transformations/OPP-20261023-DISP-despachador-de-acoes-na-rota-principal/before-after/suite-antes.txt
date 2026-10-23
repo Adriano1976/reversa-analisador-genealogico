@@ -1,0 +1,18 @@
+Suite ANTES do lote de 2026-10-23 (linha de base HEAD 221b6c1)
+Medida em: 2026-10-23T03:23:00-03:00
+Arvore medida: copia limpa do HEAD (git archive HEAD) em .refactor-baseline
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1615 passed, 9 skipped, 1 warning in 190.29s (0:03:10)
+
+O unico aviso e o PytestCacheWarning de gravacao do cache; nao ha falha de teste.
+
+Escopo da medicao: LOTE COMBINADO. As quatro transformacoes de `analise-dna`
+(MPRA, CLSM, KITS, DONO) e as tres de `tela-de-entrada` (ASST, DEAD, DISP) ja
+estavam aplicadas no working tree quando a sessao foi interrompida. Nao existe
+captura por transformacao isolada: os estados intermediarios nunca foram medidos.
+Esta e a linha de base real do lote, medida nesta sessao.

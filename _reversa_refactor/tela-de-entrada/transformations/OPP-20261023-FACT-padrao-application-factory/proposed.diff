@@ -1,0 +1,309 @@
+diff --git a/src/app.py b/src/app.py
+index 2b75322..4ec44fb 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -3,7 +3,7 @@ import os
+ import socket
+ import sys
+ 
+-from flask import Flask, render_template, request
++from flask import Flask, current_app, render_template, request
+ from reporting.lista_de_arquivos import (
+     ABA_DE_ARVORES,
+     ABA_DE_DNA,
+@@ -83,7 +83,7 @@ _DEPENDENCIAS = Dependencias(
+ DONO_DO_PROCESSO = "unico"
+ 
+ # --- Configuração ---
+-app = Flask(__name__)
++# A instancia da aplicacao e criada por `create_app()`, no fim do modulo.
+ # `app.secret_key` foi REMOVIDO em 2026-10-05 por decisao do usuario
+ # (_reversa_sdd/questions.md#pergunta-2). Ele nao tinha consumidor: `flask.session`
+ # nunca foi importado e nenhum cookie era emitido. O literal estava versionado no
+@@ -121,28 +121,7 @@ TETO_DE_UPLOAD_EM_MB = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
+ # evitado (receber centenas de MB para recusar no fim) vale mais do que a mensagem bonita.
+ MARGEM_DO_MULTIPART = 1024 * 1024
+ 
+-app.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
+-
+-# Formato dos numeros que o operador le (BUG-20261004-EWSJ). O template pede o
+-# filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
+-app.add_template_filter(formatar_cm, "cm_br")
+-app.add_template_filter(formatar_inteiro, "inteiro_br")
+-# O tamanho dos arquivos da lista, na unidade que se le de relance: `8,54 MB`, `55 KB`.
+-# Nasceu em 2026-10-16, a pedido do operador: a coluna "Tamanho" das DUAS abas mostrava o total em
+-# bytes, e `8.955.472 bytes` nao se le de relance. O numero exato continua no `title` da celula —
+-# ver o comentario no macro.
+-app.add_template_filter(formatar_tamanho, "tamanho_br")
+-# A data da coluna "Enviado em". A conversao e a MESMA autoridade unica usada pela lista, em
+-# `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template: data que o sistema
+-# nao converte tem de virar celula vazia em um lugar so.
+-app.add_template_filter(formatar_data_br, "data_br")
+-# O nome VISIVEL da arvore aberta, a partir do `gedcom_filename` que a rota ja passa em todas
+-# as renderizacoes. E filtro, e nao parametro de contexto, de proposito: a rota tem oito
+-# `render_template` com `gedcom_filename`, e acrescentar um argumento em cada um seria oito
+-# lugares para esquecer um — o mesmo defeito que o processador de contexto resolveu para as
+-# listas. O filtro reusa `rotulo_de_referencia`, que ja existia para as mensagens, entao o nome
+-# sai SEM a chave de conteudo pelo mesmo caminho de sempre.
+-app.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
++
+ 
+ # --- Cabecalho `Host` (E-02 do adendo 014) ---
+ #
+@@ -178,9 +157,6 @@ def _hosts_permitidos() -> list[str]:
+     ]
+ 
+ 
+-# Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
+-# ambiente — o mesmo padrao das chaves de arte e da folha.
+-app.config["TRUSTED_HOSTS"] = _hosts_permitidos()
+ 
+ UPLOAD_FOLDER = "uploads"
+ 
+@@ -234,7 +210,6 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
+ _REGISTRO = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
+ 
+ 
+-@app.errorhandler(RequestEntityTooLarge)
+ def _requisicao_grande(_erro):
+     return render_template(
+         "index.html",
+@@ -243,7 +218,6 @@ def _requisicao_grande(_erro):
+     ), 413
+ 
+ 
+-@app.errorhandler(SecurityError)
+ def _host_recusado(erro):
+     """Registra a recusa de `Host` e devolve o `400` que o Werkzeug ja montou.
+ 
+@@ -261,7 +235,7 @@ def _host_recusado(erro):
+     que existe para registra-lo. Medido: o log nunca acontecia e a excecao subia do lugar errado.
+     O cabecalho cru nao passa pela validacao, e e exatamente o que se quer registrar aqui.
+     """
+-    app.logger.warning(
++    current_app.logger.warning(
+         "requisicao recusada pelo cabecalho Host: %s", request.headers.get("host")
+     )
+     return erro
+@@ -285,7 +259,6 @@ def _host_recusado(erro):
+ # repetido em cada resposta e ainda assim nao cobriria as rotas de arte. Aqui vale para TODA
+ # resposta, e o corpo nao muda um byte — e o que mantem valido o invariante `SHA_DA_TELA` de
+ # `tests/test_icone_de_atalho.py`, que mede a tela e nao a borda.
+-@app.after_request
+ def _sem_enquadramento_por_terceiro(resposta):
+     resposta.headers["X-Frame-Options"] = "DENY"
+     return resposta
+@@ -345,7 +318,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
+         # O traceback vai para o LOG, e nao para a tela: o operador precisa de uma frase que
+         # diga o que aconteceu, e quem depura precisa do rastro. Antes desta guarda os dois
+         # ficavam sem nada — a tela mostrava o traceback e ninguem o registrava.
+-        app.logger.exception("GEDCOM alcancado pela referencia nao pode ser lido")
++        current_app.logger.exception("GEDCOM alcancado pela referencia nao pode ser lido")
+         return None, None, (
+             f"Erro: o arquivo '{rotulo_de_referencia(referencia)}' não pôde ser lido como GEDCOM. "
+             "Ele pode estar corrompido, vazio, ou não ser um GEDCOM de verdade."
+@@ -363,22 +336,17 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
+ ARTE_DO_ICONE = os.path.join(
+     os.path.dirname(os.path.abspath(__file__)), "assets", "apple-touch-icon.png"
+ )
+-app.config["ARTE_DO_ICONE"] = ARTE_DO_ICONE
+ 
+ ARTE_DO_TOPO = os.path.join(
+     os.path.dirname(os.path.abspath(__file__)), "assets", "banner-da-tela.png"
+ )
+-app.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
+ 
+ ESTILO_DA_TELA = os.path.join(
+     os.path.dirname(os.path.abspath(__file__)), "assets", "app.css"
+ )
+-app.config["ESTILO_DA_TELA"] = ESTILO_DA_TELA
+ 
+-app.register_blueprint(assets_bp)
+ 
+ 
+-@app.context_processor
+ def _listas_da_tela():
+     """As duas listas de arquivos armazenados, para as abas da tela de entrada.
+ 
+@@ -424,7 +392,7 @@ def _acao_upload_gedcom():
+     except HTTPException:
+         raise
+     except Exception as e:
+-        app.logger.exception("falha inesperada no envio de GEDCOM")
++        current_app.logger.exception("falha inesperada no envio de GEDCOM")
+         return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
+ 
+ 
+@@ -551,7 +519,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
+     except HTTPException:
+         raise
+     except Exception as e:
+-        app.logger.exception("falha inesperada na analise de DNA")
++        current_app.logger.exception("falha inesperada na analise de DNA")
+         return render_template(
+             "index.html",
+             gedcom_filename=gedcom_filename,
+@@ -598,7 +566,7 @@ def _acao_path_search(gedcom_filename, arvore, all_names):
+     except HTTPException:
+         raise
+     except Exception as e:
+-        app.logger.exception("falha inesperada na busca de caminho")
++        current_app.logger.exception("falha inesperada na busca de caminho")
+         return render_template(
+             "index.html",
+             gedcom_filename=gedcom_filename,
+@@ -621,7 +589,6 @@ _ACOES_COM_ARVORE = {
+ 
+ 
+ # --- Rota Principal ---
+-@app.route("/", methods=["GET", "POST"])
+ def index():
+     if request.method == "POST":
+         action = request.form.get("action")
+@@ -641,6 +608,66 @@ def index():
+     return render_template("index.html")
+ 
+ 
++def create_app(config=None) -> Flask:
++    """Monta a aplicacao: configura, registra ganchos, Blueprint e rota.
++
++    A instancia de modulo `app` e criada por esta funcao uma vez, no fim do
++    arquivo. Chamar de novo devolve uma instancia independente de configuracao,
++    o que permite testar `MAX_CONTENT_LENGTH`, `TRUSTED_HOSTS` ou chaves de arte
++    diferentes sem `monkeypatch` no app global.
++
++    O estado de borda (`_ARMAZENAMENTO`, `_CARREGADOR`, `_REGISTRO`) continua no
++    escopo do modulo: as instancias compartilham a pasta de uploads e o registro.
++    Isolar isso exige injecao de dependencia nos handlers, que e um passo de
++    `decouple`, fora desta transformacao.
++    """
++    aplicacao = Flask(__name__)
++    aplicacao.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
++
++    # Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
++    # ambiente — o mesmo padrao das chaves de arte e da folha.
++    aplicacao.config["TRUSTED_HOSTS"] = _hosts_permitidos()
++
++    # Formato dos numeros que o operador le (BUG-20261004-EWSJ). O template pede o
++    # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
++    aplicacao.add_template_filter(formatar_cm, "cm_br")
++    aplicacao.add_template_filter(formatar_inteiro, "inteiro_br")
++    # O tamanho dos arquivos da lista, na unidade que se le de relance: `8,54 MB`, `55 KB`.
++    # Nasceu em 2026-10-16, a pedido do operador: a coluna "Tamanho" das DUAS abas mostrava o total em
++    # bytes, e `8.955.472 bytes` nao se le de relance. O numero exato continua no `title` da celula —
++    # ver o comentario no macro.
++    aplicacao.add_template_filter(formatar_tamanho, "tamanho_br")
++    # A data da coluna "Enviado em". A conversao e a MESMA autoridade unica usada pela lista, em
++    # `reporting/lista_de_arquivos.py`, e nao um `strftime` solto no template: data que o sistema
++    # nao converte tem de virar celula vazia em um lugar so.
++    aplicacao.add_template_filter(formatar_data_br, "data_br")
++    # O nome VISIVEL da arvore aberta, a partir do `gedcom_filename` que a rota ja passa em todas
++    # as renderizacoes. E filtro, e nao parametro de contexto, de proposito: a rota tem oito
++    # `render_template` com `gedcom_filename`, e acrescentar um argumento em cada um seria oito
++    # lugares para esquecer um — o mesmo defeito que o processador de contexto resolveu para as
++    # listas. O filtro reusa `rotulo_de_referencia`, que ja existia para as mensagens, entao o nome
++    # sai SEM a chave de conteudo pelo mesmo caminho de sempre.
++    aplicacao.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
++
++    aplicacao.config["ARTE_DO_ICONE"] = ARTE_DO_ICONE
++    aplicacao.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
++    aplicacao.config["ESTILO_DA_TELA"] = ESTILO_DA_TELA
++
++    aplicacao.register_error_handler(RequestEntityTooLarge, _requisicao_grande)
++    aplicacao.register_error_handler(SecurityError, _host_recusado)
++    aplicacao.after_request(_sem_enquadramento_por_terceiro)
++    aplicacao.context_processor(_listas_da_tela)
++
++    aplicacao.register_blueprint(assets_bp)
++    aplicacao.add_url_rule("/", endpoint="index", view_func=index, methods=["GET", "POST"])
++
++    if config:
++        aplicacao.config.update(config)
++    return aplicacao
++
++
++app = create_app()
++
+ if __name__ == "__main__":
+     # Configuracao de execucao lida do ambiente, com os padroes declarados aqui.
+     # Mesmo padrao ja praticado pelo projeto em `ANALISADOR_UPLOAD_FOLDER`.
+diff --git a/tests/test_fabrica_do_app.py b/tests/test_fabrica_do_app.py
+new file mode 100644
+index 0000000..340b314
+--- /dev/null
++++ b/tests/test_fabrica_do_app.py
+@@ -0,0 +1,74 @@
++"""Caracterizacao da fabrica de aplicacao (OPP-20261023-FACT).
++
++O app de modulo continua sendo `app`. A fabrica existe para montar uma instancia
++nova com configuracao propria, sem tocar no singleton importado pela suite.
++"""
++from __future__ import annotations
++
++from flask import Flask
++from werkzeug.exceptions import RequestEntityTooLarge, SecurityError
++
++import app as modulo
++
++ROTAS = {
++    "/": {"GET", "POST"},
++    "/app.css": {"GET"},
++    "/banner.png": {"GET"},
++    "/apple-touch-icon.png": {"GET"},
++    "/descartes.csv": {"POST"},
++}
++
++CHAVES = (
++    "MAX_CONTENT_LENGTH",
++    "TRUSTED_HOSTS",
++    "ARTE_DO_ICONE",
++    "ARTE_DO_TOPO",
++    "ESTILO_DA_TELA",
++)
++
++
++def _rotas(aplicacao: Flask) -> dict[str, set[str]]:
++    return {
++        regra.rule: set(regra.methods or ()) - {"HEAD", "OPTIONS"}
++        for regra in aplicacao.url_map.iter_rules()
++        if regra.rule in ROTAS
++    }
++
++
++def test_create_app_devolve_instancia_nova():
++    nova = modulo.create_app()
++    assert isinstance(nova, Flask)
++    assert nova is not modulo.app
++
++
++def test_create_app_registra_as_cinco_rotas():
++    assert _rotas(modulo.create_app()) == ROTAS
++
++
++def test_create_app_copia_a_configuracao_padrao():
++    nova = modulo.create_app()
++    for chave in CHAVES:
++        assert nova.config[chave] == modulo.app.config[chave]
++
++
++def test_create_app_honra_a_sobreposicao():
++    nova = modulo.create_app({"TESTING": True, "MAX_CONTENT_LENGTH": 123})
++    assert nova.config["TESTING"] is True
++    assert nova.config["MAX_CONTENT_LENGTH"] == 123
++
++
++def test_criar_instancia_nao_altera_o_app_de_modulo():
++    rotas_antes = sorted(regra.rule for regra in modulo.app.url_map.iter_rules())
++    config_antes = {chave: modulo.app.config[chave] for chave in CHAVES}
++    modulo.create_app({"TESTING": True, "MAX_CONTENT_LENGTH": 123})
++    assert sorted(regra.rule for regra in modulo.app.url_map.iter_rules()) == rotas_antes
++    assert {chave: modulo.app.config[chave] for chave in CHAVES} == config_antes
++
++
++def test_create_app_registra_ganchos_e_tratadores():
++    nova = modulo.create_app()
++    tratadores = nova.error_handler_spec[None]
++    assert tratadores[413][RequestEntityTooLarge] is modulo._requisicao_grande
++    assert tratadores[400][SecurityError] is modulo._host_recusado
++    assert nova.after_request_funcs[None]
++    assert nova.template_context_processors[None]

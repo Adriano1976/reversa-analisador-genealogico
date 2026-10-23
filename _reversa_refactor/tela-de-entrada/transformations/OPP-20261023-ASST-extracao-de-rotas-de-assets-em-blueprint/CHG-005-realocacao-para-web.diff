@@ -1,0 +1,43 @@
+diff --git a/src/app.py b/src/app.py
+index 4e79866..2b75322 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -32,7 +32,7 @@ from reporting.mermaid_render import (
+     generate_mermaid_graph_indirect_bridge,
+     mermaid_da_sugestao,
+ )
+-from reporting.rotas_assets import assets_bp
++from web.rotas_assets import assets_bp
+ from ports.adaptadores import (
+     ArmazenamentoEmDisco,
+     CarregadorDeArvoresGedcom,
+@@ -356,7 +356,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
+ 
+ 
+ # --- Rotas de assets e downloads (OPP-20261023-ASST) ---
+-# As quatro rotas moram em `reporting/rotas_assets.py` (Blueprint `assets_bp`). Os caminhos
++# As quatro rotas moram em `web/rotas_assets.py` (Blueprint `assets_bp`). Os caminhos
+ # continuam sendo configurados aqui porque `app.config` e o ponto que os testes
+ # usam para simular arte ausente (`monkeypatch.setitem(app.config, ...)`), sem
+ # tocar nos arquivos do repositorio.
+diff --git a/src/web/__init__.py b/src/web/__init__.py
+new file mode 100644
+index 0000000..03d94f7
+--- /dev/null
++++ b/src/web/__init__.py
+@@ -0,0 +1,11 @@
++"""Borda HTTP: Blueprints e entrega de recursos da tela.
++
++Este e o unico pacote, alem de `app.py`, que conhece Flask. Ele existe para que
++`reporting/` continue livre de framework: as rotas de assets, arte e download
++moram aqui, enquanto `application/`, `ports/`, `core/`, `parsers/` e `utils/`
++seguem sem dependencia de Flask.
++
++`web/` nao guarda regra de negocio, nao importa `core/` e nao decide layout: ele
++transporta bytes e formularios. A montagem continua em `app.py`, que registra o
++Blueprint.
++"""
+diff --git a/src/reporting/rotas_assets.py b/src/web/rotas_assets.py
+similarity index 100%
+rename from src/reporting/rotas_assets.py
+rename to src/web/rotas_assets.py

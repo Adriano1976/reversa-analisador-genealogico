@@ -1,0 +1,22 @@
+Prova de inalcancabilidade do ramo removido pela OPP-20261023-DEAD
+Linha de base: HEAD 221b6c1, `src/app.py`, funcao `_arvore_do_formulario`.
+
+A funcao tem quatro pontos de retorno, e os tres de erro devolvem `arvore` nula:
+
+| Linha (HEAD) | Retorno |
+|---|---|
+| 341 | `return None, None, "Erro: Arquivo GEDCOM não encontrado."` |
+| 349 | `return None, None, ("Erro: o arquivo ... nao pode ser lido ...")` |
+| 354 | `return None, None, f"Erro: Arquivo '{...}' não existe mais."` |
+| 355 | `return referencia, arvore, None` |
+
+Conclusao: quando `erro is None`, a execucao veio do quarto retorno e `arvore` e
+um objeto valido. Logo, o ramo `if arvore is None` com mensagem propria era
+inalcancavel em execucao.
+
+Ressalva registrada: a guarda `arvore is None` NAO foi eliminada por completo.
+A docstring da propria funcao (HEAD, linhas 312-314) diz que o checador de tipos
+nao estreita o segundo elemento da tupla por `erro is not None`, e que o chamador
+precisa repetir a guarda. Depois da transformacao, a condicao vive unificada em
+`if erro is not None or arvore is None:` — o ramo de RENDERIZACAO morto saiu; a
+checagem permaneceu para estreitar o tipo.

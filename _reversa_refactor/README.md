@@ -38,12 +38,13 @@ _reversa_refactor/
 
 | Contexto | Alvo principal | Oportunidades |
 |----------|----------------|---------------|
-| `analise-dna` | `src/core/dna_analysis.py` e dependências | 9 |
+| `analise-dna` | `src/application/dna_analysis.py`, `src/application/projecao_analise.py` e `src/core/dna_analysis.py` | 13 |
 | `arquitetura-src` | `src/` inteiro: acoplamento, ciclos de pacote e duplicação | 4 |
 | `busca-caminho` | `src/core/path_search.py` | 4 |
 | `contrato-de-dados-src` | contrato dos dicionários de domínio e caminhos de importação | 2 |
 | `documentacao-sdd` | desvio entre `_reversa_sdd/` e o código, criado pelas transformações de 2026-10-06 | 1 |
 | `pacote-reconstructed` | árvore do pacote (histórico, já em `src/`) | 9 |
+| `tela-de-entrada` | `src/app.py`: rotas web, assets, despacho de acoes e servidor | 5 |
 | `upload-gedcom` | `src/parsers/`, `src/core/gedcom_state.py` e `src/app.py` | 3 (1 declined) |
 | `verificacao-de-tipos` | `pyrefly.toml` e as anotações de tipo de `tests/` | 1 |
 
@@ -174,14 +175,76 @@ arquivos. `parser/` no singular era o único item neutro.
 
 Nada foi renomeado. O registro com a medição completa está na própria oportunidade.
 
+## Lote de 2026-10-23: analise-dna e tela-de-entrada
+
+Duas frentes foram abertas no mesmo dia. A de `analise-dna` fechou; a de
+`tela-de-entrada` parou de madrugada com o código aplicado e o registro pela
+metade. Em ambos os casos o código estava correto e a suíte verde; o que faltava
+era o registro.
+
+| # | Oportunidade | Contexto | Verbo | Estado | Efeito medido |
+|---|---|---|---|---|---|
+| #35 | `OPP-20261023-MPRA` | analise-dna | modularize | **applied** | `dna_analysis.py` 345 → 128 linhas; `projecao_analise.py` novo com 293 |
+| #36 | `OPP-20261023-CLSM` | analise-dna | restructure | **applied** | classe `ProjetorDeAnalise` (Mapper), com fachada funcional preservada |
+| #37 | `OPP-20261023-DONO` | analise-dna | standardize | **applied** | docstring do `dono` alinhada ao ADR-26; **prune recusado** |
+| #38 | `OPP-20261023-KITS` | analise-dna | simplify | **applied** | `_kits` com `zip_longest` e fatia, sem lista mutável |
+| #39 | `OPP-20261023-DISP` | tela-de-entrada | restructure | **applied** | `index()` 234 → 19 linhas; 5 handlers e dois mapas de ação |
+| #40 | `OPP-20261023-ASST` | tela-de-entrada | modularize | **applied** | Blueprint `assets_bp` em `src/web/rotas_assets.py`; `app.py` 888 → 737 |
+| #43 | `OPP-20261023-DEAD` | tela-de-entrada | prune | **applied** | guarda inalcançável unificada; checagem mantida para estreitar tipo |
+| #41 | `OPP-20261023-SERV` | tela-de-entrada | decouple | **declined** | `tests/test_servidor_producao.py` exige o bloco de servidor no AST de `app.py` |
+| #42 | `OPP-20261023-FACT` | tela-de-entrada | modularize | **applied** | `create_app(config=None)` com 6 testes; suite 1621 passed, 9 skipped |
+
+### O que a conciliação corrigiu
+
+| Constatação | Correção |
+|---|---|
+| `DISP` aplicada no código, marcada `proposed` e sem `transformation.md` | Registro escrito, estado corrigido, diff real gerado |
+| o `proposed.diff` de `DISP` era um esboço com `...` e não aplicava | Removido e substituído por `CHG-001-despachador-de-acoes.diff` (471 linhas) |
+| nenhuma das sete tinha diff de reversão, embora os índices dissessem "sim" | Seis diffs gerados do `HEAD 221b6c1` e verificados por aplicação em cadeia |
+| os arquivos de suíte declaravam `Python 3.12.3`, `pytest 8.3.2` e `pyproject.toml`, que o projeto não tem | Substituídos pela medição real nas duas pontas do lote |
+| `MPRA` dizia "suite rodando em background" e "preservado" ao mesmo tempo | Registro reescrito com a medição real |
+| `DONO` estava como `prune` aplicado, sem poda e sem `death-proof` | Verbo corrigido para `standardize`; recusa do prune registrada |
+| a prova de equivalência de `KITS` estava errada para `avaliacoes` mais longa | Corrigida: a fatia `avaliacoes[:len(kits)]` é o que preserva o truncamento |
+| a extração de `ASST` deixou `build_only`, re-exportações sem efeito e `import json` sem uso | Removidos; o template usa `url_for('assets.descartes_em_csv')` |
+
+O diff do lote de `analise-dna` é **único** (`CHG-LOTE-extracao-e-mapper.diff`,
+586 linhas): as quatro etapas foram empilhadas antes de qualquer captura, e os dois
+arquivos só são reproduzidos pelo conjunto. A reversão é em bloco e foi verificada
+aplicando o diff sobre o `HEAD`: os dois arquivos saem byte a byte iguais aos
+atuais. No `tela-de-entrada`, os diffs são por transformação
+(`CHG-001` de DEAD, três de ASST, `CHG-001` de DISP), e a cadeia DEAD → ASST → DISP
+reproduz o `app.py` atual byte a byte.
+
+### Medição real do lote
+
+| Momento | Resultado |
+|---|---|
+| linha de base `HEAD 221b6c1` (cópia limpa via `git archive`) | **1615 passed, 9 skipped** em 190,29 s |
+| working tree depois do lote e da limpeza | **1615 passed, 9 skipped** em 197,00 s |
+| verificação de tipos | **não medida**: `pyrefly` não está instalado no `.venv` |
+
+Evidência: `tela-de-entrada/generated/evidence/` e `analise-dna/generated/evidence/`,
+copiada para o `before-after/` de cada transformação.
+
+### FACT, aprovada depois do fechamento
+
+A `OPP-20261023-FACT`, que estava `proposed`, foi aprovada em plano e em diff e
+aplicada no mesmo dia. `create_app(config=None)` existe em `src/app.py`, o app de
+módulo é criado por ele, e `tests/test_fabrica_do_app.py` acrescenta 6 testes. A
+suíte foi de 1615 para **1621 passed, 9 skipped**, com as mesmas 9 exclusões.
+
+O limite declarado no plano continua valendo: a fábrica isola **configuração**,
+não o estado de borda (`_ARMAZENAMENTO`, `_CARREGADOR`, `_REGISTRO`). Isolar isso
+é `decouple`, e fica para outra oportunidade.
+
 ## Gate de edição do legado: LIBERADO em 2026-09-29
 
 `.reversa/reversa-config.json` está em `allowLegacyEdits: true`. Os globs liberados evoluíram por
-edição do próprio usuário, e hoje são oito:
-`["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml", "src/**", ".vscode/**", "requirements.txt", ".markdownlint-cli2.jsonc"]`.
+edição do próprio usuário, e hoje são dezessete:
+`["analisador-genealogico/**", "tests/**", "README.md", "pyrefly.toml", "publicar_docs.py", "src/**", ".vscode/**", "requirements.txt", ".markdownlint-cli2.jsonc", "_docs_auxiliary/**", "docker/**", "docker-compose.yml", "init.sql", ".dockerignore", "docs/**", "*.ps1", ".github/**"]`.
 
-As **25 oportunidades aplicadas** estão listadas abaixo em 18 linhas: o lote `OPP-20261003-*` de sete
-transformações ocupa uma linha só.
+As **34 oportunidades aplicadas** estão listadas abaixo; o lote de 2026-10-03 (sete
+transformações) e o de 2026-10-23 (oito, contando a FACT) ocupam uma linha cada.
 | Oportunidade | Verbo | Arquivo | Estado |
 |--------------|-------|---------|--------|
 | `OPP-20260929-TPSH` | restructure | `reconstructed/path_search.py` | aplicada |
@@ -205,6 +268,8 @@ transformações ocupa uma linha só.
 | `OPP-20261006-ULVW` | decouple | `src/reporting/mermaid_render.py`, `src/core/path_search.py`, `src/core/dna_analysis.py` e `src/core/diagram_domain.py` (novo) | aplicada em 2026-10-06 |
 | `OPP-20261006-LIGH` | decouple | `src/utils/name_keys.py` (novo), `src/core/name_normalization.py`, `src/parsers/csv_ingest.py` | aplicada em parte em 2026-10-06; aresta restante bloqueada por spec |
 | `OPP-20261006-ESKO` | standardize | `src/core/path_search.py`, `tests/test_path_search.py`, `tests/test_mermaid_escape.py` e `_reversa_sdd/parity/harness.py` | aplicada em 2026-10-06 |
+| `OPP-20261023-MPRA` a `OPP-20261023-DISP` | modularize, restructure, simplify, standardize, prune | `src/application/{dna_analysis,projecao_analise}.py`, `src/app.py`, `src/web/rotas_assets.py` (novo) e `src/templates/index.html` | 7 aplicadas em 2026-10-23 |
+| `OPP-20261023-FACT` | modularize | `src/app.py` (`create_app`) e `tests/test_fabrica_do_app.py` (novo) | aplicada em 2026-10-23 |
 
 Nenhuma delas escreveu fora dos globs liberados na época. `tests/**` passou a ser usado na
 `OPP-20260929-Z6IO`, que removeu seis supressões de tipo obsoletas. Promover as redes de segurança por
@@ -212,11 +277,22 @@ caracterização e equivalência a teste permanente da suíte continua sendo dec
 
 ## Rede de segurança disponível
 
-Números medidos em **2026-10-06** (substituem os de 2026-09-29):
+Números medidos em **2026-10-23**, no ambiente oficial (`.venv`, Python 3.14.6,
+pytest 9.1.1, `pytest.ini`):
 
-- Suíte existente: **164 testes passam e 15 erros de ambiente** em `tests/` (`py -3.14 -m pytest -q`). Os 15 erros são `PermissionError` do sandbox ao criar o diretório temporário do `tmp_path`, e não regressão: o mesmo número e a mesma causa aparecem antes e depois de cada transformação.
-- **Suíte remedida em 2026-10-08**, no contexto da `OPP-20261008-JXQN`: **282 passam, 8 pulados, 0 erros e 0 falhas**, em 290 itens coletados, com 173 s de execução. Os 15 erros de ambiente de 2026-10-06 **não existem mais**: a correção do `tmp_path` feita pela feature 007 os eliminou. Os 8 pulados são os 8 testes de `tests/test_registro_de_analises.py`, pulados por ausência de `DATABASE_URL`. **A verificação de tipos não foi remedida nesta data**, e os 27 erros do pyrefly continuam sendo o número de 2026-10-06. Evidência bruta: `analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/suite-antes.txt`.
-- Verificação de tipos: `py -3.14 -m pyrefly check src` reporta **27 erros**. O critério de aceite de qualquer transformação é a contagem e o conjunto de erros não aumentarem, comparados arquivo a arquivo.
+- Suíte no `HEAD 221b6c1` (cópia limpa via `git archive`): **1615 passed, 9 skipped**, 190,29 s.
+- Suíte no working tree depois do lote de 2026-10-23 e da limpeza: **1615 passed, 9 skipped**, 197,00 s.
+- Verificação de tipos: **não medida**, porque o `pyrefly` não está instalado no `.venv`
+  (`No module named pyrefly`). Os 27 erros de 2026-10-06 vieram de outro ambiente e não
+  servem de critério hoje.
+- Evidência: `tela-de-entrada/generated/evidence/suite-lote-antes.txt` e
+  `suite-lote-depois.txt`.
+
+Números históricos, mantidos para rastreabilidade e **substituídos** pela medição acima:
+
+- Suíte existente em 2026-10-06: **164 testes passam e 15 erros de ambiente** em `tests/` (`py -3.14 -m pytest -q`). Os 15 erros são `PermissionError` do sandbox ao criar o diretório temporário do `tmp_path`, e não regressão: o mesmo número e a mesma causa aparecem antes e depois de cada transformação.
+- **Suíte remedida em 2026-10-08**, no contexto da `OPP-20261008-JXQN`: **282 passam, 8 pulados, 0 erros e 0 falhas**, em 290 itens coletados, com 173 s de execução. Os 15 erros de ambiente de 2026-10-06 **não existem mais**: a correção do `tmp_path` feita pela feature 007 os eliminou. Os 8 pulados são os 8 testes de `tests/test_registro_de_analises.py`, pulados por ausência de `DATABASE_URL`. Evidência bruta: `analise-dna/transformations/OPP-20261008-JXQN-legado-de-cm-fora-do-fluxo/before-after/suite-antes.txt`.
+- Verificação de tipos em 2026-10-06: `py -3.14 -m pyrefly check src` reportava **27 erros**, em outro ambiente.
 - Harness de paridade diferencial oráculo x reconstrução: `_reversa_sdd/parity/harness.py`, com
   fixtures sintéticas em `_reversa_sdd/parity/fixtures/`. Roda e reporta 100 por cento, ao
   contrário do que este README afirmava antes de 2026-10-03.

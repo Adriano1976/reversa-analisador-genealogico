@@ -1,0 +1,21 @@
+Suite DEPOIS do lote de 2026-10-23 e da limpeza de fechamento
+Medida em: 2026-10-23T03:26:30-03:00
+Arvore medida: working tree (src/app.py, src/rotas_assets.py, src/application/*)
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1615 passed, 9 skipped, 1 warning in 197.00s (0:03:17)
+
+Veredito: mesma contagem de testes e mesmas 9 exclusoes da linha de base.
+Nenhuma falha antes, nenhuma falha depois.
+
+A limpeza de fechamento inclui: remocao do `import json` que ficou sem uso em
+`src/app.py`, remocao das quatro regras `build_only` e das quatro re-exportacoes
+sem efeito, e troca de `url_for('descartes_em_csv')` por
+`url_for('assets.descartes_em_csv')` no template. O HTML de `GET /` continua
+identico, e `tests/test_icone_de_atalho.py` (hash SHA_DA_TELA) segue verde.
+
+Escopo da medicao: LOTE COMBINADO, pelo mesmo motivo do arquivo `suite-antes`.

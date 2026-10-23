@@ -1,0 +1,26 @@
+Suite DEPOIS da realocacao para src/reporting/ (OPP-20261023-ASST, CHG-004)
+Medida em: 2026-10-23T03:52:11-03:00
+Arvore medida: working tree com src/reporting/rotas_assets.py
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1615 passed, 9 skipped, 1 warning in 151.68s (0:02:31)
+
+Mesma contagem da linha de base do lote (1615 passed, 9 skipped). O unico aviso e
+o PytestCacheWarning de gravacao do cache.
+
+Testes direcionados rodados antes da suite completa:
+  tests/test_csv_de_descartes.py
+  tests/test_icone_de_atalho.py
+  tests/test_banner_do_topo.py
+  tests/test_estilo_da_tela.py
+  tests/test_deriva_da_arte.py
+Resultado: 113 passed em 24.64s.
+
+Conferencia de importacao: o modulo carrega e o url_map mantem as cinco rotas
+mais o static do Flask:
+  /apple-touch-icon.png, /banner.png, /app.css, /descartes.csv, /
+Blueprint registrado: assets.

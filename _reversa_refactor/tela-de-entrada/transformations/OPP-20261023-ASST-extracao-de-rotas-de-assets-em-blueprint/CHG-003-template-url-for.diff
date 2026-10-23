@@ -1,0 +1,13 @@
+diff --git a/src/templates/index.html b/src/templates/index.html
+index fd7a1bc..b330194 100644
+--- a/src/templates/index.html
++++ b/src/templates/index.html
+@@ -1793,7 +1793,7 @@
+                              leva a lista para la. O JSON viaja no proprio formulario porque a
+                              aplicacao nao tem sessao: sem ele, so' uma nova analise traria os
+                              mesmos dados de volta. Ver `reporting/csv_de_descartes.py`. #}
+-                          <form method="POST" action="{{ url_for('descartes_em_csv') }}" class="mb-3">
++                          <form method="POST" action="{{ url_for('assets.descartes_em_csv') }}" class="mb-3">
+                             <input type="hidden" name="dados" value="{{ skipped_matches | tojson | forceescape }}">
+                             <button type="submit" class="botao-do-cartao">Baixar lista de trabalho (CSV)</button>
+                             <span class="text-muted small">com o motivo de cada nome em linguagem comum e os candidatos que a árvore oferecia; os números de cada recusa vão na última coluna, <strong>Detalhe técnico</strong>.</span>

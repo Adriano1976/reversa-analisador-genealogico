@@ -1,0 +1,19 @@
+Suite DEPOIS da FACT (create_app aplicado + 6 testes de caracterizacao)
+Medida em: 2026-10-23T04:16:45-03:00
+Arvore medida: working tree com src/app.py contendo create_app e
+tests/test_fabrica_do_app.py
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1621 passed, 9 skipped in 294.19s (0:04:54)
+
+Conferencia: 1615 testes da linha de base mais os 6 testes novos de
+`tests/test_fabrica_do_app.py` = 1621. As 9 exclusoes sao as mesmas de antes.
+Nenhuma falha, nenhum erro de coleta.
+
+A duracao subiu de 128,75 s para 294,19 s. A diferenca nao vem dos 6 testes
+novos (que rodam em 8,57 s): a maquina estava executando a copia de prova e a
+geracao de diffs em paralelo. A contagem e o criterio de aceite; o tempo nao.

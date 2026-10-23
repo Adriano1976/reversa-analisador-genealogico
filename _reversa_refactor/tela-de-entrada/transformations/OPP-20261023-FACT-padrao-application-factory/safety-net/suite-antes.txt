@@ -1,0 +1,14 @@
+Suite ANTES da FACT (estado com o lote de 2026-10-23 e a realocacao para web/)
+Medida em: 2026-10-23T03:58:55-03:00
+Arvore medida: working tree com src/web/rotas_assets.py, sem create_app
+Interpretador: Python 3.14.6 (.venv do projeto)
+pytest: 9.1.1 / pluggy 1.6.0
+Configuracao: pytest.ini (testpaths = tests)
+Comando: .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1615 passed, 9 skipped, 1 warning in 128.75s (0:02:08)
+
+Esta e a mesma medicao registrada em
+`OPP-20261023-ASST .../before-after/suite-pos-web.txt`: entre ela e a aplicacao
+da FACT nenhum arquivo de src/ ou tests/ mudou.

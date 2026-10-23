@@ -1,0 +1,19 @@
+diff --git a/src/app.py b/src/app.py
+index e65ad79..b6776ec 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -617,12 +617,8 @@ def index():
+                 success=False)
+ 
+         gedcom_filename, arvore, erro = _arvore_do_formulario()
+-        if erro is not None:
+-            return render_template("index.html", message=erro, success=False)
+-        if arvore is None:
+-            # Inalcancavel em execucao: `erro` e `arvore` sao preenchidos juntos.
+-            # Existe para o checador de tipos estreitar a uniao do retorno.
+-            return render_template("index.html", message="Erro: Arquivo GEDCOM não encontrado.", success=False)
++        if erro is not None or arvore is None:
++            return render_template("index.html", message=erro or "Erro: Arquivo GEDCOM não encontrado.", success=False)
+         all_names = nomes_de_exibicao(arvore)
+ 
+         if action == "selecionar_arvore":

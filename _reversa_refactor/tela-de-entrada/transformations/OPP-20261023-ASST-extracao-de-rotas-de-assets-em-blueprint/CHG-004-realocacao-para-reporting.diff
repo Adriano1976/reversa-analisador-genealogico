@@ -1,0 +1,26 @@
+diff --git a/src/app.py b/src/app.py
+index 3218a9c..4e79866 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -32,7 +32,7 @@ from reporting.mermaid_render import (
+     generate_mermaid_graph_indirect_bridge,
+     mermaid_da_sugestao,
+ )
+-from rotas_assets import assets_bp
++from reporting.rotas_assets import assets_bp
+ from ports.adaptadores import (
+     ArmazenamentoEmDisco,
+     CarregadorDeArvoresGedcom,
+@@ -356,7 +356,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
+ 
+ 
+ # --- Rotas de assets e downloads (OPP-20261023-ASST) ---
+-# As quatro rotas moram em `rotas_assets.py` (Blueprint `assets_bp`). Os caminhos
++# As quatro rotas moram em `reporting/rotas_assets.py` (Blueprint `assets_bp`). Os caminhos
+ # continuam sendo configurados aqui porque `app.config` e o ponto que os testes
+ # usam para simular arte ausente (`monkeypatch.setitem(app.config, ...)`), sem
+ # tocar nos arquivos do repositorio.
+diff --git a/src/rotas_assets.py b/src/reporting/rotas_assets.py
+similarity index 100%
+rename from src/rotas_assets.py
+rename to src/reporting/rotas_assets.py
