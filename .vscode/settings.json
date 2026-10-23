@@ -14,5 +14,6 @@
         "MD033": {
             "allowed_elements": ["div", "p", "b", "h3", "img", "br"]
         }
-    }
+    },
+    "python.analysis.diagnosticsSource": "Pylance + Pyrefly"
 }
