@@ -23,6 +23,7 @@ O que justifica sao os outros dois motivos, e os dois sao de falha silenciosa:
 """
 from __future__ import annotations
 
+import ast
 import os
 import re
 import sys
@@ -928,15 +929,35 @@ class TestOCartaoDoDoadorImpossivel:
         assert "flowchart BT" in pagina
 
     def test_o_nucleo_exige_impossivel_e_caminho_para_vetar(self):
-        """A guarda mora em `core.dna_analysis`, e nao no template — mas tem de existir."""
-        caminho_nucleo = os.path.join(_RAIZ, "src", "core", "dna_analysis.py")
+        """A guarda mora no nucleo, e nao no template — mas tem de existir.
+
+        Depois da OPP-20261023-CTAO a regra saiu de `core.dna_analysis.py` para
+        `core.passo_por_kit.py`, que e onde o passo por kit decide o que o cartao
+        apresenta. O arquivo lido acompanha; as assercoes sao as mesmas.
+        """
+        caminho_nucleo = os.path.join(_RAIZ, "src", "core", "passo_por_kit.py")
         with open(caminho_nucleo, encoding="utf-8") as arquivo:
             nucleo = arquivo.read()
         assert "if janela == IMPOSSIVEL and (documentary.get(\"path\") or {}).get(\"ids\")" in nucleo, (
             "a regra da janela de vida perdeu a guarda de caminho"
         )
-        assert "documental_nao_encontrado(arvore, root_id, pid" in nucleo, (
+        # Por AST, e nao por texto. Prender o TEXTO da chamada amarrou esta guarda
+        # aos nomes dos argumentos do momento, e a OPP-20261023-ORQA a quebrou sem
+        # mudar comportamento nenhum (o digest de equivalencia seguiu identico).
+        # O invariante e a chamada existir com os tres primeiros argumentos
+        # posicionais: a raiz, o no escolhido e o id do match.
+        chamadas_ao_grupo = [
+            no
+            for no in ast.walk(ast.parse(nucleo))
+            if isinstance(no, ast.Call)
+            and isinstance(no.func, ast.Name)
+            and no.func.id == "documental_nao_encontrado"
+        ]
+        assert chamadas_ao_grupo, (
             "a regra deixou de reaproveitar a forma do grupo 'nao encontrado'"
+        )
+        assert any(len(chamada.args) >= 3 for chamada in chamadas_ao_grupo), (
+            "a chamada perdeu os tres primeiros argumentos posicionais"
         )
         assert "documentary_do_registro" in nucleo, (
             "o parentesco retirado deixou de ser guardado: a regra ficaria irreversivel"

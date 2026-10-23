@@ -313,7 +313,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     if not referencia:
         return None, None, "Erro: Arquivo GEDCOM não encontrado."
     try:
-        arvore = _CARREGADOR.carregar(referencia, DONO_DO_PROCESSO)
+        arvore = _estado_de_borda()["carregador"].carregar(referencia, DONO_DO_PROCESSO)
     except Exception:
         # O traceback vai para o LOG, e nao para a tela: o operador precisa de uma frase que
         # diga o que aconteceu, e quem depura precisa do rastro. Antes desta guarda os dois
@@ -355,7 +355,7 @@ def _listas_da_tela():
     decidem cada aba vem declaradas la, e nao escritas de novo neste arquivo — a particao tem
     um dono so.
     """
-    entradas = _ARMAZENAMENTO.listar(DONO_DO_PROCESSO)
+    entradas = _estado_de_borda()["armazenamento"].listar(DONO_DO_PROCESSO)
     return {
         "arvores_da_lista": itens_da_aba(entradas, ABA_DE_ARVORES),
         "relatorios_da_lista": itens_da_aba(entradas, ABA_DE_DNA),
@@ -373,12 +373,13 @@ def _acao_upload_gedcom():
     if gedcom_file.filename == "":
         return render_template("index.html", message="Nenhum arquivo selecionado.", success=False)
     try:
+        borda = _estado_de_borda()
         resultado = caso_de_uso_de_upload(
             gedcom_file.read(),
             gedcom_file.filename,
             DONO_DO_PROCESSO,
-            _ARMAZENAMENTO,
-            _CARREGADOR,
+            borda["armazenamento"],
+            borda["carregador"],
         )
         return render_template(
             "index.html",
@@ -398,8 +399,8 @@ def _acao_upload_gedcom():
 
 def _acao_aposentar_arquivo():
     """Aposenta um arquivo da lista (RN-14)."""
-    referencia = request.form.get("arquivo_a_aposentar")
-    if _ARMAZENAMENTO.aposentar(referencia, DONO_DO_PROCESSO):
+    referencia = request.form.get("arquivo_a_aposentar") or ""
+    if _estado_de_borda()["armazenamento"].aposentar(referencia, DONO_DO_PROCESSO):
         return render_template(
             "index.html",
             message=(
@@ -424,6 +425,7 @@ def _acao_selecionar_arvore(gedcom_filename, arvore, all_names):
 def _acao_dna_analysis(gedcom_filename, arvore, all_names):
     """Processa o confronto de matches de DNA com a arvore genealogica."""
     try:
+        borda = _estado_de_borda()
         nome_informado = request.form["root_name"]
         root_name = nome_informado.strip() or nome_informado
 
@@ -436,7 +438,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
                 candidatos_fixos[partes[0]] = (partes[1], partes[2])
         aviso_de_substituicao = None
         if referencia_do_csv:
-            caminho_do_csv = _ARMAZENAMENTO.resolver(referencia_do_csv, DONO_DO_PROCESSO)
+            caminho_do_csv = borda["armazenamento"].resolver(referencia_do_csv, DONO_DO_PROCESSO)
             if caminho_do_csv is None:
                 return render_template(
                     "index.html",
@@ -457,23 +459,23 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
             matches_file = request.files["matches_csv"]
 
             armazenado = guardar_com_substituicao(
-                _ARMAZENAMENTO,
+                borda["armazenamento"],
                 matches_file.read(),
                 matches_file.filename,
                 "csv",
                 DONO_DO_PROCESSO,
             )
             caminho_do_csv = armazenado.caminho
-            if caminho_do_csv:
-                referencia_do_csv_usada = os.path.basename(caminho_do_csv)
-            if armazenado.motivo is not None:
+            if caminho_do_csv is None:
                 return render_template(
                     "index.html",
                     gedcom_filename=gedcom_filename,
                     all_names=all_names,
-                    message=armazenado.motivo,
+                    message=armazenado.motivo or "",
                     success=False,
                 )
+            if caminho_do_csv:
+                referencia_do_csv_usada = os.path.basename(caminho_do_csv)
             if armazenado.desfecho == SUBSTITUIDO:
                 aviso_de_substituicao = (
                     f"O CSV '{armazenado.visivel}' substituiu a versão anterior, que "
@@ -484,10 +486,10 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
             caminho_do_csv,
             root_name,
             arvore,
-            _DEPENDENCIAS,
+            borda["dependencias"],
             DONO_DO_PROCESSO,
             gedcom_filename,
-            _REGISTRO,
+            borda["registro"],
             candidatos_fixos=candidatos_fixos or None,
         )
         mensagem_final = resultado.mensagem
@@ -536,7 +538,11 @@ def _acao_path_search(gedcom_filename, arvore, all_names):
         person2_name = request.form["person2_name"].strip()
 
         resultado = caso_de_uso_de_busca(
-            person1_name, person2_name, arvore, _DEPENDENCIAS, DONO_DO_PROCESSO
+            person1_name,
+            person2_name,
+            arvore,
+            _estado_de_borda()["dependencias"],
+            DONO_DO_PROCESSO,
         )
 
         if resultado.desfecho is Desfecho.ERRO_DE_ENTRADA:
@@ -591,7 +597,7 @@ _ACOES_COM_ARVORE = {
 # --- Rota Principal ---
 def index():
     if request.method == "POST":
-        action = request.form.get("action")
+        action = request.form.get("action") or ""
         handler_pre = _ACOES_PRE_ARVORE.get(action)
         if handler_pre:
             return handler_pre()
@@ -608,20 +614,35 @@ def index():
     return render_template("index.html")
 
 
-def create_app(config=None) -> Flask:
+_SEM_INJECAO = object()
+CHAVE_DA_BORDA = "analisador"
+
+
+def _estado_de_borda() -> dict:
+    """O estado de borda da instancia que esta atendendo a requisicao."""
+    return current_app.extensions[CHAVE_DA_BORDA]
+
+
+def create_app(config=None, *, armazenamento=None, carregador=None,
+               registro=_SEM_INJECAO, dependencias=None) -> Flask:
     """Monta a aplicacao: configura, registra ganchos, Blueprint e rota.
 
     A instancia de modulo `app` e criada por esta funcao uma vez, no fim do
-    arquivo. Chamar de novo devolve uma instancia independente de configuracao,
-    o que permite testar `MAX_CONTENT_LENGTH`, `TRUSTED_HOSTS` ou chaves de arte
-    diferentes sem `monkeypatch` no app global.
+    arquivo. Chamar de novo devolve uma instancia independente de configuracao e
+    de estado de borda: `armazenamento`, `carregador`, `registro` e `dependencias`
+    podem ser injetados, e os handlers leem de `current_app.extensions`.
 
-    O estado de borda (`_ARMAZENAMENTO`, `_CARREGADOR`, `_REGISTRO`) continua no
-    escopo do modulo: as instancias compartilham a pasta de uploads e o registro.
-    Isolar isso exige injecao de dependencia nos handlers, que e um passo de
-    `decouple`, fora desta transformacao.
+    Sem injecao, os quatro objetos do modulo entram como padrao, e o app de modulo
+    se comporta exatamente como antes. `registro` usa sentinela porque `None` e um
+    valor valido: significa persistencia desligada.
     """
     aplicacao = Flask(__name__)
+    aplicacao.extensions[CHAVE_DA_BORDA] = {
+        "armazenamento": _ARMAZENAMENTO if armazenamento is None else armazenamento,
+        "carregador": _CARREGADOR if carregador is None else carregador,
+        "registro": _REGISTRO if registro is _SEM_INJECAO else registro,
+        "dependencias": _DEPENDENCIAS if dependencias is None else dependencias,
+    }
     aplicacao.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
     # Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
@@ -683,7 +704,8 @@ if __name__ == "__main__":
     # testes e pela instrumentacao de paridade, e um import no topo obrigaria o
     # servidor de producao instalado em quem so quer a aplicacao como objeto.
     try:
-        from waitress import serve
+        # `waitress` nao publica stubs; o import e tardio e guardado por `except ImportError`.
+        from waitress import serve  # pyrefly: ignore[untyped-import]
     except ImportError:
         # A mensagem nomeia o pacote e o interpretador exato (D-08) e aponta para o
         # arquivo de dependencias, e nao para o pacote solto: desde a fixacao das

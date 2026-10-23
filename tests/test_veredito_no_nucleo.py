@@ -16,6 +16,7 @@ from application.validacao import (  # noqa: E402
     intervalo_de_geracao_mediano as intervalo_da_fachada,
 )
 from core import dna_analysis as nucleo  # noqa: E402
+from core import validacao_no_cartao  # noqa: E402
 from core.dna_analysis import dna_analysis  # noqa: E402
 from core.documentary_relationship import (  # noqa: E402
     intervalo_de_geracao_mediano as intervalo_do_nucleo,
@@ -100,14 +101,20 @@ def test_a_classe_nunca_contem_estado(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_uma_chamada_ao_validador_por_resultado(tmp_path, monkeypatch):
+    """O espiao mora no modulo que CHAMA o validador, e nao no que monta o cartao.
+
+    Depois da OPP-20261023-CTAO a chamada saiu de `core.dna_analysis` para
+    `core.validacao_no_cartao`. Patchar a origem (`core.validator`) nao serviria:
+    o nome ja foi importado, e o espiao precisa estar no ponto de uso.
+    """
     chamadas = {"total": 0}
-    original = nucleo.validar_comparacao
+    original = validacao_no_cartao.validar_comparacao
 
     def espiao(comparacao):
         chamadas["total"] += 1
         return original(comparacao)
 
-    monkeypatch.setattr(nucleo, "validar_comparacao", espiao)
+    monkeypatch.setattr(validacao_no_cartao, "validar_comparacao", espiao)
     _arvore, resultados = _analisar(tmp_path, GED_SALTO_IMPOSSIVEL, CSV_SALTO)
 
     assert len(resultados) == 1

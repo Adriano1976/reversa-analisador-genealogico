@@ -37,7 +37,15 @@ o unico lugar a atualizar.
 Declarado em 2026-10-03, sobre decisao humana de 2026-09-30.
 """
 
-SHARED_CM_DATA = [
+from typing import TypedDict
+
+
+class _FaixaDeCm(TypedDict):
+    range: tuple[int, int]
+    relationship: str
+
+
+SHARED_CM_DATA: list[_FaixaDeCm] = [
     {"range": (3300, 3720), "relationship": "Pai/Mãe ↔ Filho(a)"},
     {"range": (2200, 3400), "relationship": "Irmãos completos"},
     {"range": (1317, 2312), "relationship": "Avós/Netos, Tios/Tias ↔ Sobrinhos(as), Meios-irmãos"},
@@ -50,7 +58,7 @@ SHARED_CM_DATA = [
 ]
 
 
-def get_relationships_by_cm(cm_value):
+def get_relationships_by_cm(cm_value: object) -> list[str]:
     """Devolve as relações prováveis da faixa em que `cm_value` cai.
 
     Contrato (D-17 da extração): o retorno é **sempre uma lista**. `cM` menor ou
