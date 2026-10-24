@@ -39,6 +39,7 @@ parâmetro.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from statistics import median
 
@@ -109,7 +110,7 @@ class ComparacaoParaValidar:
     kit: dict
     ano_referencia: int
     intervalo_de_geracao: float | None = None
-    comparacao_existente: dict | None = None
+    comparacao_existente: Mapping[str, object] | None = None
 
 
 def _ano(valor) -> int | None:

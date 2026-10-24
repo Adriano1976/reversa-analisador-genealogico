@@ -292,8 +292,9 @@ def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
                    "duas podem ser ligadas por irmandade, por outro ramo colateral que o "
                    "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
     }]
-    if homonimos.get("ambiguous"):
-        avisos.append(_aviso_de_homonimo(homonimos, com_caminho=False))
+    aviso = _aviso_de_homonimo(homonimos, com_caminho=False)
+    if aviso is not None:
+        avisos.append(aviso)
     return {
         "status": "not_found",
         "source": "GEDCOM",

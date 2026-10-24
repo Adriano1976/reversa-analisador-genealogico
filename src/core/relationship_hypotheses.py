@@ -374,6 +374,21 @@ class LinhaDoScp(TypedDict):
     range_high: int
 
 
+class JanelaDeMeioses(TypedDict):
+    """A envoltoria publicada para um numero de meioses, na forma que o confronto le.
+
+    Tipada pelo mesmo motivo de `LinhaDoScp`: o dicionario mistura `int` e `list[str]`, e
+    sem anotacao `janela["rows"]` chegava ao `str.join` de `evidence_comparison` como
+    `int | list[str]`.
+    """
+
+    meioses: int
+    range_low: int
+    range_high: int
+    average: int
+    rows: list[str]
+
+
 def row_for_key(key: str) -> LinhaDoScp | None:
     """Linha publicada do Shared cM 4.0 para a chave canonica, ou None."""
     for chave, nome_en, nome_pt, meioses, media, baixo, alto in SCP40_ROWS:
@@ -412,7 +427,7 @@ def meioses_publicados() -> list:
     return sorted({linha[3] for linha in SCP40_ROWS})
 
 
-def meioses_window(meioses: int):
+def meioses_window(meioses: int) -> JanelaDeMeioses | None:
     """Janela de compatibilidade para uma contagem de meioses, tirada da fonte.
 
     Usada quando a relacao exata **nao** foi publicada na 4.0 (caso de 1C6R):

@@ -79,7 +79,7 @@ CAUSAS_POSSIVEIS = [
 CAUSAS_POSSIVEL = CAUSAS_POSSIVEIS[:1] + CAUSAS_POSSIVEIS[3:8] + CAUSAS_POSSIVEIS[10:]
 
 
-def _avaliar_kit(bloco: dict, janela: dict, meioses_documental) -> dict:
+def _avaliar_kit(bloco: dict, janela: _JanelaDeCm, meioses_documental) -> dict:
     """Estado de UM kit contra a janela do parentesco documental."""
     cm = bloco.get("total_cm")
     if cm is None:
@@ -197,7 +197,7 @@ class _Confronto(TypedDict):
     observations: list
 
 
-def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
+def compare(documentary: dict, hypotheses: list, evidence: dict) -> _Confronto:
     """Estado final do confronto, com a explicacao de como ele foi obtido.
 
     `documentary` vem de `core.documentary_relationship`, `hypotheses` de
