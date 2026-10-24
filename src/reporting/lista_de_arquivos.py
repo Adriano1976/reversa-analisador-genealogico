@@ -2,31 +2,26 @@
 
 Refazimento da feature `011-escolher-arquivo-da-lista` (acoes `T015`, `T016` e `T033`).
 
-## Por que estas funcoes sao PURAS, e por que moram em `reporting/`
+Por que estas funcoes sao PURAS, e por que moram em `reporting/`: esta e a camada de "dado
+-> apresentacao", e ela **nao toca o disco**: recebe entradas que ja trazem nome, tamanho e
+data, e devolve os itens que a tela desenha. Isso a torna testavel sem pasta real, e e o
+que sustenta o RNF de desempenho — a tela de entrada nao pode reler os ~29 MB da pasta a
+cada renderizacao so para escrever nomes.
 
-Esta e a camada de "dado -> apresentacao", e ela **nao toca o disco**: recebe entradas
-que ja trazem nome, tamanho e data, e devolve os itens que a tela desenha. Isso a torna
-testavel sem pasta real, e e o que sustenta o RNF de desempenho — a tela de entrada nao
-pode reler os ~29 MB da pasta a cada renderizacao so para escrever nomes.
+O lugar das tres alternativas, e por que cada uma foi recusada: no adaptador de disco, a
+apresentacao se misturaria com I/O, e o adaptador passaria a conhecer rotulo de tela; no
+template Jinja, a regra de negocio ficaria sem teste de unidade; e numa segunda copia da
+forma do nome, haveria **duas verdades** sobre o contrato que defende a pasta de upload
+contra escape de caminho. Por isso a forma do nome e perguntada a `utils.validate`, que e
+o dono dela.
 
-O lugar das tres alternativas, e por que cada uma foi recusada:
-
-- no adaptador de disco, a apresentacao se misturaria com I/O, e o adaptador passaria a
-  conhecer rotulo de tela;
-- no template Jinja, a regra de negocio ficaria sem teste de unidade;
-- numa segunda copia da forma do nome, haveria **duas verdades** sobre o contrato que
-  defende a pasta de upload contra escape de caminho. Por isso a forma do nome e
-  perguntada a `utils.validate`, que e o dono dela.
-
-## As quatro perguntas que um item responde, e de onde vem a resposta
-
-1. **De que aba ele e** — pela extensao do nome visivel **cru** (`RN-03`, `D-10`).
-2. **Quantos arquivos ele representa** — agrupamento pela chave de conteudo ja embutida
-   no nome (`RN-01`), e item proprio quando nao ha chave (`RN-10`).
-3. **Que rotulo o operador le** — nome visivel sem a chave e sem a ultima extensao
-   (`D-09`, `RN-13`).
-4. **Se a referencia alcanca esse arquivo** — perguntado a mesma funcao que o resolvedor
-   aplica (`RN-11`, `D-11`), com o motivo escrito quando nao alcanca.
+As quatro perguntas que um item responde, e de onde vem a resposta: 1. **De que aba ele
+e** — pela extensao do nome visivel **cru** (`RN-03`, `D-10`). 2. **Quantos arquivos ele
+representa** — agrupamento pela chave de conteudo ja embutida no nome (`RN-01`), e item
+proprio quando nao ha chave (`RN-10`). 3. **Que rotulo o operador le** — nome visivel sem
+a chave e sem a ultima extensao (`D-09`, `RN-13`). 4. **Se a referencia alcanca esse
+arquivo** — perguntado a mesma funcao que o resolvedor aplica (`RN-11`, `D-11`), com o
+motivo escrito quando nao alcanca.
 """
 from __future__ import annotations
 
@@ -71,11 +66,10 @@ class ItemDaLista:
     """Uma linha da tabela, como a tela a desenha.
 
     `nome_armazenado` e a referencia que volta no formulario, e `nome_exibido` e o rotulo:
-    os dois **nunca** sao a mesma string, e a tela usa o segundo. A chave de conteudo nao e
-    assunto do operador (`D-09`).
-
-    `disponivel` e `motivo_indisponivel` vem de `utils.validate` e sao o que impede a tela
-    de oferecer, como se funcionasse, um item que a referencia nao alcanca.
+    os dois **nunca** sao a mesma string, e a tela usa o segundo — a chave de conteudo nao e
+    assunto do operador (`D-09`). `disponivel` e `motivo_indisponivel` vem de
+    `utils.validate` e impedem a tela de oferecer, como se funcionasse, um item que a
+    referencia nao alcanca.
     """
 
     nome_exibido: str
@@ -94,22 +88,18 @@ def rotulo_limpo(nome_visivel: str) -> str:
     `Backup-Arvore-Sandro-12-11-2024.ged` vira `Backup Arvore Sandro 12 11 2024`, e
     `Famílias_Sergipanas.csv` vira `Famílias Sergipanas`.
 
-    ## Duas decisoes, e o custo de cada uma
+    Duas decisoes, e o custo de cada uma: 1. **So a ULTIMA extensao sai.** `planilha.csv.ged`
+    vira `planilha csv`, e nao `planilha`. O `.csv` do meio e informacao: e o unico sinal que
+    resta de que aquele `.ged` e, no conteudo, um relatorio de DNA. Apagar tudo o que parece
+    extensao tiraria do operador o que o `D-08` decidiu **nao** esconder. 2. **Ponto inicial
+    nao e extensao.** Em `.ged` nao ha raiz antes do ponto, entao nada e retirado. A leitura
+    ingenua ("corta no ultimo ponto") devolveria rotulo **vazio**, e a tela mostraria uma
+    linha em branco — pior do que um rotulo feio.
 
-    1. **So a ULTIMA extensao sai.** `planilha.csv.ged` vira `planilha csv`, e nao
-       `planilha`. O `.csv` do meio e informacao: e o unico sinal que resta de que aquele
-       `.ged` e, no conteudo, um relatorio de DNA. Apagar tudo o que parece extensao
-       tiraria do operador o que o `D-08` decidiu **nao** esconder.
-    2. **Ponto inicial nao e extensao.** Em `.ged` nao ha raiz antes do ponto, entao nada e
-       retirado. A leitura ingenua ("corta no ultimo ponto") devolveria rotulo **vazio**, e
-       a tela mostraria uma linha em branco — pior do que um rotulo feio.
-
-    ## O que esta funcao NAO decide
-
-    Ela nao escolhe a aba e nao decide alcance. As duas coisas leem o nome visivel **cru**,
-    e nao o rotulo: o `D-08` mantem `planilha.csv.ged` na aba de arvores justamente pelo
-    nome, e esconder a extensao na tela nao pode mudar isso. Por isso a formatacao acontece
-    por ultimo, depois de tudo o que o nome governa.
+    O que esta funcao NAO decide: ela nao escolhe a aba e nao decide alcance. As duas coisas
+    leem o nome visivel **cru**, e nao o rotulo: o `D-08` mantem `planilha.csv.ged` na aba de
+    arvores justamente pelo nome, e esconder a extensao na tela nao pode mudar isso. Por isso
+    a formatacao acontece por ultimo, depois de tudo o que o nome governa.
     """
     raiz, ponto, _extensao = nome_visivel.rpartition(".")
     base = raiz if (ponto and raiz) else nome_visivel
@@ -130,17 +120,15 @@ def rotulo_de_referencia(nome_armazenado: str) -> str:
 def formatar_data_br(modificado_em: float) -> str:
     """Data do arquivo em `dd/mm/aaaa`, para a coluna "Enviado em".
 
-    ## De onde o valor vem, e por que a coluna se chama "Enviado em"
+    De onde o valor vem, e por que a coluna se chama "Enviado em": vem do `os.stat` da
+    pasta, entao e a data de **modificacao do arquivo no disco**. Para um arquivo guardado
+    pela aplicacao essa e a data do envio, porque a gravacao e a unica coisa que toca o
+    arquivo; quem copia um arquivo para a pasta a mao muda essa data — e e por isso que o
+    cabecalho da coluna carrega um `title` dizendo de onde o numero vem, em vez de o rotulo
+    prometer mais do que entrega.
 
-    Vem do `os.stat` da pasta, entao e a data de **modificacao do arquivo no disco**. Para
-    um arquivo guardado pela aplicacao essa e a data do envio, porque a gravacao e a unica
-    coisa que toca o arquivo; quem copia um arquivo para a pasta a mao muda essa data — e e
-    por isso que o cabecalho da coluna carrega um `title` dizendo de onde o numero vem, em
-    vez de o rotulo prometer mais do que entrega.
-
-    ## Instante que o sistema nao converte devolve celula vazia, e nao excecao
-
-    Um `OverflowError` ou `OSError` aqui viraria `500` na TELA DE ENTRADA — a tela que lista
+    Instante que o sistema nao converte devolve celula vazia, e nao excecao: um
+    `OverflowError` ou `OSError` aqui viraria `500` na TELA DE ENTRADA — a tela que lista
     tudo — por causa de uma celula de data. O custo disso e desproporcional ao valor da
     informacao, entao a conversao falha para string vazia.
     """
@@ -153,27 +141,23 @@ def formatar_data_br(modificado_em: float) -> str:
 def itens_da_aba(entradas: Iterable[Entrada], extensao: str) -> list[ItemDaLista]:
     """Itens de UMA aba: filtra pela extensao, agrupa pelo conteudo, ordena por data.
 
-    ## A particao, e por que ela le o nome CRU
+    A particao, e por que ela le o nome CRU: `extensao` e comparada com o **nome visivel**,
+    e nao com o conteudo (`RN-09`, `D-10`). O `.xlsx` da pasta real nao entra em aba
+    nenhuma, e `planilha.csv.ged` entra na aba de arvores **apesar** de o conteudo ser CSV:
+    quem decide e o nome. Arquivo que anuncia um tipo e entrega outro continua listado, e
+    quem o recusa e o uso — abrir a lista custaria a leitura da pasta inteira a cada
+    renderizacao.
 
-    `extensao` e comparada com o **nome visivel**, e nao com o conteudo (`RN-09`, `D-10`).
-    O `.xlsx` da pasta real nao entra em aba nenhuma, e `planilha.csv.ged` entra na aba de
-    arvores **apesar** de o conteudo ser CSV: quem decide e o nome. Arquivo que anuncia um
-    tipo e entrega outro continua listado, e quem o recusa e o uso — abrir a lista custaria
-    a leitura da pasta inteira a cada renderizacao.
+    O agrupamento, e o caso que ele NAO alcanca: a chave de 16 hexadecimais ja esta no nome,
+    entao agrupar nao custa leitura nenhuma. O arquivo **sem** chave e anterior a essa
+    convencao: a chave nao o alcanca, e ler o conteudo para agrupa-lo custaria os mesmos
+    ~29 MB. Ele vira item proprio, e nunca se junta a outro (`RN-10`) — nem a outro arquivo
+    igualmente sem chave.
 
-    ## O agrupamento, e o caso que ele NAO alcanca
-
-    A chave de 16 hexadecimais ja esta no nome, entao agrupar nao custa leitura nenhuma. O
-    arquivo **sem** chave e anterior a essa convencao: a chave nao o alcanca, e ler o
-    conteudo para agrupa-lo custaria os mesmos ~29 MB. Ele vira item proprio, e nunca se
-    junta a outro (`RN-10`) — nem a outro arquivo igualmente sem chave.
-
-    ## A ordem
-
-    Data decrescente, com empate pelo rotulo. Nao e decoracao: o nome exibido **nao e
-    unico** (ha tres arquivos `Arvore_Unificada_Oficial_V1_2.ged` na pasta real), e e a data
-    que distingue um do outro. O desempate pelo rotulo existe para a ordem nao depender da
-    ordem em que o sistema de arquivos devolveu as entradas.
+    A ordem: data decrescente, com empate pelo rotulo. Nao e decoracao: o nome exibido
+    **nao e unico** (ha tres arquivos `Arvore_Unificada_Oficial_V1_2.ged` na pasta real), e
+    e a data que distingue um do outro. O desempate pelo rotulo existe para a ordem nao
+    depender da ordem em que o sistema de arquivos devolveu as entradas.
     """
     # Dois baldes, e a razao de serem dois: o de chave e um dicionario, porque chaves iguais
     # sao o MESMO item; o sem chave e uma lista de grupos de um, porque nome igual nao

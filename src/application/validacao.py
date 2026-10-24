@@ -1,32 +1,22 @@
 """Fachada de leitura e cruzamento do validador de dados.
 
-O núcleo (`core.validator`) é puro e não conhece árvore, arquivo nem relógio. Esta
-camada faz o trabalho de borda: carrega o GEDCOM uma vez, lê o CSV, monta a
-evidência genética, resolve o match pelo mesmo `core.matching` do fluxo de DNA,
-monta o parentesco documental com `core.documentary_relationship` e entrega uma
-`ComparacaoParaValidar` pronta ao núcleo.
+O núcleo (`core.validator`) é puro e não conhece árvore, arquivo nem relógio. A borda faz o
+resto: carrega o GEDCOM uma vez, lê o CSV, monta a evidência genética, resolve o match pelo
+mesmo `core.matching` do fluxo de DNA, monta o parentesco documental com
+`core.documentary_relationship` e entrega uma `ComparacaoParaValidar` pronta.
 
-## O que NÃO acontece aqui
+Nada de novo aqui: nenhum parser (`parsers.gedcom_parser.carregar_arvore`,
+`parsers.csv_ingest.read_csv_with_fallback`), nenhum matching
+(`core.matching.build_ged_indexes`, `match_candidates`), nenhuma regra de status — é toda de
+`core.validator` — e nenhuma escrita em banco, template ou `app.py`: o resultado é efêmero.
 
-- Nenhum parser novo: usa `parsers.gedcom_parser.carregar_arvore` e
-  `parsers.csv_ingest.read_csv_with_fallback`.
-- Nenhum matching novo: usa `core.matching.build_ged_indexes` e
-  `match_candidates`.
-- Nenhuma regra de status: a decisão é toda de `core.validator`.
-- Nenhuma escrita em banco, template ou `app.py`. O resultado é efêmero.
+A raiz (doador) é resolvida como no fluxo de DNA: o nome casa por substring, sem diferenciar
+maiúsculas, e o primeiro registro é usado; se o nome não existir, `PessoaNaoEncontrada` sobe
+com a mesma mensagem. O match é o primeiro candidato com caminho documental, como em
+`core.dna_analysis`; o doador nunca é candidato.
 
-## Política de raiz e de match
-
-A raiz (doador) é resolvida como no fluxo de DNA: o nome informado casa por
-substring, sem diferenciar maiúsculas, e o primeiro registro é usado; se o nome
-não existir, `PessoaNaoEncontrada` sobe com a mesma mensagem do fluxo. O match é
-o primeiro candidato que tem caminho documental — a mesma política do
-`core.dna_analysis`. O doador nunca é candidato a match.
-
-## Por que a árvore é parseada uma vez
-
-O fluxo de DNA atual reparseia a árvore a cada requisição. Aqui a fachada carrega
-uma vez e reutiliza o valor para todos os kits e para o intervalo de geração.
+A árvore é parseada uma vez — o fluxo de DNA reparseia a cada requisição — e reutilizada
+para todos os kits e para o intervalo de geração.
 """
 from __future__ import annotations
 
@@ -81,14 +71,12 @@ def _dependencias_padrao() -> DependenciasDeValidacao:
 def intervalo_de_geracao_mediano(arvore) -> float | None:
     """Mediana dos intervalos pai-filho datados da árvore, em anos.
 
-    **Delegada ao núcleo desde a feature `031`.** A implementação mora em
-    `core.documentary_relationship`, porque o fluxo de DNA também precisa do mesmo
-    número para mostrar o veredito no cartão. Duas implementações de `G` poderiam
-    divergir em silêncio, e o mesmo kit teria dois vereditos — um no cartão, outro
-    aqui.
+    **Delegada ao núcleo desde a feature `031`**: mora em `core.documentary_relationship`,
+    porque o fluxo de DNA também precisa do número para o veredito no cartão — duas
+    implementações de `G` divergiriam em silêncio, e o kit teria dois vereditos, um no
+    cartão e outro aqui.
 
-    Com menos de 3 amostras devolve `None`; o núcleo cai para o prior declarado de
-    25 anos.
+    Com menos de 3 amostras devolve `None`; o núcleo cai para o prior declarado de 25 anos.
     """
     return _intervalo_do_nucleo(arvore)
 
@@ -125,19 +113,15 @@ def validar_arquivos(caminho_gedcom: str, caminho_dna: str, nome_doador: str,
     """Lê GEDCOM e CSV, cruza cada kit e devolve um resultado por kit.
 
     O retorno é ``{"doador", "comparacoes", "resumo", "ano_referencia",
-    "intervalo_de_geracao"}``. ``resumo`` usa o pior status entre os kits; a
-    árvore é parseada uma vez e o intervalo de geração é calculado uma vez.
+    "intervalo_de_geracao"}``. ``resumo`` usa o pior status entre os kits, e a árvore é
+    parseada uma vez, com o intervalo de geração calculado uma vez.
 
-    ## `incluir_documental` existe para a etapa de correção
-
-    O resultado de `validar_comparacao` **não** carrega `path.ids` nem `evidence`:
-    os campos que dizem ONDE cortar vivem só no dicionário `documental`. Com o
-    parâmetro em `True`, cada item de `comparacoes` ganha a chave `documental` (o
-    mesmo objeto já montado, não uma cópia) e o retorno ganha a chave `arvore` — a
-    tupla já parseada, para a cirurgia não reparsear o arquivo.
-
-    Sem o parâmetro, o retorno é exatamente o de antes: a emenda é aditiva e
-    desligada por padrão.
+    `incluir_documental` serve à etapa de correção: `validar_comparacao` **não** carrega
+    `path.ids` nem `evidence` — os campos que dizem ONDE cortar vivem só no dicionário
+    `documental`. Com o parâmetro em `True`, cada item de `comparacoes` ganha a chave
+    `documental` (o mesmo objeto, não uma cópia) e o retorno ganha `arvore`, a tupla já
+    parseada, para a cirurgia não reparsear o arquivo. Sem ele, o retorno é o de antes: a
+    emenda é aditiva e desligada por padrão.
     """
     deps = deps or _dependencias_padrao()
     arvore = deps.carregar_arvore(caminho_gedcom)

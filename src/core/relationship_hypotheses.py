@@ -139,9 +139,7 @@ SCP40_NOT_PUBLISHED = {
 }
 
 
-# ---------------------------------------------------------------------------
 # Quantas geracoes cada lado sobe ate o antepassado comum mais recente
-# ---------------------------------------------------------------------------
 # Nao e dado da fonte: e a definicao de cada parentesco. Primo de 2º grau -> bisavos.
 # As chaves sao as mesmas de `SCP40_ROWS`, e o teste de ida e volta garante que os
 # graus aqui concordam com `core.documentary_relationship.documentary_label`.
@@ -192,9 +190,7 @@ POSICOES_NA_FAIXA = {
     "ponta_superior": "na ponta superior",
 }
 
-# ---------------------------------------------------------------------------
 # O DESTAQUE: a tela aponta a hipotese mais proxima, e diz com que criterio
-# ---------------------------------------------------------------------------
 # A fonte nao ranqueia nada — ela publica faixa e media por relacao. O destaque e'
 # heuristica DO PROJETO, como `_confianca`, e a tela precisa apresenta-lo como tal.
 #

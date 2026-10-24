@@ -1,40 +1,29 @@
 """Tarefa 03 — Busca de Caminho (parentesco documental).
 
-Resolucao de pessoa por nome, conexao direta por ancestral comum (BFS
-bidirecional, prof. max. 20) e fallback de conexao indireta por afinidade
-(`shortest_path`, max. 40 hops) com compressao de nos de familia. Renderiza
-caminho textual + diagrama Mermaid.
+Resolucao de pessoa por nome, conexao direta por ancestral comum (BFS bidirecional, prof.
+max. 20) e fallback de conexao indireta por afinidade (`shortest_path`, max. 40 hops) com
+compressao de nos de familia. Renderiza caminho textual + diagrama Mermaid.
 
-## Regra do projeto
+Regra do projeto: a busca e **documental** — responde o que o GEDCOM afirma, e nada mais;
+nao existe DNA nesta tela. O parentesco sai de `core.documentary_relationship`, que tambem
+entrega homonimos, caminhos multiplos, colapso de pedigree e a evidencia de cada salto
+(inclusive datas cronologicamente impossiveis). A conexao **indireta** (por casamento) nunca
+e apresentada como parentesco consanguineo: vem marcada como afinidade, com aviso proprio.
+Comportamento herdado preservado: homonimos ainda usam o 1o ID, mas agora a escolha e
+**explicitada** no resultado (`homonyms`, aviso de identidade ambigua), e nao mais
+silenciosa — ver a regra de homonimos da nova regra de analise.
 
-Esta busca e **documental**: ela responde o que o GEDCOM afirma, e nada mais.
-Nao existe DNA nesta tela. O parentesco sai de `core.documentary_relationship`,
-que tambem entrega homonimos, caminhos multiplos, colapso de pedigree e a
-evidencia de cada salto (inclusive datas cronologicamente impossiveis).
-
-A conexao **indireta** (por casamento) nunca e apresentada como parentesco
-consanguineo: ela vem marcada como afinidade, com aviso proprio.
-
-Comportamento herdado preservado: homonimos ainda usam o 1o ID, mas agora a
-escolha e **explicitada** no resultado (`homonyms`, aviso de identidade ambigua),
-e nao mais silenciosa. Ver a regra de homonimos da nova regra de analise.
-
-
-## Layout (OPP-20260929-UXEF)
-
-Este modulo passou a compor o fluxo. As responsabilidades foram separadas em
-`family_navigation` (parentesco), `path_finding` (os dois algoritmos de busca) e
-`mermaid_render` (o diagrama e o escape do rotulo). A direcao das dependencias e
+Layout (OPP-20260929-UXEF): este modulo passou a compor o fluxo, e as responsabilidades
+foram separadas em `family_navigation` (parentesco), `path_finding` (os dois algoritmos de
+busca) e `mermaid_render` (o diagrama e o escape do rotulo). A direcao das dependencias e
 estritamente descendente, sem ciclo e sem import tardio novo.
 
-## Superficie publica (OPP-20261006-ESKO, 2026-10-06)
-
-Este modulo define `path_search` e declara so ele em `__all__`. Ate 2026-10-06 havia
-aqui um bloco que reexportava 17 nomes de `family_navigation`, `path_finding`,
-`reporting.mermaid_render` e `gedcom_state`, justificado por uma lista de
-consumidores que a varredura desmentiu: `app.py` importa apenas `path_search`, e
-`core/dna_analysis.py` nao importa nada deste modulo. Os consumidores reais eram
-`tests/test_path_search.py`, `tests/test_mermaid_escape.py` e
+Superficie publica (OPP-20261006-ESKO, 2026-10-06): este modulo define `path_search` e
+declara so ele em `__all__`. Ate 2026-10-06 havia aqui um bloco que reexportava 17 nomes de
+`family_navigation`, `path_finding`, `reporting.mermaid_render` e `gedcom_state`,
+justificado por uma lista de consumidores que a varredura desmentiu: `app.py` importa apenas
+`path_search`, e `core/dna_analysis.py` nao importa nada deste modulo. Os consumidores reais
+eram `tests/test_path_search.py`, `tests/test_mermaid_escape.py` e
 `_reversa_sdd/parity/harness.py`, todos migrados para o modulo canonico.
 """
 
@@ -205,7 +194,6 @@ def path_search(person1_name: str, person2_name: str, deps, arvore):
     return path_result, msg, True
 
 
-# ---------------------------------------------------------------------------
 # Superficie publica (OPP-20261006-ESKO).
 #
 # Ate 2026-10-06 este bloco reexportava 17 nomes que o modulo nao usa, e o
@@ -213,5 +201,4 @@ def path_search(person1_name: str, person2_name: str, deps, arvore):
 # que `app.py` importa apenas `path_search` e que `core/dna_analysis.py` nao
 # importa nada daqui. Os consumidores reais eram tres arquivos de teste e o
 # harness de paridade, todos migrados para o modulo canonico.
-# ---------------------------------------------------------------------------
 __all__ = ["path_search"]

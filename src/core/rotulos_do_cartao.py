@@ -17,9 +17,7 @@ from .validator import (
 )
 
 
-# ---------------------------------------------------------------------------
 # Veredito de validacao no cartao (feature 031)
-# ---------------------------------------------------------------------------
 
 #: Status -> (rotulo visivel, classe CSS). O mapa mora aqui, e nao no template,
 #: porque decidir texto e cor e regra: o Jinja so testa se ha rotulo.

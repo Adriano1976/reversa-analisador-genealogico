@@ -1,35 +1,26 @@
 """Parentesco DOCUMENTAL: a fachada publica e a montagem do cartao.
 
-## Por que este arquivo continua sendo o endereco
+Por que este arquivo continua sendo o endereco: ele era o modulo inteiro ate 2026-10-24,
+quando a `OPP-20261024-SEPM` separou o que ele faz em quatro modulos de responsabilidade
+unica — `core.datas_do_gedcom` le data e local do registro; `core.fichas_da_pessoa` monta a
+ficha comparavel e o indice pai para filhos; `core.homonimos` reconhece o mesmo nome e
+monta o dossie; e `core.caminhos_alternativos` enumera ancestrais comuns, cadeias e
+caminhos alternativos. O que sobrou aqui e o cartao: a decisao de qual caminho apresentar, a
+evidencia de cada salto, os avisos e o dicionario final. A fachada reexporta os dezoito
+nomes de `__all__` para que os quinze consumidores nao mudem de endereco.
 
-Ele era o modulo inteiro ate 2026-10-24, quando a `OPP-20261024-SEPM` separou o que ele faz
-em quatro modulos de responsabilidade unica:
+Regra do projeto: o GEDCOM determina o parentesco documental. O DNA **nao** altera nada do
+que este modulo devolve — nenhuma funcao daqui aceita cM nem le o CSV. Quem confronta as
+duas evidencias e `core.evidence_comparison`, depois e separadamente.
 
-- `core.datas_do_gedcom` le data e local do registro;
-- `core.fichas_da_pessoa` monta a ficha comparavel e o indice pai para filhos;
-- `core.homonimos` reconhece o mesmo nome e monta o dossie;
-- `core.caminhos_alternativos` enumera ancestrais comuns, cadeias e caminhos alternativos.
-
-O que sobrou aqui e o cartao: a decisao de qual caminho apresentar, a evidencia de cada
-salto, os avisos e o dicionario final. A fachada reexporta os dezoito nomes de `__all__`
-para que os quinze consumidores nao mudem de endereco.
-
-## Regra do projeto
-
-O GEDCOM determina o parentesco documental. O DNA **nao** altera nada do que este modulo
-devolve: nenhuma funcao daqui aceita cM nem le o CSV. Quem confronta as duas evidencias e
-`core.evidence_comparison`, depois e separadamente.
-
-## Por que datas entram aqui
-
-`_reversa_sdd/busca-caminho` documenta que o legado nunca olhou data: o BFS sobe por pais e
-aceita qualquer salto. Medido em 2026-10 no GEDCOM real `Arvore_Unificada_Oficial_V1_2.ged`,
-isso produz caminho com mae nascida 11 anos DEPOIS do filho (`@F6@`: Celso Gomes Gama, n. 1961,
-filho de Maria Auxiliadora, n. 1972) apresentado como "conexao direta por ancestral comum".
-
-Uma data impossivel **nao** invalida o vinculo nem muda o parentesco: o dado e do documento, e
-cabe ao operador julgar. O que o cartao faz e **registrar a evidencia**
-(`evidence[].age_at_birth`, `plausible`) e **avisar** (`warnings[].code == "data_impossivel"`).
+Por que datas entram aqui: `_reversa_sdd/busca-caminho` documenta que o legado nunca olhou
+data, e o BFS sobe por pais e aceita qualquer salto. Medido em 2026-10 no GEDCOM real
+`Arvore_Unificada_Oficial_V1_2.ged`, isso produz caminho com mae nascida 11 anos DEPOIS do
+filho (`@F6@`: Celso Gomes Gama, n. 1961, filho de Maria Auxiliadora, n. 1972) apresentado
+como "conexao direta por ancestral comum". Uma data impossivel **nao** invalida o vinculo
+nem muda o parentesco: o dado e do documento, e cabe ao operador julgar — o cartao
+**registra a evidencia** (`evidence[].age_at_birth`, `plausible`) e **avisa**
+(`warnings[].code == "data_impossivel"`).
 """
 from __future__ import annotations
 
@@ -53,9 +44,7 @@ from .homonimos import homonym_dossier, normalizar
 from .path_finding import MAX_DEPTH, find_ancestral_path
 from .registro import get_name, ref_id
 
-# ---------------------------------------------------------------------------
 # Evidencia de cada salto
-# ---------------------------------------------------------------------------
 
 def _pais_da_familia(familia) -> set:
     """Os ids declarados como HUSB e WIFE na familia."""
@@ -110,11 +99,8 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
 # Parentesco documental
-# ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
 # O nome do avo, do neto e dos antepassados comuns, por grau
 #
 # A serie inteira — e o racional dela, incluindo o defeito de 2026-10-14 que a
@@ -131,7 +117,6 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
 # arrastaria `path_finding` e `networkx` para dentro daquele caminho; duplicar as
 # palavras criaria uma segunda fonte para a mesma serie. Um modulo que nao
 # importa nada resolve as duas coisas, e e por isso que ele existe.
-# ---------------------------------------------------------------------------
 
 
 def documentary_label(deg_a: int, deg_b: int) -> dict:
@@ -285,26 +270,19 @@ def _aviso_de_colapso(colapso) -> dict | None:
 def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
     """A forma do parentesco documental quando NAO se apresenta caminho nenhum.
 
-    ## Por que isto e uma funcao, e nao um literal dentro de `documentary_relationship`
+    Por que isto e uma funcao, e nao um literal: ha DUAS razoes para apresentar um cartao
+    assim, e so uma delas e a ausencia de caminho — (1) **nao existe caminho**: a busca subiu
+    por pais e nao ligou as duas pessoas, caso que `documentary_relationship` encontra
+    sozinho; e (2) **existe caminho, e ele nao e apresentado**: a politica de janela de vida,
+    quando a idade do registro escolhido passa de `IDADE_IMPOSSIVEL`, trata o cartao como este
+    grupo e desconsidera o diagrama (`core.dna_analysis`). As duas tem de sair com a MESMA
+    forma, palavra por palavra: e isso que faz a segunda ser, de fato, "tratada como" a
+    primeira — se a forma fosse copiada, as duas divergiriam na primeira correcao de texto.
 
-    Porque ha DUAS razoes para apresentar um cartao assim, e so uma delas e a ausencia de
-    caminho:
-
-    1. **nao existe caminho** — a busca subiu por pais e nao ligou as duas pessoas. E o caso
-       que `documentary_relationship` encontra sozinho;
-    2. **existe caminho, e ele nao e apresentado** — a politica de janela de vida: quando a
-       idade do registro escolhido passa de `IDADE_IMPOSSIVEL`, o cartao passa a ser tratado
-       como este grupo e o diagrama e desconsiderado (`core.dna_analysis`).
-
-    As duas tem de sair com a MESMA forma, palavra por palavra: e isso que faz a segunda ser,
-    de fato, "tratada como" a primeira. Se a forma fosse copiada, as duas divergiriam na
-    primeira correcao de texto.
-
-    ## O que esta funcao NAO decide
-
-    Ela nao decide nada: recebe ids e devolve a forma. Quem decide apresentar assim e quem a
-    chama. No caso (1) a decisao e do proprio caminho; no caso (2), do operador, e ela esta
-    declarada em `_reversa_sdd/addenda/016-janela-de-vida-veta-o-parentesco.md`.
+    O que esta funcao NAO decide: ela nao decide nada — recebe ids e devolve a forma; quem
+    decide apresentar assim e quem a chama. No caso (1) a decisao e do proprio caminho; no
+    caso (2), do operador, e ela esta declarada em
+    `_reversa_sdd/addenda/016-janela-de-vida-veta-o-parentesco.md`.
     """
     homonimos = homonimos or {}
     avisos = [{

@@ -1,43 +1,32 @@
 """Tarefa 04 - Analise de DNA (regra final: GEDCOM, DNA e confronto separados).
 
-Este modulo passou a **orquestrar** tres etapas independentes, que antes estavam
-misturadas em uma so:
+Este modulo passou a **orquestrar** tres etapas independentes, que antes estavam misturadas
+em uma so: 1. **Parentesco documental** (`core.documentary_relationship`) — o que o GEDCOM
+afirma: caminho, ancestrais comuns, distancia geracional, parentesco, homonimos, caminhos
+multiplos, colapso de pedigree e a evidencia de cada salto. Nao le cM. 2. **Evidencia
+genetica** (`core.genetic_evidence`) — kit, fonte, cM, segmentos, maior segmento, SNPs,
+cromossomo e posicoes. Nao le o GEDCOM. 3. **Possibilidades e confronto**
+(`core.relationship_hypotheses` + `core.evidence_comparison`) — o cM vira uma LISTA de
+possibilidades pelo Shared cM Project 4.0, e o confronto devolve COMPATIVEL / POSSIVEL /
+CONFLITANTE / INCONCLUSIVO. 4. **Mitigacao de endogamia** (`core.endogamia`) — roda ao lado
+e NAO reescreve as tres acima: descarta segmento abaixo de 10 cM, recalcula o total so com o
+que sobreviveu, sinaliza maior bloco abaixo de 15 cM como `evidência fraca` / `parentesco
+distante inflado` e aponta `Endogamia estrutural confirmada na árvore` quando ha mais de um
+caminho mais curto no grafo; o valor bruto continua em `result["cm"]` (contrato de paridade)
+e o mitigado viaja em `result["endogamia"]`.
 
-1. **Parentesco documental** (`core.documentary_relationship`) — o que o GEDCOM
-   afirma: caminho, ancestrais comuns, distancia geracional, parentesco, homonimos,
-   caminhos multiplos, colapso de pedigree e a evidencia de cada salto. Nao le cM.
-2. **Evidencia genetica** (`core.genetic_evidence`) — kit, fonte, cM, segmentos,
-   maior segmento, SNPs, cromossomo e posicoes. Nao le o GEDCOM.
-3. **Possibilidades e confronto** (`core.relationship_hypotheses` +
-   `core.evidence_comparison`) — o cM vira uma LISTA de possibilidades pelo Shared
-   cM Project 4.0, e o confronto devolve COMPATIVEL / POSSIVEL / CONFLITANTE /
-   INCONCLUSIVO.
-4. **Mitigacao de endogamia** (`core.endogamia`) — roda ao lado e NAO reescreve
-   as tres acima: descarta segmento abaixo de 10 cM, recalcula o total so com o
-   que sobreviveu, sinaliza maior bloco abaixo de 15 cM como `evidência fraca` /
-   `parentesco distante inflado` e aponta `Endogamia estrutural confirmada na
-   árvore` quando ha mais de um caminho mais curto no grafo. O valor bruto
-   continua em `result["cm"]` (contrato de paridade); o mitigado viaja em
-   `result["endogamia"]`.
+Regra absoluta (nao regredir): o DNA **nao** altera o parentesco documental, e o cM **nao**
+e usado sozinho para afirmar parentesco; nunca `if cm == faixa: parentesco =
+relacionamento_do_GEDCOM`, e nunca `if cm == 10.8: relacionamento = "primo de 4º grau"`; e
+o rotulo "Relacionamento Provável (DNA)" foi removido — o que existe agora e "Possibilidades
+de parentesco pelo DNA", dentro da secao de evidencia genetica.
 
-## Regra absoluta (nao regredir)
-
-- O DNA **nao** altera o parentesco documental, e o cM **nao** e usado sozinho para
-  afirmar parentesco.
-- Nunca `if cm == faixa: parentesco = relacionamento_do_GEDCOM`, e nunca
-  `if cm == 10.8: relacionamento = "primo de 4º grau"`.
-- O rotulo "Relacionamento Provável (DNA)" foi removido: o que existe agora e
-  "Possibilidades de parentesco pelo DNA", dentro da secao de evidencia genetica.
-
-## Compatibilidade
-
-`get_relationships_by_cm` e `SHARED_CM_DATA` continuam existindo em
-`core.cm_estimator`, mas a superficie de compatibilidade que os trazia para ca
-SAIU em `T022` — o import e a declaracao em `__all__`. Eram faixas escritas a mao,
-sem fonte verificavel, marcadas como legado, e nem o fluxo nem a interface as usam
-(ADR-19): medido, o modulo nao referenciava nenhum dos dois no corpo. Quem as
-exercita — `tests/test_dna_analysis.py` — as importa do modulo canonico, como o
-harness ja fazia.
+Compatibilidade: `get_relationships_by_cm` e `SHARED_CM_DATA` continuam existindo em
+`core.cm_estimator`, mas a superficie de compatibilidade que os trazia para ca SAIU em
+`T022` — o import e a declaracao em `__all__`. Eram faixas escritas a mao, sem fonte
+verificavel, marcadas como legado, e nem o fluxo nem a interface as usam (ADR-19): medido,
+o modulo nao referenciava nenhum dos dois no corpo. Quem as exercita —
+`tests/test_dna_analysis.py` — as importa do modulo canonico, como o harness ja fazia.
 """
 from __future__ import annotations
 
@@ -304,14 +293,12 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
         message += " " + " ".join(avisos_do_arquivo)
     return results_sorted, skipped_matches, message
 
-# ---------------------------------------------------------------------------
 # Nomes publicos do modulo.
 #
 # A superficie de compatibilidade que reexportava `aggregate_matches`,
 # `detect_columns` e `read_csv_with_fallback` SAIU em `T016`: os tres passaram a
 # ser injetados pela borda, e reexporta-los aqui obrigaria o modulo a importar
 # `parsers/csv_ingest` — que e exatamente a dependencia que a RF-09 remove.
-# ---------------------------------------------------------------------------
 __all__ = [
     "dna_analysis", "Dependencias",
     "build_ged_indexes", "match_candidates",

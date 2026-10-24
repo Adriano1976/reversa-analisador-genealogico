@@ -1,14 +1,12 @@
 """Caso de uso da busca de caminho (`T012`; `RF-01`, `RF-20`, `D-11`, `D-12`).
 
-Chama `core.path_search.path_search` e devolve resultado tipado. O nucleo **nao**
-e alterado (`D-12`): a tupla de tres elementos que ele devolve e contrato de
-paridade — `_reversa_sdd/parity/harness.py:211` compara o indicador de sucesso
-contra o oraculo, e nove asseracoes de teste a desempacotam.
-
-## O desfecho, e por que ele existe
+Chama `core.path_search.path_search` e devolve resultado tipado, sem alterar o
+nucleo (`D-12`): a tupla de tres elementos que ele devolve e contrato de paridade —
+`_reversa_sdd/parity/harness.py:211` compara o indicador de sucesso contra o
+oraculo, e nove asseracoes de teste a desempacotam.
 
 `path_search` e o unico fluxo em que o nucleo sinaliza **tres** estados, e todos
-os tres viram tela de formas diferentes:
+viram tela de formas diferentes:
 
 | O que o nucleo devolve | Desfecho | Modo de renderizacao |
 |---|---|---|
@@ -16,10 +14,9 @@ os tres viram tela de formas diferentes:
 | `None`, `success=True` | `SEM_RESULTADO` | "nenhuma conexao encontrada", **com sucesso** |
 | `None`, `success=False` | `ERRO_DE_ENTRADA` | alerta de erro |
 
-Sem esses tres valores o adaptador teria de distinguir os dois ultimos pelo
-**texto** da mensagem, e o literal de tela passaria a ter autoridade semantica —
-o que a `RF-20` proibe. O desfecho e derivado dos dois insumos que o nucleo ja
-sinaliza, nunca do texto.
+Sem esses tres valores o adaptador distinguiria os dois ultimos pelo **texto** da
+mensagem, e o literal de tela ganharia autoridade semantica — o que a `RF-20`
+proibe. O desfecho vem dos dois insumos que o nucleo ja sinaliza, nunca do texto.
 """
 from __future__ import annotations
 
@@ -33,10 +30,9 @@ from core.path_search import path_search as fluxo_de_busca
 class ResultadoDeBusca:
     """Resultado da busca. `dados` e o payload do nucleo, sem renomear nada dele.
 
-    O campo **nao** se chama `path_result`: esse e o nome do campo de template, e
-    a `RF-20` proibe nome de campo de template de atravessar a fronteira. O
-    adaptador de entrada e quem decide sob qual nome (se algum) ele vai ao
-    template.
+    O campo **nao** se chama `path_result` — nome de campo de template, que a
+    `RF-20` proibe de atravessar a fronteira. Quem decide sob qual nome (se algum)
+    ele vai ao template e o adaptador de entrada.
     """
 
     desfecho: Desfecho

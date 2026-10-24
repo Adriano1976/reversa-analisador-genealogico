@@ -1,16 +1,14 @@
 """Normalizacao de um nome para forma comparavel. Modulo puro, sem dominio.
 
-Nasceu da OPP-20261006-LIGH. `norm_name` vivia em `core.name_normalization`, e
+Nasceu da OPP-20261006-LIGH: `norm_name` vivia em `core.name_normalization`, e
 `parsers/csv_ingest.py` o importava de la para montar a chave de agrupamento dos
-matches. Esse import era uma das duas arestas do ciclo `core/` <-> `parsers/`.
+matches — uma das duas arestas do ciclo `core/` <-> `parsers/`.
 
-## Por que esta funcao e de `utils/`, e nao de `core/`
-
-Ela nao sabe nada de genealogia: recebe um texto e devolve o mesmo texto em forma
-comparavel (sem acento, sem pontuacao, minusculo, espacos colapsados). A unica
-dependencia e `strip_bad_utf`, do proprio `utils/`. Quem sabe de dominio e o
-vocabulario que ficou em `core.name_normalization`: particulas, prenomes
-genericos, sufixos de sobrenome e as equivalencias.
+Por isso a funcao e de `utils/`, e nao de `core/`: ela nao sabe nada de genealogia,
+so recebe um texto e devolve o mesmo texto em forma comparavel (sem acento, sem
+pontuacao, minusculo, espacos colapsados). A unica dependencia e `strip_bad_utf`,
+do proprio `utils/`; o vocabulario de dominio — particulas, prenomes genericos,
+sufixos de sobrenome e as equivalencias — ficou em `core.name_normalization`.
 
 `core.name_normalization` reexporta este nome, de modo que `norm_name` continua
 importavel do endereco antigo: `core.dna_analysis.__all__` e o harness de paridade

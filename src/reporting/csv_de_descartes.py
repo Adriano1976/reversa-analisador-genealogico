@@ -1,13 +1,9 @@
 """CSV da lista de trabalho dos descartes (feature 035).
 
-## Por que este modulo existe
-
 Os descartes são os nomes do CSV que não viraram cartão. A tela já mostra o motivo e,
 desde a `034`, os candidatos que a árvore oferecia. O que faltava era **levar a lista
 para fora**: é no cadastro da árvore que esses nomes se resolvem, e isso acontece em
 outra ferramenta.
-
-## Decisões de formato, e por quê
 
 - **Ponto e vírgula como separador.** O Excel em português trata `,` como decimal; com
   vírgula como separador cada valor viraria texto.

@@ -12,9 +12,7 @@ from .datas_do_gedcom import birth_date, birth_place, death_date, parse_year
 from .family_navigation import get_parents
 from .registro import get_name, ref_id
 
-# ---------------------------------------------------------------------------
 # Ficha comparavel da pessoa
-# ---------------------------------------------------------------------------
 
 def ids_com_tag(people, sub_tag, pid):
     return [ref_id(r.value) for r in people[pid].sub_records if r.tag == sub_tag] if pid in people else []

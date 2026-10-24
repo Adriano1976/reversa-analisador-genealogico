@@ -14,9 +14,7 @@ from .fichas_da_pessoa import person_summary
 from .registro import get_name
 from utils.text_cleaning import demojibake
 
-# ---------------------------------------------------------------------------
 # Por que o indice mora na arvore, e nao numa chave de conteudo
-# ---------------------------------------------------------------------------
 # Ate a feature 048 o indice era um cache de modulo chaveado por
 # `(len(people), primeira chave, ultima chave)`. A chave era barata, mas colidia:
 # duas arvores com o mesmo numero de pessoas e os mesmos xrefs extremos produziam
@@ -30,11 +28,8 @@ from utils.text_cleaning import demojibake
 # `fichas_da_pessoa._indice_de_filhos` e os indices de matching da feature 047.
 # Nao ha estado compartilhado, entao nao ha colisao possivel — e nenhum `id()`
 # entra na decisao.
-# ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
 # Homonimos e o indice de nomes
-# ---------------------------------------------------------------------------
 
 def normalizar(nome: str) -> str:
     """Minusculas sem acento, para comparar nomes do GEDCOM e do CSV.

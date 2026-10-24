@@ -1,37 +1,28 @@
 """Renderização da árvore sugerida em PNG/SVG, via Graphviz.
 
-## O que este módulo desenha
-
 O dicionário que a feature `029` devolve (`sugestao`) contém a árvore sugerida como grafo,
 mas não o caminho nem a pessoa do match — esses vivem no `documental`, que vem de
 `core.documentary_relationship`. Por isso as funções públicas recebem **os dois**, mais o
 `resultado` da validação, de onde saem o cM e as gerações estimadas.
 
-## Por que o DOT é montado à mão
-
-O pacote `graphviz` sabe construir o DOT e chamar o binário. Aqui ele é usado **só para
-chamar o binário**: o texto é escrito por este módulo. Assim o desenho inteiro — cores,
-arestas, rótulos, escape — é testável em máquina sem Graphviz, e a ordem dos nós e arestas
-não depende da versão do pacote.
-
-O import do pacote é **preguiçoso**, dentro de `_importar_graphviz`, pelo mesmo motivo do
+O DOT é montado à mão: o pacote `graphviz` é usado **só para chamar o binário**, e o texto
+é escrito por este módulo. Assim o desenho inteiro — cores, arestas, rótulos, escape — é
+testável em máquina sem Graphviz, e a ordem dos nós e arestas não depende da versão do
+pacote. O import é **preguiçoso**, dentro de `_importar_graphviz`, pelo mesmo motivo do
 `psycopg2` (`L-26` da extração): dependência ausente não pode derrubar `import app` nem a
 suíte inteira.
 
-## Por que as famílias não aparecem
+As famílias não aparecem porque o grafo é bipartido pessoa↔família: a direção genitor→filho
+**não está na aresta**, está no registro da família, que este módulo não pode ler sem
+importar `core` (ADR-34 fechou esse ciclo de propósito). O desenho é **reconstruído** do
+caminho documental (`path.ids`, já ordenado doador → ancestral → match), das gerações
+virtuais e das junções — a compressão deixa a imagem hierárquica e legível.
 
-O grafo da árvore é bipartido pessoa↔família: a direção genitor→filho **não está na
-aresta**, está no registro da família, que este módulo não pode ler sem importar `core`
-(ADR-34 fechou esse ciclo de propósito). Por isso o desenho é **reconstruído** do caminho
-documental (`path.ids`, já ordenado doador → ancestral → match), das gerações virtuais e
-das junções. A compressão deixa a imagem hierárquica e legível, como pedido.
-
-## O que a imagem mostra
-
-- nó do doador em verde, nós documentais em cinza/branco, gerações sugeridas em pêssego;
-- a aresta rompida em vermelho tracejado, com o rótulo `DESVIO DE CONEXÃO / QUEBRA DE LINHA`;
-- a cadeia sugerida entre o ancestral e o filho documental, ao lado da aresta rompida;
-- uma caixa de nota com `"<cM> cM, <gerações> gerações - <veredito>"`.
+A imagem mostra: doador em verde, documentais em cinza/branco, gerações sugeridas em
+pêssego; a aresta rompida em vermelho tracejado, com o rótulo
+`DESVIO DE CONEXÃO / QUEBRA DE LINHA`; a cadeia sugerida entre o ancestral e o filho
+documental, ao lado da aresta rompida; e uma caixa de nota com
+`"<cM> cM, <gerações> gerações - <veredito>"`.
 
 Nada é gravado fora do `destino` informado, e a imagem não é servida pela aplicação.
 """
@@ -92,9 +83,7 @@ class ErroDeRenderizacao(Exception):
         self.mensagem = mensagem
 
 
-# ---------------------------------------------------------------------------
 # Helpers puros
-# ---------------------------------------------------------------------------
 
 def _escapar(texto) -> str:
     """Escapa barra e aspas para dentro de um rótulo DOT entre aspas duplas.
@@ -184,9 +173,7 @@ def _importar_graphviz():
     return graphviz
 
 
-# ---------------------------------------------------------------------------
 # Recorte
-# ---------------------------------------------------------------------------
 
 def _recorte(sugestao, documental) -> dict:
     """Nós e arestas que a imagem desenha.
@@ -259,9 +246,7 @@ def _recorte(sugestao, documental) -> dict:
             "virtual_por_id": {item["id"]: item for item in geracoes}}
 
 
-# ---------------------------------------------------------------------------
 # Texto DOT
-# ---------------------------------------------------------------------------
 
 _ESTILO_NO = ('node [shape=box, style="filled,rounded", fontname="Helvetica", '
               'fontcolor="{fonte}"];')
@@ -342,9 +327,7 @@ def texto_dot(sugestao, resultado, documental) -> str:
     return "\n".join(linhas) + "\n"
 
 
-# ---------------------------------------------------------------------------
 # Renderização
-# ---------------------------------------------------------------------------
 
 def renderizar_arvore_sugerida(sugestao, resultado, documental, destino,
                                formato=None) -> str:

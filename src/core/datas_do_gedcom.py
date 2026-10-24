@@ -21,7 +21,6 @@ IDADE_MINIMA_GENITOR = 12
 IDADE_MAXIMA_GENITOR = 70
 
 # Data e local
-# ---------------------------------------------------------------------------
 
 _ANO = re.compile(r"(\d{3,4})")
 

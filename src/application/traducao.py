@@ -1,18 +1,14 @@
 """Tabela de traducao: excecao de dominio -> literal da tela e status (`T014`).
 
-## Por que uma tabela de FUNCOES, e nao um mapa de classe para constante
+A tabela e de **FUNCOES**, e nao de classe para constante: sete das nove mensagens
+congeladas de `_reversa_sdd/migration/parity_tests/12-paridade-telas.feature`
+interpolam valores (`"Pessoa 1 'X' nao encontrada."`, `"Nao foi possivel ler o
+arquivo CSV. Tentativas feitas: ..."`), e um mapa de classe para string constante nao
+consegue construi-las — a traducao precisa **receber a excecao** e devolver o texto.
 
-Sete das nove mensagens congeladas de
-`_reversa_sdd/migration/parity_tests/12-paridade-telas.feature` interpolam valores
-(`"Pessoa 1 'X' nao encontrada."`, `"Nao foi possivel ler o arquivo CSV.
-Tentativas feitas: ..."`). Um mapa de classe para string constante nao consegue
-construi-las: a traducao precisa **receber a excecao** e devolver o texto montado.
-
-## Os literais foram MEDIDOS, nao deduzidos
-
-Duas condicoes parecidas tem modos de apresentacao diferentes no legado, e
-escrever a tabela de cabeca erraria. Medido com a sonda
-`evidence/probe_mensagens_antes.py`, antes da extracao:
+Os literais foram MEDIDOS, nao deduzidos: condicoes parecidas tem modos de apresentacao
+diferentes no legado. Medido com a sonda `evidence/probe_mensagens_antes.py`, antes da
+extracao:
 
 | Condicao | O que a tela exibe |
 |---|---|
@@ -21,18 +17,15 @@ escrever a tabela de cabeca erraria. Medido com a sonda
 | CSV sem colunas obrigatorias | `Ocorreu um erro: Colunas de Nome e cM nao encontradas no CSV. ...` — com prefixo |
 | CSV ilegivel | `Ocorreu um erro: Nao foi possivel ler o arquivo CSV. ...` — com prefixo |
 
-O prefixo existe porque, no legado, as tres ultimas nascem **dentro** do fluxo de
-DNA e sao capturadas pelo `except Exception` generico do ramo, que monta
-`f"Ocorreu um erro: {e}"`. A primeira nasce no caminho de gravacao e sai direto,
-sem passar por esse `except`. Reproduzir o prefixo onde ele existe e o que mantem
-a `RN-02` — o mecanismo de sinalizacao muda, o texto observavel nao.
+O prefixo existe porque, no legado, as tres ultimas nascem **dentro** do fluxo de DNA e sao
+capturadas pelo `except Exception` generico do ramo, que monta `f"Ocorreu um erro: {e}"`; a
+primeira nasce no caminho de gravacao e sai direto, sem esse `except`. Reproduzir o prefixo
+onde ele existe mantem a `RN-02`: o mecanismo de sinalizacao muda, o texto observavel nao.
 
-## A coluna de status nao tem consumidor nesta onda
-
-`RN-05`: o mapeamento para `404`/`422` vale **somente** para a API nova, que nao
-existe ainda. Nenhuma tela atual le esta coluna — o adaptador usa apenas a
-mensagem. Ela esta aqui, e testada (`T024`), para que a regra de conversao exista
-em um lugar so quando a API chegar, em vez de ser redescoberta la.
+A coluna de status nao tem consumidor nesta onda: `RN-05` diz que o mapeamento para
+`404`/`422` vale **somente** para a API nova, que nao existe ainda. Nenhuma tela atual le
+esta coluna — o adaptador usa apenas a mensagem. Ela esta aqui, e testada (`T024`), para que
+a regra de conversao exista em um lugar so quando a API chegar.
 """
 from __future__ import annotations
 
@@ -58,9 +51,8 @@ class RespostaDeErro:
 def _pessoa_nao_encontrada(erro: PessoaNaoEncontrada) -> RespostaDeErro:
     """`404`: a pessoa nomeada no pedido nao existe na arvore carregada.
 
-    O prefixo e o que a tela mostra hoje, e nao uma escolha nova: a excecao nasce
-    dentro do fluxo de DNA e o legado a exibe atraves do `except Exception` do
-    ramo.
+    O prefixo e o que a tela mostra hoje, nao escolha nova: a excecao nasce dentro do fluxo
+    de DNA, e o legado a exibe pelo `except Exception` do ramo.
     """
     return RespostaDeErro(f"Ocorreu um erro: {erro}", 404)
 
@@ -78,23 +70,19 @@ def _csv_ilegivel(erro: CsvIlegivel) -> RespostaDeErro:
 def _gedcom_nao_suportado(erro: GedcomNaoSuportado) -> RespostaDeErro:
     """`422` e a mensagem **unica** de conteudo recusado (`RN-18`, `T039`).
 
-    Pedido do operador em 2026-10-10. Antes, o texto era montado com o motivo dentro
-    (`"Arquivo nao reconhecido como GEDCOM: <motivo>."`), e o operador lia o motivo tecnico do
-    validador — "nao comeca com a declaracao 0 HEAD". Agora a tela diz sempre esta frase.
+    Pedido do operador em 2026-10-10: antes, o texto levava o motivo dentro
+    (`"Arquivo nao reconhecido como GEDCOM: <motivo>."`) e o operador lia o motivo tecnico
+    do validador — "nao comeca com a declaracao 0 HEAD"; agora a tela diz sempre esta frase.
 
-    ## O motivo NAO se perdeu, e isso e deliberado
+    O motivo NAO se perdeu, e isso e deliberado: continua na excecao (`erro`), que o carrega
+    desde a feature 006 (`A002`) — `validate.py` devolve o motivo, a excecao o transporta, e
+    **so a apresentacao** deixou de exibi-lo. Quem depurar o tem a um `str(erro)` de
+    distancia, e o ramo de envio pode volta-lo a mostrar sem tocar no validador.
 
-    Ele continua dentro da excecao (`erro`), que o carrega desde a feature 006 (`A002`):
-    `validate.py` devolve o motivo, a excecao o transporta, e **so a apresentacao** deixou de
-    exibi-lo. Quem depurar tem o motivo a um `str(erro)` de distancia, e o ramo de envio pode
-    voltar a mostra-lo sem tocar no validador.
-
-    ## O custo declarado desta troca
-
-    As **tres** recusas de conteudo — arquivo vazio, byte nulo e cabecalho ausente — passam a ter
-    o MESMO texto, e o operador perde a pista de qual foi o problema. A troca foi pedida com a
-    consequencia a vista; se um dia o arquivo vazio precisar de texto proprio, e uma linha aqui,
-    e o motivo ja esta na excecao.
+    Custo declarado: as **tres** recusas de conteudo — arquivo vazio, byte nulo e cabecalho
+    ausente — passam a ter o MESMO texto, e o operador perde a pista de qual foi. A troca foi
+    pedida com a consequencia a vista; se um dia o arquivo vazio precisar de texto proprio, e
+    uma linha aqui, e o motivo ja esta na excecao.
     """
     return RespostaDeErro("Arquivo não reconhecido como GEDCOM. Favor, enviar o arquivo correto.", 422)
 
@@ -102,17 +90,15 @@ def _gedcom_nao_suportado(erro: GedcomNaoSuportado) -> RespostaDeErro:
 def _erro_de_dominio_sem_moldura_propria(erro: ErroDeDominio) -> RespostaDeErro:
     """Rede de seguranca para um tipo de dominio novo, ainda sem moldura propria.
 
-    Preserva o texto que o legado produziria para uma falha inesperada, em vez de
-    deixar a resposta sem mensagem. E o mesmo caminho de hoje: `ErroDeDominio`
-    herda de `ValueError`, entao antes da extracao esta condicao caia no
-    `except Exception` do ramo.
+    Preserva o texto que o legado produziria para uma falha inesperada, em vez de deixar a
+    resposta sem mensagem: `ErroDeDominio` herda de `ValueError`, entao antes da extracao
+    esta condicao caia no `except Exception` do ramo.
     """
     return RespostaDeErro(f"Ocorreu um erro: {erro}", 422)
 
 
-# A ordem nao e significativa: os quatro tipos sao IRMAOS, nao uma cadeia, entao
-# no maximo um `isinstance` casa por excecao. O tipo mais generico fica por
-# ultimo porque a busca percorre na ordem de insercao.
+# A ordem nao e significativa: os quatro tipos sao IRMAOS, nao uma cadeia — no maximo um
+# `isinstance` casa por excecao. O generico fica por ultimo: a busca percorre a insercao.
 _TRADUTORES = {
     PessoaNaoEncontrada: _pessoa_nao_encontrada,
     GedcomNaoSuportado: _gedcom_nao_suportado,

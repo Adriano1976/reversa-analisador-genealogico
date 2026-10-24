@@ -68,17 +68,16 @@ def _montar_diagrama(deps, documentary: dict, root_id: str, pid: str, dominio: d
 def _observacoes(documentary, evidence, comparison, codigos_suprimidos=None):
     """Secao 5 do cartao: o que o operador precisa saber SOBRE ESTA CONEXAO.
 
-    Os avisos de arquivo (`nivel == "arquivo"` em `build_genetic_evidence`, mais os
-    da raiz e os do proprio CSV) **nao** entram aqui: eles valem para a analise
-    inteira e vao para o bloco unico de observacoes do arquivo. Enquanto eram
-    despejados no cartao, o aviso de multiplos kits ocupava 710 das 1010 linhas
-    desta secao na analise real de 142 cartoes e aparecia em 142 de 142 cartoes.
+    Os avisos de arquivo (`nivel == "arquivo"` em `build_genetic_evidence`, mais os da raiz
+    e os do proprio CSV) **nao** entram aqui: eles valem para a analise inteira e vao para o
+    bloco unico de observacoes do arquivo. Enquanto eram despejados no cartao, o aviso de
+    multiplos kits ocupava 710 das 1010 linhas desta secao e aparecia em 142 de 142 cartoes.
     Ver `_reversa_sdd/addenda/017-observacao-de-arquivo-nao-e-observacao-de-cartao.md`.
 
-    `codigos_suprimidos` existe para o aviso `segmento_fraco` quando o bloco de
-    endogamia da secao 2 ja diz o mesmo com mais detalhe (total bruto x mitigado,
-    maior bloco, caminhos). A informacao NAO some do cartao: muda de secao. Sem
-    isso, o operador lia a mesma conclusao duas vezes na mesma conexao.
+    `codigos_suprimidos` existe para o aviso `segmento_fraco` quando o bloco de endogamia da
+    secao 2 ja diz o mesmo com mais detalhe (total bruto x mitigado, maior bloco, caminhos). A
+    informacao NAO some do cartao: muda de secao — sem isso, o operador lia a mesma conclusao
+    duas vezes na mesma conexao.
     """
     suprimidos = codigos_suprimidos or frozenset()
     textos = []

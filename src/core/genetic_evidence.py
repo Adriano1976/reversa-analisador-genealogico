@@ -1,38 +1,30 @@
 """Evidencia GENETICA: o que o arquivo de DNA afirma, sem o GEDCOM.
 
-Responsabilidade unica: transformar as linhas do CSV de matches em evidencia
-genetica descritiva — kit, fonte, cM total, numero de segmentos, maior segmento,
-SNPs, cromossomo, posicoes e quantos registros entraram em cada numero.
+Responsabilidade unica: transformar as linhas do CSV de matches em evidencia genetica
+descritiva — kit, fonte, cM total, numero de segmentos, maior segmento, SNPs, cromossomo,
+posicoes e quantos registros entraram em cada numero.
 
-## Regra do projeto
+Regra do projeto: o DNA determina a evidencia genetica; ele **nao** determina parentesco.
+Este modulo nao conhece `people`, nao conhece arvore e nao produz rotulo de parentesco:
+quem traduz cM em possibilidades e `core.relationship_hypotheses`, e quem confronta com o
+GEDCOM e `core.evidence_comparison`.
 
-O DNA determina a evidencia genetica; ele **nao** determina parentesco. Este
-modulo nao conhece `people`, nao conhece arvore e nao produz rotulo de
-parentesco: quem traduz cM em possibilidades e `core.relationship_hypotheses`, e
-quem confronta com o GEDCOM e `core.evidence_comparison`.
-
-## Nunca somar kits diferentes
-
-Duas linhas do CSV com o mesmo nome e kits diferentes sao **duas** evidencias,
-nao uma. A chave de agrupamento e sempre (nome normalizado + kit). Quando o CSV
-nao traz coluna de kit nem de e-mail, o agrupamento cai para o nome e a evidencia
-sai marcada com o aviso `kit_ausente` — sem isso, dois laboratorios distintos
+Nunca somar kits diferentes: duas linhas do CSV com o mesmo nome e kits diferentes sao
+**duas** evidencias, nao uma. A chave de agrupamento e sempre (nome normalizado + kit).
+Quando o CSV nao traz coluna de kit nem de e-mail, o agrupamento cai para o nome e a
+evidencia sai marcada com o aviso `kit_ausente` — sem isso, dois laboratorios distintos
 virariam um match so, com cM somado.
 
-## Onde cada aviso pode aparecer (`nivel`)
-
-Todo aviso carrega `nivel`, e o nivel decide **onde ele cabe na tela**:
-
-- `nivel == "arquivo"` — o aviso vale para o CSV inteiro (`multiplos_kits`,
-  `kit_ausente`). Ele **nao** entra em cartao nenhum: vai para o bloco unico de
-  observacoes da analise. Medido em 2026-10-14 no arquivo real de 142 cartoes
-  (`03f50d273442cef1__Famílias_Sergipanas.csv`), enquanto era copiado para dentro
-  de cada cartao o aviso de multiplos kits ocupava **710 das 1010 linhas** da
-  secao "5. Observacoes" (70,3%), aparecia em **142 de 142 cartoes**, e em **3 dos
-  5 casos** falava de nomes que a triagem descartou e que nao tem cartao nenhum.
-  Ver `_reversa_sdd/addenda/017-observacao-de-arquivo-nao-e-observacao-de-cartao.md`.
-- `nivel == "cartao"` — o aviso e de um par (nome, kit) especifico
-  (`mrca_divergente`) e so aparece no cartao daquele par.
+Todo aviso carrega `nivel`, e o nivel decide **onde ele cabe na tela**: `nivel ==
+"arquivo"` vale para o CSV inteiro (`multiplos_kits`, `kit_ausente`) e **nao** entra em
+cartao nenhum — vai para o bloco unico de observacoes da analise. Medido em 2026-10-14 no
+arquivo real de 142 cartoes (`03f50d273442cef1__Famílias_Sergipanas.csv`), enquanto era
+copiado para dentro de cada cartao o aviso de multiplos kits ocupava **710 das 1010 linhas**
+da secao "5. Observacoes" (70,3%), aparecia em **142 de 142 cartoes**, e em **3 dos 5
+casos** falava de nomes que a triagem descartou e que nao tem cartao nenhum — ver
+`_reversa_sdd/addenda/017-observacao-de-arquivo-nao-e-observacao-de-cartao.md`. `nivel ==
+"cartao"` e de um par (nome, kit) especifico (`mrca_divergente`) e so aparece no cartao
+daquele par.
 """
 from __future__ import annotations
 
@@ -150,19 +142,17 @@ def _nome_de_exibicao(nome_no_csv, nome_normalizado):
 def _texto_de_multiplos_kits(por_kit: dict, nome_normalizado: str) -> str:
     """A frase que impede a soma entre kits — escrita como FATO DOS DADOS.
 
-    A versao anterior era um recibo da contabilidade interna do programa ("cada
-    combinação pessoa + kit foi mantida separada; os segmentos nunca foram somados
-    entre kits diferentes"): descrevia o software, nao o arquivo do operador, e nao
-    dizia o que fazer com a informacao. Medido, ela tambem nao protegia numero
-    nenhum visivel — o bloco "2. Evidencia genetica" mostra um kit por vez, com o
-    total de cada um, e `evidence_for` deixa `totals["cm"]` como `None` quando ha
-    mais de um kit, de modo que a soma proibida nunca chega a ser exibida.
+    A versao anterior era um recibo da contabilidade interna do programa — descrevia o
+    software, nao o arquivo do operador, e nao dizia o que fazer com a informacao. Medido,
+    ela tambem nao protegia numero nenhum visivel: o bloco "2. Evidencia genetica" mostra um
+    kit por vez, com o total de cada um, e `evidence_for` deixa `totals["cm"]` como `None`
+    quando ha mais de um kit, de modo que a soma proibida nunca chega a ser exibida.
 
-    O que o operador precisa saber e o que ele tem em maos: quais kits, quanto vale
-    cada um, e o parentesco que a soma faria acreditar sem que nenhum dos kits o
-    sustente. O numero da soma e a relacao que ela sugeriria sao calculados aqui, e
-    nao afirmados: `possible_relationships` devolve a lista publicada que admitiria
-    aquele cM, e a mais proxima dela e a que a soma faria parecer verdadeira.
+    O que o operador precisa saber e o que ele tem em maos: quais kits, quanto vale cada um,
+    e o parentesco que a soma faria acreditar sem que nenhum dos kits o sustente. O numero da
+    soma e a relacao que ela sugeriria sao calculados aqui, e nao afirmados:
+    `possible_relationships` devolve a lista publicada que admitiria aquele cM, e a mais
+    proxima dela e a que a soma faria parecer verdadeira.
     """
     ordenados = sorted(por_kit.items(), key=lambda item: -(item[1].get("total_cm") or 0))
     nome = _nome_de_exibicao(ordenados[0][1].get("person_name_csv"), nome_normalizado)

@@ -1,31 +1,25 @@
 """Confronto GEDCOM x DNA: as duas evidencias sao compativeis entre si?
 
-Responsabilidade unica: receber o parentesco **documental** (que veio do GEDCOM),
-a **evidencia genetica** (que veio do CSV) e as **possibilidades** estatisticas, e
-responder em um dos quatro estados — COMPATIVEL, POSSIVEL, CONFLITANTE ou
-INCONCLUSIVO — dizendo sempre POR QUE.
+Responsabilidade unica: receber o parentesco **documental** (que veio do GEDCOM), a
+**evidencia genetica** (que veio do CSV) e as **possibilidades** estatisticas, e responder
+em um dos quatro estados — COMPATIVEL, POSSIVEL, CONFLITANTE ou INCONCLUSIVO — dizendo
+sempre POR QUE.
 
-## Regra do projeto
+Regra do projeto: este modulo nao altera o parentesco documental e nao corrige o GEDCOM —
+ele apenas compara. Um conflito vira aviso e lista de causas, nunca uma reescrita de
+vinculo.
 
-Este modulo nao altera o parentesco documental e nao corrige o GEDCOM: ele apenas
-compara. Um conflito vira aviso e lista de causas, nunca uma reescrita de vinculo.
-
-## Como o estado e decidido (transparencia, ver o campo `method`)
-
-1. A relacao documental vira uma chave (`1C6R`, `SIBLINGS`, ...) em
-   `core.documentary_relationship`.
-2. Se o Shared cM Project 4.0 publica a faixa dessa relacao, a janela e essa faixa
-   (`method = "scp40:<nome>"`).
-3. Se a 4.0 **nao** publica essa relacao (caso de 1C6R, 1C4R, 1C5R, 3C2R e dos
-   bisavos mais distantes), a janela passa a ser a envoltoria das relacoes
-   publicadas com o MESMO numero de meioses (`method = "scp40:meioses=<n>"`).
-   Nenhum numero e inventado: se nao houver relacao publicada naquele numero de
-   meioses, nao ha janela e o estado e INCONCLUSIVO.
-4. cM dentro da janela -> COMPATIVEL. Fora dela -> POSSIVEL quando alguma relacao
-   publicada que contem o valor tem faixa que SE SOBREPOE a janela documental (as
-   distribuicoes se tocam e o cM nao separa as duas leituras); caso contrario,
-   CONFLITANTE.
-5. Sem DNA, sem caminho documental ou com identidade ambigua -> INCONCLUSIVO.
+Como o estado e decidido (transparencia, ver o campo `method`): 1. A relacao documental vira
+uma chave (`1C6R`, `SIBLINGS`, ...) em `core.documentary_relationship`. 2. Se o Shared cM
+Project 4.0 publica a faixa dessa relacao, a janela e essa faixa (`method =
+"scp40:<nome>"`). 3. Se a 4.0 **nao** publica essa relacao (caso de 1C6R, 1C4R, 1C5R, 3C2R e
+dos bisavos mais distantes), a janela passa a ser a envoltoria das relacoes publicadas com o
+MESMO numero de meioses (`method = "scp40:meioses=<n>"`); nenhum numero e inventado — se nao
+houver relacao publicada naquele numero de meioses, nao ha janela e o estado e INCONCLUSIVO.
+4. cM dentro da janela -> COMPATIVEL; fora dela -> POSSIVEL quando alguma relacao publicada
+que contem o valor tem faixa que SE SOBREPOE a janela documental (as distribuicoes se tocam
+e o cM nao separa as duas leituras), caso contrario CONFLITANTE. 5. Sem DNA, sem caminho
+documental ou com identidade ambigua -> INCONCLUSIVO.
 """
 from __future__ import annotations
 

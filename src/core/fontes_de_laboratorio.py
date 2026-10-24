@@ -1,34 +1,26 @@
 """Catalogo de laboratorios para o valor da coluna de fonte.
 
-## O que este modulo resolve
-
 O CSV de segmentos declara a empresa em uma coluna (`Source`, `Fonte` ou `Company`), e o
 valor vem como o operador (ou o formulario do site de origem) digitou. Medido no arquivo
 real do projeto em 2026-10-22: **45 valores distintos** para **11 laboratorios** — a
 variacao e ortografica (`GENERA`, `genera`, `Genera Brasil`), nao semantica.
 
 Sem traducao, a tela exibe `Selecione uma empresa ou fonte` como se fosse o nome de uma
-empresa. Este modulo separa tres desfechos:
+empresa. Este modulo separa tres desfechos: **laboratorio** (reconhecido no catalogo);
+**nao declarada** (vazio, `-`, texto de formulario, haplogrupo, nome de projeto ou empresa
+nao confirmada); e **outro** (valor nao reconhecido que nao e claramente nenhum dos
+anteriores). Nos tres casos o **texto original e preservado** para exibicao: descartar o
+valor sim, esconder nao (`domain.md` 3.8).
 
-- **laboratorio** — reconhecido no catalogo;
-- **nao declarada** — vazio, `-`, texto de formulario, haplogrupo, nome de projeto ou
-  empresa nao confirmada;
-- **outro** — valor nao reconhecido que nao e claramente nenhum dos anteriores.
+Por que tabela literal, e nao heuristica: `Genos` e `Genera` ficam a uma edicao de distancia
+e sao empresas diferentes, e `Minha heranca` e `Meu Patrimonio` nao tem laboratorio
+confirmado (decisao do operador em 2026-10-22). Distancia de edicao e prefixo casariam
+errado e em silencio. A tabela e auditavel, reversivel e nao depende de servico externo — o
+sistema nao tem nenhum.
 
-Nos tres casos o **texto original e preservado** para exibicao: descartar o valor sim,
-esconder nao (`domain.md` 3.8).
-
-## Por que tabela literal, e nao heuristica
-
-`Genos` e `Genera` ficam a uma edicao de distancia e sao empresas diferentes; `Minha
-heranca` e `Meu Patrimonio` nao tem laboratorio confirmado (decisao do operador em
-2026-10-22). Distancia de edicao e prefixo casariam errado e em silencio. A tabela e
-auditavel, reversivel e nao depende de servico externo — o sistema nao tem nenhum.
-
-## O catalogo e do projeto, e nao um registro oficial
-
-Nao existe lista publica estavel de nomes de laboratorio consumida por este codigo. O
-catalogo abaixo e **declarado pelo projeto** (Principio V) e cresce por decisao, com teste.
+O catalogo e do projeto, e nao um registro oficial: nao existe lista publica estavel de
+nomes de laboratorio consumida por este codigo; o catalogo abaixo e **declarado pelo
+projeto** (Principio V) e cresce por decisao, com teste.
 """
 from __future__ import annotations
 

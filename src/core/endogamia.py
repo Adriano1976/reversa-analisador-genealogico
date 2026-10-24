@@ -1,54 +1,43 @@
 """Regras de endogamia do DNA (filtro de ruído, evidência e colapso de pedigree).
 
-Responsabilidade unica: aplicar as tres regras de negocio que separam o sinal
-genetico do ruido de populacoes isoladas, e diagnosticar endogamia estrutural no
-grafo do GEDCOM. Nao le arquivo, nao formata tela e nao conhece Flask — recebe
-segmentos e o grafo, devolve valores.
+Responsabilidade unica: aplicar as tres regras de negocio que separam o sinal genetico do
+ruido de populacoes isoladas, e diagnosticar endogamia estrutural no grafo do GEDCOM. Nao
+le arquivo, nao formata tela e nao conhece Flask — recebe segmentos e o grafo, devolve
+valores.
 
-## Onde ele se encaixa (e por que nao se chama `dna_analysis`)
+Onde ele se encaixa (e por que nao se chama `dna_analysis`): `core.dna_analysis` e o
+**orquestrador** — le o CSV pela borda, faz o matching, monta o parentesco documental, o
+confronto e o cartao. Este modulo e a **politica** que o orquestrador consulta: filtro de
+10 cM, recálculo do total, maior bloco e caminhos no grafo. A dependencia e de mao unica
+(`dna_analysis` -> `endogamia`), e o nome diz a verificacao — como `janela_de_vida`,
+`profundidade_do_caminho` e `identidade_do_match`.
 
-`core.dna_analysis` e o **orquestrador**: le o CSV pela borda, faz o matching,
-monta o parentesco documental, o confronto e o cartao. Este modulo e a
-**politica** que o orquestrador consulta: filtro de 10 cM, recálculo do total,
-maior bloco e caminhos no grafo. A dependencia e de mao unica
-(`dna_analysis` -> `endogamia`), e o nome diz a verificacao — como
-`janela_de_vida`, `profundidade_do_caminho` e `identidade_do_match`.
+As tres regras: 1. **Filtro rigido de segmentos** (`CM_MINIMO_SEGMENTO = 10.0`) — segmentos
+abaixo de 10 cM aparecem com frequencia entre pessoas sem relacao genealogica recente; em
+populacao isolada eles sao maioria. O segmento e descartado e o total e **recalculado**
+apenas sobre o que sobreviveu (`math.fsum`, para nao herdar a cauda de ponto flutuante da
+soma incremental). 2. **Maior bloco** (`CM_MINIMO_MAIOR_BLOCO = 15.0`) — um total alto pode
+ser a soma de muitos blocos minusculos; abaixo de 15 cM no maior bloco, o diagnostico diz
+`evidência fraca` e `parentesco distante inflado`. 3. **Endogamia estrutural** — o grafo do
+GEDCOM e convertido para nao-direcionado (`to_undirected`) para que a travessia possa subir
+por um ramo e descer pelo outro, e assim atravessar primos colaterais.
+`nx.all_shortest_paths` devolve todos os caminhos mais curtos entre a raiz e o match; **mais
+de um** caminho mais curto e a assinatura de colapso de pedigree, e o diagnostico aponta
+`Endogamia estrutural confirmada na árvore`.
 
-## As tres regras (e por que elas existem)
+O que este modulo NAO faz: nao altera `result["cm"]` nem o total bruto de
+`core.genetic_evidence` — a paridade contra o oraculo congelado prende aquele valor, e a
+mitigacao viaja em campo proprio (`result["endogamia"]`), com os dois numeros lado a lado
+(o que o arquivo declara e o que sobra depois do filtro); nao escolhe o match por nome no
+fluxo principal — `casar_nome` implementa a resolucao difusa pedida
+(`difflib.get_close_matches`, cutoff 0.75, barras do GEDCOM limpas) e e usada por `analisar`,
+e `core.matching` continua intocado porque as decisoes dele sao contrato de caracterizacao
+(`tests/`); e nao importa `parsers/` nem `reporting/` (`RF-09`) — quem le o CSV e a borda.
 
-1. **Filtro rigido de segmentos** (`CM_MINIMO_SEGMENTO = 10.0`). Segmentos
-   abaixo de 10 cM aparecem com frequencia entre pessoas sem relacao genealogica
-   recente; em populacao isolada eles sao maioria. O segmento e descartado e o
-   total e **recalculado** apenas sobre o que sobreviveu (`math.fsum`, para nao
-   herdar a cauda de ponto flutuante da soma incremental).
-2. **Maior bloco** (`CM_MINIMO_MAIOR_BLOCO = 15.0`). Um total alto pode ser a
-   soma de muitos blocos minusculos. Abaixo de 15 cM no maior bloco, o
-   diagnostico diz `evidência fraca` e `parentesco distante inflado`.
-3. **Endogamia estrutural**. O grafo do GEDCOM e convertido para nao-direcionado
-   (`to_undirected`) para que a travessia possa subir por um ramo e descer pelo
-   outro — e assim atravessar primos colaterais. `nx.all_shortest_paths` devolve
-   todos os caminhos mais curtos entre a raiz e o match; **mais de um** caminho
-   mais curto e a assinatura de colapso de pedigree: o diagnostico aponta
-   `Endogamia estrutural confirmada na árvore`.
-
-## O que este modulo NAO faz
-
-- Nao altera `result["cm"]` nem o total bruto de `core.genetic_evidence`: a
-  paridade contra o oraculo congelado prende aquele valor, e a mitigacao viaja em
-  campo proprio (`result["endogamia"]`). O operador ve os dois numeros lado a
-  lado — o que o arquivo declara e o que sobra depois do filtro.
-- Nao escolhe o match por nome no fluxo principal. `casar_nome` implementa a
-  resolucao difusa pedida (`difflib.get_close_matches`, cutoff 0.75, barras do
-  GEDCOM limpas) e e usada por `analisar`; `core.matching` continua intocado
-  porque as decisoes dele sao contrato de caracterizacao (`tests/`).
-- Nao importa `parsers/` nem `reporting/` (`RF-09`). Quem le o CSV e a borda.
-
-## Grafo direcionado x nao-direcionado
-
-A travessia colateral exige um grafo nao-direcionado (subir por um ramo e descer
-pelo outro). A conversao e `to_undirected(as_view=True)`: o `as_view` devolve uma
-VIEW, e nao uma copia O(V+E) — o fluxo real roda isso por cartao, e o parser ja
-entrega `nx.Graph`. A chamada e a mesma para grafo direcionado e nao-direcionado,
+Grafo direcionado x nao-direcionado: a travessia colateral exige um grafo nao-direcionado
+(subir por um ramo e descer pelo outro). A conversao e `to_undirected(as_view=True)`: o
+`as_view` devolve uma VIEW, e nao uma copia O(V+E) — o fluxo real roda isso por cartao, e o
+parser ja entrega `nx.Graph`. A chamada e a mesma para grafo direcionado e nao-direcionado,
 entao um `DiGraph` futuro continua funcionando sem ramo condicional.
 """
 from __future__ import annotations
@@ -65,10 +54,8 @@ import networkx as nx # type: ignore
 from utils.name_keys import norm_name
 from utils.number_format import formatar_cm
 
-# ---------------------------------------------------------------------------
 # Limiares. Sao constantes PUBLICAS de proposito: teste e tela citam o mesmo
 # numero, e um deles nao pode mudar sozinho.
-# ---------------------------------------------------------------------------
 
 #: Segmento abaixo disto e ruido e nao entra na conta (regra 1).
 CM_MINIMO_SEGMENTO: float = 10.0
@@ -114,9 +101,7 @@ class SegmentoTipado(Protocol):
 SegmentoDeEntrada: TypeAlias = Mapping[str, object] | float | int | SegmentoTipado
 
 
-# ---------------------------------------------------------------------------
 # Resultados tipados
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,9 +220,7 @@ class AnaliseDeEndogamia:
     diagnostico: DiagnosticoDeEndogamia | None
 
 
-# ---------------------------------------------------------------------------
 # Leitura tolerante dos numeros
-# ---------------------------------------------------------------------------
 
 
 def _para_float(valor: object) -> float | None:
@@ -270,9 +253,7 @@ def _cm_do_segmento(segmento: SegmentoDeEntrada) -> float | None:
     return _para_float(segmento)
 
 
-# ---------------------------------------------------------------------------
 # O servico de dominio
-# ---------------------------------------------------------------------------
 
 
 class DNAAnalyzer:
@@ -488,27 +469,20 @@ class DNAAnalyzer:
     ) -> DiagnosticoDeEndogamia:
         """Classifica o par (raiz, match) quanto a endogamia estrutural.
 
-        ## O criterio e literal, e e o pedido
-
-        **Mais de um caminho mais curto** entre as duas pessoas e a assinatura de
-        colapso de pedigree: a mesma distancia genealogica chegando por dois
-        ramos significa que os ramos se cruzaram antes. O diagnostico aponta
+        O criterio e literal, e e o pedido: **mais de um caminho mais curto** entre as duas
+        pessoas e a assinatura de colapso de pedigree — a mesma distancia genealogica chegando
+        por dois ramos significa que os ramos se cruzaram antes. O diagnostico aponta
         `Endogamia estrutural confirmada na árvore`.
 
-        ## MRCA x reconvergencia
+        MRCA x reconvergencia: `mrca_id`, quando informado pelo parentesco documental, e
+        mantido em `mrca_ids` — mas ele e o MRCA **da secao 1**, nao o que a lista de rotas
+        mostra. A lista exibida e `reconvergencias`: os nos em que TODAS as rotas concordam e
+        cujo no anterior diverge, o ponto em que os caminhos se bifurcam e voltam ao mesmo
+        ancestral; a interseccao inteira e o tronco comum, e nao o ancestral mais recente.
 
-        `mrca_id`, quando informado pelo parentesco documental, e mantido em
-        `mrca_ids` — mas ele e o MRCA **da secao 1**, nao o que a lista de rotas
-        mostra. A lista exibida e `reconvergencias`: os nos em que TODAS as rotas
-        concordam e cujo no anterior diverge. E o ponto em que os caminhos se
-        bifurcam e voltam ao mesmo ancestral; a interseccao inteira e o tronco
-        comum, e nao o ancestral mais recente.
-
-        ## Sem caminho
-
-        `NetworkXNoPath` e `NodeNotFound` sao tratados como ausencia de ligacao
-        documental, e nao como falha: o cartao continua sendo montado, com o DNA
-        e o parentesco declarado "nao encontrado".
+        Sem caminho: `NetworkXNoPath` e `NodeNotFound` sao tratados como ausencia de ligacao
+        documental, e nao como falha — o cartao continua sendo montado, com o DNA e o
+        parentesco declarado "nao encontrado".
         """
         caminhos, truncado = self._caminhos_com_truncamento(grafo, origem, destino)
         endogamia = len(caminhos) > 1

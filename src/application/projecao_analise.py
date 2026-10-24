@@ -1,18 +1,13 @@
 """Projeção pura do resultado do núcleo para o payload da porta (`D-15`, `ADR-33`).
 
-Este módulo implementa o padrão de projeto Mapper através da classe `ProjetorDeAnalise`.
-Ele é **puro e sem efeito colateral**: lê o que o núcleo devolveu e nada mais.
-Não chama função do núcleo, não recalcula cM, não reordena e não formata (`D-15`).
-
-Por ser puro, pode ser exercitado em testes sem `DATABASE_URL` e sem nenhuma
+`ProjetorDeAnalise` é o Mapper: **puro e sem efeito colateral**, lê o que o núcleo
+devolveu e nada mais — não chama função do núcleo, não recalcula cM, não reordena e
+não formata (`D-15`). Por isso é exercitável sem `DATABASE_URL` e sem nenhuma
 dependência de infraestrutura (`B003` da auditoria de 2026-10-08).
 
-## Contrato de entrada / saída
-
-`ProjetorDeAnalise.projetar` (ou a fachada `projetar_analise`) recebe o triplete
-bruto do núcleo (`resultados`, `descartados`, `mensagem`) mais os metadados de
-rastreabilidade e devolve `AnaliseParaRegistrar`, o payload tipado da porta
-`RegistroDeAnalises`.
+`ProjetorDeAnalise.projetar` (ou a fachada `projetar_analise`) recebe o triplete bruto
+(`resultados`, `descartados`, `mensagem`) mais os metadados de rastreabilidade e
+devolve `AnaliseParaRegistrar`, o payload tipado da porta `RegistroDeAnalises`.
 """
 from __future__ import annotations
 
@@ -31,19 +26,17 @@ from ports import (
 class ProjetorDeAnalise:
     """Mapeia o resultado bruto do nucleo para o payload da porta (`D-15`, `ADR-33`).
 
-    Padrao de Projeto: Mapper / Projector.
-    Encapsula o cluster de projecao, transformando os dados brutos da analise
-    no payload de contrato tipado esperado pelas portas do sistema.
-    Nao mantem estado interno mutavel.
+    Padrao Mapper/Projector: encapsula a projecao dos dados brutos no payload de contrato
+    tipado das portas. Nao mantem estado interno mutavel.
     """
 
     @staticmethod
     def _juntar(por_xref: dict, pessoa: PessoaDaAnalise | None) -> None:
-        """Acrescenta uma pessoa ao retrato, e a ficha COMPLETA vence a identificacao.
+        """Acrescenta uma pessoa ao retrato; a ficha COMPLETA vence a identificacao.
 
-        A mesma pessoa pode ser o match de uma conexao e um no do caminho de outra. Se
-        a versao completa chegasse depois da incompleta e fosse descartada, os dados
-        dela se perderiam, e o `analysis_person.completa` mentiria.
+        A mesma pessoa pode ser match de uma conexao e no do caminho de outra: se a
+        versao completa chegasse depois e fosse descartada, seus dados se perderiam e o
+        `analysis_person.completa` mentiria.
         """
         if pessoa is None or not pessoa.xref:
             return
@@ -75,15 +68,12 @@ class ProjetorDeAnalise:
     def _papeis_do_caminho(documentary: dict) -> tuple[tuple[str, str], ...]:
         """Pares `(xref, papel)` do caminho documental, na ordem (`match_path_node`).
 
-        O papel e **derivado**, e nao lido: o resultado do nucleo carrega o caminho
-        como lista de identificadores e nomes (`path.ids`, `path.names`) e nao diz qual
-        no e ascendente e qual e descendente. A derivacao usa o ancestral comum como
-        divisor: ate ele sobe-se, depois dele desce-se.
-
-        Quando o ancestral comum **nao** esta no caminho, o corte cai no **penultimo** no: o
-        ultimo e sempre a pessoa alcancada, e chegar nela e descer. E um recuo
-        declarado, nao um palpite silencioso, e `afinidade` nunca aparece aqui, porque
-        quem atribui esse estado e `path_search.py`, e nao o fluxo de DNA
+        O papel e **derivado**, nao lido: o caminho chega como `path.ids` e `path.names`,
+        sem dizer qual no e ascendente e qual e descendente. O ancestral comum divide:
+        ate ele sobe-se, depois desce-se. Sem ele no caminho, o corte cai no
+        **penultimo** no — o ultimo e sempre a pessoa alcancada, e chegar nela e descer.
+        E um recuo declarado, nao um palpite silencioso; `afinidade` nunca aparece aqui,
+        porque quem atribui esse estado e `path_search.py`, e nao o fluxo de DNA
         (`state-machines.md#4`).
 
         O `max(0, ...)` cobre o caminho de um no so: sem segundo no, nao ha descida a
@@ -104,18 +94,17 @@ class ProjetorDeAnalise:
     def _kits(cls, evidence: dict, comparison: dict) -> tuple[KitDaAnalise, ...]:
         """Um `KitDaAnalise` por kit, com o cM **deste** kit (`RF-05`, `RN-06`).
 
-        O pareamento entre metadados e veredito e **por indice**, e nao por rotulo:
+        O pareamento entre metadados e veredito e **por indice**, nao por rotulo:
         `hypotheses_for_evidence` percorre `evidence[\"kits\"]` na ordem, e
         `evidence_comparison.compare` monta `per_kit` com `zip(hypotheses, avaliacoes)`.
-        Como as duas listas seguem a mesma ordem, dois kits com o mesmo nome, ou ambos
-        sem kit, nao se confundem. `source` vem da evidencia, porque `per_kit` nao o
+        As duas listas seguem a mesma ordem, entao dois kits com o mesmo nome — ou ambos
+        sem kit — nao se confundem; `source` vem da evidencia, porque `per_kit` nao o
         carrega.
 
-        Quando `per_kit` esta **vazio**, o confronto terminou antes de avaliar kit por
-        kit: acontece em INCONCLUSIVO por falta de DNA, de caminho ou de janela
-        publicada. Nesse caso o kit herda o estado **final** da conexao, que e o que a
-        tela mostra; e `status_note` fica nulo, porque nao houve avaliacao por kit para
-        justificar um texto.
+        Com `per_kit` **vazio**, o confronto terminou antes de avaliar kit por kit
+        (INCONCLUSIVO por falta de DNA, de caminho ou de janela publicada): o kit herda o
+        estado **final** da conexao, que e o que a tela mostra, e `status_note` fica
+        nulo, porque nao houve avaliacao por kit que justificasse um texto.
         """
         kits = (evidence or {}).get("kits") or []
         avaliacoes = (comparison or {}).get("per_kit") or []
@@ -141,9 +130,8 @@ class ProjetorDeAnalise:
         """Retrato das pessoas que a analise usou, uma vez cada (`RF-04`, `RN-04`).
 
         Devolve tambem a raiz resolvida: `documentary.person_a.id` da primeira conexao,
-        que e o unico lugar onde ela aparece no resultado: o nucleo nao a devolve em
-        campo proprio, e resolve-la aqui outra vez duplicaria a regra de resolucao por
-        nome (`D-15`).
+        unico lugar onde ela aparece no resultado — o nucleo nao a devolve em campo
+        proprio, e resolve-la aqui duplicaria a regra de resolucao por nome (`D-15`).
         """
         por_xref: dict[str, PessoaDaAnalise] = {}
         raiz = None
@@ -206,16 +194,15 @@ class ProjetorDeAnalise:
     ) -> AnaliseParaRegistrar:
         """Projeta o resultado do nucleo no payload da porta (`D-15`).
 
-        Operacao **pura** e sem efeito colateral: le o que o nucleo devolveu e nada mais.
-        A ordem das conexoes e a ordem em que elas chegaram, que ja e a ordem de apresentacao
-        decidida pelo nucleo, e ela vira `result_ordinal` sem reordenacao nenhuma
-        (`RN-08`, `E-01`).
+        Operacao **pura** e sem efeito colateral: le o que o nucleo devolveu e nada mais;
+        a ordem das conexoes e a de chegada — que ja e a ordem de apresentacao decidida pelo
+        nucleo — e vira `result_ordinal` sem reordenacao nenhuma (`RN-08`, `E-01`).
 
         FEATURE 039/E002: o cartao sem correspondencia e' uma leitura de TELA. A tabela
-        `match_result` exige `matched_person_xref` NOT NULL com FK para
-        `analysis_person`, e nao ha pessoa na arvore para esses cartoes; eles continuam
-        registrados em `skipped_match`, como descartes. Por isso a projecao os filtra
-        antes de montar as conexoes; a tela continua com eles.
+        `match_result` exige `matched_person_xref` NOT NULL com FK para `analysis_person`,
+        e nao ha pessoa na arvore para esses cartoes; eles continuam registrados em
+        `skipped_match`, como descartes. Por isso a projecao os filtra antes de montar as
+        conexoes; a tela continua com eles.
         """
         resultados = [r for r in resultados if not r.get("sem_correspondencia")]
         pessoas, raiz = cls._pessoas(resultados)
@@ -258,9 +245,7 @@ class ProjetorDeAnalise:
         )
 
 
-# ---------------------------------------------------------------------------
 # Fachada pública e aliases de compatibilidade
-# ---------------------------------------------------------------------------
 
 
 def projetar_analise(

@@ -1,18 +1,14 @@
 """Indices do GEDCOM e decisao de aceitacao de candidatos.
 
-Extraido de `dna_analysis.py` pela OPP-20260929-ZV52. Responsabilidade unica:
-construir os indices sobre a arvore carregada e decidir, para cada match do CSV,
-quais pessoas do GEDCOM sao candidatas aceitas e por que.
+Extraido de `dna_analysis.py` pela OPP-20260929-ZV52: responsabilidade unica, construir os
+indices sobre a arvore carregada e decidir, para cada match do CSV, quais pessoas do GEDCOM
+sao candidatas aceitas e por que. Nao depende de pandas: quem le o CSV e `csv_ingest`.
 
-Nao depende de pandas: quem le o CSV e `csv_ingest`.
-
-## A arvore entra por parametro (feature 005, T013)
-
-`build_ged_indexes` e `match_candidates` recebem `arvore` como primeiro
-parametro. **Nenhum limiar, peso, ramo de aceitacao ou ordem de avaliacao mudou**
-— a migracao toca a assinatura e a origem de `people`, e nada mais. As regras
-A/B/C/D, o filtro anti-falso-positivo e o Jaccard adaptativo continuam com os
-mesmos literais mapeados em `_reversa_sdd/code-analysis.md` secao 3.5.
+A arvore entra por parametro (feature 005, T013): `build_ged_indexes` e `match_candidates`
+recebem `arvore` como primeiro parametro, e **nenhum limiar, peso, ramo de aceitacao ou
+ordem de avaliacao mudou** — a migracao toca a assinatura e a origem de `people`, e nada
+mais. As regras A/B/C/D, o filtro anti-falso-positivo e o Jaccard adaptativo continuam com
+os mesmos literais mapeados em `_reversa_sdd/code-analysis.md` secao 3.5.
 """
 from __future__ import annotations
 
@@ -53,20 +49,19 @@ _ATRIBUTO_DOS_INDICES = "_analisador_indices_de_matching"
 def build_ged_indexes(arvore: Arvore):
     """Constroi os indices de busca e o cache de atributos normalizados.
 
-    O cache existe porque ``norm_name`` custa cerca de 41 us e ``surnames_set``
-    cerca de 72 us: o laco de candidatos de ``match_candidates`` renormalizava o
-    mesmo nome aproximadamente 7 vezes por candidato, a cada match do CSV, para
-    um valor que nao depende do CSV. Calcular aqui, uma vez por analise, nao
-    altera nenhuma decisao: os valores sao os mesmos.
+    O cache existe porque ``norm_name`` custa cerca de 41 us e ``surnames_set`` cerca de
+    72 us: o laco de candidatos de ``match_candidates`` renormalizava o mesmo nome
+    aproximadamente 7 vezes por candidato, a cada match do CSV, para um valor que nao
+    depende do CSV. Calcular aqui, uma vez por analise, nao altera nenhuma decisao: os
+    valores sao os mesmos.
 
-    ## O resultado fica preso ao grafo da arvore (feature 047)
-
-    A construcao percorre todas as pessoas (19.403 no arquivo real) e custa ~8,7 s. O trio e
-    guardado no proprio grafo, que vive enquanto a arvore viver e morre com ela — o mesmo
-    padrao de `fichas_da_pessoa._indice_de_filhos`. Nenhuma chave derivada de conteudo entra
-    aqui: e exatamente o defeito `L-24` que o cache de nomes do modulo documental tem, e que
-    este memo nao pode repetir. Com o cache da arvore ligado, o memo sobrevive entre
-    requisicoes junto com ela; sem ele, morre no fim da requisicao. Custo medido: ~31 MB.
+    O resultado fica preso ao grafo da arvore (feature 047): a construcao percorre todas as
+    pessoas (19.403 no arquivo real) e custa ~8,7 s, entao o trio e guardado no proprio
+    grafo, que vive enquanto a arvore viver e morre com ela — o mesmo padrao de
+    `fichas_da_pessoa._indice_de_filhos`. Nenhuma chave derivada de conteudo entra aqui: e
+    exatamente o defeito `L-24` que o cache de nomes do modulo documental tem, e que este
+    memo nao pode repetir. Com o cache da arvore ligado, o memo sobrevive entre requisicoes
+    junto com ela; sem ele, morre no fim da requisicao. Custo medido: ~31 MB.
     """
     grafo = arvore[2]
     guardados = getattr(grafo, _ATRIBUTO_DOS_INDICES, None)
@@ -112,23 +107,22 @@ def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_
     """Retorna `(candidate_pids, motivo, proximos)` — a avaliacao completa.
 
     Desde a feature 038, `motivo` e' um `Motivo` (codigo estavel, texto humano e detalhe
-    tecnico) ou `None` quando o candidato foi aceito. Quem so' quer o texto usa
+    tecnico) ou `None` quando o candidato foi aceito; quem so' quer o texto usa
     `match_candidates`, que preserva o contrato antigo.
 
-    `proximos` são os `limite` melhores candidatos **avaliados**, mesmo quando nenhum
-    foi aceito. A ordem deles é a do **operador**, não a da decisão: compatível primeiro
-    (prenome parecido e sobrenome em comum), depois prenome, nota e interseção.
+    `proximos` são os `limite` melhores candidatos **avaliados**, mesmo quando nenhum foi
+    aceito. A ordem deles é a do **operador**, não a da decisão: compatível primeiro (prenome
+    parecido e sobrenome em comum), depois prenome, nota e interseção. As duas ordens são
+    diferentes de propósito — a decisão desempata por interseção de sobrenomes primeiro, e
+    para a tela isso enterrava o candidato certo atrás de homônimos de sobrenome (medido no
+    GEDCOM real em 2026-10-19: ordenando pela decisão, 50 dos 366 descartes mostravam um
+    compatível; ordenando pelo que o operador precisa ver, 76).
 
-    As duas ordens são diferentes de propósito. A decisão desempata por interseção de
-    sobrenomes primeiro; para a tela, isso enterrava o candidato certo atrás de homônimos
-    de sobrenome — medido no GEDCOM real em 2026-10-19: ordenando pela decisão, 50 dos
-    366 descartes mostravam um compatível; ordenando pelo que o operador precisa ver, 76.
-
-    Existe separada de `match_candidates` (feature 034) porque a lista dos descartados
-    precisa mostrar quem a árvore oferecia — e o vencedor sozinho não basta: no caso
-    real `*Maria de Fátima Oliveira de Jesus` o vencedor era outra pessoa, e a
-    candidata compatível estava em segundo. `match_candidates` mantém o contrato de
-    dois valores para não quebrar quem só quer a decisão.
+    Existe separada de `match_candidates` (feature 034) porque a lista dos descartados precisa
+    mostrar quem a árvore oferecia — e o vencedor sozinho não basta: no caso real `*Maria de
+    Fátima Oliveira de Jesus` o vencedor era outra pessoa, e a candidata compatível estava em
+    segundo. `match_candidates` mantém o contrato de dois valores para não quebrar quem só
+    quer a decisão.
     """
     key = norm_name(match_name)
     candidate_pids = ged_index.get(key, [])

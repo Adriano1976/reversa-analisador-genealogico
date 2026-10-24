@@ -1,25 +1,22 @@
 """Emissao do diagrama Mermaid e o contrato de escape do rotulo.
 
-Extraido de `path_search.py` pela OPP-20260929-UXEF. Responsabilidade unica:
-transformar um caminho de parentesco no texto do diagrama.
+Extraido de `path_search.py` pela OPP-20260929-UXEF. Responsabilidade unica: transformar um
+caminho de parentesco no texto do diagrama.
 
-Este e o modulo onde o contrato de escape vive. `_LABEL_SEGURO` e a lista branca
-que substituiu a lista negra furada pela crase, e o comentario que a documenta
-veio junto com ela. Ver BUG-20260929-J6PQ.
+Este e o modulo onde o contrato de escape vive. `_LABEL_SEGURO` e a lista branca que
+substituiu a lista negra furada pela crase, e o comentario que a documenta veio junto com
+ela. Ver BUG-20260929-J6PQ.
 
-## Contrato de dominio (OPP-20261006-ULVW)
+Contrato de dominio (OPP-20261006-ULVW): este modulo NAO importa `core`. Ele recebe
+`dominio`, o mapeamento devolvido por `core.diagram_domain.resolvedor_de_diagrama`, no qual
+faz as consultas de que o desenho precisa. Antes desta costura o renderizador importava
+`core.family_navigation`, `core.path_finding` e `core.gedcom_state`, o que fechava o ciclo
+`core/` <-> `reporting/`.
 
-Este modulo NAO importa `core`. Ele recebe `dominio`, o mapeamento devolvido por
-`core.diagram_domain.resolvedor_de_diagrama`, no qual faz as consultas de que o
-desenho precisa. Antes desta costura o renderizador importava
-`core.family_navigation`, `core.path_finding` e `core.gedcom_state`, o que fechava
-o ciclo `core/` <-> `reporting/`.
-
-As decisoes de LAYOUT continuam aqui, e isso e deliberado: `reporting/` nao e
-folha e nao pode ser, porque decidir o casal do ancestral comum, o ancestral que
-ancora o ramo e o ponto de corte por casamento e decisao de negocio
-(`_reversa_sdd/architecture.md` secao 3 e ADR-11). O que mudou foi apenas quem
-busca o dado.
+As decisoes de LAYOUT continuam aqui, e isso e deliberado: `reporting/` nao e folha e nao
+pode ser, porque decidir o casal do ancestral comum, o ancestral que ancora o ramo e o
+ponto de corte por casamento e decisao de negocio (`_reversa_sdd/architecture.md` secao 3 e
+ADR-11). O que mudou foi apenas quem busca o dado.
 """
 from __future__ import annotations
 
@@ -36,18 +33,17 @@ def _mermaid_sid(raw) -> str:
     return 'N_' + re.sub(r'[^a-zA-Z0-9_]', '', safe_str)
 
 
-# Caracteres que podem sobreviver num rotulo entre aspas do Mermaid. A gramatica
-# do flowchart prova que, dentro do estado `string`, o lexer consome tudo com
-# `<string>[^"]+`, entao colchete, dois pontos, barra e palavra-chave sao inertes.
-# O que nao pode passar e a aspa dupla, que encerra o rotulo, e a crase, que logo
-# apos a aspa de abertura desvia o lexer para markdown-string e faz o
-# fecha-colchete nunca virar o token que a gramatica exige.
-# Lista branca, e nao negra: a negra anterior foi furada justamente pela crase.
+# Caracteres que podem sobreviver num rotulo entre aspas do Mermaid. A gramatica do
+# flowchart prova que, dentro do estado `string`, o lexer consome tudo com `<string>[^"]+`,
+# entao colchete, dois pontos, barra e palavra-chave sao inertes. O que nao pode passar e a
+# aspa dupla, que encerra o rotulo, e a crase, que logo apos a aspa de abertura desvia o
+# lexer para markdown-string e faz o fecha-colchete nunca virar o token que a gramatica
+# exige. Lista branca, e nao negra: a negra anterior foi furada justamente pela crase.
 #
-# A amplitude segue o criterio de INERTE, e nao o de "seguro": tudo que a
-# gramatica tolera dentro das aspas e que o legado preservava continua passando.
-# A versao anterior desta lista era estreita demais e descartava 14 caracteres
-# sem que isso fosse pretendido. Ver BUG-20261002-T4ZM.
+# A amplitude segue o criterio de INERTE, e nao o de "seguro": tudo que a gramatica tolera
+# dentro das aspas e que o legado preservava continua passando. A versao anterior desta
+# lista era estreita demais e descartava 14 caracteres sem que isso fosse pretendido. Ver
+# BUG-20261002-T4ZM.
 #
 _LABEL_SEGURO = re.compile(r"[^0-9A-Za-zÀ-ÖØ-öø-ÿ .,'()&<>:;/\[\]!?@#$%*+=^_{|}~\\-]")
 
@@ -132,35 +128,28 @@ def anotar_profundidade(texto: str, anotacao: dict) -> str:
     deixa o renderizador intacto e mantem a dependencia opcional — sem ela, o diagrama sai
     exatamente como sempre saiu.
 
-    ## O ancestral comum e marcado TROCANDO o estilo que ja esta la
+    O ancestral comum e marcado TROCANDO o estilo que ja esta la: a tentacao e receber o id
+    do ancestral e emitir um `style` novo para ele. Nao serve: quando o ancestral **nao**
+    esta numa das pontas do caminho, o renderizador o funde com o conjuge num no unico
+    (`A+B`), e o id do ancestral sozinho nao existe no diagrama — o `style` cairia no vazio,
+    sem erro nenhum, e a marca sumiria justamente nos casos com casal. Reimplementar aqui a
+    decisao do casal duplicaria regra de negocio que o `ADR-11` mantem no renderizador.
+    Entao o alvo e encontrado pelo estilo de ancestral que o renderizador **ja emitiu**:
+    `fill:#fff9c4,stroke:#fbc02d`, que aparece uma unica vez no diagrama direto.
 
-    A tentacao e receber o id do ancestral e emitir um `style` novo para ele. Nao serve:
-    quando o ancestral **nao** esta numa das pontas do caminho, o renderizador o funde com
-    o conjuge num no unico (`A+B`), e o id do ancestral sozinho nao existe no diagrama —
-    o `style` cairia no vazio, sem erro nenhum, e a marca sumiria justamente nos casos com
-    casal. Reimplementar aqui a decisao do casal duplicaria regra de negocio que o
-    `ADR-11` mantem no renderizador. Entao o alvo e encontrado pelo estilo de ancestral que
-    o renderizador **ja emitiu**: `fill:#fff9c4,stroke:#fbc02d`, que aparece uma unica vez
-    no diagrama direto.
+    O que as marcas dizem, e o que elas NAO fazem: o **ancestral comum documental** continua
+    amarelo e ganha contorno vermelho tracejado: e o no que a arvore propoe e que o cM nao
+    sustenta; quando o caminho TEM um no na profundidade que o kit sugere, ele ganha
+    contorno roxo tracejado. Esse no e uma pessoa **que ja estava no caminho documental** —
+    nenhum no e criado, e nenhuma geracao e inventada. E o oposto da interpolacao de
+    "Geração 1, Geração 2": o desenho mostra onde o DNA sugere o ancestral e onde a arvore o
+    colocou, sem preencher o meio; quando o GEDCOM nao alcanca a profundidade sugerida, so o
+    ancestral documental e marcado, e o texto da legenda diz que a arvore para antes.
 
-    ## O que as marcas dizem, e o que elas NAO fazem
-
-    - o **ancestral comum documental** continua amarelo e ganha contorno vermelho
-      tracejado: e o no que a arvore propoe e que o cM nao sustenta;
-    - quando o caminho TEM um no na profundidade que o kit sugere, ele ganha contorno
-      roxo tracejado. Esse no e uma pessoa **que ja estava no caminho documental** —
-      nenhum no e criado, e nenhuma geracao e inventada. E o oposto da interpolacao de
-      "Geração 1, Geração 2": o desenho mostra onde o DNA sugere o ancestral e onde a
-      arvore o colocou, sem preencher o meio;
-    - quando o GEDCOM nao alcanca a profundidade sugerida, so o ancestral documental e
-      marcado, e o texto da legenda diz que a arvore para antes.
-
-    ## Nenhum TEXTO entra no diagrama
-
-    A leitura da profundidade ("a arvore afirma 7,5 geracoes...") nasceu aqui, como um no
-    solto ao lado do desenho, e saiu: num `flowchart` toda caixa parece um parente, e o
-    operador que ve uma caixa no grafo espera que ela seja uma pessoa ou um vinculo. Ela e
-    hoje um bloco de texto na legenda, montado por
+    Nenhum TEXTO entra no diagrama: a leitura da profundidade ("a arvore afirma 7,5
+    geracoes...") nasceu aqui, como um no solto ao lado do desenho, e saiu: num `flowchart`
+    toda caixa parece um parente, e o operador que ve uma caixa no grafo espera que ela seja
+    uma pessoa ou um vinculo. Ela e hoje um bloco de texto na legenda, montado por
     `core.profundidade_do_caminho.resumo_da_profundidade`. Este modulo **so marca no**, e
     nada que ele emite afirma ligacao nem carrega frase.
     """
@@ -278,9 +267,8 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
     def emit_couple_or_ancestor(couple_id, couple_label, ca, left_col, right_col):
         """Emite o par de conjuge, ou o ancestral quando nao ha par, e liga as colunas.
 
-        O destino das setas difere entre os dois casos: o par ja chega como id de
-        no, e o ancestral ainda precisa passar por `sid`. Assumir que o mesmo id
-        serve para os dois muda a saida nos casos com conjuge.
+        O destino das setas difere: o par ja chega como id de no, e o ancestral ainda passa
+        por `sid`. Assumir o mesmo id muda a saida nos casos com conjuge.
         """
         if couple_id:
             lines.append(f'{couple_id}["{couple_label}"]')
@@ -374,48 +362,39 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
 
     return "\n".join(lines)
 
-# ---------------------------------------------------------------------------
 # A arvore sugerida (feature 032)
-# ---------------------------------------------------------------------------
 
 def mermaid_da_sugestao(documental, resumo):
     """Desenho Mermaid da arvore sugerida: caminho + geracoes virtuais + quebra.
 
-    ## O que entra, e o que NAO entra
+    O que entra, e o que NAO entra: so o caminho documental (`path.ids`) mais as geracoes
+    virtuais. Nenhum no de familia: a familia e' a aresta, e desenha-la dobraria o numero de
+    nos sem dizer nada sobre a linha. A compressao e' a mesma da imagem da feature 030.
 
-    So o caminho documental (`path.ids`) mais as geracoes virtuais. Nenhum no de
-    familia: a familia e' a aresta, e desenha-la dobraria o numero de nos sem dizer
-    nada sobre a linha. A compressao e' a mesma da imagem da feature 030.
+    Por que `flowchart BT`, e nao `graph TD` (corrigido em 2026-10-21): o diagrama
+    DOCUMENTADO logo acima usa `flowchart BT` com as arestas do filho para o pai: o ancestral
+    fica em cima e o doador embaixo. A sugestao usava `graph TD` com as MESMAS arestas, e o
+    resultado era um desenho com duas convencoes ao mesmo tempo — a metade do doador virava
+    de cabeca para baixo e o operador lia a cadeia no sentido errado. Agora as duas usam BT,
+    e TODA seta aponta do descendente para o ascendente.
 
-    ## Por que `flowchart BT`, e nao `graph TD` (corrigido em 2026-10-21)
+    O match e' vermelho, como no diagrama documentado: o ultimo no do caminho e' a pessoa
+    alcancada (o match). Ele recebe a mesma cor que `generate_mermaid_graph` usa para `p2`,
+    para que os dois desenhos — o que o GEDCOM afirma e o que a hipotese proporia — possam
+    ser comparados sem legenda nova.
 
-    O diagrama DOCUMENTADO logo acima usa `flowchart BT` com as arestas do filho para o
-    pai: o ancestral fica em cima e o doador embaixo. A sugestao usava `graph TD` com as
-    MESMAS arestas, e o resultado era um desenho com duas convencoes ao mesmo tempo — a
-    metade do doador virava de cabeca para baixo e o operador lia a cadeia no sentido
-    errado. Agora as duas usam BT, e TODA seta aponta do descendente para o ascendente.
+    Por que `classDef`, se o resto do modulo usa `style`: aqui ha exatamente QUATRO classes
+    repetidas em muitos nos; `classDef` diz isso em quatro linhas. No diagrama do caminho
+    documentado cada no tem cor propria, e `style` por no e' mais direto. Os dois sao Mermaid
+    valido, e cada um serve ao seu caso.
 
-    ## O match e' vermelho, como no diagrama documentado
+    A aresta rompida e' a ULTIMA, e isso nao e' estilo: `linkStyle` indexa as arestas por
+    POSICAO de declaracao, nao por id. Emitir a aresta rompida por ultimo e' o que torna o
+    indice previsivel — e o teste fixa esse indice, porque uma reordenacao mandaria o
+    vermelho tracejado para a aresta errada, em silencio.
 
-    O ultimo no do caminho e' a pessoa alcancada (o match). Ele recebe a mesma cor que
-    `generate_mermaid_graph` usa para `p2`, para que os dois desenhos — o que o GEDCOM
-    afirma e o que a hipotese proporia — possam ser comparados sem legenda nova.
-
-    ## Por que `classDef`, se o resto do modulo usa `style`
-
-    Aqui ha exatamente QUATRO classes repetidas em muitos nos; `classDef` diz isso em
-    quatro linhas. No diagrama do caminho documentado cada no tem cor propria, e `style`
-    por no e' mais direto. Os dois sao Mermaid valido, e cada um serve ao seu caso.
-
-    ## A aresta rompida e' a ULTIMA, e isso nao e' estilo
-
-    `linkStyle` indexa as arestas por POSICAO de declaracao, nao por id. Emitir a aresta
-    rompida por ultimo e' o que torna o indice previsivel — e o teste fixa esse indice,
-    porque uma reordenacao mandaria o vermelho tracejado para a aresta errada, em
-    silencio.
-
-    Devolve `None` quando nao ha o que desenhar (sem caminho, sem ancestral ou sem
-    geracao a inserir).
+    Devolve `None` quando nao ha o que desenhar (sem caminho, sem ancestral ou sem geracao a
+    inserir).
     """
     from .visualizer import ROTULO_QUEBRA
 
@@ -466,10 +445,9 @@ def mermaid_da_sugestao(documental, resumo):
     for posicao in range(len(caminho) - 1):
         if filho and posicao == indice - 1:
             continue  # a aresta rompida e' desenhada no fim, marcada
-        # Antes do ancestral o caminho SOBE (filho -> pai). Depois dele o caminho
-        # DESCE (pai -> filho), e a aresta tem de ser invertida para que TODA seta
-        # continue apontando para o ascendente — sem isso, o ramo do match e' desenhado
-        # ao contrario dentro do mesmo grafico.
+        # Antes do ancestral o caminho SOBE (filho -> pai) e depois DESCE (pai -> filho);
+        # a aresta e invertida para TODA seta apontar para o ascendente — sem isso, o ramo
+        # do match sai ao contrario dentro do mesmo grafico.
         if posicao < indice:
             arestas.append(f"  {sid(caminho[posicao])} --> {sid(caminho[posicao + 1])}")
         else:

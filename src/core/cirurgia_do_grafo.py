@@ -1,59 +1,46 @@
 """Cirurgia do grafo: desacoplar a junção e injetar gerações virtuais.
 
-## O que este módulo responde
-
-Quando `core.validator` devolve ``ERRO CRONICO / QUEBRA DE LINHA``, o operador sabe
-**que** a linha documental quebrou, mas não tem o que fazer com o diagnóstico. Este
-módulo transforma o veredito em uma **árvore sugerida**: uma cópia do grafo em que
-a ligação provada errada é cortada e as gerações que faltam aparecem como nós
+O que este módulo responde: quando `core.validator` devolve ``ERRO CRONICO / QUEBRA DE
+LINHA``, o operador sabe **que** a linha documental quebrou, mas não tem o que fazer com o
+diagnóstico. Este módulo transforma o veredito em uma **árvore sugerida**: uma cópia do
+grafo em que a ligação provada errada é cortada e as gerações que faltam aparecem como nós
 virtuais numerados.
 
-## As três garantias, e por que cada uma existe
+As três garantias, e por que cada uma existe:
 
-1. **O ramo do doador é imutável.** O conjunto protegido são as arestas internas do
-   caminho entre o doador e o ancestral histórico, **excluída a aresta da junção** —
-   a única que a cirurgia remove. Ids, rótulos e datas do ramo não são reescritos.
-2. **A árvore recebida não é mutada.** Toda a cirurgia acontece sobre
-   ``grafo.copy()``: a estrutura é nova, os atributos são compartilhados e **nunca**
-   mutados (por isso a cópia rasa basta, e é O(V+E) em vez do custo do `deepcopy`).
-3. **A identidade é separada, não apagada.** Nenhum nó do GEDCOM sai da cópia; o que
-   muda é a quem o registro histórico se liga.
+1. **O ramo do doador é imutável.** O conjunto protegido são as arestas internas do caminho
+   entre o doador e o ancestral histórico, **excluída a aresta da junção** — a única que a
+   cirurgia remove. Ids, rótulos e datas do ramo não são reescritos.
+2. **A árvore recebida não é mutada.** Toda a cirurgia acontece sobre ``grafo.copy()``: a
+   estrutura é nova, os atributos são compartilhados e **nunca** mutados (por isso a cópia
+   rasa basta, e é O(V+E) em vez do custo do `deepcopy`).
+3. **A identidade é separada, não apagada.** Nenhum nó do GEDCOM sai da cópia; o que muda é
+   a quem o registro histórico se liga.
 
-## A representação do grafo manda no desenho
+A representação do grafo manda no desenho: o grafo é bipartido pessoa↔família
+(``parsers.gedcom_parser``) e **não existe aresta pessoa↔pessoa**. Por isso cada geração
+virtual precisa de duas coisas: um nó de pessoa (``type="virtual"``) e um nó de família
+(``type="virtual-family"``) fazendo o papel de aresta. Cortar "a linha" é remover a aresta
+entre a família de junção e o genitor histórico — não uma aresta pessoa↔pessoa.
 
-O grafo é bipartido pessoa↔família (``parsers.gedcom_parser``): **não existe aresta
-pessoa↔pessoa**. Por isso cada geração virtual precisa de duas coisas: um nó de
-pessoa (``type="virtual"``) e um nó de família (``type="virtual-family"``) fazendo o
-papel de aresta. Cortar "a linha" é remover a aresta entre a família de junção e o
-genitor histórico — não uma aresta pessoa↔pessoa.
+A fórmula do hiato é ``hiato = floor(geracoes_estimadas + 0.5) - geracoes_documentais``. O
+arredondamento é **meio para cima** e explícito: ``round()`` do Python usa arredondamento
+bancário e faria ``2.5`` virar ``2``, perdendo uma geração sem aviso. Só se injeta quando
+``hiato >= 1``; quando é zero ou negativo, a inconsistência não é de profundidade faltante,
+e "remover geração" está proibido pelas garantias 1 e 3.
 
-## A fórmula do hiato
+O que a sugestão NÃO é: não é correção do GEDCOM (nada é escrito em disco, em banco ou em
+tela); não é uma árvore para os leitores existentes — os nós virtuais existem só no grafo,
+``get_parents`` e ``documentary_relationship`` consultam os dicionários
+``people``/``families``, e devolveriam ``[]`` em silêncio para eles, e quem quiser validar a
+sugestão precisa de uma feature que materialize os registros; e não inventa pessoa — o nó
+virtual não tem nome, sexo nem data exata: tem rótulo ``Geração <k>``,
+``origem="estimado"``, uma faixa de nascimento e uma justificativa.
 
-``hiato = floor(geracoes_estimadas + 0.5) - geracoes_documentais``
-
-O arredondamento é **meio para cima** e explícito: ``round()`` do Python usa
-arredondamento bancário e faria ``2.5`` virar ``2``, perdendo uma geração sem aviso.
-Só se injeta quando ``hiato >= 1``; quando é zero ou negativo, a inconsistência não é
-de profundidade faltante, e "remover geração" está proibido pelas garantias 1 e 3.
-
-## O que a sugestão NÃO é
-
-- **Não é correção do GEDCOM.** Nada é escrito em disco, em banco ou em tela.
-- **Não é uma árvore para os leitores existentes.** Os nós virtuais existem só no
-  grafo: ``get_parents`` e ``documentary_relationship`` consultam os dicionários
-  ``people``/``families``, e devolveriam ``[]`` em silêncio para eles. Quem quiser
-  validar a sugestão precisa de uma feature que materialize os registros.
-- **Não inventa pessoa.** O nó virtual não tem nome, sexo nem data exata: tem rótulo
-  ``Geração <k>``, ``origem="estimado"``, uma faixa de nascimento e uma justificativa.
-
-## Fontes
-
-- Faixa 12–70 anos por salto: ``core.documentary_relationship`` (mesma faixa que
-  ``hop_evidence`` usa).
-- Gerações estimadas: ``core.validator.estimar_mrca`` (Shared cM Project 4.0), da
-  feature `028`.
-- Prior de 25 anos por geração: Fenner, J. N. Am J Phys Anthropol. 2005;128(2):415–423,
-  DOI 10.1002/ajpa.20188, consultado em 2026-10-18.
+Fontes: faixa 12–70 anos por salto em ``core.documentary_relationship`` (a mesma que
+``hop_evidence`` usa); gerações estimadas em ``core.validator.estimar_mrca`` (Shared cM
+Project 4.0), da feature `028`; e prior de 25 anos por geração em Fenner, J. N. Am J Phys
+Anthropol. 2005;128(2):415–423, DOI 10.1002/ajpa.20188, consultado em 2026-10-18.
 """
 from __future__ import annotations
 
@@ -149,9 +136,7 @@ def _id_familia_virtual(doador_id, ancestral_id, lado: str, ordem: int) -> str:
     return f"{PREFIXO_VIRTUAL}-FAM:{doador_id}:{ancestral_id}:{lado}:{ordem}"
 
 
-# ---------------------------------------------------------------------------
 # Índice de famílias
-# ---------------------------------------------------------------------------
 
 def _indice_de_familias(arvore) -> dict:
     """Índice filho→famílias e família→genitores, montado UMA vez por chamada.
@@ -197,9 +182,7 @@ def _familia_do_salto(indice: dict, pai_id, filho_id):
     return None
 
 
-# ---------------------------------------------------------------------------
 # Ramo base
-# ---------------------------------------------------------------------------
 
 def ramo_base(arvore, doador_id, ancestral_id, caminho, juncao=None, indice_familias=None) -> dict:
     """O conjunto protegido: o caminho do doador até o ancestral, menos a junção.
@@ -266,9 +249,7 @@ def ramo_base_intacto(original, sugerida, ramo) -> list:
     return violacoes
 
 
-# ---------------------------------------------------------------------------
 # Junção
-# ---------------------------------------------------------------------------
 
 def _lados_acusados(documental, indice_ancestral) -> list:
     """Lados com salto implausível, na ordem do caminho.
@@ -398,9 +379,7 @@ def desacoplar_identidade(arvore, juncao_dados) -> tuple:
     return sugerida, []
 
 
-# ---------------------------------------------------------------------------
 # Injeção
-# ---------------------------------------------------------------------------
 
 def _faixa_estimada(ano, meio) -> dict:
     if ano is None:
@@ -472,9 +451,7 @@ def injetar_geracoes(grafo, juncao_dados, k, doador_id=None, nasc_ancestral=None
             "arestas_adicionadas": arestas}
 
 
-# ---------------------------------------------------------------------------
 # Resumo para a tela
-# ---------------------------------------------------------------------------
 
 def _anos_da_juncao(documental, a_up, hiato):
     """Anos do salto documentado da junção e do salto que a cadeia proporia.
@@ -549,35 +526,26 @@ def _bloqueios_da_sugestao(resultado, documental, a_up, hiato, *, identidade, ja
 def resumo_da_sugestao(resultado, documental, *, identidade=None, janela=None) -> dict:
     """Hiato e rótulos das gerações, **sem tocar no grafo**.
 
-    ## Por que esta função existe separada de `arvore_sugerida`
+    Por que existe separada de `arvore_sugerida`: a tela precisa de um único número — quantas
+    gerações faltam — e `arvore_sugerida` resolve isso copiando o grafo inteiro
+    (`grafo.copy()`, O(V+E)). Numa análise real de 142 cartões sobre uma árvore de 35.460
+    pessoas, isso é a requisição inviável. Aqui a conta é a MESMA fórmula da
+    `arvore_sugerida` (RN-07 da `029`), em O(1): `hiato = floor(geracoes + 0.5) - a_up` — uma
+    casa só para o número, para o cartão e a imagem nunca darem respostas diferentes.
 
-    A tela precisa de um único número — quantas gerações faltam — e `arvore_sugerida`
-    resolve isso copiando o grafo inteiro (`grafo.copy()`, O(V+E)). Numa análise real de
-    142 cartões sobre uma árvore de 35.460 pessoas, isso é a requisição inviável.
+    Devolve `geracoes` (int), `resumo` (texto do bloco, ou `None`), `rotulos` (as `Geração
+    k`), `aviso` (a frase de ausência) e `codigo`.
 
-    Aqui a conta é a MESMA fórmula da `arvore_sugerida` (RN-07 da `029`), em O(1):
-    `hiato = floor(geracoes + 0.5) - a_up`. Uma casa só para o número, para o cartão e a
-    imagem nunca darem respostas diferentes.
-
-    ## O que ela devolve
-
-    `geracoes` (int), `resumo` (texto do bloco, ou `None`), `rotulos` (as `Geração k`),
-    `aviso` (a frase de ausência) e `codigo`.
-
-    ## Os portões (decisão de 2026-10-21)
-
-    O número do hiato existe sempre que o cM estima mais gerações do que a árvore
-    documenta; a **árvore sugerida** não. Ela só é emitida quando há evidência de
-    onde a linha quebrou — ver `_bloqueios_da_sugestao`. Sem os portões, um cartão
-    INCONCLUSIVO exibia "3 gerações sugeridas" e mandava o operador cavar o ramo
-    errado (caso medido: Maria Cândida de Jesus, 15,1 cM, contra uma tia-avó de
-    850 cM esperados).
-
-    O `aviso` continua restrito ao cartão em conflito **quando não há o que sugerir**
-    (§9 da `032`): repetir a explicação em 142 cartões trocaria um silêncio ruidoso
-    por um ruído constante. Quando HÁ hiato mas um portão o barra, a frase aparece
-    mesmo fora do conflito: sumir em silêncio faria o operador ler "não implementado",
-    que é o problema que a `032` nasceu para resolver.
+    Os portões (decisão de 2026-10-21): o número do hiato existe sempre que o cM estima mais
+    gerações do que a árvore documenta; a **árvore sugerida** não — ela só é emitida quando há
+    evidência de onde a linha quebrou (ver `_bloqueios_da_sugestao`). Sem os portões, um cartão
+    INCONCLUSIVO exibia "3 gerações sugeridas" e mandava o operador cavar o ramo errado (caso
+    medido: Maria Cândida de Jesus, 15,1 cM, contra uma tia-avó de 850 cM esperados). O
+    `aviso` continua restrito ao cartão em conflito **quando não há o que sugerir** (§9 da
+    `032`): repetir a explicação em 142 cartões trocaria um silêncio ruidoso por um ruído
+    constante — e quando HÁ hiato mas um portão o barra, a frase aparece mesmo fora do
+    conflito, porque sumir em silêncio faria o operador ler "não implementado", que é o
+    problema que a `032` nasceu para resolver.
     """
     resultado = resultado or {}
     documental = documental or {}
@@ -620,9 +588,7 @@ def resumo_da_sugestao(resultado, documental, *, identidade=None, janela=None) -
             "codigo": "SUGESTAO_DISPONIVEL", "aviso": None}
 
 
-# ---------------------------------------------------------------------------
 # Orquestração
-# ---------------------------------------------------------------------------
 
 def _nula(status_origem, doador, aviso: dict) -> dict:
     """A forma da sugestão quando não há o que sugerir."""

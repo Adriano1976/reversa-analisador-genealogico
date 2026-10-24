@@ -1,52 +1,40 @@
 """Validação temporal de uma comparação DNA × GEDCOM.
 
-## O que este módulo responde
+O que este módulo responde: para cada comparação entre um kit de DNA e uma pessoa do
+GEDCOM, ele devolve um dos três estados: ``VALIDADO`` — a linha documental é temporalmente
+viável, o cM é compatível e não há contradição detectável; ``INCONCLUSIVO`` — falta dado, a
+data é estimada, o cM não tem cobertura publicada, a identidade é ambígua ou há afinidade
+no caminho; ou ``ERRO CRONICO / QUEBRA DE LINHA`` — há uma contradição biológica ou temporal
+demonstrável: salto impossível, MRCA posterior ao descendente, idade por lado fora de
+12–70, cM incompatível com a profundidade, MRCA fora da janela ou doador vivo em linha
+incompatível.
 
-Para cada comparação entre um kit de DNA e uma pessoa do GEDCOM, ele devolve um
-dos três estados:
+``VALIDADO`` **não** é prova de parentesco: é a ausência de contradição com os dados
+disponíveis. A decisão de negócio do projeto continua a mesma — o cM nunca afirma
+parentesco sozinho e o DNA nunca reescreve o vínculo do GEDCOM.
 
-- ``VALIDADO`` — a linha documental é temporalmente viável, o cM é compatível e
-  não há contradição detectável;
-- ``INCONCLUSIVO`` — falta dado, a data é estimada, o cM não tem cobertura
-  publicada, a identidade é ambígua ou há afinidade no caminho;
-- ``ERRO CRONICO / QUEBRA DE LINHA`` — há uma contradição biológica ou temporal
-  demonstrável (salto impossível, MRCA posterior ao descendente, idade por lado
-  fora de 12–70, cM incompatível com a profundidade, MRCA fora da janela ou
-  doador vivo em linha incompatível).
+De onde vêm os números: **12–70 anos por salto** em
+`documentary_relationship.IDADE_MINIMA_GENITOR` e `IDADE_MAXIMA_GENITOR`, a mesma faixa que
+`hop_evidence` já usa; **122 anos** em `janela_de_vida.IDADE_IMPOSSIVEL`, o recorde humano
+verificado, acima do qual a pessoa não pode estar viva; **25 anos por geração** como prior
+declarado do projeto para quando a árvore tem menos de 3 intervalos pai-filho datados — a
+literatura não tem consenso e o intervalo varia por sexo e população: Fenner, J. N.
+*Cross-cultural estimation of the human generation interval for use in genetics-based
+population divergence studies*. Am J Phys Anthropol. 2005;128(2):415–423.
+DOI: 10.1002/ajpa.20188. Consultado em 2026-10-18; e a tabela de cM do Shared cM Project
+4.0, em `core.relationship_hypotheses`.
 
-``VALIDADO`` **não** é prova de parentesco: é a ausência de contradição com os
-dados disponíveis. A decisão de negócio do projeto continua a mesma — o cM nunca
-afirma parentesco sozinho e o DNA nunca reescreve o vínculo do GEDCOM.
+A coluna `meioses` da tabela SCP 4.0 não é o total do caminho: `SCP40_ROWS` traz, para
+`1C`, `meioses = 2`, mas o caminho entre dois primos de 1º grau tem **4** saltos pai-filho
+(2 de cada lado). O valor da tabela é a chave da relação, não o total que
+`documentary_relationship` devolve; para estimar gerações, este módulo deriva o total da
+chave (`1C` → 4, `2C` → 6, `1C1R` → 5) com `_meioses_totais_da_relacao`. Usar a coluna crua
+subestimaria a profundidade pela metade.
 
-## De onde vêm os números
-
-- **12–70 anos por salto** — `documentary_relationship.IDADE_MINIMA_GENITOR` e
-  `IDADE_MAXIMA_GENITOR`; a mesma faixa que `hop_evidence` já usa.
-- **122 anos** — `janela_de_vida.IDADE_IMPOSSIVEL`, o recorde humano verificado;
-  acima disso a pessoa não pode estar viva.
-- **25 anos por geração** — prior declarado do projeto para quando a árvore tem
-  menos de 3 intervalos pai-filho datados. A literatura não tem consenso e o
-  intervalo varia por sexo e população: Fenner, J. N. *Cross-cultural estimation
-  of the human generation interval for use in genetics-based population
-  divergence studies*. Am J Phys Anthropol. 2005;128(2):415–423.
-  DOI: 10.1002/ajpa.20188. Consultado em 2026-10-18.
-- **Tabela de cM** — Shared cM Project 4.0, em `core.relationship_hypotheses`.
-
-## A coluna `meioses` da tabela SCP 4.0 não é o total do caminho
-
-`SCP40_ROWS` traz, para `1C`, `meioses = 2`; o caminho entre dois primos de 1º
-grau tem **4** saltos pai-filho (2 de cada lado). O valor da tabela é a chave da
-relação, não o total que `documentary_relationship` devolve. Para estimar
-gerações, este módulo deriva o total da chave (`1C` → 4, `2C` → 6, `1C1R` → 5),
-com `_meioses_totais_da_relacao`. Usar a coluna crua subestimaria a profundidade
-pela metade.
-
-## Pureza
-
-O módulo não lê arquivo, não consulta relógio e não usa estado global. A árvore
-não entra aqui: a fachada (`application.validacao`) entrega datas, `degrees`,
-`meioses`, `common_ancestor` e o kit já prontos. O mesmo vale para
-`ano_referencia`, que entra por parâmetro.
+Pureza: o módulo não lê arquivo, não consulta relógio e não usa estado global. A árvore não
+entra aqui: a fachada (`application.validacao`) entrega datas, `degrees`, `meioses`,
+`common_ancestor` e o kit já prontos, e o mesmo vale para `ano_referencia`, que entra por
+parâmetro.
 """
 from __future__ import annotations
 
