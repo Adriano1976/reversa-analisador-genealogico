@@ -1,11 +1,16 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/046-paginacao-dos-resultados",
-  "feature-id": "046",
-  "short-name": "paginacao-dos-resultados",
-  "started-at": "2026-10-22T19:02:00Z",
-  "current-stage": "sync",
-  "stages-completed": ["requirements", "clarify", "roadmap", "actions", "coding", "sync"],
+  "feature-dir": "_reversa_forward/047-cache-dos-indices-da-arvore",
+  "feature-id": "047",
+  "short-name": "cache-dos-indices-da-arvore",
+  "started-at": "2026-10-24T03:56:00-03:00",
+  "current-stage": "to-do",
+  "stages-completed": [
+    "requirements",
+    "clarify",
+    "plan",
+    "to-do"
+  ],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",
