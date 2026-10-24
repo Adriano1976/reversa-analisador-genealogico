@@ -64,6 +64,11 @@ services:
       # Sem valor padrao, pelo mesmo motivo de RF-11. Dentro da rede do compose o host do
       # banco e `db`, o nome do servico.
       DATABASE_URL: ${DATABASE_URL:?defina DATABASE_URL no .env — ver onboarding.md secao 2}
+      # Cache da arvore entre requisicoes (feature 047). Desligado por padrao: descomente para
+      # trocar ~50 s de parse por requisicao por ~340 MB de memoria residente. O teto e o numero
+      # de arvores mantidas; 1 cobre o caso de uso e leva o processo a ~412 MB.
+      # ANALISADOR_CACHE_DE_ARVORE: "1"
+      # ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE: "1"
     volumes:
       # Estado persistente dos uploads, no MESMO caminho que `src/app.py` deriva de
       # `__file__` (`/app/src/uploads`). Sem `ANALISADOR_UPLOAD_FOLDER`: escrita e leitura

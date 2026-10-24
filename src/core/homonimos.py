@@ -2,8 +2,9 @@
 
 ## Por que este modulo existe
 
-Nasceu em `core/documentary_relationship` (OPP-20261024-SEPM). Ele e o dono do unico estado
-de modulo do nucleo, o CACHE_DE_NOMES, e o unico lugar que compara nomes ignorando acento.
+Nasceu em `core/documentary_relationship` (OPP-20261024-SEPM). Ele e o unico lugar que compara
+nomes ignorando acento. O indice de nomes que ele mantem **nao e estado de modulo**: mora preso
+ao grafo da arvore (feature 048), como os demais derivados do nucleo.
 """
 from __future__ import annotations
 
@@ -14,24 +15,21 @@ from .registro import get_name
 from utils.text_cleaning import demojibake
 
 # ---------------------------------------------------------------------------
-# Por que a chave do indice e derivada do CONTEUDO, e nao da identidade
+# Por que o indice mora na arvore, e nao numa chave de conteudo
 # ---------------------------------------------------------------------------
-# Medido em 2026-10-06, enquanto o estado global existia:
-# `load_gedcom_and_build_graph` MUTAVA `gedcom_state.people` in place
-# (`clear()` + `update()`), entao o `id()` do dicionario era o MESMO em todo o
-# processo. Um cache chaveado por identidade nunca invalidaria — e a invalidacao
-# e justamente o que `test_6d` cobra.
+# Ate a feature 048 o indice era um cache de modulo chaveado por
+# `(len(people), primeira chave, ultima chave)`. A chave era barata, mas colidia:
+# duas arvores com o mesmo numero de pessoas e os mesmos xrefs extremos produziam
+# a MESMA chave, e o dossie da segunda citava xrefs da primeira. Confirmado por
+# execucao em 2026-10-10 — o dossie da segunda respondeu `exact_count: 1` citando
+# `@I2@`, que nao existia nela, e a ficha degradou para "Sem Nome".
 #
-# A tentacao, agora que `T023` removeu o estado e `carregar_arvore` devolve
-# dicionarios NOVOS a cada parse, e voltar a usar `id()`. NAO volte: `id()` e
-# reciclado. O dicionario da arvore anterior deixa de ser referenciado assim que
-# o parse seguinte devolve o novo, o CPython pode reusar o mesmo endereco, e a
-# chave coincidiria com a de um GEDCOM DIFERENTE — o cache devolveria o mapa do
-# anterior. O defeito apareceria so sob carga, e nao em teste isolado.
-#
-# A chave e o tamanho mais a primeira e a ultima chave de `people`: barato,
-# derivado do valor, e muda quando a arvore muda. A explicacao completa esta em
-# `_chave_de`.
+# Derivar a chave dos NOMES custaria a mesma varredura que construir o mapa, e
+# derivar so dos xrefs colide em reexportacao que mantem os identificadores. A
+# saida foi tirar a chave da jogada: o mapa e preso ao grafo da arvore, como
+# `fichas_da_pessoa._indice_de_filhos` e os indices de matching da feature 047.
+# Nao ha estado compartilhado, entao nao ha colisao possivel — e nenhum `id()`
+# entra na decisao.
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
@@ -70,58 +68,34 @@ def _diferencas_de_fichas(fichas) -> list:
     return divergencias
 
 
-#: O par (chave, mapa) num valor so. A troca e uma atribuicao de nome, que em
-#: CPython e atomica: quem le ve o par inteiro ou o par anterior, nunca a chave de
-#: um GEDCOM junto do mapa de outro. Enquanto eram dois campos de um dicionario, a
-#: publicacao acontecia em dois tempos e o `return` relia o global, de modo que
-#: duas requisicoes simultaneas podiam devolver o indice uma da outra. Medido em
-#: 2026-10-24 com duas arvores e duas threads: ver `_reversa_refactor/busca-caminho/`.
-_INDICE_DE_NOMES: tuple[tuple, dict] = ((), {})
-
-
-def _chave_de(people) -> tuple:
-    """Chave de invalidacao do indice, derivada do CONTEUDO recebido.
-
-    O indice e um cache de modulo: a chave tem de mudar quando outro GEDCOM chega,
-    senao o fluxo seguinte leria os ids do anterior. A IDENTIDADE do dicionario nao
-    serve: o parse mutava `people` in place e o `id()` era o mesmo durante todo o
-    processo, entao o cache nunca invalidaria — foi o defeito medido em 2026-10-06
-    e cobrado por `test_6d`.
-
-    A chave usa contagem, primeira e ultima chave — barato e suficiente para
-    distinguir dois GEDCOMs carregados. Ela continua necessaria depois do `T023`,
-    que removeu o estado global e a mutacao in place: o parse agora devolve
-    dicionarios NOVOS, mas este cache e de modulo, e a chave continua sendo o que
-    garante que ele fale do GEDCOM da vez.
-    """
-    if not people:
-        return (0, None, None)
-    chaves = sorted(people)
-    return (len(people), chaves[0], chaves[-1])
+# Atributo preso ao grafo da arvore com o mapa de nomes. O nome comeca com `_` para nao colidir
+# com atributo de `networkx.Graph`; o sufixo diz de que feature ele veio.
+_ATRIBUTO_DO_INDICE = "_analisador_indice_de_nomes"
 
 
 def _indice_por_nome(arvore) -> dict:
-    """nome normalizado -> lista de ids, reconstruido a cada GEDCOM carregado.
+    """nome normalizado -> lista de ids, preso ao grafo da arvore.
 
-    A varredura de 35 mil pessoas custa ~0,9 s. Sem este indice, o fluxo de DNA
-    (71 nomes distintos no arquivo real) pagava isso 71 vezes. A invalidacao usa o
-    CONTEUDO do dicionario de pessoas recebido, e nao um contador
-    (`gedcom_state.versao`, removido pela feature 005): dois GEDCOMs diferentes
-    podem ter a mesma contagem, e um contador exigiria estado. O detalhe da chave
-    esta em `_chave_de`.
+    A varredura de 35 mil pessoas custa ~0,9 s. Sem este indice, o fluxo de DNA (71 nomes
+    distintos no arquivo real) pagava isso 71 vezes. Com o mapa preso ao grafo, a segunda
+    consulta na mesma arvore devolve o MESMO objeto; a arvore seguinte monta o dela, porque o
+    grafo e outro. Nao ha chave: a vida do mapa e a vida da arvore.
+
+    Arvore sem grafo (sonda, teste) constroi o mapa e nao guarda — nao ha onde prender.
     """
-    global _INDICE_DE_NOMES
+    grafo = arvore[2]
+    if grafo is not None:
+        guardado = getattr(grafo, _ATRIBUTO_DO_INDICE, None)
+        if guardado is not None:
+            return guardado
 
-    people = arvore[0]
-    chave = _chave_de(people)
-    publicado = _INDICE_DE_NOMES
-    if publicado[0] != chave:
-        mapa: dict = {}
-        for pid, pessoa in people.items():
-            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
-        publicado = (chave, mapa)
-        _INDICE_DE_NOMES = publicado
-    return publicado[1]
+    mapa: dict = {}
+    for pid, pessoa in arvore[0].items():
+        mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
+
+    if grafo is not None:
+        setattr(grafo, _ATRIBUTO_DO_INDICE, mapa)
+    return mapa
 
 
 def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:

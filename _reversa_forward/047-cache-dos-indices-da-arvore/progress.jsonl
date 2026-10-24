@@ -1,0 +1,17 @@
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T001", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/evidence/medir.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T002", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/evidence/linha-de-base.md"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T003", "status": "done", "files": ["tests/test_cache_de_arvores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T004", "status": "done", "files": ["tests/test_cache_de_arvores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T005", "status": "done", "files": ["tests/test_cache_de_arvores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T006", "status": "done", "files": ["tests/test_indices_de_matching_memo.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T007", "status": "done", "files": ["tests/test_indices_de_matching_memo.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T008", "status": "done", "files": ["src/ports/adaptadores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T009", "status": "done", "files": ["src/ports/adaptadores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T010", "status": "done", "files": ["src/core/matching.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T011", "status": "done", "files": ["src/ports/adaptadores.py", "tests/test_cache_de_arvores.py"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T012", "status": "done", "files": ["tests/"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T013", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/evidence/depois.md"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T014", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/evidence/paridade.md"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T015", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/evidence/memoria.md"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T016", "status": "done", "files": ["_reversa_forward/047-cache-dos-indices-da-arvore/onboarding.md"]}
+{"ts": "2026-10-24T08:01:34+00:00", "action": "T017", "status": "done", "files": ["docker-compose.yml"]}

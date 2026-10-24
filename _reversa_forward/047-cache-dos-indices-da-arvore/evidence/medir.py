@@ -96,6 +96,18 @@ def medir(ged: str, csv: str, raiz: str, cache: str) -> dict:
         tempos["dna"] = time.perf_counter() - t
         assert resposta.status_code == 200, resposta.status_code
 
+        # Segunda analise na MESMA arvore: e o caso que a feature promete (indices ja construidos).
+        antes_dos_indices = tempos.get("indices", 0)
+        t = time.perf_counter()
+        resposta2 = cliente.post("/", data={"action": "dna_analysis",
+                                            "gedcom_filename": referencia,
+                                            "root_name": raiz,
+                                            "matches_csv": (io.BytesIO(conteudo_csv), "matches.csv")},
+                                 content_type="multipart/form-data")
+        dna2 = time.perf_counter() - t
+        indices2 = tempos.get("indices", 0) - antes_dos_indices
+        assert resposta2.status_code == 200, resposta2.status_code
+
         arvore = carregador.carregar(referencia, "processo")
         html = resposta.data
         return {
@@ -111,6 +123,8 @@ def medir(ged: str, csv: str, raiz: str, cache: str) -> dict:
             "indices_s": round(tempos.get("indices", 0), 2),
             "analise_s": round(tempos.get("analise", 0), 2),
             "render_s": round(tempos.get("render", 0), 3),
+            "dna2_s": round(dna2, 2),
+            "indices_no_dna2_s": round(indices2, 2),
             "html_bytes": len(html),
             "html_sha256": hashlib.sha256(html).hexdigest(),
         }

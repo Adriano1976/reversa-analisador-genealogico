@@ -44,6 +44,11 @@ from .registro import get_name
 # chama `arvore` e vem primeiro, como em `family_navigation` e `path_finding`.
 Arvore = tuple
 
+# Nome do atributo preso ao grafo da arvore com os tres indices derivados. Fica no grafo (a
+# tupla-arvore e imutavel) pelo mesmo motivo que `fichas_da_pessoa._ATRIBUTO_DE_FILHOS`: o
+# indice nasce e morre com a arvore, e nenhuma chave derivada de conteudo entra na decisao.
+_ATRIBUTO_DOS_INDICES = "_analisador_indices_de_matching"
+
 
 def build_ged_indexes(arvore: Arvore):
     """Constroi os indices de busca e o cache de atributos normalizados.
@@ -53,7 +58,21 @@ def build_ged_indexes(arvore: Arvore):
     mesmo nome aproximadamente 7 vezes por candidato, a cada match do CSV, para
     um valor que nao depende do CSV. Calcular aqui, uma vez por analise, nao
     altera nenhuma decisao: os valores sao os mesmos.
+
+    ## O resultado fica preso ao grafo da arvore (feature 047)
+
+    A construcao percorre todas as pessoas (19.403 no arquivo real) e custa ~8,7 s. O trio e
+    guardado no proprio grafo, que vive enquanto a arvore viver e morre com ela — o mesmo
+    padrao de `fichas_da_pessoa._indice_de_filhos`. Nenhuma chave derivada de conteudo entra
+    aqui: e exatamente o defeito `L-24` que o cache de nomes do modulo documental tem, e que
+    este memo nao pode repetir. Com o cache da arvore ligado, o memo sobrevive entre
+    requisicoes junto com ela; sem ele, morre no fim da requisicao. Custo medido: ~31 MB.
     """
+    grafo = arvore[2]
+    guardados = getattr(grafo, _ATRIBUTO_DOS_INDICES, None)
+    if guardados is not None:
+        return guardados
+
     people = arvore[0]
     ged_index = {}
     surname_index = {}
@@ -83,7 +102,9 @@ def build_ged_indexes(arvore: Arvore):
             "surnames_list": surnames,
             "tokens": set(key_tokens),
         }
-    return ged_index, surname_index, features
+    indices = (ged_index, surname_index, features)
+    setattr(grafo, _ATRIBUTO_DOS_INDICES, indices)
+    return indices
 
 
 def avaliar_candidatos(arvore: Arvore, match_name, cm_value, ged_index, surname_index,

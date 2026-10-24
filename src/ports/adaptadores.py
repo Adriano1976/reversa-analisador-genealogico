@@ -20,7 +20,10 @@ nota de execucao em `actions.md`.
 """
 from __future__ import annotations
 
+import logging
 import os
+import threading
+from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 from parsers.gedcom_parser import Tree, carregar_arvore
@@ -234,6 +237,176 @@ class ArmazenamentoEmDisco:
         return None
 
 
+# --- Cache opcional da arvore (feature 047) ---------------------------------
+
+# Liga o cache da arvore entre requisicoes. DESLIGADO por padrao: sem a variavel o adaptador faz
+# exatamente o que fazia antes (um parse por chamada), e o operador liga no ambiente em que
+# quiser o ganho. A decisao de existencia do cache esta no adendo da feature 047.
+VARIAVEL_DO_CACHE = "ANALISADOR_CACHE_DE_ARVORE"
+
+# Teto do cache. 1 e o padrao porque o caso de uso e "a mesma arvore em requisicoes seguidas".
+# Medido com a arvore real de 19.403 pessoas: ~337 MB por arvore (RSS 44 -> 381 MB) e ~31 MB de
+# indices. Duas arvores levariam o processo a ~714 MB sem servir ao caso de uso.
+VARIAVEL_DA_CAPACIDADE = "ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE"
+CAPACIDADE_PADRAO_DO_CACHE = 1
+
+_log = logging.getLogger(__name__)
+
+_MENSAGEM_ACERTO = "cache de arvores: acerto (acertos=%d, reconstrucoes=%d)"
+_MENSAGEM_RECONSTRUCAO = "cache de arvores: reconstrucao (acertos=%d, reconstrucoes=%d)"
+
+
+def _ligado_pelo_ambiente() -> bool:
+    """`True` quando a variavel de ambiente liga o cache (1/true/sim/on/yes)."""
+    valor = os.environ.get(VARIAVEL_DO_CACHE, "")
+    return valor.strip().lower() in {"1", "true", "sim", "on", "yes"}
+
+
+def _capacidade_do_ambiente() -> int:
+    """Teto configurado, ou o padrao. Valor invalido nao derruba a aplicacao: avisa e usa 1."""
+    bruto = os.environ.get(VARIAVEL_DA_CAPACIDADE, "").strip()
+    if not bruto:
+        return CAPACIDADE_PADRAO_DO_CACHE
+    try:
+        valor = int(bruto)
+    except ValueError:
+        valor = 0
+    if valor < 1:
+        _log.warning("capacidade do cache invalida (%r); usando %d",
+                     bruto, CAPACIDADE_PADRAO_DO_CACHE)
+        return CAPACIDADE_PADRAO_DO_CACHE
+    return valor
+
+
+class CacheDeArvores:
+    """Cache da arvore parseada, chaveado pelo ARQUIVO, com teto e single-flight.
+
+    ## Por que a chave e o arquivo, e nao a referencia
+
+    `(caminho absoluto, mtime_ns, tamanho)`: substituir o conteudo muda a chave e forca novo
+    parse, ainda que a referencia recebida seja a mesma. A referencia sozinha nao serviria —
+    ela aponta para um nome, e o nome continua valido quando o arquivo e trocado por fora.
+
+    ## Por que o teto e 1
+
+    Cada arvore custa ~337 MB. O caso de uso e a mesma arvore em requisicoes seguidas (upload,
+    selecao, analise), nao alternar entre arvores; guardar duas trocaria ~340 MB por um acerto
+    que quase nunca acontece.
+
+    ## Uma thread parseia, as outras esperam
+
+    Quatro requisicoes simultaneas na mesma arvore pagariam quatro parses de ~50 s cada. A
+    primeira parseia e as demais esperam o evento; se o parse do primeiro falhar, quem esperou
+    parseia por conta propria — o erro de um nao vira "arvore vazia" para os outros.
+
+    ## O que este cache NAO faz
+
+    Nao persiste em disco, nao sobrevive ao processo e nao e compartilhado entre workers. E um
+    dicionario por processo, protegido por uma trava.
+    """
+
+    def __init__(self, capacidade: int = CAPACIDADE_PADRAO_DO_CACHE):
+        if capacidade < 1:
+            raise ValueError("a capacidade do cache tem de ser pelo menos 1")
+        self._capacidade = capacidade
+        self._itens: OrderedDict = OrderedDict()
+        self._em_andamento: dict = {}
+        self._trava = threading.Lock()
+        self._acertos = 0
+        self._reconstrucoes = 0
+
+    @property
+    def capacidade(self) -> int:
+        return self._capacidade
+
+    @property
+    def acertos(self) -> int:
+        return self._acertos
+
+    @property
+    def reconstrucoes(self) -> int:
+        return self._reconstrucoes
+
+    @staticmethod
+    def _chave(caminho: str) -> tuple:
+        info = os.stat(caminho)
+        return (os.path.abspath(caminho), info.st_mtime_ns, info.st_size)
+
+    def __len__(self) -> int:
+        with self._trava:
+            return len(self._itens)
+
+    def limpar(self) -> None:
+        with self._trava:
+            self._itens.clear()
+
+    def carregar(self, caminho: str, parsear):
+        """Devolve a arvore guardada ou chama `parsear(caminho)` e guarda o resultado."""
+        try:
+            chave = self._chave(caminho)
+        except OSError:
+            # Arquivo que sumiu entre a resolucao e a leitura: quem relata o erro e o parse.
+            return parsear(caminho)
+
+        with self._trava:
+            guardada = self._itens.get(chave)
+            if guardada is not None:
+                self._itens.move_to_end(chave)
+                self._acertos += 1
+                acertos, reconstrucoes = self._acertos, self._reconstrucoes
+            else:
+                evento = self._em_andamento.get(chave)
+                if evento is None:
+                    evento = threading.Event()
+                    self._em_andamento[chave] = evento
+                    sou_o_primeiro = True
+                else:
+                    sou_o_primeiro = False
+
+        if guardada is not None:
+            _log.info(_MENSAGEM_ACERTO, acertos, reconstrucoes)
+            return guardada
+
+        if not sou_o_primeiro:
+            evento.wait()
+            with self._trava:
+                guardada = self._itens.get(chave)
+                if guardada is not None:
+                    self._itens.move_to_end(chave)
+                    self._acertos += 1
+                    acertos, reconstrucoes = self._acertos, self._reconstrucoes
+                    _log.info(_MENSAGEM_ACERTO, acertos, reconstrucoes)
+                    return guardada
+            # O primeiro falhou: quem esperou nao herda o erro, parseia por conta propria.
+            return parsear(caminho)
+
+        try:
+            arvore = parsear(caminho)
+            with self._trava:
+                self._itens[chave] = arvore
+                self._itens.move_to_end(chave)
+                while len(self._itens) > self._capacidade:
+                    self._itens.popitem(last=False)
+                self._reconstrucoes += 1
+                acertos, reconstrucoes = self._acertos, self._reconstrucoes
+            _log.info(_MENSAGEM_RECONSTRUCAO, acertos, reconstrucoes)
+            return arvore
+        finally:
+            # `set` DENTRO da trava: entre remover o evento e acordar quem espera existe uma
+            # janela em que uma terceira thread veria "ninguem esta parseando" e comecaria um
+            # parse duplicado.
+            with self._trava:
+                self._em_andamento.pop(chave, None)
+                evento.set()
+
+
+def _cache_do_ambiente() -> CacheDeArvores | None:
+    """O cache padrao do processo, ou `None` quando a variavel de ambiente nao o liga."""
+    if not _ligado_pelo_ambiente():
+        return None
+    return CacheDeArvores(_capacidade_do_ambiente())
+
+
 class CarregadorDeArvoresGedcom:
     """`CarregadorDeArvores` sobre o parser de GEDCOM.
 
@@ -245,16 +418,27 @@ class CarregadorDeArvoresGedcom:
     Ele chega **por chamada**, e nao pelo construtor deste adaptador, porque o
     adaptador e um singleton de processo montado no import de `src/app.py`:
     congelar identidade nele seria o custo que a Onda 3 teria de desfazer.
+
+    ## O cache e OPCIONAL, e desligado por padrao
+
+    Sem `ANALISADOR_CACHE_DE_ARVORE` no ambiente (e sem um `CacheDeArvores` injetado),
+    `carregar` parseia a cada chamada, como sempre. Ligado, ele evita o parse de ~50 s por
+    `POST`; o ganho, o custo de memoria e a invalidacao estao em `CacheDeArvores`. A injecao
+    existe para o teste medir as duas metades sem depender do ambiente do processo.
     """
 
-    def __init__(self, armazenamento: ArmazenamentoEmDisco):
+    def __init__(self, armazenamento: ArmazenamentoEmDisco, *,
+                 cache: CacheDeArvores | None = None):
         self._armazenamento = armazenamento
+        self._cache = cache if cache is not None else _cache_do_ambiente()
 
     def carregar(self, referencia: str, dono: str) -> Tree | None:
         caminho = self._armazenamento.resolver(referencia, dono)
         if caminho is None:
             return None
-        return carregar_arvore(caminho)
+        if self._cache is None:
+            return carregar_arvore(caminho)
+        return self._cache.carregar(caminho, carregar_arvore)
 
 
 class RegistroDeAnalisesPostgres:

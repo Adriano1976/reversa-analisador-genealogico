@@ -1,0 +1,10 @@
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T001", "status": "done", "files": ["_reversa_forward/048-indice-de-nomes-sem-colisao/evidence/linha-de-base.md"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T002", "status": "done", "files": ["tests/test_indice_de_nomes_do_documental.py"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T003", "status": "done", "files": ["tests/test_indice_de_nomes_do_documental.py"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T004", "status": "done", "files": ["tests/test_indice_de_nomes_do_documental.py"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T005", "status": "done", "files": ["src/core/homonimos.py"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T006", "status": "done", "files": ["src/core/homonimos.py"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T007", "status": "done", "files": ["tests/"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T008", "status": "done", "files": ["_reversa_forward/048-indice-de-nomes-sem-colisao/evidence/depois.md"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T009", "status": "done", "files": ["_reversa_forward/048-indice-de-nomes-sem-colisao/evidence/verificacoes.md"]}
+{"ts": "2026-10-24T14:05:22+00:00", "action": "T010", "status": "done", "files": ["_reversa_forward/048-indice-de-nomes-sem-colisao/onboarding.md"]}

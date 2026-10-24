@@ -23,9 +23,10 @@ Sem a primeira variável, o comportamento é o de antes — é assim que se mede
 
 1. Suba a aplicação e envie o GEDCOM uma vez. O primeiro envio **paga o parse** (~50 s): é o custo
    de entrada, não o cache.
-2. Clique na árvore da lista. Sem cache isso custa ~47 s; com cache, menos de 1 s.
-3. Rode a mesma análise de DNA duas vezes. A segunda não deve repetir o parse nem reconstruir os
-   índices.
+2. Clique na árvore da lista. Sem cache isso custa ~55 s (medido: 54,81 s); com cache,
+   **0,92 s**.
+3. Rode a mesma análise de DNA duas vezes. A primeira leva **17,79 s** (constrói os índices) e a
+   segunda **4,74 s** (reusa o memo). Sem cache, as duas levam ~62–70 s.
 
 Para medir o `POST` inteiro sem instrumentar código:
 
@@ -39,7 +40,8 @@ Measure-Command { Invoke-WebRequest -Uri http://127.0.0.1:5000/ -Method Post -Fo
 Get-Process python | Select-Object WorkingSet64
 ```
 
-Esperado: ~380 MB depois do parse e ~412 MB depois dos índices. Se passar de ~500 MB com uma
+Esperado: **381 MB** depois do parse e **412 MB** depois dos índices. A segunda análise não move
+   o RSS (medido: 412 MB antes e depois). Se passar de ~500 MB com uma
 árvore, o teto não está valendo — investigue antes de aumentar a capacidade.
 
 ## 5. Conferir a paridade

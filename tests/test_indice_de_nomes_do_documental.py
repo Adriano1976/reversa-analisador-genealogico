@@ -1,25 +1,29 @@
-"""O indice de nomes do parentesco documental e um par imutavel (OPP-20261024-CACH).
+"""O indice de nomes e preso a arvore, e nao um cache de modulo (feature 048).
 
-O estado de modulo era um dicionario de dois campos, `chave` e `mapa`, e a publicacao
-acontecia em dois tempos: gravar o mapa, depois gravar a chave. Entre as duas escritas, e
-tambem entre a escrita e o `return` que relia o global, outra requisicao podia publicar o
-indice dela. Medido em 2026-10-24 com duas arvores e duas threads: a requisicao que pediu
-a arvore alfa recebeu o indice da arvore beta.
+## O defeito que este arquivo guarda
 
-A guarda principal e estrutural porque o defeito e da implementacao, nao do resultado:
-nenhuma verificacao de saida distingue, de forma deterministica, um mapa correto de um
-mapa trocado sem forcar o entrelacamento dentro da janela. Ela le o modulo por AST, no
-mesmo idioma de `tests/test_profundidade_do_caminho.py` e `test_fronteira_da_cirurgia.py`.
+Ate a feature 048 o indice era um cache de modulo chaveado por
+`(len(people), primeira chave, ultima chave)`. Duas arvores com o mesmo numero de pessoas e os
+mesmos xrefs extremos produziam a mesma chave, e o dossie da segunda citava xrefs da primeira —
+sem excecao e sem aviso. Confirmado por execucao em 2026-10-10: o dossie da segunda respondeu
+`exact_count: 1` citando `@I2@`, que **nao existia nela**, e a ficha degradou para "Sem Nome".
 
-O teste de estresse do fim e complemento, nao guarda: afirma um invariante que nunca pode
-falhar no codigo correto, e que falha de vez em quando no codigo com a janela aberta.
+## O que passou a valer
+
+O mapa e preso ao grafo da arvore (`arvore[2]`), como `fichas_da_pessoa._indice_de_filhos` e os
+indices de matching da feature 047. Nao ha chave, entao nao ha o que colidir.
+
+## O que este arquivo substitui
+
+As guardas de 2026-10-24 liam o modulo por AST e exigiam a tupla `_INDICE_DE_NOMES` publicada num
+unico gesto — elas protegiam a CORRIDA daquele desenho. Sem estado de modulo nao ha publicacao,
+nao ha janela e nao ha o que trocar; a guarda estrutural agora e a **ausencia** do estado.
 """
 from __future__ import annotations
 
 import ast
 import os
 import sys
-import threading
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
@@ -47,14 +51,19 @@ class _Pessoa:
         self.name = _Nome(nome)
 
 
-def _arvore_de(*nomes: str, prefixo: str = "I"):
-    """Uma arvore minima, na forma de quatro posicoes que o nucleo recebe.
+class _Grafo:
+    """O unico uso que o indice faz do grafo: guardar o mapa como atributo."""
 
-    O prefixo dos xref_id importa: a chave do cache e `(tamanho, primeira chave,
-    ultima chave)`, entao duas arvores com os mesmos ids seriam consideradas a mesma
-    coisa. Prefixos diferentes garantem que a invalidacao seja exercitada de fato.
-    """
+
+def _arvore_de(*nomes: str, prefixo: str = "I"):
+    """Arvore minima com grafo de verdade — e nele que o indice passa a morar."""
     people = {f"@{prefixo}{indice}@": _Pessoa(nome) for indice, nome in enumerate(nomes, 1)}
+    return (people, {}, _Grafo(), {})
+
+
+def _arvore_sem_grafo(*nomes: str):
+    """Arvore degenerada, como a que aparece em sonda: sem grafo."""
+    people = {f"@I{indice}@": _Pessoa(nome) for indice, nome in enumerate(nomes, 1)}
     return (people, {}, None, {})
 
 
@@ -63,86 +72,49 @@ def _fonte() -> str:
         return arquivo.read()
 
 
-def _funcao(texto: str, nome: str = "_indice_por_nome") -> ast.FunctionDef:
-    for no in ast.walk(ast.parse(texto)):
-        if isinstance(no, ast.FunctionDef) and no.name == nome:
-            return no
-    raise AssertionError(f"funcao {nome} nao encontrada no modulo")
-
-
-def _subscritos_no_indice(funcao: ast.FunctionDef) -> list[int]:
-    """Linhas em que o indice e lido por subscrito, como `_INDICE_DE_NOMES[...]`."""
-    linhas = []
-    for no in ast.walk(funcao):
-        if isinstance(no, ast.Subscript) and isinstance(no.value, ast.Name):
-            if no.value.id == "_INDICE_DE_NOMES":
-                linhas.append(no.lineno)
-    return sorted(linhas)
-
-
-def _valor_inicial_do_indice(texto: str) -> ast.expr:
-    """O valor da atribuicao de modulo, que pode ser anotada ou simples."""
-    for no in ast.parse(texto).body:
-        if isinstance(no, ast.AnnAssign):
-            if isinstance(no.target, ast.Name) and no.target.id == "_INDICE_DE_NOMES":
-                return no.value
-        elif isinstance(no, ast.Assign):
-            for alvo in no.targets:
-                if isinstance(alvo, ast.Name) and alvo.id == "_INDICE_DE_NOMES":
-                    return no.value
-    raise AssertionError("o indice de nomes nao e atribuido no nivel do modulo")
-
-
 # ---------------------------------------------------------------------------
-# Guardas estruturais: o defeito mora na forma, nao na saida
+# O defeito: duas arvores de mesma assinatura
 # ---------------------------------------------------------------------------
 
 
-def test_indice_nao_e_lido_por_subscrito_dentro_da_funcao():
-    """`_INDICE_DE_NOMES["chave"]` e `_INDICE_DE_NOMES["mapa"]` sao a janela.
+def test_duas_arvores_de_mesmo_tamanho_nao_compartilham_o_mapa():
+    """TT-20: a assinatura (3, '@I1@', '@I3@') e igual, e o conteudo nao."""
+    alfa = _arvore_de("Ana Alfa", "Bia Alfa", "Caio Alfa")
+    beta = _arvore_de("Ana Alfa", "Dora Beta", "Caio Alfa")
 
-    Enquanto a publicacao for feita campo a campo, existe o intervalo entre as duas
-    escritas, e a leitura do retorno relê o global em vez de devolver o que acabou de
-    ser montado. A guarda proibe as duas coisas de uma vez: nenhum subscrito no indice
-    dentro de `_indice_por_nome`.
-    """
-    linhas = _subscritos_no_indice(_funcao(_fonte()))
+    assert sorted(alfa[0]) == ["@I1@", "@I2@", "@I3@"]
+    assert sorted(beta[0]) == ["@I1@", "@I2@", "@I3@"]
 
-    assert linhas == [], (
-        "o indice de nomes voltou a ser lido por subscrito dentro de `_indice_por_nome`, "
-        f"nas linhas {linhas}. O par (chave, mapa) tem de ser publicado de uma vez, e o "
-        "retorno tem de vir da variavel local."
-    )
+    mapa_alfa = homonimos._indice_por_nome(alfa)
+    mapa_beta = homonimos._indice_por_nome(beta)
 
-
-def test_indice_e_declarado_como_par_imutavel():
-    """A declaracao de modulo tem de ser uma tupla de dois elementos."""
-    valor = _valor_inicial_do_indice(_fonte())
-
-    assert isinstance(valor, ast.Tuple), (
-        "o valor inicial de `_INDICE_DE_NOMES` nao e uma tupla"
-    )
-    assert len(valor.elts) == 2, (
-        "o par tem de ter exatamente dois elementos: a chave e o mapa"
-    )
+    assert mapa_beta is not mapa_alfa
+    assert set(mapa_alfa) == {"ana alfa", "bia alfa", "caio alfa"}
+    assert set(mapa_beta) == {"ana alfa", "dora beta", "caio alfa"}
+    assert "bia alfa" not in mapa_beta, "a arvore B ficou com o indice da arvore A"
+    assert "dora beta" not in mapa_alfa, "a arvore A ficou com o indice da arvore B"
 
 
-def test_indice_e_uma_tupla_de_dois_elementos_em_execucao():
-    """A mesma exigencia, vista do objeto em tempo de execucao."""
-    indice = homonimos._INDICE_DE_NOMES
+def test_trocar_de_arvore_e_voltar_nao_contamina():
+    """A ordem A, B, A nao pode deixar residuo de B no mapa de A."""
+    alfa = _arvore_de("Ana Alfa", "Bia Alfa", "Caio Alfa")
+    beta = _arvore_de("Ana Alfa", "Dora Beta", "Caio Alfa")
 
-    assert isinstance(indice, tuple)
-    assert len(indice) == 2
+    primeiro = homonimos._indice_por_nome(alfa)
+    homonimos._indice_por_nome(beta)
+    de_novo = homonimos._indice_por_nome(alfa)
+
+    assert de_novo is primeiro
+    assert set(de_novo) == {"ana alfa", "bia alfa", "caio alfa"}
 
 
 # ---------------------------------------------------------------------------
-# Caracterizacao do caminho simples
+# O memo por arvore
 # ---------------------------------------------------------------------------
 
 
 def test_duas_chamadas_com_a_mesma_arvore_devolvem_o_mesmo_mapa():
-    """A segunda chamada acerta o cache: mesmo objeto, sem remontar."""
-    arvore = _arvore_de("Ana Alfa", "Zeca Alfa", prefixo="A")
+    arvore = _arvore_de("Ana Alfa", "Zeca Alfa")
 
     primeiro = homonimos._indice_por_nome(arvore)
     segundo = homonimos._indice_por_nome(arvore)
@@ -151,64 +123,61 @@ def test_duas_chamadas_com_a_mesma_arvore_devolvem_o_mesmo_mapa():
     assert set(primeiro) == {"ana alfa", "zeca alfa"}
 
 
-def test_arvore_nova_invalida_o_indice():
-    """Trocar de arvore tem de trocar a chave e o mapa."""
-    alfa = _arvore_de("Ana Alfa", prefixo="A")
-    beta = _arvore_de("Bruno Beta", "Yara Beta", prefixo="B")
+def test_a_segunda_chamada_nao_percorre_as_pessoas(monkeypatch):
+    arvore = _arvore_de("Ana Alfa", "Zeca Alfa")
+    chamadas = {"n": 0}
+    original = homonimos.get_name
 
-    mapa_alfa = homonimos._indice_por_nome(alfa)
-    mapa_beta = homonimos._indice_por_nome(beta)
+    def contar(pessoa):
+        chamadas["n"] += 1
+        return original(pessoa)
 
-    assert set(mapa_alfa) == {"ana alfa"}
-    assert set(mapa_beta) == {"bruno beta", "yara beta"}
-    assert mapa_beta is not mapa_alfa
+    monkeypatch.setattr(homonimos, "get_name", contar)
+
+    homonimos._indice_por_nome(arvore)
+    depois_da_primeira = chamadas["n"]
+    homonimos._indice_por_nome(arvore)
+
+    assert depois_da_primeira == 2
+    assert chamadas["n"] == depois_da_primeira, "a segunda chamada percorreu as pessoas de novo"
+
+
+def test_arvore_sem_grafo_constroi_sem_estourar():
+    arvore = _arvore_sem_grafo("Ana Alfa", "Zeca Alfa")
+
+    mapa = homonimos._indice_por_nome(arvore)
+
+    assert set(mapa) == {"ana alfa", "zeca alfa"}
 
 
 # ---------------------------------------------------------------------------
-# Estresse: o invariante que nunca pode falhar
+# A guarda estrutural: o estado de modulo nao pode voltar
 # ---------------------------------------------------------------------------
 
 
-def test_nenhuma_requisicao_recebe_o_indice_de_outra_arvore():
-    """Invariante sob carga: todo mapa devolvido fala da arvore que foi pedida.
+def test_modulo_nao_declara_cache_de_modulo():
+    """Sem `_INDICE_DE_NOMES` e sem `_chave_de`: a colisao nao tem onde nascer."""
+    arvore = ast.parse(_fonte())
+    nomes: set[str] = set()
+    for no in ast.walk(arvore):
+        if isinstance(no, (ast.Assign, ast.AnnAssign)):
+            alvos = no.targets if isinstance(no, ast.Assign) else [no.target]
+            for alvo in alvos:
+                if isinstance(alvo, ast.Name):
+                    nomes.add(alvo.id)
+        elif isinstance(no, ast.FunctionDef):
+            nomes.add(no.name)
 
-    Este teste NAO e a guarda do defeito de 2026-10-24, e a medicao diz por que: com a
-    janela aberta, 240 tentativas nao reproduziram o entrelacamento, porque o intervalo
-    entre a escrita da chave e o retorno tem duas instrucoes. A prova daquele defeito
-    foi deterministica, por instrumentacao do dicionario, e esta guardada em
-    `_reversa_refactor/busca-caminho/transformations/`, na pasta da transformacao.
+    assert "_INDICE_DE_NOMES" not in nomes, "o cache de modulo voltou ao arquivo"
+    assert "_chave_de" not in nomes, "a chave de invalidacao voltou ao arquivo"
 
-    O que este teste guarda e o invariante mais grosso: o indice devolvido nunca pode
-    ser o de outra arvore, nem por cache compartilhado, nem por mapa reaproveitado. Ele
-    nunca falha no codigo correto, e falharia de forma grosseira se alguem voltasse a
-    publicar um mapa unico para todas as arvores.
-    """
-    alfa = _arvore_de(*[f"Alfa {i}" for i in range(400)], prefixo="A")
-    beta = _arvore_de(*[f"Beta {i}" for i in range(401)], prefixo="B")
 
-    trocadas: list[list[str]] = []
-    intervalo_original = sys.getswitchinterval()
-    sys.setswitchinterval(0.000001)
-    try:
-        for _ in range(40):
-            largada = threading.Barrier(3)
-
-            def trabalho(arvore, marca: str) -> None:
-                largada.wait(timeout=20)
-                mapa = homonimos._indice_por_nome(arvore)
-                if not all(marca in nome for nome in mapa):
-                    trocadas.append(sorted(mapa)[:3])
-
-            a = threading.Thread(target=trabalho, args=(alfa, "alfa"))
-            b = threading.Thread(target=trabalho, args=(beta, "beta"))
-            a.start()
-            b.start()
-            largada.wait(timeout=20)
-            a.join(timeout=20)
-            b.join(timeout=20)
-    finally:
-        sys.setswitchinterval(intervalo_original)
-
-    assert trocadas == [], (
-        f"{len(trocadas)} requisicoes receberam o indice de outra arvore: {trocadas[:3]}"
+def test_a_funcao_do_indice_nao_usa_global():
+    arvore = ast.parse(_fonte())
+    funcao = next(
+        no for no in ast.walk(arvore)
+        if isinstance(no, ast.FunctionDef) and no.name == "_indice_por_nome"
     )
+    usos = [no.lineno for no in ast.walk(funcao) if isinstance(no, ast.Global)]
+
+    assert usos == [], f"`_indice_por_nome` voltou a escrever em global nas linhas {usos}"
