@@ -1,0 +1,35 @@
+{
+  "skill_name": "token-reduce-universal",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tenho esse relatório de 40 páginas em /mnt/user-data/uploads/relatorio.md e preciso mandar pro modelo, mas estoura meu contexto. Dá pra enxugar mantendo os números?",
+      "expected_output": "Roda compress.py (engine lite, rate ~0.6), reporta tokens antes/depois, status de fidelidade PASS e salva arquivo; oferece engine agent se a meta não for atingida.",
+      "assertions": ["usa scripts/compress.py", "relatório de verificação PASS ou explica FAIL", "números e URLs do original aparecem no resultado"]
+    },
+    {
+      "id": 2,
+      "prompt": "Comprime esse texto com o ollama qwen3 pra mim, não quero nada saindo da minha máquina: <texto com 'não deve' e valores 1000ms>",
+      "expected_output": "Usa --engine ollama com host local, verifica daemon/modelo sem baixar nada sem pedir; se faltar Ollama, explica como instalar e oferece lite/agent; preserva negações.",
+      "assertions": ["não usa host remoto", "não executa pull sem consentimento", "negações preservadas"]
+    },
+    {
+      "id": 3,
+      "prompt": "Reduce the tokens of this meeting transcript to about 40% but keep every decision, date and owner.",
+      "expected_output": "Detecta inglês, tenta lite; como 40% é agressivo, usa engine agent (reescrita pelo próprio modelo) e valida com verify.py; datas e nomes preservados.",
+      "assertions": ["usa engine agent ou explica por que lite não basta", "roda verify.py", "datas preservadas"]
+    },
+    {
+      "id": 4,
+      "prompt": "Comprime esse arquivo main.py pra eu colar no ChatGPT e pedir pra ele refatorar.",
+      "expected_output": "Alerta que código a ser editado não deve ser comprimido; sugere enviar só os trechos relevantes ou usar --level 1.",
+      "assertions": ["não comprime agressivamente o código", "sugere reduzir a entrada"]
+    },
+    {
+      "id": 5,
+      "prompt": "Quanto custa em tokens esse prompt de 2 linhas? Comprime.",
+      "expected_output": "Entrada minúscula: explica que não compensa comprimir (<300 tokens) em vez de rodar o pipeline.",
+      "assertions": ["recusa educadamente ou desaconselha comprimir", "não roda engine pesado"]
+    }
+  ]
+}
