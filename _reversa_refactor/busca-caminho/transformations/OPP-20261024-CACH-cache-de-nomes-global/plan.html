@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261024-CACH · plano de desacoplamento</title>
+<style>
+  :root { --tinta:#1a1a1a; --fraco:#5b6470; --linha:#d8dee6; --fundo:#f7f8fa; --papel:#fff;
+          --erro:#b3261e; --erro-fundo:#fdecea; --ok:#1e6b3a; --ok-fundo:#e8f4ec; --aviso:#8a5a00; --aviso-fundo:#fdf3e0; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:68rem; margin:0 auto; background:var(--papel); padding:2.5rem 2.75rem 3rem;
+         border:1px solid var(--linha); border-radius:10px; }
+  h1 { font-size:1.55rem; margin:0 0 .35rem; letter-spacing:-.01em; }
+  h2 { font-size:1.12rem; margin:2.4rem 0 .8rem; padding-bottom:.4rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:.98rem; margin:1.5rem 0 .5rem; }
+  p { margin:.6rem 0; }
+  .sub { color:var(--fraco); font-size:.9rem; margin:0 0 1.4rem; }
+  .etiquetas { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0 1.6rem; }
+  .etiqueta { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .55rem;
+              border-radius:999px; background:#eef1f5; color:var(--fraco); border:1px solid var(--linha); }
+  .etiqueta.erro { background:var(--erro-fundo); color:var(--erro); border-color:#f3c9c5; }
+  .etiqueta.ok { background:var(--ok-fundo); color:var(--ok); border-color:#bfdcc9; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0 1.1rem; font-size:.88rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--linha); vertical-align:top; }
+  th { font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fraco); font-weight:600; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  code { font-family:"Cascadia Mono",Consolas,monospace; font-size:.86em; background:#f1f3f6;
+         padding:.08rem .3rem; border-radius:4px; }
+  pre { margin:.8rem 0; padding:.9rem 1rem; background:#f5f7f9; border:1px solid var(--linha);
+        border-radius:8px; overflow-x:auto; font-family:"Cascadia Mono",Consolas,monospace;
+        font-size:.82rem; line-height:1.5; }
+  pre .ruim { color:var(--erro); font-weight:600; }
+  pre .bom { color:var(--ok); font-weight:600; }
+  .caixa { border-left:3px solid var(--linha); padding:.7rem 1rem; margin:1rem 0; background:#fafbfc;
+           border-radius:0 6px 6px 0; }
+  .caixa.erro { border-left-color:var(--erro); background:var(--erro-fundo); }
+  .caixa.aviso { border-left-color:#d9a441; background:var(--aviso-fundo); }
+  .caixa.ok { border-left-color:var(--ok); background:var(--ok-fundo); }
+  .caixa strong { display:block; margin-bottom:.2rem; }
+  .grade { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:52rem) { .grade { grid-template-columns:1fr; } main { padding:1.6rem 1.2rem 2rem; } }
+  .folio { font-size:.8rem; color:var(--fraco); margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--linha); }
+  .passos { counter-reset:passo; list-style:none; padding:0; margin:.8rem 0; }
+  .passos li { counter-increment:passo; position:relative; padding-left:2rem; margin:.55rem 0; }
+  .passos li::before { content:counter(passo); position:absolute; left:0; top:.05rem; width:1.35rem; height:1.35rem;
+                       border-radius:50%; background:#eef1f5; border:1px solid var(--linha); color:var(--fraco);
+                       font-size:.72rem; display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Um par de valores publicado em dois tempos</h1>
+<p class="sub">Plano de desacoplamento do índice de nomes em <code>src/core/documentary_relationship.py</code>.
+Gate 1 de 2. Nenhum arquivo do projeto foi tocado ainda.</p>
+
+<div class="etiquetas">
+  <span class="etiqueta">OPP-20261024-CACH</span>
+  <span class="etiqueta">contexto busca-caminho</span>
+  <span class="etiqueta">verbo decouple</span>
+  <span class="etiqueta">confiança 🟡 parcial</span>
+  <span class="etiqueta erro">estado compartilhado entre requisições</span>
+</div>
+
+<h2>1. O acoplamento, medido hoje</h2>
+
+<p>O módulo não tem acoplamento de importação fora do comum: cinco módulos do projeto e
+quatro da biblioteca padrão para fora, quinze módulos de <code>src/</code> para dentro. O que
+está acoplado é o <strong>estado</strong>: um dicionário de módulo que duas requisições escrevem ao
+mesmo tempo.</p>
+
+<table>
+  <tr><th>Medida</th><th>Número</th><th>Como foi contado</th></tr>
+  <tr><td>Objetos mutáveis de módulo</td><td class="num">1</td><td><code>_INDICE_DE_NOMES</code>, linha 309</td></tr>
+  <tr><td>Campos que precisam mudar juntos</td><td class="num">2</td><td><code>mapa</code> e <code>chave</code></td></tr>
+  <tr><td>Escritas separadas na publicação</td><td class="num">2</td><td>linhas 349 e 350</td></tr>
+  <tr><td>Leituras do global por chamada</td><td class="num">2</td><td>linha 345 (comparação) e 351 (retorno)</td></tr>
+  <tr><td>Leituras depois da escrita, num mesmo ramo</td><td class="num">1</td><td>linha 351 relê o que a 349 acabou de gravar</td></tr>
+  <tr><td>Threads do servidor</td><td class="num">4</td><td><code>ANALISADOR_THREADS</code>, padrão em <code>app.py:701</code></td></tr>
+  <tr><td>Testes que exercitam a concorrência</td><td class="num">0</td><td><code>test_6d</code> exercita só a troca em sequência</td></tr>
+</table>
+
+<div class="caixa erro">
+  <strong>A janela</strong>
+  Entre a linha 350 e a linha 351 não há nada protegendo o par. Duas threads com árvores
+  diferentes podem publicar em ordem trocada, e o resultado é um índice que afirma uma
+  chave e entrega o mapa de outra.
+</div>
+
+<h2>2. A janela, em cinco tempos</h2>
+
+<p>Thread A atende a requisição 1 com a árvore <code>U</code>. Thread B atende a requisição 2
+com a árvore <code>V</code>. Cada uma publica a sua chave e o seu mapa.</p>
+
+<table>
+  <tr><th style="width:4rem">Tempo</th><th>Thread A</th><th>Thread B</th><th>Estado publicado</th></tr>
+  <tr><td class="num">1</td><td>calcula <code>chave = K_U</code></td><td></td><td><code>(K0, M0)</code></td></tr>
+  <tr><td class="num">2</td><td>compara, não bate, entra no ramo</td><td></td><td><code>(K0, M0)</code></td></tr>
+  <tr><td class="num">3</td><td>varre 35 mil pessoas e monta <code>M_U</code></td><td>publica <code>mapa = M_V</code></td><td><code>(K0, M_V)</code></td></tr>
+  <tr><td class="num">4</td><td>publica <code>mapa = M_U</code></td><td>publica <code>chave = K_V</code></td><td><code>(K_V, M_U)</code></td></tr>
+  <tr><td class="num">5</td><td>publica <code>chave = K_U</code></td><td></td><td><code>(K_U, M_U)</code></td></tr>
+</table>
+
+<p>No tempo 4 o estado fica <code>(K_V, M_U)</code>: a chave de uma árvore apontando para o mapa
+de outra. Se A e B pararem aí, ou se o entrelaçamento for o inverso, o índice fica
+<strong>envenenado</strong>: toda chamada seguinte com a árvore <code>V</code> encontra a chave certa e
+recebe ids da árvore <code>U</code>, sem reconstruir nada e sem nenhum aviso.</p>
+
+<p>A segunda forma é mais simples e igualmente real: A publica o par inteiro e correto, B
+publica o dela em seguida, e a linha 351 de A lê o mapa de B. A requisição 1 recebe os ids
+da árvore da requisição 2.</p>
+
+<div class="caixa aviso">
+  <strong>Por que isto não aparece em teste</strong>
+  A chave é derivada do conteúdo, então o defeito só se manifesta quando duas árvores
+  diferentes estão em memória ao mesmo tempo. A suíte roda em um processo e um teste de
+  cada vez, e <code>test_6d</code> troca as árvores em sequência, que é justamente o caso em que
+  a publicação não se entrelaça.
+</div>
+
+<h2>3. A costura proposta</h2>
+
+<p>A costura é a mais curta que resolve os dois casos: <strong>o par vira um valor só</strong>. Uma
+tupla imutável, trocada por uma única atribuição de nome. Em CPython a atribuição de um
+nome global é atômica, e quem lê uma referência vê o par inteiro ou o par anterior. Deixa
+de existir o intervalo entre os dois campos, porque deixa de haver dois campos.</p>
+
+<div class="grade">
+<div>
+<h3>Hoje</h3>
+<pre>_INDICE_DE_NOMES: _CacheDeNomes = {"chave": (), "mapa": {}}
+
+def _indice_por_nome(arvore) -&gt; dict:
+    people = arvore[0]
+    chave = _chave_de(people)
+    if _INDICE_DE_NOMES["chave"] != chave:
+        mapa: dict = {}
+        for pid, pessoa in people.items():
+            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
+        _INDICE_DE_NOMES["mapa"] = mapa
+        _INDICE_DE_NOMES["chave"] = chave
+    <span class="ruim">return _INDICE_DE_NOMES["mapa"]</span></pre>
+</div>
+<div>
+<h3>Depois</h3>
+<pre>_INDICE_DE_NOMES: tuple[tuple, dict] = ((), {})
+
+def _indice_por_nome(arvore) -&gt; dict:
+    global _INDICE_DE_NOMES
+    people = arvore[0]
+    chave = _chave_de(people)
+    publicado = _INDICE_DE_NOMES
+    if publicado[0] != chave:
+        mapa: dict = {}
+        for pid, pessoa in people.items():
+            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
+        publicado = (chave, mapa)
+        _INDICE_DE_NOMES = publicado
+    <span class="bom">return publicado[1]</span></pre>
+</div>
+</div>
+
+<p>Três mudanças, todas no mesmo lugar:</p>
+
+<ol class="passos">
+  <li>o estado passa a ser uma tupla <code>(chave, mapa)</code>, declarada com <code>tuple[tuple, dict]</code>;</li>
+  <li>a publicação é uma atribuição única, depois de a tupla estar montada;</li>
+  <li>o retorno vem de <code>publicado</code>, a referência lida uma vez no começo, e nunca de uma
+      releitura do global.</li>
+</ol>
+
+<p>O tipo <code>_CacheDeNomes</code>, um <code>TypedDict</code> de dois campos independentes, sai: ele
+descrevia exatamente a forma que permite a publicação em dois tempos. Com ele sai também o
+import de <code>TypedDict</code>, que passa a não ter uso no arquivo.</p>
+
+<h2>4. Acoplamento antes e depois</h2>
+
+<table>
+  <tr><th>Medida</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td>Objetos mutáveis de módulo</td><td class="num">1</td><td class="num">0</td></tr>
+  <tr><td>Campos publicados independentemente</td><td class="num">2</td><td class="num">0</td></tr>
+  <tr><td>Escritas separadas na publicação</td><td class="num">2</td><td class="num">1</td></tr>
+  <tr><td>Leituras do global por chamada</td><td class="num">2</td><td class="num">1</td></tr>
+  <tr><td>Releituras depois da escrita</td><td class="num">1</td><td class="num">0</td></tr>
+  <tr><td>Instantes em que o par pode estar inconsistente</td><td class="num">entre 2 escritas</td><td class="num">0</td></tr>
+  <tr><td>Testes que exercitam duas árvores concorrentes</td><td class="num">0</td><td class="num">1</td></tr>
+</table>
+
+<p>O grafo de importação <strong>não muda</strong>: quinze módulos continuam importando daqui, e o
+módulo continua importando os mesmos cinco do projeto. A redução é de estado compartilhado,
+que é a forma de acoplamento que o padrão de projeto do núcleo não consegue testar.</p>
+
+<h2>5. O defeito, já provado</h2>
+
+<p>Esta etapa não é plano: foi executada antes do gate, porque prova de comportamento flui
+sem aprovação. O script <code>before-after/prova-do-defeito.py</code> estaciona a thread A dentro
+do <code>__setitem__</code> do dicionário de módulo, logo depois da linha 350, e faz a thread
+principal publicar o índice da árvore beta antes de liberá-la.</p>
+
+<pre>nomes no mapa devolvido para a thread A: ['bruno beta', 'xisto beta', 'yara beta']
+nomes no mapa devolvido para a thread B: ['bruno beta', 'xisto beta', 'yara beta']
+
+A devolveu o mapa da PROPRIA arvore (alfa)? False
+A devolveu os nomes da arvore da thread B? True
+
+<span class="ruim">DEFEITO PROVADO: a requisicao A, que pediu a arvore alfa, recebeu o indice da arvore beta.</span></pre>
+
+<p>A thread A pediu a árvore alfa, que tem dois registros com sobrenome Alfa, e recebeu os
+três registros Beta. Sem sorteio e sem <code>sleep</code>: o ponto de encontro é explícito, e a
+execução é determinística.</p>
+
+<h2>6. Rede de segurança</h2>
+
+<table>
+  <tr><th>Peça</th><th>Papel</th></tr>
+  <tr><td>Suíte completa, antes e depois</td><td>1629 passam, 9 pulados, medido nesta sessão. Sem alteração de asserção.</td></tr>
+  <tr><td><code>test_6d</code>, existente</td><td>congela a invalidação em sequência: árvore A, árvore B, árvore A de novo</td></tr>
+  <tr><td>Caracterização do caminho simples, nova</td><td>duas chamadas seguidas com a mesma árvore devolvem nomes e ids iguais, e a segunda não remonta o mapa</td></tr>
+  <tr><td>Guarda estrutural por AST, nova</td><td>no corpo de <code>_indice_por_nome</code>, depois de uma atribuição ao índice não pode haver leitura subscrita do índice; e o valor de módulo tem de ser uma tupla, não um dicionário</td></tr>
+  <tr><td>Verificação comportamental de concorrência, nova</td><td>duas threads com árvores diferentes, encontro forçado, cada uma tem de receber ids da sua própria árvore</td></tr>
+</table>
+
+<div class="caixa ok">
+  <strong>Por que a guarda permanente não é o mesmo script</strong>
+  O espião de hoje depende de o estado ser um <code>dict</code>. Depois da costura ele não é
+  instalável, e um teste que só funciona no código antigo não serve de guarda. Por isso a
+  guarda permanente é uma verificação estrutural por AST, no mesmo idioma de
+  <code>tests/test_profundidade_do_caminho.py</code> e <code>test_fronteira_da_cirurgia.py</code>: ela
+  falha no código de hoje, passa no código novo, e continua valendo quando alguém mexer
+  nesse trecho daqui a seis meses.
+</div>
+
+<h2>7. Fronteira de comportamento</h2>
+
+<table>
+  <tr><th>Situação</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td>Uma requisição por vez</td><td>mesmo mapa, mesma ordem, mesma contagem</td><td>idêntico</td></tr>
+  <tr><td>Duas árvores em sequência</td><td>invalida e reconstrói</td><td>idêntico</td></tr>
+  <tr><td>Duas árvores simultâneas</td><td>pode devolver ids da outra árvore</td><td>cada uma recebe o seu mapa</td></tr>
+  <tr><td>Nome do índice, assinatura, <code>__all__</code></td><td>como está</td><td>como está</td></tr>
+</table>
+
+<p>A única diferença observável está na terceira linha, e é a correção. É a mesma classe de
+mudança que a <code>OPP-20261023-ESTD</code> fez na borda: não muda o resultado pretendido, muda a
+possibilidade de o resultado ser o de outra requisição.</p>
+
+<div class="caixa">
+  <strong>Custo medido do caminho quente</strong>
+  A reconstrução continua acontecendo uma vez por GEDCOM carregado, e continua custando a
+  varredura de 35 mil pessoas, cerca de 0,9 s. A troca de dicionário por tupla não acrescenta
+  alocação no caminho que acerta o cache: uma leitura de global e uma indexação de tupla, no
+  lugar de uma leitura de global, uma indexação de chave e uma comparação de valor.
+</div>
+
+<h2>8. Riscos e reversão</h2>
+
+<table>
+  <tr><th>Risco</th><th>Tratamento</th></tr>
+  <tr><td>O <code>global</code> ser esquecido e o índice nunca ser publicado</td><td>o teste de caracterização de duas chamadas falha na hora, com <code>UnboundLocalError</code></td></tr>
+  <tr><td>Algum instrumento congelado ler <code>_INDICE_DE_NOMES["mapa"]</code></td><td>varredura feita: as únicas ocorrências fora do módulo são scripts históricos em <code>_reversa_forward/005-nucleo-puro-src/evidence/</code>, que não são importados por ninguém</td></tr>
+  <tr><td>O teste de concorrência ser instável</td><td>usa barreira explícita, não <code>sleep</code>: o entrelaçamento é forçado, não sorteado</td></tr>
+  <tr><td>Regressão silenciosa</td><td>reversão por <code>CHG-001.diff</code>, um arquivo só</td></tr>
+</table>
+
+<p class="folio">Plano gerado em 2026-10-24 pelo /reversa-decouple para a OPP-20261024-CACH.
+Política de controle: <code>gated</code>. Rede de segurança: <code>require-characterization</code>.
+Caminhos liberados pela config: <code>src/**</code> e <code>tests/**</code>.</p>
+
+</main>
+</body>
+</html>

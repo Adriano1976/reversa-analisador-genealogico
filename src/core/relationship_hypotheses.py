@@ -72,6 +72,8 @@ bloco — e' o mesmo cuidado que `_confianca` pede ao se declarar heuristica.
 """
 from __future__ import annotations
 
+from typing import TypedDict
+
 from .graus_de_parentesco import nome_do_grau, nome_do_primo
 
 SCP40_META = {
@@ -360,7 +362,23 @@ def posicao_na_faixa(total_cm: float, faixa_baixa: float, faixa_alta: float) -> 
     }
 
 
-def row_for_key(key: str):
+class LinhaDoScp(TypedDict):
+    """Uma linha publicada do Shared cM Project 4.0, na forma que o confronto le.
+
+    Tipada porque o dicionario mistura `str` e `int`: sem anotacao, quem indexava
+    `range_low` recebia `str | int` e precisava de `# type: ignore` para somar.
+    """
+
+    key: str
+    name_en: str
+    name_pt: str
+    meioses: int
+    average: float
+    range_low: int
+    range_high: int
+
+
+def row_for_key(key: str) -> LinhaDoScp | None:
     """Linha publicada do Shared cM 4.0 para a chave canonica, ou None."""
     for chave, nome_en, nome_pt, meioses, media, baixo, alto in SCP40_ROWS:
         if chave == key:

@@ -1,0 +1,35 @@
+=== equivalencia de documentary_relationship ===
+  DIVERGE em arvore real @I087129df@ x @I3b827979@ dossie=nao
+    campo label:
+      antes : 'Pai/M\xe3e \u2194 Filho(a)'
+      depois: 'PAI/M\xc3E \u2194 FILHO(A)'
+  DIVERGE em arvore real @I087129df@ x @I3b827979@ dossie=sim
+    campo label:
+      antes : 'Pai/M\xe3e \u2194 Filho(a)'
+      depois: 'PAI/M\xc3E \u2194 FILHO(A)'
+  DIVERGE em arvore real @I087129df@ x @I3b827979@ dossie=sim
+    campo label:
+      antes : 'Pai/M\xe3e \u2194 Filho(a)'
+      depois: 'PAI/M\xc3E \u2194 FILHO(A)'
+  arvore real            pares comparados:  3606  divergentes acumulados: 3606
+  colapso sintetico      pares comparados:    34  divergentes acumulados: 3640
+  affinity.ged           pares comparados:    14  divergentes acumulados: 3654
+  basic.ged              pares comparados:    30  divergentes acumulados: 3684
+  deep25.ged             pares comparados:   100  divergentes acumulados: 3784
+  mojibake_latin1.ged    pares comparados:    12  divergentes acumulados: 3796
+  no_name.ged            pares comparados:    20  divergentes acumulados: 3816
+  variants.ged           pares comparados:    28  divergentes acumulados: 3844
+
+=== equivalencia de documental_nao_encontrado ===
+  pares comparados: 84  divergentes acumulados: 3844
+
+=== codigos de aviso exercitados ===
+  caminhos_multiplos         2941
+  colapso_de_pedigree         148
+  data_impossivel             250
+  homonimo                   2815
+  pessoa_ausente                4
+  sem_caminho                 440
+
+total de comparacoes: 3928  divergencias: 3844
+CONTROLE NEGATIVO OK: a prova detectou a diferenca injetada.

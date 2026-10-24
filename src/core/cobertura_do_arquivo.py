@@ -83,7 +83,7 @@ def medir(evidencias, linhas: int) -> dict:
     )
 
     return {
-        "linhas": int(linhas),
+        "linhas": int(linhas), # type: ignore
         "evidencias": len(kits),
         "kits": len({kit.get("kit") for kit in kits}),
         "laboratorios": _ordenados(fontes),

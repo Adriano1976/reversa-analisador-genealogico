@@ -1,0 +1,36 @@
+Prova de equivalencia da OPP-20261024-DUPL, executada em 2026-10-24 DEPOIS de aplicar o
+CHG-001.diff.
+
+Comando:
+  .venv\Scripts\python.exe before-after\prova-de-equivalencia.py
+
+Saida:
+
+carregando 0fa3699e246caae1__Arvore_Unificada_Oficial_V1_2.ged ...
+pessoas: 35459 | familias: 6930
+
+=== equivalencia ===
+  _data_de (BIRT, DEAT, BURI, MARR, inexistente)       casos:  20005  divergentes: 0
+  _local_de (BIRT, DEAT, BURI, MARR, inexistente)      casos:  20005  divergentes: 0
+  hop_evidence (todas as arestas + pares sem vinculo)  casos:  46487  divergentes: 0
+
+total de divergencias: 0
+EQUIVALENCIA PROVADA: mesma saida em todos os casos.
+
+Como a comparacao funciona:
+
+As tres funcoes comparadas nao foram alteradas antes nesta sessao, entao o texto de HEAD e
+a versao "antes" fiel. O script extrai essas funcoes do texto de HEAD por AST, executa num
+espaco com os helpers do modulo atual e compara o valor devolvido, um por um, com o da
+funcao do projeto.
+
+hop_evidence usa `birth_date` dos dois lados, entao a comparacao isola a mudanca do achado
+de familia; a equivalencia do leitor de datas e provada separadamente nas duas linhas
+acima.
+
+Casos cobertos:
+
+- 4.000 pessoas x 5 tags (BIRT, DEAT, BURI, MARR e um tag inexistente), mais um id ausente;
+- todas as arestas declaradas do arquivo: cada CHIL x cada HUSB ou WIFE da familia;
+- 300 pares sem vinculo, sorteados por passo fixo sobre a lista ordenada de ids;
+- um id de filho inexistente e um id de genitor inexistente.

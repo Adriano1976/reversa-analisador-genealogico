@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261024-SEPM · plano de modularização</title>
+<style>
+  :root { --tinta:#1a1a1a; --fraco:#5b6470; --linha:#d8dee6; --fundo:#f7f8fa; --papel:#fff;
+          --erro:#b3261e; --erro-fundo:#fdecea; --ok:#1e6b3a; --ok-fundo:#e8f4ec; --aviso:#8a5a00; --aviso-fundo:#fdf3e0; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:72rem; margin:0 auto; background:var(--papel); padding:2.5rem 2.75rem 3rem;
+         border:1px solid var(--linha); border-radius:10px; }
+  h1 { font-size:1.55rem; margin:0 0 .35rem; letter-spacing:-.01em; }
+  h2 { font-size:1.12rem; margin:2.4rem 0 .8rem; padding-bottom:.4rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:.95rem; margin:1.4rem 0 .5rem; }
+  p { margin:.6rem 0; }
+  .sub { color:var(--fraco); font-size:.9rem; margin:0 0 1.4rem; }
+  .etiquetas { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0 1.6rem; }
+  .etiqueta { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .55rem;
+              border-radius:999px; background:#eef1f5; color:var(--fraco); border:1px solid var(--linha); }
+  .etiqueta.ok { background:var(--ok-fundo); color:var(--ok); border-color:#bfdcc9; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0 1.1rem; font-size:.86rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--linha); vertical-align:top; }
+  th { font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fraco); font-weight:600; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  code { font-family:"Cascadia Mono",Consolas,monospace; font-size:.85em; background:#f1f3f6;
+         padding:.08rem .3rem; border-radius:4px; }
+  pre { margin:.8rem 0; padding:.9rem 1rem; background:#f5f7f9; border:1px solid var(--linha);
+        border-radius:8px; overflow-x:auto; font-family:"Cascadia Mono",Consolas,monospace;
+        font-size:.78rem; line-height:1.5; }
+  .caixa { border-left:3px solid var(--linha); padding:.7rem 1rem; margin:1rem 0; background:#fafbfc;
+           border-radius:0 6px 6px 0; }
+  .caixa.aviso { border-left-color:#d9a441; background:var(--aviso-fundo); }
+  .caixa.ok { border-left-color:var(--ok); background:var(--ok-fundo); }
+  .caixa.erro { border-left-color:var(--erro); background:var(--erro-fundo); }
+  .caixa strong { display:block; margin-bottom:.2rem; }
+  .folio { font-size:.8rem; color:var(--fraco); margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--linha); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>821 linhas com cinco assuntos que só compartilham a árvore</h1>
+<p class="sub">Plano de modularização de <code>src/core/documentary_relationship.py</code>.
+Gate 1 de 2. Nenhum arquivo tocado.</p>
+
+<div class="etiquetas">
+  <span class="etiqueta">OPP-20261024-SEPM</span>
+  <span class="etiqueta">contexto busca-caminho</span>
+  <span class="etiqueta">verbo modularize</span>
+  <span class="etiqueta">confiança 🟡</span>
+  <span class="etiqueta">custo médio</span>
+</div>
+
+<h2>1. As responsabilidades que estão no mesmo arquivo</h2>
+
+<table>
+  <tr><th>Responsabilidade</th><th>Linhas</th><th>O que ela responde</th></tr>
+  <tr><td>Leitura de data e local do registro</td><td class="num">41 a 173</td><td><code>parse_year</code>, <code>_sub_valor</code>, <code>birth_date</code>, <code>death_date</code>, <code>_local_de</code>, <code>intervalo_de_geracao_mediano</code></td></tr>
+  <tr><td>Ficha comparável da pessoa</td><td class="num">180 a 257</td><td><code>_ids</code>, índice pai para filhos, <code>get_children</code>, <code>person_summary</code></td></tr>
+  <tr><td>Homônimos e índice de nomes</td><td class="num">264 a 375</td><td><code>normalizar</code>, o cache de nomes, <code>homonym_dossier</code></td></tr>
+  <tr><td>Enumeração de caminhos alternativos</td><td class="num">48, 49 e 512 a 602</td><td><code>_ancestor_depths</code>, <code>_cadeias_ate</code>, <code>_cadeia_curta</code>, <code>find_all_common_ancestors</code>, <code>_caminho_alternativo</code></td></tr>
+  <tr><td>O cartão documental</td><td class="num">382 a 432 e 605 a 821</td><td><code>hop_evidence</code>, os construtores de aviso, <code>documental_nao_encontrado</code>, <code>documentary_relationship</code>, <code>documentary_label</code></td></tr>
+</table>
+
+<p>As dependências entre esses assuntos são de mão única: o cartão usa tudo, os homônimos
+usam a ficha, a ficha usa as datas, e a enumeração de caminhos só usa datas e navegação.
+Não há ciclo a criar.</p>
+
+<h2>2. A fronteira proposta</h2>
+
+<table>
+  <tr><th>Módulo novo</th><th>Responsabilidade única</th><th>Importa</th><th>~linhas</th></tr>
+  <tr><td><code>core/datas_do_gedcom.py</code></td><td>Responder o que o registro diz sobre data e local</td><td><code>re</code>, <code>statistics</code>, <code>registro</code></td><td class="num">110</td></tr>
+  <tr><td><code>core/fichas_da_pessoa.py</code></td><td>Montar a ficha comparável e o índice pai para filhos</td><td><code>family_navigation</code>, <code>registro</code>, <code>datas_do_gedcom</code></td><td class="num">100</td></tr>
+  <tr><td><code>core/homonimos.py</code></td><td>Reconhecer o mesmo nome e montar o dossiê de homônimos</td><td><code>unicodedata</code>, <code>registro</code>, <code>utils.text_cleaning</code>, <code>fichas_da_pessoa</code></td><td class="num">115</td></tr>
+  <tr><td><code>core/caminhos_alternativos.py</code></td><td>Enumerar ancestrais comuns, cadeias e caminhos alternativos</td><td><code>collections</code>, <code>family_navigation</code>, <code>registro</code>, <code>datas_do_gedcom</code></td><td class="num">105</td></tr>
+  <tr><td><code>core/documentary_relationship.py</code></td><td><strong>Fachada</strong>: o cartão documental e o que os quinze consumidores já importam</td><td>os quatro, mais <code>path_finding</code> e <code>graus_de_parentesco</code></td><td class="num">~330</td></tr>
+</table>
+
+<h3>Grafo depois</h3>
+
+<pre>registro ─────────────┐
+family_navigation ────┤
+                      ▼
+              datas_do_gedcom ──► fichas_da_pessoa ──► homonimos
+                      │                  │                 │
+                      ▼                  │                 │
+              caminhos_alternativos ◄────┘                 │
+                      │                                    │
+                      ▼                                    ▼
+              documentary_relationship (fachada) ◄──────────┘
+                      │
+                      ▼
+      path_search, passo_por_kit, dna_analysis,
+      evidence_comparison, validacao, contexto_da_analise,
+      cirurgia_do_grafo, path_finding, diagram_domain, ...
+</pre>
+
+<p>Nenhum consumidor muda de endereço. Os quinze continuam importando de
+<code>core.documentary_relationship</code>, que reexporta os dezoito nomes de <code>__all__</code>.</p>
+
+<h2>3. O que a alma exige preservar</h2>
+
+<table>
+  <tr><th>Exigência</th><th>Onde está</th><th>Como a divisão respeita</th></tr>
+  <tr><td>O <strong>CACHE_DE_NOMES</strong> é o único estado de módulo do núcleo</td><td><code>soul.md:81</code></td><td>a alma nomeia o conceito, não o arquivo. O cache passa a morar em <code>homonimos.py</code> e continua sendo o único estado de módulo do núcleo</td></tr>
+  <tr><td>A árvore entra por parâmetro (RF-01)</td><td><code>test_dependencias_nucleo.py</code></td><td>nenhuma função nova guarda árvore; os módulos novos são funções sobre a árvore recebida</td></tr>
+  <tr><td>O núcleo não importa <code>parsers</code> nem <code>reporting</code></td><td>idem</td><td>os quatro módulos importam só <code>core</code> e <code>utils</code></td></tr>
+  <tr><td>Parentesco documental nunca lê cM</td><td><code>soul.md</code>, E7</td><td>nenhum módulo novo importa evidência genética</td></tr>
+</table>
+
+<h2>4. O que quebra, e como cada quebra é tratada</h2>
+
+<table>
+  <tr><th>Item</th><th>Por que quebra</th><th>Tratamento</th></tr>
+  <tr><td><code>tests/test_indice_de_nomes_do_documental.py</code></td><td>lê o arquivo por caminho e usa <code>dr._indice_por_nome</code>; os dois passam a morar em <code>homonimos.py</code></td><td><code>CHG-002</code>: aponta o caminho e as chamadas para <code>core.homonimos</code>. Nenhuma asserção muda</td></tr>
+  <tr><td><code>tests/test_desempenho_das_fichas.py</code></td><td>faz <code>monkeypatch.setattr(dr, "person_summary", ...)</code> e chama <code>dr.homonym_dossier</code>; depois da divisão o dossiê resolve <code>person_summary</code> no próprio módulo</td><td><code>CHG-002</code>: o <em>seam</em> do patch passa a ser <code>core.homonimos</code>. As asserções continuam iguais</td></tr>
+  <tr><td><code>_reversa_sdd/c4-components.md:213</code></td><td>descreve o arquivo como "parentesco documental completo e o cache de nomes"</td><td>fora do alcance da config (<code>_reversa_sdd/**</code>); vira dívida registrada, como na <code>W4KD</code></td></tr>
+  <tr><td><code>_reversa_sdd/architecture.md:154</code></td><td>cita <code>documentary_relationship._chave_de</code></td><td>idem; o nome do conceito continua igual, só mudou de arquivo</td></tr>
+</table>
+
+<div class="caixa aviso">
+  <strong>Declaração honesta sobre os testes</strong>
+  Esta é a primeira transformação da série que mexe em teste existente. A regra do registro é
+  não afrouxar asserção: aqui não se afrouxa nenhuma, só se corrige o endereço de um patch e o
+  caminho de um arquivo lido. A alternativa, manter os nomes privados também na fachada só
+  para o teste continuar passando, deixaria a fachada anunciando interno e esconderia a
+  mudança de fronteira em vez de registrá-la.
+</div>
+
+<h2>5. Rede de segurança e prova</h2>
+
+<table>
+  <tr><th>Peça</th><th>Papel</th></tr>
+  <tr><td>Suíte completa, antes e depois</td><td>1635 passam, 9 pulados</td></tr>
+  <tr><td>Prova de equivalência por execução</td><td>a mesma da <code>FLUX</code>, adaptada: 3.928 comparações de dicionário inteiro contra a versão de <code>HEAD</code>, com os seis códigos de aviso</td></tr>
+  <tr><td>Superfície da fachada</td><td>verificação de que os 18 nomes de <code>__all__</code> continuam acessíveis no endereço antigo, e de que os quinze consumidores importam sem erro</td></tr>
+  <tr><td>Guarda de dependência do núcleo</td><td><code>test_dependencias_nucleo.py</code> roda sobre <code>core/</code> inteiro, então os quatro módulos novos entram na varredura sem teste novo</td></tr>
+</table>
+
+<p class="folio">Plano gerado em 2026-10-24 pelo /reversa-modularize para a OPP-20261024-SEPM.
+Política: <code>gated</code>. Rede: <code>require-characterization</code>.</p>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,15 @@
+Suite completa DEPOIS da transformacao, no ambiente oficial.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped, 1 warning in 128.08s (0:02:08)
+
+Diferenca em relacao ao ANTES: 6 testes a mais, os seis de
+tests/test_indice_de_nomes_do_documental.py. Nenhum teste existente mudou de estado:
+os mesmos 9 pulados, nenhuma falha nova, nenhuma assercao afrouxada.
+
+Arquivo novo rodado isolado, antes da suite:
+  .venv\Scripts\python.exe -m pytest tests\test_indice_de_nomes_do_documental.py -q
+  6 passed, 1 warning in 0.76s

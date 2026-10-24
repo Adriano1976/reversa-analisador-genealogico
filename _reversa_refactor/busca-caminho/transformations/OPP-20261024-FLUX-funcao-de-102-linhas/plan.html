@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261024-FLUX · plano de reestruturação</title>
+<style>
+  :root { --tinta:#1a1a1a; --fraco:#5b6470; --linha:#d8dee6; --fundo:#f7f8fa; --papel:#fff;
+          --erro:#b3261e; --erro-fundo:#fdecea; --ok:#1e6b3a; --ok-fundo:#e8f4ec; --aviso:#8a5a00; --aviso-fundo:#fdf3e0; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:70rem; margin:0 auto; background:var(--papel); padding:2.5rem 2.75rem 3rem;
+         border:1px solid var(--linha); border-radius:10px; }
+  h1 { font-size:1.55rem; margin:0 0 .35rem; letter-spacing:-.01em; }
+  h2 { font-size:1.12rem; margin:2.4rem 0 .8rem; padding-bottom:.4rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:.95rem; margin:1.4rem 0 .5rem; }
+  p { margin:.6rem 0; }
+  .sub { color:var(--fraco); font-size:.9rem; margin:0 0 1.4rem; }
+  .etiquetas { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0 1.6rem; }
+  .etiqueta { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .55rem;
+              border-radius:999px; background:#eef1f5; color:var(--fraco); border:1px solid var(--linha); }
+  .etiqueta.ok { background:var(--ok-fundo); color:var(--ok); border-color:#bfdcc9; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0 1.1rem; font-size:.87rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--linha); vertical-align:top; }
+  th { font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fraco); font-weight:600; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  code { font-family:"Cascadia Mono",Consolas,monospace; font-size:.85em; background:#f1f3f6;
+         padding:.08rem .3rem; border-radius:4px; }
+  pre { margin:.8rem 0; padding:.9rem 1rem; background:#f5f7f9; border:1px solid var(--linha);
+        border-radius:8px; overflow-x:auto; font-family:"Cascadia Mono",Consolas,monospace;
+        font-size:.78rem; line-height:1.5; }
+  pre .marca { color:var(--erro); font-weight:600; }
+  pre .fim { color:var(--fraco); }
+  .caixa { border-left:3px solid var(--linha); padding:.7rem 1rem; margin:1rem 0; background:#fafbfc;
+           border-radius:0 6px 6px 0; }
+  .caixa.aviso { border-left-color:#d9a441; background:var(--aviso-fundo); }
+  .caixa.ok { border-left-color:var(--ok); background:var(--ok-fundo); }
+  .caixa strong { display:block; margin-bottom:.2rem; }
+  .grade { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:54rem) { .grade { grid-template-columns:1fr; } main { padding:1.6rem 1.2rem 2rem; } }
+  .folio { font-size:.8rem; color:var(--fraco); margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--linha); }
+  ol.passos { padding-left:1.2rem; }
+  ol.passos li { margin:.5rem 0; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>A função de 102 linhas que monta o cartão</h1>
+<p class="sub">Plano de reestruturação de <code>documentary_relationship</code>, em
+<code>src/core/documentary_relationship.py</code>. Gate 1 de 2. Nenhum arquivo tocado.</p>
+
+<div class="etiquetas">
+  <span class="etiqueta">OPP-20261024-FLUX</span>
+  <span class="etiqueta">contexto busca-caminho</span>
+  <span class="etiqueta">verbo restructure</span>
+  <span class="etiqueta ok">confiança 🟢</span>
+  <span class="etiqueta">custo médio</span>
+</div>
+
+<h2>1. O trecho, com os blocos marcados</h2>
+
+<pre>def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:   <span class="fim">665</span>
+    ...
+    if a_id not in arvore[0] or b_id not in arvore[0]:                     <span class="fim">672</span>
+        return {...}                    <span class="marca">guarda, devolve cartão de 4 chaves</span>
+
+    path, comum = find_ancestral_path(...)
+    if not path:
+        return documental_nao_encontrado(...)                              <span class="fim">682</span>
+
+    indice = path.index(comum) if comum in path else 0                      <span class="fim">684</span>
+    parentesco = documentary_label(deg_a, deg_b)
+
+    evidencia = []                                                          <span class="marca">laço 1: evidência por salto</span>
+    for i in range(len(path) - 1):                                          <span class="fim">688-693</span>
+        ...
+
+    for item in evidencia:                                                  <span class="marca">bloco 1 de aviso: data</span>
+        if item["plausible"] is False:                                      <span class="fim">695-705</span>
+            avisos.append({... mensagem de 6 linhas ...})
+
+    comuns = find_all_common_ancestors(...)                                 <span class="fim">707</span>
+    alternativos = []                                                       <span class="marca">laço 2: alternativos</span>
+    for c in comuns:                                                        <span class="fim">708-715</span>
+        ...
+
+    if alternativos:                                                        <span class="marca">bloco 2 de aviso: múltiplos</span>
+        avisos.append({... mensagem de 5 linhas ...})                       <span class="fim">717-723</span>
+
+    colapso = []                                                            <span class="marca">laço 3: colapso</span>
+    for c in comuns:                                                        <span class="fim">725-729</span>
+        ...
+
+    if colapso:                                                             <span class="marca">bloco 3 de aviso: colapso</span>
+        avisos.append({... mensagem com gerador aninhado ...})              <span class="fim">730-737</span>
+
+    if homonimos.get("ambiguous"):                                          <span class="marca">bloco 4 de aviso: homônimo</span>
+        avisos.append({... mensagem de 8 linhas ...})                       <span class="fim">739-747</span>
+
+    return {...}                         <span class="fim">749-766, dezesseis chaves</span></pre>
+
+<h2>2. Os cheiros, nomeados</h2>
+
+<table>
+  <tr><th>Cheiro</th><th>Onde</th><th>Refatoração de Fowler</th></tr>
+  <tr><td>Long Method</td><td>102 linhas, três laços e quatro blocos de aviso</td><td>Extract Method</td></tr>
+  <tr><td>Mensagem duplicada entre funções</td><td>o aviso de homônimo existe aqui e em <code>documental_nao_encontrado</code>, com o mesmo prefixo e finais diferentes</td><td>Extract Method e Consolidate Duplicate Conditional Fragments</td></tr>
+  <tr><td>Código ao lado de quem decide</td><td>a mensagem de cada aviso mora no meio do percurso</td><td>Extract Method com nome de intenção</td></tr>
+  <tr><td>Condicional repetido</td><td>três blocos com a forma <code>if x: avisos.append({...})</code></td><td>Replace Conditional with a builder que devolve <code>None</code></td></tr>
+  <tr><td>Variável explicativa ausente</td><td><code>alternativos</code>, <code>colapso</code> e <code>comuns</code> aparecem no meio da montagem</td><td>Introduce Explaining Variable, por meio das funções nomeadas</td></tr>
+</table>
+
+<h2>3. A sequência, em passos pequenos</h2>
+
+<ol class="passos">
+  <li><strong>Extract Method</strong> <code>_evidencia_do_caminho(arvore, path, indice)</code>: o laço 1 vira uma chamada.</li>
+  <li><strong>Extract Method</strong> <code>_aviso_de_data_impossivel(item)</code>: um item de evidência vira um aviso.</li>
+  <li><strong>Extract Method</strong> <code>_avisos_de_data(evidencia)</code>: compreensão de lista sobre o passo 2.</li>
+  <li><strong>Extract Method</strong> <code>_caminhos_alternativos(arvore, a_id, b_id, comuns, comum)</code>: o laço 2.</li>
+  <li><strong>Extract Method</strong> <code>_colapso_de_pedigree(arvore, a_id, comuns)</code>: o laço 3.</li>
+  <li><strong>Extract Method</strong> dos três construtores de aviso, cada um devolvendo <code>dict | None</code>: <code>_aviso_de_caminhos_multiplos</code>, <code>_aviso_de_colapso</code>, <code>_aviso_de_homonimo</code>.</li>
+  <li><strong>Consolidate Duplicate Conditional Fragments</strong>: <code>documental_nao_encontrado</code> passa a chamar <code>_aviso_de_homonimo(homonimos, com_caminho=False)</code>, e a mensagem passa a existir em um lugar só.</li>
+</ol>
+
+<p>O corpo da função fica assim:</p>
+
+<pre>    if a_id not in arvore[0] or b_id not in arvore[0]:
+        return {...}
+
+    path, comum = find_ancestral_path(arvore, a_id, b_id, max_depth=MAX_DEPTH)
+    homonimos = homonyms or {}
+    if not path:
+        return documental_nao_encontrado(arvore, a_id, b_id, homonimos=homonimos)
+
+    indice = path.index(comum) if comum in path else 0
+    deg_a, deg_b = indice, len(path) - 1 - indice
+    parentesco = documentary_label(deg_a, deg_b)
+
+    evidencia = _evidencia_do_caminho(arvore, path, indice)
+    comuns = find_all_common_ancestors(arvore, a_id, b_id)
+    alternativos = _caminhos_alternativos(arvore, a_id, b_id, comuns, comum)
+    colapso = _colapso_de_pedigree(arvore, a_id, comuns)
+
+    avisos = _avisos_de_data(evidencia)
+    for aviso in (
+        _aviso_de_caminhos_multiplos(alternativos),
+        _aviso_de_colapso(colapso),
+        _aviso_de_homonimo(homonimos),
+    ):
+        if aviso is not None:
+            avisos.append(aviso)
+
+    return {...}</pre>
+
+<p>De 102 para cerca de 45 linhas, com a ordem dos avisos visível em um único lugar.</p>
+
+<h2>4. O que NÃO pode mudar</h2>
+
+<table>
+  <tr><th>Invariante</th><th>Por quê</th><th>Como é preservado</th></tr>
+  <tr><td>Ordem de <code>warnings</code></td><td>a tela lista na ordem recebida e <code>path_search</code> converte cada mensagem em observação sem reordenar</td><td>a sequência de cálculo é a mesma: dados, múltiplos, colapso, homônimo</td></tr>
+  <tr><td>Texto de cada mensagem</td><td>é o que o operador lê</td><td>conferência literal já rodada; as cinco mensagens são idênticas caractere a caractere</td></tr>
+  <tr><td>Cartão de 4 chaves quando a pessoa falta</td><td>ramo de erro observável</td><td>a guarda fica onde está, sem tocar</td></tr>
+  <tr><td>Forma do cartão de 16 chaves</td><td>contrato do consumidor</td><td>o dicionário final não é tocado</td></tr>
+  <tr><td>Quantidade de avisos de data</td><td>um por salto implausível, não um por caminho</td><td>a compreensão de lista percorre a mesma evidência</td></tr>
+</table>
+
+<div class="caixa aviso">
+  <strong>Uma diferença teórica, declarada</strong>
+  O aviso de homônimo passa a usar <code>.get()</code> nos dois valores, como o ramo de não
+  encontrado já fazia. Num dicionário de homônimos montado à mão, sem <code>exact_count</code>,
+  o ramo de caminho encontrado hoje levantaria <code>KeyError</code> e passaria a escrever
+  <code>None</code>. Todos os chamadores reais recebem o dicionário de
+  <code>homonym_dossier</code>, que sempre traz as duas chaves; a diferença só existiria num
+  dicionário fabricado à mão, e nesse caso a função deixa de quebrar.
+</div>
+
+<h2>5. O que fica de fora</h2>
+
+<table>
+  <tr><th>Item</th><th>Por quê</th></tr>
+  <tr><td>Dividir o arquivo em módulos</td><td>é a <code>OPP-20261024-SEPM</code>, o próximo passo da fila; esta transformação deixa a função recortada para que a separação vire recorte</td></tr>
+  <tr><td>Mudar a forma do cartão</td><td>é decisão de spec, registrada em <code>OPP-20261006-YTSH</code></td></tr>
+  <tr><td>Unificar <code>documental_nao_encontrado</code> com o ramo de erro</td><td>fora do escopo: são formas diferentes por decisão, e a variação é observável</td></tr>
+</table>
+
+<h2>6. Rede de segurança e prova</h2>
+
+<table>
+  <tr><th>Peça</th><th>Papel</th></tr>
+  <tr><td>Suíte completa, antes e depois</td><td>1635 passam, 9 pulados</td></tr>
+  <tr><td>Prova de equivalência por execução</td><td>compara a saída da versão de <code>HEAD</code> com a do módulo, dicionário por dicionário, cobrindo: caminho encontrado, sem caminho, pessoa ausente, data impossível, caminhos múltiplos, colapso e homônimo ambíguo</td></tr>
+  <tr><td>Conferência literal das mensagens</td><td>já executada: as cinco são idênticas</td></tr>
+</table>
+
+<p class="folio">Plano gerado em 2026-10-24 pelo /reversa-restructure para a OPP-20261024-FLUX.
+Política: <code>gated</code>. Rede: <code>require-characterization</code>.</p>
+
+</main>
+</body>
+</html>

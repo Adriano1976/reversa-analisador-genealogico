@@ -1,0 +1,10 @@
+Suite completa ANTES do CHG-001 desta transformacao.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped in 105.50s (0:01:45)
+
+Medicao imediatamente anterior: mesma sessao, depois da OPP-20261024-FLUX e antes de
+qualquer edicao do OPP-20261024-SEPM.

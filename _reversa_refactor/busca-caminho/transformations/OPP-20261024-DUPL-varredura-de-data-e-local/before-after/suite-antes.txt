@@ -1,0 +1,11 @@
+Suite completa ANTES do CHG-001 desta transformacao.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped, 1 warning in 128.08s (0:02:08)
+
+Esta e a medicao imediatamente anterior: mesma sessao, depois da OPP-20261024-CACH e antes
+de qualquer edicao do OPP-20261024-DUPL. Os 9 pulados sao os testes de
+tests/test_registro_de_analises.py, que exigem DATABASE_URL.

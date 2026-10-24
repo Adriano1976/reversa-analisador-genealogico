@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261024-SUPR · plano de padronização</title>
+<style>
+  :root { --tinta:#1a1a1a; --fraco:#5b6470; --linha:#d8dee6; --fundo:#f7f8fa; --papel:#fff;
+          --ok:#1e6b3a; --ok-fundo:#e8f4ec; --aviso:#8a5a00; --aviso-fundo:#fdf3e0; --erro:#b3261e; --erro-fundo:#fdecea; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:68rem; margin:0 auto; background:var(--papel); padding:2.5rem 2.75rem 3rem;
+         border:1px solid var(--linha); border-radius:10px; }
+  h1 { font-size:1.55rem; margin:0 0 .35rem; letter-spacing:-.01em; }
+  h2 { font-size:1.12rem; margin:2.4rem 0 .8rem; padding-bottom:.4rem; border-bottom:1px solid var(--linha); }
+  p { margin:.6rem 0; }
+  .sub { color:var(--fraco); font-size:.9rem; margin:0 0 1.4rem; }
+  .etiquetas { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0 1.6rem; }
+  .etiqueta { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .55rem;
+              border-radius:999px; background:#eef1f5; color:var(--fraco); border:1px solid var(--linha); }
+  .etiqueta.ok { background:var(--ok-fundo); color:var(--ok); border-color:#bfdcc9; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0 1.1rem; font-size:.87rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--linha); vertical-align:top; }
+  th { font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fraco); font-weight:600; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  code { font-family:"Cascadia Mono",Consolas,monospace; font-size:.85em; background:#f1f3f6;
+         padding:.08rem .3rem; border-radius:4px; }
+  pre { margin:.8rem 0; padding:.9rem 1rem; background:#f5f7f9; border:1px solid var(--linha);
+        border-radius:8px; overflow-x:auto; font-family:"Cascadia Mono",Consolas,monospace;
+        font-size:.8rem; line-height:1.5; }
+  pre .ruim { color:var(--erro); }
+  pre .bom { color:var(--ok); }
+  .caixa { border-left:3px solid var(--linha); padding:.7rem 1rem; margin:1rem 0; background:#fafbfc;
+           border-radius:0 6px 6px 0; }
+  .caixa.aviso { border-left-color:#d9a441; background:var(--aviso-fundo); }
+  .caixa.ok { border-left-color:var(--ok); background:var(--ok-fundo); }
+  .caixa strong { display:block; margin-bottom:.2rem; }
+  .folio { font-size:.8rem; color:var(--fraco); margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--linha); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Quatro nomes anunciados sem um único consumidor</h1>
+<p class="sub">Plano de padronização de <code>__all__</code> em
+<code>src/core/documentary_relationship.py</code>. Gate 1 de 2. Nenhum arquivo tocado.</p>
+
+<div class="etiquetas">
+  <span class="etiqueta">OPP-20261024-SUPR</span>
+  <span class="etiqueta">contexto busca-caminho</span>
+  <span class="etiqueta">verbo standardize</span>
+  <span class="etiqueta ok">confiança 🟢</span>
+  <span class="etiqueta">custo baixo</span>
+</div>
+
+<h2>1. O que o módulo anuncia, e quem importa</h2>
+
+<p>Varredura por AST em <code>src/</code>, <code>tests/</code>, <code>_reversa_bugs/</code>,
+<code>_reversa_sdd/</code> e <code>_reversa_forward/</code>, contando importação explícita de cada
+nome. Refiz a varredura depois da `SEPM`, porque a divisão mudou de onde cada nome mora.</p>
+
+<table>
+  <tr><th>Nome em <code>__all__</code></th><th>Importadores</th><th>Situação</th></tr>
+  <tr><td><code>documentary_relationship</code></td><td class="num">10</td><td>núcleo da superfície</td></tr>
+  <tr><td><code>homonym_dossier</code></td><td class="num">17</td><td>idem</td></tr>
+  <tr><td><code>birth_date</code></td><td class="num">15</td><td>idem</td></tr>
+  <tr><td><code>parse_year</code></td><td class="num">13</td><td>idem</td></tr>
+  <tr><td><code>person_summary</code></td><td class="num">4</td><td>idem</td></tr>
+  <tr><td><code>documentary_label</code></td><td class="num">4</td><td>idem</td></tr>
+  <tr><td><code>intervalo_de_geracao_mediano</code></td><td class="num">3</td><td>idem</td></tr>
+  <tr><td><code>IDADE_MINIMA_GENITOR</code> / <code>IDADE_MAXIMA_GENITOR</code></td><td class="num">2 cada</td><td><code>cirurgia_do_grafo</code> e <code>validator</code></td></tr>
+  <tr><td><code>documental_nao_encontrado</code></td><td class="num">1</td><td><code>passo_por_kit</code></td></tr>
+  <tr><td><code>normalizar</code></td><td class="num">1</td><td>um teste</td></tr>
+  <tr><td><code>nome_do_grau</code></td><td class="num">2</td><td>dois testes, importado daqui de propósito</td></tr>
+  <tr><td><code>death_date</code></td><td class="num">1</td><td><strong>só</strong> sonda congelada em <code>_reversa_bugs/</code></td></tr>
+  <tr><td><code>get_children</code></td><td class="num">1</td><td><strong>só</strong> sonda congelada em <code>_reversa_bugs/</code></td></tr>
+  <tr><td><code>hop_evidence</code></td><td class="num">0</td><td class="ruim">sem consumidor</td></tr>
+  <tr><td><code>find_all_common_ancestors</code></td><td class="num">0</td><td class="ruim">sem consumidor</td></tr>
+  <tr><td><code>ROMANO</code></td><td class="num">0</td><td class="ruim">sem consumidor</td></tr>
+  <tr><td><code>MAX_DEPTH</code></td><td class="num">0</td><td class="ruim">sem consumidor</td></tr>
+</table>
+
+<h2>2. A afirmação que a medição desmente</h2>
+
+<p>O comentário acima do <code>__all__</code> diz que as reexportações continuam públicas "para
+quem já os importava". Vale para <code>nome_do_grau</code>, que dois testes importam daqui. Não
+vale para <code>ROMANO</code>: a varredura não encontra uma única importação. E <code>MAX_DEPTH</code>
+não é reexportação: quem o importa de verdade pede a <code>core.path_finding</code>.</p>
+
+<p>É a mesma classe de achado da <code>OPP-20261006-ESKO</code>, que encontrou dezoito nomes em
+<code>__all__</code> de <code>core/path_search.py</code>, dos quais doze nunca eram usados, e um
+comentário com lista de consumidores inventada.</p>
+
+<h2>3. A mudança</h2>
+
+<pre>__all__ = [                                        __all__ = [
+    "documentary_relationship", "documental_nao_encontrado",      "documentary_relationship", "documental_nao_encontrado",
+    "documentary_label", "person_summary",                       "documentary_label", "person_summary",
+    <span class="ruim">"homonym_dossier", "hop_evidence", "find_all_common_ancestors",</span>      "homonym_dossier",
+    "parse_year", "birth_date", "death_date", "get_children", "normalizar",   "parse_year", "birth_date", "death_date", "get_children", "normalizar",
+    "intervalo_de_geracao_mediano",                              "intervalo_de_geracao_mediano",
+    <span class="ruim">"nome_do_grau", "ROMANO",</span>                                     <span class="bom">"nome_do_grau",</span>
+    <span class="ruim">"MAX_DEPTH",</span> "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",    "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
+]                                                  ]</pre>
+
+<p>De dezoito para catorze nomes. E o comentário, reescrito para dizer só o que é verdade.</p>
+
+<div class="caixa aviso">
+  <strong>O que NÃO muda</strong>
+  Nenhum import, nenhuma função, nenhuma constante. Os quatro nomes continuam existindo no módulo
+  e continuam importáveis por nome: <code>from core.documentary_relationship import ROMANO</code>
+  funciona exatamente como hoje. O que muda é só o anúncio de <code>from ... import *</code> e a
+  leitura de quem consulta <code>__all__</code> para saber o que o módulo oferece.
+</div>
+
+<h2>4. Por que não apagar o import de `ROMANO`</h2>
+
+<p>Apagar seria a leitura agressiva, e foi descartada. <code>__all__</code> é anúncio; a
+importação é comportamento. Remover o import quebraria <code>from core.documentary_relationship
+import ROMANO</code> para qualquer consumidor fora do repositório, e não há ganho nenhum em
+quebrar: o custo real do import sem uso é uma linha, e o comentário explica por que ela fica.</p>
+
+<p>O mesmo raciocínio vale para <code>death_date</code> e <code>get_children</code>, que também
+ficam: os dois têm consumidor real, ainda que congelado em <code>_reversa_bugs/</code>, caminho
+que a config não libera. A <code>OPP-20261023-DOCF</code> já registrou o preço de tratar consumidor
+congelado como ausente.</p>
+
+<h2>5. Fronteira de comportamento</h2>
+
+<p>Nenhuma. <code>__all__</code> não governa importação explícita, e não há um único
+<code>import *</code> no repositório (verificado). Os catorze nomes anunciados continuam
+acessíveis, e os quatro retirados também.</p>
+
+<h2>6. Prova</h2>
+
+<table>
+  <tr><th>Peça</th><th>Papel</th></tr>
+  <tr><td>Superfície</td><td>os catorze nomes de <code>__all__</code> importam; os quatro retirados continuam importáveis; <code>dir()</code> do módulo não muda</td></tr>
+  <tr><td>Suíte completa</td><td>1635 passam, 9 pulados, antes e depois</td></tr>
+</table>
+
+<h2>7. Dívida de documentação que esta mudança não fecha</h2>
+
+<table>
+  <tr><th>Artefato</th><th>Afirmação</th></tr>
+  <tr><td><code>_reversa_sdd/busca-caminho/design.md:41</code></td><td>lista <code>hop_evidence</code> como superfície pública do módulo</td></tr>
+  <tr><td><code>_reversa_sdd/busca-caminho/requirements.md:281</code></td><td>lista as funções do módulo, entre elas <code>hop_evidence</code> e <code>find_all_common_ancestors</code></td></tr>
+</table>
+
+<p>As duas continuam verdadeiras no sentido que importa: as funções existem e são importáveis
+daqui. Só deixaram de ser anunciadas. Os caminhos estão em <code>_reversa_sdd/**</code>, fora dos
+globs liberados.</p>
+
+<p class="folio">Plano gerado em 2026-10-24 pelo /reversa-standardize para a OPP-20261024-SUPR.
+Política: <code>gated</code>. Rede: <code>require-characterization</code>.</p>
+
+</main>
+</body>
+</html>

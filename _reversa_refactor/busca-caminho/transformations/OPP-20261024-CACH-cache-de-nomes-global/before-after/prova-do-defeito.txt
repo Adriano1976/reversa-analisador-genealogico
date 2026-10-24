@@ -1,0 +1,27 @@
+Prova do defeito, executada em 2026-10-24 contra o codigo de HEAD (2bbe3f7 + alteracoes nao commitadas).
+
+Comando:
+  .venv\Scripts\python.exe prova-do-defeito.py
+
+Saida:
+
+nomes no mapa devolvido para a thread A: ['bruno beta', 'xisto beta', 'yara beta']
+nomes no mapa devolvido para a thread B: ['bruno beta', 'xisto beta', 'yara beta']
+
+A devolveu o mapa da PROPRIA arvore (alfa)? False
+A devolveu os nomes da arvore da thread B? True
+mesma lista de nomes para as duas? True
+
+DEFEITO PROVADO: a requisicao A, que pediu a arvore alfa,
+recebeu o indice da arvore beta.
+
+Como o entrelacamento foi forcado:
+
+A thread A e estacionada dentro do `__setitem__` do dicionario de modulo, logo
+depois de publicar `chave` (linha 350) e antes do `return` (linha 351). Enquanto
+ela esta parada, a thread principal executa `_indice_por_nome` inteiro com a
+arvore beta, publicando `mapa` e `chave` da beta. Ao ser liberada, a thread A
+relê o global e devolve o mapa da beta.
+
+Nao ha sleep nem sorteio: o ponto de encontro e explicito, e a execucao e
+deterministica. Rodou duas vezes com o mesmo resultado.

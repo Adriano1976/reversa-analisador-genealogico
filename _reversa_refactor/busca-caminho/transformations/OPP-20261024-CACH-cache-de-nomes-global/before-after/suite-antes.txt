@@ -1,0 +1,11 @@
+Suite completa ANTES da transformacao, no ambiente oficial.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1629 passed, 9 skipped, 1 warning in 102.82s (0:01:42)
+
+Medicao feita nesta mesma sessao, antes de qualquer alteracao na OPP-20261024-CACH.
+O warning e o PytestCacheWarning de sempre sobre .pytest_cache, do ambiente.
+Os 9 pulados sao os testes de tests/test_registro_de_analises.py, que exigem DATABASE_URL.

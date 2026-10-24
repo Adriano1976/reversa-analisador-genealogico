@@ -1,0 +1,14 @@
+Suite completa DEPOIS do CHG-001 desta transformacao.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped in 81.41s (0:01:21)
+
+Mesma contagem da linha de base: nenhum teste mudou de estado, nenhuma assercao afrouxada.
+A transformacao nao acrescenta teste permanente; a prova dela e a equivalencia de saida em
+before-after/prova-de-equivalencia.txt.
+
+O PytestCacheWarning que aparecia nas execucoes anteriores nao aparece nesta: o sandbox da
+sessao passou a permitir escrita em .pytest_cache.

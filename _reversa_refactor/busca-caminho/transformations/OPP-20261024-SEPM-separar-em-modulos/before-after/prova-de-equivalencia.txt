@@ -1,0 +1,23 @@
+=== equivalencia de documentary_relationship ===
+  arvore real            pares comparados:  3606  divergentes: 0
+  colapso sintetico      pares comparados:    34  divergentes: 0
+  affinity.ged           pares comparados:    14  divergentes: 0
+  basic.ged              pares comparados:    30  divergentes: 0
+  deep25.ged             pares comparados:   100  divergentes: 0
+  mojibake_latin1.ged    pares comparados:    12  divergentes: 0
+  no_name.ged            pares comparados:    20  divergentes: 0
+  variants.ged           pares comparados:    28  divergentes: 0
+
+=== equivalencia de documental_nao_encontrado ===
+  pares comparados: 84  divergentes: 0
+
+=== codigos de aviso exercitados ===
+  caminhos_multiplos         2941
+  colapso_de_pedigree         148
+  data_impossivel             250
+  homonimo                   2815
+  pessoa_ausente                4
+  sem_caminho                 440
+
+total de comparacoes: 3928  divergencias: 0
+EQUIVALENCIA PROVADA: mesma saida em todos os casos.

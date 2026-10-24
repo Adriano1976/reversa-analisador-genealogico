@@ -29,6 +29,8 @@ compara. Um conflito vira aviso e lista de causas, nunca uma reescrita de vincul
 """
 from __future__ import annotations
 
+from typing import TypedDict
+
 from .relationship_hypotheses import (
     meioses_maximo_publicado,
     meioses_publicados,
@@ -124,20 +126,41 @@ def _avaliar_kit(bloco: dict, janela: dict, meioses_documental) -> dict:
                      f"parentesco documental e {detalhe}.")}
 
 
-def _janela_do_documental(documentary: dict):
+class _JanelaDeCm(TypedDict):
+    """A faixa esperada para o parentesco documental, e de onde ela veio.
+
+    Tipada porque o dicionario mistura `int` e `str`: sem anotacao, o verificador
+    juntava os valores do literal e tratava `method_label` como `int | str`, o que
+    quebrava a concatenacao que monta o `detail` do confronto.
+    """
+
+    range_low: int
+    range_high: int
+    average: float
+    method: str
+    method_label: str
+
+
+def _janela_do_documental(
+    documentary: dict,
+) -> tuple[_JanelaDeCm | None, str | None]:
     """Janela de cM esperada para o parentesco documental, e de onde ela veio."""
     chave = documentary.get("relationship_key")
     meioses = documentary.get("meioses")
 
     linha = row_for_key(chave) if chave else None
     if linha:
-        return {
+        # Anotada na variavel, e nao so no retorno: dentro da tupla o literal do
+        # dicionario nao tem contexto de tipo, e o verificador o infere como
+        # `dict[str, int | str]`, que nao e atribuivel ao TypedDict.
+        faixa: _JanelaDeCm = {
             "range_low": linha["range_low"], "range_high": linha["range_high"],
             "average": linha["average"],
             "method": f"scp40:{linha['name_en']}",
             "method_label": (f"Shared cM Project 4.0, relação “{linha['name_pt']}” "
                              f"(média {linha['average']} cM)"),
-        }, None
+        }
+        return faixa, None
 
     if meioses:
         janela = meioses_window(meioses)
@@ -146,16 +169,38 @@ def _janela_do_documental(documentary: dict):
                       f"“{documentary.get('label')}”; a referência usada é a envoltoria das relações "
                       f"publicadas com o mesmo número de meioses ({janela['meioses']}): "
                       + ", ".join(janela["rows"]))
-            return {
+            envoltoria: _JanelaDeCm = {
                 "range_low": janela["range_low"], "range_high": janela["range_high"],
                 "average": janela["average"],
                 "method": f"scp40:meioses={janela['meioses']}",
                 "method_label": (f"Shared cM Project 4.0, {janela['meioses']} meioses "
                                  f"({janela['range_low']}–{janela['range_high']} cM)"),
-            }, motivo
+            }
+            return envoltoria, motivo
 
     return None, (f"a versão 4.0 do Shared cM Project não publica faixa para "
                   f"“{documentary.get('label')}” nem para {meioses} meioses")
+
+
+class _Confronto(TypedDict):
+    """O dicionario que o confronto devolve e que a tela inteira le.
+
+    Tipado porque o literal inicial tem `None` em tres chaves: sem anotacao, o
+    verificador tratava TODA entrada como `str | list | None`, e o `+=` que
+    acumulava o `detail` deixava de ser verificavel. O jeito de calar aquilo era
+    um `# type: ignore` em cada atribuicao, que esconde o aviso em vez de dizer
+    o tipo.
+    """
+
+    status: str
+    label: str
+    message: str
+    causes: list
+    per_kit: list
+    method: str | None
+    expected_range: dict | None
+    detail: str | None
+    observations: list
 
 
 def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
@@ -169,7 +214,7 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
     tem_dna = bool(evidence and evidence.get("available"))
 
     notas = []
-    base = {
+    base: _Confronto = {
         "status": "INCONCLUSIVO",
         "label": STATUS_LABEL["INCONCLUSIVO"],
         "message": MENSAGENS["INCONCLUSIVO"],
@@ -215,8 +260,8 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
     if janela is None:
         meioses = documental.get("meioses")
         limite = meioses_maximo_publicado()
-        base["detail"] = (f"Não há faixa publicada para comparar: {motivo}. O parentesco documental "
-                          "segue registrado, mas a evidência genética não pode ser confrontada com ele.")
+        detalhe = (f"Não há faixa publicada para comparar: {motivo}. O parentesco documental "
+                   "segue registrado, mas a evidência genética não pode ser confrontada com ele.")
 
         # DUAS razoes diferentes de nao haver janela, e a tela precisa dizer qual e.
         #
@@ -236,7 +281,7 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
         if meioses:
             publicados = meioses_publicados()
             if meioses > limite:
-                base["detail"] += (
+                detalhe += (
                     f" A relação documental tem {meioses} meioses — mais profunda que a relação "
                     f"mais distante que a versão 4.0 do Shared cM Project calibra ({limite} "
                     "meioses). Nessa profundidade a fonte não publica distribuição nenhuma, e o "
@@ -246,7 +291,7 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
                 abaixo = max((m for m in publicados if m < meioses), default=None)
                 acima = min((m for m in publicados if m > meioses), default=None)
                 vizinhos = " e ".join(str(m) for m in (abaixo, acima) if m is not None)
-                base["detail"] += (
+                detalhe += (
                     f" A versão 4.0 não publica faixa para {meioses} meioses "
                     f"(as publicadas mais próximas são {vizinhos}). A envoltória por meioses só "
                     "vale para o MESMO número de meioses: nenhuma janela foi emprestada por "
@@ -271,6 +316,9 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> dict:
             else:
                 notas.append(texto + ".")
 
+        # O texto foi montado em `detalhe` e entra de uma vez: com `detail`
+        # declarado `str | None`, acumular na chave com `+=` nao e verificavel.
+        base["detail"] = detalhe
         base["observations"] = notas
         return base
 

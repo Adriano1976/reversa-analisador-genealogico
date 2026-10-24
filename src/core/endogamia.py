@@ -60,7 +60,7 @@ from dataclasses import dataclass
 from itertools import islice
 from typing import Protocol, TypeAlias
 
-import networkx as nx
+import networkx as nx # type: ignore
 
 from utils.name_keys import norm_name
 from utils.number_format import formatar_cm
@@ -315,7 +315,7 @@ class DNAAnalyzer:
         self.cm_minimo_segmento = float(cm_minimo_segmento)
         self.cm_minimo_maior_bloco = float(cm_minimo_maior_bloco)
         self.corte_difflib = float(corte_difflib)
-        self.limite_de_caminhos = int(limite_de_caminhos)
+        self.limite_de_caminhos = int(limite_de_caminhos) # type: ignore
 
     # -- Regras 1 e 2: filtro e recálculo ----------------------------------
 
@@ -704,7 +704,7 @@ class DNAAnalyzer:
         """
         if not nome:
             return ""
-        return " ".join(str(nome).replace("/", " ").split())
+        return " ".join(str(nome).replace("/", " ").split()) # type: ignore
 
     def indice_de_nomes(
         self,

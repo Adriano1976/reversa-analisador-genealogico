@@ -20,6 +20,7 @@ sys.path.insert(0, RAIZ)
 sys.path.insert(0, os.path.join(RAIZ, "src"))
 
 from core import documentary_relationship as dr  # noqa: E402
+from core import homonimos as ho  # noqa: E402
 from parsers.gedcom_parser import carregar_arvore  # noqa: E402
 
 CABECALHO = (
@@ -112,14 +113,14 @@ def test_person_summary_nao_varre_as_familias_por_ficha(arvore):
 
 def test_dossie_calcula_as_diferencas_uma_vez(arvore, monkeypatch):
     chamadas = []
-    original = dr.person_summary
+    original = ho.person_summary
 
     def contando(arv, pid):
         chamadas.append(pid)
         return original(arv, pid)
 
-    monkeypatch.setattr(dr, "person_summary", contando)
-    dossie = dr.homonym_dossier(arvore, "Joao Silva")
+    monkeypatch.setattr(ho, "person_summary", contando)
+    dossie = ho.homonym_dossier(arvore, "Joao Silva")
 
     assert dossie["exact_count"] == 2
     assert dossie["identical_data"] is False

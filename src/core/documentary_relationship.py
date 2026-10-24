@@ -1,373 +1,75 @@
-"""Parentesco DOCUMENTAL: o que o GEDCOM afirma, sem nenhum DNA.
+"""Parentesco DOCUMENTAL: a fachada publica e a montagem do cartao.
 
-Responsabilidade unica: dado duas pessoas da arvore carregada, responder o que o
-**documento** diz sobre elas — caminho, ancestrais comuns, distancia geracional,
-parentesco, homonimos, caminhos multiplos, colapso de pedigree e as evidencias
-(registro de familia, datas, idade dos genitores) usadas em cada salto.
+## Por que este arquivo continua sendo o endereco
+
+Ele era o modulo inteiro ate 2026-10-24, quando a `OPP-20261024-SEPM` separou o que ele faz
+em quatro modulos de responsabilidade unica:
+
+- `core.datas_do_gedcom` le data e local do registro;
+- `core.fichas_da_pessoa` monta a ficha comparavel e o indice pai para filhos;
+- `core.homonimos` reconhece o mesmo nome e monta o dossie;
+- `core.caminhos_alternativos` enumera ancestrais comuns, cadeias e caminhos alternativos.
+
+O que sobrou aqui e o cartao: a decisao de qual caminho apresentar, a evidencia de cada
+salto, os avisos e o dicionario final. A fachada reexporta os dezoito nomes de `__all__`
+para que os quinze consumidores nao mudem de endereco.
 
 ## Regra do projeto
 
-O GEDCOM determina o parentesco documental. O DNA **nao** altera nada do que este
-modulo devolve: nenhuma funcao daqui aceita cM nem le o CSV. Quem confronta as
-duas evidencias e `core.evidence_comparison`, depois e separadamente.
+O GEDCOM determina o parentesco documental. O DNA **nao** altera nada do que este modulo
+devolve: nenhuma funcao daqui aceita cM nem le o CSV. Quem confronta as duas evidencias e
+`core.evidence_comparison`, depois e separadamente.
 
 ## Por que datas entram aqui
 
-`_reversa_sdd/busca-caminho` documenta que o legado nunca olhou data: o BFS sobe
-por pais e aceita qualquer salto. Medido em 2026-10 no GEDCOM real
-`Arvore_Unificada_Oficial_V1_2.ged`, isso produz caminho com mae nascida 11 anos
-DEPOIS do filho (`@F6@`: Celso Gomes Gama, n. 1961, filho de Maria Auxiliadora,
-n. 1972) apresentado como "conexao direta por ancestral comum".
+`_reversa_sdd/busca-caminho` documenta que o legado nunca olhou data: o BFS sobe por pais e
+aceita qualquer salto. Medido em 2026-10 no GEDCOM real `Arvore_Unificada_Oficial_V1_2.ged`,
+isso produz caminho com mae nascida 11 anos DEPOIS do filho (`@F6@`: Celso Gomes Gama, n. 1961,
+filho de Maria Auxiliadora, n. 1972) apresentado como "conexao direta por ancestral comum".
 
-Uma data impossivel **nao** invalida o vinculo nem muda o parentesco: o dado e do
-documento, e cabe ao operador julgar. O que este modulo faz e **registrar a
-evidencia** (`evidence[].age_at_birth`, `plausible`) e **avisar**
-(`warnings[].code == "data_impossivel"`). Corrigir o GEDCOM nao e papel de agente.
+Uma data impossivel **nao** invalida o vinculo nem muda o parentesco: o dado e do documento, e
+cabe ao operador julgar. O que o cartao faz e **registrar a evidencia**
+(`evidence[].age_at_birth`, `plausible`) e **avisar** (`warnings[].code == "data_impossivel"`).
 """
 from __future__ import annotations
 
-import re
-import unicodedata
-from collections import deque
-from statistics import median
-
-from .family_navigation import get_parents
+from .caminhos_alternativos import (
+    MAX_DEPTH_ALTERNATIVOS,
+    _cadeias_ate,
+    _caminho_alternativo,
+    find_all_common_ancestors,
+)
+from .datas_do_gedcom import (
+    IDADE_MAXIMA_GENITOR,
+    IDADE_MINIMA_GENITOR,
+    birth_date,
+    death_date,
+    intervalo_de_geracao_mediano,
+    parse_year,
+)
+from .fichas_da_pessoa import get_children, ids_com_tag, person_summary
 from .graus_de_parentesco import ROMANO, nome_do_grau, nome_do_primo  # reexportados
-from .registro import get_name, ref_id
+from .homonimos import homonym_dossier, normalizar
 from .path_finding import MAX_DEPTH, find_ancestral_path
-from utils.text_cleaning import demojibake
-
-# Idade minima/maxima de um genitor no nascimento do filho. Fora disso o salto e
-# registrado como suspeito. Nao e regra biologica: e filtro de evidencia.
-IDADE_MINIMA_GENITOR = 12
-IDADE_MAXIMA_GENITOR = 70
-
-# Teto de expansao da busca por TODOS os ancestrais comuns. O caminho principal
-# continua vindo de `find_ancestral_path` (contrato congelado); a enumeracao
-# completa existe para contar caminhos alternativos e detectar colapso.
-MAX_DEPTH_ALTERNATIVOS = 12
-LIMITE_DE_CADEIAS = 8
-
-
-# ---------------------------------------------------------------------------
-# Por que a chave do indice e derivada do CONTEUDO, e nao da identidade
-# ---------------------------------------------------------------------------
-# Medido em 2026-10-06, enquanto o estado global existia:
-# `load_gedcom_and_build_graph` MUTAVA `gedcom_state.people` in place
-# (`clear()` + `update()`), entao o `id()` do dicionario era o MESMO em todo o
-# processo. Um cache chaveado por identidade nunca invalidaria — e a invalidacao
-# e justamente o que `test_6d` cobra.
-#
-# A tentacao, agora que `T023` removeu o estado e `carregar_arvore` devolve
-# dicionarios NOVOS a cada parse, e voltar a usar `id()`. NAO volte: `id()` e
-# reciclado. O dicionario da arvore anterior deixa de ser referenciado assim que
-# o parse seguinte devolve o novo, o CPython pode reusar o mesmo endereco, e a
-# chave coincidiria com a de um GEDCOM DIFERENTE — o cache devolveria o mapa do
-# anterior. O defeito apareceria so sob carga, e nao em teste isolado.
-#
-# A chave e o tamanho mais a primeira e a ultima chave de `people`: barato,
-# derivado do valor, e muda quando a arvore muda. A explicacao completa esta em
-# `_chave_de`.
-# ---------------------------------------------------------------------------
-# Datas
-# ---------------------------------------------------------------------------
-
-_ANO = re.compile(r"(\d{3,4})")
-
-
-def parse_year(date_value) -> int | None:
-    """Primeiro ano de 4 (ou 3) digitos de uma data GEDCOM, ou None.
-
-    Tolera `12 OCT 1976`, `ABOUT 1920`, `BEFORE 1812`, `1815` e `DateValueSimple`
-    do ged4py (convertido com `str`). Nao normaliza `BEFORE/AFTER` para aproximar
-    o ano: quem le decide, e a evidencia mostra o texto original.
-    """
-    if date_value is None:
-        return None
-    texto = str(date_value)
-    achado = _ANO.search(texto)
-    return int(achado.group(1)) if achado else None
-
-
-def _data_de(people, pid, tag):
-    pessoa = people.get(pid)
-    if not pessoa:
-        return None
-    for rec in pessoa.sub_records:
-        if rec.tag == tag:
-            for sub in rec.sub_records:
-                if sub.tag == "DATE":
-                    return str(sub.value)
-    return None
-
-
-def birth_date(people, pid):
-    return _data_de(people, pid, "BIRT")
-
-
-def death_date(people, pid):
-    return _data_de(people, pid, "DEAT")
-
-
-def _local_de(people, pid, tag):
-    pessoa = people.get(pid)
-    if not pessoa:
-        return None
-    for rec in pessoa.sub_records:
-        if rec.tag == tag:
-            for sub in rec.sub_records:
-                if sub.tag == "PLAC":
-                    return str(sub.value)
-    return None
-
-
-def intervalo_de_geracao_mediano(arvore) -> float | None:
-    """Mediana dos intervalos pai-filho datados da arvore, em anos.
-
-    ## Por que esta funcao mora aqui, e nao na fachada de validacao
-
-    Ela nasceu em `application.validacao` (feature `028`), onde so a fachada a usava.
-    A feature `031` precisou do MESMO numero dentro do fluxo de DNA, para o cartao
-    mostrar o veredito de viabilidade temporal. Duplicar aqui seria pior do que mover:
-    duas implementacoes de `G` podem divergir em silencio, e o mesmo kit passaria a ter
-    dois vereditos — um no cartao, outro na fachada.
-
-    O lugar e este porque o dado e todo documental: datas de nascimento e vinculos de
-    filiacao, que este modulo ja le com `parse_year` e `birth_date`.
-
-    So entram intervalos com as duas datas e dentro de 12-70 anos (a mesma faixa de
-    `IDADE_MINIMA_GENITOR`/`IDADE_MAXIMA_GENITOR`). Com menos de 3 amostras devolve
-    `None`, e quem chama cai para o prior declarado de 25 anos — `None` aqui significa
-    "a arvore nao tem amostra suficiente", nunca zero.
-    """
-    people, families = arvore[0], arvore[1]
-    intervalos: list[int] = []
-
-    for familia in families.values():
-        pais = []
-        for registro in familia.sub_records:
-            if registro.tag in ("HUSB", "WIFE"):
-                pid = ref_id(registro.value)
-                if pid:
-                    pais.append(pid)
-        if not pais:
-            continue
-        for registro in familia.sub_records:
-            if registro.tag != "CHIL":
-                continue
-            filho = ref_id(registro.value)
-            ano_filho = parse_year(birth_date(people, filho))
-            if ano_filho is None:
-                continue
-            for pai in pais:
-                ano_pai = parse_year(birth_date(people, pai))
-                if ano_pai is None:
-                    continue
-                intervalo = ano_filho - ano_pai
-                if IDADE_MINIMA_GENITOR <= intervalo <= IDADE_MAXIMA_GENITOR:
-                    intervalos.append(intervalo)
-
-    if len(intervalos) < 3:
-        return None
-    return float(median(intervalos))
-
-
-# ---------------------------------------------------------------------------
-# Fichas de pessoa
-# ---------------------------------------------------------------------------
-
-def _ids(people, sub_tag, pid):
-    return [ref_id(r.value) for r in people[pid].sub_records if r.tag == sub_tag] if pid in people else []
-
-
-#: Nome do atributo privado onde o indice pai -> filhos fica preso ao GRAFO da
-#: arvore. Nao e estado de modulo: o indice nasce e morre com a arvore daquela
-#: requisicao, entao nao ha retencao entre requisicoes nem chave de conteudo
-#: para colidir (o problema do L-24). Duas threads que compartilhem a mesma
-#: arvore montam o mesmo mapa; a atribuicao e atomica e o mapa e somente leitura.
-_ATRIBUTO_DE_FILHOS = "_indice_de_filhos_do_documental"
-
-
-def _construir_indice_de_filhos(families) -> dict:
-    """Pai -> filhos, na ordem em que a varredura de familias os encontra.
-
-    Reproduz `get_children` de antes: percorre as familias na ordem do dicionario,
-    acrescenta os filhos de cada familia ao pai e a mae e deduplica por pessoa. A
-    ordem e contrato observavel, por isso a construcao nao reordena nada.
-    """
-    mapa = {}
-    for fam in families.values():
-        husb = wife = None
-        filhos = []
-        for rec in fam.sub_records:
-            tag = rec.tag
-            if tag == "HUSB":
-                husb = ref_id(rec.value)
-            elif tag == "WIFE":
-                wife = ref_id(rec.value)
-            elif tag == "CHIL":
-                filhos.append(rec.value)
-        for pai in (husb, wife):
-            if not pai:
-                continue
-            destino = mapa.setdefault(pai, [])
-            for valor in filhos:
-                cid = ref_id(valor)
-                if cid not in destino:
-                    destino.append(cid)
-    return mapa
-
-
-def _indice_de_filhos(arvore) -> dict:
-    """O indice da arvore, montado uma vez e preso ao grafo dela."""
-    grafo = arvore[2]
-    mapa = getattr(grafo, _ATRIBUTO_DE_FILHOS, None)
-    if mapa is None:
-        mapa = _construir_indice_de_filhos(arvore[1])
-        setattr(grafo, _ATRIBUTO_DE_FILHOS, mapa)
-    return mapa
-
-
-def get_children(arvore, person_id):
-    """Filhos declarados em qualquer familia em que a pessoa seja HUSB ou WIFE."""
-    return list(_indice_de_filhos(arvore).get(person_id, []))
-
-
-def person_summary(arvore, person_id) -> dict:
-    """Ficha comparavel de uma pessoa, para desambiguar homonimos."""
-    people = arvore[0]
-    birth = birth_date(people, person_id)
-    death = death_date(people, person_id)
-    parents = get_parents(arvore, person_id)
-    return {
-        "id": person_id,
-        "name": get_name(people.get(person_id)),
-        "sex": next((r.value for r in people[person_id].sub_records if r.tag == "SEX"), None) if person_id in people else None,
-        "birth": birth,
-        "birth_year": parse_year(birth),
-        "birth_place": _local_de(people, person_id, "BIRT"),
-        "death": death,
-        "death_year": parse_year(death),
-        "parents": parents,
-        "parent_names": [get_name(people.get(p)) for p in parents],
-        "spouses": _ids(people, "FAMS", person_id),
-        "children": get_children(arvore, person_id),
-        "family_as_child": arvore[3].get(person_id, []),
-    }
-
-
-# ---------------------------------------------------------------------------
-# Homonimos
-# ---------------------------------------------------------------------------
-
-def normalizar(nome: str) -> str:
-    """Minusculas sem acento, para comparar nomes do GEDCOM e do CSV.
-
-    Aplica antes a correcao de mojibake do projeto (`utils.text_cleaning`), a
-    autoridade unica dessa limpeza. Sem isso, um GEDCOM sem `1 CHAR UTF-8` — que
-    o ged4py le como latin-1 — faz "José" chegar como "JosÃ©" e o mesmo nome
-    deixar de ser reconhecido como o mesmo: era o caso de um arquivo real
-    (`Arvore_Unificada_Oficial_V1_2.ged`), onde a regra de homonimos ficaria cega.
-    """
-    sem_acento = unicodedata.normalize("NFKD", demojibake(str(nome or "")))
-    sem_acento = "".join(c for c in sem_acento if not unicodedata.combining(c))
-    return " ".join(sem_acento.lower().split())
-
-
-def _diferencas_de_fichas(fichas) -> list:
-    """Campos em que as fichas JA MONTADAS divergem, o que o operador precisa olhar."""
-    campos = [
-        ("birth", "data de nascimento"),
-        ("birth_place", "local de nascimento"),
-        ("death", "data de falecimento"),
-        ("parents", "pais"),
-        ("children", "filhos"),
-        ("sex", "sexo"),
-    ]
-    divergencias = []
-    for campo, rotulo in campos:
-        valores = {str(ficha.get(campo)) for ficha in fichas}
-        if len(valores) > 1:
-            divergencias.append({"campo": campo, "rotulo": rotulo})
-    return divergencias
-
-
-_INDICE_DE_NOMES = {"chave": None, "mapa": None}
-
-
-def _chave_de(people) -> tuple:
-    """Chave de invalidacao do indice, derivada do CONTEUDO recebido.
-
-    O indice e um cache de modulo: a chave tem de mudar quando outro GEDCOM chega,
-    senao o fluxo seguinte leria os ids do anterior. A IDENTIDADE do dicionario nao
-    serve: o parse mutava `people` in place e o `id()` era o mesmo durante todo o
-    processo, entao o cache nunca invalidaria — foi o defeito medido em 2026-10-06
-    e cobrado por `test_6d`.
-
-    A chave usa contagem, primeira e ultima chave — barato e suficiente para
-    distinguir dois GEDCOMs carregados. Ela continua necessaria depois do `T023`,
-    que removeu o estado global e a mutacao in place: o parse agora devolve
-    dicionarios NOVOS, mas este cache e de modulo, e a chave continua sendo o que
-    garante que ele fale do GEDCOM da vez.
-    """
-    if not people:
-        return (0, None, None)
-    chaves = sorted(people)
-    return (len(people), chaves[0], chaves[-1])
-
-
-def _indice_por_nome(arvore) -> dict:
-    """nome normalizado -> lista de ids, reconstruido a cada GEDCOM carregado.
-
-    A varredura de 35 mil pessoas custa ~0,9 s. Sem este indice, o fluxo de DNA
-    (71 nomes distintos no arquivo real) pagava isso 71 vezes. A invalidacao usa o
-    CONTEUDO do dicionario de pessoas recebido, e nao um contador
-    (`gedcom_state.versao`, removido pela feature 005): dois GEDCOMs diferentes
-    podem ter a mesma contagem, e um contador exigiria estado. O detalhe da chave
-    esta em `_chave_de`.
-    """
-    people = arvore[0]
-    chave = _chave_de(people)
-    if _INDICE_DE_NOMES["chave"] != chave:
-        mapa: dict = {}
-        for pid, pessoa in people.items():
-            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
-        _INDICE_DE_NOMES["mapa"] = mapa
-        _INDICE_DE_NOMES["chave"] = chave
-    return _INDICE_DE_NOMES["mapa"]
-
-
-def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
-    """Todos os registros que podem ser a pessoa consultada, com ficha e ID.
-
-    Nao escolhe: devolve o conjunto. `ambiguous` e True quando existe mais de um
-    registro com o MESMO nome normalizado (homonimo direto) ou quando o chamador
-    informa candidatos semelhantes (`similar_ids`). A comparacao ignora acento,
-    entao "Jose Vicente de Souza" e "José Vicente de Souza" sao o mesmo nome.
-    """
-    alvo = normalizar(name_query)
-    exatos = list(_indice_por_nome(arvore).get(alvo, []))
-    parecidos = [pid for pid in (similar_ids or []) if pid not in exatos]
-    fichas = [person_summary(arvore, pid) for pid in exatos]
-    # As duas leituras saem da MESMA lista de fichas: `_diferencas` era chamado
-    # uma vez para `differences` e outra dentro de `identical_data`, e cada
-    # chamada remontava todas as fichas (medido: 6 para 2 homonimos).
-    differences = _diferencas_de_fichas(fichas) if len(exatos) > 1 else []
-    return {
-        "query": name_query,
-        "exact_count": len(exatos),
-        "exact_matches": fichas,
-        "similar_count": len(parecidos),
-        "similar_matches": [person_summary(arvore, pid) for pid in parecidos[:5]],
-        "ambiguous": len(exatos) > 1,
-        "differences": differences,
-        "identical_data": bool(len(exatos) > 1 and not differences),
-    }
-
+from .registro import get_name, ref_id
 
 # ---------------------------------------------------------------------------
 # Evidencia de cada salto
 # ---------------------------------------------------------------------------
+
+def _pais_da_familia(familia) -> set:
+    """Os ids declarados como HUSB e WIFE na familia."""
+    return {ref_id(r.value) for r in familia.sub_records if r.tag in ("HUSB", "WIFE")}
+
+
+def _familia_que_liga(families, candidatos, parent_id):
+    """A primeira familia de `candidatos` em que `parent_id` e HUSB ou WIFE."""
+    for fam_id in candidatos:
+        familia = families.get(fam_id)
+        if familia and parent_id in _pais_da_familia(familia):
+            return fam_id
+    return None
+
 
 def hop_evidence(arvore, child_id, parent_id) -> dict:
     """O registro cru que liga `child_id` a `parent_id`, com a idade implicada.
@@ -377,25 +79,13 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
     quando a idade do genitor no nascimento do filho sai da faixa tolerada, e
     `None` quando falta data para julgar.
     """
-    familia_id = None
-    husb = wife = None
     people, families = arvore[0], arvore[1]
-    for famc in _ids(people, "FAMC", child_id):
-        candidata = families.get(famc)
-        if candidata and parent_id in {ref_id(r.value) for r in candidata.sub_records if r.tag in ("HUSB", "WIFE")}:
-            familia_id = famc
-            break
+    familia_id = _familia_que_liga(families, ids_com_tag(people, "FAMC", child_id), parent_id)
     if familia_id is None:
-        for fam_id in arvore[3].get(child_id, []):
-            fam = families.get(fam_id)
-            if not fam:
-                continue
-            pais = {ref_id(r.value) for r in fam.sub_records if r.tag in ("HUSB", "WIFE")}
-            if parent_id in pais:
-                familia_id = fam_id
-                break
+        familia_id = _familia_que_liga(families, arvore[3].get(child_id, []), parent_id)
+    husb = wife = None
     if familia_id:
-        fam = arvore[1].get(familia_id)
+        fam = families.get(familia_id)
         husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
         wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)
 
@@ -497,97 +187,99 @@ def documentary_label(deg_a: int, deg_b: int) -> dict:
             "degrees": {"a_up": deg_a, "b_up": deg_b, "cousin_degree": grau, "removed": removidos}}
 
 
-def _ancestor_depths(arvore, start_id, max_depth: int) -> dict:
-    """Menor numero de saltos de `start_id` ate cada ancestral (BFS por pais)."""
-    profundidades = {}
-    fronteira = [start_id]
-    for nivel in range(1, max_depth + 1):
-        proxima = []
-        for pid in fronteira:
-            for pai in get_parents(arvore, pid):
-                if pai == start_id or pai in profundidades:
-                    continue
-                profundidades[pai] = nivel
-                proxima.append(pai)
-        if not proxima:
-            break
-        fronteira = proxima
-    return profundidades
+def _aviso_de_homonimo(homonimos, com_caminho: bool = True) -> dict | None:
+    """Aviso de identidade ambigua, com o acrescimo que so faz sentido havendo caminho.
 
-
-def _cadeias_ate(arvore, start_id, alvo, max_depth: int, limite=LIMITE_DE_CADEIAS) -> int:
-    """Quantas cadeias distintas de pais levam de `start_id` ate `alvo`.
-
-    Mais de uma cadeia ate o MESMO ancestral e a assinatura de colapso de
-    pedigree (primos que se casam, endogamia). A contagem para no `limite`.
+    A mensagem existe aqui uma vez so. O ramo de nao encontrado usa o mesmo texto, sem o
+    acrescimo final, porque ali nao ha caminho exibido para conferir.
     """
-    if start_id == alvo:
-        return 1
-    total = 0
-    pilha = deque([(start_id, 0)])
-    while pilha:
-        pid, nivel = pilha.popleft()
-        if nivel >= max_depth:
-            continue
-        for pai in get_parents(arvore, pid):
-            if pai == alvo:
-                total += 1
-                if total >= limite:
-                    return total
-            else:
-                pilha.append((pai, nivel + 1))
-    return total
-
-
-def _cadeia_curta(arvore, start_id, alvo, max_depth):
-    """Caminho mais curto de `start_id` ate `alvo` subindo por pais."""
-    anterior = {start_id: None}
-    fila = deque([(start_id, 0)])
-    while fila:
-        pid, nivel = fila.popleft()
-        if pid == alvo:
-            break
-        if nivel >= max_depth:
-            continue
-        for pai in get_parents(arvore, pid):
-            if pai not in anterior:
-                anterior[pai] = pid
-                fila.append((pai, nivel + 1))
-    if alvo not in anterior:
+    if not homonimos.get("ambiguous"):
         return None
-    cadeia, atual = [], alvo
-    while atual is not None:
-        cadeia.append(atual)
-        atual = anterior[atual]
-    return cadeia[::-1]
+    mensagem = ("Identidade ambígua — análise não conclusiva. Existem "
+                f"{homonimos.get('exact_count')} registros envolvendo "
+                f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
+                "deles é a pessoa procurada.")
+    if com_caminho:
+        mensagem += (" O caminho exibido pertence a um deles: confira as fichas (ID, datas, "
+                     "locais, pais, cônjuges, filhos) antes de aceitar o parentesco.")
+    return {"code": "homonimo", "message": mensagem}
 
 
-def find_all_common_ancestors(arvore, a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIVOS, limit=12) -> list:
-    """Todos os ancestrais comuns dentro do teto, ordenados por distancia total."""
-    de_a = _ancestor_depths(arvore, a_id, max_depth)
-    de_b = _ancestor_depths(arvore, b_id, max_depth)
-    comuns = []
-    for pid in set(de_a) & set(de_b):
-        da, db = de_a[pid], de_b[pid]
-        comuns.append({
-            "id": pid,
-            "name": get_name(arvore[0].get(pid)),
-            "distance_a": da,
-            "distance_b": db,
-            "total_meioses": da + db,
-            "birth": birth_date(arvore[0], pid),
-        })
-    comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]), c["name"] or ""))
-    return comuns[:limit]
+def _evidencia_do_caminho(arvore, path, indice) -> list:
+    """A evidencia de cada salto: sobe ate o MRCA e desce depois dele."""
+    evidencia = []
+    for i in range(len(path) - 1):
+        if i < indice:
+            evidencia.append(hop_evidence(arvore, path[i], path[i + 1]))
+        else:
+            evidencia.append(hop_evidence(arvore, path[i + 1], path[i]))
+    return evidencia
 
 
-def _caminho_alternativo(arvore, a_id, b_id, ancestral_id):
-    subida = _cadeia_curta(arvore, a_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
-    descida = _cadeia_curta(arvore, b_id, ancestral_id, MAX_DEPTH_ALTERNATIVOS)
-    if not subida or not descida:
+def _aviso_de_data_impossivel(item) -> dict:
+    """O aviso de um salto cuja idade do genitor sai da faixa tolerada."""
+    return {
+        "code": "data_impossivel",
+        "message": (f"Vínculo cronologicamente incompatível: {item['parent_name']} "
+                    f"({item['parent_birth'] or 'sem data'}) declarado como genitor de "
+                    f"{item['child_name']} ({item['child_birth'] or 'sem data'}), "
+                    f"diferença de {item['age_at_birth']} anos. O caminho foi mantido como o "
+                    "GEDCOM o declara — confira o registro antes de aceitar a conexão."),
+        "family_id": item["family_id"],
+    }
+
+
+def _avisos_de_data(evidencia) -> list:
+    """Um aviso por salto implausivel, na ordem do caminho."""
+    return [_aviso_de_data_impossivel(item) for item in evidencia if item["plausible"] is False]
+
+
+def _caminhos_alternativos(arvore, a_id, b_id, comuns, comum) -> list:
+    """Os caminhos que passam por outros ancestrais comuns, um por ancestral."""
+    alternativos = []
+    for c in comuns:
+        if c["id"] == comum:
+            continue
+        caminho = _caminho_alternativo(arvore, a_id, b_id, c["id"])
+        if caminho:
+            alternativos.append({**caminho, "distance_a": c["distance_a"], "distance_b": c["distance_b"],
+                                 "total_meioses": c["total_meioses"], "ancestor_name": c["name"]})
+    return alternativos
+
+
+def _colapso_de_pedigree(arvore, a_id, comuns) -> list:
+    """Ancestrais alcancados por mais de uma cadeia de pais, ate o limite."""
+    colapso = []
+    for c in comuns:
+        cadeias = _cadeias_ate(arvore, a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
+        if cadeias > 1:
+            colapso.append({"ancestor_id": c["id"], "ancestor_name": c["name"], "chains": cadeias})
+    return colapso
+
+
+def _aviso_de_caminhos_multiplos(alternativos) -> dict | None:
+    """O aviso de que existem caminhos alem do exibido, ou None."""
+    if not alternativos:
         return None
-    ids = subida + descida[::-1][1:]
-    return {"ids": ids, "names": [get_name(arvore[0].get(i)) for i in ids], "via": ancestral_id}
+    return {
+        "code": "caminhos_multiplos",
+        "message": (f"Foram encontrados {len(alternativos) + 1} caminhos genealógicos distintos "
+                    "(inclusive por outros ancestrais comuns). O caminho exibido é o de menor "
+                    "distância total; os demais estão listados e nenhum foi descartado."),
+    }
+
+
+def _aviso_de_colapso(colapso) -> dict | None:
+    """O aviso de colapso de pedigree, citando no maximo tres ancestrais, ou None."""
+    if not colapso:
+        return None
+    return {
+        "code": "colapso_de_pedigree",
+        "message": ("Possível colapso de pedigree/endogamia: "
+                    + "; ".join(f"{c['ancestor_name']} é alcançado por {c['chains']} cadeias distintas"
+                                for c in colapso[:3])
+                    + ". Isso infla o cM esperado e enfraquece a leitura do valor compartilhado."),
+    }
 
 
 def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
@@ -623,13 +315,7 @@ def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
                    "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
     }]
     if homonimos.get("ambiguous"):
-        avisos.append({
-            "code": "homonimo",
-            "message": (f"Identidade ambígua — análise não conclusiva. Existem "
-                        f"{homonimos.get('exact_count')} registros envolvendo "
-                        f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
-                        "deles é a pessoa procurada."),
-        })
+        avisos.append(_aviso_de_homonimo(homonimos, com_caminho=False))
     return {
         "status": "not_found",
         "source": "GEDCOM",
@@ -663,7 +349,6 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
                 "warnings": [{"code": "pessoa_ausente", "message": "Registro ausente no GEDCOM carregado."}]}
 
     path, comum = find_ancestral_path(arvore, a_id, b_id, max_depth=MAX_DEPTH)
-    avisos = []
     homonimos = homonyms or {}
 
     if not path:
@@ -673,66 +358,19 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
     deg_a, deg_b = indice, len(path) - 1 - indice
     parentesco = documentary_label(deg_a, deg_b)
 
-    evidencia = []
-    for i in range(len(path) - 1):
-        if i < indice:
-            evidencia.append(hop_evidence(arvore, path[i], path[i + 1]))
-        else:
-            evidencia.append(hop_evidence(arvore, path[i + 1], path[i]))
-
-    for item in evidencia:
-        if item["plausible"] is False:
-            avisos.append({
-                "code": "data_impossivel",
-                "message": (f"Vínculo cronologicamente incompatível: {item['parent_name']} "
-                            f"({item['parent_birth'] or 'sem data'}) declarado como genitor de "
-                            f"{item['child_name']} ({item['child_birth'] or 'sem data'}), "
-                            f"diferença de {item['age_at_birth']} anos. O caminho foi mantido como o "
-                            "GEDCOM o declara — confira o registro antes de aceitar a conexão."),
-                "family_id": item["family_id"],
-            })
-
+    evidencia = _evidencia_do_caminho(arvore, path, indice)
     comuns = find_all_common_ancestors(arvore, a_id, b_id)
-    alternativos = []
-    for c in comuns:
-        if c["id"] == comum:
-            continue
-        caminho = _caminho_alternativo(arvore, a_id, b_id, c["id"])
-        if caminho:
-            alternativos.append({**caminho, "distance_a": c["distance_a"], "distance_b": c["distance_b"],
-                                 "total_meioses": c["total_meioses"], "ancestor_name": c["name"]})
+    alternativos = _caminhos_alternativos(arvore, a_id, b_id, comuns, comum)
+    colapso = _colapso_de_pedigree(arvore, a_id, comuns)
 
-    if alternativos:
-        avisos.append({
-            "code": "caminhos_multiplos",
-            "message": (f"Foram encontrados {len(alternativos) + 1} caminhos genealógicos distintos "
-                        "(inclusive por outros ancestrais comuns). O caminho exibido é o de menor "
-                        "distância total; os demais estão listados e nenhum foi descartado."),
-        })
-
-    colapso = []
-    for c in comuns:
-        cadeias = _cadeias_ate(arvore, a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
-        if cadeias > 1:
-            colapso.append({"ancestor_id": c["id"], "ancestor_name": c["name"], "chains": cadeias})
-    if colapso:
-        avisos.append({
-            "code": "colapso_de_pedigree",
-            "message": ("Possível colapso de pedigree/endogamia: "
-                        + "; ".join(f"{c['ancestor_name']} é alcançado por {c['chains']} cadeias distintas"
-                                    for c in colapso[:3])
-                        + ". Isso infla o cM esperado e enfraquece a leitura do valor compartilhado."),
-        })
-
-    if homonimos.get("ambiguous"):
-        avisos.append({
-            "code": "homonimo",
-            "message": (f"Identidade ambígua — análise não conclusiva. Existem "
-                        f"{homonimos['exact_count']} registros envolvendo '{homonimos['query']}' no "
-                        "GEDCOM e não é possível determinar qual deles é a pessoa procurada. O caminho "
-                        "exibido pertence a um deles: confira as fichas (ID, datas, locais, pais, "
-                        "cônjuges, filhos) antes de aceitar o parentesco."),
-        })
+    avisos = _avisos_de_data(evidencia)
+    for aviso in (
+        _aviso_de_caminhos_multiplos(alternativos),
+        _aviso_de_colapso(colapso),
+        _aviso_de_homonimo(homonimos),
+    ):
+        if aviso is not None:
+            avisos.append(aviso)
 
     return {
         "status": "ambiguous" if homonimos.get("ambiguous") else "found",
@@ -757,12 +395,13 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
 __all__ = [
     "documentary_relationship", "documental_nao_encontrado",
     "documentary_label", "person_summary",
-    "homonym_dossier", "hop_evidence", "find_all_common_ancestors",
+    "homonym_dossier",
     "parse_year", "birth_date", "death_date", "get_children", "normalizar",
     "intervalo_de_geracao_mediano",
-    # Reexportados de `core.graus_de_parentesco` desde 2026-10-22: continuam publicos
-    # daqui para quem ja os importava, e e o que impede que a linha de import seja
-    # lida como codigo morto e apagada.
-    "nome_do_grau", "ROMANO",
-    "MAX_DEPTH", "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
+    # Reexportado de `core.graus_de_parentesco` desde 2026-10-22: continua publico daqui
+    # para quem ja o importava (dois testes), e e o que impede que a linha de import seja
+    # lida como codigo morto e apagada. `ROMANO`, do mesmo import, continua importavel
+    # daqui, mas nao e anunciado porque nenhum consumidor o importa.
+    "nome_do_grau",
+    "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
 ]

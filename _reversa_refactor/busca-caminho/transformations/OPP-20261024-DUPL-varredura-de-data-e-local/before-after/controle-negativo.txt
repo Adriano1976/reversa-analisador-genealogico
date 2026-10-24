@@ -1,0 +1,30 @@
+Controle negativo da prova de equivalencia, executado em 2026-10-24 ANTES de aplicar o
+CHG-001.diff.
+
+Objetivo: provar que o instrumento enxerga diferenca. Sem isso, um "0 divergencias" nao
+significa nada.
+
+O script recebe --controle-negativo e injeta uma diferenca proposital em `_data_de`
+(devolve o texto em maiusculas). O resto do modulo ainda e o codigo antigo.
+
+Comando:
+  .venv\Scripts\python.exe before-after\prova-de-equivalencia.py --controle-negativo
+
+Saida (trecho final):
+
+  _data_de (BIRT, DEAT, BURI, MARR, inexistente)       casos:  20005  divergentes: 221
+      ['@I002002e6@', 'BIRT']
+        antes: '(um 1120)'
+        depois: '(UM 1120)'
+      ['@I00298d8e@', 'BIRT']
+        antes: '(aproximadamente 1920)'
+        depois: '(APROXIMADAMENTE 1920)'
+  _local_de (BIRT, DEAT, BURI, MARR, inexistente)      casos:  20005  divergentes: 0
+  hop_evidence (todas as arestas + pares sem vinculo)  casos:  46487  divergentes: 0
+
+total de divergencias: 221
+CONTROLE NEGATIVO OK: a prova detectou a diferenca injetada.
+
+Leitura: a prova isolou a funcao alterada, apontou 221 casos divergentes e mostrou o texto
+exato que mudou. As outras duas funcoes seguiram em zero, o que mostra que o instrumento
+nao acusa tudo por atacado.

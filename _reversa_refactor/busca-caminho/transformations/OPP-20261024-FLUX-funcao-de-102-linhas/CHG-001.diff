@@ -1,0 +1,208 @@
+diff --git a/src/core/documentary_relationship.py b/src/core/documentary_relationship.py
+index 237ac5f..0a0c285 100644
+--- a/src/core/documentary_relationship.py
++++ b/src/core/documentary_relationship.py
+@@ -602,6 +602,101 @@ def _caminho_alternativo(arvore, a_id, b_id, ancestral_id):
+     return {"ids": ids, "names": [get_name(arvore[0].get(i)) for i in ids], "via": ancestral_id}
+ 
+ 
++def _aviso_de_homonimo(homonimos, com_caminho: bool = True) -> dict | None:
++    """Aviso de identidade ambigua, com o acrescimo que so faz sentido havendo caminho.
++
++    A mensagem existe aqui uma vez so. O ramo de nao encontrado usa o mesmo texto, sem o
++    acrescimo final, porque ali nao ha caminho exibido para conferir.
++    """
++    if not homonimos.get("ambiguous"):
++        return None
++    mensagem = ("Identidade ambígua — análise não conclusiva. Existem "
++                f"{homonimos.get('exact_count')} registros envolvendo "
++                f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
++                "deles é a pessoa procurada.")
++    if com_caminho:
++        mensagem += (" O caminho exibido pertence a um deles: confira as fichas (ID, datas, "
++                     "locais, pais, cônjuges, filhos) antes de aceitar o parentesco.")
++    return {"code": "homonimo", "message": mensagem}
++
++
++def _evidencia_do_caminho(arvore, path, indice) -> list:
++    """A evidencia de cada salto: sobe ate o MRCA e desce depois dele."""
++    evidencia = []
++    for i in range(len(path) - 1):
++        if i < indice:
++            evidencia.append(hop_evidence(arvore, path[i], path[i + 1]))
++        else:
++            evidencia.append(hop_evidence(arvore, path[i + 1], path[i]))
++    return evidencia
++
++
++def _aviso_de_data_impossivel(item) -> dict:
++    """O aviso de um salto cuja idade do genitor sai da faixa tolerada."""
++    return {
++        "code": "data_impossivel",
++        "message": (f"Vínculo cronologicamente incompatível: {item['parent_name']} "
++                    f"({item['parent_birth'] or 'sem data'}) declarado como genitor de "
++                    f"{item['child_name']} ({item['child_birth'] or 'sem data'}), "
++                    f"diferença de {item['age_at_birth']} anos. O caminho foi mantido como o "
++                    "GEDCOM o declara — confira o registro antes de aceitar a conexão."),
++        "family_id": item["family_id"],
++    }
++
++
++def _avisos_de_data(evidencia) -> list:
++    """Um aviso por salto implausivel, na ordem do caminho."""
++    return [_aviso_de_data_impossivel(item) for item in evidencia if item["plausible"] is False]
++
++
++def _caminhos_alternativos(arvore, a_id, b_id, comuns, comum) -> list:
++    """Os caminhos que passam por outros ancestrais comuns, um por ancestral."""
++    alternativos = []
++    for c in comuns:
++        if c["id"] == comum:
++            continue
++        caminho = _caminho_alternativo(arvore, a_id, b_id, c["id"])
++        if caminho:
++            alternativos.append({**caminho, "distance_a": c["distance_a"], "distance_b": c["distance_b"],
++                                 "total_meioses": c["total_meioses"], "ancestor_name": c["name"]})
++    return alternativos
++
++
++def _colapso_de_pedigree(arvore, a_id, comuns) -> list:
++    """Ancestrais alcancados por mais de uma cadeia de pais, ate o limite."""
++    colapso = []
++    for c in comuns:
++        cadeias = _cadeias_ate(arvore, a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
++        if cadeias > 1:
++            colapso.append({"ancestor_id": c["id"], "ancestor_name": c["name"], "chains": cadeias})
++    return colapso
++
++
++def _aviso_de_caminhos_multiplos(alternativos) -> dict | None:
++    """O aviso de que existem caminhos alem do exibido, ou None."""
++    if not alternativos:
++        return None
++    return {
++        "code": "caminhos_multiplos",
++        "message": (f"Foram encontrados {len(alternativos) + 1} caminhos genealógicos distintos "
++                    "(inclusive por outros ancestrais comuns). O caminho exibido é o de menor "
++                    "distância total; os demais estão listados e nenhum foi descartado."),
++    }
++
++
++def _aviso_de_colapso(colapso) -> dict | None:
++    """O aviso de colapso de pedigree, citando no maximo tres ancestrais, ou None."""
++    if not colapso:
++        return None
++    return {
++        "code": "colapso_de_pedigree",
++        "message": ("Possível colapso de pedigree/endogamia: "
++                    + "; ".join(f"{c['ancestor_name']} é alcançado por {c['chains']} cadeias distintas"
++                                for c in colapso[:3])
++                    + ". Isso infla o cM esperado e enfraquece a leitura do valor compartilhado."),
++    }
++
++
+ def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
+     """A forma do parentesco documental quando NAO se apresenta caminho nenhum.
+ 
+@@ -635,13 +730,7 @@ def documental_nao_encontrado(arvore, a_id, b_id, homonimos=None) -> dict:
+                    "GEDCOM não registra, ou por um vínculo que falte no arquivo.",
+     }]
+     if homonimos.get("ambiguous"):
+-        avisos.append({
+-            "code": "homonimo",
+-            "message": (f"Identidade ambígua — análise não conclusiva. Existem "
+-                        f"{homonimos.get('exact_count')} registros envolvendo "
+-                        f"'{homonimos.get('query')}' no GEDCOM e não é possível determinar qual "
+-                        "deles é a pessoa procurada."),
+-        })
++        avisos.append(_aviso_de_homonimo(homonimos, com_caminho=False))
+     return {
+         "status": "not_found",
+         "source": "GEDCOM",
+@@ -675,7 +764,6 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
+                 "warnings": [{"code": "pessoa_ausente", "message": "Registro ausente no GEDCOM carregado."}]}
+ 
+     path, comum = find_ancestral_path(arvore, a_id, b_id, max_depth=MAX_DEPTH)
+-    avisos = []
+     homonimos = homonyms or {}
+ 
+     if not path:
+@@ -685,66 +773,19 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
+     deg_a, deg_b = indice, len(path) - 1 - indice
+     parentesco = documentary_label(deg_a, deg_b)
+ 
+-    evidencia = []
+-    for i in range(len(path) - 1):
+-        if i < indice:
+-            evidencia.append(hop_evidence(arvore, path[i], path[i + 1]))
+-        else:
+-            evidencia.append(hop_evidence(arvore, path[i + 1], path[i]))
+-
+-    for item in evidencia:
+-        if item["plausible"] is False:
+-            avisos.append({
+-                "code": "data_impossivel",
+-                "message": (f"Vínculo cronologicamente incompatível: {item['parent_name']} "
+-                            f"({item['parent_birth'] or 'sem data'}) declarado como genitor de "
+-                            f"{item['child_name']} ({item['child_birth'] or 'sem data'}), "
+-                            f"diferença de {item['age_at_birth']} anos. O caminho foi mantido como o "
+-                            "GEDCOM o declara — confira o registro antes de aceitar a conexão."),
+-                "family_id": item["family_id"],
+-            })
+-
++    evidencia = _evidencia_do_caminho(arvore, path, indice)
+     comuns = find_all_common_ancestors(arvore, a_id, b_id)
+-    alternativos = []
+-    for c in comuns:
+-        if c["id"] == comum:
+-            continue
+-        caminho = _caminho_alternativo(arvore, a_id, b_id, c["id"])
+-        if caminho:
+-            alternativos.append({**caminho, "distance_a": c["distance_a"], "distance_b": c["distance_b"],
+-                                 "total_meioses": c["total_meioses"], "ancestor_name": c["name"]})
+-
+-    if alternativos:
+-        avisos.append({
+-            "code": "caminhos_multiplos",
+-            "message": (f"Foram encontrados {len(alternativos) + 1} caminhos genealógicos distintos "
+-                        "(inclusive por outros ancestrais comuns). O caminho exibido é o de menor "
+-                        "distância total; os demais estão listados e nenhum foi descartado."),
+-        })
+-
+-    colapso = []
+-    for c in comuns:
+-        cadeias = _cadeias_ate(arvore, a_id, c["id"], MAX_DEPTH_ALTERNATIVOS)
+-        if cadeias > 1:
+-            colapso.append({"ancestor_id": c["id"], "ancestor_name": c["name"], "chains": cadeias})
+-    if colapso:
+-        avisos.append({
+-            "code": "colapso_de_pedigree",
+-            "message": ("Possível colapso de pedigree/endogamia: "
+-                        + "; ".join(f"{c['ancestor_name']} é alcançado por {c['chains']} cadeias distintas"
+-                                    for c in colapso[:3])
+-                        + ". Isso infla o cM esperado e enfraquece a leitura do valor compartilhado."),
+-        })
+-
+-    if homonimos.get("ambiguous"):
+-        avisos.append({
+-            "code": "homonimo",
+-            "message": (f"Identidade ambígua — análise não conclusiva. Existem "
+-                        f"{homonimos['exact_count']} registros envolvendo '{homonimos['query']}' no "
+-                        "GEDCOM e não é possível determinar qual deles é a pessoa procurada. O caminho "
+-                        "exibido pertence a um deles: confira as fichas (ID, datas, locais, pais, "
+-                        "cônjuges, filhos) antes de aceitar o parentesco."),
+-        })
++    alternativos = _caminhos_alternativos(arvore, a_id, b_id, comuns, comum)
++    colapso = _colapso_de_pedigree(arvore, a_id, comuns)
++
++    avisos = _avisos_de_data(evidencia)
++    for aviso in (
++        _aviso_de_caminhos_multiplos(alternativos),
++        _aviso_de_colapso(colapso),
++        _aviso_de_homonimo(homonimos),
++    ):
++        if aviso is not None:
++            avisos.append(aviso)
+ 
+     return {
+         "status": "ambiguous" if homonimos.get("ambiguous") else "found",

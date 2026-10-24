@@ -1,0 +1,102 @@
+diff --git a/src/core/documentary_relationship.py b/src/core/documentary_relationship.py
+index 84620bb..237ac5f 100644
+--- a/src/core/documentary_relationship.py
++++ b/src/core/documentary_relationship.py
+@@ -89,18 +89,27 @@ def parse_year(date_value) -> int | None:
+     return int(achado.group(1)) if achado else None
+ 
+ 
+-def _data_de(people, pid, tag):
++def _sub_valor(people, pid, tag, sub_tag):
++    """Primeiro valor do sub-registro `sub_tag` dentro do registro `tag`, ou None.
++
++    `_data_de` e `_local_de` sao a mesma varredura com outra constante. Ficam como
++    duas linhas de nome para que uma correcao numa nao deixe a outra para tras.
++    """
+     pessoa = people.get(pid)
+     if not pessoa:
+         return None
+     for rec in pessoa.sub_records:
+         if rec.tag == tag:
+             for sub in rec.sub_records:
+-                if sub.tag == "DATE":
++                if sub.tag == sub_tag:
+                     return str(sub.value)
+     return None
+ 
+ 
++def _data_de(people, pid, tag):
++    return _sub_valor(people, pid, tag, "DATE")
++
++
+ def birth_date(people, pid):
+     return _data_de(people, pid, "BIRT")
+ 
+@@ -110,15 +119,7 @@ def death_date(people, pid):
+ 
+ 
+ def _local_de(people, pid, tag):
+-    pessoa = people.get(pid)
+-    if not pessoa:
+-        return None
+-    for rec in pessoa.sub_records:
+-        if rec.tag == tag:
+-            for sub in rec.sub_records:
+-                if sub.tag == "PLAC":
+-                    return str(sub.value)
+-    return None
++    return _sub_valor(people, pid, tag, "PLAC")
+ 
+ 
+ def intervalo_de_geracao_mediano(arvore) -> float | None:
+@@ -378,6 +379,20 @@ def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
+ # Evidencia de cada salto
+ # ---------------------------------------------------------------------------
+ 
++def _pais_da_familia(familia) -> set:
++    """Os ids declarados como HUSB e WIFE na familia."""
++    return {ref_id(r.value) for r in familia.sub_records if r.tag in ("HUSB", "WIFE")}
++
++
++def _familia_que_liga(families, candidatos, parent_id):
++    """A primeira familia de `candidatos` em que `parent_id` e HUSB ou WIFE."""
++    for fam_id in candidatos:
++        familia = families.get(fam_id)
++        if familia and parent_id in _pais_da_familia(familia):
++            return fam_id
++    return None
++
++
+ def hop_evidence(arvore, child_id, parent_id) -> dict:
+     """O registro cru que liga `child_id` a `parent_id`, com a idade implicada.
+ 
+@@ -386,25 +401,13 @@ def hop_evidence(arvore, child_id, parent_id) -> dict:
+     quando a idade do genitor no nascimento do filho sai da faixa tolerada, e
+     `None` quando falta data para julgar.
+     """
+-    familia_id = None
+-    husb = wife = None
+     people, families = arvore[0], arvore[1]
+-    for famc in _ids(people, "FAMC", child_id):
+-        candidata = families.get(famc)
+-        if candidata and parent_id in {ref_id(r.value) for r in candidata.sub_records if r.tag in ("HUSB", "WIFE")}:
+-            familia_id = famc
+-            break
++    familia_id = _familia_que_liga(families, _ids(people, "FAMC", child_id), parent_id)
+     if familia_id is None:
+-        for fam_id in arvore[3].get(child_id, []):
+-            fam = families.get(fam_id)
+-            if not fam:
+-                continue
+-            pais = {ref_id(r.value) for r in fam.sub_records if r.tag in ("HUSB", "WIFE")}
+-            if parent_id in pais:
+-                familia_id = fam_id
+-                break
++        familia_id = _familia_que_liga(families, arvore[3].get(child_id, []), parent_id)
++    husb = wife = None
+     if familia_id:
+-        fam = arvore[1].get(familia_id)
++        fam = families.get(familia_id)
+         husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
+         wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)
+ 

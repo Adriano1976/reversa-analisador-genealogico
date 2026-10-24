@@ -1,0 +1,18 @@
+Suite completa DEPOIS do CHG-001 e do CHG-002 desta transformacao.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped in 114.63s (0:01:54)
+
+Mesma contagem da linha de base e as mesmas 9 exclusoes. Duas provas foram feitas antes do
+gate, no proprio estado que o diff produz, e repetidas depois de aplicar:
+
+  1635 passed, 9 skipped in 90.44s   (estado do diff, antes de reverter para o gate)
+  1635 passed, 9 skipped in 114.63s  (estado aplicado, depois do gate)
+
+Os dois arquivos de teste tocados, isolados:
+
+  .venv\Scripts\python.exe -m pytest tests\test_indice_de_nomes_do_documental.py tests\test_desempenho_das_fichas.py -q
+  10 passed in 2.74s

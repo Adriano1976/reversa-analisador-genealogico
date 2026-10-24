@@ -1,0 +1,67 @@
+diff --git a/src/core/documentary_relationship.py b/src/core/documentary_relationship.py
+--- a/src/core/documentary_relationship.py
++++ b/src/core/documentary_relationship.py
+@@ -31,7 +31,6 @@
+ from collections import deque
+ from statistics import median
+-from typing import TypedDict
+ 
+ from .family_navigation import get_parents
+ from .graus_de_parentesco import ROMANO, nome_do_grau, nome_do_primo  # reexportados
+ from .registro import get_name, ref_id
+@@ -293,20 +293,13 @@
+     return divergencias
+ 
+ 
+-class _CacheDeNomes(TypedDict):
+-    """A chave do GEDCOM e o indice que ela valida, no mesmo estado de modulo.
+-
+-    Tipado por causa do retorno: com o literal `{"chave": None, "mapa": None}` o
+-    verificador inferia um dicionario de `None`, e `_indice_por_nome` parecia
+-    devolver `None` onde declara `dict`. Os valores iniciais vazios dizem a mesma
+-    coisa que o `None` dizia, porque a primeira consulta sempre invalida a chave.
+-    """
+-
+-    chave: tuple
+-    mapa: dict
+-
+-
+-_INDICE_DE_NOMES: _CacheDeNomes = {"chave": (), "mapa": {}}
++#: O par (chave, mapa) num valor so. A troca e uma atribuicao de nome, que em
++#: CPython e atomica: quem le ve o par inteiro ou o par anterior, nunca a chave de
++#: um GEDCOM junto do mapa de outro. Enquanto eram dois campos de um dicionario, a
++#: publicacao acontecia em dois tempos e o `return` relia o global, de modo que
++#: duas requisicoes simultaneas podiam devolver o indice uma da outra. Medido em
++#: 2026-10-24 com duas arvores e duas threads: ver `_reversa_refactor/busca-caminho/`.
++_INDICE_DE_NOMES: tuple[tuple, dict] = ((), {})
+ 
+ 
+ def _chave_de(people) -> tuple:
+@@ -340,15 +340,18 @@
+     podem ter a mesma contagem, e um contador exigiria estado. O detalhe da chave
+     esta em `_chave_de`.
+     """
+-    people = arvore[0]
+-    chave = _chave_de(people)
+-    if _INDICE_DE_NOMES["chave"] != chave:
+-        mapa: dict = {}
+-        for pid, pessoa in people.items():
+-            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
+-        _INDICE_DE_NOMES["mapa"] = mapa
+-        _INDICE_DE_NOMES["chave"] = chave
+-    return _INDICE_DE_NOMES["mapa"]
++    global _INDICE_DE_NOMES
++
++    people = arvore[0]
++    chave = _chave_de(people)
++    publicado = _INDICE_DE_NOMES
++    if publicado[0] != chave:
++        mapa: dict = {}
++        for pid, pessoa in people.items():
++            mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
++        publicado = (chave, mapa)
++        _INDICE_DE_NOMES = publicado
++    return publicado[1]
+ 
+ 
+ def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:

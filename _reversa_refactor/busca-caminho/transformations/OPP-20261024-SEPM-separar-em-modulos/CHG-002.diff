@@ -1,0 +1,86 @@
+diff --git a/tests/test_desempenho_das_fichas.py b/tests/test_desempenho_das_fichas.py
+index 33e9da1..4f01fc2 100644
+--- a/tests/test_desempenho_das_fichas.py
++++ b/tests/test_desempenho_das_fichas.py
+@@ -20,6 +20,7 @@ sys.path.insert(0, RAIZ)
+ sys.path.insert(0, os.path.join(RAIZ, "src"))
+ 
+ from core import documentary_relationship as dr  # noqa: E402
++from core import homonimos as ho  # noqa: E402
+ from parsers.gedcom_parser import carregar_arvore  # noqa: E402
+ 
+ CABECALHO = (
+@@ -112,14 +113,14 @@ def test_person_summary_nao_varre_as_familias_por_ficha(arvore):
+ 
+ def test_dossie_calcula_as_diferencas_uma_vez(arvore, monkeypatch):
+     chamadas = []
+-    original = dr.person_summary
++    original = ho.person_summary
+ 
+     def contando(arv, pid):
+         chamadas.append(pid)
+         return original(arv, pid)
+ 
+-    monkeypatch.setattr(dr, "person_summary", contando)
+-    dossie = dr.homonym_dossier(arvore, "Joao Silva")
++    monkeypatch.setattr(ho, "person_summary", contando)
++    dossie = ho.homonym_dossier(arvore, "Joao Silva")
+ 
+     assert dossie["exact_count"] == 2
+     assert dossie["identical_data"] is False
+diff --git a/tests/test_indice_de_nomes_do_documental.py b/tests/test_indice_de_nomes_do_documental.py
+index 0ecab9c..8dbea68 100644
+--- a/tests/test_indice_de_nomes_do_documental.py
++++ b/tests/test_indice_de_nomes_do_documental.py
+@@ -25,9 +25,9 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ sys.path.insert(0, RAIZ)
+ sys.path.insert(0, os.path.join(RAIZ, "src"))
+ 
+-from core import documentary_relationship  # noqa: E402
++from core import homonimos  # noqa: E402
+ 
+-CAMINHO_DO_MODULO = os.path.join(RAIZ, "src", "core", "documentary_relationship.py")
++CAMINHO_DO_MODULO = os.path.join(RAIZ, "src", "core", "homonimos.py")
+ 
+ 
+ class _Nome:
+@@ -129,7 +129,7 @@ def test_indice_e_declarado_como_par_imutavel():
+ 
+ def test_indice_e_uma_tupla_de_dois_elementos_em_execucao():
+     """A mesma exigencia, vista do objeto em tempo de execucao."""
+-    indice = documentary_relationship._INDICE_DE_NOMES
++    indice = homonimos._INDICE_DE_NOMES
+ 
+     assert isinstance(indice, tuple)
+     assert len(indice) == 2
+@@ -144,8 +144,8 @@ def test_duas_chamadas_com_a_mesma_arvore_devolvem_o_mesmo_mapa():
+     """A segunda chamada acerta o cache: mesmo objeto, sem remontar."""
+     arvore = _arvore_de("Ana Alfa", "Zeca Alfa", prefixo="A")
+ 
+-    primeiro = documentary_relationship._indice_por_nome(arvore)
+-    segundo = documentary_relationship._indice_por_nome(arvore)
++    primeiro = homonimos._indice_por_nome(arvore)
++    segundo = homonimos._indice_por_nome(arvore)
+ 
+     assert segundo is primeiro
+     assert set(primeiro) == {"ana alfa", "zeca alfa"}
+@@ -156,8 +156,8 @@ def test_arvore_nova_invalida_o_indice():
+     alfa = _arvore_de("Ana Alfa", prefixo="A")
+     beta = _arvore_de("Bruno Beta", "Yara Beta", prefixo="B")
+ 
+-    mapa_alfa = documentary_relationship._indice_por_nome(alfa)
+-    mapa_beta = documentary_relationship._indice_por_nome(beta)
++    mapa_alfa = homonimos._indice_por_nome(alfa)
++    mapa_beta = homonimos._indice_por_nome(beta)
+ 
+     assert set(mapa_alfa) == {"ana alfa"}
+     assert set(mapa_beta) == {"bruno beta", "yara beta"}
+@@ -195,7 +195,7 @@ def test_nenhuma_requisicao_recebe_o_indice_de_outra_arvore():
+ 
+             def trabalho(arvore, marca: str) -> None:
+                 largada.wait(timeout=20)
+-                mapa = documentary_relationship._indice_por_nome(arvore)
++                mapa = homonimos._indice_por_nome(arvore)
+                 if not all(marca in nome for nome in mapa):
+                     trocadas.append(sorted(mapa)[:3])
+ 

@@ -40,8 +40,8 @@ Duas adições, nenhuma edição.
 
 | Arquivo | Linhas | O que é |
 |---|---|---|
-| `src/core/contrato_do_cartao.py` | 111 | `CHAVES_DO_CARTAO`, tupla com as 40 chaves na ordem canônica, e `CHAVE_SEM_CORRESPONDENCIA` |
-| `tests/test_contrato_do_cartao.py` | 43 | dois testes, um por tipo de cartão |
+| `src/core/contrato_do_cartao.py` | 67 | `CHAVES_DO_CARTAO`, tupla com as 40 chaves na ordem canônica, e `CHAVE_SEM_CORRESPONDENCIA` |
+| `tests/test_contrato_do_cartao.py` | 77 | dois testes, um por tipo de cartão |
 
 ## O que a guarda prende
 

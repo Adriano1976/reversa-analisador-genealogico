@@ -38,7 +38,7 @@ class _ContextoDaAnalise:
     features: dict
     dominio: dict
     ano_base: int
-    intervalo_de_geracao: int
+    intervalo_de_geracao: float | None
     analisador: DNAAnalyzer
     candidatos_fixos: dict
     documental_por_pessoa: dict

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPP-20261024-DUPL · plano de simplificação</title>
+<style>
+  :root { --tinta:#1a1a1a; --fraco:#5b6470; --linha:#d8dee6; --fundo:#f7f8fa; --papel:#fff;
+          --erro:#b3261e; --erro-fundo:#fdecea; --ok:#1e6b3a; --ok-fundo:#e8f4ec; --aviso:#8a5a00; --aviso-fundo:#fdf3e0; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.25rem 4rem; background:var(--fundo); color:var(--tinta);
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:70rem; margin:0 auto; background:var(--papel); padding:2.5rem 2.75rem 3rem;
+         border:1px solid var(--linha); border-radius:10px; }
+  h1 { font-size:1.55rem; margin:0 0 .35rem; letter-spacing:-.01em; }
+  h2 { font-size:1.12rem; margin:2.4rem 0 .8rem; padding-bottom:.4rem; border-bottom:1px solid var(--linha); }
+  h3 { font-size:.95rem; margin:1.4rem 0 .5rem; }
+  p { margin:.6rem 0; }
+  .sub { color:var(--fraco); font-size:.9rem; margin:0 0 1.4rem; }
+  .etiquetas { display:flex; flex-wrap:wrap; gap:.45rem; margin:1rem 0 1.6rem; }
+  .etiqueta { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .55rem;
+              border-radius:999px; background:#eef1f5; color:var(--fraco); border:1px solid var(--linha); }
+  .etiqueta.ok { background:var(--ok-fundo); color:var(--ok); border-color:#bfdcc9; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0 1.1rem; font-size:.87rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--linha); vertical-align:top; }
+  th { font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--fraco); font-weight:600; }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  code { font-family:"Cascadia Mono",Consolas,monospace; font-size:.85em; background:#f1f3f6;
+         padding:.08rem .3rem; border-radius:4px; }
+  pre { margin:.8rem 0; padding:.9rem 1rem; background:#f5f7f9; border:1px solid var(--linha);
+        border-radius:8px; overflow-x:auto; font-family:"Cascadia Mono",Consolas,monospace;
+        font-size:.8rem; line-height:1.5; }
+  pre .ruim { color:var(--erro); }
+  pre .bom { color:var(--ok); }
+  .caixa { border-left:3px solid var(--linha); padding:.7rem 1rem; margin:1rem 0; background:#fafbfc;
+           border-radius:0 6px 6px 0; }
+  .caixa.aviso { border-left-color:#d9a441; background:var(--aviso-fundo); }
+  .caixa.ok { border-left-color:var(--ok); background:var(--ok-fundo); }
+  .caixa strong { display:block; margin-bottom:.2rem; }
+  .grade { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:54rem) { .grade { grid-template-columns:1fr; } main { padding:1.6rem 1.2rem 2rem; } }
+  .folio { font-size:.8rem; color:var(--fraco); margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--linha); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>A mesma varredura escrita duas vezes</h1>
+<p class="sub">Plano de simplificação de <code>src/core/documentary_relationship.py</code>. Gate 1 de 2.
+Nenhum arquivo do projeto foi tocado.</p>
+
+<div class="etiquetas">
+  <span class="etiqueta">OPP-20261024-DUPL</span>
+  <span class="etiqueta">contexto busca-caminho</span>
+  <span class="etiqueta">verbo simplify</span>
+  <span class="etiqueta ok">confiança 🟢</span>
+  <span class="etiqueta">custo baixo</span>
+</div>
+
+<h2>1. O que está duplicado hoje</h2>
+
+<p>Duas funções de dez linhas, idênticas, com uma constante trocada:</p>
+
+<div class="grade">
+<div>
+<h3>`_data_de`, linhas 92 a 101</h3>
+<pre>def _data_de(people, pid, tag):
+    pessoa = people.get(pid)
+    if not pessoa:
+        return None
+    for rec in pessoa.sub_records:
+        if rec.tag == tag:
+            for sub in rec.sub_records:
+                if sub.tag == <span class="ruim">"DATE"</span>:
+                    return str(sub.value)
+    return None</pre>
+</div>
+<div>
+<h3>`_local_de`, linhas 112 a 121</h3>
+<pre>def _local_de(people, pid, tag):
+    pessoa = people.get(pid)
+    if not pessoa:
+        return None
+    for rec in pessoa.sub_records:
+        if rec.tag == tag:
+            for sub in rec.sub_records:
+                if sub.tag == <span class="ruim">"PLAC"</span>:
+                    return str(sub.value)
+    return None</pre>
+</div>
+</div>
+
+<p>E, dentro de <code>hop_evidence</code>, a mesma pergunta feita duas vezes com laços quase
+iguais: <em>em qual família esta pessoa é HUSB ou WIFE</em>. A primeira passagem usa os
+registros FAMC da pessoa; a segunda, o índice filho para famílias. O conjunto de pais é
+remontado nas duas.</p>
+
+<pre>    for famc in _ids(people, "FAMC", child_id):
+        candidata = families.get(famc)
+        if candidata and parent_id in <span class="ruim">{ref_id(r.value) for r in candidata.sub_records if r.tag in ("HUSB", "WIFE")}</span>:
+            familia_id = famc
+            break
+    if familia_id is None:
+        for fam_id in arvore[3].get(child_id, []):
+            fam = families.get(fam_id)
+            if not fam:
+                continue
+            pais = <span class="ruim">{ref_id(r.value) for r in fam.sub_records if r.tag in ("HUSB", "WIFE")}</span>
+            if parent_id in pais:
+                familia_id = fam_id
+                break</pre>
+
+<p>Vinte e uma linhas para responder uma pergunta, com a regra "a primeira família que liga
+vence" escrita duas vezes e sem nome.</p>
+
+<h2>2. Por que a complexidade é acidental</h2>
+
+<p>Nada aqui é regra de negócio: a única regra é "primeiro DATE dentro de BIRT" e "primeira
+família que liga". A duplicação não protege nada. O risco real é de divergência: no dia em
+que a leitura de DATE ganhar um caso de fallback (data estimada, por exemplo), PLAC fica
+para trás em silêncio, e a ficha passa a mostrar local de nascimento ausente só para
+algumas pessoas.</p>
+
+<div class="caixa aviso">
+  <strong>O que ficou de fora, e por quê</strong>
+  A oportunidade propunha também um <code>_casal_da_familia</code> para substituir as quatro
+  leituras de HUSB e WIFE. Ele foi descartado depois de medido: em
+  <code>_construir_indice_de_filhos</code> o casal e os filhos saem na MESMA passada, e
+  <code>hop_evidence</code> precisa só do primeiro de cada. Um helper que devolvesse os dois
+  teria mais linhas do que as quatro que substituiria, e acrescentaria uma passada. Simplificar
+  não é extrair por extrair.
+</div>
+
+<h2>3. A solução proposta</h2>
+
+<div class="grade">
+<div>
+<h3>Uma varredura, duas constantes</h3>
+<pre>def _sub_valor(people, pid, tag, sub_tag):
+    """Primeiro valor do sub-registro `sub_tag`
+    dentro do registro `tag`, ou None."""
+    pessoa = people.get(pid)
+    if not pessoa:
+        return None
+    for rec in pessoa.sub_records:
+        if rec.tag == tag:
+            for sub in rec.sub_records:
+                if sub.tag == sub_tag:
+                    return str(sub.value)
+    return None
+
+
+def _data_de(people, pid, tag):
+    return _sub_valor(people, pid, tag, <span class="bom">"DATE"</span>)
+
+
+def _local_de(people, pid, tag):
+    return _sub_valor(people, pid, tag, <span class="bom">"PLAC"</span>)</pre>
+</div>
+<div>
+<h3>A pergunta com nome</h3>
+<pre>def _pais_da_familia(familia) -> set:
+    """Os ids declarados como HUSB e WIFE."""
+    return {ref_id(r.value) for r in familia.sub_records
+            if r.tag in ("HUSB", "WIFE")}
+
+
+def _familia_que_liga(families, candidatos, parent_id):
+    """A primeira família de `candidatos` em que
+    `parent_id` é HUSB ou WIFE."""
+    for fam_id in candidatos:
+        familia = families.get(fam_id)
+        if familia and parent_id in _pais_da_familia(familia):
+            return fam_id
+    return None</pre>
+</div>
+</div>
+
+<p>E <code>hop_evidence</code> passa a ler assim:</p>
+
+<pre>    people, families = arvore[0], arvore[1]
+    familia_id = _familia_que_liga(families, _ids(people, "FAMC", child_id), parent_id)
+    if familia_id is None:
+        familia_id = _familia_que_liga(families, arvore[3].get(child_id, []), parent_id)
+    if familia_id:
+        fam = families.get(familia_id)
+        husb = next((ref_id(r.value) for r in fam.sub_records if r.tag == "HUSB"), None)
+        wife = next((ref_id(r.value) for r in fam.sub_records if r.tag == "WIFE"), None)</pre>
+
+<h2>4. Tabela de casos: a saída é a mesma</h2>
+
+<table>
+  <tr><th>Caso</th><th>Entrada</th><th>Hoje</th><th>Depois</th></tr>
+  <tr><td>Data de nascimento</td><td>BIRT com DATE <code>12 OCT 1976</code></td><td><code>"12 OCT 1976"</code></td><td>igual</td></tr>
+  <tr><td>BIRT sem DATE</td><td>registro BIRT só com PLAC</td><td><code>None</code></td><td>igual, a PLAC não é data</td></tr>
+  <tr><td>Local de nascimento</td><td>BIRT com PLAC <code>Salvador</code></td><td><code>"Salvador"</code></td><td>igual</td></tr>
+  <tr><td>Local ausente</td><td>BIRT sem PLAC</td><td><code>None</code></td><td>igual</td></tr>
+  <tr><td>Pessoa ausente</td><td>id que não está em <code>people</code></td><td><code>None</code></td><td>igual</td></tr>
+  <tr><td>Registro sem sub-registros</td><td>pessoa com <code>sub_records</code> vazio</td><td><code>None</code></td><td>igual</td></tr>
+  <tr><td>Dois BIRT</td><td>registro repetido com datas diferentes</td><td>o primeiro DATE</td><td>igual, ordem preservada</td></tr>
+  <tr><td>Família pelo FAMC</td><td>filho com FAMC e pai HUSB</td><td>família encontrada</td><td>igual</td></tr>
+  <tr><td>Família só pelo índice</td><td>sem FAMC, vínculo em <code>arvore[3]</code></td><td>família encontrada</td><td>igual</td></tr>
+  <tr><td>FAMC órfão</td><td>família citada que não está no dicionário</td><td>cai para o índice</td><td>igual</td></tr>
+  <tr><td>Pai não é cônjuge</td><td>parent_id fora de HUSB e WIFE</td><td><code>None</code></td><td>igual</td></tr>
+  <tr><td>Família com dois HUSB</td><td>registro repetido</td><td>o primeiro</td><td>igual</td></tr>
+</table>
+
+<h2>5. Medição</h2>
+
+<table>
+  <tr><th>Medida</th><th>Antes</th><th>Depois</th></tr>
+  <tr><td>Funções que varrem <code>sub_records</code> para data e local</td><td class="num">2</td><td class="num">3, sendo 1 com o algoritmo</td></tr>
+  <tr><td>Linhas de código nessas duas funções</td><td class="num">20</td><td class="num">14</td></tr>
+  <tr><td>Laços "primeira família que liga"</td><td class="num">2</td><td class="num">1</td></tr>
+  <tr><td>Conjuntos de pais remontados em <code>hop_evidence</code></td><td class="num">2</td><td class="num">1, dentro do helper</td></tr>
+  <tr><td>Linhas de <code>hop_evidence</code> até a evidência de datas</td><td class="num">21</td><td class="num">8</td></tr>
+  <tr><td>Constantes <code>"DATE"</code> e <code>"PLAC"</code> no arquivo</td><td class="num">1 cada</td><td class="num">1 cada, agora como argumento nomeado</td></tr>
+</table>
+
+<h2>6. Rede de segurança e prova de equivalência</h2>
+
+<p>A prova não é "os testes passam". É comparação de saída, função por função, contra a
+versão de `HEAD`, sobre a árvore real de 35 mil pessoas:</p>
+
+<table>
+  <tr><th>Peça</th><th>O que compara</th></tr>
+  <tr><td><code>_data_de</code> e <code>_local_de</code></td><td>todas as pessoas × <code>BIRT</code>, <code>DEAT</code>, <code>BURI</code>, <code>MARR</code> e um tag inexistente, mais ids ausentes</td></tr>
+  <tr><td><code>hop_evidence</code></td><td>todas as arestas declaradas do arquivo, mais pares sem vínculo, mais id de filho inexistente</td></tr>
+  <tr><td>Suíte completa</td><td>1635 passam, 9 pulados, antes e depois</td></tr>
+  <tr><td>Harness de paridade</td><td>opcional, 6 fixtures contra o oráculo congelado</td></tr>
+</table>
+
+<div class="caixa ok">
+  <strong>Como a comparação é possível</strong>
+  As três funções que mudam não foram tocadas nesta sessão, então a versão de <code>HEAD</code>
+  é a versão "antes" fiel. O script extrai essas funções do texto de <code>HEAD</code> por AST,
+  executa num espaço com os helpers do módulo atual e compara o dicionário devolvido, chave
+  por chave, com o da função nova.
+</div>
+
+<p class="folio">Plano gerado em 2026-10-24 pelo /reversa-simplify para a OPP-20261024-DUPL.
+Política: <code>gated</code>. Rede: <code>require-characterization</code>.
+Caminhos liberados: <code>src/**</code> e <code>tests/**</code>.</p>
+
+</main>
+</body>
+</html>

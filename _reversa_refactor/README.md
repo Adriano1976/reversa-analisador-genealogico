@@ -40,7 +40,7 @@ _reversa_refactor/
 |----------|----------------|---------------|
 | `analise-dna` | `src/application/dna_analysis.py`, `src/application/projecao_analise.py` e `src/core/` (Dna + 8 módulos) | 19 |
 | `arquitetura-src` | `src/` inteiro: acoplamento, ciclos de pacote e duplicação | 4 |
-| `busca-caminho` | `src/core/path_search.py` | 4 |
+| `busca-caminho` | `src/core/path_search.py` e `src/core/documentary_relationship.py` (auditoria de 2026-10-24) | 9 |
 | `contrato-de-dados-src` | contrato dos dicionários de domínio e caminhos de importação | 2 |
 | `documentacao-sdd` | desvio entre `_reversa_sdd/` e o código, criado pelas transformações de 2026-10-06 | 1 |
 | `documentacao-do-projeto` | `README.md`: árvore de `src/` e descrição da arquitetura | 1 |
@@ -318,6 +318,119 @@ cartão passou a ser declarado uma vez em `src/core/contrato_do_cartao.py` e gua
 por dois testes que comparam o conjunto de cada construtor. Os testes nasceram
 verdes, provando que os dois construtores já respeitavam o contrato; o que faltava
 era alguém avisar no dia em que um lado mudasse sem o outro.
+
+## Auditoria de 2026-10-24: `core/documentary_relationship.py`
+
+Mesmo pedido da auditoria de `dna_analysis.py`, agora sobre um arquivo só:
+orientação a objeto, padrão de projeto, alta coesão, baixo acoplamento, função sem
+utilidade, limpeza e divisão em módulos menores. O arquivo tem **782 linhas** e 26
+funções, com 593 linhas dentro de `def`.
+
+| Configuração | Situação | Evidência medida |
+|---|---|---|
+| Orientação a objeto | 🔴 ausente por decisão | zero `class`; a única estrutura nomeada é `_CacheDeNomes`, um `TypedDict` |
+| Padrão de projeto | 🟡 parcial e inconsistente | Cache (duas implementações para o mesmo problema), Facade (`__all__`) e contrato de forma entre os dois construtores de cartão |
+| Alta coesão | 🔴 baixa no módulo | cinco assuntos independentes; 22 das 26 funções têm 51 linhas ou menos |
+| Baixo acoplamento | 🟡 com um ponto 🔴 | fan-in de 15 módulos; o ponto 🔴 é `_INDICE_DE_NOMES`, estado de módulo entre requisições |
+
+A função sem utilidade que o pedido procurava **não existe**: as 26 têm chamador. O peso
+morto é outro e está medido: quatro nomes em `__all__` sem nenhum importador (`ROMANO`,
+`MAX_DEPTH`, `hop_evidence`, `find_all_common_ancestors`) e três chaves escritas em
+`hop_evidence` que ninguém lê (`link_source`, `family_husband`, `family_wife`). As três
+chaves **não** foram roteadas: são contrato declarado em `data-dictionary.md:335,338`,
+`BR-C-48` e no critério de pronto de `T-18`. Remover é decisão de spec, não de refactor.
+
+| # | ID | Verbo | Custo | Efeito esperado |
+|---|---|---|---|---|
+| #52 | `OPP-20261024-CACH` | decouple | low | **aplicada em 2026-10-24**: `_INDICE_DE_NOMES` deixou de ter dois campos trocados em dois tempos; suíte 1635/9 |
+| #53 | `OPP-20261024-SEPM` | modularize | medium | **aplicada em 2026-10-24**: 821 linhas em quatro módulos e uma fachada; `core/` de 35 para 39 módulos |
+| #54 | `OPP-20261024-FLUX` | restructure | medium | **aplicada em 2026-10-24**: `documentary_relationship` de 102 para 54 linhas; equivalência em 3.928 casos |
+| #55 | `OPP-20261024-DUPL` | simplify | low | **aplicada em 2026-10-24**: `_sub_valor` e `_familia_que_liga`; equivalência em 86.497 casos |
+| #56 | `OPP-20261024-SUPR` | standardize | low | **aplicada em 2026-10-24**: `__all__` de 18 para 14 nomes; os 4 retirados continuam importáveis |
+
+A auditoria de `documentary_relationship.py` está fechada: as cinco oportunidades foram
+aprovadas em plano e em diff e aplicadas no mesmo dia. Estado do registro: **56
+oportunidades**, sendo **47 aplicadas**, **1 aplicada em parte** (`LIGH`), **5 declined** e
+**3 propostas** (as três antigas `INIT`, `YTSH` e `W4KD`).
+
+A `CACH` foi aprovada em plano e em diff e aplicada no mesmo dia. O achado que a motivou:
+a linha 351 devolvia `_INDICE_DE_NOMES["mapa"]` em vez de `mapa`, isto é, relia o global
+que a função acabara de escrever. Com quatro threads no servidor, a troca do índice por
+outra requisição entre as linhas 349 e 351 fazia esta devolver ids de outro GEDCOM. O
+defeito foi provado antes da correção, com a thread A estacionada dentro do `__setitem__`
+do dicionário: a requisição que pediu a árvore Alfa recebeu os três registros Beta.
+
+O índice passou a ser a tupla `(chave, mapa)`, cuja troca é uma atribuição de nome, e o
+retorno vem da referência lida uma vez. Saíram o `TypedDict _CacheDeNomes` e o import de
+`TypedDict`. Três guardas estruturais por AST e um invariante sob carga entraram em
+`tests/test_indice_de_nomes_do_documental.py`; a suíte foi de 1629 para **1635 passed, 9
+skipped**.
+
+A `DUPL` veio em seguida, aprovada em plano e em diff no mesmo dia. `_data_de` e
+`_local_de` eram a mesma função de dez linhas com uma constante trocada; viraram
+`_sub_valor` mais uma linha de corpo cada. Em `hop_evidence`, os dois laços de "qual
+família liga esta pessoa a este genitor" viraram `_familia_que_liga`, e a regra "a primeira
+família que liga vence" passou a existir em um lugar só. A prova não foi a suíte: foi
+comparação de saída contra a versão de `HEAD`, função por função, na árvore real de 35.459
+pessoas, em **86.497 casos, com zero divergência**. O instrumento foi calibrado antes com
+uma diferença injetada, que ele acusou em 221 casos.
+
+O `_casal_da_familia` que a oportunidade previa foi **descartado na aplicação**, com a
+medição: em `_construir_indice_de_filhos` o casal e os filhos saem na mesma passada, e
+`hop_evidence` precisa só do primeiro de cada; o helper teria mais linhas do que as quatro
+que substituiria.
+
+A `FLUX` fechou a terceira etapa no mesmo dia. `documentary_relationship` tinha 102 linhas,
+três laços e quatro blocos de aviso, cada um montando a mensagem no meio do percurso. O
+`CHG-001.diff` (108 inserções, 67 remoções) extraiu oito funções de intenção nomeada e levou
+a função a **54 linhas**, com a ordem dos avisos visível numa tupla de três construtores. A
+mensagem de homônimo, que existia aqui e em `documental_nao_encontrado`, passou a existir em
+um lugar só.
+
+A prova foi a mesma classe da `DUPL`, agora sobre dicionários inteiros: saída da versão de
+`HEAD` contra a do módulo em **3.928 casos, zero divergência**, com os seis códigos de aviso
+exercitados e calibração por diferença injetada (acusada em 3.844 casos). O módulo foi de 780
+para 821 linhas: oito funções com docstring própria custam mais linhas do que os blocos que
+substituem. O que caiu foi a concentração.
+
+A `SEPM` fechou a série. As 821 linhas viraram quatro módulos de responsabilidade única e uma
+fachada:
+
+| Módulo | Linhas | Responsabilidade |
+|---|---|---|
+| `core/datas_do_gedcom.py` | 135 | data e local do registro |
+| `core/fichas_da_pessoa.py` | 98 | ficha comparável e índice pai para filhos |
+| `core/homonimos.py` | 154 | mesmo nome, dossiê e o cache |
+| `core/caminhos_alternativos.py` | 116 | ancestrais comuns, cadeias e alternativos |
+| `core/documentary_relationship.py` | 406 | fachada: o cartão, os avisos, as reexportações |
+
+`core/` foi de 35 para 39 módulos, e o conjunto cresceu de 821 para 909 linhas. Duas funções
+privadas viraram públicas ao atravessar a fronteira (`_ids` para `ids_com_tag`, `_local_de`
+para `birth_place`), e dois testes mudaram de endereço, nenhuma asserção. A equivalência foi
+reexecutada sobre o código dividido: 3.928 comparações, zero divergência, e a suíte ficou em
+**1635 passed, 9 skipped**.
+
+**Dívida criada:** `c4-components.md:213` e `architecture.md:154` ainda descrevem o arquivo
+único e citam `documentary_relationship._chave_de`. Os dois caminhos estão em `_reversa_sdd/**`,
+fora dos globs, e por isso não foram editados.
+
+A `SUPR` fechou a série. Quatro dos dezoito nomes de `__all__` não tinham um único importador
+(`hop_evidence`, `find_all_common_ancestors`, `ROMANO`, `MAX_DEPTH`); saíram do anúncio, e o
+comentário da reexportação passou a citar só `nome_do_grau`. Nenhum import foi tocado: os
+quatro continuam no módulo e importáveis por nome, porque `__all__` é anúncio e a importação é
+comportamento. `death_date` e `get_children` ficaram, com consumidor real ainda que congelado.
+
+### O que a série deixou, em números
+
+| Medida | Antes da série | Depois |
+|---|---|---|
+| Arquivos com o parentesco documental | 1 | 5 |
+| Maior arquivo | 782 linhas | 407 (fachada) |
+| Maior função | 102 linhas | 54 |
+| Nomes anunciados em `__all__` | 18, 4 sem consumidor | 14, todos com consumidor |
+| Leitura do global depois da escrita no cache | 1 | 0 |
+| Testes | 1629 | 1635 |
+| Comparações de equivalência executadas | 0 | 86.497 + 3.928 + 3.928 |
 
 ## Gate de edição do legado: LIBERADO em 2026-09-29
 

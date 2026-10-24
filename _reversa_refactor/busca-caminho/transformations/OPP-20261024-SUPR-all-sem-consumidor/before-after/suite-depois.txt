@@ -1,0 +1,12 @@
+Suite completa DEPOIS do CHG-001 desta transformacao.
+
+Comando:
+  .venv\Scripts\python.exe -m pytest -q
+
+Resultado:
+  1635 passed, 9 skipped in 105.71s (0:01:45)
+
+Mesma contagem da linha de base, mesmas 9 exclusoes. Superficie conferida a parte:
+
+  anunciados: 14
+  retirados ainda importaveis: True

@@ -1,0 +1,24 @@
+diff --git a/src/core/documentary_relationship.py b/src/core/documentary_relationship.py
+index c478122..6cb7b06 100644
+--- a/src/core/documentary_relationship.py
++++ b/src/core/documentary_relationship.py
+@@ -395,12 +395,13 @@ def documentary_relationship(arvore, a_id, b_id, homonyms=None) -> dict:
+ __all__ = [
+     "documentary_relationship", "documental_nao_encontrado",
+     "documentary_label", "person_summary",
+-    "homonym_dossier", "hop_evidence", "find_all_common_ancestors",
++    "homonym_dossier",
+     "parse_year", "birth_date", "death_date", "get_children", "normalizar",
+     "intervalo_de_geracao_mediano",
+-    # Reexportados de `core.graus_de_parentesco` desde 2026-10-22: continuam publicos
+-    # daqui para quem ja os importava, e e o que impede que a linha de import seja
+-    # lida como codigo morto e apagada.
+-    "nome_do_grau", "ROMANO",
+-    "MAX_DEPTH", "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
++    # Reexportado de `core.graus_de_parentesco` desde 2026-10-22: continua publico daqui
++    # para quem ja o importava (dois testes), e e o que impede que a linha de import seja
++    # lida como codigo morto e apagada. `ROMANO`, do mesmo import, continua importavel
++    # daqui, mas nao e anunciado porque nenhum consumidor o importa.
++    "nome_do_grau",
++    "IDADE_MINIMA_GENITOR", "IDADE_MAXIMA_GENITOR",
+ ]
