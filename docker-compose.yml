@@ -74,8 +74,21 @@ services:
       # `__file__` (`/app/src/uploads`). Sem `ANALISADOR_UPLOAD_FOLDER`: escrita e leitura
       # usam o caminho que o codigo ja resolve.
       - ./src/uploads:/app/src/uploads
+      # A trilha de auditoria (feature 049). E prova, nao diagnostico: precisa sobreviver ao
+      # container. O caminho e o mesmo que `utils/logs.py` resolve — a raiz da aplicacao,
+      # que dentro da imagem e `/app`. Sem este volume a auditoria cai para o fluxo padrao e
+      # a aplicacao avisa uma vez, sem derrubar requisicao.
+      - ./logs:/app/logs
     ports:
       - "127.0.0.1:5080:5000"
+    # Rotacao do log do PROPRIO container (feature 049): o stdout nao pode crescer sem teto.
+    # Os 5 x 5 MB sao os mesmos numeros do arquivo geral de `utils/logs.py`, e por um motivo
+    # pratico: o operador nao precisa lembrar de dois conjuntos de numeros.
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "5"
     depends_on:
       # Forma CURTA: ordena a subida e NAO espera o banco ficar saudavel. E a consequencia
       # direta do Q-03/RN-13 — se a aplicacao so subisse depois do banco saudavel, com o

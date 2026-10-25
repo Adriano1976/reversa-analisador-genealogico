@@ -40,6 +40,13 @@ VARIAVEL = "ANALISADOR_UPLOAD_FOLDER"
 # versionamento nem aparece em `git status`.
 PASTA_RELATIVA = os.path.join(".parity-tmp", "uploads")
 
+# Feature 049: o coletor do candidato importa `src/app.py`, que monta os destinos de log e
+# cria a pasta. Sem este desvio a paridade escreveria `logs/` na raiz do repositorio — o
+# mesmo motivo pelo qual a pasta de upload e redirecionada, e pelo mesmo mecanismo: variavel
+# de ambiente no processo do coletor, sem editar o instrumento.
+VARIAVEL_DE_LOG = "ANALISADOR_LOG_DIR"
+PASTA_DE_LOG_RELATIVA = os.path.join(".parity-tmp", "logs")
+
 
 def pasta_descartavel(raiz: str | None = None) -> str:
     """Pasta que recebe o que a paridade enviar. Criada se nao existir."""
@@ -55,6 +62,7 @@ def montar_ambiente(base: dict | None = None, pasta: str | None = None) -> dict:
     """
     ambiente = dict(os.environ if base is None else base)
     ambiente[VARIAVEL] = pasta or pasta_descartavel()
+    ambiente[VARIAVEL_DE_LOG] = os.path.join(RAIZ, PASTA_DE_LOG_RELATIVA)
     return ambiente
 
 

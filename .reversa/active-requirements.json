@@ -1,17 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/048-indice-de-nomes-sem-colisao",
-  "feature-id": "048",
-  "short-name": "indice-de-nomes-sem-colisao",
-  "started-at": "2026-10-24T10:52:34-03:00",
-  "current-stage": "sync",
-  "stages-completed": [
-    "requirements",
-    "plan",
-    "to-do",
-    "coding",
-    "sync"
-  ],
+  "feature-dir": "_reversa_forward/049-sistema-de-log",
+  "feature-id": "049",
+  "short-name": "sistema-de-log",
+  "started-at": "2026-10-25T14:32:07-03:00",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

@@ -1,4 +1,5 @@
 import errno
+import logging
 import os
 import socket
 import sys
@@ -33,11 +34,18 @@ from reporting.mermaid_render import (
     mermaid_da_sugestao,
 )
 from web.rotas_assets import assets_bp
+from web.hooks_de_registro import (
+    instalar as instalar_registro,
+    ip_do_cliente,
+    origem_da_requisicao,
+)
 from ports.adaptadores import (
     ArmazenamentoEmDisco,
     CarregadorDeArvoresGedcom,
     RegistroDeAnalisesPostgres,
 )
+from utils import logs
+from utils.auditoria import registrar as auditar
 from utils.number_format import formatar_cm, formatar_inteiro, formatar_tamanho
 
 # As dependencias de borda que o nucleo consome (RF-09): leitura de CSV e
@@ -381,6 +389,14 @@ def _acao_upload_gedcom():
             borda["armazenamento"],
             borda["carregador"],
         )
+        auditar(
+            "enviar_gedcom",
+            resultado.desfecho,
+            referencia=resultado.referencia,
+            contagens={"nomes": len(resultado.nomes)},
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=resultado.referencia,
@@ -389,18 +405,47 @@ def _acao_upload_gedcom():
             success=True,
         )
     except ErroDeDominio as erro_de_dominio:
+        auditar(
+            "enviar_gedcom",
+            "falha",
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template("index.html", message=traduzir(erro_de_dominio).mensagem, success=False)
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         current_app.logger.exception("falha inesperada no envio de GEDCOM")
-        return render_template("index.html", message=f"Erro ao processar GEDCOM: {e}", success=False)
+        auditar(
+            "enviar_gedcom",
+            "falha",
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
+        return render_template(
+            "index.html",
+            message="Erro ao processar GEDCOM: O detalhe foi registrado no log.",
+            success=False,
+        )
 
 
 def _acao_aposentar_arquivo():
-    """Aposenta um arquivo da lista (RN-14)."""
+    """Aposenta um arquivo da lista (RN-14).
+
+    As DUAS tentativas sao auditadas — e o que a decisao 14 do `gaps.md` mandou fazer
+    (`_reversa_sdd/questions.md#pergunta-14`) e o que a feature 049 executa. A mensagem de
+    cada ramo continua sendo o contrato congelado da tela.
+    """
     referencia = request.form.get("arquivo_a_aposentar") or ""
-    if _estado_de_borda()["armazenamento"].aposentar(referencia, DONO_DO_PROCESSO):
+    moveu = _estado_de_borda()["armazenamento"].aposentar(referencia, DONO_DO_PROCESSO)
+    auditar(
+        "aposentar",
+        "sucesso" if moveu else "falha",
+        referencia=referencia,
+        ip=ip_do_cliente(),
+        origem=origem_da_requisicao(),
+    )
+    if moveu:
         return render_template(
             "index.html",
             message=(
@@ -477,6 +522,13 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
             if caminho_do_csv:
                 referencia_do_csv_usada = os.path.basename(caminho_do_csv)
             if armazenado.desfecho == SUBSTITUIDO:
+                auditar(
+                    "substituir_csv",
+                    "substituido",
+                    referencia=referencia_do_csv_usada,
+                    ip=ip_do_cliente(),
+                    origem=origem_da_requisicao(),
+                )
                 aviso_de_substituicao = (
                     f"O CSV '{armazenado.visivel}' substituiu a versão anterior, que "
                     "saiu da lista e continua guardada na pasta de aposentados."
@@ -495,6 +547,20 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
         mensagem_final = resultado.mensagem
         if aviso_de_substituicao:
             mensagem_final = f"{mensagem_final} {aviso_de_substituicao}"
+        # Contagens, nunca nomes: o que a auditoria precisa saber e o TAMANHO do resultado
+        # (`RF-07`), e a lista de matches e a de descartados carregam nome de pessoa.
+        auditar(
+            "analisar_dna",
+            "sucesso",
+            referencia=gedcom_filename,
+            contagens={
+                "resultados": len(resultado.resultados),
+                "descartados": len(resultado.descartados),
+                "sem_correspondencia": len(resultado.sem_correspondencia),
+            },
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
@@ -511,6 +577,13 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
             success=True,
         )
     except ErroDeDominio as erro_de_dominio:
+        auditar(
+            "analisar_dna",
+            "falha",
+            referencia=gedcom_filename,
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
@@ -520,15 +593,39 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
         )
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         current_app.logger.exception("falha inesperada na analise de DNA")
+        auditar(
+            "analisar_dna",
+            "falha",
+            referencia=gedcom_filename,
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
             all_names=all_names,
-            message=f"Ocorreu um erro: {e}",
+            message="Ocorreu um erro: O detalhe foi registrado no log.",
             success=False,
         )
+
+
+def _contagens_do_caminho(dados) -> dict:
+    """Numeros do resultado da busca, para a auditoria (`RF-07`).
+
+    O payload carrega `person1_name` e `person2_name` — nome de pessoa. A auditoria le
+    **apenas** o bloco documental e os numeros dele: quantos saltos pai-filho e quantos
+    homonimos exatos entraram na decisao. Nenhuma string do payload atravessa.
+    """
+    if not dados:
+        return {}
+    documental = dados.get("documentary") or {}
+    homonimos = documental.get("homonyms") or {}
+    return {
+        "meioses": documental.get("meioses") or 0,
+        "homonimos": homonimos.get("exact_count") or 0,
+    }
 
 
 def _acao_path_search(gedcom_filename, arvore, all_names):
@@ -543,6 +640,14 @@ def _acao_path_search(gedcom_filename, arvore, all_names):
             arvore,
             _estado_de_borda()["dependencias"],
             DONO_DO_PROCESSO,
+        )
+        auditar(
+            "buscar_caminho",
+            resultado.desfecho.value,
+            referencia=gedcom_filename,
+            contagens=_contagens_do_caminho(resultado.dados),
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
         )
 
         if resultado.desfecho is Desfecho.ERRO_DE_ENTRADA:
@@ -562,6 +667,13 @@ def _acao_path_search(gedcom_filename, arvore, all_names):
             success=True,
         )
     except ErroDeDominio as erro_de_dominio:
+        auditar(
+            "buscar_caminho",
+            "falha",
+            referencia=gedcom_filename,
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
@@ -571,13 +683,20 @@ def _acao_path_search(gedcom_filename, arvore, all_names):
         )
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         current_app.logger.exception("falha inesperada na busca de caminho")
+        auditar(
+            "buscar_caminho",
+            "falha",
+            referencia=gedcom_filename,
+            ip=ip_do_cliente(),
+            origem=origem_da_requisicao(),
+        )
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
             all_names=all_names,
-            message=f"Ocorreu um erro: {e}",
+            message="Ocorreu um erro: O detalhe foi registrado no log.",
             success=False,
         )
 
@@ -637,6 +756,11 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     valor valido: significa persistencia desligada.
     """
     aplicacao = Flask(__name__)
+    # Os tres destinos do registro sao montados UMA vez por processo (feature 049, `D-01`).
+    # A chamada e idempotente por marcador no handler: a suite reexecuta este modulo a cada
+    # fixture, e um booleano de modulo nao sobreviveria a isso — o registro de handlers do
+    # `logging` e global.
+    logs.configurar()
     aplicacao.extensions[CHAVE_DA_BORDA] = {
         "armazenamento": _ARMAZENAMENTO if armazenamento is None else armazenamento,
         "carregador": _CARREGADOR if carregador is None else carregador,
@@ -681,6 +805,11 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
 
     aplicacao.register_blueprint(assets_bp)
     aplicacao.add_url_rule("/", endpoint="index", view_func=index, methods=["GET", "POST"])
+
+    # Identificador por requisicao, cabecalho `X-Request-ID` e linha de acesso (feature 049).
+    # Sao ganchos, e nao codigo da rota, porque o cabecalho precisa sair tambem nas respostas
+    # que o Flask produz sem passar pela rota: arte ausente, corpo grande e `Host` recusado.
+    instalar_registro(aplicacao)
 
     if config:
         aplicacao.config.update(config)
@@ -774,10 +903,15 @@ if __name__ == "__main__":
         # desta aplicacao ou qualquer outro processo.
         raise SystemExit(f"Recusando subir: {motivo} ({erro.strerror or erro}). {saida}")
 
-    print(
-        f"Servindo com waitress em http://{endereco_de_escuta}:{porta_de_escuta} "
-        f"com {concorrencia} threads",
-        flush=True,
+    # A linha de inicializacao deixou de ser `print` (feature 049): o texto e o MESMO, e o
+    # que muda e o destino. Ela continua sendo a unica prova do endereco e do numero de
+    # threads em uso, agora tambem no arquivo de log — que e o que permite responder depois
+    # "com quantas threads isso rodou?".
+    logging.getLogger(__name__).info(
+        "Servindo com waitress em http://%s:%s com %s threads",
+        endereco_de_escuta,
+        porta_de_escuta,
+        concorrencia,
     )
     # `sockets` e mutuamente exclusivo de `host` e `port`: o servidor levanta
     # ValueError se receber `sockets` junto de qualquer um dos dois. Endereco e

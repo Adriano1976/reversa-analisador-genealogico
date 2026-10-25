@@ -1,0 +1,24 @@
+{"ts": "2026-10-25T15:16:10-03:00", "action": "T001", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:17:02-03:00", "action": "T002", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:17:40-03:00", "action": "T003", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:18:15-03:00", "action": "T004", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:18:51-03:00", "action": "T005", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:19:22-03:00", "action": "T006", "status": "done", "files": ["src/utils/logs.py"]}
+{"ts": "2026-10-25T15:20:05-03:00", "action": "T007", "status": "done", "files": ["tests/conftest.py", "tests/rodar_paridade.py"]}
+{"ts": "2026-10-25T15:21:00-03:00", "action": "T008", "status": "done", "files": ["tests/test_configuracao_de_log.py"]}
+{"ts": "2026-10-25T15:21:30-03:00", "action": "T009", "status": "done", "files": ["tests/test_identificador_de_requisicao.py"]}
+{"ts": "2026-10-25T15:22:00-03:00", "action": "T010", "status": "done", "files": ["tests/test_privacidade_do_log.py"]}
+{"ts": "2026-10-25T15:22:30-03:00", "action": "T011", "status": "done", "files": ["tests/test_registro_de_auditoria.py"]}
+{"ts": "2026-10-25T15:23:00-03:00", "action": "T012", "status": "done", "files": ["tests/test_medicao_da_carga.py"]}
+{"ts": "2026-10-25T15:23:40-03:00", "action": "T013", "status": "done", "files": ["src/utils/auditoria.py"]}
+{"ts": "2026-10-25T15:24:10-03:00", "action": "T014", "status": "done", "files": ["src/application/upload_gedcom.py"]}
+{"ts": "2026-10-25T15:24:35-03:00", "action": "T015", "status": "done", "files": ["src/ports/adaptadores.py"]}
+{"ts": "2026-10-25T15:25:00-03:00", "action": "T016", "status": "done", "files": ["src/web/hooks_de_registro.py"]}
+{"ts": "2026-10-25T15:25:30-03:00", "action": "T017", "status": "done", "files": ["src/app.py"]}
+{"ts": "2026-10-25T15:25:55-03:00", "action": "T018", "status": "done", "files": ["src/app.py"]}
+{"ts": "2026-10-25T15:26:10-03:00", "action": "T019", "status": "done", "files": ["src/app.py"]}
+{"ts": "2026-10-25T15:26:25-03:00", "action": "T020", "status": "done", "files": ["src/app.py"]}
+{"ts": "2026-10-25T15:26:40-03:00", "action": "T021", "status": "done", "files": ["docker-compose.yml"]}
+{"ts": "2026-10-25T15:27:00-03:00", "action": "T022", "status": "failed", "files": [], "motivo": "recusado pela politica de edicao do legado: .gitignore nao casa com nenhum glob de allowedPaths em .reversa/reversa-config.json (allowLegacyEdits=true; libera src/**, tests/**, docker/**, docker-compose.yml, .dockerignore, requirements.txt, docs/**)"}
+{"ts": "2026-10-25T15:36:20-03:00", "action": "T023", "status": "done", "files": ["tests/"], "medido": "1684 passed / 9 skipped / 0 failed em 164,54 s; paridade com 30 divergencias em ancestral, confirmadas como PRE-EXISTENTES por medicao em checkout limpo do HEAD 344bfbd"}
+{"ts": "2026-10-25T15:34:10-03:00", "action": "T024", "status": "done", "files": ["_reversa_sdd/adrs/37-observabilidade-em-camadas.md"]}

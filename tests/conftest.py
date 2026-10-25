@@ -95,10 +95,28 @@ import pytest
 _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _PASTA_APP = os.path.join(_RAIZ, "src")
 
+# Os modulos de `src/` sao importados pelo nome curto (`utils.logs`, `core.erros`,
+# `ports.adaptadores`). Vários arquivos de teste repetiam a insercao no topo; declarar aqui,
+# no import do `conftest` (que o pytest faz antes de coletar), garante que qualquer modulo
+# novo possa importar `src/` sem repetir a cerimonia.
+for _caminho in (_RAIZ, _PASTA_APP):
+    if _caminho not in sys.path:
+        sys.path.insert(0, _caminho)
+
 # Ver §2 do docstring: a raiz temporaria vive no temporario do sistema desde a
 # feature 034, porque o sandbox de escrita do harness recusa criar subdiretorio
 # dentro do workspace — e era ali que `tests/.tmp/` ficava.
 _RAIZ_TEMPORARIA = os.path.join(tempfile.gettempdir(), "reversa-analisador-testes")
+
+# Feature 049: a pasta de log da aplicacao e ancorada na RAIZ do projeto, e o
+# `configurar()` a cria no primeiro `create_app()` — que acontece na IMPORTACAO de
+# `src/app.py`. Como varios testes importam o app no nivel do modulo (antes de qualquer
+# fixture), isolar por fixture chegaria tarde: a pasta `logs/` nasceria na raiz do
+# repositorio. Por isso a variavel e fixada AQUI, no import do `conftest`, que o pytest
+# faz antes de coletar os modulos de teste.
+os.environ.setdefault(
+    "ANALISADOR_LOG_DIR", os.path.join(_RAIZ_TEMPORARIA, "logs-da-suite")
+)
 
 
 @pytest.fixture

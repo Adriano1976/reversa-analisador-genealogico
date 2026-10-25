@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING
 
 from parsers.gedcom_parser import Tree, carregar_arvore
 from ports import EntradaArmazenada
+from utils.logs import medir
 from utils.validate import (
     chave_de_armazenamento,
     chave_recebida_e_valida,
@@ -57,8 +58,8 @@ class ArmazenamentoEmDisco:
     caminho. O adaptador nao sabe de ambiente nem de Flask.
     """
 
-    def __init__(self, pasta: str):
-        self._pasta = pasta
+    def __init__(self, pasta: str) -> None:
+        self._pasta: str = pasta
 
     def guardar(self, conteudo: bytes, nome_original: str | None, tipo: str,
                 dono: str) -> tuple[str | None, str | None]:
@@ -77,13 +78,13 @@ class ArmazenamentoEmDisco:
         MESMO arquivo, e a paridade do armazenamento quebraria (`RN-02`). O
         parametro existe porque a Onda 3 o preenche, e nada mais.
         """
-        motivo = validar_conteudo_gedcom(conteudo) if tipo == "gedcom" else None
+        motivo: str | None = validar_conteudo_gedcom(conteudo) if tipo == "gedcom" else None
         if motivo is not None:
             return None, motivo
 
-        chave = chave_de_armazenamento(conteudo)
-        nome_armazenado = nome_do_arquivo_armazenado(chave, nome_original)
-        caminho = os.path.join(self._pasta, nome_armazenado)
+        chave: str = chave_de_armazenamento(conteudo)
+        nome_armazenado: str = nome_do_arquivo_armazenado(chave, nome_original)
+        caminho: str = os.path.join(self._pasta, nome_armazenado)
         if not os.path.exists(caminho):
             with open(caminho, "wb") as destino:
                 destino.write(conteudo)
@@ -103,6 +104,7 @@ class ArmazenamentoEmDisco:
         """
         if not chave_recebida_e_valida(referencia):
             return None
+        # pyrefly: ignore[no-matching-overload]
         caminho = os.path.join(self._pasta, referencia)
         return caminho if os.path.exists(caminho) else None
 
@@ -158,7 +160,7 @@ class ArmazenamentoEmDisco:
           listagem e um retrato do instante, e um arquivo que nao esta mais la nao pode
           derrubar a tela que lista tudo.
         """
-        caminho = os.path.join(self._pasta, nome)
+        caminho: str = os.path.join(self._pasta, nome)
         if not os.path.isfile(caminho):
             return None
         try:
@@ -200,6 +202,8 @@ class ArmazenamentoEmDisco:
 
         `dono` e recebido e **ignorado**, como nos outros metodos da porta.
         """
+        if referencia is None:
+            return False
         if not referencia_de_arquivo_da_pasta(referencia):
             return False
 
@@ -209,9 +213,9 @@ class ArmazenamentoEmDisco:
         if not os.path.isfile(origem):
             return False
 
-        destino_pasta = os.path.join(self._pasta, PASTA_DE_APOSENTADOS)
+        destino_pasta: str = os.path.join(self._pasta, PASTA_DE_APOSENTADOS)
         os.makedirs(destino_pasta, exist_ok=True)
-        destino = self._destino_livre(destino_pasta, referencia)
+        destino: str | None = self._destino_livre(destino_pasta, referencia)
         if destino is None:
             return False
 
@@ -227,11 +231,11 @@ class ArmazenamentoEmDisco:
         que o desfecho, nesse caso, seja **desistir** em vez de sobrescrever, que e o que a
         `RN-07` proibe.
         """
-        destino = os.path.join(pasta, referencia)
+        destino: str = os.path.join(pasta, referencia)
         if not os.path.exists(destino):
             return destino
         for sufixo in range(1, 100):
-            alternativa = os.path.join(pasta, f"{referencia}.{sufixo}")
+            alternativa: str = os.path.join(pasta, f"{referencia}.{sufixo}")
             if not os.path.exists(alternativa):
                 return alternativa
         return None
@@ -250,7 +254,7 @@ VARIAVEL_DO_CACHE = "ANALISADOR_CACHE_DE_ARVORE"
 VARIAVEL_DA_CAPACIDADE = "ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE"
 CAPACIDADE_PADRAO_DO_CACHE = 1
 
-_log = logging.getLogger(__name__)
+_log: logging.Logger = logging.getLogger(__name__)
 
 _MENSAGEM_ACERTO = "cache de arvores: acerto (acertos=%d, reconstrucoes=%d)"
 _MENSAGEM_RECONSTRUCAO = "cache de arvores: reconstrucao (acertos=%d, reconstrucoes=%d)"
@@ -258,13 +262,13 @@ _MENSAGEM_RECONSTRUCAO = "cache de arvores: reconstrucao (acertos=%d, reconstruc
 
 def _ligado_pelo_ambiente() -> bool:
     """`True` quando a variavel de ambiente liga o cache (1/true/sim/on/yes)."""
-    valor = os.environ.get(VARIAVEL_DO_CACHE, "")
+    valor: str = os.environ.get(VARIAVEL_DO_CACHE, "")
     return valor.strip().lower() in {"1", "true", "sim", "on", "yes"}
 
 
 def _capacidade_do_ambiente() -> int:
     """Teto configurado, ou o padrao. Valor invalido nao derruba a aplicacao: avisa e usa 1."""
-    bruto = os.environ.get(VARIAVEL_DA_CAPACIDADE, "").strip()
+    bruto: str = os.environ.get(VARIAVEL_DA_CAPACIDADE, "").strip()
     if not bruto:
         return CAPACIDADE_PADRAO_DO_CACHE
     try:
@@ -308,10 +312,10 @@ class CacheDeArvores:
     def __init__(self, capacidade: int = CAPACIDADE_PADRAO_DO_CACHE):
         if capacidade < 1:
             raise ValueError("a capacidade do cache tem de ser pelo menos 1")
-        self._capacidade = capacidade
+        self._capacidade: int = capacidade
         self._itens: OrderedDict = OrderedDict()
         self._em_andamento: dict = {}
-        self._trava = threading.Lock()
+        self._trava: threading.Lock = threading.Lock()
         self._acertos = 0
         self._reconstrucoes = 0
 
@@ -348,6 +352,9 @@ class CacheDeArvores:
             # Arquivo que sumiu entre a resolucao e a leitura: quem relata o erro e o parse.
             return parsear(caminho)
 
+        acertos = reconstrucoes = 0
+        evento: threading.Event | None = None
+        sou_o_primeiro = False
         with self._trava:
             guardada = self._itens.get(chave)
             if guardada is not None:
@@ -367,7 +374,7 @@ class CacheDeArvores:
             _log.info(_MENSAGEM_ACERTO, acertos, reconstrucoes)
             return guardada
 
-        if not sou_o_primeiro:
+        if not sou_o_primeiro and evento is not None:
             evento.wait()
             with self._trava:
                 guardada = self._itens.get(chave)
@@ -397,7 +404,8 @@ class CacheDeArvores:
             # parse duplicado.
             with self._trava:
                 self._em_andamento.pop(chave, None)
-                evento.set()
+                if evento is not None:
+                    evento.set()
 
 
 def _cache_do_ambiente() -> CacheDeArvores | None:
@@ -428,17 +436,22 @@ class CarregadorDeArvoresGedcom:
     """
 
     def __init__(self, armazenamento: ArmazenamentoEmDisco, *,
-                 cache: CacheDeArvores | None = None):
-        self._armazenamento = armazenamento
-        self._cache = cache if cache is not None else _cache_do_ambiente()
+                 cache: CacheDeArvores | None = None) -> None:
+        self._armazenamento: ArmazenamentoEmDisco = armazenamento
+        self._cache: CacheDeArvores | None = cache if cache is not None else _cache_do_ambiente()
 
     def carregar(self, referencia: str, dono: str) -> Tree | None:
-        caminho = self._armazenamento.resolver(referencia, dono)
+        caminho: str | None = self._armazenamento.resolver(referencia, dono)
         if caminho is None:
             return None
-        if self._cache is None:
-            return carregar_arvore(caminho)
-        return self._cache.carregar(caminho, carregar_arvore)
+        # A medicao entra AQUI, e nao no chamador (feature 049, `D-09`): este e o ponto unico
+        # onde a arvore e carregada, e o mesmo ponto que o cache intercepta — medir em
+        # `app.py` mediria a requisicao inteira e nao diria nada sobre o parse, que e a etapa
+        # que a decisao do cache precisa (features 025 e 047).
+        with medir("carregar_arvore"):
+            if self._cache is None:
+                return carregar_arvore(caminho)
+            return self._cache.carregar(caminho, carregar_arvore)
 
 
 class RegistroDeAnalisesPostgres:
@@ -472,14 +485,14 @@ class RegistroDeAnalisesPostgres:
     ele **nao** fecha a conexao; quem fecha e o `finally`.
     """
 
-    def __init__(self, url: str):
-        self._url = url
+    def __init__(self, url: str) -> None:
+        self._url: str = url
 
     def registrar(self, analise: AnaliseParaRegistrar,
                   dono: str) -> tuple[str | None, str | None]:
         """Grava a analise e devolve `(referencia, aviso)`. Nunca levanta (`RN-13`)."""
         try:
-            import psycopg2
+            import psycopg2  # type: ignore
         except ImportError as erro:
             return None, ("Histórico não registrado: o driver do banco não está instalado "
                           f"neste interpretador ({erro}).")
@@ -591,4 +604,4 @@ class RegistroDeAnalisesPostgres:
         return str(analysis_id)
 
 
-__all__ = ["ArmazenamentoEmDisco", "CarregadorDeArvoresGedcom", "RegistroDeAnalisesPostgres"]
+__all__: list[str] = ["ArmazenamentoEmDisco", "CarregadorDeArvoresGedcom", "RegistroDeAnalisesPostgres"]

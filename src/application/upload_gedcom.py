@@ -46,16 +46,22 @@ from application.reenvio import IDENTICO, SUBSTITUIDO, guardar_com_substituicao
 class ResultadoDeUpload:
     """O que o upload devolve ao adaptador de entrada.
 
-    Os quatro campos sao o que a tela precisa, e **nenhum e nome de campo de template**:
+    Os cinco campos sao o que a tela precisa, e **nenhum e nome de campo de template**:
     `referencia` e a referencia armazenada que o formulario devolve na requisicao seguinte,
-    `nome_exibido` e o nome que o operador reconhece, `nomes` alimenta a sugestao e
-    `mensagem` e o literal de contrato congelado.
+    `nome_exibido` e o nome que o operador reconhece, `nomes` alimenta a sugestao,
+    `mensagem` e o literal de contrato congelado e `desfecho` diz **qual** dos tres casos da
+    `RN-17` aconteceu.
+
+    `desfecho` existe para a **borda** — que audita sem distinguir o caso pelo texto da
+    mensagem (feature 049, `D-07`). Reconhecer `novo` por "a mensagem nao mudou" daria ao
+    literal de tela autoridade semantica, que e o que a `RF-20` proibe.
     """
 
     referencia: str
     nome_exibido: str
     nomes: list[str]
     mensagem: str
+    desfecho: str
 
 
 def upload_gedcom(conteudo: bytes, nome_original: str | None, dono: str,
@@ -77,10 +83,15 @@ def upload_gedcom(conteudo: bytes, nome_original: str | None, dono: str,
 
     # A REFERENCIA, e nao o caminho, e o que circula entre as duas portas: e ela que o formulario
     # devolve na requisicao seguinte, e e ela que a `RF-09` separa do caminho de proposito.
-    referencia = os.path.basename(armazenado.caminho)
+    caminho: str | None = armazenado.caminho
+    if caminho is None:
+        # Inalcancavel pelo contrato de `ResultadoDeArmazenamento`: sem `motivo`, ha caminho.
+        # Existe para o checador estreitar o tipo e para o defeito nao passar calado.
+        raise RuntimeError("guardar nao devolveu caminho nem motivo")
+    referencia: str = os.path.basename(caminho)
 
     if armazenado.desfecho == SUBSTITUIDO:
-        mensagem = (
+        mensagem: str = (
             f"Arquivo '{armazenado.visivel}' atualizado: a versão anterior saiu da lista e "
             "continua guardada, inteira, na pasta de aposentados."
         )
@@ -107,7 +118,8 @@ def upload_gedcom(conteudo: bytes, nome_original: str | None, dono: str,
         nome_exibido=nome_original or "",
         nomes=nomes_de_exibicao(arvore),
         mensagem=mensagem,
+        desfecho=armazenado.desfecho,
     )
 
 
-__all__ = ["ResultadoDeUpload", "upload_gedcom"]
+__all__: list[str] = ["ResultadoDeUpload", "upload_gedcom"]
