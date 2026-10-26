@@ -213,6 +213,10 @@ def escolher(valores) -> tuple[RotuloDeFonte, tuple[str, ...]]:
 
     distintos: list[str] = []
     for r in laboratorios:
+        if r.canonico is None:
+            # `e_laboratorio` ja garante o contrario; o guarda existe para o
+            # checador enxergar o estreitamento `str | None` -> `str`.
+            continue
         if r.canonico not in distintos:
             distintos.append(r.canonico)
     if escolhido.e_laboratorio:
@@ -220,7 +224,7 @@ def escolher(valores) -> tuple[RotuloDeFonte, tuple[str, ...]]:
     return escolhido, tuple(distintos)
 
 
-__all__ = [
+__all__: list[str] = [
     "LABORATORIOS",
     "NAO_DECLARADA",
     "OUTRO",

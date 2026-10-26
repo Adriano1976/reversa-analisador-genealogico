@@ -12,6 +12,7 @@ devolve `AnaliseParaRegistrar`, o payload tipado da porta `RegistroDeAnalises`.
 from __future__ import annotations
 
 from itertools import zip_longest
+from typing import Any, cast
 
 from ports import (
     AnaliseParaRegistrar,
@@ -153,16 +154,24 @@ class ProjetorDeAnalise:
         return tuple(por_xref.values()), raiz
 
     @classmethod
-    def _conexao(cls, ordinal: int, resultado: dict) -> ConexaoDaAnalise:
+    def _conexao(cls, ordinal: int, resultado: dict[str, Any]) -> ConexaoDaAnalise:
         """Uma conexao projetada. `ordinal` e a posicao na ordem APRESENTADA (`RN-08`)."""
-        documentary = resultado.get("documentary") or {}
+        # O nucleo devolve dicionario nao tipado (`D-15`): o `Any` fica no limite da
+        # projecao, e a garantia de que `person_b` existe e o filtro de
+        # `sem_correspondencia` em `projetar`.
+        documentary: dict[str, Any] = resultado.get("documentary") or {}
         comparison = resultado.get("comparison") or {}
         janela = comparison.get("expected_range") or {}
         return ConexaoDaAnalise(
             ordinal=ordinal,
             csv_name=resultado.get("csv_name") or "",
             matched_name=resultado.get("match_name") or "",
-            matched_person_xref=(documentary.get("person_b") or {}).get("id"),
+            # `person_b` existe em toda conexao que chega aqui: `projetar` filtra as
+            # marcadas com `sem_correspondencia` (`E002`) e a tabela `match_result`
+            # ainda exige a FK. O `cast` documenta a garantia — em runtime, um valor
+            # ausente continua chegando ao banco e falhando como antes, e a `RN-13`
+            # transforma a falha em aviso.
+            matched_person_xref=cast(str, (documentary.get("person_b") or {}).get("id")),
             comparison_status=comparison.get("status") or "INCONCLUSIVO",
             comparison_label=comparison.get("label") or "",
             comparison_detail=comparison.get("detail") or "",
@@ -275,4 +284,4 @@ _kits = ProjetorDeAnalise._kits
 _pessoas = ProjetorDeAnalise._pessoas
 _conexao = ProjetorDeAnalise._conexao
 
-__all__ = ["ProjetorDeAnalise", "projetar_analise"]
+__all__: list[str] = ["ProjetorDeAnalise", "projetar_analise"]

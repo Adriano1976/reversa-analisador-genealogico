@@ -6,3 +6,27 @@
 # inteiro, com o aviso "Extra keys found in config: pyrefly", e o search path
 # deixa de valer sem nenhum erro visível.
 search-path = ["src"]
+
+# `_reversa_*` são artefatos de análise (before/after, oracle, harness), não
+# código do produto: 682 dos 945 erros do projeto vinham de cópias históricas
+# com imports quebrados de propósito. Com a exclusão, `pyrefly check` cai de
+# 945 para 263 (16 em src/ + 247 em tests/).
+project-excludes = [
+  "_reversa_refactor/**",
+  "_reversa_bugs/**",
+  "_reversa_forward/**",
+  "_reversa_sdd/**",
+  "_reversa_docs/**",
+]
+
+# Régua mais dura na fronteira (`src/ports/` é código novo): `implicit-any`
+# conta como erro, o mesmo efeito de `preset = "strict"`, mas só neste subtree.
+# Medido: strict no projeto inteiro daria 796 erros em src/, inviável hoje;
+# aqui não há nenhum — o gate existe para impedir regressão, não para pagar
+# passivo.
+[[sub-config]]
+matches = "src/ports/**"
+[sub-config.errors]
+implicit-any-parameter = "error"
+implicit-any-type-argument = "error"
+implicit-any-empty-container = "error"

@@ -87,6 +87,10 @@ def carregar_arvore(file_path: str) -> Tree:
     Sem estado: nao ha escrita de modulo, e a mesma funcao pode ser chamada duas
     vezes com arquivos diferentes sem que uma carga interfira na outra (`T023`).
     """
+    # `GedcomReader.__exit__` do ged4py 0.5.5 e' tipado sem `None` em `exc_type`,
+    # mas o `with` passa `None` quando nao ha excecao — o stub e' que esta errado.
+    # Sem `close()` publico, o `with` e' o unico encerramento disponivel.
+    # pyrefly: ignore[bad-context-manager]
     with GedcomReader(file_path) as parser:
         new_people = {ref_id(i.xref_id): i for i in parser.records0("INDI")}
         # UMA materializacao por registro de nivel 0 (`RN-02`): a lista e lida

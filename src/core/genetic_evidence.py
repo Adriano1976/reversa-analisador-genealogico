@@ -195,7 +195,7 @@ def build_genetic_evidence(df):
     kit_col = colunas["kit"]
     evidencias: dict = {}
     avisos: list = []
-    vistos = set()
+    vistos: set[tuple[str, ...]] = set()
 
     for _, linha in df.iterrows():
         nome_csv = _clean(linha[colunas["name"]])
@@ -338,7 +338,7 @@ def build_genetic_evidence(df):
     return evidencias, avisos
 
 
-def evidence_for(dossie: dict, avisos=None, kit_key: str = None) -> dict:
+def evidence_for(dossie: dict, avisos=None, kit_key: str | None = None) -> dict:
     """Evidencia de UM dossie (o dict por kit de `build_genetic_evidence`).
 
     Sem `kit_key`, junta todos os kits **sem somar cM entre eles**: devolve a
@@ -402,5 +402,5 @@ def evidence_for(dossie: dict, avisos=None, kit_key: str = None) -> dict:
     }
 
 
-__all__ = ["build_genetic_evidence", "evidence_for", "detect_segment_columns",
+__all__: list[str] = ["build_genetic_evidence", "evidence_for", "detect_segment_columns",
            "LIMITE_SEGMENTO_FRACO", "SEM_KIT"]

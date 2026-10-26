@@ -72,7 +72,7 @@ bloco — e' o mesmo cuidado que `_confianca` pede ao se declarar heuristica.
 """
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from .graus_de_parentesco import nome_do_grau, nome_do_primo
 
@@ -352,6 +352,7 @@ def posicao_na_faixa(total_cm: float, faixa_baixa: float, faixa_alta: float) -> 
 
     return {
         "fracao": round(fracao, 4),
+        # pyrefly: ignore[unnecessary-type-conversion]
         "percentual": int(round(fracao * 100)),
         "chave": chave,
         "rotulo": POSICOES_NA_FAIXA[chave],
@@ -484,7 +485,9 @@ def possible_relationships(total_cm) -> dict:
         }
 
     cm = float(total_cm)
-    candidatas = []
+    # Payload JSON montado aqui: os valores tem tipos diferentes por chave, e o
+    # `Any` documenta que a ordem/destaque os leem sem contrato de campo.
+    candidatas: list[dict[str, Any]] = []
     for chave, nome_en, nome_pt, meioses, media, baixo, alto in SCP40_ROWS:
         if baixo <= cm <= alto:
             candidatas.append({

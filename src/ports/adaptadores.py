@@ -24,7 +24,7 @@ import logging
 import os
 import threading
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 from parsers.gedcom_parser import Tree, carregar_arvore
 from ports import EntradaArmazenada
@@ -102,9 +102,12 @@ class ArmazenamentoEmDisco:
         consulta e filtrada por dono. Ele chega por chamada do carregador de
         arvores, que o recebe da borda.
         """
-        if not chave_recebida_e_valida(referencia):
+        # `is None` explicito: `chave_recebida_e_valida` recebe o nome sem
+        # anotacao e devolve `bool` puro — nao e `TypeGuard` —, entao o checador
+        # nao estreita `str | None` para `str` sozinho. A comparacao nao muda o
+        # comportamento (a funcao ja recusa `None`) e dispensa a supressao.
+        if referencia is None or not chave_recebida_e_valida(referencia):
             return None
-        # pyrefly: ignore[no-matching-overload]
         caminho = os.path.join(self._pasta, referencia)
         return caminho if os.path.exists(caminho) else None
 
@@ -319,8 +322,8 @@ class CacheDeArvores:
         if capacidade < 1:
             raise ValueError("a capacidade do cache tem de ser pelo menos 1")
         self._capacidade: int = capacidade
-        self._itens: OrderedDict = OrderedDict()
-        self._em_andamento: dict = {}
+        self._itens: OrderedDict[tuple[str, int, int], Tree] = OrderedDict()
+        self._em_andamento: dict[tuple[str, int, int], threading.Event] = {}
         self._trava: threading.Lock = threading.Lock()
         self._acertos = 0
         self._reconstrucoes = 0
@@ -338,7 +341,7 @@ class CacheDeArvores:
         return self._reconstrucoes
 
     @staticmethod
-    def _chave(caminho: str) -> tuple:
+    def _chave(caminho: str) -> tuple[str, int, int]:
         info = os.stat(caminho)
         return (os.path.abspath(caminho), info.st_mtime_ns, info.st_size)
 
@@ -350,7 +353,7 @@ class CacheDeArvores:
         with self._trava:
             self._itens.clear()
 
-    def carregar(self, caminho: str, parsear):
+    def carregar(self, caminho: str, parsear: Callable[[str], Tree]) -> Tree:
         """Devolve a arvore guardada ou chama `parsear(caminho)` e guarda o resultado."""
         try:
             chave = self._chave(caminho)
@@ -524,7 +527,9 @@ class RegistroDeAnalisesPostgres:
     # conexoes e o que pende delas.
     # ------------------------------------------------------------------
 
-    def _escrever(self, cursor, analise: AnaliseParaRegistrar, dono: str) -> str:
+    # `cursor: Any` porque o driver nao e importavel pelo checador (ele existe
+    # no conteiner, nao no interpretador da suite); um stub mentiria sobre o tipo.
+    def _escrever(self, cursor: Any, analise: AnaliseParaRegistrar, dono: str) -> str:
         cursor.execute(
             """
             INSERT INTO dna_analysis

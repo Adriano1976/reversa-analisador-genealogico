@@ -155,9 +155,12 @@ def read_csv_with_fallback(path):
         sep = detectar_separador(path, encoding)
         cabecalho = localizar_cabecalho(path, sep, encoding)
         ignoradas, erro_de_leitura = [], None
-        extra = {"skiprows": cabecalho} if cabecalho else {}
         try:
-            df = pd.read_csv(path, sep=sep, encoding=encoding, skipinitialspace=True, **extra)
+            # `skiprows=None` e' o default do pandas: passar o valor direto evita o
+            # `**extra` de tipo homogeneo (`dict[str, int]`) que o checador nao
+            # consegue casar com os parametros heterogeneos do `read_csv`.
+            df = pd.read_csv(path, sep=sep, encoding=encoding, skipinitialspace=True,
+                             skiprows=cabecalho or None)
         except UnicodeDecodeError as erro:
             problemas.append(f"encoding {encoding} recusado ({erro.reason})")
             continue
@@ -168,7 +171,7 @@ def read_csv_with_fallback(path):
             erro_de_leitura = str(erro)
             try:
                 df = pd.read_csv(path, sep=sep, encoding=encoding, skipinitialspace=True,
-                                 on_bad_lines="skip", **extra)
+                                 on_bad_lines="skip", skiprows=cabecalho or None)
             except Exception as erro_de_novo:  # pragma: no cover - erro do proprio pandas
                 problemas.append(f"leitura com separador {sep!r} ({erro_de_novo})")
                 continue

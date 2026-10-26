@@ -30,6 +30,7 @@ a regra de conversao exista em um lugar so quando a API chegar.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Callable
 
 from core.erros import (
     CsvIlegivel,
@@ -99,13 +100,17 @@ def _erro_de_dominio_sem_moldura_propria(erro: ErroDeDominio) -> RespostaDeErro:
 
 # A ordem nao e significativa: os quatro tipos sao IRMAOS, nao uma cadeia — no maximo um
 # `isinstance` casa por excecao. O generico fica por ultimo: a busca percorre a insercao.
-_TRADUTORES = {
+_TRADUTORES: dict[type[ErroDeDominio], Callable[..., RespostaDeErro]] = {
     PessoaNaoEncontrada: _pessoa_nao_encontrada,
     GedcomNaoSuportado: _gedcom_nao_suportado,
     DnaCsvSemColunas: _dna_csv_sem_colunas,
     CsvIlegivel: _csv_ilegivel,
     ErroDeDominio: _erro_de_dominio_sem_moldura_propria,
 }
+# `Callable[..., RespostaDeErro]` acima e deliberado: o pareamento tipo -> tradutor
+# e uma garantia de EXECUCAO, nao de tipo. O checador nao consegue provar que `erro`
+# e do tipo da chave dentro do laco, e a assinatura estreita de cada tradutor
+# continua no `def` de cada um, como documentacao do que ele atende.
 
 
 def traduzir(erro: ErroDeDominio) -> RespostaDeErro:
@@ -117,4 +122,4 @@ def traduzir(erro: ErroDeDominio) -> RespostaDeErro:
     raise TypeError("tipo sem traducao: %r" % type(erro).__name__)
 
 
-__all__ = ["RespostaDeErro", "traduzir"]
+__all__: list[str] = ["RespostaDeErro", "traduzir"]
