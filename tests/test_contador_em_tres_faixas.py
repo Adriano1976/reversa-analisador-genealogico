@@ -18,7 +18,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from tests.fixtures import resultado_para_cartao as fixo  # noqa: E402
 
-ABERTURA = 'class="text-center text-muted contagem-das-conexoes"'
+#: O parágrafo da contagem. Em 2026-10-26 ele deixou de ser centralizado: numa análise de
+#: várias conexões a frase ocupa três linhas, e o texto centralizado fazia cada linha começar
+#: num x diferente — o oposto do que um resumo precisa entregar.
+ABERTURA = 'class="text-muted contagem-das-conexoes"'
 
 
 def _frase(resultados) -> str:

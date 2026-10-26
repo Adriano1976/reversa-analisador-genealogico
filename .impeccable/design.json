@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T16:52:00-03:00",
+  "title": "Design System: Analisador Genealógico",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Verde-folha",
+        "canonical": "oklch(48.1% 0.103 138)",
+        "tonalRamp": ["#020F00", "#0E2F00", "#265113", "#477436", "#6A9859", "#8EBE7D", "#B0E19F", "#CFFFBF"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta de registro",
+        "canonical": "oklch(26.3% 0.023 84)",
+        "tonalRamp": ["#100A02", "#2C261A", "#4B4437", "#6C6558", "#90887A", "#B5AD9E", "#D8D0C1", "#F6EEDE"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Apoio quente",
+        "canonical": "oklch(49.6% 0.028 83)",
+        "tonalRamp": ["#110A01", "#2D2516", "#4C4434", "#6E6554", "#928876", "#B7AD9A", "#DAD0BD", "#F8EDDA"]
+      },
+      "parchment": {
+        "role": "neutral",
+        "displayName": "Pergaminho",
+        "canonical": "oklch(95.8% 0.015 90)",
+        "tonalRamp": ["#0E0B05", "#29261E", "#48453C", "#69665C", "#8D897F", "#B1AEA3", "#D5D1C6", "#F2EEE3"]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Terracota de perigo",
+        "canonical": "oklch(49.3% 0.157 32)",
+        "tonalRamp": ["#1E0100", "#4D0600", "#821200", "#AE3824", "#D75E49", "#FD8771", "#FFBFB2", "#EEEEEE"]
+      },
+      "warning-solid": {
+        "role": "secondary",
+        "displayName": "Âmbar de aviso",
+        "canonical": "oklch(76.2% 0.109 76)",
+        "tonalRamp": ["#130900", "#362201", "#5D3E03", "#885C05", "#AE7F33", "#D5A45A", "#FAC77D", "#FFEBD1"]
+      },
+      "state-compatible": {
+        "role": "primary",
+        "displayName": "Verde de confronto compatível",
+        "canonical": "oklch(47.5% 0.100 148)",
+        "tonalRamp": ["#001002", "#00300D", "#145323", "#3A7544", "#5D9A66", "#82C08A", "#A4E3AC", "#CAFFCF"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título da tela; uma linha em todas as larguras medidas." },
+      "headline": { "displayName": "Headline", "purpose": "Título de seção de resultado e de fase." },
+      "title": { "displayName": "Title", "purpose": "Nome da conexão no cabeçalho do cartão." },
+      "body": { "displayName": "Body", "purpose": "Texto corrente, frase de contagem e legenda dos selos; na abertura dos resultados ocupa a largura inteira, no mesmo corpo." },
+      "label": { "displayName": "Label", "purpose": "Rótulo de campo e nome do arquivo escolhido." },
+      "overline": { "displayName": "Overline", "purpose": "Rótulo de status, título de legenda e contagem por laboratório." },
+      "badge": { "displayName": "Badge", "purpose": "Selo de veredito e de metadado; sempre sans, sempre com figuras de caixa alta." }
+    },
+    "shadows": [
+      { "name": "sombra-1", "value": "0 1px 2px rgba(0,0,0,.06)", "purpose": "Repouso baixo: botão Voltar, botão de tema, chip elevado." },
+      { "name": "sombra-2", "value": "0 4px 14px rgba(69,52,29,.10)", "purpose": "Estado ativo do item da trilha, junto da barra interna verde." },
+      { "name": "sombra-3", "value": "0 8px 24px rgba(69,52,29,.08)", "purpose": "Cartão de resultado em repouso; quase invisível sobre o pergaminho." },
+      { "name": "sombra-alta", "value": "0 10px 24px rgba(69,52,29,.18)", "purpose": "Lista de nomes do combobox, flutuando sobre o campo." }
+    ],
+    "motion": [
+      { "name": "transicao", "value": "0.15s ease", "purpose": "Transição de cor de borda, fundo e chevron; a única duração do sistema." },
+      { "name": "reduced-motion", "value": "transition: none; scroll-behavior: auto", "purpose": "Sob prefers-reduced-motion, toda transição e rolagem suave é desligada." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "576px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "992px" },
+      { "name": "xl", "value": "1200px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A única superfície verde do sistema: ação principal do fluxo.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Encontrar Conexão</button>",
+      "css": ".ds-btn-primary{font-family:var(--sans,'Manrope',system-ui,sans-serif);font-size:1rem;font-weight:700;line-height:1.5;color:var(--on-primary,#fff);background:var(--primary,#3F6B2E);border:1px solid var(--primary,#3F6B2E);border-radius:var(--r-2,12px);padding:6px 12px;min-width:12rem;padding-inline:24px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}.ds-btn-primary:hover{background:var(--primary-hover,#335724);border-color:var(--primary-hover,#335724)}.ds-btn-primary:focus-visible{outline:3px solid var(--focus,#8A5A2B);outline-offset:2px}"
+    },
+    {
+      "name": "Botão destrutivo",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Contorno em terracota; enche no hover. Só para apagar.",
+      "html": "<button class=\"ds-btn-danger\" type=\"button\">Apagar</button>",
+      "css": ".ds-btn-danger{font-family:var(--sans,'Manrope',system-ui,sans-serif);font-size:1rem;font-weight:700;line-height:1.5;color:var(--danger,#A8321F);background:transparent;border:1px solid var(--danger,#A8321F);border-radius:var(--r-2,12px);padding:6px 12px;cursor:pointer;transition:background-color .15s ease,color .15s ease}.ds-btn-danger:hover{background:var(--danger,#A8321F);color:var(--on-danger,#fff)}.ds-btn-danger:focus-visible{outline:3px solid var(--focus,#8A5A2B);outline-offset:2px}"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Campo com rótulo sans; anel de foco em verde a 25%.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-label\">Pessoa 1</span><input class=\"ds-input\" type=\"text\" placeholder=\"Comece a digitar um nome...\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:4px;font-family:var(--sans,'Manrope',system-ui,sans-serif)}.ds-label{font-size:.82rem;font-weight:800;color:var(--ink,#2A2418)}.ds-input{font-family:inherit;font-size:1rem;line-height:1.6;color:var(--ink,#2A2418);background:var(--surface,#fff);border:1px solid var(--line,#DDD4BF);border-radius:var(--r-2,12px);padding:.65rem .9rem;transition:border-color .15s ease,box-shadow .15s ease}.ds-input::placeholder{color:var(--muted,#6A6150)}.ds-input:focus{border-color:var(--primary,#3F6B2E);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary,#3F6B2E) 25%,transparent);outline:none}.ds-input:focus-visible{outline:3px solid var(--focus,#8A5A2B);outline-offset:2px}"
+    },
+    {
+      "name": "Cartão de resultado",
+      "kind": "card",
+      "refersTo": "card-result",
+      "description": "Superfície em degradê com lombada de 5 px, cabeçalho serifado e selos.",
+      "html": "<article class=\"ds-card-result\"><header class=\"ds-card-head\"><h3 class=\"ds-card-title\">Análise de conexão com Ana Silva Souza</h3><div class=\"ds-card-chips\"><span class=\"ds-badge-verdict\">Conflitante</span><span class=\"ds-badge-meta\">DNA: 200 cM</span></div></header><p class=\"ds-card-body\">Idade acima do plausível para o doador do DNA: 111 anos em 2026.</p></article>",
+      "css": ".ds-card-result{position:relative;overflow:hidden;font-family:var(--sans,'Manrope',system-ui,sans-serif);color:var(--ink,#2A2418);background:linear-gradient(180deg,var(--surface,#fff) 0%,var(--surface-2,#F8F4E9) 100%);border:1px solid var(--line,#DDD4BF);border-radius:var(--r-3,16px);box-shadow:var(--sombra-3,0 8px 24px rgba(69,52,29,.08))}.ds-card-result::before{content:'';position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(180deg,var(--muted,#6A6150),var(--head,#4A3B1A));opacity:.85}.ds-card-head{padding:14px 16px 13px 21px;border-bottom:1px solid var(--line,#DDD4BF)}.ds-card-title{margin:0;font-family:var(--serif,'Cormorant Garamond',Georgia,serif);font-size:1.4rem;font-weight:700;line-height:1.2;letter-spacing:-.01em;color:var(--head,#4A3B1A)}.ds-card-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.ds-card-body{margin:0;padding:16px;font-size:1rem;line-height:1.6}.ds-badge-verdict{font-size:.75rem;font-weight:600;line-height:1;color:var(--on-solid,#fff);background:var(--state-conflicting,#A8321F);border-radius:var(--r-1,8px);padding:6px 10px}.ds-badge-meta{font-size:.75rem;font-weight:600;line-height:1;color:var(--head,#4A3B1A);background:var(--surface-2,#F8F4E9);border:1px solid var(--line,#DDD4BF);border-radius:var(--r-pill,999px);padding:6px 9px}"
+    },
+    {
+      "name": "Item da trilha de fases",
+      "kind": "nav",
+      "refersTo": "nav-rail-active",
+      "description": "Navegação lateral; o ativo tem fundo, borda e barra interna verde.",
+      "html": "<button class=\"ds-nav-item is-active\" type=\"button\"><span class=\"ds-nav-num\">1</span><span class=\"ds-nav-text\"><strong>Árvores GEDCOM</strong><span>Listagem, envio e abertura da base principal.</span></span></button>",
+      "css": ".ds-nav-item{display:flex;align-items:flex-start;gap:10px;width:100%;padding:10px 11px;text-align:left;font-family:var(--sans,'Manrope',system-ui,sans-serif);color:var(--ink,#2A2418);background:transparent;border:1px solid transparent;border-radius:var(--r-2,12px);cursor:pointer;transition:background-color .15s ease,border-color .15s ease}.ds-nav-item:hover{background:var(--surface-2,#F8F4E9);border-color:var(--line,#DDD4BF)}.ds-nav-item.is-active{background:var(--surface,#fff);border-color:var(--line,#DDD4BF);box-shadow:inset 4px 0 0 var(--primary,#3F6B2E),0 4px 14px rgba(69,52,29,.10)}.ds-nav-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:1.7rem;height:1.7rem;border:1px solid var(--line,#DDD4BF);border-radius:50%;font-size:.8rem;color:var(--muted,#6A6150)}.ds-nav-item.is-active .ds-nav-num{background:var(--primary,#3F6B2E);border-color:var(--primary,#3F6B2E);color:var(--on-primary,#fff)}.ds-nav-text{display:flex;flex-direction:column;gap:2px;min-width:0}.ds-nav-text strong{font-size:.95rem;line-height:1.2;color:var(--head,#4A3B1A)}.ds-nav-text span{font-size:.78rem;line-height:1.35;color:var(--muted,#6A6150)}.ds-nav-item:focus-visible{outline:3px solid var(--focus,#8A5A2B);outline-offset:2px}"
+    },
+    {
+      "name": "Selo de veredito",
+      "kind": "chip",
+      "refersTo": "badge-verdict",
+      "description": "Preenchido, texto branco, quatro estados fixos nos dois temas.",
+      "html": "<span class=\"ds-badge-verdict\">Compatível</span>",
+      "css": ".ds-badge-verdict{display:inline-block;font-family:var(--sans,'Manrope',system-ui,sans-serif);font-size:.75rem;font-weight:600;line-height:1;letter-spacing:.01em;font-variant-numeric:lining-nums tabular-nums;color:var(--on-solid,#fff);background:var(--state-compatible,#2F6B3A);border-radius:var(--r-1,8px);padding:6px 10px}"
+    },
+    {
+      "name": "Selo de metadado",
+      "kind": "chip",
+      "refersTo": "badge-metadata",
+      "description": "Contorno em pílula; carrega cM, idade e demais dados que não são veredito.",
+      "html": "<span class=\"ds-badge-meta\">DNA: 200 cM</span>",
+      "css": ".ds-badge-meta{display:inline-block;font-family:var(--sans,'Manrope',system-ui,sans-serif);font-size:.75rem;font-weight:600;line-height:1;letter-spacing:.01em;font-variant-numeric:lining-nums tabular-nums;color:var(--head,#4A3B1A);background:var(--surface-2,#F8F4E9);border:1px solid var(--line,#DDD4BF);border-radius:var(--r-pill,999px);padding:6px 9px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Arquivo Paroquial",
+    "overview": "O sistema se comporta como um livro de registro sobre a mesa: papel creme, tinta marrom, uma única cor de selo para o que está vivo. Não é um painel de acompanhamento; é um arquivo que se consulta. Cada conexão é uma folha, com nome, data, distância e procedência, e a tela nunca levanta a voz além do que o registro sustenta.\n\nA sobriedade é funcional, não estética. O valor do produto está na negativa justificada: dizer que um match não se sustenta, e por quê. Por isso o desenho favorece o que se audita — data, fonte, distância geracional, motivo do descarte — e trata cor como veredito, nunca como decoração.\n\nO mundo é quase plano: superfícies claras sobre pergaminho, separadas por linha de 1 px e mudança de tom, com sombra só onde há estado. Verde, âmbar e terracota significam ação, aviso e perigo, e essa gramática é a mesma nos dois temas.",
+    "keyCharacteristics": [
+      "Pergaminho e tinta, não branco e cinza: nenhuma superfície é branco puro sobre a página.",
+      "Uma cor de ação (verde-folha); vermelho só para perigo, âmbar só para aviso.",
+      "Selo preenchido = veredito; selo de contorno = metadado.",
+      "Serifa editorial nos títulos; sans em dado, rótulo e controle.",
+      "Sombra quase plana; profundidade vem de borda, degradê e tom.",
+      "Número é dado: sempre figuras de caixa alta e tabulares."
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "O verde é ação, nunca enfeite. Se duas áreas verdes competem na mesma dobra, uma delas está errada.", "section": "colors" },
+      { "name": "The Filled-Means-Verdict Rule", "body": "Selo preenchido carrega veredito; selo de contorno carrega metadado. Um cM, uma contagem ou um nome de arquivo nunca recebem preenchimento.", "section": "colors" },
+      { "name": "The Warm Neutral Rule", "body": "Nenhum cinza frio entra na paleta. #6C757D do Bootstrap é proibido; os utilitários do framework são remapeados para os tokens da casa.", "section": "colors" },
+      { "name": "The Lining Numbers Rule", "body": "Todo numeral que é dado usa figuras de caixa alta e tabulares. O Cormorant cai em figuras antigas por padrão: sem lining-nums, o contador de árvores lê \"I\" e a idade lê \"III\".", "section": "typography" },
+      { "name": "The Two Faces Rule", "body": "A serifa não carrega número, unidade nem rótulo de controle; a sans não carrega título de página.", "section": "typography" },
+      { "name": "The Border-First Rule", "body": "Para separar superfícies, mude primeiro a borda e o tom. A sombra vem depois e nunca sozinha.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar o verde só em ação: CTA, item ativo, link. Se não é clicável, não é verde.",
+      "Do manter veredito preenchido e metadado em contorno.",
+      "Do forçar lining-nums e tabular-nums em qualquer número que o operador vá comparar.",
+      "Do respeitar a escada de raio 16 / 12 / 8 / pílula, com o filho sempre menos redondo que o pai.",
+      "Do separar superfícies com borda e tom antes de recorrer a sombra.",
+      "Do medir contraste nos dois temas e rodar tests/test_estilo_da_tela.py depois de mexer em cor."
+    ],
+    "donts": [
+      "Don't introduzir cinza frio, azul de framework ou um segundo acento.",
+      "Don't usar a serifa para número, unidade ou rótulo de controle.",
+      "Don't preencher selo de metadado nem contornar selo de veredito.",
+      "Don't acrescentar olho ou kicker acima de título: o sobretítulo da masthead é dívida herdada e não deve ser replicado.",
+      "Don't criar ícones novos em glifo Unicode: o botão de tema e as marcas da tabela são dívida herdada.",
+      "Don't empilhar superfícies com sombra; o cartão em repouso é plano.",
+      "Don't escrever uma segunda navegação para os mesmos destinos na mesma largura.",
+      "Don't usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações e Cobertura); ela é dívida herdada, não um dispositivo de layout."
+    ]
+  }
+}

@@ -155,6 +155,11 @@
                 botao.setAttribute('aria-pressed', escuro ? 'true' : 'false');
                 botao.setAttribute('aria-label',
                     escuro ? 'Mudar para o tema claro' : 'Mudar para o tema escuro');
+                {# Em tela larga o rotulo visivel do botao some (ver a media query de
+                   992 px na folha) e ele fica so com o icone. O `title` repete o nome
+                   acessivel para quem usa mouse sem leitor de tela; os dois sao escritos
+                   no mesmo lugar para nao divergirem quando o tema troca. -#}
+                botao.title = escuro ? 'Mudar para o tema claro' : 'Mudar para o tema escuro';
                 botao.querySelector('.icone-tema').innerHTML = escuro ? '&#9728;' : '&#9789;';
                 botao.querySelector('.rotulo-tema').textContent =
                     escuro ? 'Tema claro' : 'Tema escuro';
@@ -471,9 +476,12 @@
                                                            placeholder="Comece a digitar um nome...">
                                                     <div class="form-text">Evite abreviações para facilitar a busca.</div>
                                                 </div>
-                                                <div class="campo campo-da-acao">
-                                                    <button type="submit" class="btn btn-info">Encontrar Conexão</button>
-                                                </div>
+                                            </div>
+                                            {# A ACAO NA PROPRIA LINHA, como na fase 3 (2026-10-26). Dentro da
+                                               grade de campos ela caia na coluna que o `auto-fit` decidisse — em
+                                               1280 px, sob "Pessoa 1", com meia linha vazia ao lado. #}
+                                            <div class="linha-da-acao">
+                                                <button type="submit" class="btn btn-info">Encontrar Conexão</button>
                                             </div>
                                         </form>
                                     {% else %}
@@ -847,7 +855,7 @@
                            que o selo do cabecalho do cartao ja dizia. O que so a tabela dava
                            (Parentesco, Janela de vida, Profundidade) subiu para o cabecalho do
                            cartao, que e onde a lista agora vive. Ver o adendo 019. #}
-                        <h2 class="text-center mt-5" id="resultados">Resultados das Análises de Conexão</h2>
+                        <h2 id="resultados">Resultados das Análises de Conexão</h2>
                         {# A CONTAGEM EM TRES FAIXAS (feature 033). Ate a 032 a frase tinha DUAS
                            faixas — "com caminho no GEDCOM" e "apenas com evidencia genetica" — e
                            chamava de "sem caminho" o que a arvore TEM. A regra da janela de vida
@@ -883,7 +891,7 @@
                            e legenda correm no mesmo paragrafo, separadas por ponto. A classe
                            `legenda-da-validacao` fica no `span`, para o teste que a procura
                            continuar achando o que procura. #}
-                        <p class="text-center text-muted contagem-das-conexoes">
+                        <p class="text-muted contagem-das-conexoes">
                             {{ dna_results | length }} conexões analisadas:
                             <strong>{{ ns.com_caminho }}</strong> com caminho genealógico no GEDCOM
                             ({{ ns.ambiguos }} com identidade ambígua){% if ns.recusados %},
@@ -916,7 +924,7 @@
                            analise, 142. Nao alteram dado nenhum: so mudam o `open` de cada
                            `details`, e o `toggle` de cada cartao cuida do diagrama. #}
                         {% if dna_results | length > 1 %}
-                            <p class="text-center mb-3 controles-dos-cartoes">
+                            <p class="mb-3 controles-dos-cartoes">
                                 <button type="button" class="botao-do-cartao" id="expandir-cartoes">Expandir todas as análises</button>
                                 <button type="button" class="botao-do-cartao" id="recolher-cartoes">Recolher todas</button>
                             </p>
@@ -999,7 +1007,7 @@
                                         <span class="titulo-da-conexao">Análise de conexão com <strong>{{ result.match_name }}</strong></span>
                                         <span class="selos-do-cabecalho">
                                         {% if result.cm is not none %}
-                                            <span class="badge bg-secondary">DNA: {{ result.cm | cm_br }} cM</span>
+                                            <span class="badge selo-dado">DNA: {{ result.cm | cm_br }} cM</span>
                                         {% endif %}
                                         {# O SELO DA ENDOGAMIA sobe para o cabecalho para ser lido
                                            com o cartao FECHADO — o mesmo motivo dos selos de
@@ -1212,7 +1220,7 @@
                                     {# O `if` externo mantem o template renderizavel por payload
                                        antigo (so nome + cM), como o usado em tests/test_formatacao_cm.py. #}
                                     {% if result.documentary %}
-                                    <div class="secao" style="margin-top:0; border-top:0; padding-top:0;">
+                                    <div class="secao secao-sem-topo">
                                         <h5><span class="numero">1.</span> Parentesco documental</h5>
                                         <p class="rotulo-fonte mb-2">Fonte: GEDCOM</p>
 
@@ -1223,7 +1231,7 @@
                                                 <span class="badge bg-warning text-dark">{{ result.documentary.label }}</span>
                                                 <span class="documental-ambiguo">— identidade ambígua</span>
                                             {% elif result.documentary.status == 'affinity' %}
-                                                <span class="badge bg-info text-dark">{{ result.documentary.label }}</span>
+                                                <span class="badge bg-info">{{ result.documentary.label }}</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">{{ result.documentary.label }}</span>
                                             {% endif %}
@@ -1880,13 +1888,13 @@
 
 
                     {% if path_result %}
-                        <h2 class="text-center mt-5">Parentesco documental encontrado no GEDCOM</h2>
+                        <h2 class="mt-5">Parentesco documental encontrado no GEDCOM</h2>
                         <div class="card">
                             <div class="card-header"><h5>Conexão entre: <strong>{{ path_result.person1_name }}</strong> e <strong>{{ path_result.person2_name }}</strong></h5></div>
                             <div class="card-body">
                                 <p class="rotulo-fonte mb-2">Fonte: GEDCOM — análise sem DNA</p>
                                 <p class="mb-1"><strong>Parentesco encontrado:</strong>
-                                    <span class="badge {% if path_result.documentary.status == 'found' %}bg-primary{% elif path_result.documentary.status == 'ambiguous' %}bg-warning text-dark{% elif path_result.documentary.status == 'affinity' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                                    <span class="badge {% if path_result.documentary.status == 'found' %}bg-primary{% elif path_result.documentary.status == 'ambiguous' %}bg-warning text-dark{% elif path_result.documentary.status == 'affinity' %}bg-info{% else %}bg-secondary{% endif %}">
                                         {{ path_result.documentary.label }}
                                     </span>
                                 </p>

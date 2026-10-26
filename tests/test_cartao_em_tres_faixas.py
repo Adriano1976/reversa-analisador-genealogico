@@ -95,7 +95,7 @@ class TestOArranjoDoCabecalho:
         inicio = cabecalho.index("selos-do-cabecalho")
         fim = cabecalho.index("voltar-ao-indice")
         faixa = cabecalho[inicio:fim]
-        for selo in ("bg-secondary", "estado-CONFLITANTE", "validacao-conflito"):
+        for selo in ("selo-dado", "estado-CONFLITANTE", "validacao-conflito"):
             assert selo in faixa, (
                 f"o selo `{selo}` saiu da faixa própria e voltou a competir com o título"
             )
@@ -154,7 +154,10 @@ class TestAFolha:
         regra = re.search(r"details\.card\.cartao-do-resultado\{([^}]*)\}", folha)
         assert regra, "o casco do cartão não está escopado em `.cartao-do-resultado`"
         corpo = regra.group(1)
-        for declaracao in ("border-radius:16px", "linear-gradient", "position:relative"):
+        # O raio saiu do literal 16 px em 2026-10-26 e passou a ler o degrau de fora da
+        # escala (`--r-3`), o mesmo do cartão principal. O que este teste prende continua
+        # sendo o mesmo: o casco TEM raio próprio, e ele é o maior da escala.
+        for declaracao in ("border-radius:var(--r-3)", "linear-gradient", "position:relative"):
             assert declaracao in corpo, f"o casco perdeu `{declaracao}`"
 
     def test_a_barra_lateral_existe(self, folha):

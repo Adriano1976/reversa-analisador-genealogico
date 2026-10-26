@@ -27,6 +27,16 @@
   --focus:#8A5A2B;
   --aviso-bg:#FBF3DC;
   --aviso-line:#A8741F;
+  /* O AMBAR CHEIO DO SELO (2026-10-26). O selo de estado "ambiguo" usava o amarelo do
+     Bootstrap (#FFC107), o ultimo tom fora da paleta. O `--aviso-line` NAO serve como fundo:
+     medido, da 4,05:1 com branco e 3,80:1 com tinta — reprova em AA dos dois jeitos. O
+     #D9A85E da 7,12:1 com a tinta escura, e e' o mesmo ambar que o tema escuro ja usa no
+     foco e na linha de aviso. */
+  --aviso-cheio:#D9A85E;
+  /* Texto SOBRE o `--aviso-cheio`. NAO e' `--ink`: no tema escuro `--ink` clareia (#EDE7D6) e
+     daria 1,75:1 sobre o ambar. O ambar e' claro nos DOIS temas, entao a tinta sobre ele e'
+     escura nos dois — mesma logica do `--on-primary`/`--on-danger`. */
+  --sobre-aviso-cheio:#2A2418;
   --sucesso-bg:#EDF4E6;
   --sucesso-line:#3F6B2E;
   --perigo-bg:#FBEDEA;
@@ -48,6 +58,38 @@
   --validacao-valido:#2F6B3A; --validacao-conflito:#A8321F;
   --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
   --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+
+  /* A ESCALA DE RAIO (2026-10-26). Tres degraus, e o de fora e' sempre MAIOR que o de
+     dentro: cartao 16, bloco 12, aviso e controle 8, pilula 999. Antes conviviam 2, 4, 6, 8,
+     10, 12, 14 e 16 px — cada um decidido no dia em que a peca nasceu, e o resultado eram
+     cartoes de 10 px com blocos de 12 px dentro (o filho mais redondo que o pai). */
+  --r-1:8px; --r-2:12px; --r-3:16px; --r-pill:999px;
+
+  /* A ESCALA DE SOMBRA. Sao quatro alturas e um par por tema, e nao um rgba escrito em cada
+     regra: o tema escuro precisava de uma sombra propria em cinco lugares, sempre repetida. */
+  --sombra-1:0 1px 2px rgba(0,0,0,.06);
+  --sombra-2:0 4px 14px rgba(69,52,29,.10);
+  --sombra-3:0 8px 24px rgba(69,52,29,.08);
+  --sombra-alta:0 10px 24px rgba(69,52,29,.18);
+  --transicao:.15s ease;
+
+  /* O BOOTSTRAP FALA A PALETA (2026-10-26). Os utilitarios `bg-*`, `text-*` e
+     `btn-outline-*` do framework leem estas variaveis, e ate aqui elas seguiam o padrao do
+     Bootstrap. O selo `bg-secondary` do cM saia em #6C757D — um cinza FRIO, medido no
+     relatorio renderizado (7.838 px), ao lado dos cinzas quentes da casa (#6A6150). As
+     variaveis abaixo vestem os utilitarios que a tela usa. O `info` e' o unico que precisou
+     de um ajuste no markup junto: o selo de afinidade trazia `text-dark` (texto escuro sobre
+     o ciano claro do framework), e sobre o teal da casa ele passaria a 2,4:1 — saiu o
+     `text-dark`, e o branco padrao do `.badge` da 7,3:1. O `warning` ficou como estava de
+     proposito: o amarelo do framework com `text-dark` ja e' legivel, e o par nao muda.
+     `--bs-primary-rgb` tambem conserta uma inconsistencia latente: `--primary` e' verde,
+     mas o azul do framework continuava por tras de `.text-primary`/`.btn-outline-primary`. */
+  --bs-primary-rgb:63,107,46;
+  --bs-secondary-rgb:106,97,80;
+  --bs-info-rgb:45,95,93;
+  --bs-danger-rgb:168,50,31;
+  --bs-light-rgb:248,244,233;
+  --bs-dark-rgb:42,36,24;
 
   --bs-body-bg:var(--bg); --bs-body-color:var(--ink); --bs-border-color:var(--line);
   --bs-body-font-family:var(--sans);
@@ -78,6 +120,13 @@
      fica em `--ink` (#EDE7D6), entao a borda tem de contrastar com #16140F, nao com o
      pergaminho. Ver a medicao no bloco claro. */
   --validacao-valido:#8DBB6E; --validacao-conflito:#EE9A88;
+  /* As sombras do tema escuro. A clara e' marrom (a luz do pergaminho); sobre o fundo quase
+     preto ela nao aparece, entao aqui a sombra e' PRETA e mais opaca. E' o que as regras que
+     antes repetiam `rgba(0,0,0,...)` diziam, agora num lugar so. */
+  --sombra-1:0 1px 2px rgba(0,0,0,.45);
+  --sombra-2:0 4px 14px rgba(0,0,0,.45);
+  --sombra-3:0 6px 18px rgba(0,0,0,.45);
+  --sombra-alta:0 10px 24px rgba(0,0,0,.6);
   /* o grafo Mermaid continua com fundo claro, para as cores dele não quebrarem */
 }
 
@@ -92,16 +141,35 @@
    na fonte nativa desde o primeiro quadro. */
 body{background:var(--bg);color:var(--ink);line-height:1.6}
 h1,h2,h3{color:var(--head);font-family:var(--serif);font-weight:700;letter-spacing:0}
-h1{font-size:clamp(2.4rem,4.6vw,3.8rem);line-height:1.04}
+h1{font-size:clamp(2.4rem,4.1vw,3.8rem);line-height:1.04;text-wrap:balance}
 h2{font-size:clamp(1.7rem,2.6vw,2.1rem)}
 b,strong{font-weight:800}
 label{font-weight:800;font-size:.82rem}
 
-a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+/* OS NUMEROS QUE SAO DADO, e nao desenho. `Cormorant Garamond` cai em FIGURAS OLDSTYLE por
+   padrao: o "1" sai com a altura de um "I" romano — o contador da fase 1 lia "I árvores
+   armazenadas" — e o "0" fica do tamanho de um "o". Medido em 2026-10-26, nos tres estilos,
+   num render de `1 111 325 4 0%`: so o `lining-nums` devolve a figura de caixa alta. O
+   `tabular-nums` alinha as colunas de numeros. */
+.contador strong,.valor-da-cobertura,.kit-grid .destaque{font-variant-numeric:lining-nums tabular-nums}
+
+a:focus-visible,.btn:focus-visible,.nav-link:focus-visible,summary:focus-visible,
+.botao-tema:focus-visible,.botao-do-cartao:focus-visible,.botao-de-pagina:focus-visible,
+.numero-de-pagina:focus-visible,.fase-botao:focus-visible,.aba-de-fase:focus-visible,
+.seletor-do-tamanho:focus-visible,.form-control:focus-visible,.form-select:focus-visible{
+  outline:3px solid var(--focus);outline-offset:2px
+}
+
+/* AS SUPERFICIES DO NAVEGADOR (2026-10-26). Selecao, cursor, barra de rolagem e sublinhado
+   saem do padrao do sistema e entram na paleta — e' a mesma tinta que o resto da tela usa,
+   e nao um azul de outro produto. `scrollbar-color` vale no Chromium e no Firefox; onde nao
+   vale, fica a barra nativa. */
+::selection{background:color-mix(in srgb,var(--primary) 22%,transparent);color:var(--ink)}
+:root{scrollbar-color:var(--line) var(--bg)}
 
 /* Cartão principal e cartões de resultado */
-.card{--bs-card-bg:var(--surface);--bs-card-border-color:var(--line);--bs-card-cap-bg:var(--surface-2);margin-top:1.5rem;border-radius:10px}
-.main-card{box-shadow:none!important}
+.card{--bs-card-bg:var(--surface);--bs-card-border-color:var(--line);--bs-card-cap-bg:var(--surface-2);margin-top:1.5rem;border-radius:var(--r-3)}
+.main-card{box-shadow:none}
 .card-header h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600}
 
 /* Cada cartão de resultado é um `<details>`: o operador abre o que quer ler. Fechado, ele
@@ -125,12 +193,48 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
    resultado dela — e' a unica diferenca visual entre os dois, de proposito. */
 .bloco-descartados > summary .card-header h5{color:var(--muted);font-size:1.05rem}
 
-/* Os dois controles que impedem o colapso de virar trabalho: sem eles, ler a análise inteira
-   volta a ser um clique por conexão. Mesma discrição do "Voltar" — contorno, não cor de ação. */
-.controles-dos-cartoes{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+/* A ABERTURA DOS RESULTADOS, ALINHADA A ESQUERDA (2026-10-26). O titulo e a frase de contagem
+   eram centrados. Numa analise de 142 cartoes a frase ocupa tres linhas, e cada linha comeca
+   num x diferente — o olho perde o fio no texto que MAIS precisa ser lido antes de decidir o
+   que abrir. A coluna de cartoes e' a esquerda; o texto acima dela tambem passa a ser. A
+   medida para em 82ch para a linha nao atravessar o cartao inteiro em tela larga.
+
+   A SECAO GANHOU A LINHA DE ABERTURA (2026-10-26). O titulo nascia solto no pergaminho, logo
+   abaixo do painel de cobertura, e o vazio acima dele nao dizia onde uma area terminava e a
+   outra comecava. A linha de 1 px na largura do conteudo e' o mesmo dispositivo que separa a
+   masthead das fases — e ela agora fecha o "esquadro" do bloco com os cartoes abaixo. */
+#resultados{
+  margin:2.25rem 0 .5rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--line)
+}
+.contagem-das-conexoes{max-width:none;margin:0 0 1.25rem;line-height:1.55}
+
+/* A LEGENDA DOS SELOS EM LINHA PROPRIA, NO MESMO CORPO DO TEXTO (2026-10-26). Ela corria
+   dentro da frase de contagem, no meio de cinco linhas de números: o operador lia a contagem
+   e tropeçava na explicação do selo, com dois selos embutidos que mudavam a altura da linha.
+   Em bloco, a contagem fecha e a legenda vira o rodapé dela.
+   SEM CORPO MENOR E SEM MEDIDA CURTA: as duas frases ocupam a largura inteira da coluna, como
+   todo parágrafo da tela. Encolher a legenda para 0,85 rem e limitá-la a 68ch criava dois
+   defeitos visíveis — a quebra chegava antes da borda da caixa e o corpo mudava de um
+   parágrafo para o outro no mesmo bloco. O `text-wrap:balance` foi embora junto: ele
+   encurtava as duas linhas para ficarem do mesmo tamanho, e era isso que deixava o vazio à
+   direita. */
+.contagem-das-conexoes .legenda-da-validacao{
+  display:block;
+  margin-top:.45rem;
+  line-height:1.55
+}
+
+/* Os controles que impedem o colapso de virar trabalho: sem eles, ler a análise inteira
+   volta a ser um clique por conexão. Mesma discrição do "Voltar" — contorno, não cor de ação.
+   Ficam ALINHADOS COM OS CARTÕES, e nao centrados: desde 2026-10-26 o titulo e a contagem
+   da secao sao de alinhamento a esquerda, e um par de botoes centrado no meio de uma coluna
+   de cartoes a esquerda reintroduzia o eixo que a mudanca tirou. */
+.controles-dos-cartoes{display:flex;gap:.5rem;justify-content:flex-start;flex-wrap:wrap}
 .botao-do-cartao{
   font-family:var(--bs-body-font-family);font-size:.85rem;font-weight:500;color:var(--primary);
-  background:transparent;border:1px solid var(--line);border-radius:999px;
+  background:transparent;border:1px solid var(--line);border-radius:var(--r-pill);
   padding:.25rem .9rem;cursor:pointer
 }
 .botao-do-cartao:hover{border-color:var(--primary)}
@@ -147,7 +251,13 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
    cartão e passa a preencher a coluna da direita até esse teto. */
 .masthead{
   display:grid;
-  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  /* O TEXTO GANHA A LARGURA QUE A ARTE NAO USA (2026-10-26). A arte tem teto de 280 px e fica
+     centrada na propria coluna; com a divisao 1,15/0,85 sobravam ~145 px de coluna vazia a
+     direita, enquanto o `h1` quebrava em duas linhas entre ~1100 e ~1400 px de viewport —
+     "Analisador" numa linha e "Genealogico" na outra, coisa que nao acontecia nem acima nem
+     abaixo dessa faixa. Com 1,3/0,7 o titulo cabe numa linha nas larguras medidas, e a arte
+     continua no mesmo lugar (ela e' centrada e limitada por `max-width`). */
+  grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);
   column-gap:clamp(1rem,3vw,2.5rem);
   align-items:center;
   text-align:left;
@@ -228,11 +338,11 @@ details.card[open] > summary.sumario-do-cartao::after{transform:rotate(-135deg)}
 }
 
 /* Campos */
-.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:12px;padding:.65rem .9rem}
+.form-control,.form-select{background-color:var(--surface);color:var(--ink);border-color:var(--line);border-radius:var(--r-2);padding:.65rem .9rem}
 .form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary) 25%,transparent)}
 /* Raio e peso dos controles, tambem da referencia (emenda E010): botoes e links em 700, e os
    campos com 12 px de raio, que e o que faz o formulario parecer o da sugestao visual. */
-.btn{border-radius:12px;font-weight:700}
+.btn{border-radius:var(--r-2);font-weight:700}
 a{font-weight:700}
 .spinner-border.text-primary{color:var(--primary)!important}
 /* O tamanho do indicador vinha do `<style>` embutido e quase se perdeu na troca: sem esta
@@ -247,12 +357,16 @@ a{font-weight:700}
 
 /* Seções do relatório: sentença normal em vez de CAIXA ALTA espaçada */
 .secao{margin-top:1.75rem;border-top:1px solid var(--line);padding-top:1rem}
+/* A PRIMEIRA SECAO DO CARTAO NAO ABRE COM A LINHA DE SECAO (2026-10-26). Ela chegava com
+   `margin-top:0; border-top:0; padding-top:0` escritos num `style=` no template — o unico
+   estilo inline de apresentacao da tela. Virou modificador, como o resto da folha. */
+.secao-sem-topo{margin-top:0;border-top:0;padding-top:0}
 .secao h5{color:var(--head);font-family:var(--serif);font-size:1.2rem;font-weight:600;text-transform:none;letter-spacing:0}
 .secao h5 .numero{color:var(--muted);font-weight:500}
 .rotulo-fonte{font-size:.82rem;color:var(--muted);text-transform:none;letter-spacing:0}
 
 /* Avisos */
-.alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:.25rem;font-size:.9rem}
+.alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:var(--r-1);font-size:.9rem}
 /* As observacoes do ARQUIVO, e nao de um cartao: valem para a analise inteira e por isso ficam
    num bloco unico acima do resultado, visualmente separadas dos cartoes. Recolhem como eles
    (mesmo `details`, mesmo `sumario-do-cartao`), mas com aparencia de AVISO: o creme de
@@ -276,11 +390,11 @@ a{font-weight:700}
 .alert-success{
   --bs-alert-color:var(--ink);--bs-alert-bg:var(--sucesso-bg);
   --bs-alert-border-color:var(--sucesso-line);--bs-alert-link-color:var(--primary);
-  padding-block:.65rem;padding-left:.9rem;border-radius:.5rem}
+  padding-block:.65rem;padding-left:.9rem;border-radius:var(--r-2)}
 .alert-danger{
   --bs-alert-color:var(--ink);--bs-alert-bg:var(--perigo-bg);
   --bs-alert-border-color:var(--perigo-line);--bs-alert-link-color:var(--danger);
-  padding-block:.65rem;padding-left:.9rem;border-radius:.5rem}
+  padding-block:.65rem;padding-left:.9rem;border-radius:var(--r-2)}
 .alert-success .btn-close,.alert-danger .btn-close{opacity:.55}
 .alert-success .btn-close:hover,.alert-danger .btn-close:hover{opacity:.8}
 .alert-success .btn-close:focus-visible,.alert-danger .btn-close:focus-visible{
@@ -293,6 +407,39 @@ a{font-weight:700}
    4,5:1 de WCAG AA. A cor é cheia nos DOIS temas e não é redefinida no bloco escuro de propósito: o
    par texto/fundo do selo não depende do tema. Antes de "consertar" a ausência de override, leia o
    comentário do token `--st-inconclusivo`. */
+/* A BASE DO SELO. O Bootstrap entrega peso 700; aqui o peso cai para 600, que e o degrau dos
+   rotulos desta folha, e os selos da casa (estado, janela, validacao) ja declaravam 600 —
+   antes metade da tela era 700 e metade 600, sem regra. O espacamento de letra acompanha os
+   rotulos em caixa alta.
+
+   A FAMILIA E A SANS, e isso conserta um defeito de leitura (2026-10-26). Os selos do
+   cabecalho nascem dentro do `<h5>` do cartao, que e' Cormorant: o selo "111 anos" saia em
+   serif com FIGURAS OLDSTYLE, e lia "III anos" — numero de idade disfarcado de numeral
+   romano. Selo e' dado de interface, e dado de interface fala a fonte do texto. O
+   `lining-nums` garante a figura de caixa alta mesmo que a pilha caia numa fonte com
+   figuras antigas por padrao. */
+.badge{font-family:var(--sans);font-weight:600;letter-spacing:.01em;font-variant-numeric:lining-nums tabular-nums}
+
+/* O SELO DO DADO, e nao do veredito (2026-10-26). O cM do cabecalho usava `bg-secondary` do
+   Bootstrap: cinza FRIO (#6C757D) num cabecalho de cinzas quentes — medido no relatorio
+   renderizado, 7.838 px dessa cor. Trocado por um selo de CONTORNO, e nao por um preenchido:
+   os quatro estados do confronto sao cheios, e um quinto preenchido ao lado competiria com
+   eles. Contorno = metadado; cheio = veredito. E' a forma que o selo de validacao (feature
+   031) ja usa. */
+.badge.selo-dado{background:var(--surface-2);color:var(--head);border:1px solid var(--line)}
+
+/* O SELO DE ESTADO AMARELO, na paleta (2026-10-26). E' o unico selo que ainda vinha do
+   Bootstrap: `bg-warning` pinta #FFC107 chapado, um amarelo de outro produto. O `!important`
+   NAO e' preguica — os utilitarios `bg-*` do framework sao declarados com `!important`, e
+   qualquer regra sem ele perde, inclusive uma mais especifica.
+   O escopo e' `.badge` de proposito: `--bs-warning-rgb` alimenta tambem `.text-warning`, que
+   pinta o "⚠" da tabela de arquivos sobre o pergaminho — remapear o token resolveria o selo e
+   apagaria o icone. */
+.badge.bg-warning{
+  background-color:var(--aviso-cheio)!important;
+  color:var(--sobre-aviso-cheio)!important
+}
+
 .badge[class*="estado-"]{color:#fff}
 .estado-COMPATIVEL{background-color:var(--st-compativel)}
 .estado-POSSIVEL{background-color:var(--st-possivel)}
@@ -311,12 +458,36 @@ a{font-weight:700}
 .badge.validacao-conflito{background:transparent;border:1px solid var(--validacao-conflito);color:var(--ink)}
 
 /* Grafo */
-.graph-container{border:1px solid var(--line);border-radius:6px;padding:1rem;background:var(--graph-bg);color:#172B3A;overflow-x:auto}
+.graph-container{border:1px solid var(--line);border-radius:var(--r-2);padding:1rem;background:var(--graph-bg);color:#172B3A;overflow-x:auto}
 .mermaid{text-align:center}
 
 /* details/summary */
 details>summary{cursor:pointer;color:var(--primary)}
 details>summary:hover{text-decoration:underline}
+
+/* AS SECOES RECOLHIVEIS DENTRO DO CARTAO (2026-10-26). "Ancestrais comuns encontrados",
+   "Evidencias usadas em cada salto", "Tronco comum" — todas sao `<summary>` dentro do
+   corpo do cartao e herdavam a regra global acima: triangulo nativo do navegador e texto
+   verde em negrito. O triangulo era o elemento mais "nao desenhado" da tela, e o verde
+   pesava mais que o titulo numerado da secao logo acima. Aqui elas ganham o MESMO chevron
+   dos cartoes (desenhado em CSS, girado quando aberto) e a tinta de texto, nao a cor de
+   acao: abrir uma secao e' ler, e nao agir. As regras mais especificas (`grafo-do-registro`,
+   `endogamia-tronco`) continuam vencendo. */
+.card-body details > summary{
+  display:flex;align-items:center;gap:.5rem;
+  list-style:none;cursor:pointer;
+  padding:.3rem 0;color:var(--ink);font-weight:600
+}
+.card-body details > summary::-webkit-details-marker{display:none}
+.card-body details > summary::before{
+  content:"";flex:0 0 auto;
+  width:.42rem;height:.42rem;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);transition:transform var(--transicao)
+}
+.card-body details[open] > summary::before{transform:rotate(-135deg)}
+.card-body details > summary:hover{color:var(--head);text-decoration:none}
+.card-body details > summary strong{font-weight:600;color:inherit}
 
 /* Evidência genética em grade compacta */
 .kit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem 1.5rem;margin:0 0 .75rem}
@@ -331,7 +502,7 @@ details>summary:hover{text-decoration:underline}
 .endogamia-bloco{
   margin:.75rem 0 .25rem;padding:.65rem .8rem;border:1px solid var(--aviso-line);
   border-left:4px solid var(--aviso-line);background:var(--aviso-bg);
-  border-radius:.25rem;color:var(--ink)
+  border-radius:var(--r-1);color:var(--ink)
 }
 .endogamia-titulo{
   margin:0 0 .45rem;font-size:.78rem;font-weight:600;color:var(--aviso-line);
@@ -376,7 +547,7 @@ details>summary:hover{text-decoration:underline}
    "Voltar" é flutuante e vem antes dela no documento. */
 .cabecalho-sinais{
   clear:both;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
-  margin-top:.35rem;font-size:.85rem;color:var(--muted)
+  margin-top:.35rem;font-family:var(--sans);font-size:.85rem;color:var(--muted)
 }
 .rotulo-parentesco{font-weight:500}
 
@@ -387,7 +558,7 @@ details>summary:hover{text-decoration:underline}
    não sair. A cor vem de `--primary`, que os dois temas já redefinem. */
 .voltar-ao-indice{
   float:right;font-family:var(--bs-body-font-family);font-size:.85rem;font-weight:500;
-  text-decoration:none;border:1px solid var(--line);border-radius:999px;
+  text-decoration:none;border:1px solid var(--line);border-radius:var(--r-pill);
   padding:.15rem .7rem;white-space:nowrap
 }
 .voltar-ao-indice:hover{border-color:var(--primary)}
@@ -407,7 +578,7 @@ details>summary:hover{text-decoration:underline}
 .alerta-identidade{
   border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
   background:var(--aviso-bg);color:var(--ink);
-  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:var(--r-1);font-size:.92rem
 }
 .alerta-identidade strong{color:var(--aviso-line)}
 
@@ -425,7 +596,7 @@ details>summary:hover{text-decoration:underline}
 .alerta-janela{
   border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
   background:var(--aviso-bg);color:var(--ink);
-  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:var(--r-1);font-size:.92rem
 }
 /* O grau impossivel pesa mais: barra e borda na cor de perigo. */
 .alerta-janela-impossivel{border-color:var(--danger);border-left-color:var(--danger)}
@@ -445,7 +616,7 @@ details>summary:hover{text-decoration:underline}
 .alerta-profundidade{
   border:1px solid var(--aviso-line);border-left:4px solid var(--aviso-line);
   background:var(--aviso-bg);color:var(--ink);
-  padding:.7rem .9rem;margin-bottom:1rem;border-radius:.25rem;font-size:.92rem
+  padding:.7rem .9rem;margin-bottom:1rem;border-radius:var(--r-1);font-size:.92rem
 }
 /* "Dobro" e afirmacao forte; "atencao" e numero a conferir. Os dois pesam diferente. */
 .alerta-profundidade-divergencia{border-color:var(--danger);border-left-color:var(--danger)}
@@ -483,7 +654,7 @@ details>summary:hover{text-decoration:underline}
    `tests/test_profundidade_do_caminho.py`, porque uma legenda que descreve cores que o
    desenho nao tem e pior que legenda nenhuma. */
 .legenda-do-grafo{
-  margin-top:.5rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:.25rem;
+  margin-top:.5rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:var(--r-1);
   background:var(--surface-2);font-size:.86rem;color:var(--ink)
 }
 .legenda-titulo{
@@ -509,7 +680,7 @@ details>summary:hover{text-decoration:underline}
    `.alerta-aviso`, ele se le como texto e nao como parte do parentesco. */
 .legenda-informativa{
   margin:.55rem 0 0;padding:.5rem .7rem;border-left:3px solid var(--aviso-line);
-  background:var(--aviso-bg);border-radius:.2rem;font-size:.88rem
+  background:var(--aviso-bg);border-radius:var(--r-1);font-size:.88rem
 }
 .legenda-informativa strong{color:var(--aviso-line)}
 
@@ -527,24 +698,35 @@ html{scroll-padding-top:1rem}
   position:fixed;top:1rem;right:1rem;z-index:1030;
   display:inline-flex;align-items:center;gap:.4rem;
   background:var(--surface);color:var(--ink);
-  border:1px solid var(--line);border-radius:999px;
+  border:1px solid var(--line);border-radius:var(--r-pill);
   /* A escala encolheu na feature 037: o controle estava com o mesmo peso visual do titulo da
      fase, e ele e um ajuste de preferencia, nao uma acao do fluxo. Posicao, rotulo de destino
      e `aria-pressed` continuam como estavam. */
   padding:.3rem .7rem;font:inherit;font-size:.8rem;font-weight:500;
-  box-shadow:0 1px 4px rgba(0,0,0,.14);cursor:pointer
+  box-shadow:var(--sombra-1);cursor:pointer
 }
 .botao-tema:hover{border-color:var(--primary);color:var(--primary)}
 .botao-tema .icone-tema{font-size:.95rem;line-height:1}
 @media (max-width:575.98px){
   .botao-tema{top:.5rem;right:.5rem;padding:.35rem .7rem}
 }
+/* EM TELA LARGA ELE FICA SO COM O ICONE (2026-10-26). O rotulo de ~200 px pairava no canto da
+   viewport, fora da coluna do cartao: em 1440 px o botao comecava ~50 px depois da borda
+   direita do conteudo e lia como uma peca desalinhada. Um alvo redondo de 36 px no canto le
+   como controle do sistema, que e' o que ele e'. Nada se perde na acessibilidade: o nome
+   continua no `aria-label`, e o `title` — escrito pelo mesmo script que troca o rotulo — da'
+   a dica a quem usa mouse sem leitor de tela. */
+@media (min-width:992px){
+  .botao-tema{width:2.25rem;height:2.25rem;padding:0;justify-content:center;gap:0}
+  .botao-tema .rotulo-tema{display:none}
+  .botao-tema .icone-tema{font-size:1rem}
+}
 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
 /* Banner: o PNG é transparente e a ilustração foi desenhada para fundo claro; no tema escuro ela
    precisa de uma placa clara para não perder contraste. */
-:root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:14px;padding:.4rem}
+:root[data-bs-theme="dark"] .main-card .img-fluid{background:#fff;border-radius:var(--r-2);padding:.4rem}
 /* O h1 é SEMPRE visível: a arte atual NÃO traz o título. Ele é a identificação do produto em
    português e continua na tela quando a imagem falha — por isso não recebe `visually-hidden`. */
 
@@ -558,7 +740,7 @@ html{scroll-padding-top:1rem}
 .veredicto-do-doador{
   border:1px solid var(--danger);border-left:5px solid var(--danger);
   background:var(--aviso-bg);color:var(--ink);
-  padding:.8rem 1rem;margin-bottom:1rem;border-radius:.25rem;font-size:.95rem
+  padding:.8rem 1rem;margin-bottom:1rem;border-radius:var(--r-1);font-size:.95rem
 }
 .veredicto-do-doador > strong:first-child{
   display:block;color:var(--danger);font-size:1.02rem;margin-bottom:.2rem
@@ -603,12 +785,9 @@ details.grafo-do-registro[open] > summary{margin-bottom:.4rem}
    `--aviso-line`, `--st-*`, `--validacao-*` nem `--primary`.
    ============================================================================ */
 details.card.cartao-do-resultado{
-  position:relative;border-radius:16px;
+  position:relative;border-radius:var(--r-3);
   background:linear-gradient(180deg,var(--surface) 0%,var(--surface-2) 100%);
-  box-shadow:0 8px 24px rgba(69,52,29,.08)
-}
-:root[data-bs-theme="dark"] details.card.cartao-do-resultado{
-  box-shadow:0 6px 18px rgba(0,0,0,.45)
+  box-shadow:var(--sombra-3)
 }
 .cartao-do-resultado::before{
   content:"";position:absolute;inset:0 auto 0 0;width:5px;
@@ -651,7 +830,7 @@ details.card.cartao-do-resultado{
 .cartao-do-resultado .voltar-ao-indice{
   float:none;display:inline-flex;align-items:center;gap:.4rem;
   padding:.4rem .9rem .4rem .75rem;background:var(--surface);
-  box-shadow:0 1px 2px rgba(0,0,0,.05)
+  box-shadow:var(--sombra-1)
 }
 .cartao-do-resultado .voltar-ao-indice::before{
   content:"";width:.4rem;height:.4rem;flex:0 0 auto;
@@ -664,7 +843,7 @@ details.card.cartao-do-resultado{
 .indicador-de-abrir{
   display:inline-flex;align-items:center;justify-content:center;
   width:2rem;height:2rem;flex:0 0 auto;border:1px solid var(--line);
-  border-radius:.6rem;background:var(--surface);transition:border-color .15s ease
+  border-radius:var(--r-1);background:var(--surface);transition:border-color var(--transicao)
 }
 .indicador-de-abrir::after{
   content:"";width:.5rem;height:.5rem;
@@ -775,7 +954,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:.85rem 1rem;
   background:var(--surface-2);
   border:1px solid var(--line);
-  border-radius:12px
+  border-radius:var(--r-2)
 }
 .passo-numero{
   flex:0 0 auto;
@@ -818,6 +997,25 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   margin-bottom:0
 }
 .abas-das-fases .nav-link{white-space:nowrap}
+/* O PRIMEIRO ROTULO COMECA NA MESMA VERTICAL DO TITULO DA FASE. O `.nav-link` do Bootstrap
+   traz 1 rem de padding dos dois lados; no primeiro item isso empurrava o texto 16 px para
+   dentro, e as abas deixavam de alinhar com o painel que elas mesmas governam. O padding
+   vertical e o dos itens do meio ficam como estao. */
+.abas-das-fases .nav-link:first-child{padding-left:0}
+.abas-das-fases .nav-link:last-child{padding-right:0}
+
+/* ACIMA DE 992 px FICA SO A TRILHA (2026-10-26). As abas e a trilha governam as MESMAS tres
+   fases e apontam para os MESMOS paineis: no desktop elas eram duas navegacoes lado a lado,
+   com dois itens "ativos" ao mesmo tempo. A trilha fica porque carrega a sequencia e o
+   proposito de cada fase; as abas ficam para o estreito, onde a trilha nao cabe — abaixo de
+   992 px ela ja sai (ver o bloco "Telefone") e sobra o controle que quebra linha sem esconder
+   item. O markup dos dois continua no documento, entao o script que sincroniza o estado entre
+   eles e os testes que prendem os dois seguem valendo.
+   A linha 2 da grade era das abas: sem elas ela zera de altura, a trilha (linhas 2 a 3) passa
+   a comecar no topo do painel e o `row-gap` mantem o respiro acima dele. */
+@media (min-width:992px){
+  .abas-das-fases{display:none}
+}
 
 /* ---------------- Barra lateral ---------------- */
 
@@ -844,7 +1042,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   color:var(--ink);
   background:transparent;
   border:1px solid transparent;
-  border-radius:12px;
+  border-radius:var(--r-2);
   cursor:pointer
 }
 .fase-botao:hover{background:var(--surface-2);border-color:var(--line)}
@@ -854,9 +1052,8 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 .fase-botao.active{
   background:var(--surface);
   border-color:var(--line);
-  box-shadow:inset 4px 0 0 var(--primary), 0 2px 8px rgba(69,52,29,.08)
+  box-shadow:inset 4px 0 0 var(--primary), var(--sombra-2)
 }
-:root[data-bs-theme="dark"] .fase-botao.active{box-shadow:inset 4px 0 0 var(--primary), 0 2px 8px rgba(0,0,0,.4)}
 .fase-botao.active .fase-texto strong{font-weight:600}
 
 .fase-numero{
@@ -917,7 +1114,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:.6rem .8rem;
   background:var(--surface-2);
   border:1px solid var(--line);
-  border-radius:12px
+  border-radius:var(--r-2)
 }
 .status-rotulo{
   font-size:.75rem;
@@ -944,7 +1141,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:.8rem 1rem;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:12px
+  border-radius:var(--r-2)
 }
 .contador strong{font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--head)}
 .contador span{font-size:.82rem;color:var(--muted)}
@@ -954,7 +1151,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:1rem;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:12px
+  border-radius:var(--r-2)
 }
 .titulo-do-bloco{margin:0 0 .2rem;font-size:1.05rem;color:var(--head)}
 .apoio-do-bloco{margin:0 0 .8rem;font-size:.84rem;color:var(--muted)}
@@ -966,7 +1163,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   color:var(--ink);
   background:var(--surface-2);
   border-left:3px solid var(--line);
-  border-radius:0 8px 8px 0
+  border-radius:0 var(--r-1) var(--r-1) 0
 }
 
 .estado-vazio{
@@ -977,7 +1174,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:1.2rem;
   color:var(--muted);
   border:1px dashed var(--line);
-  border-radius:12px
+  border-radius:var(--r-2)
 }
 .estado-vazio strong{color:var(--ink);font-size:.95rem}
 .estado-vazio span{font-size:.85rem}
@@ -996,28 +1193,53 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   align-items:start
 }
 .campo{min-width:0}
-.campo-da-acao{display:flex;align-items:flex-end;align-self:end}
 .linha-da-acao{display:flex;justify-content:flex-end;margin-top:.8rem}
 
 /* A acao principal tem largura natural acima de 576 px e largura total no telefone — a mesma
-   regra da feature 027, aplicada aqui por bloco. */
+   regra da feature 027, aplicada aqui por bloco. Os DOIS formularios terminam na mesma linha
+   de acao (2026-10-26): antes o da fase 2 punha o botao dentro da grade de campos, e o numero
+   de colunas do `auto-fit` decidia onde ele caia — em 1280 px ele nascia sob o primeiro campo,
+   com meia linha vazia ao lado. */
 .linha-da-acao .btn{width:100%}
-.campo-da-acao .btn{width:100%}
 @media (min-width:576px){
   .linha-da-acao .btn{width:auto}
-  .campo-da-acao .btn{width:auto}
 }
 
-.campo-de-nome:focus{border-color:var(--primary);box-shadow:0 0 0 .2rem rgba(63,107,46,.15)}
+/* (O `.campo-de-nome:focus` que vivia aqui saiu em 2026-10-26: ele reescrevia o anel de foco
+   do `.form-control` com um literal `rgba(63,107,46,.15)` — mais fraco que os 25% do token e
+   cego ao tema escuro. O campo de nome agora usa o MESMO anel dos outros campos.) */
 
 /* ---------------- Bloco de envio ---------------- */
 
 .bloco-de-envio{display:flex;flex-direction:column;gap:.75rem;margin:0}
 .envio-meta{display:flex;flex-direction:column;gap:.2rem}
-.envio-nome{font-size:.92rem;color:var(--ink);overflow-wrap:anywhere}
+/* O NOME DO ARQUIVO ESCOLHIDO E' STATUS, e nao titulo (2026-10-26). Ele saia em negrito e
+   corpo cheio logo abaixo do rotulo "Enviar nova arvore", e no estado vazio repetia — em
+   negrito — o "Nenhum arquivo escolhido" que o proprio campo nativo ja mostra. Em corpo
+   menor e tinta secundaria ele volta a ser o que e': a confirmacao do que esta carregado. */
+.envio-nome{font-size:.85rem;font-weight:500;color:var(--muted);overflow-wrap:anywhere}
 .envio-dica{font-size:.8rem;color:var(--muted)}
 .envio-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
 .envio-acoes .form-control{flex:1 1 220px;min-width:0}
+
+/* O CAMPO DE ARQUIVO, DESENHADO (2026-10-26). O `<input type=file>` do Bootstrap mantem o
+   botao nativo cinza do sistema — o unico controle da tela que nao vinha da paleta, e o
+   primeiro campo de qualquer fluxo. O `::file-selector-button` entra na mesma linguagem dos
+   botoes secundarios: fundo de superficie, borda a direita, peso 600. A altura acompanha o
+   campo pelos negativos de margem (o padding do `.form-control` e' .65rem .9rem; aqui o
+   campo de arquivo usa .35rem para o botao caber inteiro). */
+.form-control[type="file"]{padding:.35rem .55rem;font-size:.9rem;color:var(--muted)}
+.form-control[type="file"]::file-selector-button{
+  margin:-.35rem .9rem -.35rem -.55rem;
+  padding:.5rem .95rem;
+  background:var(--surface-2);
+  color:var(--ink);
+  border:0;border-right:1px solid var(--line);
+  border-radius:calc(var(--r-2) - 1px) 0 0 calc(var(--r-2) - 1px);
+  font-family:var(--sans);font-size:.85rem;font-weight:600;
+  cursor:pointer
+}
+.form-control[type="file"]::file-selector-button:hover{background:var(--line)}
 
 /* ---------------- Tabela da fase 1 ---------------- */
 
@@ -1029,6 +1251,16 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
    "Abrir" e "Apagar" disputam o mesmo clique. O `gap` de 8 px vem do `gap-2` do markup. */
 .fases-da-tela .table td .d-inline-flex{flex-direction:column;align-items:stretch}
 
+/* OS DOIS GRAFICOS DE SITUACAO DA TABELA (2026-10-26). O "✓" e o "⚠" vinham das utilities de
+   cor do framework, e ambos carregam estado. O verde de "disponivel" era outro verde
+   (#198754); o amarelo de "indisponivel" (#FFC107) media **1,44:1** contra o pergaminho — na
+   pratica invisivel, num glifo cuja unica funcao e' dizer que ha um problema. `--primary`
+   (5,55:1) e `--aviso-line` (3,59:1) passam no minimo de 3:1 para objeto grafico e sao as
+   cores que a casa ja usa para sucesso e aviso. O `!important` e' o mesmo caso dos selos: as
+   utilities `.text-*` do Bootstrap sao declaradas com ele. */
+.fases-da-tela .table .text-success{color:var(--primary)!important}
+.fases-da-tela .table .text-warning{color:var(--aviso-line)!important}
+
 /* ---------------- Combobox de nomes ---------------- */
 
 .lista-de-nomes{
@@ -1039,8 +1271,8 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:.25rem;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:10px;
-  box-shadow:0 10px 24px rgba(69,52,29,.18)
+  border-radius:var(--r-2);
+  box-shadow:var(--sombra-alta)
 }
 .lista-de-nomes[hidden]{display:none}
 
@@ -1048,7 +1280,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   padding:.45rem .6rem;
   font-size:.9rem;
   color:var(--ink);
-  border-radius:6px;
+  border-radius:var(--r-1);
   cursor:pointer
 }
 .opcao-de-nome:hover,
@@ -1065,22 +1297,18 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 
 @media (max-width:991.98px){
   /* Em uma coluna, o lugar explicito de cada peca deixa de valer: tudo volta a empilhar na
-     ordem do documento (passos, abas, barra em faixa, painel) — emenda E007. */
+     ordem do documento (passos, abas, painel) — emenda E007. */
   .fases-da-tela{grid-template-columns:1fr;gap:.9rem;margin-top:2rem;padding-top:1.5rem}
   .passos-da-jornada,
   .abas-das-fases,
-  .barra-de-fases,
   .conteudo-das-fases{grid-column:1;grid-row:auto}
-  .barra-de-fases{
-    position:static;
-    flex-direction:row;
-    gap:.4rem;
-    overflow-x:auto;
-    padding-bottom:.25rem
-  }
-  .fase-botao{flex:1 0 auto;min-width:max-content;align-items:center;padding:.55rem .7rem}
-  .fase-resumo{display:none}
-  .fase-botao.active{box-shadow:inset 0 -3px 0 var(--primary)}
+  /* A BARRA LATERAL SAI ABAIXO DE 992 px (2026-10-26). Ela virava uma faixa horizontal com
+     `overflow-x:auto`, e o painel so mostrava o PRIMEIRO dos tres itens: medido em 820 px,
+     "Buscar Conexao" e "Analisador de DNA" ficavam fora da tela, atras de uma rolagem sem
+     barra visivel — a navegacao perdia dois tercos. Acima dela as abas ainda apareciam, e os
+     dois controles das mesmas tres fases se empilhavam um logo abaixo do outro. Em tela
+     estreita fica UM controle: as abas, que ja quebram em duas linhas e nao escondem item. */
+  .barra-de-fases{display:none}
   .cabecalho-da-fase{flex-wrap:wrap}
   .caixa-de-status{width:100%;max-width:none}
 }
@@ -1095,6 +1323,40 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
    aberto, `summary` titulando, `card-body`). Nenhum numero aqui carrega cor: a informacao esta'
    no texto e no rotulo, e a cor de estado foi recusada de proposito (D-11 do roadmap). */
 
+/* A MESMA MOLDURA DE "OBSERVACOES DO ARQUIVO" (2026-10-26). Os dois paineis sao de
+   ESCOPO-ARQUIVO e ficam lado a lado na mesma dobra: um com fundo branco e numeros soltos, o
+   outro com fundo de aviso e itens marcados. O operador pediu que a cobertura vestisse a mesma
+   moldura. O que muda, e por que continua legivel:
+
+   - o painel inteiro passa a `--aviso-bg`, com a borda em `--aviso-line`, como as observacoes;
+   - as RESSALVAS (as cinco frases) viram itens com a barra a esquerda, que e' exatamente a
+     forma das observacoes — elas sao limitacoes do arquivo, nao numeros;
+   - os NUMEROS nao herdam a barra nem a cor: os cartoes vao para `--surface` (branco) para se
+     destacarem do creme, e as etiquetas de laboratorio tambem. Numero continua sem cor de
+     estado (D-11 do roadmap).
+
+   A moldura de aviso aqui e' do PAINEL, nao dos valores: nenhum dos 617, 456 ou 74% ganhou
+   tinta de aviso. */
+.cobertura-do-arquivo{
+  --bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);
+  border-color:var(--aviso-line)
+}
+.cobertura-do-arquivo .numero-da-cobertura{background:var(--surface)}
+.cobertura-do-arquivo .etiqueta-da-fonte{background:var(--surface)}
+.cobertura-do-arquivo .frases-da-cobertura{
+  list-style:none;
+  padding-left:0;
+  margin-bottom:.75rem
+}
+.cobertura-do-arquivo .frases-da-cobertura li{
+  border-left:3px solid var(--aviso-line);
+  border-radius:var(--r-1);
+  padding:.6rem .8rem;
+  margin-bottom:.5rem;
+  font-size:.9rem
+}
+.cobertura-do-arquivo .frases-da-cobertura li:last-child{margin-bottom:0}
+
 .numeros-da-cobertura{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
@@ -1105,7 +1367,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 .numero-da-cobertura{
   background:var(--surface-2);
   border:1px solid var(--line);
-  border-radius:10px;
+  border-radius:var(--r-2);
   padding:.6rem .75rem
 }
 
@@ -1133,7 +1395,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 .etiqueta-da-fonte{
   display:inline-block;
   border:1px solid var(--line);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   padding:.05rem .45rem;
   font-size:.75rem;
   color:var(--muted);
@@ -1200,7 +1462,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   display:inline-block;
   width:64px;
   height:6px;
-  border-radius:999px;
+  border-radius:var(--r-pill);
   background:var(--surface-2);
   border:1px solid var(--line);
   vertical-align:middle;
@@ -1239,7 +1501,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 .destaque-da-hipotese{
   border-left:3px solid var(--primary);
   background:var(--surface-2);
-  border-radius:0 10px 10px 0;
+  border-radius:0 var(--r-2) var(--r-2) 0;
   padding:.55rem .75rem;
   margin:0 0 .6rem
 }
@@ -1286,7 +1548,11 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  justify-content:center;
+  /* ALINHADA COM O EIXO DA SECAO (2026-10-26). Centrada, ela era a TERCEIRA coluna de inicio
+     da mesma dobra: titulo e resumo a esquerda, botoes de expandir a esquerda, paginacao no
+     meio. Agora tudo comeca na mesma vertical, e a barra de paginacao se le como continuação
+     da lista, nao como um quadro solto no centro. */
+  justify-content:flex-start;
   gap:.5rem .75rem;
   margin:0 0 1rem
 }
@@ -1303,15 +1569,12 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   color:var(--ink);
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:.5rem;
+  border-radius:var(--r-1);
   padding:.2rem .45rem;
   cursor:pointer
 }
 
-.seletor-do-tamanho:focus-visible{
-  outline:2px solid var(--focus);
-  outline-offset:1px
-}
+.seletor-do-tamanho:focus-visible{outline-offset:1px}
 
 .posicao-da-pagina{
   font-size:.85rem;
@@ -1325,7 +1588,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   color:var(--primary);
   background:transparent;
   border:1px solid var(--line);
-  border-radius:999px;
+  border-radius:var(--r-pill);
   padding:.2rem .85rem;
   cursor:pointer
 }
@@ -1351,7 +1614,7 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   color:var(--primary);
   background:transparent;
   border:1px solid var(--line);
-  border-radius:.5rem;
+  border-radius:var(--r-1);
   padding:.2rem .35rem;
   cursor:pointer
 }

@@ -171,7 +171,16 @@ TAMANHO_ESPERADO = 16504
 #: do alvo antes de abrir o cartao. `7375696d…` (42.290) → `05f2179a…` (46.264, **+3.974 bytes**),
 #: todos de script. O `TAMANHO_ESPERADO` acima **nao muda**: ele mede o PNG do icone, e a arte
 #: nao foi tocada.
-SHA_DA_TELA = "05f2179adca5fa17b7073c472df308e6672753ce3d8f34e0e52f0c36b5d0934d"
+#:
+#: **Setima medicao, 2026-10-26, passagem de design.** O botao de tema passou a levar `title`
+#: sincronizado com o `aria-label`: acima de 992 px ele fica SO com o icone, e a dica de mouse
+#: precisa existir sem depender de leitor de tela. `05f2179a…` (46.264) → `26d6cac7…`
+#: (46.359, **+95 bytes**), todos de script — uma linha de `title`. O comentario Jinja que a
+#: explica fecha com `-#}` para nao entrar nesta conta, a mesma armadilha de whitespace do
+#: adendo `021`. O resto da passagem (raios, sombras, selos, navegacao por largura, campo de
+#: arquivo) e' folha: `app.css` NAO passa por este hash, e a marcacao desta rota continua a
+#: mesma tirando aquela linha.
+SHA_DA_TELA = "26d6cac763245e16bbfc9d85ce54ebd55829c92ea83206ef6b74ad4680926e83"
 
 
 def _cabecalho_png(corpo: bytes):

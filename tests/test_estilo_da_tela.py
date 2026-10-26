@@ -84,6 +84,10 @@ CLASSES_DO_TEMPLATE = (
     "rotulo-parentesco",
     # O bloco recolhivel dos descartados: mesma forma dos cartoes, aparencia de apendice.
     "bloco-descartados",
+    # O selo do cM no cabecalho. Ele saiu de `bg-secondary` (o cinza FRIO do Bootstrap) para
+    # um selo de contorno da paleta em 2026-10-26; sem esta linha, a classe sair da folha
+    # deixaria o selo sem fundo e sem borda, e ninguem perceberia.
+    "selo-dado",
 )
 
 
