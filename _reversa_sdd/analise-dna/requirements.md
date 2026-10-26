@@ -183,7 +183,7 @@ Cruza a árvore GEDCOM carregada com um CSV de matches de DNA e responde **três
 | Tipo | Requisito inferido | Evidência no código | Confiança |
 |------|--------------------|---------------------|-----------|
 | Performance | O cache de atributos normalizados e o resolvedor de diagrama são montados **uma vez por análise**, fora do laço de candidatos; antes, o laço renormalizava o mesmo nome ~7 vezes por candidato | `matching.py:27-59`, `core/dna_analysis.py:202-204` | 🟢 |
-| Performance | **Sem cache entre requisições**: os índices do GEDCOM inteiro são reconstruídos a cada `POST` | `core/dna_analysis.py:180` | 🟢 |
+| Performance | **Os índices e a árvore sobrevivem à requisição quando o cache está ligado** (feature 047): `build_ged_indexes` prende o trio ao grafo e o adaptador guarda a árvore, chaveada pelo arquivo; a segunda análise não reconstrói nada. Desligado (`ANALISADOR_CACHE_DE_ARVORE=0`), reconstrói a cada `POST`, como antes | `ports/adaptadores.py` (`ADR-38`); `core/matching.py` | 🟢 |
 | Reprodutibilidade | O cM acumulado **não é arredondado**; o contrato está congelado em teste, porque a paridade exige igualdade exata | `genetic_evidence.py`; `tests/test_formatacao_cm.py` | 🟢 |
 | Reprodutibilidade | O desempate do ramo difuso **é determinístico**: o quarto critério é o menor `xref_id`, e a caracterização o congela nas duas direções | `matching.py:116-125`; `tests/test_characterization_matching.py` | 🟢 |
 | Confiabilidade | `thefuzz` delega a `RapidFuzz`/`python-Levenshtein`; trocar a versão de qualquer uma **altera o resultado do matching** sem mudar uma linha do projeto | `requirements.txt`; `RISK-006` | 🟢 |

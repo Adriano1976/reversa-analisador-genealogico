@@ -1,13 +1,13 @@
 # Impacto no legado: sistema de log completo
 
 > Identificador: `049-sistema-de-log`
-> Data: `2026-10-25`
+> Data: `2026-10-25` (atualizado em `2026-10-26`, com a T022)
 > **Política de edição do legado no momento da execução:** `allowLegacyEdits: true`, com
 > `allowedPaths` liberando `src/**`, `tests/**`, `docker/**`, `docker-compose.yml`,
 > `.dockerignore`, `requirements.txt`, `docs/**`, `.github/**`, `init.sql`, `*.ps1`,
 > `analisador-genealogico/**`, `publicar_docs.py`, `pyrefly.toml`, `.vscode/**`,
-> `.markdownlint-cli2.jsonc`, `_docs_auxiliary/**`.
-> **Recusado pela política:** `.gitignore` (T022) — não casa com nenhum glob da lista.
+> `.markdownlint-cli2.jsonc`, `_docs_auxiliary/**` e `.gitignore` (liberado em 2026-10-26).
+> **Recusado pela política:** nenhum.
 
 ## 1. Arquivos afetados
 
@@ -24,7 +24,7 @@
 | `docker-compose.yml` | operação | `regra-alterada` | LOW | Volume `./logs` e rotação `json-file` 5 × 5 MB no serviço da aplicação |
 | `tests/conftest.py` | instrumentação de teste | `regra-alterada` | LOW | Isola `ANALISADOR_LOG_DIR` no import do conftest e insere `src/` no `sys.path` uma vez |
 | `tests/rodar_paridade.py` | instrumentação de teste | `regra-alterada` | LOW | Passa `ANALISADOR_LOG_DIR` ao coletor, pelo mesmo mecanismo que já isolava a pasta de upload. O instrumento congelado (`_reversa_sdd/parity/harness.py`) **não** foi tocado |
-| `.gitignore` | operação | **recusado** | — | T022 bloqueada por política; a consequência está registrada em `data-delta.md` §7 |
+| `.gitignore` | operação | `regra-nova` | LOW | A pasta `logs/` deixa de ser rastreada pelo Git; nenhum comportamento de runtime muda |
 
 ## 2. Diff conceitual por componente
 
@@ -41,7 +41,7 @@ justamente para a borda não precisar inferir o caso pelo texto da mensagem (`RF
 O `medir` é um `with` curto, e o cache da feature 047 continua sendo o que intercepta o parse.
 
 **A operação** mudou de lugar, não de natureza: os logs saem para `logs/` na raiz (fora do
-versionamento, ainda que a linha do `.gitignore` esteja pendente) e, no container, para o fluxo
+versionamento, com a linha do `.gitignore` que a T022 acrescentou) e, no container, para o fluxo
 padrão com rotação do orquestrador, com a trilha de auditoria em volume.
 
 ## 3. Regras preservadas (🟢 do `domain.md`)

@@ -1,7 +1,7 @@
 # Regression Watch: sistema de log completo
 
 > Identificador: `049-sistema-de-log`
-> Data: `2026-10-25`
+> Data: `2026-10-25` (atualizado em `2026-10-26`, com a T022)
 > Itens abaixo derivam das regras **🟢 confirmadas** que a feature alterou ou removeu
 > (`legacy-impact.md` §4). O que era 🟡 ou 🔴 está em "Observações", sem peso de regressão.
 
@@ -24,9 +24,9 @@
 - 🟡 **Retenção da auditoria é declarada, não mecanizada.** O prazo de 90 dias está na `RN-10` e
   nada o faz cumprir: não há aviso, não há expurgo automático. Um revisor deve tratar isso como
   **decisão declarada**, não como defeito de implementação.
-- 🟡 **A pasta de log não está no `.gitignore`.** T022 foi recusada pela política de edição do
-  legado. Enquanto durar, rodar a aplicação no repositório cria `logs/` não versionado — o
-  `.dockerignore` já a exclui do contexto de build por ser lista de permissão.
+- 🟢 **A pasta de log está no `.gitignore`** desde 2026-10-26 (T022 executada após o operador
+  liberar o caminho). Rodar a aplicação no repositório cria `logs/` já ignorado; o `.dockerignore`
+  continua excluindo a pasta do contexto de build por ser lista de permissão.
 - 🟡 **A máscara cobre dois padrões, e só dois.** Foi decisão: heurística por palavra atrapalharia
   o diagnóstico. Nome de pessoa **não** é mascarado — ele é proibido na origem (`RN-05`), e o
   teste de privacidade vigia a proibição, não a máscara.

@@ -63,7 +63,7 @@
 | ID | Lacuna | Onde | Situação |
 | --- | --- | --- | --- |
 | `L-20` | `get_children` varre todas as famílias **sem índice**, e `person_a`/`person_b` são **fichas completas** por resultado. | `busca-caminho/design.md` § Riscos | ✅ **medida:** 15,4 ms por ficha, **142 fichas ≈ 2,2 s** — contra **20,9 s de parse** e **1,73 s** de uma chamada de `homonym_dossier`. **O gargalo é o parse, não as fichas.** Decisão: **não otimizar agora**, porque a otimização mexeria em `get_children`, que alimenta também a detecção de colapso, e a ordem das arestas é contrato de paridade. |
-| — | **O parse da árvore custa ~21 s** para 35.460 pessoas, e **nada é cacheado entre requisições**. | `upload-gedcom/design.md` (NFR) | 🟡 Declarado desde 2026-10-05 como consequência do `ADR-24`. Agora **tem número**. Não é lacuna: é o preço explícito da árvore-como-valor. |
+| — | **O parse da árvore custa ~21 s** para 35.460 pessoas, e **nada é cacheado entre requisições**. | `upload-gedcom/design.md` (NFR) | ✅ **resolvido em 2026-10-24 pela feature 047** — cache da árvore no adaptador, com teto 1, invalidado pelo arquivo e **ligado por padrão** desde 2026-10-26 (`ADR-38`). A medição de 2026-10-24 refez o número: **50,53 s** de parse na árvore real de 19.403 pessoas, e a segunda ação sobre a mesma árvore não paga parse. |
 
 ### 3.5 Correções agendadas — liberadas pelo Passo 4, concluído em 2026-10-13
 

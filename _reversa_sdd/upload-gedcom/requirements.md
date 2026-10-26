@@ -93,12 +93,12 @@ A unit resolve quatro problemas ao mesmo tempo: **segurança do que entra em dis
 | Manutenibilidade | A decisão de gravação vive em módulo **puro** — não importa Flask e não toca o disco | `src/utils/validate.py` | 🟢 |
 | Manutenibilidade | O import de `src/app.py` **não pode** exigir driver de banco, rede nem biblioteca de imagem: a suíte e o harness de paridade o importam | `src/app.py`; `adrs/27` | 🟢 |
 | Performance | `listar` **não abre arquivo nenhum**: do diretório lê o nome e do arquivo apenas tamanho e data | `src/ports/adaptadores.py:listar` | 🟢 |
-| Performance | A árvore é **parseada a cada requisição**; não há cache entre requisições | `src/app.py` | 🟢 |
+| Performance | A árvore é parseada **na primeira ação** e reaproveitada pelo cache do adaptador (feature 047), chaveada pelo arquivo; desligado (`ANALISADOR_CACHE_DE_ARVORE=0`), volta a parsear a cada requisição | `src/ports/adaptadores.py`; `ADR-38` | 🟢 |
 | Internacionalização | Todas as mensagens ao operador são literais em português | `src/app.py`, `src/application/traducao.py` | 🟢 |
 | Observabilidade | **Nenhum log, métrica ou trace é emitido.** A única saída textual é o `print` de inicialização | `src/app.py:__main__` | 🟢 |
 | Portabilidade | `SO_EXCLUSIVEADDRUSE` só existe no Windows; fora dele o padrão da plataforma já recusa a segunda ligação | `src/app.py:__main__` | 🟢 |
 
-> Inferido a partir do código. **Não** há middleware de autenticação, cache, fila, worker ou lógica de retry — essas linhas foram omitidas por falta de evidência.
+> Inferido a partir do código. **Não** há middleware de autenticação, cache externo, fila, worker ou lógica de retry — essas linhas foram omitidas por falta de evidência.
 
 ## Critérios de Aceitação
 

@@ -22,3 +22,4 @@
 {"ts": "2026-10-25T15:27:00-03:00", "action": "T022", "status": "failed", "files": [], "motivo": "recusado pela politica de edicao do legado: .gitignore nao casa com nenhum glob de allowedPaths em .reversa/reversa-config.json (allowLegacyEdits=true; libera src/**, tests/**, docker/**, docker-compose.yml, .dockerignore, requirements.txt, docs/**)"}
 {"ts": "2026-10-25T15:36:20-03:00", "action": "T023", "status": "done", "files": ["tests/"], "medido": "1684 passed / 9 skipped / 0 failed em 164,54 s; paridade com 30 divergencias em ancestral, confirmadas como PRE-EXISTENTES por medicao em checkout limpo do HEAD 344bfbd"}
 {"ts": "2026-10-25T15:34:10-03:00", "action": "T024", "status": "done", "files": ["_reversa_sdd/adrs/37-observabilidade-em-camadas.md"]}
+{"ts": "2026-10-26T11:50:20-03:00", "action": "T022", "status": "done", "files": [".gitignore"]}

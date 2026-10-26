@@ -18,6 +18,10 @@ tests/.tmp/
 _reversa_sdd/parity/_obs_*.json
 _reversa_sdd/parity/_collect_*.py
 
+# Logs de execução da aplicação (feature 049). O que sai aqui é dado de operação, e o
+# volume do compose publica ./logs. Nunca versionar.
+logs/
+
 # Backups e caches genericos
 .backup-*
 .reversa/snapshots/

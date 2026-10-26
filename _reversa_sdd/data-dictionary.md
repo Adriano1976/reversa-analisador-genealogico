@@ -77,6 +77,20 @@ A árvore é uma **tupla de quatro posições**, e é assim que ela entra em **t
 
 > 🟡 **A chave pode não invalidar entre duas árvores diferentes.** Dois GEDCOMs com o **mesmo número de pessoas** e os **mesmos xrefs extremos** produzem a mesma chave, e o mapa da árvore anterior é reaproveitado. O cenário é provável entre dois exports do mesmo exportador, que numeram de forma contígua. Consequência: o dossiê de homônimos passa a listar xrefs de outra árvore, **sem exceção** — `person_summary` degrada em silêncio. Achado registrado em `flowcharts/busca-caminho.md` §13. O `id()` do dicionário **não** serve como chave: ele é reciclado, e o próprio código explica por quê.
 
+### 2.4 O cache da árvore entre requisições 🟢
+
+`ports/adaptadores.CacheDeArvores` guarda a `Tree` parseada, **uma por processo**, com teto configurável (padrão **1**). A chave é o **arquivo**, não a referência: trocar o conteúdo invalida sozinho. `aposentar` faz o `resolver` devolver `None`, e a árvore antiga deixa de ser servida; ela permanece em RAM apenas até o despejo pelo LRU (com teto 1, na carga seguinte).
+
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `chave` | `tuple` | `(caminho absoluto, st_mtime_ns, st_size)` — o arquivo, e não a referência |
+| `itens` | `OrderedDict` | chave → `Tree`; despejo do mais antigo quando passa do teto |
+| `em_andamento` | `dict[chave, Event]` | *single-flight*: uma thread parseia, as demais esperam o mesmo objeto |
+| `capacidade` | `int` | teto, de `ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE`; inválido avisa e usa 1 |
+| `acertos`, `reconstrucoes` | `int` | contadores do log, sem nome, `xref` ou cM |
+
+> 🟢 **Ligado por padrão desde 2026-10-26** (`ADR-38`); `ANALISADOR_CACHE_DE_ARVORE=0` (ou `false`, `nao`, `off`, `no`) desliga. Custo medido: ~337 MB por árvore de ~19 mil pessoas, mais ~31 MB de índices; o processo estabiliza em ~412 MB com teto 1. **Não persiste**, não é compartilhado entre processos e **não tem `dono` na chave**: o armazenamento ignora `dono` e o nome é `sha256(conteúdo)[:16]`, então o caminho já distingue conteúdos; quando o armazenamento virar *owner-scoped* (Onda 3), o caminho distinguirá os donos.
+
 ---
 
 ## 3. Armazenamento dos arquivos enviados

@@ -51,7 +51,7 @@ Conteúdo: 17.590 chaves de nome, 6.397 sobrenomes e 19.403 fichas de atributos.
 ## 5. Migração
 
 n/a. Não há dado persistido, nem esquema, nem versão de formato. A estrutura nasce vazia e morre
-com o processo; desligar a variável de ambiente devolve o comportamento anterior sem resíduo.
+com o processo; definir `ANALISADOR_CACHE_DE_ARVORE=0` devolve o comportamento anterior sem resíduo.
 
 ## 6. Privacidade
 

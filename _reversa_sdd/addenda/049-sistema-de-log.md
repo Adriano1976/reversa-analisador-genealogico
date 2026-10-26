@@ -66,3 +66,19 @@ pessoal, registrado como lacuna 🟡 no `requirements.md` §10 e em `regression-
 - `_reversa_forward/049-sistema-de-log/progress.jsonl`
 - `_reversa_forward/049-sistema-de-log/actions.md`
 - `_reversa_sdd/adrs/37-observabilidade-em-camadas.md`
+
+## Atualização 2026-10-26
+
+**T022 executada.** O operador liberou `.gitignore` no `allowedPaths` de
+`.reversa/reversa-config.json`, e a linha `logs/` entrou no arquivo. A feature fecha **24 de 24**
+ações; as observações de `legacy-impact.md`, `data-delta.md` e `regression-watch.md` foram
+atualizadas para o estado executado.
+
+O impacto na extração não muda: `.gitignore` é arquivo de operação, não artefato de
+`_reversa_sdd/`. O que passa a valer é que a pasta `logs/` não é versionada por acidente; o
+`.dockerignore` continua excluindo-a do contexto de build. Nenhum watch item novo — `W001` a
+`W009` seguem em `_reversa_forward/049-sistema-de-log/regression-watch.md`.
+
+A contagem de suíte registrada em 2026-10-25 (1.684/9) é a desta feature; a árvore de trabalho
+também carrega a revisão do cache da árvore (feature 047), que levou a suíte a **1.686/9** sem
+tocar em regra da 049.

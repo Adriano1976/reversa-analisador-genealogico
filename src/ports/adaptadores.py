@@ -241,11 +241,12 @@ class ArmazenamentoEmDisco:
         return None
 
 
-# --- Cache opcional da arvore (feature 047) ---------------------------------
+# --- Cache da arvore (feature 047) -----------------------------------------
 
-# Liga o cache da arvore entre requisicoes. DESLIGADO por padrao: sem a variavel o adaptador faz
-# exatamente o que fazia antes (um parse por chamada), e o operador liga no ambiente em que
-# quiser o ganho. A decisao de existencia do cache esta no adendo da feature 047.
+# Liga/desliga o cache da arvore entre requisicoes. LIGADO por padrao: sem a variavel o adaptador
+# guarda uma arvore, e o ganho aparece na segunda acao sobre o mesmo arquivo — que e o caso de uso
+# do operador. Desligar e ato explicito (`0`, `false`, `nao`, `off`, `no`), para host pequeno ou
+# para depuracao. A decisao de existencia do cache esta no adendo da feature 047 e no ADR-38.
 VARIAVEL_DO_CACHE = "ANALISADOR_CACHE_DE_ARVORE"
 
 # Teto do cache. 1 e o padrao porque o caso de uso e "a mesma arvore em requisicoes seguidas".
@@ -260,10 +261,15 @@ _MENSAGEM_ACERTO = "cache de arvores: acerto (acertos=%d, reconstrucoes=%d)"
 _MENSAGEM_RECONSTRUCAO = "cache de arvores: reconstrucao (acertos=%d, reconstrucoes=%d)"
 
 
-def _ligado_pelo_ambiente() -> bool:
-    """`True` quando a variavel de ambiente liga o cache (1/true/sim/on/yes)."""
+def _desligado_pelo_ambiente() -> bool:
+    """`True` quando a variavel de ambiente desliga o cache (0/false/nao/off/no).
+
+    Ausente, vazia ou qualquer outro valor mantem o cache ligado: o padrao e o ganho, e o
+    desligamento e ato explicito de quem opera. Vazio conta como ligado porque `VAR= ` no
+    ambiente e o que sobra de um `export` sem valor, nao uma intencao de desligar.
+    """
     valor: str = os.environ.get(VARIAVEL_DO_CACHE, "")
-    return valor.strip().lower() in {"1", "true", "sim", "on", "yes"}
+    return valor.strip().lower() in {"0", "false", "nao", "off", "no"}
 
 
 def _capacidade_do_ambiente() -> int:
@@ -409,8 +415,8 @@ class CacheDeArvores:
 
 
 def _cache_do_ambiente() -> CacheDeArvores | None:
-    """O cache padrao do processo, ou `None` quando a variavel de ambiente nao o liga."""
-    if not _ligado_pelo_ambiente():
+    """O cache padrao do processo, ou `None` quando a variavel de ambiente o desliga."""
+    if _desligado_pelo_ambiente():
         return None
     return CacheDeArvores(_capacidade_do_ambiente())
 
@@ -427,12 +433,14 @@ class CarregadorDeArvoresGedcom:
     adaptador e um singleton de processo montado no import de `src/app.py`:
     congelar identidade nele seria o custo que a Onda 3 teria de desfazer.
 
-    ## O cache e OPCIONAL, e desligado por padrao
+    ## O cache e LIGADO por padrao, e desligavel
 
-    Sem `ANALISADOR_CACHE_DE_ARVORE` no ambiente (e sem um `CacheDeArvores` injetado),
-    `carregar` parseia a cada chamada, como sempre. Ligado, ele evita o parse de ~50 s por
-    `POST`; o ganho, o custo de memoria e a invalidacao estao em `CacheDeArvores`. A injecao
-    existe para o teste medir as duas metades sem depender do ambiente do processo.
+    Sem `ANALISADOR_CACHE_DE_ARVORE` no ambiente, `carregar` usa um `CacheDeArvores` de
+    capacidade 1: a segunda acao sobre a mesma arvore nao paga o parse de dezenas de segundos.
+    `ANALISADOR_CACHE_DE_ARVORE=0` (ou `false`) volta ao comportamento antigo, um parse por
+    chamada; a injecao de um `CacheDeArvores` continua disponivel para o teste medir as duas
+    metades sem depender do ambiente do processo. O custo e de memoria: uma arvore de ~19 mil
+    pessoas ocupa ~337 MB, mais ~31 MB de indices (medido na feature 047).
     """
 
     def __init__(self, armazenamento: ArmazenamentoEmDisco, *,

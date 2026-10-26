@@ -925,10 +925,11 @@
                            escolher 10, 20 ou 30", e a decisao de ONDE paginar e' o que explica este
                            bloco existir no HTML em vez de no script.
 
-                           POR QUE NO CLIENTE: a analise nao e' cacheada entre requisicoes
-                           (`_reversa_sdd/architecture.md#1`) — cada POST reparseia o GEDCOM inteiro,
-                           e no arquivo real isso custa de 12 a 31 s. Paginar no servidor seria
-                           reanalisar a cada clique.
+                           POR QUE NO CLIENTE: a ARVORE e' cacheada entre requisicoes (feature
+                           047, `ANALISADOR_CACHE_DE_ARVORE`), mas a ANALISE nao e': cada POST
+                           reexecuta o pipeline de DNA e remonta os cartoes. Paginar no servidor
+                           recalcularia a analise a cada clique — no arquivo real, a segunda
+                           analise custa ~4,7 s com o cache e ~62 s sem ele (2026-10-24).
 
                            POR QUE NO HTML: a suite deste projeto prende marcacao RENDERIZADA e nao
                            executa JavaScript. Um controle montado no `DOMContentLoaded` passaria a

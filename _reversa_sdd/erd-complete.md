@@ -10,12 +10,12 @@
 
 ## 1. Como ler este ERD
 
-**A afirmação da rodada anterior — "este sistema não tem banco de dados" — deixou de valer.** A feature 008 introduziu **PostgreSQL 16 opcional** para o histórico das análises. As **42 estruturas** abaixo existem em **cinco** lugares, e a notação de ERD é usada como **modelo lógico** nos quatro primeiros e como **esquema físico real** no quinto:
+**A afirmação da rodada anterior — "este sistema não tem banco de dados" — deixou de valer.** A feature 008 introduziu **PostgreSQL 16 opcional** para o histórico das análises. As **43 estruturas** abaixo existem em **cinco** lugares, e a notação de ERD é usada como **modelo lógico** nos quatro primeiros e como **esquema físico real** no quinto:
 
 | Onde | Quantas | Vida útil | Dono | Notação |
 | --- | ---: | --- | --- | --- |
 | **Memória, por requisição** | 24 | Morre com a requisição | `core/*`, `parsers/*`, `reporting/*` | lógica |
-| **Memória, de módulo** | 1 | Vive com o processo, chaveada por conteúdo | `documentary_relationship._INDICE_DE_NOMES` | lógica |
+| **Memória, de módulo** | 2 | Vive com o processo: uma chaveada por conteúdo, outra pelo arquivo | `documentary_relationship._INDICE_DE_NOMES`; `ports/adaptadores.CacheDeArvores` | lógica |
 | **Disco** | 2 | Persistente; conteúdo imutável, posição mutável | `ports/adaptadores.py` | lógica |
 | **Payload de fronteira** | 9 | Uma requisição | `application/*` e `ports/*` | lógica |
 | **PostgreSQL** | 6 | **Persistente e opcional** | `init.sql` + `RegistroDeAnalisesPostgres` | **física** |
@@ -510,7 +510,7 @@ erDiagram
 
 ---
 
-## 7. Inventário das 42 estruturas
+## 7. Inventário das 43 estruturas
 
 | # | Estrutura (ERD) | Nome no código | Diagrama | Onde vive | Conf. |
 | ---: | --- | --- | --- | --- | --- |
@@ -556,6 +556,9 @@ erDiagram
 | 40 | `MATCH_KIT` | tabela `match_kit` | E | **PostgreSQL** | 🟢 |
 | 41 | `MATCH_PATH_NODE` | tabela `match_path_node` | E | **PostgreSQL** | 🟢 |
 | 42 | `SKIPPED_MATCH` | tabela `skipped_match` | E | **PostgreSQL** | 🟢 |
+| 43 | `CACHE_DE_ARVORES` | `CacheDeArvores._itens` (adaptador) | — | **módulo** | 🟢 |
+
+> 🟢 **Desde a feature 047, `ARVORE` e seus quatro componentes também podem viver como memória de módulo** — o `CACHE_DE_ARVORES`, com teto 1, chaveado pelo arquivo e invalidado por `mtime_ns`/tamanho (`ADR-38`). As linhas 1–5 continuam descrevendo a vida padrão (por requisição); o cache apenas a estende enquanto o processo viver. Desligado por `ANALISADOR_CACHE_DE_ARVORE=0`.
 
 ---
 

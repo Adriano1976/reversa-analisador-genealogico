@@ -2,13 +2,15 @@
 
 ## O que este arquivo protege
 
-O cache nasceu para remover o parse de ~50 s que se repetia a cada `POST`. A primeira coisa que
-ele não pode fazer é mudar o comportamento de quem não o liga: sem a variável de ambiente (e sem
-um `CacheDeArvores` injetado), `carregar` continua parseando a cada chamada.
+O cache nasceu para remover o parse de ~50 s que se repetia a cada `POST`. Ele está **ligado por
+padrão**: sem a variável de ambiente, a segunda carga vem do cache. O comportamento antigo — um
+parse por chamada — volta apenas quando o operador desliga explicitamente (`0`, `false`, `nao`,
+`off`, `no`).
 
-As provas cobrem as duas metades — desligado não muda nada, ligado devolve a MESMA árvore e
-parseia uma vez — e as bordas: arquivo trocado invalida, teto de capacidade despeja o mais antigo,
-referência inexistente devolve `None` sem parsear e quatro threads não pagam quatro parses.
+As provas cobrem as duas metades — desligado parseia a cada chamada, ligado devolve a MESMA árvore
+e parseia uma vez — e as bordas: arquivo trocado invalida, teto de capacidade despeja o mais
+antigo, referência inexistente devolve `None` sem parsear e quatro threads não pagam quatro
+parses.
 
 ## Por que a contagem de chamadas, e não o relógio
 
@@ -100,10 +102,10 @@ def _armazenar(pasta, conteudo: bytes, nome: str = "a.ged"):
     return armazenamento, os.path.basename(caminho)
 
 
-class TestDesligadoPorPadrao:
-    """Sem a variável, o adaptador tem de ser o de antes."""
+class TestLigadoPorPadrao:
+    """Sem a variável, o adaptador tem de usar o cache; vazio também conta como ligado."""
 
-    def test_sem_a_variavel_parseia_a_cada_chamada(self, tmp_path, monkeypatch, contador):
+    def test_sem_a_variavel_usa_o_cache(self, tmp_path, monkeypatch, contador):
         monkeypatch.delenv(VARIAVEL_DO_CACHE, raising=False)
         armazenamento, referencia = _armazenar(tmp_path, GEDCOM_A.encode("utf-8"))
         carregador = CarregadorDeArvoresGedcom(armazenamento)
@@ -111,20 +113,22 @@ class TestDesligadoPorPadrao:
         primeira = carregador.carregar(referencia, DONO)
         segunda = carregador.carregar(referencia, DONO)
 
-        assert contador["n"] == 2, "sem a flag, cada chamada tem de parsear"
-        assert primeira is not segunda, "duas chamadas sem cache devolvem árvores distintas"
+        assert contador["n"] == 1, "sem a variável, a segunda carga tinha de vir do cache"
+        assert primeira is segunda, "o cache tem de devolver a MESMA árvore"
+        assert nomes_de_exibicao(segunda) == ["Ana Lima"]
 
-    def test_referencia_inexistente_nao_parseia(self, tmp_path, monkeypatch, contador):
-        monkeypatch.delenv(VARIAVEL_DO_CACHE, raising=False)
-        armazenamento = ArmazenamentoEmDisco(str(tmp_path))
-        carregador = CarregadorDeArvoresGedcom(armazenamento, cache=CacheDeArvores())
+    def test_valor_vazio_mantem_ligado(self, tmp_path, monkeypatch, contador):
+        """`VAR=` no ambiente é um `export` sem valor, não uma intenção de desligar."""
+        monkeypatch.setenv(VARIAVEL_DO_CACHE, "")
+        armazenamento, referencia = _armazenar(tmp_path, GEDCOM_A.encode("utf-8"))
+        carregador = CarregadorDeArvoresGedcom(armazenamento)
 
-        assert carregador.carregar("0" * 16 + "__nao_existe.ged", DONO) is None
-        assert contador["n"] == 0
+        carregador.carregar(referencia, DONO)
+        carregador.carregar(referencia, DONO)
 
+        assert contador["n"] == 1
 
-class TestLigadoPelaVariavel:
-    def test_a_variavel_liga_o_cache(self, tmp_path, monkeypatch, contador):
+    def test_a_variavel_um_tambem_liga(self, tmp_path, monkeypatch, contador):
         monkeypatch.setenv(VARIAVEL_DO_CACHE, "1")
         armazenamento, referencia = _armazenar(tmp_path, GEDCOM_A.encode("utf-8"))
         carregador = CarregadorDeArvoresGedcom(armazenamento)
@@ -136,8 +140,18 @@ class TestLigadoPelaVariavel:
         assert primeira is segunda, "o cache tem de devolver a MESMA árvore"
         assert nomes_de_exibicao(segunda) == ["Ana Lima"]
 
-    @pytest.mark.parametrize("valor", ["0", "nao", "", "false"])
-    def test_valores_que_nao_ligam(self, valor, tmp_path, monkeypatch, contador):
+    def test_referencia_inexistente_nao_parseia(self, tmp_path, monkeypatch, contador):
+        monkeypatch.delenv(VARIAVEL_DO_CACHE, raising=False)
+        armazenamento = ArmazenamentoEmDisco(str(tmp_path))
+        carregador = CarregadorDeArvoresGedcom(armazenamento, cache=CacheDeArvores())
+
+        assert carregador.carregar("0" * 16 + "__nao_existe.ged", DONO) is None
+        assert contador["n"] == 0
+
+
+class TestDesligadoPelaVariavel:
+    @pytest.mark.parametrize("valor", ["0", "nao", "false", "off", "no"])
+    def test_valores_que_desligam(self, valor, tmp_path, monkeypatch, contador):
         monkeypatch.setenv(VARIAVEL_DO_CACHE, valor)
         armazenamento, referencia = _armazenar(tmp_path, GEDCOM_A.encode("utf-8"))
         carregador = CarregadorDeArvoresGedcom(armazenamento)
@@ -147,6 +161,8 @@ class TestLigadoPelaVariavel:
 
         assert contador["n"] == 2
 
+
+class TestConfiguracaoDoCache:
     def test_cache_injetado_dispensa_a_variavel(self, tmp_path, monkeypatch, contador):
         monkeypatch.delenv(VARIAVEL_DO_CACHE, raising=False)
         armazenamento, referencia = _armazenar(tmp_path, GEDCOM_A.encode("utf-8"))

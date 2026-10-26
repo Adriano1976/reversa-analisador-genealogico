@@ -67,7 +67,7 @@ kit, caminho completo, conteúdo do arquivo, resultado da análise.
 | `logs/analisador.log` (+ `.1`…`.4`) | arquivo rotativo, 5 × 5 MB | **não** | diagnóstico |
 | `logs/analisador.auditoria.AAAA-MM-DD.log` | arquivo novo por dia, sem descarte | **não** | trilha de auditoria; o prazo de 90 dias é do operador (`RN-10`) |
 | `logs/` | diretório | **não** | criado no arranque, como a pasta de upload |
-| `.gitignore` | arquivo de controle | sim | ganha a linha da pasta — **bloqueado por política**, ver §7 |
+| `.gitignore` | arquivo de controle | sim | ganha a linha da pasta — executada em 2026-10-26 (T022) |
 | `.dockerignore` | arquivo de controle | sim | **não muda**: já é lista de permissão (`*` exclui `logs/`) |
 | `docker-compose.yml` | arquivo de operação | sim | ganha o volume `./logs` e a rotação do orquestrador |
 
@@ -89,7 +89,6 @@ kit, caminho completo, conteúdo do arquivo, resultado da análise.
    registrar a partir da primeira requisição depois de subir.
 3. Container: sem o volume `./logs`, a trilha de auditoria cai para o fluxo padrão e a degradação é
    avisada uma vez (`D-11` do `roadmap.md`).
-4. **Bloqueio de política (não de dados):** a linha da pasta de log no `.gitignore` não pode ser
-   escrita por esta feature, porque o caminho não está no `allowedPaths` de
-   `.reversa/reversa-config.json`. Enquanto o operador não liberar, a ação correspondente fica
-   registrada como bloqueada no `actions.md`.
+4. **A linha da pasta de log no `.gitignore` foi executada em 2026-10-26 (T022)**, depois de o
+   operador liberar `.gitignore` no `allowedPaths` de `.reversa/reversa-config.json`. Sem ela, a
+   feature já funcionava; a linha existe para o log de operação não ser versionado por acidente.

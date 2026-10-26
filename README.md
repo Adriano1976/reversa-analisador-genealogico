@@ -367,15 +367,37 @@ docker compose up -d --build
 ### Configuração de execução
 
 O bloco de entrada lê três variáveis de ambiente — todas com padrão declarado no código, então nada precisa
-ser definido para subir a aplicação. A tabela inclui ainda a variável da pasta de upload, que é lida na
-**importação** do módulo, e não no bloco de entrada:
+ser definido para subir a aplicação. A tabela inclui ainda as variáveis lidas na **importação** do módulo, e
+não no bloco de entrada: a pasta de upload e as duas do cache da árvore.
 
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
 | `ANALISADOR_HOST` | `127.0.0.1` | endereço de escuta. O padrão atende apenas a máquina local; use `0.0.0.0` para atender a rede |
 | `ANALISADOR_PORT` | `5000` | porta de escuta |
 | `ANALISADOR_THREADS` | `4` | número de threads do servidor |
+| `ANALISADOR_CACHE_DE_ARVORE` | `1` (ligado) | mantém em memória a árvore já parseada entre requisições. `0`, `false`, `nao`, `off` ou `no` desliga e volta a um parse por ação; ver "Cache da árvore" |
+| `ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE` | `1` | quantas árvores o cache mantém (LRU). Cada árvore de ~19 mil pessoas custa ~337 MB, mais ~31 MB de índices; 2 levam o processo a ~714 MB |
 | `ANALISADOR_UPLOAD_FOLDER` | *(sem padrão: usa `<diretório do app>/uploads`)* | pasta que recebe os arquivos enviados. É uma **sobreposição de processo**, usada pela suíte e pelo invólucro de paridade para não escreverem na pasta de dados; ver "Onde ficam os arquivos enviados" |
+
+#### Cache da árvore
+
+A árvore GEDCOM deixou de ser reparseada a cada `POST` (feature 047). Com o cache ligado, a primeira ação
+paga o parse — ~50 s na árvore real de 19.403 pessoas — e as seguintes o reaproveitam: a **seleção de
+árvore** caiu de 54,8 s para **0,9 s**, e a **segunda análise de DNA**, de 62,2 s para **4,7 s**, com o HTML
+idêntico byte a byte (medido em 2026-10-24; ver `_reversa_forward/047-cache-dos-indices-da-arvore/evidence/`).
+
+O cache é **por processo**, chaveado por `(caminho absoluto, mtime_ns, tamanho)`: trocar o arquivo invalida a
+entrada sozinho, e quatro requisições simultâneas na mesma árvore pagam um parse só. Referência que não
+resolve continua devolvendo "arquivo não encontrado", sem parsear.
+
+O custo é memória: **~412 MB residentes** com uma árvore (≈337 MB da árvore + 31 MB de índices). O padrão é
+**1** porque duas árvores levam o processo a ~714 MB; em host com pouca RAM, defina
+`ANALISADOR_CACHE_DE_ARVORE=0`. As duas variáveis são lidas na **importação**, como a pasta de upload:
+defini-las depois de subir não muda nada.
+
+> **Retenção em memória.** Com o cache ligado, a árvore — dado pessoal de terceiros — permanece em RAM
+> enquanto o processo viver, e não apenas durante a requisição. Ela continua sem ser gravada em disco,
+> logada ou serializada; o que muda é o tempo de vida. Desligar o cache devolve o comportamento anterior.
 
 #### Abrir a aplicação para a rede
 

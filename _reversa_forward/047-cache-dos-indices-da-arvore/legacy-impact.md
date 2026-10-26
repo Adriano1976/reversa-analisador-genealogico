@@ -11,16 +11,17 @@
 |---|---|---|---|---|
 | `src/ports/adaptadores.py` | `CarregadorDeArvoresGedcom` (camada Portas) | `regra-alterada` | **HIGH** | Passa a manter uma árvore em memória entre requisições; muda a propriedade "sem cache entre requisições" que `architecture.md#1` declarava |
 | `src/core/matching.py` | `build_ged_indexes` (unit `analise-dna`) | `regra-alterada` | MEDIUM | O trio de índices passa a ser memoizado no grafo da árvore; mesmo resultado, custo de reconstrução menor |
-| `tests/test_cache_de_arvores.py` | — (teste) | `componente-novo` | LOW | 13 testes de presença, invalidação, teto, concorrência e log |
+| `tests/test_cache_de_arvores.py` | — (teste) | `componente-novo` | LOW | 18 testes de presença, invalidação, teto, concorrência e log |
 | `tests/test_indices_de_matching_memo.py` | — (teste) | `componente-novo` | LOW | 7 testes de memo e de não-contaminação entre árvores |
-| `docker-compose.yml` | empacotamento | `delta-de-contrato-externo` | LOW | Duas variáveis de ambiente documentadas, comentadas e desligadas |
+| `docker-compose.yml` | empacotamento | `delta-de-contrato-externo` | LOW | Duas variáveis de ambiente documentadas e ligadas por padrão (rev. 2026-10-26) |
 
 ## Diff conceitual por componente
 
 **`CarregadorDeArvoresGedcom`.** Antes, cada `carregar` chamava `carregar_arvore` e pagava o parse.
 Agora ele pode guardar a última árvore, chaveada por `(caminho, mtime_ns, tamanho)`, com teto 1 e
 *single-flight*. A porta não mudou: mesma assinatura, mesmo retorno, `None` para referência
-inexistente. O que mudou é **quando** o parse acontece — e só com a variável de ambiente ligada.
+inexistente. O que mudou é **quando** o parse acontece — e o cache está **ligado por padrão** desde
+a revisão de 2026-10-26, desligável por `ANALISADOR_CACHE_DE_ARVORE=0`.
 
 **`build_ged_indexes`.** Antes, toda chamada percorria as 19.403 pessoas e custava ~9 s. Agora o
 trio fica preso ao objeto do grafo, como `fichas_da_pessoa._indice_de_filhos` já fazia com o

@@ -7,7 +7,7 @@
 
 | ID | Origem (arquivo, seção) | Regra esperada após a mudança | Tipo de verificação | Sinal de violação |
 |---|---|---|---|---|
-| `W001` | `_reversa_sdd/architecture.md#1` | A afirmação sobre cache entre requisições passa a ser **condicional**: existe com `ANALISADOR_CACHE_DE_ARVORE`, não existe sem ela | `redação` | Documento afirmar cache incondicional, ou o código cachear sem a variável |
+| `W001` | `_reversa_sdd/architecture.md#1` | A afirmação sobre cache entre requisições passa a ser **condicional ao desligamento**: existe por padrão e é desligado por `ANALISADOR_CACHE_DE_ARVORE=0` (revisão de 2026-10-26) | `redação` | Documento afirmar ausência de cache no padrão, ou o código não cachear sem a variável |
 | `W002` | `src/core/matching.py` (`build_ged_indexes`) | Duas chamadas na mesma árvore devolvem o **mesmo objeto** e a segunda não percorre as pessoas | `presença` | Objetos diferentes, ou contagem de `get_name` subindo na segunda chamada |
 | `W003` | `_reversa_sdd/analise-dna/design.md#fluxo-principal` | O resultado da análise é idêntico com o cache ligado e desligado | `presença` | `sha256` do HTML diferente entre os dois estados |
 | `W004` | `_reversa_sdd/architecture.md#4` | Com teto 1, o processo estabiliza em ~412 MB e não cresce entre requisições da mesma árvore | `presença` | RSS subindo a cada `POST` |

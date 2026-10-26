@@ -31,7 +31,7 @@ O que define a arquitetura de hoje **não é o que definia a de 2026-10-05**. A 
 | `people`/`families`/`child_to_family` eram mutados *in place*, e `graph` era reatribuído — o que obrigava import **dentro da função** | A árvore é um **valor**; não há mutação de global nem import tardio |
 | O contador `versao` sinalizava a invalidação de índices derivados | Não existe mais: o cache de nomes deriva a chave do **conteúdo** recebido |
 
-**O funcionamento é de análise sob demanda:** a cada `POST`, o GEDCOM é **re-parseado integralmente** a partir da referência recebida no formulário, e a árvore resultante viaja como argumento até o fim da requisição. **Não há cache entre requisições** — e isso deixou de ser uma escolha discutível: sem estado global, não há alternativa.
+**O funcionamento é de análise sob demanda:** a cada `POST`, a árvore é obtida a partir da referência recebida no formulário e viaja como argumento até o fim da requisição. **Há um cache de árvore por processo** (feature 047, `ADR-38`): ligado por padrão, chaveado por `(caminho absoluto, mtime_ns, tamanho)`, com teto de uma árvore e *single-flight* — a segunda ação sobre o mesmo arquivo não paga o parse. O cache vive no **adaptador**, não no núcleo; desligá-lo (`ANALISADOR_CACHE_DE_ARVORE=0`) devolve o parse por requisição. Detalhamento em `addenda/047-cache-dos-indices-da-arvore.md`.
 
 ---
 
@@ -39,14 +39,14 @@ O que define a arquitetura de hoje **não é o que definia a de 2026-10-05**. A 
 
 **Quatro containers** — detalhamento em `c4-containers.md`:
 
-1. **Aplicação web** — o único processo (Python 3.14.6, Flask, waitress). **Nenhum estado de domínio em memória.**
+1. **Aplicação web** — o único processo (Python 3.14.6, Flask, waitress). **Nenhum estado de domínio em memória**; os únicos estados de processo são derivados e descartáveis: o cache de nomes (por conteúdo) e o cache da árvore, no adaptador (`ADR-38`).
 2. **Navegador do usuário** — HTML/Jinja2 + Bootstrap + **Mermaid renderizado no cliente**, e cliente de **duas artes** servidas com `ETag`.
 3. **Sistema de arquivos local** (`src/uploads/` e `src/uploads/_aposentados/`) — arquivos **imutáveis no conteúdo** e **mutáveis na posição**.
 4. **PostgreSQL 16** *(novo)* — o **histórico das análises**, em 6 tabelas. **Opcional:** sem `DATABASE_URL` o registrador é nulo e a tela não muda um byte.
 
-**Não há** container de fila, cache, worker assíncrono ou API externa. 🟢
+**Não há** container de fila, cache externo, worker assíncrono ou API externa. 🟢 O cache da árvore é **memória do processo**, não um serviço.
 
-**Concorrência:** o processo é **single-instance por construção** (socket exclusivo ligado antes de servir) e **multi-thread** (`ANALISADOR_THREADS = 4`). 🟢 **A corrida que a rodada anterior registrava como vetor vivo desapareceu:** não há estado de domínio compartilhado entre threads. O que resta é a concorrência sobre o **armazenamento em disco** — mecanismo 🟢, alcance não medido 🟡.
+**Concorrência:** o processo é **single-instance por construção** (socket exclusivo ligado antes de servir) e **multi-thread** (`ANALISADOR_THREADS = 4`). 🟢 **A árvore cacheada é compartilhada entre threads, e isso é seguro por construção:** o conteúdo dos quatro componentes não é mutado depois do parse; os índices derivados são pendurados no grafo de forma idempotente (três `setattr`, sem trava, sempre o mesmo valor), e o *single-flight* garante um parse por chave. O que resta de concorrência real é a disputa sobre o **armazenamento em disco** — mecanismo 🟢, alcance não medido 🟡.
 
 ---
 
@@ -81,15 +81,17 @@ A rodada anterior registrava **dois ciclos** como achado vermelho. **Os dois for
 
 ## 4. Modelo de Dados
 
-**Há banco de dados, e ele é opcional.** O ERD completo (**42 estruturas**, com PK/FK lógicos e — no banco — **reais**) está em `erd-complete.md`; os campos, tipos, padrões e sentinelas, em `data-dictionary.md`.
+**Há banco de dados, e ele é opcional.** O ERD completo (**43 estruturas**, com PK/FK lógicos e — no banco — **reais**) está em `erd-complete.md`; os campos, tipos, padrões e sentinelas, em `data-dictionary.md`.
 
 | Onde o dado vive | Estruturas | Persiste? |
 | --- | ---: | --- |
 | Memória, por requisição | 24 | Não — morre com a requisição |
-| Memória, de módulo | 1 (o cache de nomes) | Vive com o processo, chaveado por conteúdo |
+| Memória, de módulo | 2 (o cache de nomes e o cache de árvores) | Vive com o processo: o primeiro chaveado por conteúdo, o segundo pelo arquivo (`ADR-38`) |
 | Disco | 2 (na pasta e aposentado) | **Sim** — conteúdo imutável, **posição mutável** |
 | Payload de fronteira | 9 | Não — uma requisição |
 | **PostgreSQL** | **6 tabelas** | **Sim, e é opcional** |
+
+> 🟡 **O cache de árvores é memória de processo, não domínio.** Custa ~337 MB por árvore de ~19 mil pessoas, mais ~31 MB de índices; o teto é 1 e a invalidação é pelo arquivo. Desligado, a árvore morre no fim da requisição — a diferença é o tempo de vida em RAM, não o conteúdo.
 
 > ⚠️ **`None` significa "não sei / não existe", nunca zero.** É invariante do sistema.
 > ⚠️ **A árvore NÃO é duplicada no banco.** Ela continua sendo o arquivo imutável de `src/uploads/`, referenciado por `tree_ref`; o que se grava é o **retrato** das pessoas daquela análise.
@@ -195,7 +197,7 @@ Consolidação das **28** dívidas do `code-analysis.md` §9 com os achados dest
 
 ## 8. Decisões Arquiteturais
 
-**36 decisões** documentadas em `adrs/`, reconstruídas de **246 commits** e dos registros de bug e de mitigação:
+**38 decisões** documentadas em `adrs/`, reconstruídas de **246 commits** e dos registros de bug e de mitigação:
 
 | Faixa | Assunto |
 | --- | --- |
@@ -205,21 +207,22 @@ Consolidação das **28** dívidas do `code-analysis.md` §9 com os achados dest
 | `18`–`23` | Operação e contrato: single-tenant por aceite de risco, heurísticas declaradas, formatação só na apresentação, endogamia, ordem de apresentação, desempate determinístico |
 | **`24`–`35`** | **O ciclo forward 005 a 012:** núcleo puro, fronteira de aplicação, dono como costura, persistência opcional, Docker por permissão, arte derivada, aposentar, reenvio com substituição, elegibilidade por forma de nome, desfecho e projeção pura, ciclos quebrados, pasta de uploads |
 | **`36`** | **Revalidação das 23 herdadas** — quadro completo, com as **seis** que precisam de ressalva (`02`, `06`, `12`, `13`, `17`, `23`) |
+| **`37`–`38`** | **Depois do ciclo forward:** observabilidade em camadas (registro por requisição e auditoria) e **cache da árvore** por processo (chave pelo arquivo, teto 1, *single-flight*) |
 
 ---
 
 ## 9. Resumo para o Reversa
 
-- **Containers:** **4** — aplicação web (único processo, **sem estado de domínio**), navegador (renderiza Mermaid e busca as duas artes), sistema de arquivos (conteúdo imutável, **posição mutável**) e **PostgreSQL 16 opcional**. Sem fila, cache ou API externa. 🟢
+- **Containers:** **4** — aplicação web (único processo, **sem estado de domínio**, com um cache de árvore em processo), navegador (renderiza Mermaid e busca as duas artes), sistema de arquivos (conteúdo imutável, **posição mutável**) e **PostgreSQL 16 opcional**. Sem fila, cache externo ou API externa. 🟢
 - **Camadas:** **7 unidades**, com **dependência estritamente descendente** — os dois ciclos de pacote da rodada anterior estão **fechados**. A integração deixou de ser estado global e passou a ser **passagem de parâmetro e injeção**. 🟢
 - **Componentes:** **31**; `utils/` é o único pacote folha real; `reporting/` contém decisão de negócio de apresentação, **por decisão declarada**. 🟢
 - **Integrações externas:** **zero** de rede com terceiros. Entrada por arquivo (`.ged`, `.csv`), assets por CDN no navegador, uma tabela estatística embutida e **um banco local opcional**. 🟢
-- **Modelo de dados:** **42 estruturas**, das quais **6 são tabelas Postgres reais** com FK e `CHECK`. Sem constraint no GEDCOM em memória; **com** constraint onde foi implementado. 🟢
+- **Modelo de dados:** **43 estruturas**, das quais **6 são tabelas Postgres reais** com FK e `CHECK`. Sem constraint no GEDCOM em memória; **com** constraint onde foi implementado. 🟢
 - **Regra central:** os **três eixos que não se contaminam** + confronto em quatro estados — **intocada** pelas features 005 a 012. 🟢
 - **Dívidas técnicas:** **28 consolidadas**, sendo **5 de gravidade alta** — e **quatro delas são consequência direta do ciclo forward** (colisão do cache, driver ausente, dado pessoal sem retenção, ausência de teste de gravação). 🟢
-- **Decisões:** **36 ADRs** (13 novas + 1 de revalidação); **19 decisões humanas verificadas**, das quais **1 revertida** (010 → 012). 🟢
+- **Decisões:** **38 ADRs** (15 novas, das quais 1 de revalidação); **19 decisões humanas verificadas**, das quais **1 revertida** (010 → 012). 🟢
 - **Máquinas de estado:** **1 ciclo de vida real** (a posição do arquivo) e **4 máquinas de decisão** — detalhamento em `state-machines.md`. 🟢
-- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%**, 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 36 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages. **Nada disso faz parte do sistema em execução.** 🟢
+- **Instrumentação de desenvolvimento (fora do runtime):** oráculo congelado (`oracle/`), harness diferencial com **paridade 100%**, 7 goldens de tela (`screens/`), a suíte de migração (`migration/`) e os 38 ADRs. O repositório também hospeda o sub-projeto Node `plugins/dsh-markdownlint/` e a pasta `docs/` publicada no GitHub Pages. **Nada disso faz parte do sistema em execução.** 🟢
 
 ---
 

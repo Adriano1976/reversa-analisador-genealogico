@@ -52,7 +52,7 @@
 | T019 | Trocar o `print` de inicialização por linha `INFO` no logger do módulo, com o mesmo texto de endereço e threads | T018 | - | `src/app.py` | 🟢 | `[X]` |
 | T020 | Trocar o `{e}` das três mensagens por "O detalhe foi registrado no log.", preservando cada prefixo; conferir se algum golden de tela captura os três textos e atualizá-lo se capturar | T018 | - | `src/app.py` | 🟢 | `[X]` |
 | T021 | Publicar a pasta de auditoria no compose (volume `./logs`) e declarar a rotação `json-file` 5 × 5 MB no serviço da aplicação | T002 | `[//]` | `docker-compose.yml` | 🟢 | `[X]` |
-| T022 | Acrescentar a linha da pasta de log no `.gitignore` — **BLOQUEADA POR POLÍTICA**: o caminho não está no `allowedPaths` de `.reversa/reversa-config.json`; sem liberação do operador a escrita é recusada | - | `[//]` | `.gitignore` | 🟢 | `[ ]` |
+| T022 | Acrescentar a linha da pasta de log no `.gitignore` (liberada pelo operador em 2026-10-26, ao incluir `.gitignore` em `allowedPaths`) | - | `[//]` | `.gitignore` | 🟢 | `[X]` |
 
 ## Fase 5, Polimento
 
@@ -74,10 +74,10 @@
 3. **A pasta de log não pode nascer dentro de `src/`.** A resolução é a **raiz do projeto** (`logs/`),
    que é o caminho que o `.gitignore` cobre e que o volume `./logs:/app/logs` publica. T007 existe
    para a suíte não escrever na raiz durante os testes.
-4. **T022 é a única ação bloqueada por política**, e não por código: `.gitignore` fora do
-   `allowedPaths`. Se o operador não liberar antes do coding, a ação fica aberta com este motivo
-   registrado e a feature segue sem ela, porque `.dockerignore` (lista de permissão) já exclui a
-   pasta do contexto de build.
+4. **T022 ficou bloqueada até 2026-10-26**, e não por código: `.gitignore` estava fora do
+   `allowedPaths`. O operador liberou o caminho nessa data e a ação foi executada. Mesmo sem ela,
+   a feature nunca dependeu da linha para o container, porque `.dockerignore` (lista de permissão)
+   já exclui a pasta do contexto de build.
 5. **Nada desta feature toca `src/application/traducao.py`.** Aquelas mensagens de erro de domínio
    têm par (mensagem, status) fixado por teste de igualdade (`T024` de `test_traducao_de_erros.py`) e
    continuam valendo; a máscara, ali, é só de log.
@@ -99,8 +99,8 @@
 - **Paridade:** 30 divergências em `ancestral`, **medidas como pré-existentes** — o mesmo resultado
   foi obtido em um checkout limpo do `HEAD` (`344bfbd`), sem uma linha desta feature. Fica para o
   `/reversa-audit`; não é regressão da 049.
-- **T022 recusada pela política** de edição do legado (`allowLegacyEdits: true` com `.gitignore`
-  fora do `allowedPaths`).
+- **T022 executada em 2026-10-26**, depois de o operador incluir `.gitignore` em `allowedPaths`;
+  a linha `logs/` entrou no `.gitignore` e a pasta deixou de aparecer como não rastreada.
 
 ## Histórico de alterações
 
@@ -108,3 +108,4 @@
 |------|-----------|-------|
 | 2026-10-25 | Versão inicial gerada por `/reversa-to-do` | reversa |
 | 2026-10-25 | Execução do `/reversa-coding`: 23 de 24 ações fechadas; T022 recusada por política | reversa |
+| 2026-10-26 | T022 executada após liberação de `.gitignore` em `allowedPaths`; 24 de 24 ações fechadas | reversa |

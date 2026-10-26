@@ -52,12 +52,12 @@ flowchart TB
 
 | # | Container | Tecnologia | Responsabilidade | Estado | Conf. |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **Aplicação web** | Python 3.14.6 · Flask 3.1.3 · waitress 3.0.2 | Validar e gravar uploads, listar e aposentar arquivos, parsear o GEDCOM, executar os três fluxos, projetar o resultado, registrar o histórico e renderizar a tela. **Único processo do sistema** | **Nenhum estado de domínio em memória.** A árvore é um valor por requisição; o que resta são os adaptadores (singletons de processo) e um cache de nomes derivado do conteúdo | 🟢 |
+| 1 | **Aplicação web** | Python 3.14.6 · Flask 3.1.3 · waitress 3.0.2 | Validar e gravar uploads, listar e aposentar arquivos, parsear o GEDCOM, executar os três fluxos, projetar o resultado, registrar o histórico e renderizar a tela. **Único processo do sistema** | **Nenhum estado de domínio em memória.** A árvore é um valor por requisição; o que resta são os adaptadores (singletons de processo) e dois caches de processo: o de nomes, derivado do conteúdo, e o da árvore, chaveado pelo arquivo (`ADR-38`) | 🟢 |
 | 2 | **Navegador do usuário** | HTML5 · Jinja2 · Bootstrap 5.3.3 · Mermaid 10 (CDN) | Exibir a tela, enviar os formulários e **renderizar o diagrama Mermaid no cliente** | Sem estado próprio além do DOM, das referências em campos ocultos e do `ETag` das artes | 🟢 |
 | 3 | **Sistema de arquivos local** | Sistema de arquivos do host | Guardar os arquivos enviados sob chave de conteúdo, e manter os **aposentados** em `_aposentados/` | **Persistente.** O único estado que sobrevive ao processo **e** cujo ciclo de vida o sistema modela (`state-machines.md` §7) | 🟢 |
 | 4 | **PostgreSQL 16** *(novo)* | PostgreSQL 16 em `docker-compose.yml`, driver `psycopg2` | Guardar o **histórico das análises** — análise, pessoas, conexões, kits, nós de caminho e descartados | **Persistente e OPCIONAL.** Sem `DATABASE_URL` o registrador é nulo e a tela não muda um byte | 🟢 |
 
-**Não há** container de fila, cache, worker assíncrono ou serviço externo de rede. 🟢
+**Não há** container de fila, cache externo, worker assíncrono ou serviço externo de rede. 🟢 O cache da árvore é memória do processo, não um serviço.
 
 **Por que quatro, e não um.** (a) O container 2 não é cliente burro desde que a renderização do diagrama foi movida para o cliente (`ADR-03`). (b) O container 3 passou a ter **dois papéis** — guardar e aposentar. (c) O container 4 é novo e é o único cuja existência é **condicional**: ele pode simplesmente não estar lá.
 

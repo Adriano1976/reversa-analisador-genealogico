@@ -55,6 +55,15 @@ PostgreSQL) segue intocada.
 `W001`, `W002`, `W003`, `W004`, `W005` — em
 `_reversa_forward/047-cache-dos-indices-da-arvore/regression-watch.md`.
 
+## Revisão de 2026-10-26 — ligado por padrão
+
+A entrega de 2026-10-24 deixou o cache **desligado por padrão**. A revisão de 2026-10-26 inverte o padrão: o
+ganho só existe para quem lê a documentação, e o caso de uso é justamente a segunda ação sobre a mesma árvore.
+`ANALISADOR_CACHE_DE_ARVORE=0` (ou `false`, `nao`, `off`, `no`) desliga; vazio conta como ligado. O resto da
+decisão — chave pelo arquivo, teto 1, *single-flight*, falha não cacheada, sem `dono` na chave — não mudou. A
+decisão está no `ADR-38`, e as atualizações de `architecture.md` que este adendo declarava **foram aplicadas
+nesta data**; o `README.md` e o `docker-compose.yml` passaram a documentar as duas variáveis.
+
 ## Fontes
 
 - `_reversa_forward/047-cache-dos-indices-da-arvore/requirements.md`

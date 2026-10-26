@@ -126,8 +126,8 @@
 
 **A unit não mantém estado.** 🟢
 
-- Não há variável de módulo com dados de requisição: `_ARMAZENAMENTO` e `_CARREGADOR` são **singletons de processo** montados no import (`app.py:141-142`), e guardam apenas a pasta resolvida uma vez — o ambiente não muda no meio do processo. 🟢
-- `ItemDaLista` é `frozen=True`: cada renderização constrói itens novos a partir de uma leitura nova. Não há cache entre requisições, e portanto não há invalidação a manter. 🟢
+- Não há variável de módulo com dados de requisição: `_ARMAZENAMENTO` e `_CARREGADOR` são **singletons de processo** montados no import (`app.py:141-142`), e guardam apenas a pasta resolvida uma vez e o cache da árvore (`ADR-38`) — o ambiente não muda no meio do processo. 🟢
+- `ItemDaLista` é `frozen=True`: cada renderização constrói itens novos a partir de uma leitura nova. A **listagem** não é cacheada entre requisições (o cache da árvore guarda o parse, não a lista), e portanto não há invalidação a manter. 🟢
 - O "estado" que sobrevive entre requisições é o **campo oculto `gedcom_filename`** no HTML, devolvido pelo navegador — é assim que a aplicação mantém continuidade **sem sessão**. 🟢
 - `DONO_DO_PROCESSO = "unico"` é constante de módulo, e atravessa as três chamadas de porta sem participar de decisão nenhuma. `ADR-26`. 🟢
 

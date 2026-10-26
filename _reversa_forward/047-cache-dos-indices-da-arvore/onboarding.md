@@ -10,14 +10,17 @@
   sintéticas (`tests/fixtures/sample_gedcom.py`); nunca use arquivo de `src/uploads/` em teste.
 - Nada de dependência nova.
 
-## 2. Ligar o cache
+## 2. Conferir o cache (ligado por padrão)
+
+O cache já vem ligado: nenhuma variável é necessária. Para deixá-lo explícito, ou para medir a
+linha de base, use:
 
 ```powershell
-$env:ANALISADOR_CACHE_DE_ARVORE = "1"
+$env:ANALISADOR_CACHE_DE_ARVORE = "1"              # opcional: já é o padrão
 $env:ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE = "1"   # opcional; 1 e o padrao
 ```
 
-Sem a primeira variável, o comportamento é o de antes — é assim que se mede a linha de base.
+Para medir o **sem cache**, defina `ANALISADOR_CACHE_DE_ARVORE=0` e reinicie o processo.
 
 ## 3. Verificar o ganho, em três passos
 
@@ -57,12 +60,13 @@ ruído nesta máquina (o parse variou de 44 s a 92 s entre execuções).
 
 ## 6. Desligar
 
-Remova a variável de ambiente e reinicie o processo. Não há resíduo em disco nem em banco.
+Defina `ANALISADOR_CACHE_DE_ARVORE=0` (ou `false`, `nao`, `off`, `no`) e reinicie o processo.
+Remover a variável **não** desliga: o padrão é ligado. Não há resíduo em disco nem em banco.
 
 ## 7. O que observar se algo parecer errado
 
 | Sintoma | Causa provável |
 |---|---|
-| Segunda análise continua lenta | variável não chegou ao processo (`.env` vs `docker-compose`) |
+| Segunda análise continua lenta | cache desligado (`0`) ou variável não chegou ao processo (`.env` vs `docker-compose`) |
 | Resultado diferente do de antes | memo de índices compartilhado entre árvores — é o defeito que o teste de duas árvores cobre |
 | Memória crescendo a cada requisição | teto não aplicado; verifique a capacidade lida do ambiente |

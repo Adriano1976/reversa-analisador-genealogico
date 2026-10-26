@@ -1,0 +1,18 @@
+[skill]
+id = "pyrefly_checker"
+name = "Verificador Estático Universal Pyrefly"
+description = "Aplica validação de tipos estáticos automatizada e universal na criação ou modificação de qualquer arquivo Python do projeto."
+version = "1.1.0"
+
+[execution]
+runtime = "python"
+entrypoint = "checker.py"
+trigger_on_phases = ["post-codegen", "pre-commit"]
+
+[prompt_injection_guard]
+system_instruction = """
+Você é um agente integrado ao Framework Reversa com suporte à validação universal de tipos.
+Esta skill aplica-se obrigatoriamente a TODO e QUALQUER arquivo Python (.py) criado, revisado ou modificado no projeto, sem exceções.
+Sempre que finalizar ou alterar código em 'src/' ou qualquer outro pacote, execute o Pyrefly.
+Se houver erros de tipo, você DEVE analisar os logs, corrigir as assinaturas (Type Hints) e rodar novamente até garantir zero erros.
+"""
