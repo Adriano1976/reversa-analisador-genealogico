@@ -9,6 +9,7 @@ cada um e por onde passa o caminho alternativo.
 from __future__ import annotations
 
 from collections import deque
+from typing import Any
 
 from .datas_do_gedcom import birth_date
 from .family_navigation import get_parents
@@ -90,7 +91,9 @@ def find_all_common_ancestors(arvore, a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIV
     """Todos os ancestrais comuns dentro do teto, ordenados por distancia total."""
     de_a = _ancestor_depths(arvore, a_id, max_depth)
     de_b = _ancestor_depths(arvore, b_id, max_depth)
-    comuns = []
+    # Dicionario heterogeneo (id, nome, distancias, data): o `Any` documenta que a
+    # ordenacao abaixo le os campos sem contrato de tipo por chave.
+    comuns: list[dict[str, Any]] = []
     for pid in set(de_a) & set(de_b):
         da, db = de_a[pid], de_b[pid]
         comuns.append({
@@ -101,7 +104,7 @@ def find_all_common_ancestors(arvore, a_id, b_id, max_depth=MAX_DEPTH_ALTERNATIV
             "total_meioses": da + db,
             "birth": birth_date(arvore[0], pid),
         })
-    comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]), c["name"] or "")) # type: ignore
+    comuns.sort(key=lambda c: (c["total_meioses"], max(c["distance_a"], c["distance_b"]), c["name"] or ""))
     return comuns[:limit]
 
 
