@@ -18,7 +18,12 @@ MESMO numero de meioses (`method = "scp40:meioses=<n>"`); nenhum numero e invent
 houver relacao publicada naquele numero de meioses, nao ha janela e o estado e INCONCLUSIVO.
 4. cM dentro da janela -> COMPATIVEL; fora dela -> POSSIVEL quando alguma relacao publicada
 que contem o valor tem faixa que SE SOBREPOE a janela documental (as distribuicoes se tocam
-e o cM nao separa as duas leituras), caso contrario CONFLITANTE. 5. Sem DNA, sem caminho
+e o cM nao separa as duas leituras), caso contrario CONFLITANTE. 5. **Excecao de 1a
+meiose:** em `PARENT_CHILD` (Pai/Mae x Filho(a)), valor ACIMA do teto publicado e
+COMPATIVEL. O teto da fonte e uma faixa empirica (99% dos envios), nao um limite biologico:
+o total do laboratorio pode incluir o cromossomo X ou vir de outro build, e passar de 3.720
+cM nao prova que o vinculo direto esteja errado. O piso continua valendo, e a regra de
+sobreposicao continua valendo para todas as outras relacoes. 6. Sem DNA, sem caminho
 documental ou com identidade ambigua -> INCONCLUSIVO.
 """
 from __future__ import annotations
@@ -78,20 +83,51 @@ CAUSAS_POSSIVEIS = [
 # tambem nao ha confirmacao.
 CAUSAS_POSSIVEL = CAUSAS_POSSIVEIS[:1] + CAUSAS_POSSIVEIS[3:8] + CAUSAS_POSSIVEIS[10:]
 
+# Relacoes de 1a meiose direta, a UNICA em que o teto superior da fonte nao pode
+# ser lido como prova de incompatibilidade. Em Pai/Mae x Filho(a) a relacao
+# documental ja e a mais proxima que existe: nao ha "outro vinculo mais forte"
+# para o cM acima do teto sugerir. O que existe e a metrica do laboratorio mais
+# larga que a da fonte — o total pode incluir o cromossomo X (196,048 cM no
+# arquivo real de Sandro/Gedalva) ou vir de outro build/mapeamento. O piso
+# continua valendo; o que sai e apenas o teto.
+#
+# Nao ha chave de "gemeo identico" no GEDCOM deste projeto: gemeos sao
+# registrados como SIBLINGS, e afrouxar SIBLINGS inteiro aceitaria qualquer
+# valor acima de 3.488 cM como se fosse gemeo. Por isso a excecao e so esta.
+RELACOES_DE_PRIMEIRA_MEIOSE = frozenset({"PARENT_CHILD"})
 
-def _avaliar_kit(bloco: dict, janela: _JanelaDeCm, meioses_documental) -> dict:
-    """Estado de UM kit contra a janela do parentesco documental."""
+
+def _avaliar_kit(bloco: dict, janela: _JanelaDeCm,
+                 relationship_key: str | None = None) -> dict:
+    """Estado de UM kit contra a janela do parentesco documental.
+
+    `relationship_key` e a chave canonica de `core.documentary_relationship`
+    (`PARENT_CHILD`, `SIBLINGS`, ...). Ele so e lido pela excecao de 1a meiose:
+    a distancia em meioses continua fora do criterio, como o modulo documenta.
+    """
     cm = bloco.get("total_cm")
     if cm is None:
         return {"status": "INCONCLUSIVO", "cm": None,
                 "note": "Sem total de cM utilizável para este kit."}
 
-    dentro = janela["range_low"] <= cm <= janela["range_high"]
     candidatas = bloco.get("possible_relationships", [])
 
-    if dentro:
+    if janela["range_low"] <= cm <= janela["range_high"]:
         return {"status": "COMPATIVEL", "cm": cm,
                 "note": f"{cm:g} cM está dentro da faixa {janela['range_low']}–{janela['range_high']} cM."}
+
+    # EXCECAO DE 1a MEIOSE. Acima do teto publicado, o valor nao aponta para
+    # outro parentesco: a relacao documental ja e a mais proxima possivel. O
+    # excesso e compativel com o X incluido no total ou com diferenca de build.
+    # Abaixo do piso a regra normal continua decidindo (POSSIVEL/CONFLITANTE).
+    if relationship_key in RELACOES_DE_PRIMEIRA_MEIOSE and cm > janela["range_high"]:
+        return {"status": "COMPATIVEL", "cm": cm,
+                "note": (f"{cm:g} cM está acima do teto publicado de {janela['range_high']} cM, "
+                         "mas o parentesco documental é de 1ª meiose direta (Pai/Mãe ↔ Filho(a)). "
+                         "O excesso é compatível com a inclusão do cromossomo X no total do "
+                         "laboratório ou com diferença de build/mapeamento do genoma; não é "
+                         f"indício de outro vínculo. O piso de {janela['range_low']} cM continua "
+                         "sendo o limite desta relação.")}
 
     # Fora da janela: sobra POSSIVEL apenas quando alguma relacao publicada que
     # contem o valor TEM FAIXA QUE SE SOBREPOE a janela documental — isto e,
@@ -322,7 +358,8 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> _Confronto:
     if motivo:
         notas.append(motivo + ".")
 
-    avaliacoes = [_avaliar_kit(bloco, janela, documental.get("meioses") or 0) for bloco in (hypotheses or [])]
+    avaliacoes = [_avaliar_kit(bloco, janela, documental.get("relationship_key"))
+                  for bloco in (hypotheses or [])]
     if not avaliacoes:
         base["detail"] = "Há arquivo de DNA, mas nenhum valor de cM utilizável para confrontar."
         base["observations"] = notas
@@ -353,4 +390,4 @@ def compare(documentary: dict, hypotheses: list, evidence: dict) -> _Confronto:
     return base
 
 
-__all__ = ["compare", "MENSAGENS", "STATUS_LABEL", "CAUSAS_POSSIVEIS", "CAUSAS_POSSIVEL"]
+__all__: list[str] = ["compare", "MENSAGENS", "STATUS_LABEL", "CAUSAS_POSSIVEIS", "CAUSAS_POSSIVEL"]

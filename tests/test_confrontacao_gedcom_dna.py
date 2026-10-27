@@ -489,6 +489,69 @@ def test_2b_parentesco_proximo_com_dna_compativel_e_compativel():
     assert resultados[0]["comparison"]["status"] == "COMPATIVEL"
 
 
+def _confronto_de_parentesco(cm, relationship_key="PARENT_CHILD",
+                             label="Pai/Mãe ↔ Filho(a)", meioses=1):
+    """Confronto unitario de um parentesco documental contra um valor de cM."""
+    documental = {
+        "status": "found",
+        "source": "GEDCOM",
+        "label": label,
+        "relationship_key": relationship_key,
+        "meioses": meioses,
+        "degrees": {"a_up": 0, "b_up": meioses},
+        "path": {"ids": ["@A@", "@B@"], "names": ["Filho", "Mãe"]},
+        "warnings": [],
+    }
+    possibilidades = possible_relationships(cm)["possible_relationships"]
+    hipoteses = [{"kit": "K1", "total_cm": cm, "possible_relationships": possibilidades}]
+    evidencia = {"available": True, "kits": [{"kit": "K1"}], "totals": {"cm": cm}}
+    return compare(documental, hipoteses, evidencia)
+
+
+def test_2c_parentesco_de_primeira_meiose_acima_do_teto_nao_e_conflitante():
+    """Caso real Sandro x Gedalva: 3.783,881 cM, com o X dentro do total do laboratorio.
+
+    O teto de 3.720 cM e uma faixa empirica da fonte, nao um limite biologico: em
+    Pai/Mae x Filho(a) o total pode incluir o cromossomo X ou vir de outro build.
+    O valor acima do teto nao indica outro vinculo, e o estado tem de ser
+    COMPATIVEL, nunca CONFLITANTE.
+    """
+    resultado = _confronto_de_parentesco(3783.881)
+
+    assert resultado["status"] == "COMPATIVEL"
+    assert resultado["label"] == "Compatível"
+    assert resultado["causes"] == []
+    assert "1ª meiose" in resultado["detail"]
+
+
+def test_2d_pai_e_mae_com_o_mesmo_total_autossomico_recebem_o_mesmo_estado():
+    """O pai tem X = 0 e a mae tem 196,048 cM de X; o autossomico e o mesmo.
+
+    3.587,833 + 196,048 = 3.783,881. Se o estado depende do total com X, dois
+    genitores do mesmo filho recebem vereditos diferentes sem nenhuma diferenca
+    documental. A regra tem de tratar os dois igualmente.
+    """
+    pai = _confronto_de_parentesco(3587.833)
+    mae = _confronto_de_parentesco(3783.881)
+
+    assert pai["status"] == mae["status"] == "COMPATIVEL"
+
+
+def test_2e_excecao_do_teto_de_primeira_meiose_nao_vale_para_irmaos():
+    """A excecao e so de Pai/Mae x Filho(a); irmaos seguem a regra da fonte."""
+    resultado = _confronto_de_parentesco(3783.881, relationship_key="SIBLINGS",
+                                         label="Irmãos", meioses=2)
+
+    assert resultado["status"] == "CONFLITANTE"
+
+
+def test_2f_primeira_meiose_abaixo_do_piso_continua_conflitante():
+    """A excecao remove o teto; o piso continua valendo."""
+    resultado = _confronto_de_parentesco(50)
+
+    assert resultado["status"] == "CONFLITANTE"
+
+
 # ---------------------------------------------------------------------------
 # TESTE 3 — parentesco distante + DNA compativel com varias relacoes -> POSSIVEL
 # ---------------------------------------------------------------------------
