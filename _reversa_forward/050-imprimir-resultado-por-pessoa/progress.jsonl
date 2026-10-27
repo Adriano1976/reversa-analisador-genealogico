@@ -14,3 +14,4 @@
 {"ts":"2026-10-26T22:56:05Z","action":"T014","status":"done","files":["src/templates/index.html"]}
 {"ts":"2026-10-26T22:56:30Z","action":"T015","status":"done","files":["tests/test_icone_de_atalho.py"]}
 {"ts":"2026-10-26T23:05:00Z","action":"T016","status":"done","files":["tests/","src/templates/index.html","src/assets/app.css"],"medido":"1717 passed / 9 skipped / 0 failed em 134,98 s; paridade 30 divergencias (linha de base da 049, feature nao participa da comparacao); HTML da analise 3.571.080 bytes; identificacao 652 B x 68 = 44.336 B; nenhum .py de src/ e requirements.txt intocados"}
+{"ts":"2026-10-27T14:25:00Z","action":"E001","status":"done","files":["src/templates/index.html","tests/test_impressao_do_resultado.py","tests/test_icone_de_atalho.py"],"medido":"document.title vira o texto do titulo do cartao durante a impressao e volta no afterprint; SHA_DA_TELA 51.150 -> 51.601 (+451); 32 testes de impressao"}

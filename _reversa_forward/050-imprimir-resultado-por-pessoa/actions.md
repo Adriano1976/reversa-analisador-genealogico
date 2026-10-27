@@ -97,6 +97,12 @@
 - **O temporizador de segurança da restauração é de 60 s**, e não de poucos segundos: em navegador
   que não bloqueia no `print()`, um prazo curto limparia o documento com a pré-visualização aberta.
 
+## Emendas
+
+| ID | Descrição | Dependências | Paralelismo | Arquivo alvo | Confidência | Status |
+|----|-----------|--------------|-------------|--------------|-------------|--------|
+| E001 | O script da impressão troca o `document.title` para "Análise de conexão com <nome>" enquanto o diálogo está aberto, para o PDF sair com o nome da pessoa, e devolve o título original no `afterprint` | - | - | `src/templates/index.html` | 🟢 | `[X]` |
+
 ## Histórico de alterações
 
 | Data | Alteração | Autor |

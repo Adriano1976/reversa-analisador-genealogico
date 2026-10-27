@@ -55,3 +55,26 @@ há linha na trilha da `049`; é consequência da escolha, não esquecimento.
 - `_reversa_forward/050-imprimir-resultado-por-pessoa/regression-watch.md`
 - `_reversa_forward/050-imprimir-resultado-por-pessoa/progress.jsonl`
 - `_reversa_forward/050-imprimir-resultado-por-pessoa/interfaces/bloco-de-impressao.md`
+
+## Atualização 2026-10-27
+
+**Emenda `E001` — o nome sugerido do PDF passa a ser o da conexão.** O diálogo de impressão dos
+navegadores usa o `document.title` como nome do arquivo, e o título fixo da página fazia toda
+impressão sair como "Analisador de Conexões Genealógicas.pdf". A rotina de impressão agora troca o
+título pelo texto do próprio título do cartão — "Análise de conexão com <nome>" — imediatamente antes
+de abrir o diálogo, e o devolve ao original no `afterprint`, inclusive no cancelamento.
+
+O texto **não** é montado no script: sai do título que já está no cartão. Repetir o literal no script
+faria a página sem resultado conter a frase, e `tests/test_sem_correspondencia.py` exige o contrário.
+
+| Artefato | Seção | Tipo de impacto | Delta |
+|---|---|---|---|
+| `_reversa_sdd/architecture.md` | §3 (componentes) | `regra-alterada` | O script da impressão troca o `document.title` durante o diálogo e o restaura no `afterprint`; nenhuma rota, dependência ou variável de contexto muda |
+| `_reversa_sdd/analise-dna/requirements.md` | Apresentação | `regra-nova` | O arquivo salvo identifica a conexão pelo **nome da pessoa**, e não por um nome fixo de sistema |
+
+`SHA_DA_TELA` remedido: 51.150 → **51.601** (+451), décima primeira medição. Nenhum watch item novo —
+a emenda não tocou regra 🟢 de `_reversa_sdd/domain.md`; os `W001` a `W010` seguem valendo, e a
+observação do `W009` no `regression-watch.md` registra que o pino da entrega não é o hash vigente.
+
+**Fontes da atualização:** `requirements.md#Emendas` (`E001`), `actions.md#Emendas`, `legacy-impact.md`
+(linhas da emenda), `progress.jsonl` (linha `E001`) e `tests/test_impressao_do_resultado.py`.

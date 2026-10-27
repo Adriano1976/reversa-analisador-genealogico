@@ -14,6 +14,9 @@
 | `src/assets/app.css` | Folha de estilo (`_reversa_sdd/architecture.md#3`) | `componente-novo` | MEDIUM | Entra o bloco de impressão (isolação, papel claro, selos de contorno, folha do desenho, rodapé fixo) e o estilo do comando e da identificação na tela |
 | `tests/test_impressao_do_resultado.py` | Suíte de testes | `componente-novo` | LOW | Arquivo novo: 30 testes prendem marcação, folha e ligação do script |
 | `tests/test_icone_de_atalho.py` | Invariante de tela (`SHA_DA_TELA`) | `regra-alterada` | LOW | Nona medição declarada: `5fc0b929…` (46.477 bytes) → `df6fc12a…` (51.064, +4.587) |
+| `tests/test_icone_de_atalho.py` | Invariante de tela (`SHA_DA_TELA`) | `regra-alterada` | LOW | Correção do registro acima: a nona medição fechou em `f49dd6da…` (51.117), depois do ajuste do seletor; a décima (`df702cbb…`, 51.150) veio da feature 051 |
+| `src/templates/index.html` | Tela de resultados (`_reversa_sdd/architecture.md#3`) | `regra-alterada` | LOW | **E001**: o script troca o `document.title` durante a impressão, para o PDF sair como "Análise de conexão com <nome>", e devolve o original no `afterprint` |
+| `tests/test_icone_de_atalho.py` | Invariante de tela (`SHA_DA_TELA`) | `regra-alterada` | LOW | **E001**, décima primeira medição: `df702cbb…` (51.150) → `386f2fef…` (51.601, +451) |
 
 ## 2. Diff conceitual por componente
 

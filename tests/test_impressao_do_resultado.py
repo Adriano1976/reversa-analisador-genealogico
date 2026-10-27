@@ -278,3 +278,19 @@ class TestOLigarDoScript:
         script = _scripts(pagina)
         assert "folha-do-diagrama" in script
         assert "origem-da-impressao" in script
+
+    def test_o_titulo_do_documento_vira_o_nome_da_pessoa(self, pagina):
+        script = _scripts(pagina)
+        assert "document.title" in script, (
+            "o dialogo do navegador usa o titulo da pagina como nome do PDF; sem trocar o "
+            "titulo, toda impressao sai com o mesmo nome"
+        )
+        assert "titulo-da-conexao" in script, (
+            "o nome do arquivo tem de sair do proprio titulo do cartao: repetir o literal "
+            "'Analise de conexao com' no script faria a pagina sem resultado conter a frase"
+        )
+
+    def test_o_titulo_original_volta_depois_de_imprimir(self, pagina):
+        assert "tituloOriginalDaPagina" in _scripts(pagina), (
+            "o titulo da aba tem de voltar ao original quando o dialogo fecha"
+        )

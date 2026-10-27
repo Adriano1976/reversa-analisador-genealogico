@@ -540,7 +540,7 @@
 
                                                        So item DISPONIVEL entra nas opcoes: oferecer um que a referencia
                                                        nao alcanca seria vender o que nao funciona. #}
-                                                    <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches (CSV)</b></label>
+                                                    <label for="matches_csv_filename" class="form-label"><b>1. Lista de Matches do Ancestor Projects (CSV)</b></label>
                                                     {% if relatorios_da_lista %}
                                                         <select class="form-select" id="matches_csv_filename" name="matches_csv_filename">
                                                             <option value="">— escolher da lista —</option>
@@ -2285,9 +2285,24 @@
                 garantirAreaDeImpressao();
                 const estavaAberto = cartao.open;
                 const rolagem = window.scrollY;
+                {# O NOME DO PDF VEM DO TÍTULO DO DOCUMENTO (emenda E001). O diálogo do
+                   navegador sugere o `document.title` como nome do arquivo, e o título fixo
+                   da página fazia toda impressão sair como "Analisador de Conexões
+                   Genealógicas.pdf". O título vira o da pessoa só durante a impressão,
+                   porque o nome do arquivo é a primeira identificação da folha.
+
+                   O texto NÃO é montado aqui: sai do próprio título do cartão, que já é
+                   "Análise de conexão com <nome>". Repetir o literal no script faria a
+                   página sem resultado conter a frase, e há teste que exige o contrário. #}
+                const tituloOriginalDaPagina = document.title;
+                const alvoDoTitulo = cartao.querySelector(".titulo-da-conexao");
+                const nomeDoDocumento = alvoDoTitulo
+                    ? alvoDoTitulo.textContent.replace(/\s+/g, " ").trim()
+                    : "";
                 const encerrar = () => {
                     if (!imprimindo) return;
                     imprimindo = false;
+                    document.title = tituloOriginalDaPagina;
                     document.body.classList.remove("imprimindo");
                     areaDeImpressao.textContent = "";
                     cartao.open = estavaAberto;
@@ -2299,6 +2314,7 @@
                 preencherMomentoDaImpressao(cartao);
                 esperarOsDesenhos(cartao).then(() => {
                     montarDocumentoDaImpressao(cartao);
+                    if (nomeDoDocumento) document.title = nomeDoDocumento;
                     document.body.classList.add("imprimindo");
                     window.print();
                     setTimeout(encerrar, 60000);

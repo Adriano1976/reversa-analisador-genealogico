@@ -34,6 +34,13 @@ Itens 🟡 que **não** têm peso de regressão, mas a re-extração deve conhec
   o roteiro está em `onboarding.md#9`.
 - **O botão depende do `loop.index`** do `for result in dna_results` para casar com o `id`
   `resultado-N`; renomear um dos dois quebra o `data-imprimir` sem erro visível.
+- **O `W009` é o pino da entrega, não o valor de hoje.** O `SHA_DA_TELA` da tela vazia mudou
+  depois: `df702cbb…` (51.150) com a feature 051 e `386f2fef…` (51.601) com a emenda `E001`
+  desta feature. Numa re-extração, comparar contra o valor **vigente**, não contra o pino.
+- **O nome sugerido do PDF vem do `document.title`.** A emenda `E001` troca o título pelo
+  texto do próprio título do cartão ("Análise de conexão com <nome>") durante a impressão e
+  o devolve no `afterprint`. O valor do nome é comportamento de navegador e só se verifica
+  em uso.
 
 ## Histórico de re-extrações
 

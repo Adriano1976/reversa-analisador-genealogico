@@ -362,3 +362,15 @@ viraram `RN-03`, `RN-07`, `RF-01` e `RF-05`.
 | 2026-10-26 | Versão inicial gerada por `/reversa-requirements` a partir do pedido "imprimir o resultado de 'Análise de conexão com ...' para cada pessoa" | reversa |
 | 2026-10-26 | Sessão de esclarecimentos: 5 respostas integradas (`RN-03`, `RN-07`, `RF-01`, `RF-05`, RNF de compatibilidade); as três dúvidas zeradas | reversa |
 | 2026-10-26 | Segunda sessão (fechamento da auditoria): `RF-04` sem numeração de página, critério do `RF-02` corrigido, `RN-03` e `RN-05` ajustadas e `RN-02` sem posição de folha | reversa |
+
+## Emendas
+
+### E001, 2026-10-27
+
+O que muda: ao salvar a impressão em PDF, o nome sugerido do arquivo passa a ser "Análise de conexão
+com <nome da pessoa>", e não o título fixo da página.
+Motivo: hoje qualquer pessoa imprime com o mesmo nome ("Analisador de Conexões Genealógicas.pdf"), e o
+operador precisa renomear o arquivo à mão depois de salvar. O nome é a primeira identificação da
+folha, e ele não dizia de quem era.
+Arquivos previstos: `src/templates/index.html` (script da impressão) e
+`tests/test_impressao_do_resultado.py`.
