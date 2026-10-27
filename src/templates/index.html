@@ -1092,6 +1092,22 @@
                                            para ONDE o link volta, ja que "Voltar" sozinho nao
                                            nomeia destino nenhum. #}
                                         <a class="voltar-ao-indice" href="#resultados">Voltar<span class="visually-hidden"> para a lista de matches analisados</span></a>
+                                        {# O COMANDO DE IMPRIMIR (feature 050). Mora no CABEÇALHO, e
+                                           não no corpo, porque o cartão nasce FECHADO: escondido atrás
+                                           do recolhimento, o comando só existiria depois de abrir, e
+                                           o operador teria de abrir para imprimir.
+
+                                           É um `<button type="button">` DENTRO do `summary`, que é o
+                                           gatilho do recolhimento: o handler do clique chama
+                                           `preventDefault` e `stopPropagation` justamente para o
+                                           cartão não abrir nem fechar junto.
+
+                                           O nome acessível NOMEIA A PESSOA: "Imprimir" sozinho não
+                                           diz de quem é a folha. O alvo (`data-imprimir`) é o mesmo
+                                           `resultado-N` que o `#` da barra de endereços usa. #}
+                                        <button type="button" class="imprimir-conexao"
+                                                data-imprimir="resultado-{{ loop.index }}"
+                                                aria-label="Imprimir a análise de conexão com {{ result.match_name }}">Imprimir</button>
                                         {# O INDICADOR e decorativo: quem abre e fecha e o
                                            `summary`. O desenho e o mesmo chevron de antes, mas
                                            agora dentro da caixa e no fluxo, para o alinhamento
@@ -1133,6 +1149,28 @@
                                 </div>
                                 </summary>
                                 <div class="card-body">
+
+                                    {# A IDENTIFICAÇÃO DA FOLHA (feature 050). Fica OCULTA na tela e
+                                       aparece só no papel: sem ela, a folha impressa não diz de
+                                       qual análise saiu, e duas folhas de dias diferentes não se
+                                       distinguem.
+
+                                       Os três campos JÁ existem no contexto do resultado. A árvore
+                                       e o CSV são as REFERÊNCIAS ARMAZENADAS (`chave__rótulo.ext`)
+                                       — a mesma chave de conteúdo que a auditoria da 049 usa —, e
+                                       não o rótulo visível da lista. A raiz é o que o operador
+                                       digitou.
+
+                                       O `<time>` nasce VAZIO: o servidor não tem a hora da
+                                       impressão, e é o script que a preenche no clique. #}
+                                    <div class="identificacao-da-impressao">
+                                        <p class="linha-da-identificacao">
+                                            <span><strong>Árvore:</strong> {{ gedcom_filename }}</span>
+                                            <span><strong>CSV:</strong> {{ csv_filename_usado }}</span>
+                                            <span><strong>Raiz:</strong> {{ root_name_usado }}</span>
+                                        </p>
+                                        <p class="momento-da-impressao">Impresso em <time class="quando-da-impressao"></time></p>
+                                    </div>
 
                                     {# ---------------- 0. VEREDICTO DO DOADOR ---------------- #}
                                     {# O PRIMEIRO bloco do cartao, quando a data do registro nao
@@ -1755,6 +1793,12 @@
                                 </div>
                             </details>
                         {% endfor %}
+                        {# O DESTINO DO CLONE DE IMPRESSÃO (feature 050). Nasce DENTRO do ramo dos
+                           resultados, e VAZIO: a tela de entrada não ganha marcação nova (RF-11), e
+                           o contêiner só existe quando há cartão para imprimir. O script o move
+                           para o fim do `<body>` no primeiro uso, porque a regra de isolação da
+                           folha esconde tudo que não é filho direto do body. #}
+                        <div id="area-de-impressao" aria-hidden="true"></div>
                     {% endif %}
 
                     {% if skipped_matches %}
@@ -1947,10 +1991,17 @@
                 securityLevel: 'strict',
                 theme: 'base',
                 themeVariables: {
-                    fontFamily: 'IBM Plex Sans, sans-serif',
+                    {# MANROPE, E NAO IBM PLEX (2026-10-26): a pagina carrega Cormorant e
+                       Manrope; o IBM Plex Sans nao vem de lugar nenhum e o SVG caia no
+                       sans-serif do sistema — uma terceira voz tipografica justamente no
+                       desenho. A tinta tambem sai do azul-marinho `#172B3A` para a tinta
+                       quente da casa, e a linha sai do ardosia para o apoio. #}
+                    fontFamily: 'Manrope, sans-serif',
+                    fontSize: '15px',
                     primaryColor: '#E3EEEC', primaryBorderColor: '#2D5F5D',
-                    primaryTextColor: '#172B3A', lineColor: '#566772'
-                }
+                    primaryTextColor: '#2A2418', lineColor: '#6A6150'
+                },
+                flowchart: { nodeSpacing: 55, rankSpacing: 60 }
             });
             setTimeout(() => {
                 {# O DIAGRAMA RECOLHIDO NAO PODE SER RENDERIZADO FECHADO. O Mermaid mede o
@@ -2132,6 +2183,122 @@
                     cartoesDaPagina().forEach((cartao) => { cartao.open = false; });
                 });
             }
+
+            {# ============ A IMPRESSÃO DO RESULTADO (feature 050) ============
+
+               O documento impresso é um CLONE de um cartão, montado no
+               `#area-de-impressao`. O contêiner nasce dentro do ramo dos resultados (a
+               tela de entrada não ganha marcação) e é MOVIDO para o fim do `<body>` no
+               primeiro uso: a isolação da folha esconde tudo que não é filho direto do
+               body, e o clone precisa estar lá.
+
+               A ORDEM É CONTRATO: abrir o cartão ANTES de clonar, porque o Mermaid mede
+               o contêiner — fechado, o desenho sai quebrado e marcado como processado.
+               A espera tem TETO: sem SVG em 2 s, imprime sem o desenho, e o caminho
+               textual continua na seção 1.
+
+               A guarda `imprimindo` cobre clique duplo e clique durante o diálogo. O
+               estado da tela volta no `afterprint` (que dispara também no cancelamento),
+               com um temporizador de segurança para o navegador que não o emita. #}
+            const areaDeImpressao = document.getElementById("area-de-impressao");
+            let imprimindo = false;
+
+            const garantirAreaDeImpressao = () => {
+                if (areaDeImpressao && areaDeImpressao.parentElement !== document.body) {
+                    document.body.appendChild(areaDeImpressao);
+                }
+            };
+
+            const preencherMomentoDaImpressao = (cartao) => {
+                const alvo = cartao.querySelector(".quando-da-impressao");
+                if (alvo) alvo.textContent = new Date().toLocaleString("pt-BR");
+            };
+
+            const esperarOsDesenhos = (cartao) => new Promise((resolve) => {
+                const pendentes = () => Array.from(cartao.querySelectorAll(".mermaid"))
+                    .filter((elemento) => !elemento.querySelector("svg"));
+                if (!pendentes().length) { resolve(); return; }
+                let observador = null;
+                const limite = setTimeout(() => {
+                    if (observador) observador.disconnect();
+                    resolve();
+                }, 2000);
+                observador = new MutationObserver(() => {
+                    if (pendentes().length) return;
+                    clearTimeout(limite);
+                    observador.disconnect();
+                    resolve();
+                });
+                observador.observe(cartao, { childList: true, subtree: true });
+            });
+
+            const tituloDaFolha = (bloco) => (
+                bloco.className.includes("sugerida") ? "Árvore sugerida" : "Diagrama do caminho"
+            );
+
+            const montarDocumentoDaImpressao = (cartao) => {
+                const clone = cartao.cloneNode(true);
+                clone.removeAttribute("id");
+                clone.removeAttribute("hidden");
+                clone.classList.add("cartao-em-impressao");
+                clone.querySelectorAll("details").forEach((detalhe) => { detalhe.open = true; });
+
+                const folhas = [];
+                const diagramas = clone.querySelectorAll("details[class*='sugerida'], details[class*='grafo']");
+                diagramas.forEach((bloco) => {
+                    const folha = document.createElement("section");
+                    folha.className = "folha-do-diagrama";
+                    const titulo = document.createElement("h5");
+                    titulo.textContent = tituloDaFolha(bloco);
+                    folha.appendChild(titulo);
+                    folha.appendChild(bloco);
+                    folhas.push(folha);
+                });
+
+                const origem = document.createElement("footer");
+                origem.className = "origem-da-impressao";
+                origem.textContent = "Analisador Genealógico — análise de conexão";
+
+                areaDeImpressao.textContent = "";
+                areaDeImpressao.appendChild(clone);
+                folhas.forEach((folha) => areaDeImpressao.appendChild(folha));
+                areaDeImpressao.appendChild(origem);
+            };
+
+            const imprimirCartao = (cartao) => {
+                if (imprimindo || !areaDeImpressao) return;
+                imprimindo = true;
+                garantirAreaDeImpressao();
+                const estavaAberto = cartao.open;
+                const rolagem = window.scrollY;
+                const encerrar = () => {
+                    if (!imprimindo) return;
+                    imprimindo = false;
+                    document.body.classList.remove("imprimindo");
+                    areaDeImpressao.textContent = "";
+                    cartao.open = estavaAberto;
+                    window.scrollTo(0, rolagem);
+                    window.removeEventListener("afterprint", encerrar);
+                };
+                window.addEventListener("afterprint", encerrar);
+                cartao.open = true;
+                preencherMomentoDaImpressao(cartao);
+                esperarOsDesenhos(cartao).then(() => {
+                    montarDocumentoDaImpressao(cartao);
+                    document.body.classList.add("imprimindo");
+                    window.print();
+                    setTimeout(encerrar, 60000);
+                });
+            };
+
+            document.querySelectorAll(".imprimir-conexao").forEach((comando) => {
+                comando.addEventListener("click", (evento) => {
+                    evento.preventDefault();
+                    evento.stopPropagation();
+                    const cartao = comando.closest("details.cartao-do-resultado");
+                    if (cartao) imprimirCartao(cartao);
+                });
+            });
         });
 
         document.querySelectorAll('form').forEach(form => {

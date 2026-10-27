@@ -59,7 +59,12 @@ def _montar_diagrama(deps, documentary: dict, root_id: str, pid: str, dominio: d
     if not caminho.get("ids"):
         return None
     ancestral = (documentary.get("common_ancestor") or {}).get("id")
-    texto = deps.generate_mermaid(caminho["ids"], root_id, pid, ancestral, dominio)
+    # Os papeis vao como PALAVRA, e nao como cor: no cartao de DNA a raiz e' "VOCE" e o
+    # candidato e' "MATCH"; na busca de caminho nao ha papel nenhum, e o mesmo renderizador
+    # serve aos dois. O argumento e' opcional (`papeis=None`) para nao quebrar a assinatura
+    # que os testes e o contrato da busca conhecem.
+    texto = deps.generate_mermaid(caminho["ids"], root_id, pid, ancestral, dominio,
+                                  papeis={"p1": "VOCÊ", "p2": "MATCH"})
     anotar = getattr(deps, "anotar_profundidade", None)
     if anotacao and anotar:
         texto = anotar(texto, anotacao)

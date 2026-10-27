@@ -166,7 +166,8 @@
       "Don't criar ícones novos em glifo Unicode: o botão de tema e as marcas da tabela são dívida herdada.",
       "Don't empilhar superfícies com sombra; o cartão em repouso é plano.",
       "Don't escrever uma segunda navegação para os mesmos destinos na mesma largura.",
-      "Don't usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações e Cobertura); ela é dívida herdada, não um dispositivo de layout."
+      "Don't usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações e Cobertura); ela é dívida herdada, não um dispositivo de layout.",
+      "Don't declarar no diagrama uma fonte que a página não carrega: o fontFamily do Mermaid apontava para IBM Plex Sans, que não vem de lugar nenhum, e o desenho caía no sans-serif do sistema."
     ]
   }
 }

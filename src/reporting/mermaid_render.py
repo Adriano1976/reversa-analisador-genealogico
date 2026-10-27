@@ -61,10 +61,112 @@ def _mermaid_label(txt) -> str:
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 
-def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio):
-    sid, lab = _mermaid_sid, _mermaid_label
-    get_name = dominio["get_name"]
+# AS CAIXAS DE TAMANHO FIXO (2026-10-26)
+#
+# O desenho passa a ter duas medidas, e so duas: pessoa e casal. Sem largura fixa, cada
+# nome esticava o proprio retangulo e o diagrama ficava irregular conforme a sorte dos
+# nomes; com ela, um nome comprido quebra em duas linhas dentro da mesma caixa e o
+# esqueleto do desenho nao muda.
+#
+# A largura vai num `<div>` dentro do rotulo HTML. O Mermaid mede o rotulo antes de
+# posicionar os nos, entao a caixa nasce com a largura certa e as setas chegam na borda —
+# diferente de ajustar o SVG depois, que deixaria as setas apontando para o retangulo
+# antigo. Medido no Mermaid 10 com `securityLevel: 'strict'`: 190 vira 205 px de caixa e
+# 230 vira 245. O `min-height` garante a mesma ALTURA quando o registro nao tem data; a
+# linha de detalhe fica vazia (`&nbsp;`) em vez de sumir.
+#
+# A cor e o corpo do detalhe sao literais e nao `var(--muted)`: o desenho roda dentro do
+# SVG do Mermaid, sobre a placa branca, nos dois temas — os tokens do tema escuro
+# clareariam o texto sobre o branco.
+_LARGURA_DA_PESSOA = 230
+_LARGURA_DO_CASAL = 230
+_ALTURA_MINIMA = 44
+_ALTURA_MINIMA_DO_CASAL = 66
+_DETALHE = "font-size:12.5px;color:#6A6150"
+
+
+def _caixa(conteudo, largura, altura_minima) -> str:
+    return (
+        f"<div style='width:{largura}px;min-height:{altura_minima}px;"
+        f"text-align:center;line-height:1.3'>{conteudo}</div>"
+    )
+
+
+def _anos_de(pid, dominio):
+    """(nascimento, obito) do registro, ou (None, None) quando o dominio nao os tem."""
+    get_anos = dominio.get("get_anos")
+    if not get_anos:
+        return (None, None)
+    try:
+        nasc, obito = get_anos(pid)
+    except Exception:
+        return (None, None)
+    return (nasc, obito)
+
+
+def _faixa_de_anos(pid, dominio) -> str:
+    """'1912-1995', 'n. 1912', 'm. 1995' ou vazio."""
+    nasc, obito = _anos_de(pid, dominio)
+    if nasc and obito:
+        return f"{nasc}\u2013{obito}"
+    if nasc:
+        return f"n. {nasc}"
+    if obito:
+        return f"m. {obito}"
+    return ""
+
+
+def _detalhe(pid, dominio, papel=None) -> str:
+    """A segunda linha do no: papel, datas, os dois, ou um espaco que segura a altura."""
+    faixa = _faixa_de_anos(pid, dominio)
+    if papel and faixa:
+        return f"{papel} · {faixa}"
+    return papel or faixa or "&nbsp;"
+
+
+def _rotulo_de_pessoa(pid, dominio, papel=None) -> str:
     people = dominio["people"]
+    nome = _mermaid_label(dominio["get_name"](people.get(pid)))
+    return _caixa(
+        f"<strong>{nome}</strong><br/>"
+        f"<span style='{_DETALHE}'>{_detalhe(pid, dominio, papel)}</span>",
+        _LARGURA_DA_PESSOA, _ALTURA_MINIMA,
+    )
+
+
+def _rotulo_de_casal(pid1, pid2, dominio) -> str:
+    """O casal em duas linhas, com as duas datas de nascimento embaixo.
+
+    Antes os dois nomes vinham numa linha so, ligados por `&amp;`, e o resultado se lia
+    como uma pessoa de nome composto. Duas linhas com o xis entre elas dizem o que e':
+    duas pessoas, um casal — e o numero de linhas e' o que justifica a caixa maior.
+    """
+    people = dominio["people"]
+    nome1 = _mermaid_label(dominio["get_name"](people.get(pid1)))
+    nome2 = _mermaid_label(dominio["get_name"](people.get(pid2)))
+    anos = [str(nasc) for nasc, _ in (_anos_de(pid1, dominio), _anos_de(pid2, dominio)) if nasc]
+    faixa = " · ".join(anos) if anos else "&nbsp;"
+    return _caixa(
+        f"<strong>{nome1}</strong><br/><strong>\u00d7 {nome2}</strong><br/>"
+        f"<span style='{_DETALHE}'>{faixa}</span>",
+        _LARGURA_DO_CASAL, _ALTURA_MINIMA_DO_CASAL,
+    )
+
+
+def _papel(pid, p1_id, p2_id, papeis) -> str | None:
+    """O papel do no, quando o chamador declarou um (o cartao de DNA declara VOCE/MATCH)."""
+    if not papeis:
+        return None
+    alvo = _mermaid_sid(pid)
+    if alvo == _mermaid_sid(p1_id):
+        return papeis.get("p1")
+    if alvo == _mermaid_sid(p2_id):
+        return papeis.get("p2")
+    return None
+
+
+def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio, papeis=None):
+    sid = _mermaid_sid
 
     lines = ["flowchart BT"]
     seen_nodes = set()
@@ -83,17 +185,20 @@ def generate_mermaid_graph(path, p1_id, p2_id, common_ancestor_id, dominio):
             couple_members_to_skip.update({common_ancestor_id, spouses[0]})
             couple_id_str = "+".join(sorted(list(couple_members_to_skip)))
             ancestor_id_for_arrows = sid(couple_id_str)
-            ac_name1 = lab(get_name(people[common_ancestor_id]))
-            ac_name2 = lab(get_name(people[spouses[0]]))
-            lines.append(f'{ancestor_id_for_arrows}["{ac_name1} &amp; {ac_name2}"]')
+            lines.append(
+                f'{ancestor_id_for_arrows}["'
+                f'{_rotulo_de_casal(common_ancestor_id, spouses[0], dominio)}"]'
+            )
             seen_nodes.add(ancestor_id_for_arrows)
     for node_id in path:
         if node_id in couple_members_to_skip:
             continue
         node_sid = sid(node_id)
         if node_sid not in seen_nodes:
-            node_name = lab(get_name(people.get(node_id)))
-            lines.append(f'{node_sid}["{node_name}"]')
+            lines.append(
+                f'{node_sid}["'
+                f'{_rotulo_de_pessoa(node_id, dominio, _papel(node_id, p1_id, p2_id, papeis))}"]'
+            )
             seen_nodes.add(node_sid)
     if is_direct_ancestry:
         for i in range(len(path) - 1):
@@ -178,10 +283,8 @@ def anotar_profundidade(texto: str, anotacao: dict) -> str:
     return texto + "\n" + "\n".join(linhas)
 
 
-def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
-    sid, lab = _mermaid_sid, _mermaid_label
-    get_name = dominio["get_name"]
-    people = dominio["people"]
+def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio, papeis=None):
+    sid = _mermaid_sid
     exclude_tail = dominio["exclude_tail"]
     split_path_by_marriage = dominio["split_path_by_marriage"]
     find_ancestral_path = dominio["find_ancestral_path"]
@@ -200,7 +303,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
 
     left, right, spouses = split_path_by_marriage(person_path)
     if not spouses:
-        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio, papeis)
 
     A, B = map(str, spouses)
     p1_id, p2_id = str(p1_id), str(p2_id)
@@ -209,7 +312,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
 
     path_p1_A, ca1 = find_ancestral_path(p1_id, A)
     if not path_p1_A:
-        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+        return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio, papeis)
 
     spouse_ca1 = pick_spouse_for_couple(ca1, candidate_path=path_p1_A)
 
@@ -227,7 +330,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
     couple1_label = None
     if spouse_ca1:
         couple1_id = sid("+".join(sorted([str(ca1), str(spouse_ca1)])))
-        couple1_label = f'{lab(get_name(people.get(ca1)))} &amp; {lab(get_name(people.get(spouse_ca1)))}'
+        couple1_label = _rotulo_de_casal(ca1, spouse_ca1, dominio)
 
     lines = ["flowchart BT"]
     seen = set()
@@ -253,7 +356,9 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
         pid = str(pid)
         node = sid(pid)
         if node not in seen:
-            lines.append(f'{node}["{lab(get_name(people.get(pid))) if label is None else label}"]')
+            conteudo = label if label is not None else _rotulo_de_pessoa(
+                pid, dominio, _papel(pid, p1_id, p2_id, papeis))
+            lines.append(f'{node}["{conteudo}"]')
             seen.add(node)
         return node
 
@@ -304,7 +409,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
         else:
             path_p2_B, ca2 = find_ancestral_path(p2_id, B)
             if not path_p2_B:
-                return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio)
+                return generate_mermaid_graph(person_path, p1_id, p2_id, None, dominio, papeis)
 
             spouse_ca2 = pick_spouse_for_couple(ca2, candidate_path=path_p2_B)
             r2_down, r2_up_from_B = split_at(path_p2_B, ca2)
@@ -313,7 +418,7 @@ def generate_mermaid_graph_indirect_bridge(p1_id, p2_id, person_path, dominio):
             couple2_label = None
             if spouse_ca2:
                 couple2_id = sid("+".join(sorted([str(ca2), str(spouse_ca2)])))
-                couple2_label = f'{lab(get_name(people.get(ca2)))} &amp; {lab(get_name(people.get(spouse_ca2)))}'
+                couple2_label = _rotulo_de_casal(ca2, spouse_ca2, dominio)
 
             with subgrafo("DIR[Ramo 2]"):
                 with subgrafo("DIR_COLS"):

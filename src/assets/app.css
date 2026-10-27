@@ -1633,3 +1633,88 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
 /* A guarda: o cartao fora da pagina sai do desenho, do foco e da arvore de
    acessibilidade. Sem o `!important`, o `display:block` de qualquer regra de card vence. */
 details.cartao-do-resultado[hidden]{display:none !important}
+
+/* ============================================================================
+   A IMPRESSÃO DO RESULTADO (feature 050)
+
+   O documento impresso é um CLONE de um cartão, montado no `#area-de-impressao`
+   no clique. Na tela o contêiner fica `display:none`; na impressão,
+   `body.imprimindo` esconde TODO filho do body menos ele — é o que isola uma
+   pessoa sem esconder a cadeia de ancestrais do cartão no documento.
+   ============================================================================ */
+
+#area-de-impressao{display:none}
+
+/* O comando no cabeçalho do cartão: pílula discreta, ao lado do "Voltar". Não é
+   ação primária da tela, e não pode competir com o "Abrir" da lista. */
+.imprimir-conexao{
+  font-family:var(--sans);font-size:.78rem;font-weight:600;line-height:1;
+  color:var(--on-primary);background:var(--primary);border:1px solid var(--primary);
+  border-radius:var(--r-pill);padding:.45rem .85rem;cursor:pointer
+}
+.imprimir-conexao:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.imprimir-conexao:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* A identificação da folha: oculta na tela, visível só no papel. */
+.identificacao-da-impressao{display:none}
+
+@media print{
+  /* A ISOLAÇÃO. Um seletor só, e o documento impresso é o que está no contêiner. */
+  body.imprimindo > *:not(#area-de-impressao){display:none !important}
+  body.imprimindo #area-de-impressao{display:block}
+
+  /* Papel é claro, mesmo com a tela no tema escuro: os tokens são redeclarados
+     no body, e todo descendente herda. */
+  body.imprimindo{
+    --bg:#fff;--surface:#fff;--surface-2:#fff;--ink:#111;--head:#111;
+    --muted:#444;--line:#bbb;--primary:#2F6B3A;
+    background:#fff;color:#111
+  }
+
+  /* Nada de controle no papel: o grupo inteiro sai — "Voltar", chevron e o
+     próprio "Imprimir". */
+  #area-de-impressao .controles-do-cabecalho{display:none}
+
+  #area-de-impressao .identificacao-da-impressao{
+    display:block;margin-bottom:.75rem;padding-bottom:.5rem;
+    border-bottom:1px solid var(--line)
+  }
+  #area-de-impressao .linha-da-identificacao{
+    display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;
+    font-size:.75rem;color:var(--muted);margin:0
+  }
+  #area-de-impressao .momento-da-impressao{
+    font-size:.75rem;color:var(--muted);margin:.25rem 0 0
+  }
+  #area-de-impressao .quando-da-impressao{font-variant-numeric:tabular-nums}
+
+  /* O cartão clonado perde sombra e degradê: no papel isso é mancha. */
+  #area-de-impressao .cartao-em-impressao{
+    background:#fff;box-shadow:none;border:1px solid var(--line);border-radius:0
+  }
+  #area-de-impressao .cartao-em-impressao::before{display:none}
+
+  /* SELO DE ESTADO: o navegador NÃO imprime fundos por padrão, e o texto branco
+     sobre cor cheia sumiria no papel. O selo vira contorno com tinta escura —
+     legível em preto e branco e sem depender de `print-color-adjust`. */
+  #area-de-impressao .badge{
+    background:#fff !important;color:#111 !important;
+    border:1px solid #111 !important;font-weight:600
+  }
+
+  /* O desenho tem folha própria, no fim do documento. */
+  #area-de-impressao .folha-do-diagrama{break-before:page}
+  #area-de-impressao .folha-do-diagrama > h5{font-size:1rem;margin:0 0 .5rem}
+  #area-de-impressao .graph-container{background:#fff}
+
+  /* Não corta linha de tabela no meio; o resto flui. */
+  #area-de-impressao tr{break-inside:avoid}
+  #area-de-impressao thead{display:table-header-group}
+
+  /* O rodapé com a origem se repete em toda folha. */
+  #area-de-impressao .origem-da-impressao{
+    position:fixed;left:0;right:0;bottom:0;
+    font-size:.7rem;color:var(--muted);text-align:center;
+    border-top:1px solid var(--line);padding-top:.25rem;background:#fff
+  }
+}

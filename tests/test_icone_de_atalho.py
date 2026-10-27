@@ -180,7 +180,19 @@ TAMANHO_ESPERADO = 16504
 #: adendo `021`. O resto da passagem (raios, sombras, selos, navegacao por largura, campo de
 #: arquivo) e' folha: `app.css` NAO passa por este hash, e a marcacao desta rota continua a
 #: mesma tirando aquela linha.
-SHA_DA_TELA = "26d6cac763245e16bbfc9d85ce54ebd55829c92ea83206ef6b74ad4680926e83"
+#: **Oitava medicao, 2026-10-26, diagrama de parentesco.** O bloco `mermaid.initialize`
+#: da tela trocou a fonte do desenho (IBM Plex Sans, que a pagina nao carrega, por Manrope),
+#: a tinta do texto (`#172B3A` por `#2A2418`), a cor das linhas (`#566772` por `#6A6150`) e
+#: ganhou `fontSize` e espacamento entre nos. `26d6cac7…` (46.359) → `5fc0b929…`
+#: (46.477, **+118 bytes**), todos de script — o resto da mudanca (largura fixa dos nos,
+#: datas e papeis no rotulo) e' gerado no servidor e so' aparece com resultado na tela.
+#: **Nona medicao, 2026-10-26, impressao do resultado (feature 050).** O bloco de impressao
+#: entra no script da tela (clone do cartao, espera do desenho, `afterprint`) e o
+#: `#area-de-impressao` nasce DENTRO do ramo dos resultados — este hash mede a tela VAZIA,
+#: onde o container nao existe. `5fc0b929…` (46.477) → `f49dd6da…` (51.117, **+4.640 bytes**),
+#: todos de script. A marcacao do cartao (botao e identificacao) so aparece com resultado e
+#: nao entra nesta conta.
+SHA_DA_TELA = "f49dd6daa06aa4e4939cf5d159705582aa750ff34ab51b16ae163fdc258a2422"
 
 
 def _cabecalho_png(corpo: bytes):

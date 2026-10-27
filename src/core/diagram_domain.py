@@ -2,8 +2,10 @@
 
 Nasceu da OPP-20261006-ULVW. Existe para dar NOME ao contrato que antes estava
 implicito nos imports de `reporting/mermaid_render.py`: o renderizador precisa de
-sete consultas ao dominio para decidir como desenhar, e antes as obtinha
+oito consultas ao dominio para decidir como desenhar, e antes as obtinha
 importando `core` diretamente, o que fechava o ciclo `core/` <-> `reporting/`.
+A oitava (`get_anos`) entrou em 2026-10-26, quando o desenho passou a mostrar o
+ano de nascimento e obito ao lado do nome.
 
 ## Regra do projeto
 
@@ -62,13 +64,26 @@ def resolvedor_de_diagrama(arvore: Arvore) -> dict:
         pick_spouse_for_couple,
         split_path_by_marriage,
     )
+    from .datas_do_gedcom import birth_date, death_date, parse_year
     from .path_finding import find_ancestral_path
     from .registro import get_name
 
     people = arvore[0]
+
+    def get_anos(pid):
+        """(ano de nascimento, ano de obito) do registro, cada um podendo ser None.
+
+        Existe para o desenho mostrar a data ao lado do nome (2026-10-26). O renderizador
+        nao pode importar `core`, entao a leitura vem por aqui, como as outras consultas.
+        A data e' o dado que separa um homonimo do outro — e homonimo e' o defeito que o
+        cartao existe para expor.
+        """
+        return (parse_year(birth_date(people, pid)), parse_year(death_date(people, pid)))
+
     return {
         "get_name": get_name,
         "people": people,
+        "get_anos": get_anos,
         "get_spouses": partial(get_spouses, arvore),
         "split_path_by_marriage": partial(split_path_by_marriage, arvore),
         "pick_spouse_for_couple": partial(pick_spouse_for_couple, arvore),

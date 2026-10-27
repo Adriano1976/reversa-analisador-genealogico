@@ -289,6 +289,13 @@ Bordas são sempre de 1 px em `line`; a exceção é a barra de 5 px que marca a
 
 Blocos de aviso usam fundo `warning-surface`, borda de 1 px em `warning-line` e uma barra lateral de 3 a 5 px. O veredito do doador e o alerta de janela de vida usam `danger` na barra. A barra lateral grossa é assinatura herdada deste sistema: fica confinada aos avisos e aos painéis de escopo-arquivo, e em Don'ts está registrada como dívida que não deve virar dispositivo genérico.
 
+### Diagrama de parentesco
+
+- **Fonte e tinta:** o SVG usa a Manrope do corpo e a tinta `#2A2418`; as linhas, o apoio `#6A6150`. Nenhuma quarta família entra no desenho — a página carrega duas.
+- **Caixas de tamanho fixo:** 190 px de conteúdo (205 px de caixa) para pessoa, 230 px (245 px) para o casal/ancestral comum. Nome em negrito na primeira linha; papel e datas em 12,5 px de apoio na segunda. Nome comprido quebra dentro da caixa em vez de esticá-la.
+- **Setas:** mantidas, em curva suave, na direção filho → pai (o ancestral fica em cima, o doador embaixo).
+- **Papéis:** no cartão de DNA a raiz é `VOCÊ` e o candidato é `MATCH`; na busca de caminho não há papel, e o mesmo desenho serve aos dois.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -310,3 +317,4 @@ Blocos de aviso usam fundo `warning-surface`, borda de 1 px em `warning-line` e 
 - **Don't** empilhar superfícies com sombra; o cartão em repouso é plano.
 - **Don't** escrever uma segunda navegação para os mesmos destinos na mesma largura.
 - **Don't** usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações e Cobertura); ela é dívida herdada, não um dispositivo de layout.
+- **Don't** declarar no diagrama uma fonte que a página não carrega: o `fontFamily` do Mermaid apontava para IBM Plex Sans, que não vem de lugar nenhum, e o desenho caía no sans-serif do sistema.
