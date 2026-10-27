@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T11:49:13Z",
+  "generatedAt": "2026-10-27T05:24:37Z",
   "project": "analisador-genealogico",
   "language": "Python/Flask",
   "extraction": {
@@ -11,37 +11,39 @@
     "typeRule": "papel derivado da pasta de origem"
   },
   "summary": {
-    "modules": 142,
-    "locTotal": 30965,
-    "locSrcPython": 9906,
-    "locTests": 18250,
+    "modules": 200,
+    "locTotal": 38699,
+    "locSrcPython": 12859,
+    "locTests": 22000,
     "byFolder": {
-      "src/": 789,
-      "application/": 919,
-      "assets/": 985,
-      "core/": 5622,
-      "parsers/": 484,
-      "ports/": 697,
-      "reporting/": 981,
-      "templates/": 1824,
-      "utils/": 414,
-      "tests/": 17291,
-      "tests/fixtures/": 959
+      "src/": 869,
+      "application/": 1090,
+      "assets/": 1550,
+      "core/": 7099,
+      "parsers/": 491,
+      "ports/": 941,
+      "reporting/": 1063,
+      "templates/": 2290,
+      "utils/": 769,
+      "web/": 537,
+      "tests/": 20911,
+      "tests/fixtures/": 1089
     },
     "byType": {
       "entrypoint": 1,
-      "config": 6,
-      "application": 7,
-      "frontend": 2,
-      "domain": 21,
+      "config": 7,
+      "application": 9,
+      "frontend": 3,
+      "domain": 38,
       "parser": 3,
       "port": 1,
       "reporting": 4,
-      "utility": 4,
-      "test": 85,
-      "fixture": 8
+      "utility": 6,
+      "web": 5,
+      "test": 114,
+      "fixture": 9
     },
-    "complexityTotal": 4768
+    "complexityTotal": 5905
   },
   "modules": [
     {
@@ -51,7 +53,7 @@
       "type": "frontend",
       "language": "html",
       "folder": "templates/",
-      "loc": 1824,
+      "loc": 2245,
       "complexity": 0,
       "functions": 0,
       "classes": 0,
@@ -64,11 +66,24 @@
       "type": "frontend",
       "language": "css",
       "folder": "assets/",
-      "loc": 985,
+      "loc": 1550,
       "complexity": 0,
       "functions": 0,
       "classes": 0,
       "description": ""
+    },
+    {
+      "id": "app",
+      "name": "app.py",
+      "path": "src/app.py",
+      "type": "entrypoint",
+      "language": "python",
+      "folder": "src/",
+      "loc": 869,
+      "complexity": 68,
+      "functions": 18,
+      "classes": 1,
+      "description": "Borda web Flask: a rota do formulario com despacho por action (upload_gedcom, dna_analysis, path_search, selecionar_arvore, aposentar_arquivo) e as rotas auxiliares de /app.css, /banner.png, /apple-touch-icon.png e /descartes.csv."
     },
     {
       "id": "confrontacao-gedcom-dna",
@@ -84,82 +99,17 @@
       "description": "Regra final da analise: GEDCOM, DNA e confronto, com os 10 cenarios exigidos."
     },
     {
-      "id": "dna-analysis",
-      "name": "dna_analysis.py",
-      "path": "src/core/dna_analysis.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 841,
-      "complexity": 145,
-      "functions": 12,
-      "classes": 1,
-      "description": "Tarefa 04 - Analise de DNA (regra final: GEDCOM, DNA e confronto separados)."
-    },
-    {
       "id": "profundidade-do-caminho",
       "name": "test_profundidade_do_caminho.py",
       "path": "tests/test_profundidade_do_caminho.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 805,
-      "complexity": 202,
+      "loc": 825,
+      "complexity": 206,
       "functions": 74,
       "classes": 12,
       "description": "A terceira verificacao: a arvore afirma a mesma profundidade que o proprio kit? ## Por que este arquivo existe Duas verificacoes ja existiam e nao se sobrepoem a esta."
-    },
-    {
-      "id": "app",
-      "name": "app.py",
-      "path": "src/app.py",
-      "type": "entrypoint",
-      "language": "python",
-      "folder": "src/",
-      "loc": 789,
-      "complexity": 58,
-      "functions": 12,
-      "classes": 0,
-      "description": "Borda web Flask: a rota do formulario com despacho por action (upload_gedcom, dna_analysis, path_search, selecionar_arvore, aposentar_arquivo) e as rotas auxiliares de /app.css, /banner.png, /apple-touch-icon.png e /descartes.csv."
-    },
-    {
-      "id": "endogamia",
-      "name": "endogamia.py",
-      "path": "src/core/endogamia.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 712,
-      "complexity": 84,
-      "functions": 20,
-      "classes": 7,
-      "description": "Regras de endogamia do DNA (filtro de ruído, evidência e colapso de pedigree)."
-    },
-    {
-      "id": "documentary-relationship",
-      "name": "documentary_relationship.py",
-      "path": "src/core/documentary_relationship.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 650,
-      "complexity": 135,
-      "functions": 24,
-      "classes": 0,
-      "description": "Parentesco DOCUMENTAL: o que o GEDCOM afirma, sem nenhum DNA."
-    },
-    {
-      "id": "endogamia",
-      "name": "test_endogamia.py",
-      "path": "tests/test_endogamia.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 642,
-      "complexity": 169,
-      "functions": 54,
-      "classes": 7,
-      "description": "Testes das regras de DNA para mitigar endogamia."
     },
     {
       "id": "cirurgia-do-grafo",
@@ -168,11 +118,37 @@
       "type": "domain",
       "language": "python",
       "folder": "core/",
-      "loc": 608,
-      "complexity": 130,
-      "functions": 20,
+      "loc": 701,
+      "complexity": 148,
+      "functions": 23,
       "classes": 0,
       "description": "Cirurgia do grafo: desacoplar a junção e injetar gerações virtuais."
+    },
+    {
+      "id": "endogamia",
+      "name": "endogamia.py",
+      "path": "src/core/endogamia.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 693,
+      "complexity": 84,
+      "functions": 20,
+      "classes": 7,
+      "description": "Regras de endogamia do DNA (filtro de ruído, evidência e colapso de pedigree)."
+    },
+    {
+      "id": "endogamia",
+      "name": "test_endogamia.py",
+      "path": "tests/test_endogamia.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 648,
+      "complexity": 171,
+      "functions": 54,
+      "classes": 7,
+      "description": "Testes das regras de DNA para mitigar endogamia."
     },
     {
       "id": "porta-de-armazenamento",
@@ -181,11 +157,50 @@
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 583,
-      "complexity": 61,
+      "loc": 581,
+      "complexity": 63,
       "functions": 20,
       "classes": 4,
       "description": "Testes da porta de armazenamento (acoes T027, T028 e T010)."
+    },
+    {
+      "id": "adaptadores",
+      "name": "adaptadores.py",
+      "path": "src/ports/adaptadores.py",
+      "type": "port",
+      "language": "python",
+      "folder": "ports/",
+      "loc": 571,
+      "complexity": 64,
+      "functions": 25,
+      "classes": 4,
+      "description": "Adaptadores concretos das portas de `ports/` (`D-07`)."
+    },
+    {
+      "id": "relationship-hypotheses",
+      "name": "relationship_hypotheses.py",
+      "path": "src/core/relationship_hypotheses.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 482,
+      "complexity": 44,
+      "functions": 13,
+      "classes": 2,
+      "description": "Possibilidades de parentesco a partir do cM observado."
+    },
+    {
+      "id": "mermaid-render",
+      "name": "mermaid_render.py",
+      "path": "src/reporting/mermaid_render.py",
+      "type": "reporting",
+      "language": "python",
+      "folder": "reporting/",
+      "loc": 479,
+      "complexity": 90,
+      "functions": 21,
+      "classes": 0,
+      "description": "Emissao do diagrama Mermaid e o contrato de escape do rotulo."
     },
     {
       "id": "upload-seguranca",
@@ -201,17 +216,17 @@
       "description": "Testes do BUG-20260929-QMLY — upload sem limite de tamanho, sem validação de extensão ou conteúdo e sem sanitização de nome."
     },
     {
-      "id": "validator",
-      "name": "validator.py",
-      "path": "src/core/validator.py",
-      "type": "domain",
+      "id": "estilo-da-tela",
+      "name": "test_estilo_da_tela.py",
+      "path": "tests/test_estilo_da_tela.py",
+      "type": "test",
       "language": "python",
-      "folder": "core/",
-      "loc": 454,
-      "complexity": 113,
-      "functions": 14,
-      "classes": 2,
-      "description": "Validação temporal de uma comparação DNA × GEDCOM."
+      "folder": "tests/",
+      "loc": 450,
+      "complexity": 88,
+      "functions": 46,
+      "classes": 6,
+      "description": "Rota da folha de estilo (`/app.css`) e o contrato de classes com o template."
     },
     {
       "id": "guardas-do-armazenamento",
@@ -227,17 +242,17 @@
       "description": "Guarda do armazenamento: as duas linhas que sustentam o Principio I."
     },
     {
-      "id": "estilo-da-tela",
-      "name": "test_estilo_da_tela.py",
-      "path": "tests/test_estilo_da_tela.py",
-      "type": "test",
+      "id": "validator",
+      "name": "validator.py",
+      "path": "src/core/validator.py",
+      "type": "domain",
       "language": "python",
-      "folder": "tests/",
-      "loc": 446,
-      "complexity": 88,
-      "functions": 46,
-      "classes": 6,
-      "description": "Rota da folha de estilo (`/app.css`) e o contrato de classes com o template."
+      "folder": "core/",
+      "loc": 448,
+      "complexity": 113,
+      "functions": 14,
+      "classes": 2,
+      "description": "Validação temporal de uma comparação DNA × GEDCOM."
     },
     {
       "id": "cartoes-recolhiveis",
@@ -253,17 +268,17 @@
       "description": "Cada cartão de resultado é um `<details>` — o operador abre o que quer ler."
     },
     {
-      "id": "mermaid-render",
-      "name": "mermaid_render.py",
-      "path": "src/reporting/mermaid_render.py",
-      "type": "reporting",
+      "id": "passo-por-kit",
+      "name": "passo_por_kit.py",
+      "path": "src/core/passo_por_kit.py",
+      "type": "domain",
       "language": "python",
-      "folder": "reporting/",
-      "loc": 378,
-      "complexity": 73,
-      "functions": 14,
+      "folder": "core/",
+      "loc": 433,
+      "complexity": 64,
+      "functions": 8,
       "classes": 0,
-      "description": "Emissao do diagrama Mermaid e o contrato de escape do rotulo."
+      "description": "Um kit do CSV vira cartao, ou vira descarte quando nao ha candidato."
     },
     {
       "id": "banner-do-topo",
@@ -272,11 +287,24 @@
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 365,
+      "loc": 381,
       "complexity": 47,
       "functions": 25,
       "classes": 3,
       "description": "T036 (feature `011-escolher-arquivo-da-lista`): a arte do topo no lugar do titulo."
+    },
+    {
+      "id": "pkg-ports",
+      "name": "__init__.py",
+      "path": "src/ports/__init__.py",
+      "type": "config",
+      "language": "python",
+      "folder": "ports/",
+      "loc": 370,
+      "complexity": 1,
+      "functions": 9,
+      "classes": 11,
+      "description": "Portas da fronteira de aplicacao da Onda 2 (RF-02, RF-08, D-02, D-03)."
     },
     {
       "id": "observacoes-do-arquivo",
@@ -285,8 +313,8 @@
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 362,
-      "complexity": 77,
+      "loc": 366,
+      "complexity": 79,
       "functions": 34,
       "classes": 7,
       "description": "As observacoes do ARQUIVO nao sao observacoes de um CARTAO."
@@ -298,24 +326,37 @@
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 361,
-      "complexity": 52,
+      "loc": 363,
+      "complexity": 53,
       "functions": 16,
       "classes": 1,
       "description": "Testes da Tarefa 04 — Análise de DNA (TT-01 a TT-07)."
     },
     {
-      "id": "pkg-ports",
-      "name": "__init__.py",
-      "path": "src/ports/__init__.py",
-      "type": "config",
+      "id": "genetic-evidence",
+      "name": "genetic_evidence.py",
+      "path": "src/core/genetic_evidence.py",
+      "type": "domain",
       "language": "python",
-      "folder": "ports/",
-      "loc": 359,
-      "complexity": 1,
-      "functions": 8,
-      "classes": 11,
-      "description": "Portas da fronteira de aplicacao da Onda 2 (RF-02, RF-08, D-02, D-03)."
+      "folder": "core/",
+      "loc": 358,
+      "complexity": 91,
+      "functions": 9,
+      "classes": 0,
+      "description": "Evidencia GENETICA: o que o arquivo de DNA afirma, sem o GEDCOM."
+    },
+    {
+      "id": "aposentar-arquivo",
+      "name": "test_aposentar_arquivo.py",
+      "path": "tests/test_aposentar_arquivo.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 340,
+      "complexity": 61,
+      "functions": 29,
+      "classes": 5,
+      "description": "T034 (feature `011-escolher-arquivo-da-lista`, regra `RN-14`): aposentar um arquivo."
     },
     {
       "id": "manutencao-de-uploads",
@@ -331,30 +372,17 @@
       "description": "Manutencao da pasta de upload: migrar, manifesto, expurgo, duplicatas."
     },
     {
-      "id": "adaptadores",
-      "name": "adaptadores.py",
-      "path": "src/ports/adaptadores.py",
-      "type": "port",
+      "id": "documentary-relationship",
+      "name": "documentary_relationship.py",
+      "path": "src/core/documentary_relationship.py",
+      "type": "domain",
       "language": "python",
-      "folder": "ports/",
-      "loc": 338,
-      "complexity": 30,
-      "functions": 12,
-      "classes": 3,
-      "description": "Adaptadores concretos das portas de `ports/` (`D-07`)."
-    },
-    {
-      "id": "aposentar-arquivo",
-      "name": "test_aposentar_arquivo.py",
-      "path": "tests/test_aposentar_arquivo.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 337,
-      "complexity": 61,
-      "functions": 29,
-      "classes": 5,
-      "description": "T034 (feature `011-escolher-arquivo-da-lista`, regra `RN-14`): aposentar um arquivo."
+      "folder": "core/",
+      "loc": 332,
+      "complexity": 51,
+      "functions": 14,
+      "classes": 0,
+      "description": "Parentesco DOCUMENTAL: a fachada publica e a montagem do cartao."
     },
     {
       "id": "estado-do-resultado",
@@ -370,30 +398,17 @@
       "description": "O estado de RESULTADO da tela: cabecalho do cartao, retorno e grade do kit genetico."
     },
     {
-      "id": "visualizer",
-      "name": "visualizer.py",
-      "path": "src/reporting/visualizer.py",
-      "type": "reporting",
+      "id": "icone-de-atalho",
+      "name": "test_icone_de_atalho.py",
+      "path": "tests/test_icone_de_atalho.py",
+      "type": "test",
       "language": "python",
-      "folder": "reporting/",
-      "loc": 322,
-      "complexity": 72,
-      "functions": 13,
-      "classes": 1,
-      "description": "Renderização da árvore sugerida em PNG/SVG, via Graphviz."
-    },
-    {
-      "id": "genetic-evidence",
-      "name": "genetic_evidence.py",
-      "path": "src/core/genetic_evidence.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 321,
-      "complexity": 86,
-      "functions": 9,
+      "folder": "tests/",
+      "loc": 317,
+      "complexity": 21,
+      "functions": 16,
       "classes": 0,
-      "description": "Evidencia GENETICA: o que o arquivo de DNA afirma, sem o GEDCOM."
+      "description": "Rota do icone de atalho (`T004` e `T006` da feature 009)."
     },
     {
       "id": "identidade-do-match",
@@ -409,6 +424,19 @@
       "description": "Identidade do match: o nome pedido pelo CSV e a pessoa escolhida no GEDCOM."
     },
     {
+      "id": "visualizer",
+      "name": "visualizer.py",
+      "path": "src/reporting/visualizer.py",
+      "type": "reporting",
+      "language": "python",
+      "folder": "reporting/",
+      "loc": 310,
+      "complexity": 72,
+      "functions": 13,
+      "classes": 1,
+      "description": "Renderização da árvore sugerida em PNG/SVG, via Graphviz."
+    },
+    {
       "id": "janela-de-vida",
       "name": "test_janela_de_vida.py",
       "path": "tests/test_janela_de_vida.py",
@@ -420,6 +448,19 @@
       "functions": 35,
       "classes": 7,
       "description": "Janela de vida: a data do registro permite que ele tenha doado aquele DNA? ## Por que este arquivo existe O casamento entre o relatorio de DNA e a arvore e por **nome**, e nome casa com gente de outro seculo."
+    },
+    {
+      "id": "evidence-comparison",
+      "name": "evidence_comparison.py",
+      "path": "src/core/evidence_comparison.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 306,
+      "complexity": 52,
+      "functions": 4,
+      "classes": 2,
+      "description": "Confronto GEDCOM x DNA: as duas evidencias sao compativeis entre si? Responsabilidade unica: receber o parentesco **documental** (que veio do GEDCOM), a **evidencia genetica** (que veio do CSV) e as **possibilidades** estatisticas, e respo..."
     },
     {
       "id": "lista-de-arquivos",
@@ -448,17 +489,17 @@
       "description": "GEDCOMs sintéticos para os testes da cirurgia do grafo."
     },
     {
-      "id": "icone-de-atalho",
-      "name": "test_icone_de_atalho.py",
-      "path": "tests/test_icone_de_atalho.py",
-      "type": "test",
+      "id": "dna-analysis",
+      "name": "dna_analysis.py",
+      "path": "src/core/dna_analysis.py",
+      "type": "domain",
       "language": "python",
-      "folder": "tests/",
-      "loc": 285,
-      "complexity": 21,
-      "functions": 16,
+      "folder": "core/",
+      "loc": 281,
+      "complexity": 33,
+      "functions": 2,
       "classes": 0,
-      "description": "Rota do icone de atalho (`T004` e `T006` da feature 009)."
+      "description": "Tarefa 04 - Analise de DNA (regra final: GEDCOM, DNA e confronto separados)."
     },
     {
       "id": "desfecho-do-resultado",
@@ -474,17 +515,30 @@
       "description": "O modo de renderizacao vem do DESFECHO, nunca do texto da mensagem (`T026`)."
     },
     {
-      "id": "dna-analysis",
-      "name": "dna_analysis.py",
-      "path": "src/application/dna_analysis.py",
-      "type": "application",
+      "id": "logs",
+      "name": "logs.py",
+      "path": "src/utils/logs.py",
+      "type": "utility",
       "language": "python",
-      "folder": "application/",
-      "loc": 277,
-      "complexity": 62,
-      "functions": 8,
-      "classes": 1,
-      "description": "Caso de uso da analise de DNA (`T013`; `RF-01`, `RF-14`, `RF-20`)."
+      "folder": "utils/",
+      "loc": 278,
+      "complexity": 23,
+      "functions": 18,
+      "classes": 2,
+      "description": "Configuracao central de registro, contexto de requisicao e medicao (feature 049)."
+    },
+    {
+      "id": "matching",
+      "name": "matching.py",
+      "path": "src/core/matching.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 275,
+      "complexity": 63,
+      "functions": 3,
+      "classes": 0,
+      "description": "Indices do GEDCOM e decisao de aceitacao de candidatos."
     },
     {
       "id": "validator",
@@ -500,19 +554,6 @@
       "description": "Testes do núcleo puro de validação temporal (`core.validator`)."
     },
     {
-      "id": "evidence-comparison",
-      "name": "evidence_comparison.py",
-      "path": "src/core/evidence_comparison.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 271,
-      "complexity": 52,
-      "functions": 4,
-      "classes": 0,
-      "description": "Confronto GEDCOM x DNA: as duas evidencias sao compativeis entre si? Responsabilidade unica: receber o parentesco **documental** (que veio do GEDCOM), a **evidencia genetica** (que veio do CSV) e as **possibilidades** estatisticas, e respo..."
-    },
-    {
       "id": "busca-de-ancestral-comum",
       "name": "test_busca_de_ancestral_comum.py",
       "path": "tests/test_busca_de_ancestral_comum.py",
@@ -524,19 +565,6 @@
       "functions": 21,
       "classes": 4,
       "description": "A busca de ancestral comum: o encontro tem de ser testado no DESCOBRIMENTO."
-    },
-    {
-      "id": "matching",
-      "name": "matching.py",
-      "path": "src/core/matching.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 260,
-      "complexity": 62,
-      "functions": 3,
-      "classes": 0,
-      "description": "Indices do GEDCOM e decisao de aceitacao de candidatos."
     },
     {
       "id": "traducao-de-erros",
@@ -565,6 +593,19 @@
       "description": "Verificacao que roda DENTRO da imagem: a arte servida e a gravacao no banco."
     },
     {
+      "id": "projecao-analise",
+      "name": "projecao_analise.py",
+      "path": "src/application/projecao_analise.py",
+      "type": "application",
+      "language": "python",
+      "folder": "application/",
+      "loc": 257,
+      "complexity": 58,
+      "functions": 8,
+      "classes": 1,
+      "description": "Projeção pura do resultado do núcleo para o payload da porta (`D-15`, `ADR-33`)."
+    },
+    {
       "id": "upload",
       "name": "test_upload.py",
       "path": "tests/test_upload.py",
@@ -576,6 +617,19 @@
       "functions": 22,
       "classes": 3,
       "description": "Testes da Tarefa 02 — Parsing de GEDCOM e construção do grafo."
+    },
+    {
+      "id": "characterization-matching",
+      "name": "test_characterization_matching.py",
+      "path": "tests/test_characterization_matching.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 255,
+      "complexity": 22,
+      "functions": 10,
+      "classes": 0,
+      "description": "Caracterizacao do matching de DNA."
     },
     {
       "id": "manutencao-de-uploads",
@@ -630,43 +684,30 @@
       "description": "T007 e T008 (feature `011-escolher-arquivo-da-lista`): a tela de entrada passa a ter lista."
     },
     {
-      "id": "characterization-matching",
-      "name": "test_characterization_matching.py",
-      "path": "tests/test_characterization_matching.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 243,
-      "complexity": 20,
-      "functions": 10,
-      "classes": 0,
-      "description": "Caracterizacao do matching de DNA."
-    },
-    {
       "id": "csv-ingest",
       "name": "csv_ingest.py",
       "path": "src/parsers/csv_ingest.py",
       "type": "parser",
       "language": "python",
       "folder": "parsers/",
-      "loc": 239,
-      "complexity": 44,
+      "loc": 242,
+      "complexity": 45,
       "functions": 10,
       "classes": 0,
       "description": "Leitura do CSV de matches: encoding, separador e agregacao por match."
     },
     {
-      "id": "validate",
-      "name": "validate.py",
-      "path": "src/utils/validate.py",
-      "type": "utility",
+      "id": "paginacao-na-tela",
+      "name": "test_paginacao_na_tela.py",
+      "path": "tests/test_paginacao_na_tela.py",
+      "type": "test",
       "language": "python",
-      "folder": "utils/",
-      "loc": 229,
-      "complexity": 22,
-      "functions": 9,
-      "classes": 0,
-      "description": "O que pode ser gravado, e o que pode ser alcançado: nome visivel, chave e conteudo."
+      "folder": "tests/",
+      "loc": 234,
+      "complexity": 36,
+      "functions": 34,
+      "classes": 7,
+      "description": "A paginacao da lista de resultados (feature 046)."
     },
     {
       "id": "arvore-com-datas",
@@ -682,19 +723,6 @@
       "description": "GEDCOMs sintéticos com datas para os testes do validador de dados."
     },
     {
-      "id": "relationship-hypotheses",
-      "name": "relationship_hypotheses.py",
-      "path": "src/core/relationship_hypotheses.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 227,
-      "complexity": 23,
-      "functions": 8,
-      "classes": 0,
-      "description": "Possibilidades de parentesco a partir do cM observado."
-    },
-    {
       "id": "tabela-da-tela",
       "name": "test_tabela_da_tela.py",
       "path": "tests/test_tabela_da_tela.py",
@@ -708,17 +736,108 @@
       "description": "T035 (feature `011-escolher-arquivo-da-lista`): a lista virou TABELA com colunas."
     },
     {
+      "id": "banner-da-tela",
+      "name": "banner_da_tela.py",
+      "path": "tests/banner_da_tela.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 224,
+      "complexity": 24,
+      "functions": 6,
+      "classes": 0,
+      "description": "Receita da arte do topo da tela (feature 011, `T036`)."
+    },
+    {
+      "id": "cache-de-arvores",
+      "name": "test_cache_de_arvores.py",
+      "path": "tests/test_cache_de_arvores.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 224,
+      "complexity": 34,
+      "functions": 21,
+      "classes": 7,
+      "description": "Prova do cache da árvore (`ANALISADOR_CACHE_DE_ARVORE`)."
+    },
+    {
       "id": "cirurgia-do-grafo",
       "name": "test_cirurgia_do_grafo.py",
       "path": "tests/test_cirurgia_do_grafo.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 210,
-      "complexity": 59,
-      "functions": 17,
+      "loc": 221,
+      "complexity": 63,
+      "functions": 18,
       "classes": 0,
       "description": "Testes unitários da cirurgia do grafo."
+    },
+    {
+      "id": "impressao-do-resultado",
+      "name": "test_impressao_do_resultado.py",
+      "path": "tests/test_impressao_do_resultado.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 220,
+      "complexity": 46,
+      "functions": 29,
+      "classes": 5,
+      "description": "A impressao do resultado por pessoa (feature 050)."
+    },
+    {
+      "id": "validate",
+      "name": "validate.py",
+      "path": "src/utils/validate.py",
+      "type": "utility",
+      "language": "python",
+      "folder": "utils/",
+      "loc": 214,
+      "complexity": 22,
+      "functions": 9,
+      "classes": 0,
+      "description": "O que pode ser gravado, e o que pode ser alcançado: nome visivel, chave e conteudo."
+    },
+    {
+      "id": "fontes-de-laboratorio",
+      "name": "fontes_de_laboratorio.py",
+      "path": "src/core/fontes_de_laboratorio.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 201,
+      "complexity": 26,
+      "functions": 6,
+      "classes": 1,
+      "description": "Catalogo de laboratorios para o valor da coluna de fonte."
+    },
+    {
+      "id": "sem-correspondencia",
+      "name": "test_sem_correspondencia.py",
+      "path": "tests/test_sem_correspondencia.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 198,
+      "complexity": 61,
+      "functions": 19,
+      "classes": 2,
+      "description": "Testes dos cartões \"DNA sem correspondência na árvore\" (feature 039, E001/E002/E003)."
+    },
+    {
+      "id": "conftest",
+      "name": "conftest.py",
+      "path": "tests/conftest.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 197,
+      "complexity": 15,
+      "functions": 4,
+      "classes": 0,
+      "description": "Configuracao de coleta e de ambiente temporario da suite."
     },
     {
       "id": "motivo-humanizado",
@@ -734,19 +853,6 @@
       "description": "Testes do motivo humanizado dos descartes (feature 038)."
     },
     {
-      "id": "validacao",
-      "name": "validacao.py",
-      "path": "src/application/validacao.py",
-      "type": "application",
-      "language": "python",
-      "folder": "application/",
-      "loc": 195,
-      "complexity": 17,
-      "functions": 6,
-      "classes": 1,
-      "description": "Fachada de leitura e cruzamento do validador de dados."
-    },
-    {
       "id": "visualizer",
       "name": "test_visualizer.py",
       "path": "tests/test_visualizer.py",
@@ -758,6 +864,19 @@
       "functions": 27,
       "classes": 0,
       "description": "Testes do texto DOT e das recusas do renderizador."
+    },
+    {
+      "id": "rotulos-de-parentesco",
+      "name": "test_rotulos_de_parentesco.py",
+      "path": "tests/test_rotulos_de_parentesco.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 187,
+      "complexity": 32,
+      "functions": 15,
+      "classes": 5,
+      "description": "Os rotulos de parentesco em portugues: `trisavô`, e nao `bisbisavô`."
     },
     {
       "id": "tres-fases-da-tela",
@@ -773,43 +892,30 @@
       "description": "As tres fases da tela de entrada (feature 037)."
     },
     {
-      "id": "lista-de-arquivos",
-      "name": "lista_de_arquivos.py",
-      "path": "src/reporting/lista_de_arquivos.py",
-      "type": "reporting",
-      "language": "python",
-      "folder": "reporting/",
-      "loc": 182,
-      "complexity": 12,
-      "functions": 6,
-      "classes": 2,
-      "description": "Da pasta de upload para as linhas das duas abas: selecao, agrupamento e rotulo."
-    },
-    {
-      "id": "banner-da-tela",
-      "name": "banner_da_tela.py",
-      "path": "tests/banner_da_tela.py",
+      "id": "sugestao-de-correcao",
+      "name": "test_sugestao_de_correcao.py",
+      "path": "tests/test_sugestao_de_correcao.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 182,
-      "complexity": 22,
-      "functions": 5,
+      "loc": 186,
+      "complexity": 63,
+      "functions": 19,
       "classes": 0,
-      "description": "Receita da arte do topo da tela (feature 011, `T036`)."
+      "description": "Testes do contrato de `arvore_sugerida`."
     },
     {
-      "id": "path-search",
-      "name": "path_search.py",
-      "path": "src/core/path_search.py",
-      "type": "domain",
+      "id": "validacao",
+      "name": "validacao.py",
+      "path": "src/application/validacao.py",
+      "type": "application",
       "language": "python",
-      "folder": "core/",
-      "loc": 180,
-      "complexity": 33,
-      "functions": 3,
-      "classes": 0,
-      "description": "Tarefa 03 — Busca de Caminho (parentesco documental)."
+      "folder": "application/",
+      "loc": 184,
+      "complexity": 17,
+      "functions": 6,
+      "classes": 1,
+      "description": "Fachada de leitura e cruzamento do validador de dados."
     },
     {
       "id": "erros-de-dominio",
@@ -825,6 +931,45 @@
       "description": "Testes das excecoes de dominio tipadas (`T009`, `T010`; `RF-03`, `RF-04`, `RF-05`)."
     },
     {
+      "id": "mrca-e-posicao-na-faixa",
+      "name": "test_mrca_e_posicao_na_faixa.py",
+      "path": "tests/test_mrca_e_posicao_na_faixa.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 178,
+      "complexity": 43,
+      "functions": 18,
+      "classes": 5,
+      "description": "O antepassado comum mais recente e a posicao do valor na faixa (feature 043)."
+    },
+    {
+      "id": "lista-de-arquivos",
+      "name": "lista_de_arquivos.py",
+      "path": "src/reporting/lista_de_arquivos.py",
+      "type": "reporting",
+      "language": "python",
+      "folder": "reporting/",
+      "loc": 177,
+      "complexity": 12,
+      "functions": 6,
+      "classes": 2,
+      "description": "Da pasta de upload para as linhas das duas abas: selecao, agrupamento e rotulo."
+    },
+    {
+      "id": "fontes-de-laboratorio",
+      "name": "test_fontes_de_laboratorio.py",
+      "path": "tests/test_fontes_de_laboratorio.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 176,
+      "complexity": 53,
+      "functions": 24,
+      "classes": 4,
+      "description": "Testes do catálogo de fontes (feature 040)."
+    },
+    {
       "id": "path-search",
       "name": "test_path_search.py",
       "path": "tests/test_path_search.py",
@@ -838,19 +983,6 @@
       "description": "Testes da Tarefa 03 — Busca de Caminho (TT-01 a TT-05)."
     },
     {
-      "id": "sugestao-de-correcao",
-      "name": "test_sugestao_de_correcao.py",
-      "path": "tests/test_sugestao_de_correcao.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 175,
-      "complexity": 59,
-      "functions": 18,
-      "classes": 0,
-      "description": "Testes do contrato de `arvore_sugerida`."
-    },
-    {
       "id": "reenvio-do-arquivo",
       "name": "test_reenvio_do_arquivo.py",
       "path": "tests/test_reenvio_do_arquivo.py",
@@ -862,6 +994,32 @@
       "functions": 16,
       "classes": 3,
       "description": "T037 (feature `011-escolher-arquivo-da-lista`, regra `RN-17`): o reenvio de um arquivo."
+    },
+    {
+      "id": "path-search",
+      "name": "path_search.py",
+      "path": "src/core/path_search.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 173,
+      "complexity": 33,
+      "functions": 3,
+      "classes": 0,
+      "description": "Tarefa 03 — Busca de Caminho (parentesco documental)."
+    },
+    {
+      "id": "autenticacao",
+      "name": "autenticacao.py",
+      "path": "src/web/autenticacao.py",
+      "type": "web",
+      "language": "python",
+      "folder": "web/",
+      "loc": 173,
+      "complexity": 24,
+      "functions": 13,
+      "classes": 4,
+      "description": "Entrada pelo provedor de identidade (feature 051)."
     },
     {
       "id": "mermaid-escape",
@@ -890,6 +1048,19 @@
       "description": "O seletor de arquivos oferece só o formato de cada aba — e isso NÃO é a barreira."
     },
     {
+      "id": "resumo-da-sugestao",
+      "name": "test_resumo_da_sugestao.py",
+      "path": "tests/test_resumo_da_sugestao.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 165,
+      "complexity": 44,
+      "functions": 17,
+      "classes": 0,
+      "description": "Testes da derivação do hiato para a tela."
+    },
+    {
       "id": "nome-com-dois-pontos",
       "name": "test_nome_com_dois_pontos.py",
       "path": "tests/test_nome_com_dois_pontos.py",
@@ -903,6 +1074,19 @@
       "description": "Reproducao e regressao do BUG-20261013-2EFQ: nome com `:` no NTFS."
     },
     {
+      "id": "promocao-de-descarte",
+      "name": "test_promocao_de_descarte.py",
+      "path": "tests/test_promocao_de_descarte.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 160,
+      "complexity": 27,
+      "functions": 14,
+      "classes": 1,
+      "description": "Testes da promoção de um descarte a cartão (feature 034, Fase 3)."
+    },
+    {
       "id": "segmentos-gedmatch",
       "name": "segmentos_gedmatch.py",
       "path": "src/parsers/segmentos_gedmatch.py",
@@ -914,6 +1098,19 @@
       "functions": 5,
       "classes": 2,
       "description": "Adapter de entrada do CSV de segmentos do GEDmatch."
+    },
+    {
+      "id": "characterization-mermaid",
+      "name": "test_characterization_mermaid.py",
+      "path": "tests/test_characterization_mermaid.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 159,
+      "complexity": 13,
+      "functions": 6,
+      "classes": 0,
+      "description": "Caracterizacao da saida Mermaid da busca de caminho."
     },
     {
       "id": "identidade-do-match",
@@ -942,19 +1139,6 @@
       "description": "Testes dos candidatos do descarte (feature 034)."
     },
     {
-      "id": "promocao-de-descarte",
-      "name": "test_promocao_de_descarte.py",
-      "path": "tests/test_promocao_de_descarte.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 153,
-      "complexity": 24,
-      "functions": 14,
-      "classes": 1,
-      "description": "Testes da promoção de um descarte a cartão (feature 034, Fase 3)."
-    },
-    {
       "id": "janela-de-vida",
       "name": "janela_de_vida.py",
       "path": "src/core/janela_de_vida.py",
@@ -966,19 +1150,6 @@
       "functions": 5,
       "classes": 0,
       "description": "Janela de vida: a pessoa que a arvore devolveu pode ter doado aquele DNA? ## Por que este modulo existe O casamento entre o relatorio de DNA e a arvore e **por nome**, e o resultado e apresentado como parentesco documental."
-    },
-    {
-      "id": "conftest",
-      "name": "conftest.py",
-      "path": "tests/conftest.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 145,
-      "complexity": 11,
-      "functions": 3,
-      "classes": 0,
-      "description": "Configuracao de coleta e de ambiente temporario da suite."
     },
     {
       "id": "profundidade-do-caminho",
@@ -994,13 +1165,26 @@
       "description": "Profundidade do caminho documental contra a estimativa do PROPRIO kit."
     },
     {
+      "id": "cartao-em-tres-faixas",
+      "name": "test_cartao_em_tres_faixas.py",
+      "path": "tests/test_cartao_em_tres_faixas.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 143,
+      "complexity": 28,
+      "functions": 18,
+      "classes": 2,
+      "description": "O cartão de conexão em três faixas — título, selos e sinais (feature 036)."
+    },
+    {
       "id": "resultado-para-cartao",
       "name": "resultado_para_cartao.py",
       "path": "tests/fixtures/resultado_para_cartao.py",
       "type": "fixture",
       "language": "python",
       "folder": "tests/fixtures/",
-      "loc": 141,
+      "loc": 142,
       "complexity": 1,
       "functions": 6,
       "classes": 0,
@@ -1018,32 +1202,6 @@
       "functions": 7,
       "classes": 0,
       "description": "Adaptador `RegistroDeAnalisesPostgres` contra o banco de verdade (`T014`)."
-    },
-    {
-      "id": "rotulos-de-parentesco",
-      "name": "test_rotulos_de_parentesco.py",
-      "path": "tests/test_rotulos_de_parentesco.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 141,
-      "complexity": 22,
-      "functions": 11,
-      "classes": 4,
-      "description": "Os rotulos de parentesco em portugues: `trisavô`, e nao `bisbisavô`."
-    },
-    {
-      "id": "cartao-em-tres-faixas",
-      "name": "test_cartao_em_tres_faixas.py",
-      "path": "tests/test_cartao_em_tres_faixas.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 140,
-      "complexity": 28,
-      "functions": 18,
-      "classes": 2,
-      "description": "O cartão de conexão em três faixas — título, selos e sinais (feature 036)."
     },
     {
       "id": "host-permitido",
@@ -1085,6 +1243,32 @@
       "description": "Testes de integração da fachada `application.validacao`."
     },
     {
+      "id": "rotulos-do-cartao",
+      "name": "rotulos_do_cartao.py",
+      "path": "src/core/rotulos_do_cartao.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 134,
+      "complexity": 26,
+      "functions": 4,
+      "classes": 0,
+      "description": "As palavras e as classes CSS que o operador le no cartao."
+    },
+    {
+      "id": "cartao-sem-correspondencia",
+      "name": "cartao_sem_correspondencia.py",
+      "path": "src/core/cartao_sem_correspondencia.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 130,
+      "complexity": 7,
+      "functions": 1,
+      "classes": 0,
+      "description": "O cartao de um match sem nenhuma pessoa compativel na arvore."
+    },
+    {
       "id": "servidor-producao",
       "name": "test_servidor_producao.py",
       "path": "tests/test_servidor_producao.py",
@@ -1096,6 +1280,19 @@
       "functions": 9,
       "classes": 0,
       "description": "Bloco de entrada do aplicativo: o servidor em uso é o de produção."
+    },
+    {
+      "id": "rotas-auth",
+      "name": "rotas_auth.py",
+      "path": "src/web/rotas_auth.py",
+      "type": "web",
+      "language": "python",
+      "folder": "web/",
+      "loc": 127,
+      "complexity": 15,
+      "functions": 7,
+      "classes": 0,
+      "description": "As rotas da entrada: `/login`, `/callback` e `/logout` (feature 051)."
     },
     {
       "id": "sugestao-para-desenho",
@@ -1111,17 +1308,17 @@
       "description": "Sugestão sintética para os testes do renderizador."
     },
     {
-      "id": "characterization-mermaid",
-      "name": "test_characterization_mermaid.py",
-      "path": "tests/test_characterization_mermaid.py",
-      "type": "test",
+      "id": "sample-dna",
+      "name": "sample_dna.py",
+      "path": "tests/fixtures/sample_dna.py",
+      "type": "fixture",
       "language": "python",
-      "folder": "tests/",
-      "loc": 126,
-      "complexity": 9,
-      "functions": 3,
+      "folder": "tests/fixtures/",
+      "loc": 125,
+      "complexity": 1,
+      "functions": 1,
       "classes": 0,
-      "description": "Caracterizacao da saida Mermaid da busca de caminho."
+      "description": "GEDCOM sintético com sobrenomes ricos para testes do matching de DNA."
     },
     {
       "id": "persistencia-indisponivel",
@@ -1135,6 +1332,32 @@
       "functions": 8,
       "classes": 0,
       "description": "Estado de FALHA da persistencia historica (`T019`; `RN-13`, `RF-10`, `RF-17`)."
+    },
+    {
+      "id": "fonte-e-cobertura-na-tela",
+      "name": "test_fonte_e_cobertura_na_tela.py",
+      "path": "tests/test_fonte_e_cobertura_na_tela.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 123,
+      "complexity": 30,
+      "functions": 12,
+      "classes": 3,
+      "description": "Testes de tela da fonte e da cobertura (feature 040)."
+    },
+    {
+      "id": "indice-de-nomes-do-documental",
+      "name": "test_indice_de_nomes_do_documental.py",
+      "path": "tests/test_indice_de_nomes_do_documental.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 123,
+      "complexity": 28,
+      "functions": 14,
+      "classes": 3,
+      "description": "O indice de nomes e preso a arvore, e nao um cache de modulo (feature 048)."
     },
     {
       "id": "csv-de-descartes",
@@ -1163,6 +1386,58 @@
       "description": "Quem e parente de quem, numa arvore recebida por parametro."
     },
     {
+      "id": "graus-de-parentesco",
+      "name": "graus_de_parentesco.py",
+      "path": "src/core/graus_de_parentesco.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 117,
+      "complexity": 11,
+      "functions": 3,
+      "classes": 0,
+      "description": "O nome do avo, do neto e do antepassado comum, por grau."
+    },
+    {
+      "id": "registro-de-auditoria",
+      "name": "test_registro_de_auditoria.py",
+      "path": "tests/test_registro_de_auditoria.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 117,
+      "complexity": 27,
+      "functions": 10,
+      "classes": 0,
+      "description": "Testes da trilha de auditoria (`T011` da feature 049)."
+    },
+    {
+      "id": "desempenho-das-fichas",
+      "name": "test_desempenho_das_fichas.py",
+      "path": "tests/test_desempenho_das_fichas.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 115,
+      "complexity": 23,
+      "functions": 11,
+      "classes": 1,
+      "description": "Desempenho das fichas: uma varredura de familias por arvore, nao por ficha."
+    },
+    {
+      "id": "destaque-da-hipotese",
+      "name": "test_destaque_da_hipotese.py",
+      "path": "tests/test_destaque_da_hipotese.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 114,
+      "complexity": 41,
+      "functions": 16,
+      "classes": 4,
+      "description": "O destaque da hipótese mais próxima da média publicada (feature 044)."
+    },
+    {
       "id": "motivos-do-descarte",
       "name": "motivos_do_descarte.py",
       "path": "src/core/motivos_do_descarte.py",
@@ -1189,6 +1464,45 @@
       "description": "`T042` (`A008` da auditoria): arquivo alcançável com conteúdo que o parser não lê."
     },
     {
+      "id": "tabela-do-bloco-3",
+      "name": "test_tabela_do_bloco_3.py",
+      "path": "tests/test_tabela_do_bloco_3.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 109,
+      "complexity": 18,
+      "functions": 11,
+      "classes": 2,
+      "description": "A tabela do bloco 3 na tela (feature 043)."
+    },
+    {
+      "id": "dono-inicial",
+      "name": "dono_inicial.py",
+      "path": "src/application/dono_inicial.py",
+      "type": "application",
+      "language": "python",
+      "folder": "application/",
+      "loc": 108,
+      "complexity": 18,
+      "functions": 5,
+      "classes": 1,
+      "description": "Adocao dos dados que existiam antes da identidade (feature 051, `RN-15`)."
+    },
+    {
+      "id": "destaque-na-tela",
+      "name": "test_destaque_na_tela.py",
+      "path": "tests/test_destaque_na_tela.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 107,
+      "complexity": 25,
+      "functions": 12,
+      "classes": 3,
+      "description": "A caixa de destaque do bloco 3 na tela (feature 044)."
+    },
+    {
       "id": "forma-da-referencia",
       "name": "test_forma_da_referencia.py",
       "path": "tests/test_forma_da_referencia.py",
@@ -1200,6 +1514,45 @@
       "functions": 6,
       "classes": 2,
       "description": "`RN-20` (`BUG-20261009-6RKP`): a forma da referencia aceita, e a defesa contra escape."
+    },
+    {
+      "id": "isolamento-por-dono",
+      "name": "test_isolamento_por_dono.py",
+      "path": "tests/test_isolamento_por_dono.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 106,
+      "complexity": 18,
+      "functions": 8,
+      "classes": 0,
+      "description": "O portao da feature 051: dois donos, e a recusa indistinguivel de inexistencia."
+    },
+    {
+      "id": "sessao",
+      "name": "sessao.py",
+      "path": "src/web/sessao.py",
+      "type": "web",
+      "language": "python",
+      "folder": "web/",
+      "loc": 105,
+      "complexity": 14,
+      "functions": 8,
+      "classes": 1,
+      "description": "Sessao da borda: a conta logada, a guarda e o cookie (feature 051)."
+    },
+    {
+      "id": "privacidade-do-log",
+      "name": "test_privacidade_do_log.py",
+      "path": "tests/test_privacidade_do_log.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 105,
+      "complexity": 21,
+      "functions": 7,
+      "classes": 0,
+      "description": "Testes da privacidade do log (`T010` da feature 049)."
     },
     {
       "id": "ambiente-temporario-da-suite",
@@ -1215,6 +1568,32 @@
       "description": "Testes do diretorio temporario da suite."
     },
     {
+      "id": "caminhos-alternativos",
+      "name": "caminhos_alternativos.py",
+      "path": "src/core/caminhos_alternativos.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 102,
+      "complexity": 24,
+      "functions": 5,
+      "classes": 0,
+      "description": "Ancestrais comuns, cadeias ate eles e caminhos alternativos."
+    },
+    {
+      "id": "autenticacao",
+      "name": "test_autenticacao.py",
+      "path": "tests/test_autenticacao.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 102,
+      "complexity": 23,
+      "functions": 11,
+      "classes": 0,
+      "description": "O fluxo de entrada: configuracao, `state`, troca de codigo e perfil (feature 051)."
+    },
+    {
       "id": "combobox-de-nomes",
       "name": "test_combobox_de_nomes.py",
       "path": "tests/test_combobox_de_nomes.py",
@@ -1226,6 +1605,45 @@
       "functions": 11,
       "classes": 3,
       "description": "O combobox de nomes da tela de entrada (feature 037)."
+    },
+    {
+      "id": "datas-do-gedcom",
+      "name": "datas_do_gedcom.py",
+      "path": "src/core/datas_do_gedcom.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 101,
+      "complexity": 19,
+      "functions": 8,
+      "classes": 0,
+      "description": "Data e local do registro GEDCOM, sem nenhum parentesco."
+    },
+    {
+      "id": "endogamia-no-cartao",
+      "name": "endogamia_no_cartao.py",
+      "path": "src/core/endogamia_no_cartao.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 101,
+      "complexity": 18,
+      "functions": 2,
+      "classes": 0,
+      "description": "O diagnostico de endogamia estrutural e o que dele aparece no cartao."
+    },
+    {
+      "id": "homonimos",
+      "name": "homonimos.py",
+      "path": "src/core/homonimos.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 101,
+      "complexity": 15,
+      "functions": 4,
+      "classes": 0,
+      "description": "Reconhecer o mesmo nome e montar o dossie de homonimos."
     },
     {
       "id": "path-finding",
@@ -1241,6 +1659,19 @@
       "description": "Achar o caminho entre duas pessoas, numa arvore recebida por parametro."
     },
     {
+      "id": "veredito-no-nucleo",
+      "name": "test_veredito_no_nucleo.py",
+      "path": "tests/test_veredito_no_nucleo.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 101,
+      "complexity": 23,
+      "functions": 9,
+      "classes": 0,
+      "description": "Testes do veredito de validação dentro do fluxo de DNA."
+    },
+    {
       "id": "voltar-para-a-lista",
       "name": "test_voltar_para_a_lista.py",
       "path": "tests/test_voltar_para_a_lista.py",
@@ -1252,6 +1683,19 @@
       "functions": 8,
       "classes": 1,
       "description": "T040 (feature `011-escolher-arquivo-da-lista`, regra `RN-19`): o caminho de volta."
+    },
+    {
+      "id": "upload-gedcom",
+      "name": "upload_gedcom.py",
+      "path": "src/application/upload_gedcom.py",
+      "type": "application",
+      "language": "python",
+      "folder": "application/",
+      "loc": 100,
+      "complexity": 6,
+      "functions": 1,
+      "classes": 1,
+      "description": "Caso de uso do upload de GEDCOM: grava, carrega a arvore e devolve o resultado tipado."
     },
     {
       "id": "carga-da-arvore",
@@ -1267,17 +1711,30 @@
       "description": "T008 (feature `025-desempenho-carga-arvore`): uma materializacao por registro."
     },
     {
-      "id": "traducao",
-      "name": "traducao.py",
-      "path": "src/application/traducao.py",
+      "id": "dna-analysis",
+      "name": "dna_analysis.py",
+      "path": "src/application/dna_analysis.py",
       "type": "application",
       "language": "python",
       "folder": "application/",
-      "loc": 98,
-      "complexity": 2,
-      "functions": 6,
+      "loc": 99,
+      "complexity": 6,
+      "functions": 1,
       "classes": 1,
-      "description": "Tabela de traducao: excecao de dominio -> literal da tela e status (`T014`)."
+      "description": "Caso de uso da analise de DNA (`T013`; `RF-01`, `RF-14`, `RF-20`)."
+    },
+    {
+      "id": "auditoria",
+      "name": "auditoria.py",
+      "path": "src/utils/auditoria.py",
+      "type": "utility",
+      "language": "python",
+      "folder": "utils/",
+      "loc": 99,
+      "complexity": 11,
+      "functions": 4,
+      "classes": 0,
+      "description": "A linha de auditoria: acao, desfecho, arquivo, contagens, IP e identificador (feature 049)."
     },
     {
       "id": "csv-de-descartes",
@@ -1286,50 +1743,24 @@
       "type": "reporting",
       "language": "python",
       "folder": "reporting/",
-      "loc": 98,
+      "loc": 96,
       "complexity": 17,
       "functions": 4,
       "classes": 0,
       "description": "CSV da lista de trabalho dos descartes (feature 035)."
     },
     {
-      "id": "resumo-da-sugestao",
-      "name": "test_resumo_da_sugestao.py",
-      "path": "tests/test_resumo_da_sugestao.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 98,
-      "complexity": 23,
-      "functions": 11,
-      "classes": 0,
-      "description": "Testes da derivação do hiato para a tela."
-    },
-    {
-      "id": "veredito-no-nucleo",
-      "name": "test_veredito_no_nucleo.py",
-      "path": "tests/test_veredito_no_nucleo.py",
-      "type": "test",
-      "language": "python",
-      "folder": "tests/",
-      "loc": 95,
-      "complexity": 23,
-      "functions": 9,
-      "classes": 0,
-      "description": "Testes do veredito de validação dentro do fluxo de DNA."
-    },
-    {
-      "id": "upload-gedcom",
-      "name": "upload_gedcom.py",
-      "path": "src/application/upload_gedcom.py",
+      "id": "traducao",
+      "name": "traducao.py",
+      "path": "src/application/traducao.py",
       "type": "application",
       "language": "python",
       "folder": "application/",
       "loc": 94,
-      "complexity": 5,
-      "functions": 1,
+      "complexity": 2,
+      "functions": 6,
       "classes": 1,
-      "description": "Caso de uso do upload de GEDCOM: grava, carrega a arvore e devolve o resultado tipado."
+      "description": "Tabela de traducao: excecao de dominio -> literal da tela e status (`T014`)."
     },
     {
       "id": "icone-de-atalho",
@@ -1358,17 +1789,56 @@
       "description": "Formatacao do total de cM exibido no cartao de resultado."
     },
     {
-      "id": "reenvio",
-      "name": "reenvio.py",
-      "path": "src/application/reenvio.py",
-      "type": "application",
+      "id": "indices-de-matching-memo",
+      "name": "test_indices_de_matching_memo.py",
+      "path": "tests/test_indices_de_matching_memo.py",
+      "type": "test",
       "language": "python",
-      "folder": "application/",
+      "folder": "tests/",
       "loc": 93,
-      "complexity": 7,
+      "complexity": 14,
+      "functions": 6,
+      "classes": 2,
+      "description": "Prova do memo de índices de matching preso ao grafo da árvore."
+    },
+    {
+      "id": "mermaid-da-sugestao",
+      "name": "test_mermaid_da_sugestao.py",
+      "path": "tests/test_mermaid_da_sugestao.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 93,
+      "complexity": 31,
+      "functions": 14,
+      "classes": 0,
+      "description": "Testes do desenho Mermaid da árvore sugerida."
+    },
+    {
+      "id": "cobertura-do-arquivo",
+      "name": "cobertura_do_arquivo.py",
+      "path": "src/core/cobertura_do_arquivo.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 91,
+      "complexity": 31,
       "functions": 3,
-      "classes": 1,
-      "description": "A regra do reenvio de arquivo (`RN-17`), escrita em UM lugar so."
+      "classes": 0,
+      "description": "Medida do arquivo inteiro: o que o CSV cobre, e nao o que um cartao afirma."
+    },
+    {
+      "id": "qualidade-da-medida",
+      "name": "qualidade_da_medida.py",
+      "path": "src/core/qualidade_da_medida.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 91,
+      "complexity": 10,
+      "functions": 2,
+      "classes": 0,
+      "description": "Estado de qualidade de UMA medida de DNA (total, maior bloco e SNPs)."
     },
     {
       "id": "arvore-devolvida",
@@ -1384,17 +1854,56 @@
       "description": "A arvore devolvida pelo parse como valor (RF-13, feature 005 T009)."
     },
     {
-      "id": "mermaid-da-sugestao",
-      "name": "test_mermaid_da_sugestao.py",
-      "path": "tests/test_mermaid_da_sugestao.py",
+      "id": "migracao-do-dono-inicial",
+      "name": "test_migracao_do_dono_inicial.py",
+      "path": "tests/test_migracao_do_dono_inicial.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 88,
-      "complexity": 30,
-      "functions": 14,
+      "loc": 90,
+      "complexity": 18,
+      "functions": 9,
+      "classes": 1,
+      "description": "A adocao dos dados anteriores a identidade (feature 051, `RN-15`)."
+    },
+    {
+      "id": "reenvio",
+      "name": "reenvio.py",
+      "path": "src/application/reenvio.py",
+      "type": "application",
+      "language": "python",
+      "folder": "application/",
+      "loc": 89,
+      "complexity": 7,
+      "functions": 3,
+      "classes": 1,
+      "description": "A regra do reenvio de arquivo (`RN-17`), escrita em UM lugar so."
+    },
+    {
+      "id": "gedcom-parser",
+      "name": "gedcom_parser.py",
+      "path": "src/parsers/gedcom_parser.py",
+      "type": "parser",
+      "language": "python",
+      "folder": "parsers/",
+      "loc": 89,
+      "complexity": 15,
+      "functions": 2,
       "classes": 0,
-      "description": "Testes do desenho Mermaid da árvore sugerida."
+      "description": "Parsing de GEDCOM e construcao do grafo."
+    },
+    {
+      "id": "contador-em-tres-faixas",
+      "name": "test_contador_em_tres_faixas.py",
+      "path": "tests/test_contador_em_tres_faixas.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 87,
+      "complexity": 21,
+      "functions": 11,
+      "classes": 0,
+      "description": "Testes da contagem em três faixas (feature 033)."
     },
     {
       "id": "name-normalization",
@@ -1410,30 +1919,17 @@
       "description": "Normalizacao e decomposicao de nomes, e o vocabulario que isso usa."
     },
     {
-      "id": "gedcom-parser",
-      "name": "gedcom_parser.py",
-      "path": "src/parsers/gedcom_parser.py",
-      "type": "parser",
-      "language": "python",
-      "folder": "parsers/",
-      "loc": 85,
-      "complexity": 15,
-      "functions": 2,
-      "classes": 0,
-      "description": "Parsing de GEDCOM e construcao do grafo."
-    },
-    {
-      "id": "contador-em-tres-faixas",
-      "name": "test_contador_em_tres_faixas.py",
-      "path": "tests/test_contador_em_tres_faixas.py",
+      "id": "correcao-de-arquivos",
+      "name": "test_correcao_de_arquivos.py",
+      "path": "tests/test_correcao_de_arquivos.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 84,
-      "complexity": 21,
-      "functions": 11,
+      "loc": 85,
+      "complexity": 22,
+      "functions": 7,
       "classes": 0,
-      "description": "Testes da contagem em três faixas (feature 033)."
+      "description": "Testes de integração da fachada `application.correcao`."
     },
     {
       "id": "deriva-da-arte",
@@ -1449,17 +1945,17 @@
       "description": "Deriva da arte de runtime contra a canonica (`T005`, `RF-10` da feature 009)."
     },
     {
-      "id": "number-format",
-      "name": "number_format.py",
-      "path": "src/utils/number_format.py",
-      "type": "utility",
+      "id": "cobertura-do-arquivo",
+      "name": "test_cobertura_do_arquivo.py",
+      "path": "tests/test_cobertura_do_arquivo.py",
+      "type": "test",
       "language": "python",
-      "folder": "utils/",
-      "loc": 83,
-      "complexity": 11,
-      "functions": 4,
-      "classes": 0,
-      "description": "Formato dos numeros que o operador le na tela."
+      "folder": "tests/",
+      "loc": 82,
+      "complexity": 29,
+      "functions": 12,
+      "classes": 3,
+      "description": "Testes da cobertura do arquivo (feature 040)."
     },
     {
       "id": "validacao-no-cartao",
@@ -1475,6 +1971,19 @@
       "description": "Testes de tela do selo de validação."
     },
     {
+      "id": "configuracao-de-log",
+      "name": "test_configuracao_de_log.py",
+      "path": "tests/test_configuracao_de_log.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 80,
+      "complexity": 14,
+      "functions": 10,
+      "classes": 0,
+      "description": "Testes da configuracao de registro (`T008` da feature 049)."
+    },
+    {
       "id": "persistencia-desabilitada",
       "name": "test_persistencia_desabilitada.py",
       "path": "tests/test_persistencia_desabilitada.py",
@@ -1486,6 +1995,32 @@
       "functions": 7,
       "classes": 0,
       "description": "Estado DESABILITADO da persistencia historica (`T018`; `D-02`, `RF-13`)."
+    },
+    {
+      "id": "fichas-da-pessoa",
+      "name": "fichas_da_pessoa.py",
+      "path": "src/core/fichas_da_pessoa.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 79,
+      "complexity": 15,
+      "functions": 5,
+      "classes": 0,
+      "description": "A ficha comparavel de uma pessoa da arvore, e o indice pai para filhos."
+    },
+    {
+      "id": "number-format",
+      "name": "number_format.py",
+      "path": "src/utils/number_format.py",
+      "type": "utility",
+      "language": "python",
+      "folder": "utils/",
+      "loc": 79,
+      "complexity": 11,
+      "functions": 4,
+      "classes": 0,
+      "description": "Formato dos numeros que o operador le na tela."
     },
     {
       "id": "erros",
@@ -1501,30 +2036,30 @@
       "description": "Excecoes de dominio tipadas da fronteira de aplicacao (RF-03, D-01)."
     },
     {
-      "id": "correcao-de-arquivos",
-      "name": "test_correcao_de_arquivos.py",
-      "path": "tests/test_correcao_de_arquivos.py",
+      "id": "diagram-domain",
+      "name": "diagram_domain.py",
+      "path": "src/core/diagram_domain.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 74,
+      "complexity": 0,
+      "functions": 2,
+      "classes": 0,
+      "description": "Consultas de dominio que o desenho do diagrama Mermaid precisa."
+    },
+    {
+      "id": "uso-do-cm-estimator",
+      "name": "test_uso_do_cm_estimator.py",
+      "path": "tests/test_uso_do_cm_estimator.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
-      "loc": 77,
-      "complexity": 21,
-      "functions": 7,
-      "classes": 0,
-      "description": "Testes de integração da fachada `application.correcao`."
-    },
-    {
-      "id": "text-cleaning",
-      "name": "text_cleaning.py",
-      "path": "src/utils/text_cleaning.py",
-      "type": "utility",
-      "language": "python",
-      "folder": "utils/",
       "loc": 74,
-      "complexity": 9,
-      "functions": 2,
+      "complexity": 25,
+      "functions": 3,
       "classes": 0,
-      "description": "Tarefa 01 — Rotinas de limpeza de nome."
+      "description": "A proibicao do ADR-19 sobre `cm_estimator`, verificada em vez de declarada."
     },
     {
       "id": "campo-de-escolha-do-csv",
@@ -1540,6 +2075,45 @@
       "description": "`T021` (`OBS-01` da feature 011): o campo de escolha do CSV na TELA."
     },
     {
+      "id": "text-cleaning",
+      "name": "text_cleaning.py",
+      "path": "src/utils/text_cleaning.py",
+      "type": "utility",
+      "language": "python",
+      "folder": "utils/",
+      "loc": 72,
+      "complexity": 9,
+      "functions": 2,
+      "classes": 0,
+      "description": "Tarefa 01 — Rotinas de limpeza de nome."
+    },
+    {
+      "id": "rodar-paridade",
+      "name": "rodar_paridade.py",
+      "path": "tests/rodar_paridade.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 72,
+      "complexity": 8,
+      "functions": 5,
+      "classes": 0,
+      "description": "Executa o harness de paridade com a pasta de upload isolada (feature 010, `D-07`)."
+    },
+    {
+      "id": "qualidade-da-medida",
+      "name": "test_qualidade_da_medida.py",
+      "path": "tests/test_qualidade_da_medida.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 70,
+      "complexity": 21,
+      "functions": 8,
+      "classes": 2,
+      "description": "Testes do estado de qualidade da medida (feature 040)."
+    },
+    {
       "id": "cabecalho-de-enquadramento",
       "name": "test_cabecalho_de_enquadramento.py",
       "path": "tests/test_cabecalho_de_enquadramento.py",
@@ -1553,30 +2127,56 @@
       "description": "Reproducao e regressao do BUG-20261013-X7EN: a tela pode ser enquadrada por terceiro."
     },
     {
-      "id": "rodar-paridade",
-      "name": "rodar_paridade.py",
-      "path": "tests/rodar_paridade.py",
+      "id": "arvore-sugerida-na-tela",
+      "name": "test_arvore_sugerida_na_tela.py",
+      "path": "tests/test_arvore_sugerida_na_tela.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 67,
+      "complexity": 18,
+      "functions": 9,
+      "classes": 0,
+      "description": "Testes de tela do bloco da árvore sugerida."
+    },
+    {
+      "id": "rotas-assets",
+      "name": "rotas_assets.py",
+      "path": "src/web/rotas_assets.py",
+      "type": "web",
+      "language": "python",
+      "folder": "web/",
+      "loc": 65,
+      "complexity": 10,
+      "functions": 4,
+      "classes": 0,
+      "description": "Rotas de entrega de assets estáticos, arte visual e exportações."
+    },
+    {
+      "id": "estado-de-borda-injetavel",
+      "name": "test_estado_de_borda_injetavel.py",
+      "path": "tests/test_estado_de_borda_injetavel.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
       "loc": 65,
-      "complexity": 8,
-      "functions": 5,
-      "classes": 0,
-      "description": "Executa o harness de paridade com a pasta de upload isolada (feature 010, `D-07`)."
+      "complexity": 17,
+      "functions": 9,
+      "classes": 2,
+      "description": "Caracterizacao do estado de borda injetavel (OPP-20261023-ESTD)."
     },
     {
-      "id": "diagram-domain",
-      "name": "diagram_domain.py",
-      "path": "src/core/diagram_domain.py",
+      "id": "validacao-no-cartao",
+      "name": "validacao_no_cartao.py",
+      "path": "src/core/validacao_no_cartao.py",
       "type": "domain",
       "language": "python",
       "folder": "core/",
-      "loc": 62,
-      "complexity": 0,
+      "loc": 64,
+      "complexity": 9,
       "functions": 1,
       "classes": 0,
-      "description": "Consultas de dominio que o desenho do diagrama Mermaid precisa."
+      "description": "O veredito de viabilidade temporal do cartao (feature 028)."
     },
     {
       "id": "contraste-do-selo",
@@ -1592,6 +2192,19 @@
       "description": "Contraste do selo de validação, calculado a partir da folha de estilo."
     },
     {
+      "id": "fabrica-do-app",
+      "name": "test_fabrica_do_app.py",
+      "path": "tests/test_fabrica_do_app.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 61,
+      "complexity": 20,
+      "functions": 7,
+      "classes": 0,
+      "description": "Caracterizacao da fabrica de aplicacao (OPP-20261023-FACT)."
+    },
+    {
       "id": "correcao",
       "name": "correcao.py",
       "path": "src/application/correcao.py",
@@ -1605,30 +2218,95 @@
       "description": "Fachada de correção: do GEDCOM e do CSV até a árvore sugerida."
     },
     {
+      "id": "contrato-do-cartao",
+      "name": "contrato_do_cartao.py",
+      "path": "src/core/contrato_do_cartao.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 60,
+      "complexity": 0,
+      "functions": 0,
+      "classes": 0,
+      "description": "As chaves do cartao de analise, declaradas em um lugar so."
+    },
+    {
+      "id": "contrato-do-cartao",
+      "name": "test_contrato_do_cartao.py",
+      "path": "tests/test_contrato_do_cartao.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 60,
+      "complexity": 8,
+      "functions": 3,
+      "classes": 0,
+      "description": "O cartao de analise tem um conjunto de chaves, e os dois construtores o respeitam."
+    },
+    {
+      "id": "sessao-e-guarda",
+      "name": "test_sessao_e_guarda.py",
+      "path": "tests/test_sessao_e_guarda.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 59,
+      "complexity": 21,
+      "functions": 8,
+      "classes": 0,
+      "description": "A guarda da borda e o cookie de sessao (feature 051)."
+    },
+    {
+      "id": "hooks-de-registro",
+      "name": "hooks_de_registro.py",
+      "path": "src/web/hooks_de_registro.py",
+      "type": "web",
+      "language": "python",
+      "folder": "web/",
+      "loc": 58,
+      "complexity": 2,
+      "functions": 5,
+      "classes": 0,
+      "description": "A fiacao de registro na borda HTTP: identificador, cabecalho e linha de acesso (feature 049)."
+    },
+    {
+      "id": "cm-estimator",
+      "name": "cm_estimator.py",
+      "path": "src/core/cm_estimator.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 57,
+      "complexity": 4,
+      "functions": 1,
+      "classes": 1,
+      "description": "Estimador de parentesco por faixas de cM — LEGADO, fora do fluxo."
+    },
+    {
       "id": "path-search",
       "name": "path_search.py",
       "path": "src/application/path_search.py",
       "type": "application",
       "language": "python",
       "folder": "application/",
-      "loc": 59,
+      "loc": 56,
       "complexity": 2,
       "functions": 2,
       "classes": 1,
       "description": "Caso de uso da busca de caminho (`T012`; `RF-01`, `RF-20`, `D-11`, `D-12`)."
     },
     {
-      "id": "arvore-sugerida-na-tela",
-      "name": "test_arvore_sugerida_na_tela.py",
-      "path": "tests/test_arvore_sugerida_na_tela.py",
+      "id": "identificador-de-requisicao",
+      "name": "test_identificador_de_requisicao.py",
+      "path": "tests/test_identificador_de_requisicao.py",
       "type": "test",
       "language": "python",
       "folder": "tests/",
       "loc": 56,
       "complexity": 15,
-      "functions": 8,
+      "functions": 7,
       "classes": 0,
-      "description": "Testes de tela do bloco da árvore sugerida."
+      "description": "Testes do identificador de requisicao (`T009` da feature 049)."
     },
     {
       "id": "rodar-paridade",
@@ -1670,19 +2348,6 @@
       "description": "Teste de documentacao: a variavel da pasta de upload tem de estar no `README.md`."
     },
     {
-      "id": "cm-estimator",
-      "name": "cm_estimator.py",
-      "path": "src/core/cm_estimator.py",
-      "type": "domain",
-      "language": "python",
-      "folder": "core/",
-      "loc": 53,
-      "complexity": 4,
-      "functions": 1,
-      "classes": 0,
-      "description": "Estimador de parentesco por faixas de cM — LEGADO, fora do fluxo."
-    },
-    {
       "id": "fronteira-da-cirurgia",
       "name": "test_fronteira_da_cirurgia.py",
       "path": "tests/test_fronteira_da_cirurgia.py",
@@ -1709,6 +2374,19 @@
       "description": "Guarda de fronteira do renderizador."
     },
     {
+      "id": "sem-correspondencia",
+      "name": "sem_correspondencia.py",
+      "path": "src/core/sem_correspondencia.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 50,
+      "complexity": 9,
+      "functions": 2,
+      "classes": 0,
+      "description": "Regra de triagem dos matches de cM alto sem correspondência na árvore (feature 039)."
+    },
+    {
       "id": "domain",
       "name": "test_domain.py",
       "path": "tests/test_domain.py",
@@ -1722,17 +2400,43 @@
       "description": "Testes da Tarefa 01 — Entidades de Domínio."
     },
     {
-      "id": "sample-dna",
-      "name": "sample_dna.py",
-      "path": "tests/fixtures/sample_dna.py",
+      "id": "autenticacao",
+      "name": "autenticacao.py",
+      "path": "tests/fixtures/autenticacao.py",
       "type": "fixture",
       "language": "python",
       "folder": "tests/fixtures/",
-      "loc": 44,
+      "loc": 48,
+      "complexity": 4,
+      "functions": 7,
+      "classes": 1,
+      "description": "Provedor de identidade falso e helpers de sessao (feature 051)."
+    },
+    {
+      "id": "contexto-da-analise",
+      "name": "contexto_da_analise.py",
+      "path": "src/core/contexto_da_analise.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 47,
+      "complexity": 1,
+      "functions": 1,
+      "classes": 1,
+      "description": "O estado que nao muda entre kits, com os dois caches da analise."
+    },
+    {
+      "id": "frontend",
+      "name": "login.html",
+      "path": "src/templates/login.html",
+      "type": "frontend",
+      "language": "html",
+      "folder": "templates/",
+      "loc": 45,
       "complexity": 0,
       "functions": 0,
       "classes": 0,
-      "description": "GEDCOM sintético com sobrenomes ricos para testes do matching de DNA."
+      "description": ""
     },
     {
       "id": "pkg-application",
@@ -1759,6 +2463,19 @@
       "functions": 4,
       "classes": 0,
       "description": "Guarda de fronteira do núcleo de validação."
+    },
+    {
+      "id": "medicao-da-carga",
+      "name": "test_medicao_da_carga.py",
+      "path": "tests/test_medicao_da_carga.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 43,
+      "complexity": 7,
+      "functions": 3,
+      "classes": 0,
+      "description": "Testes da medicao nomeada (`T012` da feature 049)."
     },
     {
       "id": "visualizer-integracao",
@@ -1813,6 +2530,19 @@
       "description": "Teste de renderização real (PNG e SVG)."
     },
     {
+      "id": "dependencias",
+      "name": "dependencias.py",
+      "path": "src/core/dependencias.py",
+      "type": "domain",
+      "language": "python",
+      "folder": "core/",
+      "loc": 34,
+      "complexity": 0,
+      "functions": 1,
+      "classes": 1,
+      "description": "O que o nucleo consome de fora, entregue pela borda."
+    },
+    {
       "id": "registro",
       "name": "registro.py",
       "path": "src/core/registro.py",
@@ -1826,17 +2556,43 @@
       "description": "Acesso a registro do GEDCOM: nome de exibicao e identificador."
     },
     {
+      "id": "tela-de-entrada",
+      "name": "test_tela_de_entrada.py",
+      "path": "tests/test_tela_de_entrada.py",
+      "type": "test",
+      "language": "python",
+      "folder": "tests/",
+      "loc": 27,
+      "complexity": 10,
+      "functions": 5,
+      "classes": 0,
+      "description": "As telas da entrada: a tela de login e a masthead com a conta (feature 051)."
+    },
+    {
       "id": "name-keys",
       "name": "name_keys.py",
       "path": "src/utils/name_keys.py",
       "type": "utility",
       "language": "python",
       "folder": "utils/",
-      "loc": 27,
+      "loc": 26,
       "complexity": 3,
       "functions": 1,
       "classes": 0,
       "description": "Normalizacao de um nome para forma comparavel."
+    },
+    {
+      "id": "pkg-web",
+      "name": "__init__.py",
+      "path": "src/web/__init__.py",
+      "type": "config",
+      "language": "python",
+      "folder": "web/",
+      "loc": 9,
+      "complexity": 0,
+      "functions": 0,
+      "classes": 0,
+      "description": "Borda HTTP: Blueprints e entrega de recursos da tela."
     },
     {
       "id": "pkg-core",

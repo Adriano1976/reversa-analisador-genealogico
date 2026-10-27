@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-tela-de-entrada">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<meta name="reversa-generated-at" content="2026-10-27T05:28:28Z">
 <title>Tela de entrada — Analisador Genealógico</title>
 <!-- icone da aba: logo do projeto -->
     <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/logo.png">
@@ -95,6 +95,7 @@
     <p>O SDD desta unit foi extraído em 2026-10-10 e descreve duas abas, “Buscar Conexão no GEDCOM” e “Analisador de DNA”. O template de hoje tem três fases, e a listagem e o envio moram na fase 1, “Árvores GEDCOM” (<code>src/templates/index.html:355-430</code>). 🟢</p>
     <p>A rota, as três ações, os campos ocultos e os literais de mensagem que esta página documenta continuam os mesmos em <code>src/app.py</code>. 🟢 O que mudou é a apresentação: o <code>RF-22</code>, que exige rótulos idênticos aos do SDD, passou a apontar para nomes que o template atual não usa. 🔴</p>
     <p>O critério do <code>RF-21</code> também é anterior a essa mudança: ele fala em “nenhum formulário de upload na aba de DNA”, e o template atual só mostra o formulário de DNA quando há uma árvore aberta. A regra que continua valendo é a ausência de envio avulso. 🟡</p>
+    <p>Desde a feature 051 a tela tem uma porta na frente: <b>não há sessão sem conta</b>. Sem conta, a requisição à rota do formulário responde <code>302</code> (ou <code>303</code> quando é <code>POST</code>, para o navegador não reenviar o corpo) e vai para <code>/login</code>, que manda ao Google com um <code>state</code> de uso único; o <code>/callback</code> troca o código pelo token, grava a conta na sessão e devolve o operador a esta tela. As duas listas passam a ser filtradas pelo <b>dono</b> da sessão, e referência de outro dono responde <code>404</code>. 🟢 CONFIRMADO em <code>src/web/sessao.py</code> e <code>src/web/rotas_auth.py</code>, posteriores ao SDD desta unidade.</p>
   </div>
 
   <h2>Como a Feature Funciona</h2>

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T11:49:26Z",
+  "generatedAt": "2026-10-27T05:24:46Z",
   "sourceName": "cronica ate 2026-09-30, eventos de .reversa/state.json a partir de 2026-10-05 e eventos do ciclo forward a partir de 2026-08-11, todos os posteriores marcados como fora da cronica",
   "project": "analisador-genealogico",
   "sources": [
@@ -19,8 +19,8 @@
     {
       "id": "progress.jsonl",
       "path": "_reversa_forward/*/progress.jsonl",
-      "eventos": 30,
-      "ultimo": "2026-10-20T11:22:00Z"
+      "eventos": 44,
+      "ultimo": "2026-10-27T03:20:00Z"
     }
   ],
   "events": [
@@ -1165,6 +1165,174 @@
       "foraDaCronica": true,
       "feature": "037-redesenho-das-tres-fases",
       "featureId": "037"
+    },
+    {
+      "id": "f039-20261022",
+      "date": "2026-10-22T14:05:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "dna-sem-correspondencia: 2026-10-22",
+      "detail": "19 ação(ões) em 2026-10-22 (19 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "039-dna-sem-correspondencia",
+      "featureId": "039"
+    },
+    {
+      "id": "f046-20261022",
+      "date": "2026-10-22T16:32:00-03:00",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "paginacao-dos-resultados: 2026-10-22",
+      "detail": "14 ação(ões) em 2026-10-22 (14 done). T001: baseline medida: 1585 passed, 9 skipped (100,29 s); SHA_DA_TELA 7375696d.../42.290 bytes; TAMANHO_ESPERADO 16504 (que mede o PNG do icone, e nao a te... T002: 18 testes de marcacao e folha; fixtures novas DNA_CSV_SESSENTA_E_OITO_CONEXOES e DNA_CSV_OITO_CONEXOES (68 e 8 cartoes). Vermelho antes do codigo: 24... T009: suite completa: 2 falhas, as duas de SHA_DA_TELA. Um ajuste no teste novo: test_o_controle_nao_e_renderizado procurava o nome da classe em todo o doc... T011: arquivo real (Adriano_Santos_v3_tratado.ged + Familias_Sergipanas.csv): 68 cartoes, 7 numeros, 'Pagina 1 de 7', '68 conexoes analisadas', 0 cartoes c...",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "046-paginacao-dos-resultados",
+      "featureId": "046"
+    },
+    {
+      "id": "f040-20261022",
+      "date": "2026-10-22T16:34:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "fonte-e-cobertura-do-arquivo: 2026-10-22",
+      "detail": "20 ação(ões) em 2026-10-22 (20 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "040-fonte-e-cobertura-do-arquivo",
+      "featureId": "040"
+    },
+    {
+      "id": "f041-20261022",
+      "date": "2026-10-22T17:01:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "renomear-filtro-de-segmentos: 2026-10-22",
+      "detail": "3 ação(ões) em 2026-10-22 (3 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "041-renomear-filtro-de-segmentos",
+      "featureId": "041"
+    },
+    {
+      "id": "f042-20261022",
+      "date": "2026-10-22T17:17:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "explicar-fonte-nao-declarada: 2026-10-22",
+      "detail": "4 ação(ões) em 2026-10-22 (4 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "042-explicar-fonte-nao-declarada",
+      "featureId": "042"
+    },
+    {
+      "id": "f043-20261022",
+      "date": "2026-10-22T17:50:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "tabela-do-antepassado-comum: 2026-10-22",
+      "detail": "6 ação(ões) em 2026-10-22 (6 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "043-tabela-do-antepassado-comum",
+      "featureId": "043"
+    },
+    {
+      "id": "f044-20261022",
+      "date": "2026-10-22T18:40:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "destaque-da-hipotese-mais-proxima: 2026-10-22",
+      "detail": "5 ação(ões) em 2026-10-22 (5 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "044-destaque-da-hipotese-mais-proxima",
+      "featureId": "044"
+    },
+    {
+      "id": "f045-20261022",
+      "date": "2026-10-22T19:06:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "humanizar-geracao-de-diferenca: 2026-10-22",
+      "detail": "5 ação(ões) em 2026-10-22 (5 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "045-humanizar-geracao-de-diferenca",
+      "featureId": "045"
+    },
+    {
+      "id": "f047-20261024",
+      "date": "2026-10-24T08:01:34+00:00",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "cache-dos-indices-da-arvore: 2026-10-24",
+      "detail": "17 ação(ões) em 2026-10-24 (17 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "047-cache-dos-indices-da-arvore",
+      "featureId": "047"
+    },
+    {
+      "id": "f048-20261024",
+      "date": "2026-10-24T14:05:22+00:00",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "indice-de-nomes-sem-colisao: 2026-10-24",
+      "detail": "10 ação(ões) em 2026-10-24 (10 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "048-indice-de-nomes-sem-colisao",
+      "featureId": "048"
+    },
+    {
+      "id": "f049-20261025",
+      "date": "2026-10-25T15:36:20-03:00",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "sistema-de-log: 2026-10-25",
+      "detail": "24 ação(ões) em 2026-10-25 (23 done, 1 failed).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "049-sistema-de-log",
+      "featureId": "049"
+    },
+    {
+      "id": "f049-20261026",
+      "date": "2026-10-26T11:50:20-03:00",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "sistema-de-log: 2026-10-26",
+      "detail": "1 ação(ões) em 2026-10-26 (1 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "049-sistema-de-log",
+      "featureId": "049"
+    },
+    {
+      "id": "f050-20261026",
+      "date": "2026-10-26T23:05:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "imprimir-resultado-por-pessoa: 2026-10-26",
+      "detail": "16 ação(ões) em 2026-10-26 (16 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "050-imprimir-resultado-por-pessoa",
+      "featureId": "050"
+    },
+    {
+      "id": "f051-20261027",
+      "date": "2026-10-27T03:20:00Z",
+      "agent": "reversa-forward",
+      "category": "forward",
+      "title": "login-google-e-isolamento: 2026-10-27",
+      "detail": "38 ação(ões) em 2026-10-27 (2 corrected, 36 done).",
+      "source": "progress.jsonl",
+      "foraDaCronica": true,
+      "feature": "051-login-google-e-isolamento",
+      "featureId": "051"
     }
   ]
 }

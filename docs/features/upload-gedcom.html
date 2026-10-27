@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-upload-gedcom">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<meta name="reversa-generated-at" content="2026-10-27T05:28:28Z">
 <title>Upload e parsing de GEDCOM — Analisador Genealógico</title>
 <!-- icone da aba: logo do projeto -->
     <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/logo.png">
@@ -103,9 +103,9 @@
   <p class="summary" id="tldr">Recebe um arquivo GEDCOM enviado pelo navegador, decide se ele pode ser gravado, grava-o sob uma chave derivada do próprio conteúdo e o traduz em estado de domínio consultável (pessoas, famílias e grafo). É a porta de entrada de todas as outras unidades: sem upload-gedcom, não há analise-dna nem busca-caminho.</p>
 
   <div class="delta-warn" id="delta-pos-extracao">
-    <h3>Delta depois da extração: re-extração de 2026-10-10 e features 010 a 038</h3>
+    <h3>Delta depois da extração: re-extração de 2026-10-10 e features 010 a 051</h3>
     <p>Esta página descreve a extração de 2026-10-05. Depois dela, o SDD foi <b>re-extraído em 2026-10-10</b> e esta unidade passou a ter <b>24 requisitos funcionais</b>, <b>10 cenários Gherkin</b> e <b>26 tarefas</b>, contra os 19, 6 e 20 documentados abaixo.</p>
-    <p>Na implementação, o ciclo forward entregou as features <b>010</b> a <b>012</b> (uploads fora do repositório, escolha de arquivo da lista e pasta canônica) e <b>025</b> a <b>038</b> (desempenho da carga da árvore, polimento e harmonização da tela, validador de dados de DNA, desacoplamento de nós, renderizador Graphviz, veredito no cartão, árvore sugerida, contador em três faixas, revisão e lista de trabalho dos descartes, refino do cartão, redesenho das três fases e humanização do motivo de descarte). O código de 2026-10-20 tem 142 arquivos e 30.965 linhas não vazias.</p>
+    <p>Na implementação, o ciclo forward entregou as features <b>010</b> a <b>012</b> (uploads fora do repositório, escolha de arquivo da lista e pasta canônica), <b>025</b> a <b>038</b> (desempenho da carga, polimento da tela, validador de DNA, desacoplamento de nós, Graphviz, veredito no cartão, árvore sugerida, contador em três faixas, descartes e humanização do motivo) e <b>039</b> a <b>051</b> (DNA sem correspondência, fonte e cobertura do arquivo, tabela do antepassado comum, destaque da hipótese mais próxima, geração de diferença humanizada, paginação dos resultados, cache dos índices da árvore, índice de nomes sem colisão, sistema de log com auditoria, impressão do resultado por pessoa e entrada com conta Google). O código de 2026-10-27 tem 200 arquivos e 38.699 linhas não vazias.</p>
     <p>Esta página, portanto, vale para o momento dela. Para o estado vigente, leia <code>_reversa_sdd/upload-gedcom/requirements.md</code> e o código em <code>src/</code>. As duas unidades novas, <b>tela-de-entrada</b> e <b>recursos-da-tela</b>, têm páginas próprias.</p>
   </div>
 

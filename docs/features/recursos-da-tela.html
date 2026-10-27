@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="feature">
 <meta name="reversa-page-id" content="feature-recursos-da-tela">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<meta name="reversa-generated-at" content="2026-10-27T05:28:28Z">
 <title>Artes da tela — Analisador Genealógico</title>
 <!-- icone da aba: logo do projeto -->
     <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/logo.png">
@@ -110,6 +110,7 @@
     <h3>Delta depois da extração: a arte do topo mudou em 2026-10-16 e de novo em 2026-10-21</h3>
     <p>O SDD desta unit foi extraído em 2026-10-10. Depois disso, a arte do topo foi trocada duas vezes: o arquivo servido em <code>src/assets/banner-da-tela.png</code> tem hoje 438.161 bytes, em 1408 x 752, e não os 317.058 bytes registrados no SDD, e a composição atual não traz o texto desenhado. A troca de 2026-10-21 mudou também a natureza da fonte: ela passou a chegar <b>transparente</b> (70,8 % dos pixels em alfa 0), e a receita deixou de remover fundo nesse caso. 🟡 INFERIDO pela diferença entre o SDD e o arquivo, com a troca registrada em comentário no <code>src/app.py</code> (:444 a :455).</p>
     <p>O que continua valendo: a rota, a derivação e o contrato de degradação. 🟢 CONFIRMADO. O que envelheceu: a âncora de bytes do banner, a descrição da fonte como "RGB sem alfa" e a justificativa das duas faixas que citava o texto dourado. 🔴 LACUNA: falta decisão humana sobre atualizar a âncora de 317.058 bytes ou tratá-la como registro histórico.</p>
+    <p>Com a entrada obrigatória da feature 051, as duas artes e a folha ganharam um papel novo: elas são <b>públicas de propósito</b> (a lista fechada de endpoints sem sessão é <code>auth.login</code>, <code>auth.callback</code>, <code>assets.icone_de_atalho</code>, <code>assets.banner_do_topo</code> e <code>assets.estilo_da_tela</code>), porque a tela de entrada precisa delas antes de qualquer conta existir. A quarta rota deste pacote, <code>/descartes.csv</code>, <b>não</b> é pública: devolve dado e exige sessão. 🟢 CONFIRMADO em <code>src/web/sessao.py</code>.</p>
   </div>
 
   <h2>Como a Feature Funciona</h2>

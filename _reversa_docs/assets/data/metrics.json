@@ -1,84 +1,90 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T12:08:27Z",
+  "generatedAt": "2026-10-27T05:24:46Z",
   "source": "modules.json + deps.json (extracao deterministica de 2026-10-06) e contagens do SDD de 2026-10-05",
   "code": {
-    "modules": 142,
-    "locNaoVazio": 30965,
-    "locSrcPython": 9906,
-    "locTests": 18250,
-    "complexityTotal": 4768,
-    "pastas": 11,
-    "pacotes": 8,
-    "arestasDePacote": 23,
+    "modules": 200,
+    "locNaoVazio": 38699,
+    "locSrcPython": 12859,
+    "locTests": 22000,
+    "complexityTotal": 5905,
+    "pastas": 12,
+    "pacotes": 9,
+    "arestasDePacote": 28,
     "ciclos": 0
   },
   "treemap_loc_by_folder": [
     {
       "folder": "tests/",
-      "loc": 17291,
-      "modules": 85,
-      "complexity": 3264
+      "loc": 20911,
+      "modules": 114,
+      "complexity": 4080
     },
     {
       "folder": "core/",
-      "loc": 5622,
-      "modules": 22,
-      "complexity": 1006
+      "loc": 7099,
+      "modules": 39,
+      "complexity": 1140
     },
     {
       "folder": "templates/",
-      "loc": 1824,
-      "modules": 1,
+      "loc": 2290,
+      "modules": 2,
       "complexity": 0
     },
     {
       "folder": "assets/",
-      "loc": 985,
+      "loc": 1550,
       "modules": 1,
       "complexity": 0
     },
     {
-      "folder": "reporting/",
-      "loc": 981,
-      "modules": 5,
-      "complexity": 174
+      "folder": "application/",
+      "loc": 1090,
+      "modules": 10,
+      "complexity": 125
     },
     {
       "folder": "tests/fixtures/",
-      "loc": 959,
-      "modules": 8,
-      "complexity": 4
+      "loc": 1089,
+      "modules": 9,
+      "complexity": 9
     },
     {
-      "folder": "application/",
-      "loc": 919,
-      "modules": 8,
-      "complexity": 104
-    },
-    {
-      "folder": "src/",
-      "loc": 789,
-      "modules": 1,
-      "complexity": 58
+      "folder": "reporting/",
+      "loc": 1063,
+      "modules": 5,
+      "complexity": 191
     },
     {
       "folder": "ports/",
-      "loc": 697,
+      "loc": 941,
       "modules": 2,
-      "complexity": 31
+      "complexity": 65
     },
     {
-      "folder": "parsers/",
-      "loc": 484,
-      "modules": 4,
-      "complexity": 82
+      "folder": "src/",
+      "loc": 869,
+      "modules": 1,
+      "complexity": 68
     },
     {
       "folder": "utils/",
-      "loc": 414,
-      "modules": 5,
-      "complexity": 45
+      "loc": 769,
+      "modules": 7,
+      "complexity": 79
+    },
+    {
+      "folder": "web/",
+      "loc": 537,
+      "modules": 6,
+      "complexity": 65
+    },
+    {
+      "folder": "parsers/",
+      "loc": 491,
+      "modules": 4,
+      "complexity": 83
     }
   ],
   "top_complexity": [
@@ -93,43 +99,29 @@
       "id": "tests/test_profundidade_do_caminho.py",
       "name": "test_profundidade_do_caminho.py",
       "folder": "tests/",
-      "complexity": 202,
-      "loc": 805
+      "complexity": 206,
+      "loc": 825
     },
     {
       "id": "tests/test_endogamia.py",
       "name": "test_endogamia.py",
       "folder": "tests/",
-      "complexity": 169,
-      "loc": 642
-    },
-    {
-      "id": "src/core/dna_analysis.py",
-      "name": "dna_analysis.py",
-      "folder": "core/",
-      "complexity": 145,
-      "loc": 841
-    },
-    {
-      "id": "src/core/documentary_relationship.py",
-      "name": "documentary_relationship.py",
-      "folder": "core/",
-      "complexity": 135,
-      "loc": 650
+      "complexity": 171,
+      "loc": 648
     },
     {
       "id": "src/core/cirurgia_do_grafo.py",
       "name": "cirurgia_do_grafo.py",
       "folder": "core/",
-      "complexity": 130,
-      "loc": 608
+      "complexity": 148,
+      "loc": 701
     },
     {
       "id": "src/core/validator.py",
       "name": "validator.py",
       "folder": "core/",
       "complexity": 113,
-      "loc": 454
+      "loc": 448
     },
     {
       "id": "tests/test_cartoes_recolhiveis.py",
@@ -137,6 +129,20 @@
       "folder": "tests/",
       "complexity": 105,
       "loc": 438
+    },
+    {
+      "id": "src/core/genetic_evidence.py",
+      "name": "genetic_evidence.py",
+      "folder": "core/",
+      "complexity": 91,
+      "loc": 358
+    },
+    {
+      "id": "src/reporting/mermaid_render.py",
+      "name": "mermaid_render.py",
+      "folder": "reporting/",
+      "complexity": 90,
+      "loc": 479
     },
     {
       "id": "tests/test_upload_seguranca.py",
@@ -150,28 +156,21 @@
       "name": "test_estilo_da_tela.py",
       "folder": "tests/",
       "complexity": 88,
-      "loc": 446
-    },
-    {
-      "id": "src/core/genetic_evidence.py",
-      "name": "genetic_evidence.py",
-      "folder": "core/",
-      "complexity": 86,
-      "loc": 321
+      "loc": 450
     },
     {
       "id": "src/core/endogamia.py",
       "name": "endogamia.py",
       "folder": "core/",
       "complexity": 84,
-      "loc": 712
+      "loc": 693
     },
     {
       "id": "tests/test_observacoes_do_arquivo.py",
       "name": "test_observacoes_do_arquivo.py",
       "folder": "tests/",
-      "complexity": 77,
-      "loc": 362
+      "complexity": 79,
+      "loc": 366
     },
     {
       "id": "tests/test_manutencao_de_uploads.py",
@@ -181,18 +180,11 @@
       "loc": 255
     },
     {
-      "id": "src/reporting/mermaid_render.py",
-      "name": "mermaid_render.py",
-      "folder": "reporting/",
-      "complexity": 73,
-      "loc": 378
-    },
-    {
       "id": "src/reporting/visualizer.py",
       "name": "visualizer.py",
       "folder": "reporting/",
       "complexity": 72,
-      "loc": 322
+      "loc": 310
     },
     {
       "id": "tests/test_projecao_da_analise.py",
@@ -200,6 +192,13 @@
       "folder": "tests/",
       "complexity": 70,
       "loc": 254
+    },
+    {
+      "id": "src/app.py",
+      "name": "app.py",
+      "folder": "src/",
+      "complexity": 68,
+      "loc": 869
     },
     {
       "id": "tests/test_guardas_do_armazenamento.py",
@@ -216,11 +215,18 @@
       "loc": 287
     },
     {
-      "id": "tests/test_validator.py",
-      "name": "test_validator.py",
-      "folder": "tests/",
+      "id": "src/ports/adaptadores.py",
+      "name": "adaptadores.py",
+      "folder": "ports/",
       "complexity": 64,
-      "loc": 273
+      "loc": 571
+    },
+    {
+      "id": "src/core/passo_por_kit.py",
+      "name": "passo_por_kit.py",
+      "folder": "core/",
+      "complexity": 64,
+      "loc": 433
     }
   ],
   "loc_histogram": {
@@ -234,12 +240,12 @@
       5000
     ],
     "counts": [
-      13,
-      35,
-      42,
-      41,
-      10,
-      1,
+      19,
+      53,
+      69,
+      49,
+      8,
+      2,
       0
     ],
     "labels": [
@@ -277,6 +283,9 @@
       },
       {
         "id": "utils"
+      },
+      {
+        "id": "web"
       }
     ],
     "links": [
@@ -303,12 +312,17 @@
       {
         "source": "app",
         "target": "reporting",
-        "value": 3
+        "value": 2
       },
       {
         "source": "app",
         "target": "utils",
-        "value": 1
+        "value": 3
+      },
+      {
+        "source": "app",
+        "target": "web",
+        "value": 5
       },
       {
         "source": "application",
@@ -353,7 +367,7 @@
       {
         "source": "ports",
         "target": "utils",
-        "value": 1
+        "value": 2
       },
       {
         "source": "reporting",
@@ -363,27 +377,27 @@
       {
         "source": "tests",
         "target": "app",
-        "value": 18
+        "value": 24
       },
       {
         "source": "tests",
         "target": "application",
-        "value": 18
+        "value": 21
       },
       {
         "source": "tests",
         "target": "core",
-        "value": 73
+        "value": 97
       },
       {
         "source": "tests",
         "target": "parsers",
-        "value": 37
+        "value": 44
       },
       {
         "source": "tests",
         "target": "ports",
-        "value": 10
+        "value": 12
       },
       {
         "source": "tests",
@@ -393,25 +407,45 @@
       {
         "source": "tests",
         "target": "utils",
-        "value": 14
+        "value": 20
+      },
+      {
+        "source": "tests",
+        "target": "web",
+        "value": 3
+      },
+      {
+        "source": "web",
+        "target": "application",
+        "value": 1
+      },
+      {
+        "source": "web",
+        "target": "reporting",
+        "value": 1
+      },
+      {
+        "source": "web",
+        "target": "utils",
+        "value": 2
       }
     ]
   },
   "language_distribution": [
     {
       "language": "python",
-      "modules": 140,
-      "loc": 28156
+      "modules": 197,
+      "loc": 34859
     },
     {
       "language": "html",
-      "modules": 1,
-      "loc": 1824
+      "modules": 2,
+      "loc": 2290
     },
     {
       "language": "css",
       "modules": 1,
-      "loc": 985
+      "loc": 1550
     }
   ],
   "sdd": {
@@ -437,7 +471,7 @@
       "tela-de-entrada": 24,
       "recursos-da-tela": 25
     },
-    "adrs": 36,
+    "adrs": 38,
     "adrIds": [
       "01-reconstruir-em-modulos",
       "02-camada-de-rota-fina",
@@ -474,7 +508,9 @@
       "33-desfecho-em-tres-valores-e-projecao-pura",
       "34-ciclos-quebrados-e-superficies-removidas",
       "35-pasta-de-uploads-dentro-do-repositorio",
-      "36-revalidacao-das-decisoes-herdadas"
+      "36-revalidacao-das-decisoes-herdadas",
+      "37-observabilidade-em-camadas",
+      "38-cache-da-arvore-entre-requisicoes"
     ],
     "gapsLinhasTabela": 24,
     "gapsIdsCitados": 18,

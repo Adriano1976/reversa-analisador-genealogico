@@ -8,7 +8,7 @@
 <meta name="reversa-template" content="index">
 <meta name="reversa-page-id" content="index">
 <meta name="reversa-visual-style" content="sober">
-<meta name="reversa-generated-at" content="2026-10-20T12:14:31Z">
+<meta name="reversa-generated-at" content="2026-10-27T05:28:28Z">
 <title>Analisador Genealógico — Documentação</title>
 <!-- icone da aba: logo do projeto -->
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/logo.png">
@@ -78,15 +78,15 @@
 <img class="seal" src="assets/img/logo.png" alt="Logo do projeto: livro aberto com hélice de DNA e árvore genealógica">
   <div class="tag">Genetic Genealogy Path Analyzer</div>
   <h1>Analisador Genealógico</h1>
-  <p>Aplicação web Flask para genealogistas genéticos. Cruza uma árvore GEDCOM com um relatório de DNA em CSV e responde como duas pessoas se conectam, separando três eixos que não se contaminam: o parentesco que o GEDCOM afirma, a evidência que o arquivo de DNA traz e o confronto entre os dois. Depois das features 005 a 008 o núcleo ficou puro, o mundo externo entra por <code>ports/</code> e o histórico das análises pode ser gravado em PostgreSQL. Até a feature 038 entraram a endogamia com reconvergências, os descartes com motivo e exportação, o veredito no cartão, a árvore sugerida e a tela de entrada com escolha de arquivo. Documentação atualizada em 2026-10-20.</p>
+  <p>Aplicação web Flask para genealogistas genéticos. Cruza uma árvore GEDCOM com um relatório de DNA em CSV e responde como duas pessoas se conectam, separando três eixos que não se contaminam: o parentesco que o GEDCOM afirma, a evidência que o arquivo de DNA traz e o confronto entre os dois. Depois das features 005 a 008 o núcleo ficou puro, o mundo externo entra por <code>ports/</code> e o histórico das análises pode ser gravado em PostgreSQL. Até a 038 entraram a endogamia com reconvergências, os descartes com motivo e exportação, o veredito no cartão, a árvore sugerida e a tela de entrada com escolha de arquivo. Entre a 039 e a 051 entraram o retrato do arquivo, a tabela do antepassado comum, a paginação, o cache da árvore entre requisições, o índice de nomes sem colisão, o registro em camadas com auditoria, a impressão do resultado por pessoa e a entrada com conta Google, que fechou a dívida de isolamento entre donos. Documentação atualizada em 2026-10-27.</p>
 </section>
 
 <div class="section-title">Arquitetura e estrutura</div>
 <div class="grid">
-  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 142 módulos em 11 pastas: núcleo puro em core/, casos de uso em application/, o mundo externo entrando por ports/ e a tela em templates/ e assets/.</p></a>
-  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com 8 pacotes e 23 arestas. O grafo é acíclico, e a quebra dos 2 ciclos antigos está registrada no ADR-34.</p></a>
-  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: 30 965 linhas não vazias, LOC por pasta, complexidade, histograma, sankey de dependências e linguagens.</p></a>
-  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>116 eventos de três fontes: a crônica, os checkpoints do state.json e o ciclo forward, até 2026-10-20.</p></a>
+  <a class="card" href="arquitetura.html"><div class="ico">🏗️</div><h3>Arquitetura 3D</h3><p>Code City com 200 módulos em 12 pastas: núcleo puro em core/, casos de uso em application/, o mundo externo entrando por ports/ e a tela em templates/ e assets/.</p></a>
+  <a class="card" href="modulos.html"><div class="ico">🗺️</div><h3>Módulos</h3><p>Grafo force-directed com 9 pacotes e 28 arestas. O grafo é acíclico, e a quebra dos 2 ciclos antigos está registrada no ADR-34.</p></a>
+  <a class="card" href="metricas.html"><div class="ico">📊</div><h3>Métricas</h3><p>Dashboard Highcharts: 38 699 linhas não vazias, LOC por pasta, complexidade, histograma, sankey de dependências e linguagens.</p></a>
+  <a class="card" href="timeline.html"><div class="ico">📅</div><h3>Timeline</h3><p>130 eventos de três fontes: a crônica, os checkpoints do state.json e o ciclo forward, até 2026-10-27.</p></a>
   <a class="card" href="glossario.html"><div class="ico">📖</div><h3>Glossário</h3><p>44 conceitos do domínio, de GEDCOM e cM a porta, adaptador, meioses, colapso de pedigree e contrato de escape do Mermaid.</p></a>
   <a class="card" href="deck.html"><div class="ico">🎞️</div><h3>Deck</h3><p>Apresentação navegável em 10 slides com a história, os números e as 6 decisões fundadoras.</p></a>
 </div>
@@ -122,6 +122,6 @@
 })();
 </script>
 <!-- Gerado pelo Reversa-Docs-Publisher em 2026-10-20. -->
-<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-20, sobre a re-extração do SDD de 2026-10-10 e o código até a feature 038.</div>
+<div class="reversa-signature" style="margin:32px 0 8px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);text-align:center;font-size:12px;font-style:italic;opacity:.8;">Gerado pelo Reversa-Docs-Publisher em 2026-10-27, sobre a re-extração do SDD de 2026-10-10 e o código até a feature 051.</div>
 </body>
 </html>

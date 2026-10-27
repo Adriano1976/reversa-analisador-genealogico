@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T11:49:13Z",
+  "generatedAt": "2026-10-27T05:24:37Z",
   "project": "analisador-genealogico",
   "language": "Python/Flask",
   "aggregation": "pacote de primeiro nivel (src/ e a raiz de import: app, core, parsers, reporting, utils, tests)",
@@ -12,7 +12,8 @@
     "ports",
     "reporting",
     "tests",
-    "utils"
+    "utils",
+    "web"
   ],
   "edges": [
     {
@@ -38,6 +39,10 @@
     {
       "source": "app",
       "target": "utils"
+    },
+    {
+      "source": "app",
+      "target": "web"
     },
     {
       "source": "application",
@@ -106,6 +111,22 @@
     {
       "source": "tests",
       "target": "utils"
+    },
+    {
+      "source": "tests",
+      "target": "web"
+    },
+    {
+      "source": "web",
+      "target": "application"
+    },
+    {
+      "source": "web",
+      "target": "reporting"
+    },
+    {
+      "source": "web",
+      "target": "utils"
     }
   ],
   "cycles": [],
@@ -167,13 +188,43 @@
     },
     {
       "from": "src/app.py",
-      "import": "reporting.csv_de_descartes",
-      "to": "reporting"
+      "import": "web.autenticacao",
+      "to": "web"
+    },
+    {
+      "from": "src/app.py",
+      "import": "web.rotas_assets",
+      "to": "web"
+    },
+    {
+      "from": "src/app.py",
+      "import": "web.rotas_auth",
+      "to": "web"
+    },
+    {
+      "from": "src/app.py",
+      "import": "web.sessao",
+      "to": "web"
+    },
+    {
+      "from": "src/app.py",
+      "import": "web.hooks_de_registro",
+      "to": "web"
     },
     {
       "from": "src/app.py",
       "import": "ports.adaptadores",
       "to": "ports"
+    },
+    {
+      "from": "src/app.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
+      "from": "src/app.py",
+      "import": "utils.auditoria",
+      "to": "utils"
     },
     {
       "from": "src/app.py",
@@ -216,9 +267,9 @@
       "to": "core"
     },
     {
-      "from": "src/application/dna_analysis.py",
-      "import": "ports",
-      "to": "ports"
+      "from": "src/application/dono_inicial.py",
+      "import": "__future__",
+      "to": "externo"
     },
     {
       "from": "src/application/path_search.py",
@@ -229,6 +280,16 @@
       "from": "src/application/path_search.py",
       "import": "core.path_search",
       "to": "core"
+    },
+    {
+      "from": "src/application/projecao_analise.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/application/projecao_analise.py",
+      "import": "ports",
+      "to": "ports"
     },
     {
       "from": "src/application/reenvio.py",
@@ -331,6 +392,56 @@
       "to": "parsers"
     },
     {
+      "from": "src/core/caminhos_alternativos.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/caminhos_alternativos.py",
+      "import": "datas_do_gedcom",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/caminhos_alternativos.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/caminhos_alternativos.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "evidence_comparison",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "genetic_evidence",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "passo_por_kit",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cartao_sem_correspondencia.py",
+      "import": "relationship_hypotheses",
+      "to": "externo"
+    },
+    {
       "from": "src/core/cirurgia_do_grafo.py",
       "import": "__future__",
       "to": "externo"
@@ -338,6 +449,16 @@
     {
       "from": "src/core/cirurgia_do_grafo.py",
       "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cirurgia_do_grafo.py",
+      "import": "identidade_do_match",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cirurgia_do_grafo.py",
+      "import": "janela_de_vida",
       "to": "externo"
     },
     {
@@ -351,6 +472,76 @@
       "to": "externo"
     },
     {
+      "from": "src/core/cobertura_do_arquivo.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cobertura_do_arquivo.py",
+      "import": "statistics",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cobertura_do_arquivo.py",
+      "import": "endogamia",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cobertura_do_arquivo.py",
+      "import": "fontes_de_laboratorio",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/cobertura_do_arquivo.py",
+      "import": "qualidade_da_medida",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/contexto_da_analise.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/contexto_da_analise.py",
+      "import": "dependencias",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/contexto_da_analise.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/contexto_da_analise.py",
+      "import": "endogamia",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/contrato_do_cartao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/datas_do_gedcom.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/datas_do_gedcom.py",
+      "import": "statistics",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/datas_do_gedcom.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dependencias.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
       "from": "src/core/diagram_domain.py",
       "import": "__future__",
       "to": "externo"
@@ -358,6 +549,11 @@
     {
       "from": "src/core/diagram_domain.py",
       "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/diagram_domain.py",
+      "import": "datas_do_gedcom",
       "to": "externo"
     },
     {
@@ -373,6 +569,21 @@
     {
       "from": "src/core/dna_analysis.py",
       "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "cartao_sem_correspondencia",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "contexto_da_analise",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "dependencias",
       "to": "externo"
     },
     {
@@ -382,12 +593,12 @@
     },
     {
       "from": "src/core/dna_analysis.py",
-      "import": "endogamia",
+      "import": "documentary_relationship",
       "to": "externo"
     },
     {
       "from": "src/core/dna_analysis.py",
-      "import": "documentary_relationship",
+      "import": "endogamia",
       "to": "externo"
     },
     {
@@ -397,22 +608,7 @@
     },
     {
       "from": "src/core/dna_analysis.py",
-      "import": "evidence_comparison",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
       "import": "genetic_evidence",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
-      "import": "identidade_do_match",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
-      "import": "path_finding",
       "to": "externo"
     },
     {
@@ -422,17 +618,7 @@
     },
     {
       "from": "src/core/dna_analysis.py",
-      "import": "profundidade_do_caminho",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
       "import": "matching",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
-      "import": "motivos_do_descarte",
       "to": "externo"
     },
     {
@@ -442,7 +628,22 @@
     },
     {
       "from": "src/core/dna_analysis.py",
-      "import": "relationship_hypotheses",
+      "import": "passo_por_kit",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "rotulos_do_cartao",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/dna_analysis.py",
+      "import": "sem_correspondencia",
       "to": "externo"
     },
     {
@@ -451,38 +652,33 @@
       "to": "utils"
     },
     {
-      "from": "src/core/dna_analysis.py",
-      "import": "registro",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
-      "import": "cirurgia_do_grafo",
-      "to": "externo"
-    },
-    {
-      "from": "src/core/dna_analysis.py",
-      "import": "validator",
-      "to": "externo"
-    },
-    {
       "from": "src/core/documentary_relationship.py",
       "import": "__future__",
       "to": "externo"
     },
     {
       "from": "src/core/documentary_relationship.py",
-      "import": "statistics",
+      "import": "caminhos_alternativos",
       "to": "externo"
     },
     {
       "from": "src/core/documentary_relationship.py",
-      "import": "family_navigation",
+      "import": "datas_do_gedcom",
       "to": "externo"
     },
     {
       "from": "src/core/documentary_relationship.py",
-      "import": "registro",
+      "import": "fichas_da_pessoa",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "graus_de_parentesco",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/documentary_relationship.py",
+      "import": "homonimos",
       "to": "externo"
     },
     {
@@ -492,8 +688,8 @@
     },
     {
       "from": "src/core/documentary_relationship.py",
-      "import": "utils.text_cleaning",
-      "to": "utils"
+      "import": "registro",
+      "to": "externo"
     },
     {
       "from": "src/core/endogamia.py",
@@ -514,6 +710,21 @@
       "from": "src/core/endogamia.py",
       "import": "utils.number_format",
       "to": "utils"
+    },
+    {
+      "from": "src/core/endogamia_no_cartao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/endogamia_no_cartao.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/endogamia_no_cartao.py",
+      "import": "rotulos_do_cartao",
+      "to": "externo"
     },
     {
       "from": "src/core/erros.py",
@@ -546,6 +757,31 @@
       "to": "externo"
     },
     {
+      "from": "src/core/fichas_da_pessoa.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/fichas_da_pessoa.py",
+      "import": "datas_do_gedcom",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/fichas_da_pessoa.py",
+      "import": "family_navigation",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/fichas_da_pessoa.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/fontes_de_laboratorio.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
       "from": "src/core/genetic_evidence.py",
       "import": "__future__",
       "to": "externo"
@@ -572,6 +808,31 @@
     },
     {
       "from": "src/core/genetic_evidence.py",
+      "import": "utils.text_cleaning",
+      "to": "utils"
+    },
+    {
+      "from": "src/core/graus_de_parentesco.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/homonimos.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/homonimos.py",
+      "import": "fichas_da_pessoa",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/homonimos.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/homonimos.py",
       "import": "utils.text_cleaning",
       "to": "utils"
     },
@@ -636,6 +897,86 @@
       "to": "utils"
     },
     {
+      "from": "src/core/passo_por_kit.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "cirurgia_do_grafo",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "contexto_da_analise",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "endogamia",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "endogamia_no_cartao",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "evidence_comparison",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "genetic_evidence",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "identidade_do_match",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "janela_de_vida",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "matching",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "motivos_do_descarte",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "profundidade_do_caminho",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "relationship_hypotheses",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/passo_por_kit.py",
+      "import": "validacao_no_cartao",
+      "to": "externo"
+    },
+    {
       "from": "src/core/path_finding.py",
       "import": "__future__",
       "to": "externo"
@@ -681,6 +1022,11 @@
       "to": "externo"
     },
     {
+      "from": "src/core/qualidade_da_medida.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
       "from": "src/core/registro.py",
       "import": "__future__",
       "to": "externo"
@@ -688,6 +1034,66 @@
     {
       "from": "src/core/relationship_hypotheses.py",
       "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/relationship_hypotheses.py",
+      "import": "graus_de_parentesco",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/rotulos_do_cartao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/rotulos_do_cartao.py",
+      "import": "endogamia",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/rotulos_do_cartao.py",
+      "import": "path_finding",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/rotulos_do_cartao.py",
+      "import": "validator",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/sem_correspondencia.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/sem_correspondencia.py",
+      "import": "name_normalization",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/validacao_no_cartao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/validacao_no_cartao.py",
+      "import": "documentary_relationship",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/validacao_no_cartao.py",
+      "import": "registro",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/validacao_no_cartao.py",
+      "import": "rotulos_do_cartao",
+      "to": "externo"
+    },
+    {
+      "from": "src/core/validacao_no_cartao.py",
+      "import": "validator",
       "to": "externo"
     },
     {
@@ -792,8 +1198,18 @@
     },
     {
       "from": "src/ports/adaptadores.py",
+      "import": "utils.logs",
+      "to": "utils"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
       "import": "utils.validate",
       "to": "utils"
+    },
+    {
+      "from": "src/ports/adaptadores.py",
+      "import": "psycopg2",
+      "to": "externo"
     },
     {
       "from": "src/ports/adaptadores.py",
@@ -866,6 +1282,11 @@
       "to": "externo"
     },
     {
+      "from": "tests/conftest.py",
+      "import": "types",
+      "to": "externo"
+    },
+    {
       "from": "tests/fixtures/arvore_atual.py",
       "import": "__future__",
       "to": "externo"
@@ -879,6 +1300,21 @@
       "from": "tests/fixtures/arvore_para_cirurgia.py",
       "import": "__future__",
       "to": "externo"
+    },
+    {
+      "from": "tests/fixtures/autenticacao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/fixtures/autenticacao.py",
+      "import": "web.autenticacao",
+      "to": "web"
+    },
+    {
+      "from": "tests/fixtures/autenticacao.py",
+      "import": "web.sessao",
+      "to": "web"
     },
     {
       "from": "tests/fixtures/helpers.py",
@@ -976,6 +1412,16 @@
       "to": "app"
     },
     {
+      "from": "tests/test_autenticacao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_autenticacao.py",
+      "import": "web.autenticacao",
+      "to": "web"
+    },
+    {
       "from": "tests/test_banner_do_topo.py",
       "import": "__future__",
       "to": "externo"
@@ -1014,6 +1460,21 @@
       "from": "tests/test_cabecalho_de_enquadramento.py",
       "import": "__future__",
       "to": "externo"
+    },
+    {
+      "from": "tests/test_cache_de_arvores.py",
+      "import": "application",
+      "to": "application"
+    },
+    {
+      "from": "tests/test_cache_de_arvores.py",
+      "import": "ports",
+      "to": "ports"
+    },
+    {
+      "from": "tests/test_cache_de_arvores.py",
+      "import": "ports.adaptadores",
+      "to": "ports"
     },
     {
       "from": "tests/test_campo_de_escolha_do_csv.py",
@@ -1121,6 +1582,21 @@
       "to": "parsers"
     },
     {
+      "from": "tests/test_cobertura_do_arquivo.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_cobertura_do_arquivo.py",
+      "import": "core.cobertura_do_arquivo",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_cobertura_do_arquivo.py",
+      "import": "core.genetic_evidence",
+      "to": "core"
+    },
+    {
       "from": "tests/test_combobox_de_nomes.py",
       "import": "__future__",
       "to": "externo"
@@ -1129,6 +1605,16 @@
       "from": "tests/test_combobox_de_nomes.py",
       "import": "fixtures",
       "to": "externo"
+    },
+    {
+      "from": "tests/test_configuracao_de_log.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_configuracao_de_log.py",
+      "import": "utils.auditoria",
+      "to": "utils"
     },
     {
       "from": "tests/test_confrontacao_gedcom_dna.py",
@@ -1221,6 +1707,26 @@
       "to": "externo"
     },
     {
+      "from": "tests/test_contrato_do_cartao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_contrato_do_cartao.py",
+      "import": "core.contrato_do_cartao",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_contrato_do_cartao.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_contrato_do_cartao.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
       "from": "tests/test_correcao_de_arquivos.py",
       "import": "__future__",
       "to": "externo"
@@ -1286,6 +1792,26 @@
       "to": "externo"
     },
     {
+      "from": "tests/test_desempenho_das_fichas.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_desempenho_das_fichas.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_desempenho_das_fichas.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_desempenho_das_fichas.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
       "from": "tests/test_desfecho_do_resultado.py",
       "import": "html",
       "to": "externo"
@@ -1304,6 +1830,36 @@
       "from": "tests/test_desfecho_do_resultado.py",
       "import": "inspect",
       "to": "externo"
+    },
+    {
+      "from": "tests/test_destaque_da_hipotese.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_destaque_da_hipotese.py",
+      "import": "core.relationship_hypotheses",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_destaque_na_tela.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_destaque_na_tela.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_destaque_na_tela.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_destaque_na_tela.py",
+      "import": "app",
+      "to": "app"
     },
     {
       "from": "tests/test_dna_analysis.py",
@@ -1411,6 +1967,16 @@
       "to": "app"
     },
     {
+      "from": "tests/test_estado_de_borda_injetavel.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_estado_de_borda_injetavel.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
       "from": "tests/test_estado_do_resultado.py",
       "import": "__future__",
       "to": "externo"
@@ -1459,6 +2025,51 @@
       "from": "tests/test_estilo_da_tela.py",
       "import": "__future__",
       "to": "externo"
+    },
+    {
+      "from": "tests/test_fabrica_do_app.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_fabrica_do_app.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_fonte_e_cobertura_na_tela.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_fonte_e_cobertura_na_tela.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_fonte_e_cobertura_na_tela.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_fonte_e_cobertura_na_tela.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_fontes_de_laboratorio.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_fontes_de_laboratorio.py",
+      "import": "core.fontes_de_laboratorio",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_fontes_de_laboratorio.py",
+      "import": "core.genetic_evidence",
+      "to": "core"
     },
     {
       "from": "tests/test_forma_da_referencia.py",
@@ -1601,6 +2212,46 @@
       "to": "core"
     },
     {
+      "from": "tests/test_identificador_de_requisicao.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
+      "from": "tests/test_impressao_do_resultado.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_indice_de_nomes_do_documental.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_indice_de_nomes_do_documental.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_indices_de_matching_memo.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_indices_de_matching_memo.py",
+      "import": "core.matching",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_indices_de_matching_memo.py",
+      "import": "parsers.gedcom_parser",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_isolamento_por_dono.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
       "from": "tests/test_janela_de_vida.py",
       "import": "__future__",
       "to": "externo"
@@ -1641,6 +2292,11 @@
       "to": "externo"
     },
     {
+      "from": "tests/test_medicao_da_carga.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
       "from": "tests/test_mermaid_da_sugestao.py",
       "import": "__future__",
       "to": "externo"
@@ -1671,6 +2327,16 @@
       "to": "core"
     },
     {
+      "from": "tests/test_migracao_do_dono_inicial.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_migracao_do_dono_inicial.py",
+      "import": "application.dono_inicial",
+      "to": "application"
+    },
+    {
       "from": "tests/test_motivo_humanizado.py",
       "import": "__future__",
       "to": "externo"
@@ -1699,6 +2365,26 @@
       "from": "tests/test_motivo_humanizado.py",
       "import": "reporting.csv_de_descartes",
       "to": "reporting"
+    },
+    {
+      "from": "tests/test_mrca_e_posicao_na_faixa.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_mrca_e_posicao_na_faixa.py",
+      "import": "core",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_mrca_e_posicao_na_faixa.py",
+      "import": "core.documentary_relationship",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_mrca_e_posicao_na_faixa.py",
+      "import": "core.relationship_hypotheses",
+      "to": "core"
     },
     {
       "from": "tests/test_nome_com_dois_pontos.py",
@@ -1739,6 +2425,11 @@
       "from": "tests/test_observacoes_do_arquivo.py",
       "import": "parsers.gedcom_parser",
       "to": "parsers"
+    },
+    {
+      "from": "tests/test_paginacao_na_tela.py",
+      "import": "__future__",
+      "to": "externo"
     },
     {
       "from": "tests/test_path_search.py",
@@ -1841,6 +2532,11 @@
       "to": "ports"
     },
     {
+      "from": "tests/test_privacidade_do_log.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
       "from": "tests/test_profundidade_do_caminho.py",
       "import": "__future__",
       "to": "externo"
@@ -1936,6 +2632,16 @@
       "to": "app"
     },
     {
+      "from": "tests/test_qualidade_da_medida.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_qualidade_da_medida.py",
+      "import": "core.qualidade_da_medida",
+      "to": "core"
+    },
+    {
       "from": "tests/test_reenvio_do_arquivo.py",
       "import": "__future__",
       "to": "externo"
@@ -2006,6 +2712,11 @@
       "to": "externo"
     },
     {
+      "from": "tests/test_registro_de_auditoria.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
       "from": "tests/test_resumo_da_sugestao.py",
       "import": "__future__",
       "to": "externo"
@@ -2061,7 +2772,52 @@
       "to": "core"
     },
     {
+      "from": "tests/test_rotulos_de_parentesco.py",
+      "import": "core.graus_de_parentesco",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_rotulos_de_parentesco.py",
+      "import": "core.relationship_hypotheses",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "core.sem_correspondencia",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_sem_correspondencia.py",
+      "import": "application.dna_analysis",
+      "to": "application"
+    },
+    {
       "from": "tests/test_servidor_producao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_sessao_e_guarda.py",
       "import": "__future__",
       "to": "externo"
     },
@@ -2119,6 +2875,31 @@
       "from": "tests/test_tabela_da_tela.py",
       "import": "utils.number_format",
       "to": "utils"
+    },
+    {
+      "from": "tests/test_tabela_do_bloco_3.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "tests/test_tabela_do_bloco_3.py",
+      "import": "core.dna_analysis",
+      "to": "core"
+    },
+    {
+      "from": "tests/test_tabela_do_bloco_3.py",
+      "import": "parsers",
+      "to": "parsers"
+    },
+    {
+      "from": "tests/test_tabela_do_bloco_3.py",
+      "import": "app",
+      "to": "app"
+    },
+    {
+      "from": "tests/test_tela_de_entrada.py",
+      "import": "__future__",
+      "to": "externo"
     },
     {
       "from": "tests/test_traducao_de_erros.py",
@@ -2184,6 +2965,11 @@
       "from": "tests/test_upload_seguranca.py",
       "import": "utils",
       "to": "utils"
+    },
+    {
+      "from": "tests/test_uso_do_cm_estimator.py",
+      "import": "__future__",
+      "to": "externo"
     },
     {
       "from": "tests/test_validacao_de_arquivos.py",
@@ -2254,6 +3040,11 @@
       "from": "tests/test_veredito_no_nucleo.py",
       "import": "application.validacao",
       "to": "application"
+    },
+    {
+      "from": "tests/test_veredito_no_nucleo.py",
+      "import": "core",
+      "to": "core"
     },
     {
       "from": "tests/test_veredito_no_nucleo.py",
@@ -2356,6 +3147,31 @@
       "to": "externo"
     },
     {
+      "from": "src/utils/auditoria.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/logs.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/logs.py",
+      "import": "contextlib",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/logs.py",
+      "import": "contextvars",
+      "to": "externo"
+    },
+    {
+      "from": "src/utils/logs.py",
+      "import": "uuid",
+      "to": "externo"
+    },
+    {
       "from": "src/utils/name_keys.py",
       "import": "__future__",
       "to": "externo"
@@ -2384,12 +3200,82 @@
       "from": "src/utils/validate.py",
       "import": "__future__",
       "to": "externo"
+    },
+    {
+      "from": "src/web/autenticacao.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/autenticacao.py",
+      "import": "importlib.util",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/autenticacao.py",
+      "import": "secrets",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/autenticacao.py",
+      "import": "urllib",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/autenticacao.py",
+      "import": "requests",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/hooks_de_registro.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/hooks_de_registro.py",
+      "import": "utils",
+      "to": "utils"
+    },
+    {
+      "from": "src/web/rotas_assets.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/rotas_assets.py",
+      "import": "reporting.csv_de_descartes",
+      "to": "reporting"
+    },
+    {
+      "from": "src/web/rotas_auth.py",
+      "import": "__future__",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/rotas_auth.py",
+      "import": "hmac",
+      "to": "externo"
+    },
+    {
+      "from": "src/web/rotas_auth.py",
+      "import": "application.dono_inicial",
+      "to": "application"
+    },
+    {
+      "from": "src/web/rotas_auth.py",
+      "import": "utils.auditoria",
+      "to": "utils"
+    },
+    {
+      "from": "src/web/sessao.py",
+      "import": "__future__",
+      "to": "externo"
     }
   ],
   "summary": {
-    "nodes": 8,
-    "edges": 23,
+    "nodes": 9,
+    "edges": 28,
     "cycles": 0,
-    "internalImports": 455
+    "internalImports": 628
   }
 }
