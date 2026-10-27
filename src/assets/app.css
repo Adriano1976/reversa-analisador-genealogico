@@ -1718,3 +1718,15 @@ details.cartao-do-resultado[hidden]{display:none !important}
     border-top:1px solid var(--line);padding-top:.25rem;background:#fff
   }
 }
+
+/* ==========================================================================
+   Entrada pelo provedor de identidade (feature 051).
+   A tela de entrada usa a MESMA folha da tela principal — e por isso ela e uma
+   das tres rotas publicas. O bloco da conta vive na masthead. Nenhum seletor
+   daqui alcanca a area de resultados.
+   ========================================================================== */
+.tela-de-entrada{max-width:34rem;margin:0 auto}
+.tela-de-entrada .card-body{padding:2.5rem 2rem}
+.tela-de-entrada .btn{min-width:14rem}
+.conta-da-masthead-nome{max-width:18rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conta-da-masthead form button{white-space:nowrap}

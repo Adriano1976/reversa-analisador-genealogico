@@ -37,6 +37,7 @@ from utils.validate import decompor_nome_armazenado
 # escrita a mao em cada chamada faria a mesma coisa aparecer com dois nomes.
 ACOES: frozenset[str] = frozenset({
     "enviar_gedcom", "substituir_csv", "aposentar", "analisar_dna", "buscar_caminho",
+    "entrar", "sair",
 })
 
 # Os desfechos ja existem no dominio: `reenvio.NOVO/IDENTICO/SUBSTITUIDO` para o envio e
@@ -52,21 +53,29 @@ _log: logging.Logger = logging.getLogger(LOGGER_DE_AUDITORIA)
 
 
 def registrar(acao: str, desfecho: str, referencia=None, contagens=None,
-              ip=None, origem=None) -> None:
+              ip=None, origem=None, conta=None) -> None:
     """Escreve uma linha na trilha de auditoria.
 
     Nunca levanta excecao: auditoria que derruba a operacao que ela audita seria pior do
     que auditoria ausente. Valor fora dos conjuntos fechados vira aviso e a linha sai
     mesmo assim — perder o registro e o unico desfecho inaceitavel.
+
+    `conta` e o identificador da conta autenticada (`sub`), nunca o e-mail: a linha
+    sobrevive a requisicao, e o e-mail e dado pessoal (`RN-12`). Quando ele nao vem,
+    a linha sai exatamente como antes da feature 051.
     """
+    linha_de_conta = ""
+    if conta:
+        linha_de_conta = f" conta={texto_seguro(conta)}"
     _log.info(
-        "acao=%s desfecho=%s arquivo=%s ip=%s origem=%s%s",
+        "acao=%s desfecho=%s arquivo=%s ip=%s origem=%s%s%s",
         _do_conjunto(acao, ACOES, "acao"),
         _do_conjunto(desfecho, DESFECHOS, "desfecho"),
         _arquivo(referencia),
         texto_seguro(ip) or "-",
         texto_seguro(origem) or "-",
         _contagens(contagens),
+        linha_de_conta,
     )
 
 
@@ -90,7 +99,7 @@ def _arquivo(referencia) -> str:
     if not referencia:
         return "-"
     chave, visivel = decompor_nome_armazenado(referencia)
-    extensao = os.path.splitext(visivel)[1].lower()
+    extensao: str = os.path.splitext(visivel)[1].lower()
     if not chave:
         # Arquivo sem chave e um fato do legado (`TM-02`), nao um erro: a linha registra que
         # ele nao tem chave e segue, porque o operador consegue aposentar esses arquivos.

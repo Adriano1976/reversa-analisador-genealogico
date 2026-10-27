@@ -217,6 +217,20 @@
                                      class="img-fluid w-50">
                             </div>
                             <div class="masthead-texto">
+                                {% if conta %}
+                                {# A CONTA LOGADA (feature 051). O rotulo e o nome da conta; o
+                                   e-mail fica fora da tela e so aparece como recuo quando a conta
+                                   nao tem nome. O comando de sair e um formulario POST — um link
+                                   derrubaria a sessao por pre-carregamento ou por robô de
+                                   indexacao. Sem entrada configurada, `conta` nao existe e este
+                                   bloco nao sai no HTML. #}
+                                <div class="conta-da-masthead d-flex align-items-center justify-content-end gap-2 mb-2">
+                                    <span class="conta-da-masthead-nome small text-muted">{{ conta.rotulo }}</span>
+                                    <form method="POST" action="/logout" class="m-0">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Sair</button>
+                                    </form>
+                                </div>
+                                {% endif %}
                                 <p class="masthead-sobretitulo">Genetic Genealogy Path Analyzer</p>
                                 {# O `<h1>` e SEMPRE visivel, e a `RN-23` volta a valer como esta escrita.
                                    Ele chegou a ser escondido enquanto a arte do topo trazia "Analisador

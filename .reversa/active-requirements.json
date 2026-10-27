@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/050-imprimir-resultado-por-pessoa",
-  "feature-id": "050",
-  "short-name": "imprimir-resultado-por-pessoa",
-  "started-at": "2026-10-26T19:13:30-03:00",
+  "feature-dir": "_reversa_forward/051-login-google-e-isolamento",
+  "feature-id": "051",
+  "short-name": "login-google-e-isolamento",
+  "started-at": "2026-10-26T22:39:45-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [

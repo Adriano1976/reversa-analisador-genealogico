@@ -192,9 +192,9 @@ class TestEscolherArvoreDaLista:
         })
         corpo = resposta.get_data(as_text=True)
 
-        assert resposta.status_code == 200, (
-            "a recusa virou erro do servidor: uma referencia que nao resolve tem de continuar sendo "
-            "mensagem na tela, e nao 500"
+        assert resposta.status_code == 404, (
+            "referencia que nao resolve tem de responder 404, o mesmo de arquivo ausente — e nunca "
+            "5xx, nem 200 (RN-06 da feature 051)"
         )
         assert "Conexão direta encontrada" not in corpo, "uma arvore foi carregada apesar da recusa"
         assert corpo.strip(), "a recusa nao deixou mensagem nenhuma para o operador"

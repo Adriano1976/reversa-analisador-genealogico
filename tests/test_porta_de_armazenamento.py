@@ -199,10 +199,11 @@ class TestValidacaoAntesDaGravacao:
             GEDCOM_VALIDO.encode("utf-8"), "arvore.ged", DONO,
             armazenamento, carregador)
 
-        assert os.listdir(pasta_temporaria) == [resultado.referencia], (
+        pasta_do_dono = os.path.join(pasta_temporaria, DONO)
+        assert os.listdir(pasta_do_dono) == [resultado.referencia], (
             "o arquivo gravado e a referencia devolvida tem de ser o mesmo nome"
         )
-        assert os.path.isfile(os.path.join(pasta_temporaria, resultado.referencia))
+        assert os.path.isfile(os.path.join(pasta_do_dono, resultado.referencia))
         assert resultado.referencia.endswith("__arvore.ged"), (
             "a chave do servidor vem primeiro e o nome visivel depois"
         )
@@ -492,16 +493,13 @@ class TestContratoDoArmazenamento:
             "dependem deles"
         )
 
-    def test_dois_donos_um_arquivo_so(self, pasta_temporaria):
-        """`RF-02`: o dono NAO vira escopo de armazenamento.
+    def test_dois_donos_dois_arquivos(self, pasta_temporaria):
+        """`RN-05` (feature 051): o dono vira escopo de armazenamento.
 
-        A segunda metade e a que interessa, e ela existe para separar duas coisas
-        que devolveriam o mesmo resultado visivel: **reusar** o caminho e
-        **regravar por cima**. Marcar o arquivo com conteudo arbitrario depois da
-        primeira gravacao e conferir que a marca sobrevive e o que distingue as
-        duas — se o adaptador regravasse, a referencia devolvida seria identica e a
-        regra "conteudo ja armazenado nao e regravado" estaria quebrada sem que
-        nenhuma assercao de caminho percebesse.
+        O mesmo conteudo enviado por dois donos produz **dois** arquivos, um em cada
+        pasta, com o mesmo nome. A segunda metade separa **reusar** de **regravar**:
+        marcar o arquivo de A e conferir que a marca sobrevive, e que o de B nasce
+        intacto, prova que nao houve regravacao nem compartilhamento de caminho.
         """
         armazenamento, _ = _portas(pasta_temporaria)
         conteudo = GEDCOM_VALIDO.encode("utf-8")
@@ -517,29 +515,30 @@ class TestContratoDoArmazenamento:
             conteudo, "arvore.ged", "gedcom", "dono-b")
         assert motivo_b is None
 
-        assert caminho_a == caminho_b, (
-            "dois donos com o mesmo conteudo passaram a produzir referencias "
-            "diferentes: o dono entrou na chave ou no caminho, e isso e mudanca de "
-            "comportamento observavel (RN-02)"
+        assert caminho_a != caminho_b, (
+            "dois donos com o mesmo conteudo produziram a MESMA referencia: o dono "
+            "ficou fora do caminho e o isolamento nao existe (RN-04, RN-05)"
         )
-        assert os.listdir(pasta_temporaria) == [os.path.basename(caminho_a)], (
-            f"a pasta ficou com {os.listdir(pasta_temporaria)}: o mesmo conteudo "
-            "passou a gerar mais de um arquivo"
+        assert os.path.basename(caminho_a) == os.path.basename(caminho_b), (
+            "a chave de conteudo continua igual dentro do dono: o que muda e a pasta"
         )
+        assert os.path.dirname(os.path.abspath(caminho_a)) != os.path.dirname(
+            os.path.abspath(caminho_b))
         with open(caminho_a, "rb") as origem:
             assert origem.read() == b"MARCA", (
-                "o arquivo ja gravado foi REESCRITO por um envio com outro dono: a "
-                "regra e reusar a chave de conteudo, nao regravar (RF-02)"
+                "o arquivo de A foi reescrito quando B enviou o mesmo conteudo"
+            )
+        with open(caminho_b, "rb") as origem:
+            assert origem.read() == conteudo, (
+                "o arquivo de B nasceu com a marca de A: os dois compartilham caminho"
             )
 
-    def test_resolucao_nao_e_filtrada_por_dono(self, pasta_temporaria):
-        """`RF-02`: o dono tambem nao filtra o `resolver`, em nenhum sentido.
+    def test_resolucao_e_filtrada_por_dono(self, pasta_temporaria):
+        """`RN-06` (feature 051): a referencia so resolve dentro do dono.
 
-        As tres assercoes cobrem os tres casos que um filtro por dono mudaria:
-        o dono que gravou, um dono **diferente**, e uma referencia com forma
-        invalida. A ultima importa porque prova que o dono nao cria um caminho
-        alternativo que escape da validacao de forma — a validacao que impede um
-        `gedcom_filename` manipulado de apontar para fora da pasta.
+        As tres assercoes cobrem o dono que gravou, um dono **diferente** (que recebe
+        `None`, como arquivo inexistente) e a referencia de forma invalida — recusada
+        antes de qualquer `os.path.exists`.
         """
         armazenamento, _ = _portas(pasta_temporaria)
         caminho, _ = armazenamento.guardar(
@@ -547,36 +546,33 @@ class TestContratoDoArmazenamento:
         referencia = os.path.basename(caminho)
 
         assert armazenamento.resolver(referencia, "dono-a") == caminho
-        assert armazenamento.resolver(referencia, "dono-b") == caminho, (
-            "um dono diferente deixou de resolver a referencia: algum filtro por "
-            "dono entrou no resolver, e o armazenamento deixou de ser unico por "
-            "processo (RN-02)"
+        assert armazenamento.resolver(referencia, "dono-b") is None, (
+            "um dono diferente resolveu a referencia de A: o escopo nao chegou ao "
+            "resolver (RN-04, RN-06)"
         )
         assert armazenamento.resolver("nao-e-uma-chave-valida", "dono-a") is None
         assert armazenamento.resolver(referencia, "dono-a") is not None
 
     def test_carregador_recebe_o_dono_por_chamada(self, pasta_temporaria):
-        """`D-06`: o dono chega por chamada e nao muda o que o carregador devolve.
+        """`D-06` + `RN-06`: o dono chega por chamada e escopa o carregador.
 
-        O dono vai **por chamada**, e nao pelo construtor do adaptador, porque os
-        adaptadores sao singletons de processo montados no import de `src/app.py`.
-        A prova de que ele nao e interpretado: os dois donos devolvem a **mesma**
-        arvore, e a referencia invalida continua devolvendo `None` — o dono nao
-        abre caminho para fora da validacao de forma.
+        O dono vai **por chamada**, e nao pelo construtor, porque os adaptadores sao
+        singletons de processo. A prova do escopo: o dono que gravou carrega, o outro
+        recebe `None`, e a referencia invalida continua devolvendo `None` — o dono
+        nao abre caminho para fora da validacao de forma.
         """
         armazenamento, carregador = _portas(pasta_temporaria)
         caminho, _ = armazenamento.guardar(
             GEDCOM_VALIDO.encode("utf-8"), "arvore.ged", "gedcom", "dono-a")
         referencia = os.path.basename(caminho)
 
-        for dono in ("dono-a", "dono-b"):
-            arvore = carregador.carregar(referencia, dono)
-            assert arvore is not None, (
-                f"o carregador deixou de resolver a referencia para o dono "
-                f"'{dono}': o dono passou a participar da resolucao (D-06)"
-            )
-            assert nomes_de_exibicao(arvore) == NOMES_ESPERADOS
+        arvore = carregador.carregar(referencia, "dono-a")
+        assert arvore is not None
+        assert nomes_de_exibicao(arvore) == NOMES_ESPERADOS
 
+        assert carregador.carregar(referencia, "dono-b") is None, (
+            "o carregador entregou a arvore de A para o dono B (RN-06)"
+        )
         assert carregador.carregar("nao-e-uma-chave-valida", "dono-a") is None
 
 
@@ -592,11 +588,12 @@ class TestListagemDaPasta:
 
     ## O que a listagem NAO faz, e como isso e medido
 
-    `D-08` e `RN-09` dizem que a listagem **nao le conteudo** e **nao filtra nada**: ela seleciona por
-    extensao do nome visivel, e o item cujo conteudo nao serve e recusado **no uso**. Os testes abaixo
-    medem a consequencia observavel disso — conteudo binario arbitrario e listado com o tamanho certo,
-    e a pasta nao ganha nem perde arquivo —, e **nao** afirmam ausencia de chamada de sistema, que um
-    teste de comportamento nao consegue provar.
+    `D-08` e `RN-09` dizem que a listagem **nao le conteudo** e **nao filtra por nome**: ela
+    seleciona por extensao do nome visivel, e o item cujo conteudo nao serve e recusado **no uso**.
+    Desde a feature 051 ela **filtra por dono** — e o unico recorte que entrou, e ele e de contrato
+    (`RN-03`). Os testes abaixo medem a consequencia observavel: conteudo binario arbitrario e
+    listado com o tamanho certo, a pasta do dono nao ganha nem perde arquivo, e a de outro dono nem
+    e aberta.
 
     ## Estado esperado ANTES da T013
 
@@ -608,10 +605,11 @@ class TestListagemDaPasta:
     def test_pasta_povoada_devolve_nome_bytes_e_data(self, pasta_temporaria):
         """O que a lista precisa da porta: o nome, o tamanho e a data. Nada de conteudo."""
         armazenamento, _ = _portas(pasta_temporaria)
-        os.makedirs(pasta_temporaria, exist_ok=True)
+        pasta_do_dono = os.path.join(pasta_temporaria, DONO)
+        os.makedirs(pasta_do_dono, exist_ok=True)
         for nome, conteudo in (("080e7943572d2652__arvore.ged", b"0 HEAD\n0 TRLR\n"),
                                ("94e2402671702cac__dna.csv", b"nome,cm\nMaria,100\n")):
-            with open(os.path.join(pasta_temporaria, nome), "wb") as fh:
+            with open(os.path.join(pasta_do_dono, nome), "wb") as fh:
                 fh.write(conteudo)
 
         entradas = armazenamento.listar(DONO)
@@ -658,9 +656,10 @@ class TestListagemDaPasta:
         listagem.
         """
         armazenamento, _ = _portas(pasta_temporaria)
-        os.makedirs(pasta_temporaria, exist_ok=True)
+        pasta_do_dono = os.path.join(pasta_temporaria, DONO)
+        os.makedirs(pasta_do_dono, exist_ok=True)
         conteudo = b"\x00\x01binario que nao serve a nada\xff"
-        with open(os.path.join(pasta_temporaria, "94e2402671702cac__planilha.csv.ged"), "wb") as fh:
+        with open(os.path.join(pasta_do_dono, "94e2402671702cac__planilha.csv.ged"), "wb") as fh:
             fh.write(conteudo)
 
         entradas = armazenamento.listar(DONO)
@@ -668,20 +667,19 @@ class TestListagemDaPasta:
         assert [e.nome for e in entradas] == ["94e2402671702cac__planilha.csv.ged"]
         assert entradas[0].bytes == len(conteudo)
 
-    def test_listar_recebe_o_dono_e_nao_filtra_por_ele(self, pasta_temporaria):
-        """A simetria da porta: `listar(dono)`, e o dono NAO isola nada (dividas #3 e #4 abertas)."""
+    def test_listar_filtra_pelo_dono(self, pasta_temporaria):
+        """A simetria da porta: `listar(dono)` so enxerga a pasta daquele dono (RN-03)."""
         armazenamento, _ = _portas(pasta_temporaria)
-        os.makedirs(pasta_temporaria, exist_ok=True)
-        with open(os.path.join(pasta_temporaria, "080e7943572d2652__arvore.ged"), "wb") as fh:
+        pasta_a = os.path.join(pasta_temporaria, "dono-a")
+        os.makedirs(pasta_a, exist_ok=True)
+        with open(os.path.join(pasta_a, "080e7943572d2652__arvore.ged"), "wb") as fh:
             fh.write(GEDCOM_VALIDO.encode("utf-8"))
 
         de_a = armazenamento.listar("dono-a")
         de_b = armazenamento.listar("dono-b")
 
-        assert [e.nome for e in de_a] == [e.nome for e in de_b], (
-            "o dono virou filtro da listagem: ele e costura de assinatura, nao funcionalidade "
-            "(RN-06 da feature 007)"
-        )
+        assert [e.nome for e in de_a] == ["080e7943572d2652__arvore.ged"]
+        assert de_b == [], "a listagem de B enxergou o arquivo de A (RN-03)"
 
     def test_listagem_nao_altera_a_pasta(self, pasta_temporaria):
         """`RF-08`/`RN-06`: listar e leitura pura. Nenhum arquivo e criado, movido ou apagado."""

@@ -192,7 +192,12 @@ TAMANHO_ESPERADO = 16504
 #: onde o container nao existe. `5fc0b929…` (46.477) → `f49dd6da…` (51.117, **+4.640 bytes**),
 #: todos de script. A marcacao do cartao (botao e identificacao) so aparece com resultado e
 #: nao entra nesta conta.
-SHA_DA_TELA = "f49dd6daa06aa4e4939cf5d159705582aa750ff34ab51b16ae163fdc258a2422"
+#: **Decima medicao, 2026-10-26, entrada pelo provedor (feature 051).** O bloco da conta
+#: logada entra na masthead dentro de `{% if conta %}`. Com a entrada desligada — que e
+#: como ESTE hash mede, sem sessao — o bloco nao renderiza, e o delta e so o whitespace das
+#: linhas do `if`: `f49dd6da…` (51.117) → `df702cbb…` (51.150, **+33 bytes**), todos de
+#: marcacao Jinja. O resto da feature (`login.html`, cookie, guarda) nao passa por esta rota.
+SHA_DA_TELA = "df702cbb6f9e5e3f7a9f13a49c9b19d7995ae70b4eee910ba969182b41c76621"
 
 
 def _cabecalho_png(corpo: bytes):

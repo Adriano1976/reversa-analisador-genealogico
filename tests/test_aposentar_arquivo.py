@@ -338,7 +338,10 @@ class TestAposentarPelaRota:
         resposta = self._aposentar(cliente, NOME_COM_CHAVE)
         corpo = resposta.get_data(as_text=True)
 
-        assert resposta.status_code == 200
+        assert resposta.status_code == 404, (
+            "aposentar referencia que nao existe responde 404, o mesmo de arquivo de outro dono "
+            "(RN-06 da feature 051)"
+        )
         assert "Não foi possível aposentar" in corpo
 
     def test_a_rota_recusa_referencia_em_forma_de_caminho(self, cliente_de_upload):

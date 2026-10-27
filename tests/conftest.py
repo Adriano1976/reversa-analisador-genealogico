@@ -195,3 +195,47 @@ def cliente_de_upload(pasta_temporaria, monkeypatch):
     # passar a resolve-la de outro jeito.
     os.makedirs(pasta_de_uploads, exist_ok=True)
     return modulo.app, modulo.app.test_client(), pasta_de_uploads
+
+
+@pytest.fixture
+def app_autenticado(pasta_temporaria, monkeypatch):
+    """App com a entrada LIGADA e provedor falso (feature 051).
+
+    Devolve um namespace com `app`, `cliente`, `pasta`, `provedor` e `entrar(conta)`.
+    O provedor falso e o que impede a suite de falar com a rede: nenhum teste desta
+    feature chama o Google. A pasta de upload e temporaria, como no
+    `cliente_de_upload`, e o modulo e importado de novo para a borda nascer com a
+    autenticacao injetada.
+    """
+    from types import SimpleNamespace
+
+    from tests.fixtures.autenticacao import ProvedorFalso, entrar_como, servico_de_teste
+
+    pasta_de_uploads = os.path.join(pasta_temporaria, "uploads")
+    monkeypatch.setenv("ANALISADOR_UPLOAD_FOLDER", pasta_de_uploads)
+    for _caminho in (_RAIZ, _PASTA_APP):
+        if _caminho not in sys.path:
+            sys.path.insert(0, _caminho)
+
+    caminho = os.path.join(_PASTA_APP, "app.py")
+    spec = importlib.util.spec_from_file_location("_app_conftest051", caminho)
+    modulo = importlib.util.module_from_spec(spec)
+    modulo.__file__ = caminho
+    spec.loader.exec_module(modulo)
+    modulo.app.root_path = _PASTA_APP
+
+    provedor = ProvedorFalso()
+    aplicacao = modulo.create_app(autenticacao=servico_de_teste(provedor))
+    # `create_app` monta uma instancia NOVA: o `root_path` do modulo nao chega nela,
+    # e sem isto o Jinja nao acha `templates/` (o mesmo motivo do `cliente_de_upload`).
+    aplicacao.root_path = _PASTA_APP
+    os.makedirs(pasta_de_uploads, exist_ok=True)
+
+    cliente = aplicacao.test_client()
+    return SimpleNamespace(
+        app=aplicacao,
+        cliente=cliente,
+        pasta=pasta_de_uploads,
+        provedor=provedor,
+        entrar=lambda conta: entrar_como(cliente, provedor, conta),
+    )

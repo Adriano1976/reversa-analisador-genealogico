@@ -64,6 +64,14 @@ services:
       # Sem valor padrao, pelo mesmo motivo de RF-11. Dentro da rede do compose o host do
       # banco e `db`, o nome do servico.
       DATABASE_URL: ${DATABASE_URL:?defina DATABASE_URL no .env — ver onboarding.md secao 2}
+      # Entrada pelo provedor de identidade (feature 051). As cinco sao OBRIGATORIAS:
+      # sem qualquer uma delas o servidor recusa a subida, de proposito. Credencial
+      # ausente nao pode degradar para acesso aberto.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?defina GOOGLE_CLIENT_ID no .env — ver onboarding.md secao 3}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?defina GOOGLE_CLIENT_SECRET no .env — ver onboarding.md secao 3}
+      ANALISADOR_SECRET_KEY: ${ANALISADOR_SECRET_KEY:?defina ANALISADOR_SECRET_KEY no .env — ver onboarding.md secao 3}
+      ANALISADOR_URL_PUBLICA: ${ANALISADOR_URL_PUBLICA:?defina ANALISADOR_URL_PUBLICA no .env — ver onboarding.md secao 3}
+      ANALISADOR_DONO_INICIAL: ${ANALISADOR_DONO_INICIAL:?defina ANALISADOR_DONO_INICIAL no .env — ver onboarding.md secao 3}
       # Cache da arvore entre requisicoes (feature 047), LIGADO por padrao no codigo: a segunda
       # acao sobre a mesma arvore nao paga o parse de ~50 s. O teto e o numero de arvores
       # mantidas; 1 cobre o caso de uso e leva o processo a ~412 MB (~337 MB da arvore e

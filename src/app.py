@@ -3,8 +3,9 @@ import logging
 import os
 import socket
 import sys
+from datetime import timedelta
 
-from flask import Flask, current_app, render_template, request
+from flask import Flask, current_app, g, render_template, request
 from reporting.lista_de_arquivos import (
     ABA_DE_ARVORES,
     ABA_DE_DNA,
@@ -33,7 +34,10 @@ from reporting.mermaid_render import (
     generate_mermaid_graph_indirect_bridge,
     mermaid_da_sugestao,
 )
+from web.autenticacao import ServicoDeEntrada, servico_do_ambiente
 from web.rotas_assets import assets_bp
+from web.rotas_auth import auth_bp
+from web.sessao import instalar_guarda
 from web.hooks_de_registro import (
     instalar as instalar_registro,
     ip_do_cliente,
@@ -64,31 +68,24 @@ _DEPENDENCIAS = Dependencias(
     mermaid_da_sugestao,
 )
 
-# RN-06 e RF-04: NAO ha identidade de usuario. O dono e um marcador unico do
-# processo, e existe porque a costura precisa estar na assinatura ANTES de a Onda
-# 3 do cutover chegar — adiar reabriria toda assinatura de porta (RF-08 da 006).
+# O dono do caminho SEM entrada (feature 051). Com a autenticacao ligada, o valor
+# vem da sessao (`g.dono`) e este literal nao e usado; sem ela, e o que a suite e o
+# harness de paridade exercitam — o modo em que a aplicacao sobe apenas por import,
+# nunca por servidor, porque a subida recusa sem as cinco variaveis.
 #
-# Este e o UNICO lugar onde o valor do dono e declarado, e os TRES pontos deste
-# arquivo que fornecem o valor o citam: as duas chamadas de `guardar` (a do GEDCOM
-# pelo caso de uso e a do CSV aqui) e a de `carregar`. Nenhum deles escreve o
-# literal no proprio local. O caso de uso `upload_gedcom` apenas REPASSA o que
-# recebe — ele nao declara nem escolhe identidade.
-#
-# >>> NAO E MECANISMO DE SEGURANCA. <<<
-#
-# Nao ha sessao, login nem papel no sistema (`_reversa_sdd/permissions.md`, P-01 a
-# P-05). Nenhum comportamento de isolamento depende deste valor, e nenhuma entrega
-# desta feature pode ser citada como tendo implementado isolamento. Duas dividas
-# seguem ABERTAS por decisao, e este comentario existe para que a costura nao seja
-# lida como conserto:
-#
-#   #4 — ausencia de identidade e de isolamento entre donos. O armazenamento
-#        continua unico por processo: dois donos com o mesmo conteudo chegam ao
-#        MESMO arquivo, e isso e a `RN-02`, nao um defeito.
-#   #3 — contaminacao entre requisicoes concorrentes. A guarda de exclusividade do
-#        bloco `__main__` e de PROCESSO, nao de thread, e este parametro NAO a
-#        substitui.
+# A divida #4 (ausencia de isolamento) FECHA na feature 051: o `dono` passa a
+# escopar o armazenamento e o historico. A #3 (corrida sobre o disco) continua
+# aberta, e este literal nao tem relacao com ela.
 DONO_DO_PROCESSO = "unico"
+
+
+def _dono() -> str:
+    """O dono da requisicao: o `sub` da conta quando ha entrada; o marcador quando nao ha.
+
+    A sessao e assinada, e o `sub` ja passou pela guarda; o literal e o caminho sem
+    autenticacao, exercitado pela suite e pelo harness de paridade.
+    """
+    return getattr(g, "dono", "") or DONO_DO_PROCESSO
 
 # --- Configuração ---
 # A instancia da aplicacao e criada por `create_app()`, no fim do modulo.
@@ -159,7 +156,7 @@ ANALISADOR_HOSTS_PERMITIDOS = "ANALISADOR_HOSTS_PERMITIDOS"
 
 def _hosts_permitidos() -> list[str]:
     """A lista do `TRUSTED_HOSTS`: os padrao mais o que a variavel de ambiente acrescentar."""
-    extras = os.environ.get(ANALISADOR_HOSTS_PERMITIDOS, "")
+    extras: str = os.environ.get(ANALISADOR_HOSTS_PERMITIDOS, "")
     return list(HOSTS_PERMITIDOS_PADRAO) + [
         nome.strip() for nome in extras.split(",") if nome.strip()
     ]
@@ -217,6 +214,12 @@ _CARREGADOR = CarregadorDeArvoresGedcom(_ARMAZENAMENTO)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 _REGISTRO = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
 
+# A entrada pelo provedor (feature 051): montada UMA vez, do ambiente. Sem as cinco
+# variaveis, `_AUTENTICACAO` e None e `_FALTANTES` diz o que falta — a suite e o
+# harness de paridade importam este modulo sem credencial, e por isso a recusa
+# fica na subida do servidor (`__main__`), e nao no import.
+_AUTENTICACAO, _FALTANTES = servico_do_ambiente()
+
 
 def _requisicao_grande(_erro):
     return render_template(
@@ -272,8 +275,13 @@ def _sem_enquadramento_por_terceiro(resposta):
     return resposta
 
 
-def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
-    """Arvore pedida pelo formulario: devolve `(referencia, arvore, mensagem)`.
+def _arvore_do_formulario() -> tuple[str | None, object | None, str | None, int]:
+    """Arvore pedida pelo formulario: devolve `(referencia, arvore, mensagem, status)`.
+
+    O `status` existe desde a feature 051: referencia que nao resolve — inexistente
+    ou de outro dono — responde **404** com o mesmo literal, para a recusa nao se
+    distinguir de arquivo ausente (`RN-06`). O campo ausente continua sendo erro de
+    entrada (`200` com a mensagem), porque nao e acesso a recurso nenhum.
 
     Fonte unica das duas guardas de entrada dos fluxos pos-upload (analise de
     DNA e busca de caminho). Antes da OPP-20261006-4KMB o mesmo par de guardas
@@ -319,9 +327,9 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
     """
     referencia = request.form.get("gedcom_filename")
     if not referencia:
-        return None, None, "Erro: Arquivo GEDCOM não encontrado."
+        return None, None, "Erro: Arquivo GEDCOM não encontrado.", 200
     try:
-        arvore = _estado_de_borda()["carregador"].carregar(referencia, DONO_DO_PROCESSO)
+        arvore = _estado_de_borda()["carregador"].carregar(referencia, _dono())
     except Exception:
         # O traceback vai para o LOG, e nao para a tela: o operador precisa de uma frase que
         # diga o que aconteceu, e quem depura precisa do rastro. Antes desta guarda os dois
@@ -330,10 +338,12 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
         return None, None, (
             f"Erro: o arquivo '{rotulo_de_referencia(referencia)}' não pôde ser lido como GEDCOM. "
             "Ele pode estar corrompido, vazio, ou não ser um GEDCOM de verdade."
-        )
+        ), 200
     if arvore is None:
-        return None, None, f"Erro: Arquivo '{rotulo_de_referencia(referencia)}' não existe mais."
-    return referencia, arvore, None
+        # 404 tambem para o arquivo de OUTRO dono: a resposta tem de ser a mesma de
+        # arquivo ausente (`RN-06`), e nunca 403 — 403 confirmaria que ele existe.
+        return None, None, f"Erro: Arquivo '{rotulo_de_referencia(referencia)}' não existe mais.", 404
+    return referencia, arvore, None, 200
 
 
 # --- Rotas de assets e downloads (OPP-20261023-ASST) ---
@@ -341,15 +351,15 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None]:
 # continuam sendo configurados aqui porque `app.config` e o ponto que os testes
 # usam para simular arte ausente (`monkeypatch.setitem(app.config, ...)`), sem
 # tocar nos arquivos do repositorio.
-ARTE_DO_ICONE = os.path.join(
+ARTE_DO_ICONE: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "apple-touch-icon.png"
 )
 
-ARTE_DO_TOPO = os.path.join(
+ARTE_DO_TOPO: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "banner-da-tela.png"
 )
 
-ESTILO_DA_TELA = os.path.join(
+ESTILO_DA_TELA: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "app.css"
 )
 
@@ -363,7 +373,7 @@ def _listas_da_tela():
     decidem cada aba vem declaradas la, e nao escritas de novo neste arquivo — a particao tem
     um dono so.
     """
-    entradas = _estado_de_borda()["armazenamento"].listar(DONO_DO_PROCESSO)
+    entradas = _estado_de_borda()["armazenamento"].listar(_dono())
     return {
         "arvores_da_lista": itens_da_aba(entradas, ABA_DE_ARVORES),
         "relatorios_da_lista": itens_da_aba(entradas, ABA_DE_DNA),
@@ -373,7 +383,7 @@ def _listas_da_tela():
 # --- Despachadores de Acoes da Tela Principal (OPP-20261023-DISP) ---
 
 
-def _acao_upload_gedcom():
+def _acao_upload_gedcom() -> str:
     """Processa o envio de um novo arquivo GEDCOM."""
     if "gedcom" not in request.files:
         return render_template("index.html", message="Nenhum arquivo GEDCOM enviado.", success=False)
@@ -385,7 +395,7 @@ def _acao_upload_gedcom():
         resultado = caso_de_uso_de_upload(
             gedcom_file.read(),
             gedcom_file.filename,
-            DONO_DO_PROCESSO,
+            _dono(),
             borda["armazenamento"],
             borda["carregador"],
         )
@@ -436,8 +446,8 @@ def _acao_aposentar_arquivo():
     (`_reversa_sdd/questions.md#pergunta-14`) e o que a feature 049 executa. A mensagem de
     cada ramo continua sendo o contrato congelado da tela.
     """
-    referencia = request.form.get("arquivo_a_aposentar") or ""
-    moveu = _estado_de_borda()["armazenamento"].aposentar(referencia, DONO_DO_PROCESSO)
+    referencia: str = request.form.get("arquivo_a_aposentar") or ""
+    moveu = _estado_de_borda()["armazenamento"].aposentar(referencia, _dono())
     auditar(
         "aposentar",
         "sucesso" if moveu else "falha",
@@ -459,10 +469,10 @@ def _acao_aposentar_arquivo():
         "index.html",
         message="Não foi possível aposentar o arquivo: ele não está mais na pasta.",
         success=False,
-    )
+    ), 404
 
 
-def _acao_selecionar_arvore(gedcom_filename, arvore, all_names):
+def _acao_selecionar_arvore(gedcom_filename, arvore, all_names) -> str:
     """Renderiza a tela com o estado da arvore escolhida."""
     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names)
 
@@ -471,19 +481,24 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
     """Processa o confronto de matches de DNA com a arvore genealogica."""
     try:
         borda = _estado_de_borda()
-        nome_informado = request.form["root_name"]
-        root_name = nome_informado.strip() or nome_informado
+        nome_informado: str = request.form["root_name"]
+        root_name: str = nome_informado.strip() or nome_informado
 
         referencia_do_csv = request.form.get("matches_csv_filename")
-        referencia_do_csv_usada = referencia_do_csv
+        # `str` desde o inicio, e nao `None`: o valor vai para o campo oculto do cartao
+        # e para a auditoria. O `or ""` cobre o formulario sem o campo e impede que a
+        # inferencia do checador fique presa em `str | None` para a atribuicao seguinte.
+        referencia_do_csv_usada: str = referencia_do_csv or ""
         candidatos_fixos = {}
         for valor in request.form.getlist("promover"):
             partes = valor.split("|", 2)
             if len(partes) == 3:
                 candidatos_fixos[partes[0]] = (partes[1], partes[2])
-        aviso_de_substituicao = None
+        # `""` significa "sem aviso". O tipo e `str` do inicio ao fim, e o `if` abaixo
+        # continua distinguindo os dois casos sem depender de `None`.
+        aviso_de_substituicao: str = ""
         if referencia_do_csv:
-            caminho_do_csv = borda["armazenamento"].resolver(referencia_do_csv, DONO_DO_PROCESSO)
+            caminho_do_csv = borda["armazenamento"].resolver(referencia_do_csv, _dono())
             if caminho_do_csv is None:
                 return render_template(
                     "index.html",
@@ -491,7 +506,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
                     all_names=all_names,
                     message=f"Erro: Arquivo '{rotulo_de_referencia(referencia_do_csv)}' não existe mais.",
                     success=False,
-                )
+                ), 404
         else:
             if "matches_csv" not in request.files or not request.files["matches_csv"].filename:
                 return render_template(
@@ -508,7 +523,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
                 matches_file.read(),
                 matches_file.filename,
                 "csv",
-                DONO_DO_PROCESSO,
+                _dono(),
             )
             caminho_do_csv = armazenado.caminho
             if caminho_do_csv is None:
@@ -539,12 +554,12 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
             root_name,
             arvore,
             borda["dependencias"],
-            DONO_DO_PROCESSO,
+            _dono(),
             gedcom_filename,
             borda["registro"],
             candidatos_fixos=candidatos_fixos or None,
         )
-        mensagem_final = resultado.mensagem
+        mensagem_final: str = resultado.mensagem
         if aviso_de_substituicao:
             mensagem_final = f"{mensagem_final} {aviso_de_substituicao}"
         # Contagens, nunca nomes: o que a auditoria precisa saber e o TAMANHO do resultado
@@ -631,15 +646,15 @@ def _contagens_do_caminho(dados) -> dict:
 def _acao_path_search(gedcom_filename, arvore, all_names):
     """Processa a busca de parentesco entre duas pessoas."""
     try:
-        person1_name = request.form["person1_name"].strip()
-        person2_name = request.form["person2_name"].strip()
+        person1_name: str = request.form["person1_name"].strip()
+        person2_name: str = request.form["person2_name"].strip()
 
         resultado = caso_de_uso_de_busca(
             person1_name,
             person2_name,
             arvore,
             _estado_de_borda()["dependencias"],
-            DONO_DO_PROCESSO,
+            _dono(),
         )
         auditar(
             "buscar_caminho",
@@ -716,15 +731,15 @@ _ACOES_COM_ARVORE = {
 # --- Rota Principal ---
 def index():
     if request.method == "POST":
-        action = request.form.get("action") or ""
+        action: str = request.form.get("action") or ""
         handler_pre = _ACOES_PRE_ARVORE.get(action)
         if handler_pre:
             return handler_pre()
 
-        gedcom_filename, arvore, erro = _arvore_do_formulario()
+        gedcom_filename, arvore, erro, status = _arvore_do_formulario()
         if erro is not None or arvore is None:
-            return render_template("index.html", message=erro or "Erro: Arquivo GEDCOM não encontrado.", success=False)
-        all_names = nomes_de_exibicao(arvore)
+            return render_template("index.html", message=erro or "Erro: Arquivo GEDCOM não encontrado.", success=False), status
+        all_names: list[str] = nomes_de_exibicao(arvore)
 
         handler_arvore = _ACOES_COM_ARVORE.get(action)
         if handler_arvore:
@@ -733,7 +748,17 @@ def index():
     return render_template("index.html")
 
 
+class _SemAutenticacao:
+    """Sentinela tipado do parametro `autenticacao` do `create_app`.
+
+    `object()` cru perdia o tipo na dobra: o checador via `object` no lugar de
+    `ServicoDeEntrada | None` e acusava atributo inexistente em `efetiva.configuracao`.
+    A classe existe para o `isinstance` estreitar o tipo.
+    """
+
+
 _SEM_INJECAO = object()
+_SEM_AUTENTICACAO = _SemAutenticacao()
 CHAVE_DA_BORDA = "analisador"
 
 
@@ -742,8 +767,27 @@ def _estado_de_borda() -> dict:
     return current_app.extensions[CHAVE_DA_BORDA]
 
 
+def _configurar_entrada(aplicacao, configuracao) -> None:
+    """Liga o segredo e o cookie da sessao. Sem entrada, nada disto e tocado.
+
+    O segredo vem do ambiente e nunca do repositorio (`RN-08`): a `P-04` removeu o
+    literal versionado, e ele nao volta por esta porta. O `Secure` acompanha o
+    esquema da URL publica — no uso local em `http://` ele fica desligado.
+    """
+    aplicacao.secret_key = configuracao.segredo
+    aplicacao.config.update(
+        SESSION_COOKIE_NAME="analisador_sessao",
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=configuracao.usa_https,
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
+        SESSION_REFRESH_EACH_REQUEST=True,
+    )
+
+
 def create_app(config=None, *, armazenamento=None, carregador=None,
-               registro=_SEM_INJECAO, dependencias=None) -> Flask:
+               registro=_SEM_INJECAO, dependencias=None,
+               autenticacao: ServicoDeEntrada | None | _SemAutenticacao = _SEM_AUTENTICACAO) -> Flask:
     """Monta a aplicacao: configura, registra ganchos, Blueprint e rota.
 
     A instancia de modulo `app` e criada por esta funcao uma vez, no fim do
@@ -756,6 +800,11 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     valor valido: significa persistencia desligada.
     """
     aplicacao = Flask(__name__)
+    efetiva: ServicoDeEntrada | None = (
+        _AUTENTICACAO
+        if isinstance(autenticacao, _SemAutenticacao)
+        else autenticacao
+    )
     # Os tres destinos do registro sao montados UMA vez por processo (feature 049, `D-01`).
     # A chamada e idempotente por marcador no handler: a suite reexecuta este modulo a cada
     # fixture, e um booleano de modulo nao sobreviveria a isso — o registro de handlers do
@@ -766,6 +815,8 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
         "carregador": _CARREGADOR if carregador is None else carregador,
         "registro": _REGISTRO if registro is _SEM_INJECAO else registro,
         "dependencias": _DEPENDENCIAS if dependencias is None else dependencias,
+        "autenticacao": efetiva,
+        "pasta_de_uploads": _pasta_uploads(),
     }
     aplicacao.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
@@ -811,6 +862,13 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     # que o Flask produz sem passar pela rota: arte ausente, corpo grande e `Host` recusado.
     instalar_registro(aplicacao)
 
+    # A entrada (feature 051) so existe quando foi montada. Sem ela, nada de guarda,
+    # de Blueprint nem de cookie: o caminho e o legado, que e o da suite e o da paridade.
+    if efetiva is not None:
+        _configurar_entrada(aplicacao, efetiva.configuracao)
+        aplicacao.register_blueprint(auth_bp)
+        instalar_guarda(aplicacao)
+
     if config:
         aplicacao.config.update(config)
     return aplicacao
@@ -825,9 +883,19 @@ if __name__ == "__main__":
     # O padrao do endereco e a maquina local (RF-02). A aplicacao nao tem
     # autenticacao alguma, entao atender a rede passa a ser ato explicito de quem
     # opera, e nao o comportamento que acontece por omissao.
-    endereco_de_escuta = os.environ.get("ANALISADOR_HOST", "127.0.0.1")
+    endereco_de_escuta: str = os.environ.get("ANALISADOR_HOST", "127.0.0.1")
     porta_de_escuta = int(os.environ.get("ANALISADOR_PORT", "5000"))
     concorrencia = int(os.environ.get("ANALISADOR_THREADS", "4"))
+
+    # Fail-closed (`D-10`): entrar e o essencial, e o essencial nao degrada em
+    # silencio. A recusa fica AQUI, e nao no import, porque a suite e o harness de
+    # paridade carregam o modulo sem credencial.
+    if _FALTANTES:
+        raise SystemExit(
+            "Recusando subir: a entrada com o provedor exige configuracao que falta: "
+            + "; ".join(_FALTANTES)
+            + ". Defina as variaveis e tente de novo (ver onboarding.md)."
+        )
 
     # O import fica aqui dentro de proposito. Este modulo e importado pela suite de
     # testes e pela instrumentacao de paridade, e um import no topo obrigaria o
@@ -894,7 +962,7 @@ if __name__ == "__main__":
                 "outra porta com ANALISADOR_PORT."
             )
         else:
-            motivo = f"nao foi possivel escutar em {endereco_de_escuta}:{porta_de_escuta}"
+            motivo: str = f"nao foi possivel escutar em {endereco_de_escuta}:{porta_de_escuta}"
             saida = (
                 "Confira se ANALISADOR_HOST aponta para um endereco desta maquina e "
                 "se ANALISADOR_PORT e uma porta valida."

@@ -43,3 +43,10 @@ psycopg2-binary==2.9.13
 #
 # Versao fixada pelo ADR-13, na versao instalada e verificada no .venv em 2026-10-18.
 graphviz==0.21
+
+# Adicionada pela feature 051 (entrada pelo provedor de identidade). Usada APENAS por
+# `src/web/autenticacao.py`, e sempre por import PREGUICOSO: sem o pacote, `import app`
+# e a suite continuam funcionando. Com a entrada ligada, a ausencia dele entra na lista
+# do fail-closed da subida e o servidor NAO sobe — credencial ausente nao pode virar
+# acesso aberto. Versao instalada e verificada no .venv em 2026-10-26.
+requests==2.32.5

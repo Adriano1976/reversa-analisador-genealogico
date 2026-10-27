@@ -4,6 +4,7 @@ __pycache__/
 venv/
 *.pyc
 .env
+.env.local
 cls
 
 # Backups gerados pelo reversa-docs

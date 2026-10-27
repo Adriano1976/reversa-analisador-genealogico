@@ -41,8 +41,15 @@ com dono desde a feature 006 e o armazenamento sem — acabou na feature
 assinatura de porta e todos os chamadores para acrescenta-lo depois.
 
 Ele e **costura de assinatura, e nao funcionalidade**: nao entra na chave, no nome
-armazenado nem no caminho de nada, e nenhum arquivo e separado por dono. As
-dividas #3 e #4 continuam abertas (`RN-06`).
+armazenado nem no caminho de nada, e nenhum arquivo e separado por dono. As dividas
+#3 e #4 continuam abertas (`RN-06`).
+
+**A partir da feature 051 o dono deixou de ser costura.** Ele e o `sub` do provedor
+de identidade da conta autenticada, entra no caminho (`<pasta>/<dono>/`) e filtra
+listagem, leitura e aposentadoria; a divida #4 (ausencia de isolamento) fecha nesta
+entrega, e a #3 (corrida sobre o disco) continua aberta. Os docstrings de cada
+metodo descrevem o comportamento novo, e a recusa por dono alheio e indistinguivel
+de arquivo inexistente (`RN-06`).
 
 **Esta frase deixou de valer na feature `011-escolher-arquivo-da-lista`.** Ate
 entao ela dizia, com razao, que nenhum metodo novo havia sido criado em nenhuma
@@ -93,18 +100,11 @@ class ArmazenamentoDeArquivos(Protocol):
         o cabecalho e `"csv"` nao valida conteudo nenhum. A assimetria e a divida
         #10, preservada de proposito nesta onda.
 
-        `dono` e a identidade de quem enviou o dado, e entra **sem comportamento**
-        (`RN-01`, `RN-02`). Ultimo parametro posicional e **sem valor padrao**, pela
-        mesma forma do `RepositorioDeArvores`: um padrao deixaria toda chamada
-        passar sem o dono e a Onda 3 nao teria onde ancorar.
-
-        **O dono nao isola nada.** A chave continua derivada do conteudo, o nome
-        armazenado continua `<chave>__<nome visivel>` e o caminho continua o mesmo,
-        entao dois envios do mesmo conteudo com donos diferentes reencontram o
-        MESMO arquivo. O armazenamento e unico por processo: a divida #4 (ausencia
-        de isolamento) e a #3 (corrida entre requisicoes concorrentes) seguem
-        abertas, e nenhuma entrega desta feature pode ser citada como tendo-as
-        fechado (`RN-06`).
+        `dono` e a identidade de quem enviou o dado e **passa a isolar** (feature
+        051): o arquivo e gravado em `<pasta>/<dono>/`, entao o mesmo conteudo
+        enviado por dois donos sao **dois** arquivos. Dentro do dono, a chave
+        continua vindo do conteudo. Ultimo parametro posicional e **sem valor
+        padrao**, pela mesma forma do `RepositorioDeArvores`.
         """
         ...
 
@@ -116,11 +116,10 @@ class ArmazenamentoDeArquivos(Protocol):
         `gedcom_filename` manipulado de apontar para fora da pasta de upload — e o
         **arquivo ausente** no disco.
 
-        `dono` entra pela mesma razao do `guardar`, e com o mesmo alcance: ele
-        **nao** filtra nada. Quem resolve a referencia continua sendo a chave de
-        conteudo, e a validacao de forma continua vindo antes de qualquer
-        `os.path.exists`. O parametro existe para as duas operacoes da porta
-        ficarem simetricas entre si e com o `RepositorioDeArvores`.
+        `dono` entra como escopo (feature 051): a referencia e resolvida dentro de
+        `<pasta>/<dono>/`, e a referencia de outro dono devolve `None`, como arquivo
+        ausente. Quem resolve continua sendo a chave de conteudo, e a validacao de
+        forma continua vindo antes de qualquer `os.path.exists`.
         """
         ...
 
@@ -148,9 +147,9 @@ class ArmazenamentoDeArquivos(Protocol):
           escondido numa operacao que promete nao escrever;
         - **nao escreve nada**: listar e leitura pura (`RF-08`, `RN-06`).
 
-        `dono` entra pela mesma razao dos outros metodos, e com o mesmo alcance: **nao
-        filtra nada** (dividas #3 e #4 abertas). Quem decide se uma entrada pode ser usada e
-        a forma do nome, e nao a identidade.
+        `dono` entra como escopo (feature 051): a listagem le `<pasta>/<dono>/`, e a
+        pasta de outro dono nem e aberta. Quem decide se uma entrada pode ser usada
+        continua sendo a forma do nome.
         """
         ...
 
@@ -184,8 +183,9 @@ class ArmazenamentoDeArquivos(Protocol):
         lista; exigir a chave aqui os tornaria impossiveis de aposentar. O `resolver` **nao**
         afrouxa: ler por referencia continua exigindo a forma da chave.
 
-        `dono` entra pela mesma razao dos outros metodos: **nao filtra nada**, e a pasta de
-        aposentados nao e separada por dono.
+        `dono` entra como escopo (feature 051): a origem e a pasta de aposentados
+        sao as do dono, e a referencia de outro dono devolve `False`, como arquivo
+        ausente.
         """
         ...
 
@@ -236,7 +236,8 @@ class CarregadorDeArvores(Protocol):
 
         A porta continua com **um unico metodo**, que era a condicao declarada da
         `D-02` da feature 006 — a condicao era sobre a contagem de metodos, e ela
-        segue satisfeita. Nenhum isolamento e implementado aqui (`RN-06`).
+        segue satisfeita. O isolamento e feito pelo adaptador de armazenamento, que
+        recebe este mesmo `dono` (feature 051).
         """
         ...
 
@@ -432,14 +433,27 @@ class RegistroDeAnalises(Protocol):
         ou nao entra nada. Analise pela metade e pior que analise ausente —
         deixaria o veredito de um par gravado com os dados de outro.
 
-        `dono` e a identidade de quem enviou o dado, e entra **sem comportamento**
-        (`RN-10`): vira coluna, e **nenhuma** consulta filtra por ele. Este metodo
-        nao isola nada, e as dividas #3 e #4 seguem abertas.
+        `dono` e a identidade da conta que gerou a analise, e vira a coluna
+        `owner_id`: a partir da feature 051 ele e o `sub` do provedor, e a leitura
+        passa a ser escopada por ele (`RN-11`).
+        """
+        ...
+
+    def adotar(self, dono_anterior: str, dono_novo: str) -> int:
+        """Transfere ao dono novo as analises gravadas sob um dono anterior.
+
+        Existe para a `RN-15`: os dados que antecedem a identidade tem um destino
+        declarado, e o historico com `owner_id = 'unico'` passa a pertencer a conta
+        inicial. **Idempotente por construcao** — o `UPDATE` e condicionado ao dono
+        anterior, e a segunda chamada devolve `0`.
+
+        Devolve quantas linhas mudaram. Falha de driver ou de banco devolve `0` e
+        nao levanta: a adocao e beneficio e nunca pode impedir o login.
         """
         ...
 
 
-__all__ = [
+__all__: list[str] = [
     "ArmazenamentoDeArquivos",
     "CarregadorDeArvores",
     "RepositorioDeArvores",

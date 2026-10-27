@@ -193,7 +193,7 @@ def test_a_rota_entrega_as_promocoes_ao_caso_de_uso(monkeypatch):
 
     monkeypatch.setattr(modulo_app, "caso_de_uso_dna", espiao)
     monkeypatch.setattr(modulo_app, "_arvore_do_formulario",
-                        lambda: ("arvore.ged", ({"@I1@": None}, {}, None, {}), None))
+                        lambda: ("arvore.ged", ({"@I1@": None}, {}, None, {}), None, 200))
     monkeypatch.setattr(modulo_app, "nomes_de_exibicao", lambda arvore: ["Adriano"])
     monkeypatch.setattr(type(modulo_app._ARMAZENAMENTO), "resolver",
                         lambda self, referencia, dono: "C:/tmp/matches.csv")

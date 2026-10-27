@@ -379,6 +379,28 @@ não no bloco de entrada: a pasta de upload e as duas do cache da árvore.
 | `ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE` | `1` | quantas árvores o cache mantém (LRU). Cada árvore de ~19 mil pessoas custa ~337 MB, mais ~31 MB de índices; 2 levam o processo a ~714 MB |
 | `ANALISADOR_UPLOAD_FOLDER` | *(sem padrão: usa `<diretório do app>/uploads`)* | pasta que recebe os arquivos enviados. É uma **sobreposição de processo**, usada pela suíte e pelo invólucro de paridade para não escreverem na pasta de dados; ver "Onde ficam os arquivos enviados" |
 
+#### Entrada pelo provedor de identidade
+
+A partir da feature 051, a aplicação pode exigir entrada com conta Google. As cinco variáveis abaixo são
+**todas ou nenhuma**: faltando qualquer uma, o servidor **recusa subir** — credencial ausente não pode
+degradar para acesso aberto. Sem nenhuma delas, a aplicação sobe no modo anterior (sem sessão), que é o
+modo em que a suíte e o invólucro de paridade a exercitam.
+
+| Variável | Para que serve |
+| --- | --- |
+| `GOOGLE_CLIENT_ID` | identifica o app no Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | troca o código pelo token, no servidor |
+| `ANALISADOR_SECRET_KEY` | assina o cookie de sessão; **nunca** versione |
+| `ANALISADOR_URL_PUBLICA` | monta a URL de retorno; tem de casar com a cadastrada no Console |
+| `ANALISADOR_DONO_INICIAL` | e-mail da conta que herda os arquivos anteriores à entrada |
+
+As quatro URLs de retorno a cadastrar (`127.0.0.1` e `localhost`, portas `5000` e `5080`) e o passo a
+passo completo estão em `_reversa_forward/051-login-google-e-isolamento/onboarding.md`.
+
+Com a entrada ligada, cada conta vê **apenas os próprios arquivos**: o `dono` deixou de ser o marcador
+`"unico"` e é o `sub` da conta. Recurso de outro dono responde como inexistente (`404`), nunca `403`.
+A entrada depende de internet; sem ela, a tela de entrada informa a falha e o processo continua no ar.
+
 #### Cache da árvore
 
 A árvore GEDCOM deixou de ser reparseada a cada `POST` (feature 047). Com o cache ligado, a primeira ação
@@ -401,8 +423,10 @@ defini-las depois de subir não muda nada.
 
 #### Abrir a aplicação para a rede
 
-> **A aplicação não tem autenticação.** Qualquer equipamento que alcance a porta pode acessar a interface e
-> enviar arquivos. O padrão é fechado; abrir a rede é uma decisão de quem opera.
+> **A entrada é opcional; quando ligada, protege a interface.** Sem as cinco variáveis da seção anterior a
+> aplicação não exige sessão, e qualquer equipamento que alcance a porta pode acessar a interface e enviar
+> arquivos. O padrão continua fechado (loopback); abrir a rede é uma decisão de quem opera — e, com a
+> entrada ligada, cada conta vê só os próprios dados.
 
 No PowerShell, a partir da raiz do repositório:
 

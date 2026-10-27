@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import threading
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, Callable
@@ -43,6 +44,18 @@ from utils.validate import (
 # que alguem teria de manter em dia.
 PASTA_DE_APOSENTADOS = "_aposentados"
 
+# Forma aceita do dono ao compor caminho (feature 051). O valor vem da sessao
+# assinada, mas a validacao e defesa em profundidade: um valor estranho nunca vira
+# diretorio. E o unico ponto que compoe caminho a partir do dono.
+FORMA_DO_DONO = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+# O marcador do caminho SEM entrada (`src/app.py`, `DONO_DO_PROCESSO`). Ele NAO mora
+# em subpasta: a raiz da pasta de upload e o espaco do dono legado, e so dele — a
+# suite e o harness de paridade semeiam arquivos ali e nao tem sessao. Nenhuma
+# sessao autenticada chega a este valor: o `sub` do provedor e numerico. E o que
+# mantem 1.717 testes e a paridade valendo sem ajuste de asserção.
+DONO_LEGADO = "unico"
+
 if TYPE_CHECKING:
     # Import so para o checador de tipos. Em execucao a anotacao e string
     # (`from __future__ import annotations`) e o modulo nao precisa do nome.
@@ -61,6 +74,22 @@ class ArmazenamentoEmDisco:
     def __init__(self, pasta: str) -> None:
         self._pasta: str = pasta
 
+    def _pasta_do_dono(self, dono: str) -> str | None:
+        """Pasta do dono: a raiz para o dono legado, `<base>/<dono>` para os demais.
+
+        `None` faz os metodos de leitura responderem "nao existe" e o `guardar`
+        recusar a escrita — nunca um caminho montado com valor arbitrario.
+
+        O caso do dono legado e declarado e estreito: ele e o unico que NAO ganha
+        subpasta, porque e o espaco que existe antes de qualquer sessao (suite,
+        paridade e a raiz que a migracao le). Ver `DONO_LEGADO`.
+        """
+        if not dono or not FORMA_DO_DONO.fullmatch(dono):
+            return None
+        if dono == DONO_LEGADO:
+            return self._pasta
+        return os.path.join(self._pasta, dono)
+
     def guardar(self, conteudo: bytes, nome_original: str | None, tipo: str,
                 dono: str) -> tuple[str | None, str | None]:
         """Valida antes de gravar; devolve `(caminho, motivo)`.
@@ -70,21 +99,23 @@ class ArmazenamentoEmDisco:
         que o conteudo ja armazenado **nao** e regravado (`RF-09`) — a chave vem do
         conteudo, entao o mesmo envio reencontra o mesmo arquivo.
 
-        `dono` e recebido e **NAO participa de decisao nenhuma** (`RF-02`): a
-        chave continua vindo do conteudo, o nome armazenado continua
-        `<chave>__<nome visivel>` e o caminho continua o mesmo. Usa-lo aqui — na
-        chave ou no caminho — seria mudanca de comportamento observavel: dois
-        envios do mesmo conteudo por donos diferentes deixariam de reencontrar o
-        MESMO arquivo, e a paridade do armazenamento quebraria (`RN-02`). O
-        parametro existe porque a Onda 3 o preenche, e nada mais.
+        `dono` **passa a isolar** (feature 051, `RN-04`/`RN-05`): o arquivo e gravado
+        em `<pasta>/<dono>/`, entao o mesmo conteudo enviado por dois donos sao
+        **dois** arquivos. Dentro do dono, a chave continua vindo do conteudo: o
+        mesmo envio reencontra o mesmo arquivo, e nada e regravado.
         """
         motivo: str | None = validar_conteudo_gedcom(conteudo) if tipo == "gedcom" else None
         if motivo is not None:
             return None, motivo
 
+        pasta: str | None = self._pasta_do_dono(dono)
+        if pasta is None:
+            raise ValueError(f"dono invalido para armazenamento: {dono!r}")
+        os.makedirs(pasta, exist_ok=True)
+
         chave: str = chave_de_armazenamento(conteudo)
         nome_armazenado: str = nome_do_arquivo_armazenado(chave, nome_original)
-        caminho: str = os.path.join(self._pasta, nome_armazenado)
+        caminho: str = os.path.join(pasta, nome_armazenado)
         if not os.path.exists(caminho):
             with open(caminho, "wb") as destino:
                 destino.write(conteudo)
@@ -97,10 +128,10 @@ class ArmazenamentoEmDisco:
         apontar para fora da pasta (BUG-20260929-QMLY, criterio 5), e ela vem
         antes de qualquer `os.path.exists`.
 
-        `dono` e recebido e **ignorado**, pela mesma razao do `guardar`: a
-        referencia continua sendo resolvida pela chave de conteudo, e nenhuma
-        consulta e filtrada por dono. Ele chega por chamada do carregador de
-        arvores, que o recebe da borda.
+        `dono` **passa a escopar** (feature 051): a referencia e resolvida dentro de
+        `<pasta>/<dono>/`, e o dono sem forma valida resolve para `None`, como
+        arquivo inexistente. A recusa por dono alheio e indistinguivel desta
+        (`RN-06`): o chamador recebe `None` e traduz no mesmo literal de sempre.
         """
         # `is None` explicito: `chave_recebida_e_valida` recebe o nome sem
         # anotacao e devolve `bool` puro — nao e `TypeGuard` —, entao o checador
@@ -108,7 +139,10 @@ class ArmazenamentoEmDisco:
         # comportamento (a funcao ja recusa `None`) e dispensa a supressao.
         if referencia is None or not chave_recebida_e_valida(referencia):
             return None
-        caminho = os.path.join(self._pasta, referencia)
+        pasta: str | None = self._pasta_do_dono(dono)
+        if pasta is None:
+            return None
+        caminho = os.path.join(pasta, referencia)
         return caminho if os.path.exists(caminho) else None
 
     def listar(self, dono: str) -> list[EntradaArmazenada]:
@@ -143,17 +177,18 @@ class ArmazenamentoEmDisco:
         `aposentar` funcionar, porque o arquivo aposentado vai para `_aposentados/` e deixa de
         ser um arquivo desta pasta.
 
-        `dono` e recebido e **ignorado**, como no `guardar` e no `resolver`: ele nao filtra
-        nada, e a assimetria entre os metodos da porta seria o custo que a feature 007 pagou
-        para nao ter (dividas #3 e #4 seguem abertas).
+        `dono` **passa a filtrar** (feature 051, `RN-03`): a listagem le
+        `<pasta>/<dono>/`, e a pasta de outro dono nem e aberta. Pasta ausente
+        continua devolvendo `[]`: instalacao nova e conta nova tem a mesma resposta.
         """
-        if not os.path.isdir(self._pasta):
+        pasta: str | None = self._pasta_do_dono(dono)
+        if pasta is None or not os.path.isdir(pasta):
             return []
 
-        retratos = (self._retrato(nome) for nome in os.listdir(self._pasta))
+        retratos = (self._retrato(pasta, nome) for nome in os.listdir(pasta))
         return [retrato for retrato in retratos if retrato is not None]
 
-    def _retrato(self, nome: str) -> EntradaArmazenada | None:
+    def _retrato(self, pasta: str, nome: str) -> EntradaArmazenada | None:
         """A entrada, ou `None` quando ela nao e um arquivo legivel deste instante.
 
         Duas exclusoes silenciosas, e as duas sao deliberadas:
@@ -163,7 +198,7 @@ class ArmazenamentoEmDisco:
           listagem e um retrato do instante, e um arquivo que nao esta mais la nao pode
           derrubar a tela que lista tudo.
         """
-        caminho: str = os.path.join(self._pasta, nome)
+        caminho: str = os.path.join(pasta, nome)
         if not os.path.isfile(caminho):
             return None
         try:
@@ -203,20 +238,27 @@ class ArmazenamentoEmDisco:
         conteudo nenhum, e sobrescrever apagaria um arquivo diferente. Como a `RN-07` proibe
         apagar, a escolha segura vale para os dois casos.
 
-        `dono` e recebido e **ignorado**, como nos outros metodos da porta.
+        `dono` **passa a escopar** (feature 051): a origem e a pasta de aposentados
+        sao as do dono (`<pasta>/<dono>/` e `<pasta>/<dono>/_aposentados/`). A
+        referencia de outro dono nao existe para esta chamada: devolve `False`,
+        como arquivo ausente.
         """
         if referencia is None:
             return False
         if not referencia_de_arquivo_da_pasta(referencia):
             return False
 
-        origem = os.path.join(self._pasta, referencia)
-        if os.path.dirname(os.path.abspath(origem)) != os.path.abspath(self._pasta):
+        pasta: str | None = self._pasta_do_dono(dono)
+        if pasta is None:
+            return False
+
+        origem = os.path.join(pasta, referencia)
+        if os.path.dirname(os.path.abspath(origem)) != os.path.abspath(pasta):
             return False
         if not os.path.isfile(origem):
             return False
 
-        destino_pasta: str = os.path.join(self._pasta, PASTA_DE_APOSENTADOS)
+        destino_pasta: str = os.path.join(pasta, PASTA_DE_APOSENTADOS)
         os.makedirs(destino_pasta, exist_ok=True)
         destino: str | None = self._destino_livre(destino_pasta, referencia)
         if destino is None:
@@ -517,6 +559,33 @@ class RegistroDeAnalisesPostgres:
             # A `RN-13` exige nao propagar: a analise ja foi calculada, e o
             # historico e beneficio, nunca condicao para ver o resultado.
             return None, f"Histórico não registrado: {type(erro).__name__}: {erro}"
+        finally:
+            if conexao is not None:
+                conexao.close()
+
+    def adotar(self, dono_anterior: str, dono_novo: str) -> int:
+        """Transfere as analises do dono anterior para o dono novo (`RN-15`).
+
+        Idempotente por construcao: o `UPDATE` e condicionado ao dono anterior, e a
+        segunda chamada devolve `0`. Devolve `0` tambem quando o driver nao esta
+        instalado ou o banco falha — a adocao nunca pode impedir o login.
+        """
+        try:
+            import psycopg2  # type: ignore
+        except ImportError:
+            return 0
+        conexao = None
+        try:
+            conexao = psycopg2.connect(self._url)
+            with conexao:
+                with conexao.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE dna_analysis SET owner_id = %s WHERE owner_id = %s",
+                        (dono_novo, dono_anterior),
+                    )
+                    return int(cursor.rowcount or 0)
+        except Exception:
+            return 0
         finally:
             if conexao is not None:
                 conexao.close()
