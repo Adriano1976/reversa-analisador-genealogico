@@ -71,10 +71,12 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
 | python-Levenshtein | 0.27.5 | Backend de distância de edição |
 | psycopg2-binary | 2.9.13 | Driver do PostgreSQL, importado só quando há `DATABASE_URL` |
 | graphviz | 0.21 | Desenho da árvore sugerida, servido em SVG |
+| requests | 2.32.5 | Transporte do OAuth 2.0 do Google, usado só no servidor |
 | Bootstrap | 5.3.3 | Componentes da interface, por CDN |
 | Mermaid | 10 | Diagramas de caminhos, por CDN |
 | Cormorant Garamond e Manrope | — | Tipografia da tela, por CDN |
-| `src/assets/app.css` | — | Folha própria de 985 linhas, servida em `/app.css` |
+| `src/assets/app.css` | — | Folha própria de 1.550 linhas, servida em `/app.css` |
+| pyrefly | 1.4.0 | Portão de tipos do CI, só em desenvolvimento |
 
 ## Arquitetura do Projeto
 
@@ -92,13 +94,19 @@ que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
   variável e o banco respondendo, a análise é registrada em uma transação única; se a gravação falhar, a
   análise **conclui e é exibida** e o operador recebe apenas um aviso não bloqueante. Nada é lido do banco
   para decidir o que a tela mostra: o banco é histórico, não fonte de decisão.
-- O GEDCOM é reprocessado em cada `POST` que usa a árvore. A árvore existe **por requisição**: cada `POST`
-  faz o parse do arquivo e passa o resultado como parâmetro para o núcleo, que é composto de funções puras.
-  Não há estado de domínio compartilhado entre requisições nem entre threads — a aplicação impede outra
-  instância na mesma porta, mas nenhuma requisição depende disso para estar correta.
+- O GEDCOM é parseado a cada `POST` que usa a árvore, e o resultado é passado ao núcleo como parâmetro, que é
+  composto de funções puras. Entre requisições existe **cache em memória da árvore já parseada**, ligado por
+  padrão (`ANALISADOR_CACHE_DE_ARVORE=1`, capacidade 1, LRU): é o único estado de domínio que sobrevive à
+  requisição, e desligá-lo devolve o parse a cada `POST`. A aplicação impede outra instância na mesma porta,
+  mas nenhuma requisição depende disso para estar correta.
+- **A entrada é obrigatória desde a feature 051.** O acesso passa por OAuth 2.0 do Google, e cada conta é um
+  **dono**: arquivos e análises de um dono não aparecem para outro, e referência de outro dono responde `404`
+  com o mesmo literal de arquivo inexistente, para a recusa não se distinguir de ausência. A subida do
+  servidor **recusa** sem as cinco variáveis de entrada (fail-closed); o import do módulo não recusa, e é o
+  que deixa a suíte e o harness de paridade rodarem sem credencial.
 - A lista completa de nomes da árvore, inclusive nomes de pessoas vivas, é incluída no HTML para preencher
-  campos de sugestão. A aplicação não tem autenticação; não a exponha a uma rede compartilhada sem controles
-  adicionais.
+  campos de sugestão. Desde a 051 esse HTML só é servido a uma sessão autenticada, mas quem entra vê a árvore
+  inteira: trate a conta como acesso ao dado, e não como isolamento entre pessoas de uma mesma conta.
 
 ### Os três eixos da análise
 
@@ -120,38 +128,54 @@ flowchart LR
 
 ### O ciclo de uma requisição
 
-O caminho do dado, da borda até a tela, com o registro opcional no fim. A rota adapta, o caso de uso
-orquestra e o núcleo decide. São **cinco rotas**: a do formulário (`/`, com despacho por cinco ações) e
-quatro auxiliares (`/app.css`, `/banner.png`, `/apple-touch-icon.png` e `/descartes.csv`, a única delas que
-só aceita `POST`).
+O caminho do dado, da borda até a tela, com a entrada na frente e o registro opcional no fim. A rota adapta,
+o caso de uso orquestra e o núcleo decide. São **oito rotas**: a do formulário (`/`, com despacho por cinco
+ações), as quatro de arquivo (`/app.css`, `/banner.png`, `/apple-touch-icon.png` e `/descartes.csv`, a única
+que só aceita `POST`) e as três da entrada (`/login`, `/callback` e `/logout`).
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant N as Navegador
     participant A as Borda HTTP
+    participant S as Sessão e entrada
     participant U as Casos de uso
     participant P as Portas e adaptadores
     participant C as Núcleo puro
-    N->>A: GET / (listas) ou POST / com action
-    A->>P: resolver a árvore escolhida e retratar os arquivos da pasta
-    P-->>A: nomes, chaves e posição, sem abrir o conteúdo
+    N->>A: GET / sem sessão
+    A->>S: existe conta na sessão?
+    S-->>A: não
+    A-->>N: 302 para /login
+    N->>A: GET /login
+    A-->>N: 302 ao Google com state de uso único
+    N->>A: GET /callback com o código
+    A->>S: trocar o código por token e ler o perfil
+    S-->>A: conta e dono
+    A-->>N: sessão gravada e de volta à tela
+    N->>A: POST / com action
+    A->>S: conta da sessão, dono do dado
+    A->>P: resolver a árvore do dono, pelo cache ou pelo parse
+    P-->>A: árvore e retrato dos arquivos
     A->>U: analisar(árvore, matches, dependências)
-    U->>C: parentesco documental e evidência genética
-    U->>C: confronto, em quatro estados
-    U->>C: viabilidade temporal por cartão
-    C-->>U: resultado com os desfechos declarados
+    U->>C: parentesco, evidência, confronto e viabilidade
+    C-->>U: os desfechos declarados
     U-->>A: resultado, ou erro de domínio tipado
     A->>P: registrar a análise (opcional, se houver banco)
     P-->>A: gravado, ou aviso não bloqueante
-    A-->>N: HTML com as seções separadas, o veredito e a exportação em CSV
+    A-->>N: HTML no-store com as seções, o veredito e a exportação em CSV
 ```
 
 ### UML do domínio
 
 As entidades que sustentam a decisão e as relações entre elas. `ParentescoDocumental` nunca lê cM, e
 `EvidenciaGenetica` nunca conhece o GEDCOM: eles só se encontram no `Confronto` e, de novo e de forma
-independente, no `Veredito`. O `ArquivoArmazenado` é o único estado que sobrevive ao processo.
+independente, no `Veredito`. O `ArquivoArmazenado` é o único estado que sobrevive ao processo, e desde a 051
+ele tem **dono**: a mesma árvore pode existir para duas contas, e cada uma só vê a sua.
+
+A conta, a sessão e o dono vivem em `src/web/`, fora do domínio: são infraestrutura de acesso, não conceito
+genealógico. O cartão de resultado, por sua vez, é **composto** por módulos que não são entidades novas
+(`contrato_do_cartao`, `rotulos_do_cartao`, `fichas_da_pessoa`, `cobertura_do_arquivo`, `qualidade_da_medida`),
+e por isso não aparecem como classes aqui.
 
 ```mermaid
 classDiagram
@@ -160,6 +184,7 @@ classDiagram
         +str chave
         +str nome_visivel
         +str posicao
+        +str dono
     }
     class ArvoreGedcom {
         +dict pessoas
@@ -256,14 +281,20 @@ porque nome de valor de enumeração no Mermaid não aceita espaço.
 ### A fronteira entre o núcleo e o mundo
 
 O núcleo é puro e depende apenas de `utils/`. Tudo o que é de fora entra por `ports/`, e as setas apontam
-sempre para dentro: não há ciclo entre os oito pacotes, e são 23 arestas. Uma delas merece nota: o
-`application/` passou a importar `parsers/` diretamente na fachada de validação, o que afrouxa o desenho
-original da fronteira e está registrado como tal no ADR-25.
+sempre para dentro: não há ciclo entre os **nove** pacotes, e são **28** arestas. Desse total, oito são da
+suíte, que importa todos os outros pacotes; sem elas, a aplicação tem 20, que é o que este desenho mostra.
+Duas merecem nota. O `application/` passou a importar `parsers/` diretamente na fachada de validação, o que
+afrouxa o desenho original da fronteira e está registrado como tal no ADR-25. E o `web/` (entrada, sessão e
+rotas de arquivo) depende de `application/`, `reporting/` e `utils/`, mas nada depende dele: a entrada é a
+folha da borda.
 
 ```mermaid
 flowchart LR
     subgraph borda["Borda HTTP"]
         APP["app.py"]
+    end
+    subgraph entrada["Entrada e sessão"]
+        WEB["web/"]
     end
     subgraph casos["Casos de uso"]
         UC["application/"]
@@ -278,12 +309,16 @@ flowchart LR
     end
     UTILS["utils/"]
 
+    APP --> WEB
     APP --> UC
     APP --> PORTS
     APP --> PARSERS
     APP --> CORE
     APP --> REPORT
     APP --> UTILS
+    WEB --> UC
+    WEB --> REPORT
+    WEB --> UTILS
     UC --> CORE
     UC --> PORTS
     UC --> PARSERS
@@ -367,8 +402,10 @@ docker compose up -d --build
 ### Configuração de execução
 
 O bloco de entrada lê três variáveis de ambiente — todas com padrão declarado no código, então nada precisa
-ser definido para subir a aplicação. A tabela inclui ainda as variáveis lidas na **importação** do módulo, e
-não no bloco de entrada: a pasta de upload e as duas do cache da árvore.
+ser definido para subir a aplicação **no modo sem entrada**. Para ligar a entrada pelo Google, as cinco
+variáveis da subseção seguinte são obrigatórias **juntas**: faltando uma, o servidor recusa subir. A tabela
+inclui ainda as variáveis lidas na **importação** do módulo, e não no bloco de entrada: a pasta de upload e
+as duas do cache da árvore.
 
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
@@ -504,8 +541,8 @@ use outra porta com `ANALISADOR_PORT`.
 ## Estrutura do Projeto
 
 ```text
-src/                            # raiz de código: 63 arquivos .py com 11.388 linhas não vazias; 67 arquivos no total (sem cache e uploads), medido em 2026-10-23
-├── app.py                      # Borda HTTP: create_app, 5 rotas, 5 actions, Blueprint de assets, guarda de instância única e estado de borda injetável
+src/                            # raiz de código: 77 arquivos e 16.699 linhas não vazias, medido em 2026-10-27 (sem uploads)
+├── app.py                      # Borda HTTP: create_app, 8 rotas (a do formulário mais os dois Blueprints), 5 actions, guarda de instância única e estado de borda injetável
 ├── application/                # Casos de uso: orquestram o núcleo e traduzem o desfecho
 │   ├── upload_gedcom.py        # Upload: decide se pode gravar, grava sob chave de conteúdo e carrega a árvore
 │   ├── dna_analysis.py         # Análise: cruza GEDCOM e CSV pelas três etapas e aplica o validador
@@ -514,8 +551,9 @@ src/                            # raiz de código: 63 arquivos .py com 11.388 li
 │   ├── validacao.py            # Fachada de leitura e cruzamento do validador de dados
 │   ├── correcao.py             # Fachada de correção: do GEDCOM e do CSV até a árvore sugerida
 │   ├── projecao_analise.py     # Projeção pura do resultado para o payload da porta (Mapper)
+│   ├── dono_inicial.py         # Adoção dos dados que existiam antes da identidade (feature 051)
 │   └── traducao.py             # Traduz exceção de domínio de volta para o literal da tela
-├── core/                       # Núcleo puro: decide sem HTTP, sem I/O e sem estado de módulo
+├── core/                       # Núcleo puro: 39 módulos, decide sem HTTP, sem I/O e sem estado de módulo
 │   ├── documentary_relationship.py  # Parentesco documental: caminho, ancestral comum, homônimos, caminhos múltiplos, colapso de pedigree
 │   ├── genetic_evidence.py     # Evidência genética: kits, cM, segmentos, SNPs (nunca soma kits diferentes)
 │   ├── relationship_hypotheses.py   # cM → possibilidades, pela tabela publicada do Shared cM Project 4.0
@@ -526,29 +564,35 @@ src/                            # raiz de código: 63 arquivos .py com 11.388 li
 │   ├── identidade_do_match.py  # O nome do CSV e a pessoa escolhida são a mesma? (rotula, não escolhe)
 │   ├── profundidade_do_caminho.py   # A árvore afirma a profundidade que o próprio kit estima?
 │   ├── cirurgia_do_grafo.py    # Desacoplar a junção e injetar gerações virtuais na árvore sugerida
-│   ├── motivos_do_descarte.py  # Textos humanos dos motivos de descarte
-│   ├── matching.py             # Índices do GEDCOM e decisão de aceitação de candidatos
-│   ├── name_normalization.py   # Normalização e decomposição de nomes
-│   ├── path_finding.py         # Caminho entre duas pessoas, na árvore recebida por parâmetro
-│   ├── family_navigation.py    # Quem é parente de quem, na árvore recebida por parâmetro
-│   ├── dna_analysis.py         # Caso de uso do cruzamento, ordem de apresentação e fachada de compatibilidade
+│   ├── composição do cartão e do pipeline de um kit:
+│   │   ├── contrato_do_cartao.py    # As 40 chaves do cartão, declaradas uma vez e guardadas por teste
+│   │   ├── rotulos_do_cartao.py     # Palavras e classes CSS que o operador lê no cartão
+│   │   ├── contexto_da_analise.py   # Estado que não muda entre kits, com os caches da análise
+│   │   ├── passo_por_kit.py         # Um kit vira cartão ou descarte: casamento, parentesco, confronto e profundidade
+│   │   ├── validacao_no_cartao.py   # Veredito de viabilidade temporal do cartão
+│   │   ├── endogamia_no_cartao.py   # Diagnóstico estrutural, selo e frase da seção 5
+│   │   ├── cartao_sem_correspondencia.py  # Cartão do match sem pessoa compatível
+│   │   ├── sem_correspondencia.py   # Triagem dos matches de cM alto sem correspondência na árvore
+│   │   ├── cobertura_do_arquivo.py  # Retrato do arquivo: linhas, pessoas, kits, laboratórios e mediana
+│   │   ├── qualidade_da_medida.py   # Estado de qualidade de uma medida de DNA (total, maior bloco e SNPs)
+│   │   ├── fontes_de_laboratorio.py # Catálogo de laboratórios para a coluna de fonte
+│   │   ├── fichas_da_pessoa.py      # A ficha comparável de uma pessoa e o índice pai para filhos
+│   │   ├── motivos_do_descarte.py   # Textos humanos dos motivos de descarte
+│   │   └── graus_de_parentesco.py   # Nome do avô, do neto e do antepassado comum, por grau
+│   ├── leitura e navegação da árvore:
+│   │   ├── matching.py              # Índices do GEDCOM e decisão de aceitação de candidatos
+│   │   ├── name_normalization.py    # Normalização e decomposição de nomes
+│   │   ├── path_finding.py          # Caminho entre duas pessoas, na árvore recebida por parâmetro
+│   │   ├── family_navigation.py     # Quem é parente de quem, na árvore recebida por parâmetro
+│   │   ├── caminhos_alternativos.py # Os múltiplos caminhos entre duas pessoas
+│   │   ├── homonimos.py             # Reconhecer o mesmo nome e montar o dossiê de homônimos
+│   │   ├── datas_do_gedcom.py       # Data e local do registro, sem nenhum parentesco
+│   │   └── diagram_domain.py        # Consultas de domínio que o desenho do Mermaid precisa
 │   ├── dependencias.py         # O que o núcleo consome de fora, entregue pela borda
-│   ├── contexto_da_analise.py  # Estado que não muda entre kits, com os caches da análise
-│   ├── passo_por_kit.py        # Um kit vira cartão ou descarte: casamento, parentesco, confronto e profundidade
-│   ├── rotulos_do_cartao.py    # Palavras e classes CSS que o operador lê no cartão
-│   ├── validacao_no_cartao.py  # Veredito de viabilidade temporal do cartão
-│   ├── endogamia_no_cartao.py  # Diagnóstico estrutural, selo e frase da seção 5
-│   ├── cartao_sem_correspondencia.py  # Cartão do match sem pessoa compatível no GEDCOM
-│   ├── contrato_do_cartao.py   # As 40 chaves do cartão de análise, declaradas uma vez e guardadas por teste
+│   ├── dna_analysis.py         # Caso de uso do cruzamento, ordem de apresentação e fachada de compatibilidade
 │   ├── path_search.py          # Fachada da busca de caminhos para o caso de uso
-│   ├── diagram_domain.py       # Consultas de domínio que o desenho do Mermaid precisa
 │   ├── erros.py                # Exceções de domínio tipadas, com raiz ErroDeDominio
 │   ├── registro.py             # Nome de exibição e identificador do registro
-│   ├── cobertura_do_arquivo.py # Retrato do arquivo: linhas, pessoas, kits, laboratórios e mediana
-│   ├── fontes_de_laboratorio.py   # Catálogo de laboratórios para o valor da coluna de fonte
-│   ├── graus_de_parentesco.py  # Nome do avô, do neto e do antepassado comum, por grau
-│   ├── qualidade_da_medida.py  # Estado de qualidade de uma medida de DNA (total, maior bloco e SNPs)
-│   ├── sem_correspondencia.py  # Triagem dos matches de cM alto sem correspondência na árvore
 │   └── cm_estimator.py         # LEGADO: faixas de cM escritas à mão, fora do fluxo
 ├── ports/                      # A fronteira: os Protocol das portas e os adaptadores concretos
 │   ├── __init__.py             # As portas e o conjunto de dependências que o caso de uso recebe
@@ -562,18 +606,25 @@ src/                            # raiz de código: 63 arquivos .py com 11.388 li
 │   ├── visualizer.py           # Desenho da árvore em Graphviz, servido em SVG
 │   ├── lista_de_arquivos.py    # Retrato dos arquivos da pasta, para as listas da tela
 │   └── csv_de_descartes.py     # Exportação da lista de trabalho dos descartes
-├── web/                        # Borda HTTP extraída do app.py: Blueprint de assets e downloads
-│   ├── __init__.py             # Declara a responsabilidade do pacote de borda HTTP
-│   └── rotas_assets.py         # Rotas de /apple-touch-icon.png, /banner.png, /app.css e /descartes.csv
+├── web/                        # Entrada e sessão: o que saiu do app.py na feature 051
+│   ├── autenticacao.py         # OAuth 2.0 do Google em três passos, sem biblioteca de OAuth
+│   ├── sessao.py               # A conta na sessão, a guarda de entrada e o dono atual
+│   ├── rotas_auth.py           # /login, /callback e /logout
+│   ├── rotas_assets.py         # /apple-touch-icon.png, /banner.png, /app.css e /descartes.csv
+│   ├── hooks_de_registro.py    # Ganchos que gravam o cabeçalho em toda resposta
+│   └── __init__.py             # Declara a responsabilidade do pacote de borda HTTP
 ├── utils/                      # Utilitários transversais
 │   ├── text_cleaning.py        # Autoridade única de limpeza de mojibake (strip_bad_utf, demojibake)
 │   ├── number_format.py        # Formatação de cM, SNPs e posições
 │   ├── name_keys.py            # Normalização de um nome para forma comparável
-│   └── validate.py             # Validação do upload: nome visível, chave de conteúdo e conteúdo do GEDCOM
+│   ├── validate.py             # Validação do upload: nome visível, chave de conteúdo e conteúdo do GEDCOM
+│   ├── logs.py                 # Registro em camadas, com o formato e os níveis declarados
+│   └── auditoria.py            # O rastro de auditoria que o registro deixa
 ├── templates/
-│   └── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js, fontes e ícone da aba), 1.824 linhas
+│   ├── index.html              # Template principal da UI (Bootstrap 5, Mermaid.js, fontes e ícone da aba), 2.245 linhas
+│   └── login.html              # A tela de entrada, 45 linhas
 ├── assets/                     # As duas artes canônicas e a folha própria
-│   ├── app.css                 # Folha de estilo da tela, servida em /app.css (985 linhas)
+│   ├── app.css                 # Folha de estilo da tela, servida em /app.css (1.550 linhas)
 │   ├── apple-touch-icon.png    # Arte canônica do ícone de atalho, servida em /apple-touch-icon.png
 │   └── banner-da-tela.png      # Arte canônica do banner, servida em /banner.png
 └── uploads/                    # Criado em tempo de execução pela aplicação; recebe os arquivos enviados e é a pasta canônica de dados, a única. Não é versionada
@@ -637,10 +688,11 @@ ali por convenção do projeto, e não um ativo do mini-site. Os rótulos das fe
 
 ### Testes
 
-A suíte tem **85 arquivos em `tests/`**: 79 de teste e 6 de apoio (o `conftest.py`, duas receitas de
-derivação de arte, uma sonda de manutenção, o invólucro de paridade e a verificação no contêiner). Aqui
-estão o ambiente de coleta, as fixtures e as suítes que sustentam a regra; o inventário completo, com a
-descrição de cada arquivo, está em [`_reversa_docs/modulos.html`](./_reversa_docs/modulos.html).
+A suíte tem **123 arquivos em `tests/`**: 108 de teste, 6 de apoio (o `conftest.py`, duas receitas de
+derivação de arte, uma sonda de manutenção, o invólucro de paridade e a verificação no contêiner) e 9
+fixtures. Aqui estão o ambiente de coleta, as fixtures e as suítes que sustentam a regra; o inventário
+completo, arquivo por arquivo, está em [`_reversa_docs/modulos.html`](./_reversa_docs/modulos.html) — com a
+ressalva de que aquela página foi gerada em 2026-10-20 e não inclui os testes escritos desde então.
 
 ```text
 tests/
@@ -650,10 +702,11 @@ tests/
 ├── manutencao_de_uploads.py       # Sonda de manutenção da pasta canônica, acima do teto de idade
 ├── rodar_paridade.py              # Invólucro do harness de paridade entre candidato e oráculo
 ├── verificacao_no_conteiner.py    # Verificação de execução dentro do contêiner
-└── fixtures/                      # 8 arquivos: árvores sintéticas, CSVs e desfechos montados à mão
+└── fixtures/                      # 9 arquivos: árvores sintéticas, CSVs e desfechos montados à mão
     ├── arvore_atual.py            # A árvore carregada pelo último parse
     ├── arvore_com_datas.py        # Árvore datada, para a janela de vida
     ├── arvore_para_cirurgia.py    # Caso de desacoplamento e de gerações virtuais
+    ├── autenticacao.py            # Ambiente e respostas falsas do provedor de entrada
     ├── helpers.py                 # Helpers compartilhados
     ├── resultado_para_cartao.py   # Resultado pronto para o cartão
     ├── sample_dna.py              # GEDCOM e CSVs sintéticos para a análise de DNA
@@ -673,6 +726,7 @@ tests/
 | `test_persistencia_*.py`, `test_registro_de_analises.py` | os três estados da persistência (sem banco, banco fora e gravado) |
 | `test_csv_de_descartes.py`, `test_motivo_humanizado.py` | a exportação da lista de trabalho e o texto dos motivos |
 | `test_visualizer*.py` | o desenho da árvore em Graphviz, da origem ao SVG |
+| `test_autenticacao.py`, `test_sessao_e_guarda.py`, `test_isolamento_por_dono.py`, `test_migracao_do_dono_inicial.py` | a entrada, a guarda de sessão, o isolamento por dono e a adoção dos dados anteriores à identidade |
 | `test_tres_fases_da_tela.py`, `test_tabela_da_tela.py`, `test_cartao_em_tres_faixas.py` | a tela de entrada e o cartão |
 | `test_characterization_*.py` | o congelamento da decisão de matching e da saída Mermaid |
 
@@ -883,6 +937,17 @@ com mensagem na tela, e nunca com erro do servidor.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
 - **Artes da tela por rota:** o ícone de atalho e o banner do topo são derivados da arte canônica por uma
   receita única em `tests/` e servidos por `/apple-touch-icon.png` e `/banner.png`.
+- **Entrada com conta Google e isolamento por dono:** desde a 051, a tela exige conta. Cada conta vê apenas
+  os próprios arquivos, e o que é de outro dono responde `404`, nunca `403`, para a recusa não revelar que o
+  arquivo existe. Os arquivos anteriores à entrada são adotados por uma conta declarada.
+- **Cache da árvore entre requisições:** ligado por padrão (`ANALISADOR_CACHE_DE_ARVORE`). A primeira ação
+  paga o parse e as seguintes o reaproveitam: a seleção de árvore caiu de 54,8 s para 0,9 s e a segunda
+  análise de DNA, de 62,2 s para 4,7 s, com o HTML idêntico byte a byte.
+- **Registro em camadas e rastro de auditoria:** cada resposta sai com o cabeçalho de identificação, e as
+  recusas (host recusado, corpo grande, arte ausente) também deixam registro, que sem isso não deixariam.
+- **Impressão do resultado no cliente:** cada cartão tem um comando de imprimir com o nome da pessoa no
+  rótulo acessível, e a impressão monta a folha no próprio navegador, com o contêiner que só existe quando
+  há cartão para imprimir.
 - **Histórico opcional em PostgreSQL:** registra cada análise em uma transação única quando há
   `DATABASE_URL` configurada, e funciona igual sem banco. A gravação nunca bloqueia nem altera o que a
   tela mostra: se falhar, o operador recebe um aviso e o resultado continua na tela.
@@ -892,9 +957,12 @@ com mensagem na tela, e nunca com erro do servidor.
 O código está organizado em `src/`, separando rotas Flask, parsing, domínio, apresentação e utilitários. O
 framework [Reversa](https://github.com/sandeco/reversa) mantém especificações e documentação em pastas próprias.
 
-- **CI/CD:** não há workflow de integração contínua no repositório; a suíte é executada localmente. A
-  publicação da documentação passou a sair da pasta `docs/`, que espelha `_reversa_docs/` — e o espelho
-  tem ajustes próprios, então sincronize com `publicar_docs.py` (ver "Pastas do Framework Reversa").
+- **CI/CD:** há **um** workflow, `.github/workflows/tipos.yml`, e ele faz uma coisa só: roda `pyrefly check`
+  em `src/` a cada push e pull request, como portão de tipos. A régua é o `pyrefly.toml`, com
+  `[[sub-config]]` estrito em `src/ports/**`; `src/` está em zero erro e `tests/` fica fora do portão de
+  propósito (são diagnósticos de fixture, não de produto). O workflow **não** executa a suíte: o teste é
+  local. A publicação da documentação sai da pasta `docs/`, que espelha `_reversa_docs/` — e o espelho tem
+  ajustes próprios, então sincronize com `publicar_docs.py` (ver "Pastas do Framework Reversa").
 - **Execução:** `waitress` atende a aplicação; não há etapa de build. Use o Python do `.venv` e as
   dependências fixadas em `requirements.txt`.
 
@@ -911,25 +979,34 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
   `janela_de_vida` (tempo), `identidade_do_match` (nome) e `profundidade_do_caminho` (profundidade).
 - `utils/number_format.py` é a autoridade única de formatação numérica. O arredondamento ocorre apenas na
   apresentação.
-- A árvore é montada a cada requisição e passada ao núcleo como parâmetro; não há estado de domínio compartilhado
-  entre threads. Os arquivos enviados ficam em `src/uploads`, a única pasta canônica de dados; o que a análise
-  produziu vai para o banco apenas
-  se houver `DATABASE_URL`, e nada é lido de volta para decidir o que a tela mostra.
+- A árvore é montada a cada `POST` e passada ao núcleo como parâmetro. O único estado de domínio que
+  sobrevive à requisição é o cache em memória da árvore parseada, ligado por padrão e de capacidade 1. Os
+  arquivos enviados ficam em `src/uploads`, a única pasta canônica de dados; o que a análise produziu vai
+  para o banco apenas se houver `DATABASE_URL`, e nada é lido de volta para decidir o que a tela mostra.
+- A entrada e a sessão ficam em `src/web/`, e não no domínio: `autenticacao.py` fala OAuth com o Google,
+  `sessao.py` guarda a conta e resolve o dono, `rotas_auth.py` serve as três rotas e `hooks_de_registro.py`
+  grava o cabeçalho em toda resposta. O núcleo nunca vê a conta: recebe a árvore já resolvida para o dono.
 - A limpeza de caracteres corrompidos (`demojibake`, `strip_bad_utf`) é centralizada em `text_cleaning.py`.
 - `path_finding.py` busca caminhos; `mermaid_render.py` emite diagramas com rótulos escapados.
 - `dna_analysis.py` coordena o cruzamento; `csv_ingest.py`, `matching.py` e `name_normalization.py`
-  cuidam da leitura e da correspondência de nomes.
-- `validate.py` valida uploads, aplica o limite da requisição e deriva chaves de armazenamento do conteúdo.
+  cuidam da leitura e da correspondência de nomes; `contexto_da_analise.py` e `passo_por_kit.py` montam o
+  cartão de cada kit, e `contrato_do_cartao.py` declara as chaves que ele tem de ter.
+- `validate.py` valida uploads, aplica o limite da requisição e deriva chaves de armazenamento do conteúdo;
+  `logs.py` e `auditoria.py` registram em camadas e deixam o rastro de auditoria.
 
 ## Testes
 
 - A suíte usa **pytest**; `pytest.ini` configura `tests/` como diretório de testes. A medição com
-  `pytest-cov` em 2026-10-20 registrou **92% de cobertura em `src/`** (3.859 instruções, 313 descobertas),
-  com **1.381 testes aprovados e 9 pulados**. O resultado varia conforme as alterações; as specs em
-  [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
+  `pytest-cov` em 2026-10-27 registrou **92% de cobertura em `src/`** (5.147 instruções, 390 descobertas),
+  com **1.746 testes aprovados, 9 pulados e 4 falhas**. O resultado varia conforme as alterações; as specs
+  em [`_reversa_sdd/`](./_reversa_sdd/) indicam componentes que ainda podem receber mais testes.
+- As **4 falhas são de expectativa, não de comportamento.** `tests/test_characterization_mermaid.py` congela
+  a saída do diagrama linha a linha, e a largura da caixa de pessoa mudou de 190 para 230 px no renderizador
+  (medida no Mermaid 10, com `securityLevel: 'strict'`); o golden do teste ficou nos 190 e precisa de
+  atualização. Enquanto ele não for atualizado, a caracterização não caracteriza.
 - Os **9 pulos** são os testes do adaptador de persistência: eles só executam com o driver e um banco
   disponíveis, e sem `DATABASE_URL` a suíte roda inteira sem banco, de propósito. Por isso o pior módulo em
-  cobertura é justamente `src/ports/adaptadores.py` (73%).
+  cobertura é justamente `src/ports/adaptadores.py`.
 - Instale as dependências de teste no ambiente oficial e execute os testes:
 
   ```powershell
