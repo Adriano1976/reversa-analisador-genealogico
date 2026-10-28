@@ -431,6 +431,10 @@ modo em que a suíte e o invólucro de paridade a exercitam.
 | `ANALISADOR_URL_PUBLICA` | monta a URL de retorno; tem de casar com a cadastrada no Console |
 | `ANALISADOR_DONO_INICIAL` | e-mail da conta que herda os arquivos anteriores à entrada |
 
+Para o Docker, as cinco vão no `.env`, que o `docker compose` lê automaticamente. O `.env.local` é o
+arquivo do `iniciar.ps1` (porta 5000); o `atualizar.ps1` também o lê como fallback, ajustando
+`ANALISADOR_URL_PUBLICA` para `http://127.0.0.1:5080`, e o `.env` continua tendo precedência.
+
 As quatro URLs de retorno a cadastrar (`127.0.0.1` e `localhost`, portas `5000` e `5080`) e o passo a
 passo completo estão em `_reversa_forward/051-login-google-e-isolamento/onboarding.md`.
 

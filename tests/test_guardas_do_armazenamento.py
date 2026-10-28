@@ -549,6 +549,31 @@ def test_o_atalho_le_o_rotulo_com_json_e_nao_com_aspas_no_formato():
     )
 
 
+def test_o_atalho_carrega_o_env_local_e_pre_checa_o_compose():
+    """O compose le `.env`, nao `.env.local`; o atalho faz a ponte e falha antes do build.
+
+    Medido em 2026-10-27: o operador preencheu o `.env.local` pelo `iniciar.ps1` e rodou
+    `.\atualizar.ps1`. O `docker compose` parou com "required variable GOOGLE_CLIENT_ID is
+    missing a value", porque nao le o `.env.local`; o atalho traduziu isso como "o build
+    falhou" e escondeu a causa. A guarda prende as duas metades da correcao: a leitura do
+    `.env.local` como fallback e a pre-checagem que transforma a falha de interpolacao numa
+    mensagem acionavel, antes de reconstruir a imagem.
+    """
+    codigo = codigo_do_atalho()
+
+    assert any("ImportarVariaveisDeEntrada" in linha for linha in codigo), (
+        "o atalho deixou de carregar o `.env.local`: quem preencheu o arquivo do `iniciar.ps1` "
+        "volta a receber 'o build falhou' por uma variavel que o compose nao consegue ler"
+    )
+    assert any(".env.local" in linha for linha in codigo), (
+        "o atalho nao cita o `.env.local`: a ponte com o arquivo do `iniciar.ps1` saiu"
+    )
+    assert any("docker compose config" in linha for linha in codigo), (
+        "o atalho nao valida a configuracao do compose antes do build: a falta de variavel "
+        "volta a aparecer como falha de build, sem dizer qual variavel falta"
+    )
+
+
 def test_mutacao_a_guarda_da_identidade_falha_sem_o_rotulo(tmp_path):
     copia = _copia_sem_a_regra(DOCKERFILE, str(tmp_path / "Dockerfile"), ROTULO_DA_REVISAO)
 

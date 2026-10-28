@@ -10,10 +10,12 @@
     Este atalho faz o que o README manda, na ordem, e mostra o resultado:
 
       1. pega a revisao do git e a entrega ao build, para o rotulo da imagem dizer o commit;
-      2. reconstroi a imagem e recria o container (`docker compose up -d --build`);
-      3. imprime as DUAS marcas de identidade do que subiu — o rotulo e o carimbo de data —,
+      2. carrega as variaveis de entrada do `.env.local` que nao estiverem no `.env` (o
+         `docker compose` le apenas o `.env`) e valida a configuracao antes do build;
+      3. reconstroi a imagem e recria o container (`docker compose up -d --build`);
+      4. imprime as DUAS marcas de identidade do que subiu — o rotulo e o carimbo de data —,
          em vez de exigir que voce digite `docker inspect` na mao;
-      4. confere que a aplicacao responde na 5080.
+      5. confere que a aplicacao responde na 5080.
 
     O banco NAO e afetado: o container do PostgreSQL nao e recriado, e o historico das
     analises continua onde esta. Os arquivos enviados tambem nao: `src/uploads` e montada ao
@@ -50,6 +52,50 @@ function Passo {
     Write-Host "==> $Texto" -ForegroundColor Cyan
 }
 
+# As cinco variaveis da entrada pelo Google vivem no `.env.local`, que e o arquivo do
+# `iniciar.ps1` local. O `docker compose` le o `.env`, nao o `.env.local`: sem esta ponte, o
+# `${VAR:?}` do compose para a subida com "required variable ... is missing a value", e o
+# atalho traduzia isso como "o build falhou". Medido em 2026-10-27.
+#
+# Precedencia: ambiente do processo > `.env` > `.env.local`, com uma excecao declarada:
+# `ANALISADOR_URL_PUBLICA` vinda do `.env.local` e reescrita para a porta do Docker (5080), e
+# nao para a 5000 do modo local. O `.env` continua sendo o arquivo do Docker (onboarding.md
+# secao 3); o `.env.local` e apenas o fallback de quem ja preencheu o arquivo do `iniciar.ps1`.
+function ImportarVariaveisDeEntrada {
+    param([string]$ArquivoLocal, [string]$ArquivoDocker, [int]$PortaDocker)
+
+    $noDocker = @{}
+    if (Test-Path -LiteralPath $ArquivoDocker) {
+        foreach ($linha in Get-Content -LiteralPath $ArquivoDocker -Encoding UTF8) {
+            $texto = $linha.Trim()
+            if (-not $texto -or $texto.StartsWith("#")) { continue }
+            $partes = $texto -split "=", 2
+            if ($partes.Count -eq 2) { $noDocker[$partes[0].Trim()] = $true }
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $ArquivoLocal)) { return }
+    foreach ($linha in Get-Content -LiteralPath $ArquivoLocal -Encoding UTF8) {
+        $texto = $linha.Trim()
+        if (-not $texto -or $texto.StartsWith("#")) { continue }
+        $partes = $texto -split "=", 2
+        if ($partes.Count -ne 2) { continue }
+        $nome = $partes[0].Trim()
+        $valor = $partes[1].Trim().Trim('"', "'")
+        if (-not $valor) { continue }
+        if ($noDocker.ContainsKey($nome)) { continue }
+        # A URL publica e a excecao a precedencia: o `.env.local` traz a 5000 do modo local,
+        # e o Docker publica na 5080. Se o `.env` tiver a chave, ele vence (tratado acima);
+        # senao, o valor do `.env.local` e reescrito para a porta do Docker.
+        if ($nome -eq "ANALISADOR_URL_PUBLICA") {
+            Set-Item -Path "Env:$nome" -Value "http://127.0.0.1:$PortaDocker"
+            continue
+        }
+        if (Test-Path "Env:$nome") { continue }
+        Set-Item -Path "Env:$nome" -Value $valor
+    }
+}
+
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     throw "O comando 'docker' nao esta no PATH. Abra o Docker Desktop e rode de novo."
 }
@@ -72,11 +118,28 @@ Push-Location $PSScriptRoot
 try {
     $env:REVISAO = $revisao
 
+    # A ponte com o `.env.local` e a pre-checagem acontecem ANTES do build. Sem isso, uma
+    # variavel faltando derrubava o `up` com "required variable ... is missing a value" e o
+    # operador lia "o build falhou" — a causa real ficava escondida no meio da saida.
+    ImportarVariaveisDeEntrada -ArquivoLocal (Join-Path $PSScriptRoot ".env.local") `
+        -ArquivoDocker (Join-Path $PSScriptRoot ".env") -PortaDocker $PORTA
+
+    $configuracao = docker compose config --quiet 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "O compose nao conseguiu ler as variaveis obrigatorias:" -ForegroundColor Red
+        $configuracao | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+        Write-Host "  Para o Docker, as cinco variaveis de entrada precisam estar no .env" -ForegroundColor Yellow
+        Write-Host "  (ou no .env.local, que este atalho le como fallback)." -ForegroundColor Yellow
+        Write-Host "  Veja onboarding.md secao 3; a URL publica do Docker e http://127.0.0.1:$PORTA." -ForegroundColor Yellow
+        throw "Configuracao do compose incompleta. Nada foi trocado."
+    }
+
     Passo "Reconstruindo a imagem com a revisao '$revisao' (na primeira vez pode demorar)"
     Write-Host "    O log abaixo e o do Docker. O resumo do que ficou no ar vem no fim."
     docker compose up -d --build
     if ($LASTEXITCODE -ne 0) {
-        throw "O 'docker compose up -d --build' falhou (codigo $LASTEXITCODE). Nada foi trocado."
+        throw "O 'docker compose up -d --build' falhou (codigo $LASTEXITCODE). Nada foi trocado. O erro do Docker esta nas linhas acima."
     }
 
     Passo "O que ficou no ar"

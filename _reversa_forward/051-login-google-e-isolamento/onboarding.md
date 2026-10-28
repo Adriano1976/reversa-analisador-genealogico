@@ -65,6 +65,10 @@ Para o Docker, as mesmas cinco entram no `.env` (que o `.gitignore` já exclui).
 passa a usá-las com `${VAR:?}`, que **para** a subida se faltar alguma — mesmo padrão das credenciais do
 banco.
 
+O `atualizar.ps1` também lê o `.env.local` como fallback, para quem já preencheu o arquivo do
+`iniciar.ps1`, e ajusta `ANALISADOR_URL_PUBLICA` para `http://127.0.0.1:5080` (a porta publicada pelo
+Docker). O `.env` continua tendo precedência: o que estiver nele não é sobrescrito pelo fallback.
+
 ## 4. Subir
 
 ```powershell
