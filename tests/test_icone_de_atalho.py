@@ -202,7 +202,18 @@ TAMANHO_ESPERADO = 16504
 #: proprio titulo do cartao ("Analise de conexao com <nome>"), para o nome sugerido do
 #: arquivo sair certo. `df702cbb…` (51.150) → `386f2fef…` (51.601, **+451 bytes**), todos
 #: de script.
-SHA_DA_TELA = "386f2fef0c63046648f3a04cb1eb1fc1c7ba377104210cbed4509a34bec6cb39"
+#: **Decima segunda medicao, 2026-10-28, busca por nome (feature 052).** O bloco de busca
+#: entra sob `{% if gedcom_filename %}` e NAO aparece na tela vazia. O que moveu este hash
+#: foi outro efeito da mesma feature: os SEIS formularios que nao declaravam `action`
+#: passaram a declarar `action="/"`. Eles postavam para a URL corrente, o que era seguro
+#: enquanto a unica URL da aplicacao era `/` — com `POST /busca` no ar, o formulario da
+#: analise de DNA caia na rota da busca e respondia "Digite um nome ou sobrenome para
+#: buscar.". Dos seis, so o de envio da arvore aparece na tela vazia:
+#: `386f2fef…` (51.601) → `577a17fd…` (51.612, **+11 bytes**), exatamente o ` action="/"`
+#: dele. Os outros cinco (abrir, apagar, conexao, DNA e promover candidato) vivem sob
+#: lista nao vazia, arvore aberta ou resultado, e nao entram nesta conta. A declaracao da
+#: entrega esta em `_reversa_sdd/addenda/052-busca-nome-e-sobrenome.md`.
+SHA_DA_TELA = "577a17fd1513b29a1e3704f640bdcdfffbdcdbf373d3da4e148cb44529c87148"
 
 
 def _cabecalho_png(corpo: bytes):

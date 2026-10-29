@@ -75,6 +75,8 @@ if TYPE_CHECKING:
     # dentro de quem so quer o contrato.
     from parsers.gedcom_parser import Tree
 
+    from core.busca_de_nome import NomeParaBuscar
+
 
 class ArmazenamentoDeArquivos(Protocol):
     """Grava o upload sob chave derivada do conteudo e resolve a referencia de volta.
@@ -453,11 +455,59 @@ class RegistroDeAnalises(Protocol):
         ...
 
 
+class FonteDeNomes(Protocol):
+    """Uma fonte de nomes para a busca (feature 052, `D-02`).
+
+    A porta existe para que "arvore e relatorio" nao vire `if` de formato no caso de
+    uso: uma terceira fonte e um adaptador novo, e o nucleo nao muda.
+
+    ## O que a fonte declara
+
+    - `identidade`: rotulo curto e estavel (`arvore`, `relatorio`), usado como chave;
+    - `rotulo`: o texto que o operador le na secao;
+    - `normalizar`: a AUTORIDADE de normalizacao **da fonte**. E com ela que o termo e
+      normalizado antes de comparar. Se a busca usasse um normalizador unico, ela
+      discordaria do dossie de homonimos (que normaliza com `core.homonimos.normalizar`)
+      ou do `matching` (que usa `utils.name_keys.norm_name`) — `RN-06`;
+    - `nomes`: os candidatos ja normalizados, com tokens prontos;
+    - `fichas`: a ficha de exibicao dos que sobraram no ranking, pedida **so para eles** —
+      montar ficha de 35 mil pessoas para mostrar 50 seria pagar o pior custo.
+
+    ## `None` nao e lista vazia
+
+    `nomes` devolve `None` quando a referencia **nao resolve** (arquivo inexistente ou de
+    outro dono). Quem chama traduz isso no `404` com o literal de inexistencia (`RN-06` da
+    feature 051). Tupla vazia significa "resolveu, e nao ha nome nenhum".
+    """
+
+    identidade: str
+    rotulo: str
+
+    def normalizar(self, texto: str) -> str:
+        """A normalizacao de nome que esta fonte ja usa."""
+        ...
+
+    def nomes(self, referencia: str | None, dono: str) -> tuple[tuple["NomeParaBuscar", ...] | None, str | None]:
+        """`(candidatos, aviso)`. `candidatos is None` = a referencia nao resolve.
+
+        `aviso` preenchido significa "a fonte existe mas nao pode ser lida" — o relatorio
+        ilegivel, por exemplo. A secao continua existindo, com o aviso, e a fonte irma nao
+        e afetada (`RF-13`).
+        """
+        ...
+
+    def fichas(self, referencia: str | None, dono: str,
+               identificadores: tuple[str, ...]) -> dict[str, dict[str, object]]:
+        """Ficha de exibicao por identificador. Fonte sem ficha devolve `{}`."""
+        ...
+
+
 __all__: list[str] = [
     "ArmazenamentoDeArquivos",
     "CarregadorDeArvores",
     "RepositorioDeArvores",
     "RegistroDeAnalises",
+    "FonteDeNomes",
     "EntradaArmazenada",
     "AnaliseParaRegistrar",
     "PessoaDaAnalise",

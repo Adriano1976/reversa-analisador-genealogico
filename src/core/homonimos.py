@@ -67,6 +67,64 @@ def _diferencas_de_fichas(fichas) -> list:
 # com atributo de `networkx.Graph`; o sufixo diz de que feature ele veio.
 _ATRIBUTO_DO_INDICE = "_analisador_indice_de_nomes"
 
+#: Atributo da SEGUNDA visao, a de tokens (feature 052). Nome proprio, e nao uma
+#: chave de conteudo: as duas visoes nascem juntas e morrem com o grafo.
+_ATRIBUTO_DO_INDICE_DE_TOKENS = "_analisador_indice_de_tokens"
+
+
+def _varrer_nomes(arvore) -> tuple[dict, dict]:
+    """As DUAS visoes do indice, presas ao grafo da arvore, numa varredura so.
+
+    A visao por nome inteiro responde "esta pessoa existe?"; a visao por token
+    responde "quem tem Silva no nome?", que e a pergunta da busca (feature 052).
+    As duas nascem no mesmo laco porque o nome ja esta normalizado e os tokens sao
+    um `split` — separar custaria uma segunda varredura de 35 mil pessoas.
+
+    Nenhuma das duas tem chave: a vida do mapa e a vida do grafo, e e o que a
+    feature 048 fixou ao enterrar a chave `(len, primeiro xref, ultimo xref)`.
+    """
+    grafo = arvore[2]
+    if grafo is not None:
+        guardado_nome = getattr(grafo, _ATRIBUTO_DO_INDICE, None)
+        guardado_token = getattr(grafo, _ATRIBUTO_DO_INDICE_DE_TOKENS, None)
+        # `isinstance`, e nao `is not None`: o atributo e escrito por `setattr` no grafo,
+        # e um objeto estranho pendurado ali nao pode virar retorno desta funcao. O
+        # estreitamento tambem e o que diz ao verificador que o que sai daqui e `dict`.
+        if isinstance(guardado_nome, dict) and isinstance(guardado_token, dict):
+            return guardado_nome, guardado_token
+
+    mapa: dict = {}
+    tokens: dict = {}
+    for pid, pessoa in arvore[0].items():
+        chave: str = normalizar(get_name(pessoa))
+        mapa.setdefault(chave, []).append(pid)
+        for token in dict.fromkeys(chave.split()):
+            tokens.setdefault(token, []).append(pid)
+
+    if grafo is not None:
+        setattr(grafo, _ATRIBUTO_DO_INDICE, mapa)
+        setattr(grafo, _ATRIBUTO_DO_INDICE_DE_TOKENS, tokens)
+    return mapa, tokens
+
+
+def indice_por_nome(arvore) -> dict:
+    """Visao PUBLICA do mapa nome normalizado -> ids (feature 052).
+
+    Existe porque a busca precisa das duas visoes e nao pode depender de nome privado:
+    `_indice_por_nome` continua sendo o acessor interno do dossie de homonimos.
+    """
+    return _indice_por_nome(arvore)
+
+
+def indice_por_token(arvore) -> dict:
+    """token normalizado -> lista de ids, preso ao mesmo grafo (feature 052).
+
+    Segunda visao do indice, construida na mesma varredura da visao por nome. Existe
+    porque o mapa por nome inteiro nao responde "quem tem Silva no nome" — e essa e a
+    pergunta que a busca faz, com o mesmo casamento por trecho que o combobox ja pratica.
+    """
+    return _varrer_nomes(arvore)[1]
+
 
 def _indice_por_nome(arvore) -> dict:
     """nome normalizado -> lista de ids, preso ao grafo da arvore.
@@ -78,19 +136,7 @@ def _indice_por_nome(arvore) -> dict:
 
     Arvore sem grafo (sonda, teste) constroi o mapa e nao guarda — nao ha onde prender.
     """
-    grafo = arvore[2]
-    if grafo is not None:
-        guardado = getattr(grafo, _ATRIBUTO_DO_INDICE, None)
-        if guardado is not None:
-            return guardado
-
-    mapa: dict = {}
-    for pid, pessoa in arvore[0].items():
-        mapa.setdefault(normalizar(get_name(pessoa)), []).append(pid)
-
-    if grafo is not None:
-        setattr(grafo, _ATRIBUTO_DO_INDICE, mapa)
-    return mapa
+    return _varrer_nomes(arvore)[0]
 
 
 def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
@@ -120,4 +166,4 @@ def homonym_dossier(arvore, name_query: str, similar_ids=None) -> dict:
         "identical_data": bool(len(exatos) > 1 and not differences), # type: ignore
     }
 
-__all__ = ["normalizar", "homonym_dossier"]
+__all__: list[str] = ["normalizar", "homonym_dossier", "indice_por_token"]

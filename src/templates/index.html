@@ -61,7 +61,7 @@
                                    campo oculto que o resto da aplicacao ja devolve entre
                                    requisicoes. Sem ele a lista seria texto puro, e nao haveria
                                    como selecionar arvore nenhuma. #}
-                                <form method="POST" class="m-0">
+                                <form method="POST" action="/" class="m-0">
                                     <input type="hidden" name="action" value="selecionar_arvore">
                                     <input type="hidden" name="gedcom_filename" value="{{ item.nome_armazenado }}">
                                     <button type="submit" class="btn btn-sm btn-success">Abrir</button>
@@ -71,7 +71,7 @@
                                indisponivel — e justamente nele que ele e mais util. Vermelho
                                porque e a acao destrutiva da tela; mas nada e apagado, e a
                                confirmacao diz isso citando o arquivo daquela linha. #}
-                            <form method="POST" class="m-0"
+                            <form method="POST" action="/" class="m-0"
                                   onsubmit='return confirm({{ ('Apagar "' ~ item.nome_exibido ~ '"? Ele sai da lista e continua guardado no disco, na pasta de aposentados.') | tojson }});'>
                                 <input type="hidden" name="action" value="aposentar_arquivo">
                                 <input type="hidden" name="arquivo_a_aposentar" value="{{ item.nome_armazenado }}">
@@ -316,7 +316,17 @@
                                         <p class="passo-descricao">Associe matches CSV ao nome presente no GEDCOM.</p>
                                     </div>
                                 </article>
-                            </section>
+                            </section>{% if gedcom_filename %}
+                                {# A BUSCA (feature 052). Renderizada SO com arvore aberta, pela
+                                   mesma condicao dos campos de nome: a tela vazia nao ganha um byte
+                                   e `SHA_DA_TELA` continua valendo. O bloco vive em
+                                   `_busca.html` porque este documento ja tem 2407 linhas, e porque
+                                   assim ele pode ser renderizado sozinho num teste de tela.
+
+                                   O `{% if %}` abre na MESMA linha do `</section>` de proposito: com
+                                   o bloco falso, o que sobra e exatamente o documento de antes. #}
+                                {% include "_busca.html" %}
+                            {% endif %}
 
                             {# AS ABAS DAS FASES (emenda E006). Um SEGUNDO controle para as MESMAS
                                tres fases, logo acima do painel, como na referencia visual. Ele nao
@@ -421,7 +431,7 @@
                                     {% endif %}
 
                                     <section class="bloco">
-                                        <form method="POST" enctype="multipart/form-data" id="gedcom-upload-form" class="bloco-de-envio">
+                                        <form method="POST" action="/" enctype="multipart/form-data" id="gedcom-upload-form" class="bloco-de-envio">
                                             <input type="hidden" name="action" value="upload_gedcom">
                                             <div class="envio-meta">
                                                 <label for="gedcom" class="form-label"><b>Enviar nova árvore</b></label>
@@ -470,7 +480,7 @@
                                     {% if gedcom_filename %}
                                         <div class="nota-de-ajuda">Escolha duas pessoas do arquivo GEDCOM carregado para encontrar o caminho genealógico entre elas. Esta busca é <b>documental</b>: ela não usa DNA.</div>
 
-                                        <form method="POST" id="path-form" class="bloco">
+                                        <form method="POST" action="/" id="path-form" class="bloco">
                                             <input type="hidden" name="action" value="path_search">
                                             <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
                                             <div class="linha-de-campos">
@@ -524,7 +534,7 @@
                                     <div class="nota-de-ajuda">O DNA <b>não altera</b> o parentesco encontrado no GEDCOM. Ele funciona como evidência adicional, e o valor de cM não deve ser usado sozinho para afirmar parentesco.</div>
 
                                     {% if gedcom_filename %}
-                                        <form method="POST" enctype="multipart/form-data" id="dna-form" class="bloco">
+                                        <form method="POST" action="/" enctype="multipart/form-data" id="dna-form" class="bloco">
                                             <input type="hidden" name="action" value="dna_analysis">
                                             <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
                                             <div class="linha-de-campos">
@@ -1905,7 +1915,7 @@
                                                  aplicacao nao tem sessao — e reenvia as promocoes ja feitas,
                                                  para a segunda nao apagar a primeira.
                                                  A DECISAO E' DO OPERADOR: nada e' promovido por nota. #}
-                                              <form method="POST" class="m-0 mt-1 promover-candidato">
+                                              <form method="POST" action="/" class="m-0 mt-1 promover-candidato">
                                                 <input type="hidden" name="action" value="dna_analysis">
                                                 <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
                                                 <input type="hidden" name="matches_csv_filename" value="{{ csv_filename_usado }}">

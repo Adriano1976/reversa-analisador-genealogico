@@ -1730,3 +1730,25 @@ details.cartao-do-resultado[hidden]{display:none !important}
 .tela-de-entrada .btn{min-width:14rem}
 .conta-da-masthead-nome{max-width:18rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .conta-da-masthead form button{white-space:nowrap}
+
+/* ==========================================================================
+   Busca por nome e sobrenome (feature 052).
+   O bloco so e renderizado com arvore aberta: a tela vazia nao ganha um byte,
+   e por isso `SHA_DA_TELA` continua valendo sem remedicao.
+   ========================================================================== */
+.busca-de-nomes{background:var(--surface);border:1px solid var(--line);border-radius:.75rem;padding:1.25rem 1.5rem;margin:0 0 1.5rem}
+.titulo-da-busca{font-size:1.05rem;font-weight:600;margin:0 0 .75rem}
+.busca-de-nomes .linha-de-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem}
+.resultado-da-busca{margin-top:1.25rem}
+.secao-da-busca{padding-top:.75rem;border-top:1px solid var(--line)}
+.secao-da-busca:first-child{border-top:0;padding-top:0}
+.titulo-da-secao{font-size:.95rem;font-weight:600;margin:.5rem 0;display:flex;align-items:baseline;gap:.5rem}
+.contagem-da-secao{font-size:.8rem;font-weight:500;color:var(--muted)}
+.busca-sem-acerto,.busca-aviso,.busca-vazio,.busca-rodape{font-size:.875rem;color:var(--muted);margin:.25rem 0 .75rem}
+.busca-aviso{color:#8a6d3b}
+.lista-de-acertos{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem}
+.acerto-da-busca{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem;padding:.5rem .75rem;border:1px solid var(--line);border-radius:.5rem;background:var(--surface-2)}
+.acerto-nome{font-weight:600}
+.acerto-detalhe{font-size:.85rem;color:var(--ink)}
+.acerto-de-relatorio .acerto-detalhe:last-child{color:var(--muted)}
+.acerto-identificador{font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:.25rem;padding:.05rem .35rem}

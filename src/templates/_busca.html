@@ -1,0 +1,98 @@
+{# BUSCA POR NOME OU SOBRENOME (feature 052).
+
+   Incluido por `index.html` APENAS quando ha arvore aberta (`{% if gedcom_filename %}`),
+   que e a mesma condicao dos campos de nome. Isso mantem `SHA_DA_TELA` intacto: a tela
+   vazia nao ganha um byte.
+
+   O bloco e um partial proprio porque `index.html` ja tem 2407 linhas, e porque assim o
+   bloco pode ser renderizado sozinho num teste de tela.
+
+   Os dois formularios da tela (fase 2 e fase 3) mandam para `/`, com `action`. Este manda
+   para `POST /busca`, que tem rota propria — o termo pode conter nome de pessoa e nao pode
+   viajar em URL. #}
+<section class="busca-de-nomes" aria-labelledby="busca-titulo">
+    <form method="POST" action="{{ url_for('busca.buscar') }}" role="search" class="formulario-de-busca">
+        <h2 class="titulo-da-busca" id="busca-titulo">Buscar na árvore aberta</h2>
+        <input type="hidden" name="gedcom_filename" value="{{ gedcom_filename }}">
+        <div class="linha-de-campos">
+            <div class="campo">
+                <label for="busca-termo" class="form-label"><b>Nome ou sobrenome</b></label>
+                <input type="search" class="form-control" id="busca-termo" name="termo"
+                       value="{{ busca.texto if busca else '' }}" maxlength="120"
+                       placeholder="Ex.: Silva" autocomplete="off">
+                <div class="form-text">Um sobrenome basta. Acento e caixa não importam.</div>
+            </div>
+            {% if relatorios_da_lista %}
+                <div class="campo">
+                    <label for="busca-relatorio" class="form-label"><b>Relatório de matches</b></label>
+                    <select class="form-select" id="busca-relatorio" name="matches_csv_ref">
+                        <option value="">— nenhum —</option>
+                        {% for item in relatorios_da_lista %}
+                            {% if item.disponivel %}
+                                <option value="{{ item.nome_armazenado }}">{{ item.nome_exibido }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Opcional: busca também no relatório selecionado.</div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="linha-da-acao">
+            <button type="submit" class="btn btn-info">Buscar</button>
+        </div>
+    </form>
+
+    {% if busca %}
+        <div class="resultado-da-busca" aria-live="polite">
+            {% if busca.texto and not busca.encontrou and busca.secoes %}
+                <p class="busca-sem-acerto">Nenhum nome encontrado para “{{ busca.texto }}”.</p>
+            {% endif %}
+            {% for secao in busca.secoes %}
+                <section class="secao-da-busca" aria-labelledby="secao-da-busca-{{ secao.identidade }}">
+                    <h3 class="titulo-da-secao" id="secao-da-busca-{{ secao.identidade }}">
+                        {{ secao.rotulo }}
+                        <span class="contagem-da-secao">{{ secao.total }}</span>
+                    </h3>
+                    {% if secao.aviso %}
+                        <p class="busca-aviso">{{ secao.aviso }}</p>
+                    {% elif secao.vazia %}
+                        <p class="busca-vazio">Nenhum acerto neste arquivo.</p>
+                    {% endif %}
+                    <ul class="lista-de-acertos">
+                        {% for acerto in secao.acertos %}
+                            <li class="acerto-da-busca acerto-de-{{ acerto.tipo }}">
+                                <span class="acerto-nome">{{ acerto.nome }}</span>
+                                {% if acerto.tipo == 'arvore' %}
+                                    {% if acerto.nascimento or acerto.falecimento %}
+                                        <span class="acerto-detalhe">{{ acerto.nascimento or '?' }}{% if acerto.falecimento %} — {{ acerto.falecimento }}{% endif %}</span>
+                                    {% endif %}
+                                    {% if acerto.local_nascimento %}
+                                        <span class="acerto-detalhe">{{ acerto.local_nascimento }}</span>
+                                    {% endif %}
+                                    {% if acerto.pais %}
+                                        <span class="acerto-detalhe">Pais: {{ acerto.pais }}</span>
+                                    {% endif %}
+                                    {% if acerto.filhos %}
+                                        <span class="acerto-detalhe">{{ acerto.filhos }} filho(s)</span>
+                                    {% endif %}
+                                    <code class="acerto-identificador">{{ acerto.identificador }}</code>
+                                {% else %}
+                                    <span class="acerto-detalhe">
+                                        {%- if acerto.kit %}Kit {{ acerto.kit }} · {% endif -%}
+                                        {{ acerto.centimorgans }} cM
+                                    </span>
+                                    {% if acerto.arquivo %}
+                                        <span class="acerto-detalhe">{{ acerto.arquivo }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if secao.truncado %}
+                        <p class="busca-rodape">mostrando {{ secao.limite }} de {{ secao.total }} — refine a digitação</p>
+                    {% endif %}
+                </section>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>

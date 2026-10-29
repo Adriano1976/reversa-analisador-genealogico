@@ -16,6 +16,7 @@ from reporting.lista_de_arquivos import (
 from werkzeug.exceptions import HTTPException, RequestEntityTooLarge, SecurityError
 
 from application import Desfecho, nomes_de_exibicao
+from application.busca_de_nome import ServicoDeBusca
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
 from application.path_search import path_search as caso_de_uso_de_busca
 from application.reenvio import SUBSTITUIDO, guardar_com_substituicao
@@ -37,6 +38,7 @@ from reporting.mermaid_render import (
 from web.autenticacao import ServicoDeEntrada, servico_do_ambiente
 from web.rotas_assets import assets_bp
 from web.rotas_auth import auth_bp
+from web.rotas_busca import busca_bp
 from web.sessao import instalar_guarda
 from web.hooks_de_registro import (
     instalar as instalar_registro,
@@ -48,6 +50,7 @@ from ports.adaptadores import (
     CarregadorDeArvoresGedcom,
     RegistroDeAnalisesPostgres,
 )
+from ports.fontes_de_nomes import NomesDaArvoreGedcom, NomesDoArquivoDeMatches
 from utils import logs
 from utils.auditoria import registrar as auditar
 from utils.number_format import formatar_cm, formatar_inteiro, formatar_tamanho
@@ -818,6 +821,18 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
         "autenticacao": efetiva,
         "pasta_de_uploads": _pasta_uploads(),
     }
+
+    # A busca (feature 052, `D-01`/`D-02`): as duas fontes nascem AQUI, com as mesmas
+    # dependencias ja injetadas na borda, e o caso de uso e montado uma vez por aplicacao.
+    # A rota so le; ela nao constroi fonte nem decide casamento.
+    _borda = aplicacao.extensions[CHAVE_DA_BORDA]
+    aplicacao.extensions["busca"] = ServicoDeBusca((
+        NomesDaArvoreGedcom(_borda["carregador"]),
+        NomesDoArquivoDeMatches(_borda["armazenamento"]),
+    ))
+    # O literal do dono sem autenticacao vive numa constante deste modulo; a rota le daqui
+    # para nao repetir o valor nem importar este arquivo (que a importaria de volta).
+    aplicacao.config["DONO_LEGADO"] = DONO_DO_PROCESSO
     aplicacao.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
     # Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
@@ -855,6 +870,7 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     aplicacao.context_processor(_listas_da_tela)
 
     aplicacao.register_blueprint(assets_bp)
+    aplicacao.register_blueprint(busca_bp)
     aplicacao.add_url_rule("/", endpoint="index", view_func=index, methods=["GET", "POST"])
 
     # Identificador por requisicao, cabecalho `X-Request-ID` e linha de acesso (feature 049).
