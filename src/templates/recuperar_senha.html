@@ -1,0 +1,16 @@
+{% extends "_entrada_base.html" %}
+{% block titulo %}Recuperar senha{% endblock %}
+{% block titulo_cartao %}Recupere sua senha{% endblock %}
+{% block conteudo %}
+    <p class="text-muted">{{ google }}</p>
+    <form method="post" action="/recuperar-senha" class="vstack gap-3">
+        <div>
+            <label class="form-label" for="email">E-mail</label>
+            <input class="form-control" id="email" name="email" type="email"
+                   autocomplete="email" maxlength="254" required>
+        </div>
+        <button class="btn btn-primary btn-lg" type="submit">Solicitar instruções</button>
+    </form>
+
+    <p class="text-center mt-4 mb-0"><a href="/login">Voltar para entrar</a></p>
+{% endblock %}

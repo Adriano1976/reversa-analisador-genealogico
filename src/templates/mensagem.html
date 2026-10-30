@@ -1,0 +1,21 @@
+{% extends "_entrada_base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block titulo_cartao %}{{ titulo }}{% endblock %}
+{% block conteudo %}
+    <div class="alert alert-info" role="status">{{ mensagem }}</div>
+
+    {% if mostrar_reenvio %}
+        <form method="post" action="/reenviar-confirmacao" class="vstack gap-3 mt-4">
+            <div>
+                <label class="form-label" for="email-reenvio">E-mail</label>
+                <input class="form-control" id="email-reenvio" name="email" type="email"
+                       autocomplete="email" maxlength="254" required>
+            </div>
+            <button class="btn btn-outline-secondary" type="submit">Reenviar o link de confirmação</button>
+        </form>
+    {% endif %}
+
+    {% if link %}
+        <p class="text-center mt-4 mb-0"><a href="{{ link }}">{{ link_texto }}</a></p>
+    {% endif %}
+{% endblock %}

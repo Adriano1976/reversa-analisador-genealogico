@@ -1,0 +1,18 @@
+{% extends "_entrada_base.html" %}
+{% from "_campo_de_senha.html" import campo_de_senha %}
+{% block titulo %}Criar conta{% endblock %}
+{% block titulo_cartao %}Crie sua conta{% endblock %}
+{% block conteudo %}
+    <form method="post" action="/cadastro" class="vstack gap-3">
+        <div>
+            <label class="form-label" for="email">E-mail</label>
+            <input class="form-control" id="email" name="email" type="email"
+                   autocomplete="email" maxlength="254" value="{{ email or '' }}" required>
+        </div>
+        {{ campo_de_senha("senha", "senha", "Senha", "new-password", politica) }}
+        {{ campo_de_senha("repeticao", "repeticao", "Repita a senha", "new-password") }}
+        <button class="btn btn-primary btn-lg" type="submit">Criar conta</button>
+    </form>
+
+    <p class="text-center mt-4 mb-0"><a href="/login">Voltar para entrar</a></p>
+{% endblock %}

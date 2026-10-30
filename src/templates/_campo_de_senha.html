@@ -1,0 +1,27 @@
+{% macro campo_de_senha(id, nome, rotulo, autocomplete, dica="") %}
+{# Campo de senha com alternancia de visibilidade (emendas E004/E006).
+
+   O tipo visual vem de `coliff/bootstrap-show-password-toggle` (MIT): o icone de
+   olho e desenhado no proprio campo por `background-image`, e um botao INVISIVEL
+   cobre a area do icone. Diferenca deliberada: aqui o icone aparece desde o
+   carregamento (a classe `input-password` ja vem no HTML), e nao so depois do
+   foco — o operador precisa enxergar a affordance. O botao nasce `d-none` e o
+   script o habilita; sem JavaScript, ele nao existe e o campo continua senha.
+
+   `spellcheck`/`autocorrect`/`autocapitalize` desligados sao recomendacao do
+   proprio projeto: em texto visivel o navegador nao deve corrigir a senha.
+#}
+<div>
+    <label class="form-label" for="{{ id }}">{{ rotulo }}</label>
+    <div class="input-group campo-com-senha">
+        <input class="form-control input-password" id="{{ id }}" name="{{ nome }}" type="password"
+               autocomplete="{{ autocomplete }}" maxlength="128" required
+               spellcheck="false" autocorrect="off" autocapitalize="off"
+               {% if dica %}aria-describedby="dica-{{ id }}"{% endif %}>
+        <button class="botao-de-senha d-none" type="button"
+                data-alternar-senha="{{ id }}" aria-pressed="false"
+                aria-label="Mostrar senha"></button>
+    </div>
+    {% if dica %}<div id="dica-{{ id }}" class="form-text">{{ dica }}</div>{% endif %}
+</div>
+{% endmacro %}

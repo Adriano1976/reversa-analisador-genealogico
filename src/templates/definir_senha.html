@@ -1,0 +1,14 @@
+{% extends "_entrada_base.html" %}
+{% from "_campo_de_senha.html" import campo_de_senha %}
+{% block titulo %}Definir senha{% endblock %}
+{% block titulo_cartao %}Definir senha{% endblock %}
+{% block conteudo %}
+    <p class="text-muted">{{ dica }}</p>
+    <form method="post" action="/definir-senha" class="vstack gap-3">
+        {{ campo_de_senha("senha", "senha", "Senha", "new-password", politica) }}
+        {{ campo_de_senha("repeticao", "repeticao", "Repita a senha", "new-password") }}
+        <button class="btn btn-primary btn-lg" type="submit">Definir senha</button>
+    </form>
+
+    <p class="text-center mt-4 mb-0"><a href="/">Voltar para a tela principal</a></p>
+{% endblock %}
