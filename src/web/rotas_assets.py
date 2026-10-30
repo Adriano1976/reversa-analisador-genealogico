@@ -28,6 +28,21 @@ def icone_de_atalho():
     return send_file(caminho, mimetype="image/png")
 
 
+@assets_bp.route("/favicon.png", methods=["GET"])
+def favicon_da_aba():
+    """Serve o favicon transparente das telas de identidade (emenda E005).
+
+    E a MESMA arte do `/apple-touch-icon.png`, derivada da mesma canonica, mas
+    **sem o fundo branco**: na aba do navegador o fundo do icone aparece, e a arte
+    opaca deixaria um quadrado branco em volta do desenho. O icone de atalho
+    continua opaco, porque o sistema movel compoe transparencia sobre preto.
+    """
+    caminho = current_app.config.get("ARTE_DO_FAVICON")
+    if not caminho or not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype="image/png")
+
+
 @assets_bp.route("/banner.png", methods=["GET"])
 def banner_do_topo():
     """Serve a arte do topo da tela.
@@ -79,5 +94,6 @@ __all__ = [
     "banner_do_topo",
     "descartes_em_csv",
     "estilo_da_tela",
+    "favicon_da_aba",
     "icone_de_atalho",
 ]

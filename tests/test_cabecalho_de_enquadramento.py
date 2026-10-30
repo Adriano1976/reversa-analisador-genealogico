@@ -35,7 +35,7 @@ for _caminho in (RAIZ, os.path.join(RAIZ, "src")):
         sys.path.insert(0, _caminho)
 
 CABECALHO = "X-Frame-Options"
-ROTAS = ("/", "/apple-touch-icon.png", "/banner.png", "/app.css")
+ROTAS = ("/", "/apple-touch-icon.png", "/favicon.png", "/banner.png", "/app.css")
 
 
 class TestReproducao:

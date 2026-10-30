@@ -1752,3 +1752,48 @@ details.cartao-do-resultado[hidden]{display:none !important}
 .acerto-detalhe{font-size:.85rem;color:var(--ink)}
 .acerto-de-relatorio .acerto-detalhe:last-child{color:var(--muted)}
 .acerto-identificador{font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:.25rem;padding:.05rem .35rem}
+
+/* ==========================================================================
+   Identidade local (feature 053).
+   As cinco telas de identidade herdam `_entrada_base.html`; o que muda entre elas
+   e so o conteudo. O botao principal continua sendo `--primary` (o verde do app),
+   e nao a cor terracota da referencia visual: a referencia manda no LAYOUT, o
+   tema manda na COR (RN-17).
+   ========================================================================== */
+.tela-de-entrada .form-text{font-size:.8rem;color:var(--muted)}
+.tela-de-entrada .alert{font-size:.9rem}
+.tela-de-entrada .btn-outline-secondary{border-color:var(--line);color:var(--ink);background:var(--surface)}
+.tela-de-entrada .btn-outline-secondary:hover{border-color:var(--primary);color:var(--primary);background:var(--sucesso-bg)}
+/* No cartao de identidade os DOIS botoes tem a MESMA largura, a dos campos. A regra
+   global `.d-grid > .btn` (bloco "Acao principal", acima) devolve largura natural no
+   desktop, e no cartao de entrada isso deixava o Google alinhado a esquerda e o
+   Entrar ocupando a linha toda. A especificidade de `.tela-de-entrada .d-grid > .btn`
+   vence aquela regra e vale nos dois lados do ponto de quebra. */
+.tela-de-entrada .d-grid > .btn{justify-self:stretch;width:100%;min-width:0;padding-inline:1rem}
+.tela-de-entrada a{color:var(--primary)}
+.tela-de-entrada a:hover{color:var(--primary-hover)}
+.tela-de-entrada .d-flex a{font-size:.9rem}
+.tela-de-entrada .vstack>.btn[type="submit"]{width:100%}
+/* ==========================================================================
+   Alternancia de visibilidade da senha (emendas E004/E006).
+   Tipo do `coliff/bootstrap-show-password-toggle` (MIT): o icone e o
+   `background-image` do PROPRIO campo — olho quando oculto, olho cortado quando
+   visivel —, e um botao invisivel cobre a area do icone. O botao nasce `d-none`
+   e e revelado no primeiro foco. Os SVGs sao do Bootstrap Icons (MIT), os mesmos
+   do projeto de origem; o `outline` de foco foi mantido (o original o remove).
+   ========================================================================== */
+.campo-com-senha{position:relative}
+/* O `input-group` zera o raio do lado direito porque o botao e o ultimo filho.
+   Como o botao e invisivel, o campo precisa manter o MESMO raio do e-mail nos
+   dois lados; `!important` vence `.input-group > :not(:last-child)`. */
+.campo-com-senha .form-control{border-radius:var(--r-2)!important}
+.campo-com-senha .botao-de-senha{position:absolute;top:50%;right:.35rem;transform:translateY(-50%);z-index:9;width:2rem;height:2rem;padding:0;background:transparent;border:0;box-shadow:none;appearance:none;border-radius:.35rem}
+.campo-com-senha .botao-de-senha:active,.campo-com-senha .botao-de-senha:hover{cursor:pointer}
+.campo-com-senha .botao-de-senha:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.campo-com-senha input::-ms-reveal{display:none}
+.campo-com-senha .input-password{padding-right:calc(1.5em + 1rem);background-repeat:no-repeat;background-position:right .5rem center;background-size:1.15rem 1.15rem}
+.campo-com-senha .input-password[type="text"]{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z'/%3E%3Cpath d='M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299l.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z'/%3E%3Cpath d='M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709z'/%3E%3Cpath fill-rule='evenodd' d='M13.646 14.354l-12-12 .708-.708 12 12-.708.708z'/%3E%3C/svg%3E")!important}
+.campo-com-senha .input-password[type="password"]{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z'/%3E%3Cpath fill-rule='evenodd' d='M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z'/%3E%3C/svg%3E")!important}
+[data-bs-theme="dark"] .tela-de-entrada .campo-com-senha .input-password[type="text"]{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%23adb5bd' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z'/%3E%3Cpath d='M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299l.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z'/%3E%3Cpath d='M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709z'/%3E%3Cpath fill-rule='evenodd' d='M13.646 14.354l-12-12 .708-.708 12 12-.708.708z'/%3E%3C/svg%3E")!important}
+[data-bs-theme="dark"] .tela-de-entrada .campo-com-senha .input-password[type="password"]{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%23adb5bd' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z'/%3E%3Cpath fill-rule='evenodd' d='M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z'/%3E%3C/svg%3E")!important}
+:root[data-bs-theme="dark"] .tela-de-entrada .btn-outline-secondary{background:var(--surface-2);color:var(--ink)}

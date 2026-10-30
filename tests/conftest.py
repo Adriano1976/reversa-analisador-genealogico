@@ -210,6 +210,7 @@ def app_autenticado(pasta_temporaria, monkeypatch):
     from types import SimpleNamespace
 
     from tests.fixtures.autenticacao import ProvedorFalso, entrar_como, servico_de_teste
+    from tests.fixtures.identidade import ContasEmMemoria, EmailDesligado, RelogioFalso
 
     pasta_de_uploads = os.path.join(pasta_temporaria, "uploads")
     monkeypatch.setenv("ANALISADOR_UPLOAD_FOLDER", pasta_de_uploads)
@@ -225,7 +226,12 @@ def app_autenticado(pasta_temporaria, monkeypatch):
     modulo.app.root_path = _PASTA_APP
 
     provedor = ProvedorFalso()
-    aplicacao = modulo.create_app(autenticacao=servico_de_teste(provedor))
+    aplicacao = modulo.create_app(
+        autenticacao=servico_de_teste(provedor),
+        contas=ContasEmMemoria(),
+        email=EmailDesligado(),
+        relogio=RelogioFalso(),
+    )
     # `create_app` monta uma instancia NOVA: o `root_path` do modulo nao chega nela,
     # e sem isto o Jinja nao acha `templates/` (o mesmo motivo do `cliente_de_upload`).
     aplicacao.root_path = _PASTA_APP
@@ -237,5 +243,59 @@ def app_autenticado(pasta_temporaria, monkeypatch):
         cliente=cliente,
         pasta=pasta_de_uploads,
         provedor=provedor,
+        entrar=lambda conta: entrar_como(cliente, provedor, conta),
+    )
+
+
+@pytest.fixture
+def app_com_contas(pasta_temporaria, monkeypatch):
+    """App com a entrada e as contas LIGADAS, sobre dubles (feature 053).
+
+    Devolve um namespace com `app`, `cliente`, `pasta`, `provedor`, `contas`,
+    `email`, `relogio` e `entrar(conta)`. Nenhum teste desta feature escreve no
+    arquivo real, fala com SMTP ou espera o relogio: as tres dependencias entram
+    pelas portas, pelo mesmo `create_app` que a producao usa.
+    """
+    from types import SimpleNamespace
+
+    from tests.fixtures.autenticacao import ProvedorFalso, entrar_como, servico_de_teste
+    from tests.fixtures.identidade import ContasEmMemoria, EmailQueGrava, RelogioFalso
+
+    pasta_de_uploads = os.path.join(pasta_temporaria, "uploads")
+    monkeypatch.setenv("ANALISADOR_UPLOAD_FOLDER", pasta_de_uploads)
+    for _caminho in (_RAIZ, _PASTA_APP):
+        if _caminho not in sys.path:
+            sys.path.insert(0, _caminho)
+
+    caminho = os.path.join(_PASTA_APP, "app.py")
+    spec = importlib.util.spec_from_file_location("_app_conftest053", caminho)
+    modulo = importlib.util.module_from_spec(spec)
+    modulo.__file__ = caminho
+    spec.loader.exec_module(modulo)
+    modulo.app.root_path = _PASTA_APP
+
+    provedor = ProvedorFalso()
+    relogio = RelogioFalso()
+    contas = ContasEmMemoria(relogio=relogio)
+    email = EmailQueGrava()
+
+    aplicacao = modulo.create_app(
+        autenticacao=servico_de_teste(provedor),
+        contas=contas,
+        email=email,
+        relogio=relogio,
+    )
+    aplicacao.root_path = _PASTA_APP
+    os.makedirs(pasta_de_uploads, exist_ok=True)
+
+    cliente = aplicacao.test_client()
+    return SimpleNamespace(
+        app=aplicacao,
+        cliente=cliente,
+        pasta=pasta_de_uploads,
+        provedor=provedor,
+        contas=contas,
+        email=email,
+        relogio=relogio,
         entrar=lambda conta: entrar_como(cliente, provedor, conta),
     )

@@ -24,6 +24,10 @@ import pytest
 from PIL import Image, ImageChops
 
 from tests.icone_de_atalho import ARTE_DE_RUNTIME, arte_derivada, bytes_da_arte
+from tests.favicon_da_aba import (
+    ARTE_DE_RUNTIME as FAVICON_DE_RUNTIME,
+    arte_derivada as favicon_derivado,
+)
 
 
 def _imagens_diferem(caminho: pathlib.Path) -> bool:
@@ -107,3 +111,34 @@ def test_a_receita_esta_no_tests_e_nao_no_runtime():
         assert nome not in conteudo, (
             f"'{nome}' apareceu em requirements.txt: e dependencia de TESTE (D-09)"
         )
+
+
+def _imagens_diferem_em_alfa(caminho: pathlib.Path) -> bool:
+    """Compara pixel a pixel **incluindo o canal alfa** (emenda E005).
+
+    O icone de atalho e opaco e a comparacao antiga converte para RGB; o favicon e
+    transparente, e ignorar o alfa deixaria passar justamente o defeito que ele
+    corrige — fundo composto de novo.
+    """
+    if not caminho.exists():
+        raise AssertionError(
+            f"favicon ausente em {caminho}. Regenere com 'python -m tests.favicon_da_aba'."
+        )
+    commitada = Image.open(caminho).convert("RGBA")
+    regenerada = favicon_derivado().convert("RGBA")
+    if commitada.size != regenerada.size:
+        return True
+    return commitada.tobytes() != regenerada.tobytes()
+
+
+def test_o_favicon_commitado_e_o_que_a_receita_produz():
+    assert not _imagens_diferem_em_alfa(FAVICON_DE_RUNTIME), (
+        "o favicon divergiu da canonica: alguem editou a arte, ou a canonica mudou e a "
+        "derivada nao foi regenerada. Rode: python -m tests.favicon_da_aba"
+    )
+
+
+def test_o_favicon_e_transparente():
+    """Se a receita compuser fundo, o favicon volta a ter quadrado branco na aba."""
+    imagem = Image.open(FAVICON_DE_RUNTIME).convert("RGBA")
+    assert imagem.getchannel("A").getextrema()[0] == 0

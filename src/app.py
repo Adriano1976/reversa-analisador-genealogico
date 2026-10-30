@@ -1,9 +1,18 @@
+from application.path_search import ResultadoDeBusca
+from application.dna_analysis import ResultadoDeAnalise
+from application.reenvio import ResultadoDeArmazenamento
+from typing import Any
+from application.upload_gedcom import ResultadoDeUpload
+from werkzeug.datastructures.file_storage import FileStorage
+from reporting.lista_de_arquivos import ItemDaLista
+from ports.email_smtp import EmailPorSmtp
+from typing import Literal
 import errno
 import logging
 import os
 import socket
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask import Flask, current_app, g, render_template, request
 from reporting.lista_de_arquivos import (
@@ -17,11 +26,18 @@ from werkzeug.exceptions import HTTPException, RequestEntityTooLarge, SecurityEr
 
 from application import Desfecho, nomes_de_exibicao
 from application.busca_de_nome import ServicoDeBusca
+from application.cadastro import ServicoDeCadastro
+from application.definir_senha import ServicoDeDefinirSenha
 from application.dna_analysis import dna_analysis as caso_de_uso_dna
+from application.entrada_com_senha import ServicoDeEntradaLocal
+from application.limite import Limitador
 from application.path_search import path_search as caso_de_uso_de_busca
+from application.recuperacao import ServicoDeRecuperacao
 from application.reenvio import SUBSTITUIDO, guardar_com_substituicao
+from application.sessao_da_conta import VerificadorDeVersao
 from application.traducao import traduzir
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
+from application.vinculo import VinculoDeIdentidade
 from core.dna_analysis import Dependencias
 from core.erros import ErroDeDominio
 from parsers.csv_ingest import (
@@ -39,6 +55,7 @@ from web.autenticacao import ServicoDeEntrada, servico_do_ambiente
 from web.rotas_assets import assets_bp
 from web.rotas_auth import auth_bp
 from web.rotas_busca import busca_bp
+from web.rotas_conta import conta_bp
 from web.sessao import instalar_guarda
 from web.hooks_de_registro import (
     instalar as instalar_registro,
@@ -50,6 +67,8 @@ from ports.adaptadores import (
     CarregadorDeArvoresGedcom,
     RegistroDeAnalisesPostgres,
 )
+from ports.contas_em_arquivo import ContasEmArquivo
+from ports.email_smtp import TransporteNulo, transporte_do_ambiente
 from ports.fontes_de_nomes import NomesDaArvoreGedcom, NomesDoArquivoDeMatches
 from utils import logs
 from utils.auditoria import registrar as auditar
@@ -106,12 +125,12 @@ def _dono() -> str:
 # O valor passa a ter nome (`T004`, `D-10`). A `RN-01` permite nomear constantes e
 # proibe alterar valores: o numero e o MESMO, e o que muda e existir um ponto unico
 # de mudanca — e o teste poder citar a constante em vez de repetir o literal.
-TETO_DE_UPLOAD_EM_BYTES = 16 * 1024 * 1024
+TETO_DE_UPLOAD_EM_BYTES: Literal[16777216] = 16 * 1024 * 1024
 
 # Derivado do mesmo teto para a mensagem de `413`, que fala em MB e nao em bytes.
 # A divisao fica aqui, ao lado da origem, para as duas formas do MESMO teto
 # mudarem juntas se o valor mudar um dia.
-TETO_DE_UPLOAD_EM_MB = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
+TETO_DE_UPLOAD_EM_MB: Literal[16] = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
 
 # O teto ACIMA, na camada que RECEBE a conexao (`waitress.max_request_body_size`).
 #
@@ -127,7 +146,7 @@ TETO_DE_UPLOAD_EM_MB = TETO_DE_UPLOAD_EM_BYTES // (1024 * 1024)
 # mensagem da aplicacao. A margem de 1 MB deixa a faixa proxima do teto chegar ao Flask e receber
 # "Arquivo maior que o limite de 16 MB."; muito acima disso, o corte e do servidor — e ai o custo
 # evitado (receber centenas de MB para recusar no fim) vale mais do que a mensagem bonita.
-MARGEM_DO_MULTIPART = 1024 * 1024
+MARGEM_DO_MULTIPART: Literal[1048576] = 1024 * 1024
 
 
 
@@ -181,7 +200,7 @@ def _pasta_uploads() -> str:
     `ANALISADOR_UPLOAD_FOLDER` permite apontar a pasta para outro lugar, o que e
     usado pelos testes para nao escreverem na pasta real.
     """
-    apontada = os.environ.get("ANALISADOR_UPLOAD_FOLDER")
+    apontada: str | None = os.environ.get("ANALISADOR_UPLOAD_FOLDER")
     if apontada:
         return apontada
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), UPLOAD_FOLDER)
@@ -214,8 +233,8 @@ _CARREGADOR = CarregadorDeArvoresGedcom(_ARMAZENAMENTO)
 # NENHUMA CONEXAO ACONTECE AQUI, e o `import psycopg2` e preguicoso, dentro do
 # metodo de gravacao: sem as duas coisas, `import app` quebraria a suite e a
 # paridade **por ambiente**, porque o driver nao esta instalado no `.venv/` do host.
-DATABASE_URL = os.environ.get("DATABASE_URL")
-_REGISTRO = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
+DATABASE_URL: str | None = os.environ.get("DATABASE_URL")
+_REGISTRO: RegistroDeAnalisesPostgres | None = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
 
 # A entrada pelo provedor (feature 051): montada UMA vez, do ambiente. Sem as cinco
 # variaveis, `_AUTENTICACAO` e None e `_FALTANTES` diz o que falta — a suite e o
@@ -224,7 +243,38 @@ _REGISTRO = RegistroDeAnalisesPostgres(DATABASE_URL) if DATABASE_URL else None
 _AUTENTICACAO, _FALTANTES = servico_do_ambiente()
 
 
-def _requisicao_grande(_erro):
+# --- Identidade local (feature 053) -------------------------------------------------
+#
+# As tres dependencias da feature entram como portas: `RepositorioDeContas`,
+# `TransporteDeEmail` e `Relogio`. Montadas UMA vez, no mesmo ponto unico das
+# outras, e injetaveis em `create_app` para a suite trocar as tres.
+def _pasta_contas() -> str:
+    """Caminho do arquivo de contas: `ANALISADOR_CONTAS` ou `src/dados/contas.json`.
+
+    Fica FORA de `src/uploads/` de proposito: a tela de entrada varre aquela pasta
+    e a conta apareceria como item da lista.
+    """
+    apontada: str | None = os.environ.get("ANALISADOR_CONTAS")
+    if apontada:
+        return apontada
+    return os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "dados", "contas.json"
+    )
+
+
+class _RelogioDoSistema:
+    """O relogio de producao: agora, com fuso UTC."""
+
+    def agora(self) -> datetime:
+        return datetime.now(timezone.utc)
+
+
+_RELOGIO = _RelogioDoSistema()
+_CONTAS = ContasEmArquivo(_pasta_contas())
+_EMAIL: EmailPorSmtp | TransporteNulo = transporte_do_ambiente()
+
+
+def _requisicao_grande(_erro) -> tuple[str, Literal[413]]:
     return render_template(
         "index.html",
         message=f"Arquivo maior que o limite de {TETO_DE_UPLOAD_EM_MB} MB.",
@@ -328,7 +378,7 @@ def _arvore_do_formulario() -> tuple[str | None, object | None, str | None, int]
     NOME, nunca a chave, e o erro era o unico lugar da tela que ainda a mostrava. Agora as duas
     passam por `rotulo_de_referencia`, o mesmo formatador das outras mensagens.
     """
-    referencia = request.form.get("gedcom_filename")
+    referencia: str | None = request.form.get("gedcom_filename")
     if not referencia:
         return None, None, "Erro: Arquivo GEDCOM não encontrado.", 200
     try:
@@ -358,6 +408,14 @@ ARTE_DO_ICONE: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "apple-touch-icon.png"
 )
 
+#: O favicon TRANSPARENTE das telas de identidade (emenda E005). Separado do icone
+#: de atalho porque os dois alvos pedem coisas opostas: a tela inicial do celular
+#: compoe transparencia sobre preto e precisa de fundo branco; a aba do navegador
+#: mostra o fundo, e o quadrado branco aparecia como moldura.
+ARTE_DO_FAVICON: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "favicon.png"
+)
+
 ARTE_DO_TOPO: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "banner-da-tela.png"
 )
@@ -368,7 +426,7 @@ ESTILO_DA_TELA: str = os.path.join(
 
 
 
-def _listas_da_tela():
+def _listas_da_tela() -> dict[str, list[ItemDaLista]]:
     """As duas listas de arquivos armazenados, para as abas da tela de entrada.
 
     A selecao por extensao do nome visivel, o agrupamento pela chave e a ordem por data moram
@@ -390,12 +448,12 @@ def _acao_upload_gedcom() -> str:
     """Processa o envio de um novo arquivo GEDCOM."""
     if "gedcom" not in request.files:
         return render_template("index.html", message="Nenhum arquivo GEDCOM enviado.", success=False)
-    gedcom_file = request.files["gedcom"]
+    gedcom_file: FileStorage = request.files["gedcom"]
     if gedcom_file.filename == "":
         return render_template("index.html", message="Nenhum arquivo selecionado.", success=False)
     try:
-        borda = _estado_de_borda()
-        resultado = caso_de_uso_de_upload(
+        borda: dict[Any, Any] = _estado_de_borda()
+        resultado: ResultadoDeUpload = caso_de_uso_de_upload(
             gedcom_file.read(),
             gedcom_file.filename,
             _dono(),
@@ -442,7 +500,7 @@ def _acao_upload_gedcom() -> str:
         )
 
 
-def _acao_aposentar_arquivo():
+def _acao_aposentar_arquivo() -> str | tuple[str, Literal[404]]:
     """Aposenta um arquivo da lista (RN-14).
 
     As DUAS tentativas sao auditadas — e o que a decisao 14 do `gaps.md` mandou fazer
@@ -480,21 +538,21 @@ def _acao_selecionar_arvore(gedcom_filename, arvore, all_names) -> str:
     return render_template("index.html", gedcom_filename=gedcom_filename, all_names=all_names)
 
 
-def _acao_dna_analysis(gedcom_filename, arvore, all_names):
+def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, Literal[404]]:
     """Processa o confronto de matches de DNA com a arvore genealogica."""
     try:
-        borda = _estado_de_borda()
+        borda: dict[Any, Any] = _estado_de_borda()
         nome_informado: str = request.form["root_name"]
         root_name: str = nome_informado.strip() or nome_informado
 
-        referencia_do_csv = request.form.get("matches_csv_filename")
+        referencia_do_csv: str | None = request.form.get("matches_csv_filename")
         # `str` desde o inicio, e nao `None`: o valor vai para o campo oculto do cartao
         # e para a auditoria. O `or ""` cobre o formulario sem o campo e impede que a
         # inferencia do checador fique presa em `str | None` para a atribuicao seguinte.
         referencia_do_csv_usada: str = referencia_do_csv or ""
-        candidatos_fixos = {}
+        candidatos_fixos: dict[str, tuple[str, str]] = {}
         for valor in request.form.getlist("promover"):
-            partes = valor.split("|", 2)
+            partes: list[str] = valor.split("|", 2)
             if len(partes) == 3:
                 candidatos_fixos[partes[0]] = (partes[1], partes[2])
         # `""` significa "sem aviso". O tipo e `str` do inicio ao fim, e o `if` abaixo
@@ -519,16 +577,16 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
                     message="Por favor, carregue o arquivo CSV de matches.",
                     success=False,
                 )
-            matches_file = request.files["matches_csv"]
+            matches_file: FileStorage = request.files["matches_csv"]
 
-            armazenado = guardar_com_substituicao(
+            armazenado: ResultadoDeArmazenamento = guardar_com_substituicao(
                 borda["armazenamento"],
                 matches_file.read(),
                 matches_file.filename,
                 "csv",
                 _dono(),
             )
-            caminho_do_csv = armazenado.caminho
+            caminho_do_csv: str | None = armazenado.caminho
             if caminho_do_csv is None:
                 return render_template(
                     "index.html",
@@ -552,7 +610,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names):
                     "saiu da lista e continua guardada na pasta de aposentados."
                 )
 
-        resultado = caso_de_uso_dna(
+        resultado: ResultadoDeAnalise = caso_de_uso_dna(
             caminho_do_csv,
             root_name,
             arvore,
@@ -638,21 +696,21 @@ def _contagens_do_caminho(dados) -> dict:
     """
     if not dados:
         return {}
-    documental = dados.get("documentary") or {}
-    homonimos = documental.get("homonyms") or {}
+    documental: dict[Any, Any] | Any = dados.get("documentary") or {}
+    homonimos: dict[Any, Any] | Any = documental.get("homonyms") or {}
     return {
         "meioses": documental.get("meioses") or 0,
         "homonimos": homonimos.get("exact_count") or 0,
     }
 
 
-def _acao_path_search(gedcom_filename, arvore, all_names):
+def _acao_path_search(gedcom_filename, arvore, all_names) -> str:
     """Processa a busca de parentesco entre duas pessoas."""
     try:
         person1_name: str = request.form["person1_name"].strip()
         person2_name: str = request.form["person2_name"].strip()
 
-        resultado = caso_de_uso_de_busca(
+        resultado: ResultadoDeBusca = caso_de_uso_de_busca(
             person1_name,
             person2_name,
             arvore,
@@ -732,7 +790,7 @@ _ACOES_COM_ARVORE = {
 
 
 # --- Rota Principal ---
-def index():
+def index() -> str | tuple[str, Literal[404]] | tuple[str, int]:
     if request.method == "POST":
         action: str = request.form.get("action") or ""
         handler_pre = _ACOES_PRE_ARVORE.get(action)
@@ -788,9 +846,69 @@ def _configurar_entrada(aplicacao, configuracao) -> None:
     )
 
 
+def _conta_tem_senha() -> dict:
+    """Diz ao template se a conta da sessao ja tem credencial local (`RF-24`)."""
+    conta: Any | None = getattr(g, "conta", None)
+    if conta is None:
+        return {"conta_tem_senha": False}
+    try:
+        registro = current_app.extensions[CHAVE_DA_BORDA]["contas"].por_sub(conta.sub)
+    except Exception:
+        return {"conta_tem_senha": False}
+    return {"conta_tem_senha": bool(registro is not None and registro.tem_senha)}
+
+
+def _montar_identidade(aplicacao, entrada) -> None:
+    """Monta os servicos da identidade local sobre as tres portas injetadas.
+
+    So roda com a entrada ligada: sem sessao, cadastro e senha nao tem onde
+    guardar a conta, e as rotas nem sao registradas (mesma postura da 051).
+    """
+    borda = aplicacao.extensions[CHAVE_DA_BORDA]
+    contas = borda["contas"]
+    email = borda["email"]
+    relogio = borda["relogio"]
+    limite = Limitador(relogio)
+    url_publica = entrada.configuracao.url_publica
+
+    borda["limitador"] = limite
+    borda["cadastro"] = ServicoDeCadastro(
+        contas, email, relogio, limite, url_publica=url_publica
+    )
+    borda["entrada_local"] = ServicoDeEntradaLocal(contas, relogio, limite)
+    borda["recuperacao"] = ServicoDeRecuperacao(
+        contas, email, relogio, limite, url_publica=url_publica
+    )
+    borda["definir_senha"] = ServicoDeDefinirSenha(contas, relogio)
+    borda["vinculo"] = VinculoDeIdentidade(contas, relogio)
+    borda["verificador_de_versao"] = VerificadorDeVersao(contas)
+
+    aplicacao.context_processor(_conta_tem_senha)
+
+    @aplicacao.after_request
+    def _sem_cache_de_identidade(resposta):
+        """Toda pagina de identidade e `no-store`, com ou sem sessao.
+
+        O `no-store` da guarda so alcanca resposta autenticada; a tela de entrada,
+        o cadastro e a recuperacao sao anonimas e tambem nao podem ser cacheadas.
+        """
+        ponto: str = request.endpoint or ""
+        if ponto.startswith("conta.") or ponto in ("auth.login", "auth.callback"):
+            resposta.headers["Cache-Control"] = "no-store"
+        return resposta
+
+    if not getattr(email, "configurado", False):
+        aplicacao.logger.warning(
+            "Envio de e-mail nao configurado: o cadastro e a recuperacao vao avisar "
+            "que o envio esta indisponivel. Defina ANALISADOR_SMTP_HOST e "
+            "ANALISADOR_SMTP_REMETENTE para habilitar."
+        )
+
+
 def create_app(config=None, *, armazenamento=None, carregador=None,
                registro=_SEM_INJECAO, dependencias=None,
-               autenticacao: ServicoDeEntrada | None | _SemAutenticacao = _SEM_AUTENTICACAO) -> Flask:
+               autenticacao: ServicoDeEntrada | None | _SemAutenticacao = _SEM_AUTENTICACAO,
+               contas=_SEM_INJECAO, email=_SEM_INJECAO, relogio=None) -> Flask:
     """Monta a aplicacao: configura, registra ganchos, Blueprint e rota.
 
     A instancia de modulo `app` e criada por esta funcao uma vez, no fim do
@@ -820,6 +938,9 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
         "dependencias": _DEPENDENCIAS if dependencias is None else dependencias,
         "autenticacao": efetiva,
         "pasta_de_uploads": _pasta_uploads(),
+        "contas": _CONTAS if contas is _SEM_INJECAO else contas,
+        "email": _EMAIL if email is _SEM_INJECAO else email,
+        "relogio": _RELOGIO if relogio is None else relogio,
     }
 
     # A busca (feature 052, `D-01`/`D-02`): as duas fontes nascem AQUI, com as mesmas
@@ -861,6 +982,7 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     aplicacao.add_template_filter(rotulo_de_referencia, "rotulo_do_arquivo")
 
     aplicacao.config["ARTE_DO_ICONE"] = ARTE_DO_ICONE
+    aplicacao.config["ARTE_DO_FAVICON"] = ARTE_DO_FAVICON
     aplicacao.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
     aplicacao.config["ESTILO_DA_TELA"] = ESTILO_DA_TELA
 
@@ -882,8 +1004,13 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     # de Blueprint nem de cookie: o caminho e o legado, que e o da suite e o da paridade.
     if efetiva is not None:
         _configurar_entrada(aplicacao, efetiva.configuracao)
+        _montar_identidade(aplicacao, efetiva)
         aplicacao.register_blueprint(auth_bp)
-        instalar_guarda(aplicacao)
+        aplicacao.register_blueprint(conta_bp)
+        instalar_guarda(
+            aplicacao,
+            aplicacao.extensions[CHAVE_DA_BORDA]["verificador_de_versao"],
+        )
 
     if config:
         aplicacao.config.update(config)

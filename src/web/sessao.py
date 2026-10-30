@@ -37,18 +37,31 @@ PUBLICOS: frozenset[str] = frozenset({
     "auth.login",
     "auth.callback",
     "assets.icone_de_atalho",
+    "assets.favicon_da_aba",
     "assets.banner_do_topo",
     "assets.estilo_da_tela",
+    # Feature 053: o cadastro e a recuperacao sao de quem ainda nao tem sessao.
+    "conta.cadastrar",
+    "conta.confirmar",
+    "conta.reenviar",
+    "conta.recuperar",
+    "conta.redefinir",
 })
 
 
 @dataclass(frozen=True)
 class Conta:
-    """A identidade autenticada. `sub` e o dono; `email` e `nome` sao rotulo de tela."""
+    """A identidade autenticada. `sub` e o dono; `email` e `nome` sao rotulo de tela.
+
+    `versao` e a `versao_de_credencial` da conta no instante em que a sessao nasceu
+    (feature 053). A guarda compara com a versao atual: redefinir a senha recusa as
+    sessoes anteriores (`RN-10`).
+    """
 
     sub: str
     email: str = ""
     nome: str = ""
+    versao: int = 0
 
     @property
     def rotulo(self) -> str:
@@ -68,6 +81,7 @@ def conta_atual() -> Conta | None:
         sub=sub,
         email=str(dados.get("email") or ""),
         nome=str(dados.get("nome") or ""),
+        versao=int(dados.get("versao") or 0),
     )
 
 
@@ -82,6 +96,7 @@ def guardar_conta(conta: Conta) -> None:
         "sub": conta.sub,
         "email": conta.email,
         "nome": conta.nome,
+        "versao": conta.versao,
     }
     session.permanent = True
 
@@ -96,16 +111,25 @@ def dono_atual() -> str:
     return getattr(g, "dono", "") or ""
 
 
-def instalar_guarda(aplicacao) -> None:
-    """Liga a guarda, o `no-store` e o processador de contexto da conta."""
-    aplicacao.before_request(_exigir_sessao)
+def instalar_guarda(aplicacao, verificar_versao=None) -> None:
+    """Liga a guarda, o `no-store` e o processador de contexto da conta.
+
+    `verificar_versao` e o callable que a feature 053 injeta para recusar sessao
+    de versao de credencial anterior (`RN-10`). Sem ele, o comportamento e o da
+    051: so a presenca da sessao decide.
+    """
+    aplicacao.before_request(lambda: _exigir_sessao(verificar_versao))
     aplicacao.after_request(_sem_cache)
     aplicacao.context_processor(lambda: {"conta": conta_atual()})
 
 
-def _exigir_sessao():
+def _exigir_sessao(verificar_versao=None):
     """Recusa a operacao de dado sem sessao; deixa passar o que e publico."""
     conta = conta_atual()
+    if conta is not None and verificar_versao is not None and not verificar_versao(conta):
+        # Redefinicao de senha aconteceu depois desta sessao nascer.
+        encerrar_sessao()
+        conta = None
     if conta is not None:
         setattr(g, "conta", conta)
         setattr(g, "dono", conta.sub)

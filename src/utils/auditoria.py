@@ -38,6 +38,9 @@ from utils.validate import decompor_nome_armazenado
 ACOES: frozenset[str] = frozenset({
     "enviar_gedcom", "substituir_csv", "aposentar", "analisar_dna", "buscar_caminho",
     "entrar", "sair",
+    # Feature 053: identidade local. As cinco acoes novas identificam a conta pelo
+    # `sub` e nunca carregam e-mail, senha ou token.
+    "cadastrar", "confirmar", "definir_senha", "pedir_senha", "redefinir_senha",
 })
 
 # Os desfechos ja existem no dominio: `reenvio.NOVO/IDENTICO/SUBSTITUIDO` para o envio e
@@ -66,7 +69,7 @@ def registrar(acao: str, desfecho: str, referencia=None, contagens=None,
     """
     linha_de_conta = ""
     if conta:
-        linha_de_conta = f" conta={texto_seguro(conta)}"
+        linha_de_conta: str = f" conta={texto_seguro(conta)}"
     _log.info(
         "acao=%s desfecho=%s arquivo=%s ip=%s origem=%s%s%s",
         _do_conjunto(acao, ACOES, "acao"),

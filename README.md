@@ -130,8 +130,8 @@ flowchart LR
 
 O caminho do dado, da borda até a tela, com a entrada na frente e o registro opcional no fim. A rota adapta,
 o caso de uso orquestra e o núcleo decide. São **oito rotas**: a do formulário (`/`, com despacho por cinco
-ações), as quatro de arquivo (`/app.css`, `/banner.png`, `/apple-touch-icon.png` e `/descartes.csv`, a única
-que só aceita `POST`) e as três da entrada (`/login`, `/callback` e `/logout`).
+ações), as cinco de arquivo (`/app.css`, `/banner.png`, `/apple-touch-icon.png`, `/favicon.png` e
+`/descartes.csv`, a única que só aceita `POST`) e as três da entrada (`/login`, `/callback` e `/logout`).
 
 ```mermaid
 sequenceDiagram
@@ -614,7 +614,7 @@ src/                            # raiz de código: 77 arquivos e 16.699 linhas n
 │   ├── autenticacao.py         # OAuth 2.0 do Google em três passos, sem biblioteca de OAuth
 │   ├── sessao.py               # A conta na sessão, a guarda de entrada e o dono atual
 │   ├── rotas_auth.py           # /login, /callback e /logout
-│   ├── rotas_assets.py         # /apple-touch-icon.png, /banner.png, /app.css e /descartes.csv
+│   ├── rotas_assets.py         # /apple-touch-icon.png, /favicon.png, /banner.png, /app.css e /descartes.csv
 │   ├── hooks_de_registro.py    # Ganchos que gravam o cabeçalho em toda resposta
 │   └── __init__.py             # Declara a responsabilidade do pacote de borda HTTP
 ├── utils/                      # Utilitários transversais
@@ -821,6 +821,47 @@ O motivo técnico da recusa — vazio, byte nulo ou ausência do cabeçalho `0 H
 ele fica dentro da exceção e no log. E um arquivo **já armazenado** cujo conteúdo não pode ser lido responde
 com mensagem na tela, e nunca com erro do servidor.
 
+### Entrar com e-mail e senha
+
+A partir da feature 053, a entrada tem **dois caminhos**: a conta Google que já existia e uma conta local
+com e-mail e senha. O cartão mostra o Google primeiro e, abaixo, o formulário; o banner continua no topo,
+na posição de sempre, e o ícone da aba vem de `/favicon.png`, uma derivada **transparente** da arte; o atalho
+do celular continua em `/apple-touch-icon.png`, que é opaco de propósito.
+
+- **Cadastro** (`Criar conta`): o e-mail precisa ser **confirmado** pelo link antes do primeiro acesso. A
+  senha exige no mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.
+- **Recuperação** (`Esqueci minha senha`): envia um link de uso único, válido por 60 minutos. O pedido
+  responde **sempre a mesma frase**, exista ou não conta — a tela não é oráculo de quem está cadastrado.
+- **Conta Google**: quem já entra pelo Google pode definir a primeira senha em `Definir senha`, na
+  masthead. O `sub` e a pasta de uploads **não mudam**: a conta é a mesma, e os arquivos anteriores
+  continuam visíveis.
+- **Unificação**: um e-mail verificado no Google que também tenha conta local vira **uma** conta. O
+  cadastro *deslogado* com e-mail já existente nunca altera a conta existente.
+
+#### O que a identidade precisa do ambiente
+
+| Variável | Obrigatória | Efeito |
+| --- | --- | --- |
+| `ANALISADOR_SMTP_HOST` | para cadastro e recuperação | servidor SMTP |
+| `ANALISADOR_SMTP_PORT` | não (padrão `587`) | porta |
+| `ANALISADOR_SMTP_USUARIO` / `ANALISADOR_SMTP_SENHA` | não | autenticação; a senha nunca vai para log |
+| `ANALISADOR_SMTP_REMETENTE` | para cadastro e recuperação | remetente |
+| `ANALISADOR_SMTP_SEGURANCA` | não (padrão `starttls`) | `starttls`, `ssl` ou `nenhuma` |
+| `ANALISADOR_CONTAS` | não | caminho do arquivo de contas (padrão `src/dados/contas.json`) |
+
+Sem `HOST` e `REMETENTE`, o cadastro não conclui (não haveria como confirmar) e a recuperação avisa que o
+envio não está configurado; a **entrada de conta já confirmada continua funcionando**. A subida registra o
+aviso no log em vez de recusar o servidor.
+
+O arquivo de contas fica em `src/dados/contas.json`, **fora de `src/uploads/`** (a tela varre aquela
+pasta), coberto pelo `.gitignore` e com volume próprio no `docker-compose.yml`. Sem o volume, recriar o
+contêiner apaga as contas. A senha é guardada como derivação `scrypt` com sal; os tokens são guardados como
+hash, e a redefinição de senha invalida as sessões anteriores.
+
+> Antes de abrir a instância para outras pessoas, veja os portões declarados na seção 10 do
+> `_reversa_forward/053-conta-com-senha-e-recuperacao/requirements.md`: TLS, cota por conta, retenção,
+> convite e entregabilidade.
+
 ## Principais Funcionalidades
 
 - **Integração de GEDCOM e CSV:** cruza a topologia da árvore com os dados genéticos sem misturar as
@@ -939,8 +980,9 @@ com mensagem na tela, e nunca com erro do servidor.
   o motivo em texto humano, e a lista pode ser exportada em CSV por `POST /descartes.csv`.
 - **Busca de caminhos:** localiza ancestrais comuns e conexões indiretas por afinidade.
 - **Redes Visuais:** Renderiza os caminhos da árvore genealógica de forma dinâmica usando Mermaid.js.
-- **Artes da tela por rota:** o ícone de atalho e o banner do topo são derivados da arte canônica por uma
-  receita única em `tests/` e servidos por `/apple-touch-icon.png` e `/banner.png`.
+- **Artes da tela por rota:** o ícone de atalho, o favicon transparente e o banner do topo são derivados da
+  arte canônica por uma receita única em `tests/` e servidos por `/apple-touch-icon.png`, `/favicon.png` e
+  `/banner.png`.
 - **Entrada com conta Google e isolamento por dono:** desde a 051, a tela exige conta. Cada conta vê apenas
   os próprios arquivos, e o que é de outro dono responde `404`, nunca `403`, para a recusa não revelar que o
   arquivo existe. Os arquivos anteriores à entrada são adotados por uma conta declarada.
@@ -1032,7 +1074,7 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
 - Duas verificações só fazem sentido **dentro da imagem**, porque o host não tem o driver do banco e o
   `src/assets/` pode faltar no contexto de build sem que nada no host perceba. O instrumento
   `tests/verificacao_no_conteiner.py` cobre as duas: a **arte servida** (`/apple-touch-icon.png`,
-  `/banner.png`, `/app.css` e `GET /`) e a **gravação no banco** pelo caminho feliz da porta, contra o
+  `/favicon.png`, `/banner.png`, `/app.css` e `GET /`) e a **gravação no banco** pelo caminho feliz da porta, contra o
   PostgreSQL do compose. Ele usa apenas dependências de produção — o pytest não está na imagem, que é
   lista de runtime:
 

@@ -72,6 +72,17 @@ services:
       ANALISADOR_SECRET_KEY: ${ANALISADOR_SECRET_KEY:?defina ANALISADOR_SECRET_KEY no .env — ver onboarding.md secao 3}
       ANALISADOR_URL_PUBLICA: ${ANALISADOR_URL_PUBLICA:?defina ANALISADOR_URL_PUBLICA no .env — ver onboarding.md secao 3}
       ANALISADOR_DONO_INICIAL: ${ANALISADOR_DONO_INICIAL:?defina ANALISADOR_DONO_INICIAL no .env — ver onboarding.md secao 3}
+      # Envio de e-mail da identidade local (feature 053). Sao OPCIONAIS: sem HOST e
+      # REMETENTE o transporte vira nulo, a aplicacao sobe, o cadastro nao conclui e a
+      # recuperacao avisa. Diferente das cinco variaveis do Google, a ausencia destas
+      # nao recusa a subida — o e-mail e canal de confirmacao/recuperacao, nao de entrada.
+      # Para o Docker, preencha estas linhas no `.env` (o compose le `.env`, nao `.env.local`).
+      ANALISADOR_SMTP_HOST: ${ANALISADOR_SMTP_HOST:-}
+      ANALISADOR_SMTP_PORT: ${ANALISADOR_SMTP_PORT:-587}
+      ANALISADOR_SMTP_USUARIO: ${ANALISADOR_SMTP_USUARIO:-}
+      ANALISADOR_SMTP_SENHA: ${ANALISADOR_SMTP_SENHA:-}
+      ANALISADOR_SMTP_REMETENTE: ${ANALISADOR_SMTP_REMETENTE:-}
+      ANALISADOR_SMTP_SEGURANCA: ${ANALISADOR_SMTP_SEGURANCA:-starttls}
       # Cache da arvore entre requisicoes (feature 047), LIGADO por padrao no codigo: a segunda
       # acao sobre a mesma arvore nao paga o parse de ~50 s. O teto e o numero de arvores
       # mantidas; 1 cobre o caso de uso e leva o processo a ~412 MB (~337 MB da arvore e
@@ -88,6 +99,11 @@ services:
       # que dentro da imagem e `/app`. Sem este volume a auditoria cai para o fluxo padrao e
       # a aplicacao avisa uma vez, sem derrubar requisicao.
       - ./logs:/app/logs
+      # O arquivo de contas locais (feature 053). Fica em `src/dados/`, FORA de
+      # `src/uploads/`, porque a tela de entrada varre aquela pasta e a conta apareceria na
+      # lista. Sem este volume, recriar o container apaga as contas — e o operador perde a
+      # entrada por senha, nao o historico, que vive no banco.
+      - ./src/dados:/app/src/dados
     ports:
       - "127.0.0.1:5080:5000"
     # Rotacao do log do PROPRIO container (feature 049): o stdout nao pode crescer sem teto.

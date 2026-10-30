@@ -42,6 +42,18 @@ GOOGLE_CLIENT_SECRET=
 ANALISADOR_SECRET_KEY=
 ANALISADOR_URL_PUBLICA=http://127.0.0.1:5000
 ANALISADOR_DONO_INICIAL=
+
+# Recuperacao de senha e confirmacao de e-mail (feature 053) - OPCIONAL.
+# Sem HOST e REMETENTE, o cadastro nao conclui e a recuperacao avisa que o envio
+# nao esta configurado; a entrada de conta ja confirmada continua funcionando.
+# Para Gmail: smtp.gmail.com, porta 587, starttls, usuario = o endereco e senha =
+# senha de aplicativo (a conta precisa ter verificacao em duas etapas).
+# ANALISADOR_SMTP_HOST=
+# ANALISADOR_SMTP_PORT=587
+# ANALISADOR_SMTP_USUARIO=
+# ANALISADOR_SMTP_SENHA=
+# ANALISADOR_SMTP_REMETENTE=
+# ANALISADOR_SMTP_SEGURANCA=starttls
 "@
 
 if (-not (Test-Path -LiteralPath $arquivo)) {
@@ -86,6 +98,10 @@ if ($faltantes.Count -gt 0) {
 
 foreach ($nome in $valores.Keys) {
     Set-Item -Path "Env:$nome" -Value $valores[$nome]
+}
+
+if (-not $valores["ANALISADOR_SMTP_HOST"] -or -not $valores["ANALISADOR_SMTP_REMETENTE"]) {
+    Write-Host "Aviso: ANALISADOR_SMTP_HOST e ANALISADOR_SMTP_REMETENTE nao estao em .env.local. O cadastro nao conclui e a recuperacao de senha avisa que o envio nao esta configurado." -ForegroundColor Yellow
 }
 
 Write-Host "Subindo em $($valores['ANALISADOR_URL_PUBLICA']) - Ctrl+C encerra." -ForegroundColor Green

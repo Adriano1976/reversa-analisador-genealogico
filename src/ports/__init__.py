@@ -73,9 +73,12 @@ if TYPE_CHECKING:
     # Import so para o checador de tipos. Em execucao a anotacao e uma string
     # (`from __future__ import annotations`), e a porta nao arrasta o parser para
     # dentro de quem so quer o contrato.
+    from datetime import datetime
+
     from parsers.gedcom_parser import Tree
 
     from core.busca_de_nome import NomeParaBuscar
+    from core.conta import ContaDeAcesso
 
 
 class ArmazenamentoDeArquivos(Protocol):
@@ -502,12 +505,103 @@ class FonteDeNomes(Protocol):
         ...
 
 
+class RepositorioDeContas(Protocol):
+    """Persistencia das contas locais (feature 053, `D-05`).
+
+    A porta existe para que o **arquivo de hoje** e o **Postgres de amanha** sejam
+    trocados sem tocar no dominio, e para que o caso de uso pergunte "qual e a conta
+    deste e-mail", nunca "como o JSON e escrito".
+
+    Todos os metodos recebem e devolvem `ContaDeAcesso`, nunca dicionario: o
+    formato de armazenamento e assunto do adaptador (`RNF-01`).
+    """
+
+    def criar(self, conta: "ContaDeAcesso") -> "ContaDeAcesso":
+        """Grava a conta nova.
+
+        Levanta `ContaDuplicada` quando o e-mail normalizado ou o `google_sub` ja
+        pertencem a outra conta — a unicidade e invariante do dominio, e o adaptador
+        e quem a faz valer contra o armazenamento.
+        """
+        ...
+
+    def por_email(self, email_normalizado: str) -> "ContaDeAcesso | None":
+        """A conta do e-mail normalizado, ou `None`."""
+        ...
+
+    def por_sub(self, sub: str) -> "ContaDeAcesso | None":
+        """A conta do dono, ou `None`."""
+        ...
+
+    def por_google_sub(self, google_sub: str) -> "ContaDeAcesso | None":
+        """A conta que ja anexou esta identidade Google, ou `None`."""
+        ...
+
+    def salvar(self, conta: "ContaDeAcesso") -> None:
+        """Grava a conta inteira, preservando os tokens vigentes."""
+        ...
+
+    def anexar_token(self, sub: str, tipo: str, hash_token: str,
+                     expira_em: "datetime") -> None:
+        """Registra o token vigente de um tipo e invalida o anterior da mesma conta."""
+        ...
+
+    def consumir_token(self, hash_token: str, agora: "datetime") -> tuple[str, str] | None:
+        """Consome o token e devolve `(sub, tipo)`, ou `None` se nao vale.
+
+        `None` cobre ausente, ja usado e expirado — as tres recusas sao
+        indistinguiveis para quem chama (`RN-09`). O token e removido mesmo quando
+        expirado, para nao sobrar lixo no armazenamento.
+        """
+        ...
+
+    def token_vigente(self, hash_token: str, agora: "datetime") -> tuple[str, str] | None:
+        """Consulta **sem consumir**: `(sub, tipo)` se o token ainda vale.
+
+        Existe para a tela de nova senha: ela precisa decidir entre mostrar o
+        formulario e a mensagem de link vencido sem queimar o token de quem apenas
+        abriu o link.
+        """
+        ...
+
+
+class TransporteDeEmail(Protocol):
+    """Saida de e-mail da confirmacao e da recuperacao (feature 053, `D-05`).
+
+    `configurado` e a pergunta que a aplicacao faz **antes** de prometer envio: sem
+    transporte, cadastro e recuperacao avisam que o envio nao esta configurado, em
+    vez de criar conta que nunca confirma (`RN-18`).
+    """
+
+    configurado: bool
+
+    def enviar(self, destino: str, assunto: str, corpo: str) -> None:
+        """Envia uma mensagem de texto simples.
+
+        Levanta `EnvioIndisponivel` quando o transporte existe mas falhou, e
+        `EnvioNaoConfigurado` quando nao ha transporte. A aplicacao traduz as duas
+        em aviso, nunca em 500.
+        """
+        ...
+
+
+class Relogio(Protocol):
+    """O instante corrente. Porta para o teste de expiracao ser deterministico."""
+
+    def agora(self) -> "datetime":
+        """Agora, com fuso (UTC)."""
+        ...
+
+
 __all__: list[str] = [
     "ArmazenamentoDeArquivos",
     "CarregadorDeArvores",
     "RepositorioDeArvores",
     "RegistroDeAnalises",
     "FonteDeNomes",
+    "RepositorioDeContas",
+    "TransporteDeEmail",
+    "Relogio",
     "EntradaArmazenada",
     "AnaliseParaRegistrar",
     "PessoaDaAnalise",

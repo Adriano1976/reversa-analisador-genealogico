@@ -36,6 +36,11 @@ htmlcov/
 **/uploads/*
 !src/uploads/.gitkeep
 
+# Arquivo de contas locais (feature 053): e-mail, derivacao de senha e tokens.
+# Fica ao lado de uploads/, no mesmo regime: dado de runtime dentro do repositorio,
+# garantido pelo padrao com barra final que casa em qualquer profundidade.
+dados/
+
 # Backups de dado do operador gravados pelo Reversa (principio I).
 .reversa/backups-de-dados/
 

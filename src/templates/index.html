@@ -226,6 +226,12 @@
                                    bloco nao sai no HTML. #}
                                 <div class="conta-da-masthead d-flex align-items-center justify-content-end gap-2 mb-2">
                                     <span class="conta-da-masthead-nome small text-muted">{{ conta.rotulo }}</span>
+                                    {% if not conta_tem_senha %}
+                                    {# Feature 053: a conta que ainda nao tem credencial local ganha o
+                                       caminho para definir a primeira senha sem passar pelo cadastro —
+                                       e o que liberta quem hoje depende so do Google. #}
+                                    <a class="btn btn-sm btn-outline-secondary" href="/definir-senha">Definir senha</a>
+                                    {% endif %}
                                     <form method="POST" action="/logout" class="m-0">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary">Sair</button>
                                     </form>

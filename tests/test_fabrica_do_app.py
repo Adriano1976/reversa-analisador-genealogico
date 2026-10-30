@@ -23,6 +23,7 @@ ROTAS = {
     "/app.css": {"GET"},
     "/banner.png": {"GET"},
     "/apple-touch-icon.png": {"GET"},
+    "/favicon.png": {"GET"},
     "/descartes.csv": {"POST"},
 }
 
@@ -30,6 +31,7 @@ CHAVES = (
     "MAX_CONTENT_LENGTH",
     "TRUSTED_HOSTS",
     "ARTE_DO_ICONE",
+    "ARTE_DO_FAVICON",
     "ARTE_DO_TOPO",
     "ESTILO_DA_TELA",
 )
