@@ -1,0 +1,63 @@
+ANALISADOR DE CONEXOES GENEALOGICAS - versao de teste 0.1.0
+================================================================
+
+O QUE E
+-------
+Um programa que roda no SEU computador. Voce envia uma arvore GEDCOM e um
+relatorio de DNA (CSV), e ele cruza os dois para mostrar como cada match se
+liga a sua arvore.
+
+Nada e enviado para a internet. Seus arquivos ficam no seu computador.
+
+ANTES DE COMECAR
+----------------
+- Windows 10 ou 11.
+- Internet na PRIMEIRA execucao: ele baixa o Python e as bibliotecas.
+- O download do programa tem menos de 1 MB, mas a preparacao inicial pode
+  passar de 300 MB, porque baixa o Python e as bibliotecas.
+
+COMO USAR
+---------
+1. Extraia TODO o conteudo do zip numa pasta sua (por exemplo, na Area de
+   Trabalho). Nao rode de dentro da janela do zip.
+2. De dois cliques em "iniciar-analisador.bat".
+3. Na primeira vez ele instala o necessario e pode demorar varios minutos.
+   Se ele pedir para fechar e abrir de novo, feche a janela preta e abra o
+   .bat outra vez. E normal.
+4. Quando aparecer "Iniciando o Analisador Genealogico", o navegador abre
+   sozinho em http://127.0.0.1:5000
+
+O Windows pode avisar que o arquivo "nao e reconhecido" - isso acontece
+porque o programa ainda nao tem assinatura digital. Clique em "Mais
+informacoes" e depois em "Executar assim mesmo". Se o aviso nao aparecer,
+clique com o botao direito no arquivo, escolha Propriedades e marque
+"Desbloquear".
+
+PARA ENCERRAR
+-------------
+Feche a janela preta. O navegador fecha sozinho.
+
+ONDE FICAM OS SEUS ARQUIVOS
+---------------------------
+Na pasta "src\uploads", dentro da pasta onde voce extraiu o programa. Eles
+nao vao para a internet e nao ficam no seu e-mail.
+
+  Importante: nao apague nem mova a pasta do programa enquanto estiver
+  usando. Se voce extrair uma versao nova em OUTRA pasta, os arquivos antigos
+  continuam na pasta antiga - copie a pasta "src\uploads" para a nova antes
+  de usar.
+
+SE DER ERRO
+-----------
+A janela preta mostra a mensagem. Copie o texto (ou tire foto da tela) e
+envie para quem te passou o programa. Ha tambem um registro na pasta "logs\",
+dentro da pasta do programa.
+
+LIMITACOES DESTA VERSAO DE TESTE
+--------------------------------
+- Nao tem login: e um computador, um usuario.
+- Sem internet, a tela abre sem estilo e o diagrama nao aparece (o estilo e
+  o diagrama vem de fora).
+- O historico das analises nao e gravado nesta versao.
+
+Duvidas ou problemas: responda a mensagem por onde voce recebeu este pacote.

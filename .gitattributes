@@ -17,3 +17,4 @@
 # launcher da ARVORE DE TRABALHO e confere o CRLF do que entrou no zip.
 *.bat text eol=crlf
 *.cmd text eol=crlf
+LEIA-ME.txt text eol=crlf
