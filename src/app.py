@@ -52,6 +52,7 @@ from reporting.mermaid_render import (
     mermaid_da_sugestao,
 )
 from web.autenticacao import ServicoDeEntrada, servico_do_ambiente
+from web.modo import GOOGLE, RecusaDeSubida, ler as ler_modo
 from web.rotas_assets import assets_bp
 from web.rotas_auth import auth_bp
 from web.rotas_busca import busca_bp
@@ -921,8 +922,23 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     valor valido: significa persistencia desligada.
     """
     aplicacao = Flask(__name__)
+    # O modo de identidade e DECLARADO, e nao inferido do ambiente (auditoria de
+    # 2026-10-30, P1/P3). A recusa mora AQUI, e nao no `__main__`, porque enquanto ela
+    # morava la qualquer runner que chamasse a fabrica — `waitress-serve`, um servico do
+    # Windows, um `.bat` com `flask run` — subia a aplicacao ABERTA, com `_dono()` caindo
+    # no literal `"unico"`. Agora quem nao declara nao sobe.
+    modo: str | None = ler_modo()
+    if modo == GOOGLE and isinstance(autenticacao, _SemAutenticacao) and _FALTANTES:
+        raise RecusaDeSubida(
+            "a entrada com o provedor exige configuracao que falta: "
+            + "; ".join(_FALTANTES)
+            + ". Defina as variaveis e tente de novo (ver onboarding.md)."
+        )
+    # Injecao explicita vence o modo: quem chama `create_app(autenticacao=...)` sabe o
+    # que quer, e e assim que a suite monta a entrada com provedor falso sem tocar no
+    # ambiente do processo.
     efetiva: ServicoDeEntrada | None = (
-        _AUTENTICACAO
+        (_AUTENTICACAO if modo == GOOGLE else None)
         if isinstance(autenticacao, _SemAutenticacao)
         else autenticacao
     )
@@ -954,6 +970,9 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     # O literal do dono sem autenticacao vive numa constante deste modulo; a rota le daqui
     # para nao repetir o valor nem importar este arquivo (que a importaria de volta).
     aplicacao.config["DONO_LEGADO"] = DONO_DO_PROCESSO
+    # O modo em uso, para o log de subida e para o teste. `None` e o escape de teste —
+    # o unico valor que nao corresponde a um modo de producao.
+    aplicacao.config["MODO_DE_IDENTIDADE"] = modo
     aplicacao.config["MAX_CONTENT_LENGTH"] = TETO_DE_UPLOAD_EM_BYTES
 
     # Em `config`, e nao lida dentro do tratador, para o teste poder trocar a lista sem mexer no
@@ -1017,7 +1036,12 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     return aplicacao
 
 
-app = create_app()
+try:
+    app = create_app()
+except RecusaDeSubida as erro:
+    # `SystemExit` e nao traceback: quem le esta mensagem e o operador — e, no
+    # instalador, o testador. O `from None` apaga a causa, que so repetiria a frase.
+    raise SystemExit(f"Recusando subir: {erro}") from None
 
 if __name__ == "__main__":
     # Configuracao de execucao lida do ambiente, com os padroes declarados aqui.
@@ -1030,15 +1054,20 @@ if __name__ == "__main__":
     porta_de_escuta = int(os.environ.get("ANALISADOR_PORT", "5000"))
     concorrencia = int(os.environ.get("ANALISADOR_THREADS", "4"))
 
-    # Fail-closed (`D-10`): entrar e o essencial, e o essencial nao degrada em
-    # silencio. A recusa fica AQUI, e nao no import, porque a suite e o harness de
-    # paridade carregam o modulo sem credencial.
-    if _FALTANTES:
-        raise SystemExit(
-            "Recusando subir: a entrada com o provedor exige configuracao que falta: "
-            + "; ".join(_FALTANTES)
-            + ". Defina as variaveis e tente de novo (ver onboarding.md)."
+    # A recusa por credencial ausente NAO mora mais aqui (auditoria de 2026-10-30). Ela
+    # morava so neste bloco, e por isso qualquer runner que nao fosse `python src/app.py`
+    # subia o app aberto. Agora ela esta em `create_app`, pelo `ANALISADOR_MODO`.
+    #
+    # O que fica aqui e dizer QUAL modo esta no ar — e avisar quando nao ha modo nenhum,
+    # o que so acontece com o escape de teste ligado.
+    modo_em_uso = app.config.get("MODO_DE_IDENTIDADE")
+    if modo_em_uso is None:
+        logging.getLogger(__name__).warning(
+            "MODO DE TESTE: a aplicacao esta sem identidade e sem guarda. "
+            "Defina ANALISADOR_MODO para subir em modo de producao."
         )
+    else:
+        logging.getLogger(__name__).info("modo de identidade: %s", modo_em_uso)
 
     # O import fica aqui dentro de proposito. Este modulo e importado pela suite de
     # testes e pela instrumentacao de paridade, e um import no topo obrigaria o

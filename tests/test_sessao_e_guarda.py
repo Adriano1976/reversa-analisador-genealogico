@@ -77,8 +77,14 @@ def test_sair_encerra_a_sessao(app_autenticado):
     assert app_autenticado.cliente.get("/").status_code == 302
 
 
-def test_sem_autenticacao_o_caminho_e_o_legado(cliente_de_upload):
-    """Sem `autenticacao` injetada, o app e o de antes: sem guarda e sem Blueprint."""
+def test_no_modo_de_teste_o_caminho_e_o_legado(cliente_de_upload):
+    """Com o escape de teste ligado, o app e o de antes: sem guarda e sem Blueprint.
+
+    O caminho aberto deixou de ser o padrao (auditoria de 2026-10-30): agora ele so
+    existe com `ANALISADOR_MODO_TESTE=1`, que o `tests/conftest.py` declara. Quem
+    garante que a aplicacao RECUSA subir sem modo declarado e
+    `tests/test_modo_de_identidade.py`.
+    """
     _app, cliente, _pasta = cliente_de_upload
 
     resposta = cliente.get("/")

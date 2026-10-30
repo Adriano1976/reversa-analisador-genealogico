@@ -118,6 +118,18 @@ os.environ.setdefault(
     "ANALISADOR_LOG_DIR", os.path.join(_RAIZ_TEMPORARIA, "logs-da-suite")
 )
 
+# Auditoria de 2026-10-30 (P1/P3): a aplicacao passou a exigir modo de identidade
+# DECLARADO, e a declaracao mora em `create_app`, nao no `__main__`. A suite importa
+# `src/app.py` sem credencial de proposito — os 1939 testes dependem do caminho legado —,
+# e por isso declara o escape de teste AQUI, no import do conftest, antes de qualquer
+# modulo de teste ser coletado. Sem estas linhas, `import app` levanta "Recusando subir".
+#
+# `pop` e `=`, e nao `setdefault`: se a maquina tiver `ANALISADOR_MODO` exportado, a
+# suite inteira mudaria de caminho por causa do ambiente. O caminho da suite e o legado,
+# sempre, e ele e declarado aqui — nao herdado.
+os.environ.pop("ANALISADOR_MODO", None)
+os.environ["ANALISADOR_MODO_TESTE"] = "1"
+
 
 @pytest.fixture
 def pasta_temporaria():

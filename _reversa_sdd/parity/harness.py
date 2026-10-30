@@ -462,7 +462,12 @@ def run_collector(code, gedcom, cm_json, tag, dna_dir=None):
     os.makedirs(run_dir, exist_ok=True)
     with open(runner, "w", encoding="utf-8") as fh:
         fh.write(code)
-    env = dict(os.environ, PYTHONIOENCODING="utf-8", PARITY_SAMPLE=str(SAMPLE))
+    # `ANALISADOR_MODO_TESTE=1`: o coletor importa `src/app.py` direto, sem subir
+    # servidor, e desde a auditoria de 2026-10-30 a fabrica exige modo de identidade
+    # declarado. O coletor nao e producao: ele roda o caminho legado de proposito, e
+    # declara isso aqui, no processo que o gera — e nao no script gerado.
+    env = dict(os.environ, PYTHONIOENCODING="utf-8", PARITY_SAMPLE=str(SAMPLE),
+               ANALISADOR_MODO_TESTE="1")
     try:
         proc = subprocess.run(
             [sys.executable, runner, ROOT, gedcom, out, cm_json, dna_dir or os.path.join(FIXTURES, "dna")],

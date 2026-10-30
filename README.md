@@ -418,10 +418,29 @@ as duas do cache da árvore.
 
 #### Entrada pelo provedor de identidade
 
-A partir da feature 051, a aplicação pode exigir entrada com conta Google. As cinco variáveis abaixo são
-**todas ou nenhuma**: faltando qualquer uma, o servidor **recusa subir** — credencial ausente não pode
-degradar para acesso aberto. Sem nenhuma delas, a aplicação sobe no modo anterior (sem sessão), que é o
-modo em que a suíte e o invólucro de paridade a exercitam.
+#### Modo de identidade (`ANALISADOR_MODO`)
+
+Desde a auditoria de 2026-10-30, **toda subida declara o modo**, e a recusa mora em `create_app` — vale para
+qualquer runner (`python src/app.py`, `waitress-serve`, serviço do Windows, `.bat`), não só para o `__main__`.
+Antes, um runner que não fosse `python src/app.py` subia a aplicação **aberta**, com o dono caindo no marcador
+`"unico"`, que aponta para a raiz da pasta de upload.
+
+| Valor | O que monta | Quando usar |
+| --- | --- | --- |
+| `google` | entrada pelo Google + conta com senha (features 051 e 053), com a guarda de sessão | instância compartilhada, várias contas |
+| `local` | **sem login**: um dono por máquina | o app instalado no computador de uma pessoa |
+
+Não existe valor de produção que resulte em app sem guarda. `local` não é "o modo aberto de antes": ele é
+**declarado**, aparece no log de subida e não depende de como o processo foi iniciado. Quando a identidade
+local da 053 for oferecida no instalador, ela entra dentro deste modo — não nasce um terceiro.
+
+A suíte e o invólucro de paridade declaram `ANALISADOR_MODO_TESTE=1`, que dispensa a declaração e roda o
+caminho legado (sem identidade e sem guarda). É o único jeito de obtê-lo, e ele tem nome.
+
+#### Entrada pelo provedor de identidade
+
+Com `ANALISADOR_MODO=google`, as cinco variáveis abaixo são **todas ou nenhuma**: faltando qualquer uma, o
+servidor **recusa subir** — credencial ausente não pode degradar para acesso aberto.
 
 | Variável | Para que serve |
 | --- | --- |

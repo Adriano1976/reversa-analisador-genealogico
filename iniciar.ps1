@@ -37,6 +37,11 @@ $modelo = @"
 #
 # ANALISADOR_DONO_INICIAL e o e-mail da conta que herda os arquivos anteriores.
 
+# ANALISADOR_MODO decide o que a aplicacao monta (auditoria de 2026-10-30):
+#   google -> entrada pelo Google e conta com senha (o caso deste arquivo)
+#   local  -> sem login, um dono por maquina (e o que o instalador usa)
+ANALISADOR_MODO=google
+
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ANALISADOR_SECRET_KEY=
@@ -94,6 +99,13 @@ if ($faltantes.Count -gt 0) {
     Write-Host "Falta preencher em $arquivo :" -ForegroundColor Yellow
     foreach ($nome in $faltantes) { Write-Host "  - $nome" }
     exit 1
+}
+
+# O modo e OBRIGATORIO desde a auditoria de 2026-10-30: `create_app` recusa subir sem
+# ele. Este atalho existe para a entrada pelo Google, entao `google` e o modo que ele
+# pressupoe — e o arquivo antigo, que ainda nao tem a linha, continua funcionando.
+if (-not $valores["ANALISADOR_MODO"]) {
+    $valores["ANALISADOR_MODO"] = "google"
 }
 
 foreach ($nome in $valores.Keys) {

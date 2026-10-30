@@ -49,3 +49,8 @@ dados/
 
 # Ferramenta local de publicação do mini-site (não versionar).
 publicar_docs.py
+
+# Pacote de distribuição gerado por `publicar.ps1`. É artefato reproduzível por
+# comando: 870 KB de binário no histórico não saem mais, e um zip versionado não
+# pode conter a si mesmo.
+analisador*.zip

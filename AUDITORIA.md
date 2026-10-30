@@ -1,13 +1,23 @@
 # Auditoria — Analisador de Conexões Genealógicas
 
-**Data:** 2026-10-28
-**Escopo:** leitura de código, execução da suíte de testes e verificação do estado do repositório.
-**O que NÃO foi feito:** nenhum arquivo do projeto foi alterado, nenhuma migração foi aplicada, nada foi instalado. O único arquivo criado é este relatório.
-**Base auditada:** `HEAD` = `5aa080f` (árvore limpa, exceto `tests/test_tela_de_entrada.py`, não rastreado e pré-existente).
+**Data:** 2026-10-30
+**Base auditada:** `HEAD` = `619395c` (`test(auth): cobre o contrato da tela de entrada da 053`), árvore limpa.
+**Escopo desta rodada:** releitura completa depois das features 052 (busca por nome) e 053 (conta com senha, confirmação e recuperação), **com o objetivo novo de distribuir o app por instalador no computador do usuário**.
+**O que NÃO foi feito:** nenhum arquivo do projeto foi alterado, nenhuma migração foi aplicada, nada foi instalado. O único arquivo escrito é este relatório. As duas sondas de execução rodaram com pastas temporárias em `.parity-tmp/` (ignorado pelo git) e foram removidas no mesmo comando; `git status --porcelain` terminou vazio depois de cada uma, e ao fim da auditoria o único caminho alterado é o deste relatório.
 
-## O que este sistema é (e o que ele não é)
+---
 
-É um app Flask monousuário-por-conta que recebe GEDCOM + CSV de DNA, cruza os dois e grava o histórico em PostgreSQL. Não há e-commerce, não há cobrança, não há gateway de pagamento e não há webhook. Então os fluxos que o roteiro pede por padrão — cadastro, checkout, assinatura, webhook — **não existem** neste projeto; onde isso acontece eu escrevo "não aplicável" em vez de inventar equivalente. Os fluxos críticos reais são: entrada (OAuth Google), upload de GEDCOM, análise de DNA, busca de caminho, aposentadoria de arquivo e persistência do histórico — e são esses que a Etapa 1 cobre.
+## O que mudou desde a auditoria de 2026-10-28
+
+| Mudança | Efeito na auditoria |
+|---|---|
+| Feature 053 entrou: `/cadastro`, `/login` com senha, `/confirmar`, `/recuperar-senha`, `/redefinir-senha`, `/definir-senha`, tokens de uso único, transporte SMTP, `ContasEmArquivo` | Nasceu uma superfície de autenticação **própria** — e com ela a pergunta "onde ficam as contas?". A resposta cria o P2 de hoje. |
+| `src/dados/contas.json` passou a existir, com **duas contas reais** (uma Google, uma local), ambas com credencial scrypt | O maior achado novo: esse arquivo está dentro de `src/`, que é exatamente o que a imagem Docker copia. |
+| Feature 052 entrou: `POST /busca`, fontes de nomes, isolamento por dono na busca | Não há achado novo de isolamento: a busca resolve por dono e o teste de isolamento existe. |
+| Suíte cresceu de 1752 para **1939 testes passando** (1953 casos coletados) | As **mesmas 5 falhas** de 28/10 continuam. |
+| Objetivo declarado: distribuir por instalador | Não existe uma linha de empacotamento no repositório. A Etapa 6 mede o que **impede** esse instalador de funcionar. |
+
+**Mapa em relação à auditoria de 28/10:** o antigo P1 (autenticação condicional) continua **P1**; o antigo P3 (corridas de disco) virou **P5**; o antigo P2 (isolamento no banco) caiu para a Etapa 2 porque segue latente; o antigo P4 (banco de teste) e o antigo P5 (suíte vermelha) saíram do top 5 — com o instalador no horizonte, dois bloqueios de empacotamento passam na frente deles.
 
 ---
 
@@ -15,13 +25,13 @@
 
 | # | Achado | Risco | Onde | Por que está nesta posição |
 |---|---|---|---|---|
-| **P1** | A autenticação é **condicional ao entrypoint**: `create_app()` monta a app sem guarda quando as 5 variáveis faltam, e `_dono()` cai no literal `"unico"`, que aponta para a **raiz** da pasta de upload — onde estão todos os arquivos herdados. Só `python src/app.py` recusa subir. | **Alto** | `src/app.py:79`, `src/app.py:82-88`, `src/app.py:867-870`, `src/app.py:893-898` | É o único achado que expõe dado **hoje**: qualquer runner que não seja `python src/app.py` (`flask run`, `waitress-serve`, `gunicorn`) sobe a aplicação aberta, sem login, com acesso a todas as árvores e relatórios. |
-| **P2** | O isolamento por dono **não existe no banco**: `owner_id` é gravado e nunca lido. Não há RLS, não há policy, não há índice de escopo, e nenhuma consulta filtra por dono. | **Alto (latente)** | `init.sql:26`, `init.sql:182-184`, `src/ports/adaptadores.py:583` | Hoje não vaza só porque o histórico é *write-only* (não há tela que leia `dna_analysis`). No dia em que a primeira consulta de histórico nascer, ela devolve o acervo de todos os donos — e o banco não tem nada que a impeça. |
-| **P3** | O armazenamento em disco faz **ler → decidir → gravar** sem nenhuma operação atômica: `exists()` antes de `open("wb")` no caminho final, snapshot da pasta antes de gravar, e `os.replace` no fim de um `_destino_livre` que decide por `exists()`. | **Alto** | `src/ports/adaptadores.py:119-121`, `src/ports/adaptadores.py:262-268`, `src/ports/adaptadores.py:280-285`, `src/application/reenvio.py:62-77` | É o achado mais provável de acontecer na operação real: 4 threads no waitress e o operador clicando duas vezes. Quebra a `RN-17` ("a lista fica com UMA versão") e devolve `500` em vez da mensagem de contrato. |
-| **P4** | **Não existe banco de teste.** O teste de banco roda contra o mesmo banco de produção e apaga linhas por `tree_ref`; e não há runner de migração (mudança de esquema exige `down -v`, que apaga o histórico). | **Alto** | `tests/test_registro_de_analises.py:45-51`, `tests/test_registro_de_analises.py:107-117`, `init.sql:186-189` | Habilitar os testes de banco (definir `DATABASE_URL` + instalar `psycopg2`) aponta a suíte para o acervo real. O `_limpar` filtra por `tree_ref = 'chave__arvore.ged'` — que é um nome plausível de arquivo real. |
-| **P5** | Suíte **vermelha** em `HEAD` (5 falhas de caracterização) e CI que **não roda teste**; o POST de análise não tem idempotência, então duplo clique grava duas análises e paga dois parses. | **Médio** | `tests/test_characterization_mermaid.py:174`, `tests/test_tres_fases_da_tela.py:258`, `.github/workflows/tipos.yml:18-45`, `src/app.py:552-561` | Sem suíte verde não há como provar que P1–P4 não regrediram. A falha de idempotência é o único efeito colateral barato de corrigir em conjunto. |
+| **P1** | A autenticação continua **condicional ao entrypoint**. Só `python src/app.py` recusa subir sem as cinco variáveis; `create_app()` monta a aplicação **sem guarda nenhuma** e `_dono()` cai no literal `"unico"`, que aponta para a raiz da pasta de upload. Medido nesta rodada: sem credencial, `GET /` responde **200**, `GET /login` responde **404** e `POST /` com `action=upload_gedcom` **executa o handler**. | **Alto** | `src/app.py:243`, `src/app.py:1005-1013`, `src/app.py:1022-1041`, `src/app.py:101` | É o único achado que expõe dado **hoje**, e o instalador vai escolher o entrypoint por você. Qualquer atalho que não chame `app.py` (`waitress-serve` na linha de comando, um serviço do Windows, um `.bat` com `flask run`) sobe o app aberto, com todas as árvores e relatórios. |
+| **P2** | As contas reais moram **dentro de `src/`** (`src/dados/contas.json`) e entram no artefato: o `.dockerignore` é lista de permissão e libera `src/**`, reexcluindo **só** `src/uploads/`; o `Dockerfile` faz `COPY src/`. Hoje o arquivo tem duas contas com e-mail, hash scrypt e (se houver) tokens pendentes. | **Alto** | `src/app.py:251-262`, `.dockerignore:15`, `.dockerignore:21`, `docker/Dockerfile:46` | Vaza material de credencial para quem receber a imagem ou o instalador — e faz o cliente herdar a conta do desenvolvedor. Acontece **na primeira vez** que alguém empacotar o app. |
+| **P3** | **Não existe modo "instalação local"**: toda a identidade da 053 (cadastro, senha, recuperação) só é montada se as **cinco** variáveis do Google existirem. Sem elas, `/cadastro` e `/login` nem são registradas. Medido: com as cinco preenchidas com valor inventado, tudo monta e `GET /` passa a redirecionar para `/login`. | **Alto** | `src/app.py:243`, `src/app.py:908-928`, `src/app.py:1005-1013`, `src/web/autenticacao.py:38-44` | É o que decide o instalador: ou ele embarca o **client secret do Google do desenvolvedor** em cada máquina (o mesmo cliente OAuth para todos os clientes), ou inventa cinco valores, ou entrega o app aberto (P1). Não há quarta opção hoje. |
+| **P4** | Tudo o que a aplicação **escreve** está ancorado no diretório da instalação: uploads (`__file__`), logs (raiz do projeto) e contas (`src/dados`). E a criação da pasta de upload roda **no import, sem guarda**. Medido: com a pasta não gravável, `import app` levanta `PermissionError` e o app **não sobe** — sem mensagem de contrato, com traceback. | **Alto** | `src/app.py:191-211`, `src/app.py:251-262`, `src/utils/logs.py:198-208` | Instalador padrão no Windows escreve em `C:\Program Files\...`, que não é gravável por usuário comum. Sem mover os dados para `%LOCALAPPDATA%`, o produto não abre na máquina do cliente. |
+| **P5** | O armazenamento em disco continua fazendo **ler → decidir → gravar** sem operação atômica: `exists()` antes de `open("wb")`, `_destino_livre` decidindo por `exists()` e `os.replace` executando depois, e a foto → grava → aposenta do reenvio sem serialização. | **Alto** | `src/ports/adaptadores.py:119-121`, `src/ports/adaptadores.py:263-267`, `src/ports/adaptadores.py:270-286`, `src/application/reenvio.py:62-77` | É o defeito mais provável de acontecer no uso real (4 threads no waitress + duplo clique): grava dois arquivos no mesmo caminho, aposenta a versão recém-gravada e devolve `500` no lugar da mensagem de contrato. |
 
-Os cinco prompts de correção correspondentes estão nomeados **P1…P5** e a recomendação de ordem está no fim deste documento.
+Os cinco prompts de correção correspondentes estão nomeados **P1…P5**, e a ordem recomendada de execução está no fim do documento.
 
 ---
 
@@ -29,193 +39,299 @@ Os cinco prompts de correção correspondentes estão nomeados **P1…P5** e a r
 
 | Verificação | Comando | Resultado |
 |---|---|---|
-| Suíte completa | `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` | **5 failed, 1752 passed, 9 skipped** em 601 s |
-| Skips | `pytest tests/test_registro_de_analises.py -q -rs` e `pytest tests/test_manutencao_de_uploads.py -q -rs` | 8 = banco (`DATABASE_URL` + `psycopg2` ausentes); 1 = link simbólico no Windows |
-| Segredos no histórico | `git log --all -S "<valor>"` para senha do banco, client secret, chave de sessão e client id | **nenhum** dos quatro valores aparece no histórico do git |
-| RLS / policies | busca por `ROW LEVEL SECURITY`, `CREATE POLICY`, `auth.uid`, `USING (true)` em todo o repositório | **zero ocorrências** |
-| Webhook / gateway | busca por `webhook`, `stripe`, `pagseguro`, `mercadopago`, `asaas`, `idempotency` em `src`, `tests`, `docs`, `docker` | **zero ocorrências** |
-| Locks / atomicidade | busca por `lock`, `FOR UPDATE`, `ON CONFLICT`, `flock`, `advisory` em `src` | **1 ocorrência**: `threading.Lock` no cache (`src/ports/adaptadores.py:369`) |
-| Segredos no front | busca por `secret`, `api_key`, `client_id`, `Bearer` em `src/templates/*.html`; busca por `NEXT_PUBLIC`, `VITE_`, `EXPO_PUBLIC` | **zero ocorrências** |
+| Suíte completa | `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` | **5 failed, 1939 passed, 9 skipped** em 350,37 s (1953 casos coletados) |
+| Motivo dos 9 skips | `pytest tests/test_registro_de_analises.py tests/test_manutencao_de_uploads.py -q -rs` | 8 = banco (`DATABASE_URL` **e** `psycopg2` ausentes, os dois medidos); 1 = link simbólico sem privilégio |
+| Driver do banco | `python -c "import importlib.util; print(find_spec('psycopg2'))"` | `None` — o `.venv` **não tem** o driver; `DATABASE_URL` também não está no ambiente |
+| App sobe aberto? | sonda com `create_app()` + `test_client`, sem as cinco variáveis | `GET /` → **200**; `GET /login` → **404**; `POST /` (`upload_gedcom`) → **200** |
+| Modo local existe? | mesma sonda com as cinco variáveis preenchidas com valor inventado | 17 regras de rota (a `/busca` aparece duas vezes, `GET` e `POST`), `/cadastro` → **200**, `GET /` → **302 /login** |
+| Pasta de upload não gravável | mesma sonda apontando para local sem permissão | `PermissionError` em `src/app.py:211`, traceback cru, app não importa |
+| Contas reais no diretório do código | leitura de `src/dados/contas.json` (só metadados, sem valores) | `contas: 2`, ambas com credencial e confirmadas, `tokens: 0`; `git check-ignore` confirma que o git as ignora (`.gitignore:42`) |
+| O que entra na imagem | leitura de `.dockerignore` e `docker/Dockerfile` | `!src/**` (linha 15) inclui `src/dados/`; só `src/uploads/` é reexcluído (linha 21) |
+| RLS / policies | busca por `ROW LEVEL SECURITY`, `CREATE POLICY`, `auth.uid`, `USING (true)`, `WITH CHECK` em todo o repositório | **zero ocorrências** |
+| Webhook / gateway | busca por `webhook`, `stripe`, `pagseguro`, `mercadopago`, `asaas`, `idempoten` em `src`, `tests`, `docker` | 18 ocorrências, **todas** de "idempotente" em prosa ou de `UPDATE` idempotente; nenhum webhook, nenhum gateway |
+| Preço / plano / admin | busca por `preço`, `desconto`, `plano`, `admin`, `assinatura`, `cobrança`, `checkout` | 82 ocorrências, **todas** falsos positivos: em português `assinatura` é assinatura de função/parâmetro. Não há cobrança no produto |
+| Segredo no front | busca por `NEXT_PUBLIC`, `VITE_`, `EXPO_PUBLIC`, `secret`, `api_key`, `client_id`, `Bearer` em `src/templates` e `src/assets` | **zero** variáveis públicas; nenhum segredo em HTML/CSS |
+| Locks / atomicidade | busca por `FOR UPDATE`, `ON CONFLICT`, `flock`, `advisory`, `threading.Lock`, `RLock` em `src` | 2 travas em memória (`adaptadores.py:369`, `contas_em_arquivo.py:62`) + `SO_EXCLUSIVEADDRUSE`; **nenhum** lock de linha no banco |
+| Instalador | busca por `pyinstaller`, `inno setup`, `nsis`, `msix`, `wix`, `squirrel`, `nuitka`, `instalador` | **zero** arquivos e zero menção; não existe empacotamento no repositório |
+| Versão do produto | busca por `__version__`, `VERSION` em `src` | **zero** ocorrências |
 
-**Nota de ambiente (não é achado do projeto):** o sandbox do meu harness bloqueia escrita no temporário do sistema, e o pytest não inicia sem ele. Rodei apontando `TEMP`/`TMP` para um diretório de rascunho e removi o diretório no mesmo comando (`git status` depois da execução segue limpo, exceto o arquivo não rastreado que já existia). A suíte em si isola uploads e logs em temporário por `tests/conftest.py:109-119`, então **nenhum teste escreveu no projeto**.
+**Nota de ambiente (não é achado do projeto):** a política de escrita do meu harness mudou no meio da execução e passou a negar criação de diretório no temporário do sistema; a suíte não depende disso (o `tests/conftest.py` isola uploads e logs), mas a sonda da pasta não gravável reproduziu, por acidente, exatamente o defeito de `src/app.py:211`. O achado P4 é do código, não do meu sandbox: a linha não tem guarda.
 
 ---
 
 ## Etapa 1 — Testes de integração
 
-### 1.1 Ferramenta, banco de teste e comando
+### Ferramenta, banco e comando
 
-| Achado | Risco | Arquivo e linha | Correção sugerida |
-|---|---|---|---|
-| Ferramenta de teste configurada: **pytest 9.1.1** no `.venv`, com `pytest.ini` apontando `testpaths = tests`. Existe e funciona. | — | `pytest.ini:1-2` | Nada a corrigir. |
-| **Não existe banco de teste separado.** Um único serviço `db` no compose, uma única `DATABASE_URL`, e os testes de banco usam essa mesma URL. | **Alto** | `docker-compose.yml:20-46`, `docker-compose.yml:66` | Criar serviço `db_teste` (ou banco `genealogia_teste` no mesmo serviço) e uma `DATABASE_URL_DE_TESTE` lida só pela suíte; recusar rodar o arquivo de teste se a URL não contiver `teste`. |
-| Quando habilitado, o teste de banco **apaga linhas** do banco apontado pela `DATABASE_URL`, filtrando por `tree_ref = 'chave__arvore.ged'` — um nome plausível de arquivo real. | **Alto** | `tests/test_registro_de_analises.py:107-117` | Além do banco separado, trocar o filtro por um `owner_id` exclusivo de teste (`owner_id = 'suite-de-teste'`) e apagar só por ele. |
-| `pytest` **não está declarado** em `requirements.txt`, e não existe `requirements-dev.txt`. Uma instalação limpa não reproduz a suíte. | **Médio** | `requirements.txt:20-52` | Criar `requirements-dev.txt` com `pytest`, `pytest-cov` e `pyrefly`, e documentar o comando no README/onboarding. |
-| O CI roda **somente checagem de tipos** (`pyrefly check src`); nenhum workflow executa o pytest. | **Médio** | `.github/workflows/tipos.yml:18-45` | Acrescentar job `pytest` com serviço Postgres de teste, e torná-lo obrigatório. |
-| **Comando para rodar tudo:** `.\.venv\Scripts\python.exe -m pytest` — resultado medido: **1752 passam, 5 falham, 9 são pulados**, em 601 s. | **Médio** | — | Ver as duas linhas seguintes: as 5 falhas e os 9 pulos. |
-| **5 falhas, todas de teste de caracterização desatualizado** (contrato congelado que a UI já mudou): `width:190px` no Mermaid virou `230px`, e o literal `1. Lista de Matches (CSV)` sumiu da tela. Reproduzidas isoladamente em `HEAD` limpo. | **Médio** | `tests/test_characterization_mermaid.py:174` (e 3 parametrizações), `tests/test_tres_fases_da_tela.py:258` | Atualizar os congelados **com registro da decisão** (não só reescrever o número): ou o layout voltou a 190 px sem intenção, ou o teste é que estava velho. Enquanto isso, a suíte não serve de sinal. |
-| **9 pulos**, todos justificados por ambiente: 8 de banco (`DATABASE_URL` + `psycopg2` ausentes no `.venv` do host) e 1 de link simbólico no Windows. **Um teste pulado não é um teste que passou** — a persistência em Postgres não é verificada nesta máquina. | **Alto** | `tests/test_registro_de_analises.py:45-51`, `tests/test_manutencao_de_uploads.py:252` | Instalar `psycopg2` no `.venv` (ou rodar a suíte dentro do container, como o `tests/verificacao_no_conteiner.py` já prevê) com banco de teste. |
+- **Ferramenta:** pytest 9.1.1, configurado por `pytest.ini` (só `testpaths = tests`). Não há marcador de integração, não há `pytest-cov` declarado no `requirements.txt` (o `.coverage` da raiz é artefato de execução manual), e não há plugin de banco.
+- **Banco de teste:** **não existe.** O único teste que fala com PostgreSQL usa o `DATABASE_URL` do ambiente — o mesmo nome de variável do banco de produção — e apaga linhas por `tree_ref = 'chave__arvore.ged'`, que é um nome plausível de arquivo real.
+- **Comando para rodar tudo:** `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider`
+- **Toca produção?** Não, do jeito que está: sem `DATABASE_URL` e sem driver, os 8 testes de banco são pulados e os demais isolam uploads e logs em temporário. **Mas** o caminho que habilita esses 8 aponta para o banco de produção.
 
-### 1.2 Fluxos críticos × cobertura real
+### Resultado da execução
 
-Legenda: **rota** = teste chama `POST /` ou a rota real via `test_client` (com dublê só na borda externa); **unitário** = testa a função pura, sem HTTP; **nada** = sem teste.
+| Número | Valor |
+|---|---|
+| Passam | **1939** |
+| Falham | **5** |
+| Pulados | **9** |
+| Total | 1953 |
+| Tempo | 350,37 s |
 
-| Fluxo | Existe no produto? | Nível do teste | Onde | Veredito |
+As 5 falhas são as **mesmas** de 28/10 — nenhuma regressão nova da 052/053:
+
+| Teste | O que ele espera | O que o código entrega |
+|---|---|---|
+| `test_characterization_mermaid.py::test_saida_mermaid_caracterizada[direto]` | `width:190px` | `width:230px` |
+| `test_characterization_mermaid.py::…[indireto]` | `width:190px` | `width:230px` |
+| `test_characterization_mermaid.py::…[trivial]` | `width:190px` | `width:230px` |
+| `test_characterization_mermaid.py::test_o_no_carrega_a_caixa_de_tamanho_fixo` | `width:190px` | `width:230px` |
+| `test_tres_fases_da_tela.py::TestLiteraisPreservados::test_os_rotulos_congelados_continuam` | literal `1. Lista de Matches (CSV)` na tela | o literal sumiu |
+
+São testes de **caracterização**: eles congelam um desenho que foi alterado sem atualizar o teste. Não indicam bug de produto — indicam contrato desatualizado.
+
+### Fluxos críticos × cobertura
+
+O produto **não é e-commerce**: não há cadastro de cliente pagante, checkout, assinatura, gateway ou webhook. Os fluxos críticos reais são os de identidade e os de arquivo/análise.
+
+| Fluxo | Tipo de teste | Onde |
+|---|---|---|
+| Cadastro (e-mail + senha) | **rota de verdade** (`POST /cadastro`, arquivo de contas em memória, e-mail em memória) | `tests/test_cadastro_e_confirmacao.py`, `tests/test_rotas_de_identidade.py` |
+| Login com senha | **rota de verdade** (`POST /login` pelo helper `entrar_com_senha`) | `tests/fixtures/identidade.py`, `tests/test_rotas_de_identidade.py` |
+| Login Google / `/callback` | **rota de verdade com provedor falso**; a troca real com o Google **não** é exercitada (por desenho: `ProvedorFalso`) | `tests/test_autenticacao.py`, `tests/test_tela_de_entrada.py` |
+| Confirmação de e-mail | **rota de verdade** (`GET /confirmar?token=`) | `tests/test_cadastro_e_confirmacao.py` |
+| Recuperação / redefinição | **rota de verdade** (`POST /recuperar-senha`, `GET`+`POST /redefinir-senha`), SMTP dublê | `tests/test_recuperacao_de_senha.py`, `tests/test_alternar_senha.py` |
+| Definir senha (conta Google) | **rota de verdade** (`/definir-senha`) | `tests/test_definir_senha.py` |
+| Logout | **rota de verdade** (`POST /logout`) | `tests/test_sessao_e_guarda.py` |
+| Guarda de sessão (302/303, `no-store`, cookie) | **rota de verdade** | `tests/test_sessao_e_guarda.py` |
+| Upload de GEDCOM | **rota de verdade** (`POST /` `action=upload_gedcom`) | `tests/test_upload.py`, `tests/test_upload_seguranca.py` |
+| Análise de DNA | **rota de verdade** (`action=dna_analysis`) | `tests/test_dna_analysis.py` |
+| Busca de caminho | **rota de verdade** (`action=path_search`) | `tests/test_path_search.py` |
+| Busca por nome | **rota de verdade** (`POST /busca`) | `tests/test_rota_de_busca.py`, `tests/test_isolamento_da_busca.py` |
+| Aposentar arquivo | **rota de verdade** (`action=aposentar_arquivo`) | `tests/test_aposentar_arquivo.py` |
+| **Persistência no PostgreSQL** | **nenhum** — 8 testes pulados | `tests/test_registro_de_analises.py` |
+| Envio SMTP real (`smtplib`) | **nenhum** — o dublê substitui o transporte | `tests/fixtures/identidade.py` (`EmailQueGrava`) |
+| Checkout / assinatura / webhook | **não aplicável** — o produto não cobra | busca sem ocorrência |
+
+### Achados da Etapa 1
+
+| # | Achado | Risco | Arquivo e linha | Correção sugerida |
 |---|---|---|---|---|
-| **Cadastro** | **Não** (a conta nasce no Google no primeiro acesso) | — | `src/templates/login.html:15-17` | Não aplicável. |
-| **Login / entrada** | Sim (OAuth 2.0 authorization code) | **Rota**, com provedor falso em memória | `tests/test_autenticacao.py:99-141`, `tests/test_sessao_e_guarda.py`, `tests/test_tela_de_entrada.py`, `tests/fixtures/autenticacao.py` | Coberto na rota: `state` divergente, `state` de uso único, cancelamento, falha na troca, guarda de sessão, logout. **Não cobre** o provedor real (nenhum teste fala com o Google — correto) nem a troca de código de verdade. |
-| **Isolamento entre donos** | Sim (feature 051) | **Rota** | `tests/test_isolamento_por_dono.py` (5 testes) | Bom: A não vê B, 404 em vez de 403, aposentar de outro dono não move nada, mesmo conteúdo em dois donos = dois arquivos. |
-| **Upload de GEDCOM** | Sim | **Rota** + unitário | `tests/test_upload.py`, `tests/test_upload_seguranca.py` (5 casos de escape), `tests/test_formatos_do_envio.py`, `tests/test_reenvio_do_arquivo.py` | Coberto, inclusive os 5 casos de path traversal e o teto de 16 MB. |
-| **Análise de DNA** | Sim | **Rota** | `tests/test_dna_analysis.py:373-431`, `tests/test_confrontacao_gedcom_dna.py` (901 linhas), `tests/test_promocao_de_descarte.py:201` | Coberto na rota. |
-| **Busca de caminho** | Sim | **Rota** + unitário | `tests/test_path_search.py:161-215` (rota) e o resto unitário | Coberto. |
-| **Aposentar arquivo** (destrutivo) | Sim | **Rota** | `tests/test_aposentar_arquivo.py:260-312`, `tests/test_registro_de_auditoria.py:68-81` | Coberto, incluindo a auditoria das duas tentativas. |
-| **Persistência do histórico (Postgres)** | Sim | **Nada na prática** — 8 testes escritos, **todos pulados** nesta máquina | `tests/test_registro_de_analises.py` | **Não verificado em host.** Só é exercitado dentro do container (`tests/verificacao_no_conteiner.py`) e em verificação manual (T020/T021). |
-| **Checkout / assinatura / webhook de pagamento** | **Não existem** | — | — | Não aplicável. Não há gateway, não há cobrança, não há webhook (busca com zero ocorrências). |
-| **Recuperação de senha** | **Não existe** (não há senha) | — | — | Não aplicável. |
+| 1.1 | **Não há banco de teste.** O teste de banco usa a mesma variável do banco de produção (`DATABASE_URL`), e habilita-lo aponta a suíte para o acervo real. | **Alto** | `tests/test_registro_de_analises.py:45-51` | Criar `ANALISADOR_DATABASE_URL_DE_TESTE` (ou schema dedicado) e **recusar** rodar se a URL não contiver um marcador de teste; nunca cair no `DATABASE_URL`. |
+| 1.2 | A limpeza apaga por `tree_ref = 'chave__arvore.ged'` sem escopo de dono nem de execução. | **Alto** | `tests/test_registro_de_analises.py:107-117` | `DELETE ... WHERE tree_ref = %s AND owner_id = %s AND created_at > %s`, com o dono e o instante da execução. |
+| 1.3 | **O CI não roda teste nenhum** — só `pyrefly check src`. Um PR pode quebrar 1939 testes verdes e o check fica verde. | **Alto** | `.github/workflows/tipos.yml:38-42` | Job `pytest` sem banco (o caminho padrão já é "sem `DATABASE_URL`"), com `-q` e falha em skip inesperado. |
+| 1.4 | O driver `psycopg2` **não está no `.venv`** e o `DATABASE_URL` não está definido: os 8 testes de banco nunca rodaram nesta máquina. | **Alto** | `tests/test_registro_de_analises.py:1-22`, `:45-51` | Instalar o driver no ambiente oficial e subir o `db` do compose apontando para banco de teste (depende de 1.1). |
+| 1.5 | **Suíte vermelha em `HEAD`**: 5 falhas de caracterização. | **Médio** | `tests/test_characterization_mermaid.py:174`, `tests/test_tres_fases_da_tela.py:258` | Atualizar a caracterização para `230px` e o literal da tela (ou reverter o desenho), e só então ligar o CI da 1.3 — senão o job nasce vermelho. |
+| 1.6 | Um teste **congela o modo aberto** como contrato: sem autenticação, a tela tem de responder 200 e `/login` tem de ser 404. | **Alto** (é a causa do P1) | `tests/test_sessao_e_guarda.py:80-88` | Substituir por um teste que exija **recusa**, com escape explícito de teste (`ANALISADOR_MODO_TESTE=1` fixado no `tests/conftest.py`), em vez de "sem credencial = aberto". |
+| 1.7 | Não há marcador de teste de integração: os 1939 verdes e os 8 pulados aparecem no mesmo número, e "1939 passed" sugere cobertura de banco que não existe. | **Baixo** | `pytest.ini:1-2` | `markers = integracao` e um alvo `-m "not integracao"` no CI, com o total de integração reportado à parte. |
 
 ---
 
 ## Etapa 2 — Confiança no cliente
 
-### 2.1 Regras de negócio que o cliente decide
+### Regras que existem só no front
 
-| Achado | Risco | Arquivo e linha | Correção sugerida |
-|---|---|---|---|
-| O campo oculto **`promover`** chega do formulário e **substitui a decisão de matching**: `candidate_pids = [promovido[0]]` com `reason = None`, sem revalidar que aquele `xref` pertence ao conjunto de candidatos que o servidor havia calculado. | **Baixo** | `src/app.py:492-498`, `src/core/passo_por_kit.py:286-290`, `src/templates/index.html:1915-1918` | Já é intenção de produto (o operador escolhe o nó). O que falta é **servidor revalidar**: aceitar a promoção só se o `xref` estiver entre os candidatos devolvidos por `avaliar_candidatos` para aquele kit; hoje um `xref` arbitrário da árvore é aceito e o cartão nasce com `reason = None`. |
-| O campo oculto **`dados`** leva o JSON dos descartes de volta ao servidor, que o converte em CSV sem confrontar com o que ele mesmo produziu. | **Baixo** | `src/web/rotas_assets.py:57-74` | Aceitável (o dado é do próprio dono e `csv_de_descartes` já desarma fórmula de planilha). Se um dia esse CSV virar documento com valor probatório, gerar no servidor a partir do resultado da análise, não do que o navegador devolve. |
-| **Não existem** regras de preço, desconto, papel de admin, permissão ou limite de plano em lugar nenhum — nem no front, nem no back. O único limite é o teto de 16 MB, e ele está **no servidor** (Flask `MAX_CONTENT_LENGTH` **e** `waitress.max_request_body_size`). | — | `src/app.py:106-127`, `src/app.py:821`, `src/app.py:987-988` | Nada a corrigir. Registro o contraexemplo: o teto é o caso em que a regra está só no servidor, como deve ser. |
-| O `gedcom_filename` e o `matches_csv_filename` vêm do formulário, mas são **validados no servidor** por forma (nome simples, prefixo de 16 hex) e escopados pela pasta do dono antes de qualquer `exists()`. | — | `src/app.py:328-346`, `src/utils/validate.py:170-229`, `src/ports/adaptadores.py:124-146` | Nada a corrigir. É o outro contraexemplo correto: o cliente manda a referência, o servidor decide o alcance. |
+**Nenhuma.** O produto não tem preço, desconto, papel de admin nem limite de plano (busca com 82 ocorrências e **todas** falsos positivos: em português, `assinatura` é assinatura de função). As regras que existem são de servidor:
 
-### 2.2 Chaves e tokens (público por design × secreto)
+- teto de upload de 16 MB em duas camadas (Flask e waitress) — `src/app.py:128`, `:149`, `:957`;
+- teto do termo de busca em 120 caracteres, aplicado na rota e não só no `maxlength` — `src/web/rotas_busca.py:36`, `:71`;
+- política de senha no núcleo, uma única autoridade, com a tela apenas exibindo a mesma frase — `src/core/conta.py:111-136`;
+- limite de tentativas por escopo — `src/application/limite.py:42-47`.
 
-| Item | Classificação | Onde | Situação |
-|---|---|---|---|
-| `POSTGRES_PASSWORD`, `DATABASE_URL` | **Secreta** | `.env:13-16` | No disco, em claro; **não versionada** (`git ls-files` não a lista; `.gitignore:6`) e **ausente de todo o histórico** (`git log --all -S` sem ocorrência do valor). O compose usa `${VAR:?}` e **para** se faltar — corretamente sem valor padrão (`docker-compose.yml:23-25`). |
-| `GOOGLE_CLIENT_SECRET` | **Secreta** | `.env.local:11` | Mesma situação: fora do git, ausente do histórico. Usada **só no servidor** (`src/web/autenticacao.py:140-155`); nunca chega ao navegador. |
-| `ANALISADOR_SECRET_KEY` (chave de assinatura do cookie de sessão) | **Secreta** | `.env.local:12` e `.env.local:14` | Fora do git, ausente do histórico. **Defeito de higiene:** a variável aparece **duas vezes** no mesmo arquivo — uma vazia (linha 12) e uma preenchida (linha 14). Quem lê só a primeira ocorrência (ou um parser "primeiro vence") recebe vazio e a app recusa subir. |
-| `GOOGLE_CLIENT_ID` | **Pública por design** | `.env.local:10` | Correta: o `client_id` é público no protocolo OAuth. |
-| Tokens de acesso do OAuth | **Secretos, e nunca persistidos** | `src/web/autenticacao.py:140-174` | O token é trocado e consumido no servidor, e não entra em log (o módulo declara e cumpre: motivo curto, nunca token/código/segredo). |
-| Variáveis de front (`NEXT_PUBLIC_`, `VITE_`, `EXPO_PUBLIC_`) | — | — | **Não existem**: é Jinja server-side. Nenhum segredo em `src/templates/*.html` (busca por `secret`, `api_key`, `client_id`, `Bearer`: zero). |
-| `.dockerignore` | — | `.dockerignore:12-16` | Lista de **permissão** (`*` + `!src/**`): `.env` não entra na imagem. Correto. |
-| Porta do Postgres publicada | **Médio** | `docker-compose.yml:33-37` | Publicada em `127.0.0.1:5432` (só loopback, correto), mas com a senha em claro no `.env` e sem TLS. Em máquina compartilhada, qualquer processo local lê o `.env`. Aceitável para uso local; registrar como dívida para qualquer deploy multiusuário. |
+O `maxlength` do HTML existe como conforto, e o servidor repete o limite. Não encontrei nenhuma decisão de negócio que dependa do navegador.
 
-### 2.3 Banco exposto por API, RLS e policies
+### Chaves e tokens que vão para o navegador
 
-**Não há Supabase, não há PostgREST, não há API de banco.** O Postgres é alcançado apenas pelo servidor Flask via `psycopg2`, com a `DATABASE_URL` do processo. Portanto:
+| Item | Classificação | Onde |
+|---|---|---|
+| Variáveis `NEXT_PUBLIC_`, `VITE_`, `EXPO_PUBLIC_` ou equivalentes | **nenhuma** (0 ocorrências) | — |
+| Cookie de sessão `analisador_sessao` | **pública por design** — assinada, `HttpOnly`, `SameSite=Lax`, `Secure` só em HTTPS | `src/app.py:838-846`, `src/web/sessao.py:88-101` |
+| Token de redefinição/confirmação na URL e no campo oculto | **secreta, mas por design** — é o portador do link; a página sai com `no-store` e `Referrer-Policy: no-referrer` | `src/web/rotas_conta.py:112-117`, `:308`, `:314` |
+| Segredos em HTML/CSS (`secret`, `api_key`, `client_id`, `Bearer`) | **nenhum** (0 ocorrências) | — |
+| `contas.json` (e-mail + hash scrypt + tokens) | **secreta — e hoje sai no artefato** (ver 2.1) | `src/app.py:251-262` |
+| Senha de SMTP e client secret do Google | **secretas — em arquivo ao lado do app** (ver 2.2) | `.env.local:11`, `.env.local:20` |
 
-| Pergunta | Resposta |
-|---|---|
-| Tabelas expostas ao cliente? | **Não.** Nenhuma rota lê o banco, e o banco não é publicado para fora do host. |
-| Existe RLS? | **Não.** `ROW LEVEL SECURITY` aparece **zero vezes** no repositório. |
-| Existem policies (`USING (true)`, `WITH CHECK (true)`, `auth.uid()`)? | **Não existem.** Não há `CREATE POLICY` em lugar nenhum — e é exatamente por isso que a pergunta "explique cada policy" não tem o que explicar aqui. O controle de acesso não foi delegado ao banco; foi delegado ao `WHERE` da aplicação — **que não tem `WHERE` de dono em nenhuma consulta**. |
-| O que existe no lugar do RLS? | Duas coisas, e nenhuma delas é do banco: (1) o **filtro por pasta** no disco (`<pasta>/<dono>/`, `src/ports/adaptadores.py:77-91`), que funciona e está testado; (2) a coluna `owner_id`, que é **gravada e nunca lida**. |
+### Banco exposto por API
 
-| Achado | Risco | Arquivo e linha | Correção sugerida |
-|---|---|---|---|
-| `owner_id` é `TEXT NOT NULL`, **sem FK e sem índice de escopo**, e o próprio esquema declara que nenhuma consulta filtra por dono. | **Alto (latente)** | `init.sql:26`, `init.sql:182-184` | Antes de existir qualquer leitura de histórico: índice `(owner_id, created_at DESC)` e **toda** consulta com `WHERE owner_id = %s`. Se o banco for exposto algum dia, RLS com `USING (owner_id = current_setting('app.dono'))` como segunda barreira. |
-| `adotar()` faz `UPDATE dna_analysis SET owner_id = %s WHERE owner_id = 'unico'` — transfere **todas** as linhas não atribuídas para a conta que entrou. | **Médio** | `src/ports/adaptadores.py:566-591` | É a `RN-15` e é atômico (bom). O risco é de operação: quem entrar primeiro com o e-mail de `ANALISADOR_DONO_INICIAL` leva o acervo inteiro. Documentar como "primeiro login é irreversível" e logar a contagem transferida (hoje só o disco é logado). |
-| A "adoção" do disco **copia** todos os arquivos da raiz para a pasta do dono inicial, sem apagar o original. | **Médio** | `src/application/dono_inicial.py:82-104` | Funciona e é conservador (nada é apagado). Falta um caminho de desfazer documentado: hoje o marcador `.dono-inicial` impede nova adoção, mas o original continua na raiz e continua sendo servido no modo sem autenticação (`"unico"`). |
-| Nenhuma consulta de leitura de histórico existe no app (verificado: zero `SELECT` sobre `dna_analysis`/`match_result`). | — | — | Registro como o **motivo** de P2 ainda não ser explorável, e como a condição que o transforma em crítico. |
+Não há Supabase, não há PostgREST, não há API de dados. Há um **PostgreSQL 16 publicado em `127.0.0.1:5432`** (só loopback, o que é correto) e **zero RLS, zero policy, zero `auth.uid`**.
+
+Em português, o que isso significa: **não existe uma única regra de banco dizendo quem pode ler o quê.** O banco aceita qualquer conexão que apresente a senha do `.env`, e devolve todas as linhas. O controle de acesso que existe é o `WHERE` escrito na aplicação — e a tabela `dna_analysis` **não tem `WHERE owner_id` em lugar nenhum**: o campo é gravado em toda análise (`src/ports/adaptadores.py:604-613`) e nunca lido por filtro, porque não há tela de histórico ainda. `init.sql:26` declara a dívida com todas as letras ("SEM FK e SEM indice de escopo") e `init.sql:182-184` repete que nenhum índice começa por `owner_id`.
+
+Consequência prática para o instalador: se o banco for embarcado na máquina do cliente, qualquer processo local que leia o `.env` (ou o arquivo de configuração do serviço) lê o histórico inteiro de todas as contas — o app não tem como impedir, porque a barreira não está no banco.
+
+### Achados da Etapa 2
+
+| # | Achado | Risco | Arquivo e linha | Correção sugerida |
+|---|---|---|---|---|
+| 2.1 | **`src/dados/contas.json` está dentro da árvore de código e entra no artefato.** O `.dockerignore` libera `src/**` e reexclui apenas `src/uploads/`; o `Dockerfile` copia `src/` inteiro. O arquivo existe, com duas contas reais. | **Alto** | `src/app.py:251-262`; `.dockerignore:15`; `.dockerignore:21`; `docker/Dockerfile:46` | Mover o dado de runtime para fora de `src/` (ex.: `%PROGRAMDATA%`/`%LOCALAPPDATA%` no host, `/dados` no container) **e** excluir `src/dados/` no `.dockerignore` como já se faz com `src/uploads/`. |
+| 2.2 | `.env.local` guarda **credencial SMTP real** e o **client secret do Google** no diretório do app; qualquer pacote feito "copiando a pasta" os leva. Há ainda `ANALISADOR_SECRET_KEY` duplicada (uma vazia, uma preenchida). | **Alto** | `.env.local:11`, `.env.local:15`, `.env.local:20`; `iniciar.ps1:23` | Instalador deve gerar os segredos **por instalação** e nunca copiar `.env*`; validar a duplicata no carregamento (a última vence hoje, em silêncio). |
+| 2.3 | O isolamento por dono **não existe no banco**: `owner_id` é gravado e nunca filtrado; sem RLS, sem policy, sem índice de escopo. | **Alto (latente)** | `init.sql:26`, `init.sql:182-189`, `src/ports/adaptadores.py:583` | Índice `(owner_id, created_at DESC)`, um caminho único de leitura já escopado, e o teste que prova que nenhuma consulta sai sem `WHERE owner_id`. RLS é opcional enquanto o banco não for multiusuário; o índice não é. |
+| 2.4 | PostgreSQL publicado em loopback, **sem RLS**, com a senha em arquivo texto. | **Médio** | `docker-compose.yml:37`, `.env:14` | Se o banco for embarcado, gerar a senha por instalação e restringir a leitura do arquivo à conta do serviço. |
+| 2.5 | A senha de SMTP fica em claro em arquivo de configuração e é lida por `os.environ`; não há cofre nem variável de serviço. | **Médio** | `src/ports/email_smtp.py:33-40`, `:131-138` | No instalador, guardar em Credential Manager/DPAPI, ou pedir ao usuário na primeira execução e não persistir. |
+| 2.6 | A conta "dona inicial" (`ANALISADOR_DONO_INICIAL`) **herda todos os arquivos da raiz** no primeiro login, copiando o acervo inteiro para a pasta dela. | **Médio** | `src/application/dono_inicial.py:42-63`, `src/web/rotas_auth.py:228-240` | Em instalação nova, a pasta nasce vazia e o fluxo nunca roda; garantir que o instalador **não** embale `src/uploads/` (hoje o `.dockerignore` já protege a imagem, mas não um zip/instalador). |
+| 2.7 | O token de redefinição fica no histórico do navegador (está na URL do link do e-mail). | **Baixo** | `src/web/rotas_conta.py:286-308` | Já mitigado com `no-store` + `no-referrer`; se quiser fechar, trocar o `GET` por um `POST` de confirmação com o token em campo oculto. |
 
 ---
 
-## Etapa 3 — Race conditions
+## Etapa 3 — Race condition
 
-O projeto não tem estoque, cupom, saldo, crédito, vaga nem convite. Os **recursos limitados reais** são: o arquivo no disco (nome único por conteúdo, versão única por nome visível), a pasta de aposentados (nome livre por colisão) e o cache de árvore (capacidade 1). A tabela cobre todos os trechos que leem, decidem e gravam.
+Não há estoque, cupom, saldo, crédito, vaga nem convite. O recurso limitado deste produto é **o disco** (nome de arquivo é a chave de conteúdo) e **o arquivo de contas**. O banco não participa de nenhuma decisão ler-depois-gravar: só recebe `INSERT` com PK UUID em uma transação por análise.
 
-| Achado (trecho que lê → decide → grava) | Risco | Arquivo e linha | O que acontece com 2 requisições iguais | Proteção existente / o banco sozinho resolveria? | Correção sugerida |
+### O que acontece se duas requisições iguais chegarem juntas
+
+| # | Trecho (lê → decide → grava) | Duas requisições juntas | Proteção existente | Risco | Arquivo e linha |
 |---|---|---|---|---|---|
-| `ArmazenamentoEmDisco.guardar`: `if not os.path.exists(caminho)` → `open(caminho, "wb").write(conteudo)` | **Alto** | `src/ports/adaptadores.py:119-121` | Mesmo conteúdo e mesmo dono produzem **o mesmo caminho**: as duas passam pelo `exists()`, as duas abrem o arquivo final para escrita. O conteúdo final fica correto (bytes idênticos), mas um leitor concorrente (`resolver` → `carregar_arvore`) pode abrir o arquivo **pela metade** e falhar o parse — o operador recebe o `500` genérico em vez da árvore. | **Nenhuma**: não há `O_EXCL`, não há escrita em temporário, não há rename atômico. **O banco não resolveria** — ele não participa do disco. | Escrever em `<caminho>.tmp-<uuid>` e `os.replace` no fim (atômico no mesmo volume), ou abrir com `O_CREAT\|O_EXCL` e tratar `FileExistsError` como "já gravado". |
-| `reenvio.guardar_com_substituicao`: `listar` (foto) → `guardar` → `aposentar` as versões anteriores | **Médio** | `src/application/reenvio.py:62-77` | Dois uploads **diferentes com o mesmo nome visível**, simultâneos, e a pasta vazia: nenhum dos dois vê o outro na foto, nenhum aposenta nada, e a lista termina com **duas linhas do mesmo rótulo** — exatamente o defeito que a `RN-17` existe para impedir. Se já havia uma versão antiga, os dois tentam aposentá-la; o segundo recebe `False`, a mensagem sai como "novo" e a duplicata nasce do mesmo jeito. | **Nenhuma**: a foto é tirada antes, e nada serializa o par gravar/aposentar. **O banco não resolveria** (é disco); `ON CONFLICT` não tem onde atuar. | Serialização por dono: um `flock`/mutex sobre `<pasta>/<dono>` em volta do bloco inteiro, ou uma fila por dono. |
-| `ArmazenamentoEmDisco.aposentar`: `os.path.isfile(origem)` → `_destino_livre` → `os.replace` | **Médio** | `src/ports/adaptadores.py:262-268` (o `os.replace` em `:267`) | Dois cliques em "aposentar" no mesmo arquivo: as duas passam pelo `isfile`, a primeira move, a segunda chama `os.replace` com a origem já inexistente → **`FileNotFoundError` não tratado** → `500`, e a linha de auditoria da segunda tentativa **não é escrita** (o `auditar` de `src/app.py:451` fica depois da chamada que levanta). | **Nenhuma**: o `os.replace` está fora de qualquer `try`. **O banco não resolveria.** | Capturar `FileNotFoundError`/`OSError` e devolver `False` (o contrato já existe: "não está mais na pasta", `404` com a mensagem congelada), garantindo que a auditoria rode nos dois desfechos. |
-| `ArmazenamentoEmDisco._destino_livre`: `if not os.path.exists(destino): return destino` | **Médio** | `src/ports/adaptadores.py:280-285` | É **TOCTOU**: entre a checagem e o `os.replace`, o destino pode nascer (outro processo, ou um operador restaurando um aposentado à mão). Como `os.replace` **sobrescreve** no Windows e no POSIX, o aposentado que já estava lá é perdido em silêncio — violação direta da `RN-07` ("a aplicação nunca apaga arquivo enviado"). | **Nenhuma**: a checagem e a escrita não são a mesma operação. **O banco não resolveria.** | `os.link(origem, destino)` + `os.unlink(origem)` para falhar com `FileExistsError` em vez de sobrescrever, ou reabrir o laço de sufixo quando o `replace` acusar colisão. |
-| `dono_inicial._copiar`: `exists(marcador)` → `copy2` arquivo a arquivo → grava marcador | **Baixo** | `src/application/dono_inicial.py:52-53`, `:82-104`, `:122-128` | Dois logins simultâneos da conta inicial copiam ao mesmo tempo. `copy2` **sobrescreve** o destino: não há perda (mesmo conteúdo), mas dois escritores no mesmo arquivo podem deixar um arquivo truncado no meio da cópia. O marcador em si é atômico (`.tmp` + `os.replace`). | **Parcial**: o marcador é atômico; a cópia não é. **No banco, `adotar` é um `UPDATE` único e atômico** — o contraexemplo positivo. | Serializar a cópia com o mesmo mutex por dono do `reenvio`, ou copiar para `.tmp` e renomear cada arquivo. |
-| `CacheDeArvores.carregar`: `threading.Lock` + `threading.Event` (single-flight) | **Baixo** | `src/ports/adaptadores.py:398-459`, trava em `:369` | Quatro requisições na mesma árvore: uma parseia, três esperam o evento. Se o parse do primeiro falhar, quem esperou parseia por conta própria. | **`threading.Lock` em memória** (não há lock no Redis nem leitura de cache distribuído). **O banco não resolveria, e não precisa:** o cache é de *desempenho*, não de integridade. O limite real é que o lock **não vale entre processos**: com N workers, cada um parseia a própria cópia e a memória multiplica (~337 MB por árvore). Hoje contido porque `src/app.py:934-950` garante instância única e um processo. | Nada a corrigir enquanto o servidor for processo único; registrar no README que trocar waitress por gunicorn multiprocesso quebra a exclusividade **e** a estimativa de memória. |
-| `RegistroDeAnalisesPostgres.adotar`: `UPDATE ... WHERE owner_id = 'unico'` | — (OK) | `src/ports/adaptadores.py:566-591` | Duas chamadas simultâneas: a primeira transfere N linhas, a segunda encontra zero e devolve `0`. | **Atomicidade do próprio `UPDATE`** — é o único trecho em que o banco, sozinho, resolve. | Nada. |
-| Constraints que **já existem**: `uq_match_kit_ordinal (match_id, ordinal)`, `uq_skipped_ordinal (analysis_id, ordinal)`, PKs compostas, FKs com `ON DELETE CASCADE` | **Baixo** | `init.sql:97-130`, `init.sql:148`, `init.sql:166` | Duas gravações da mesma análise **não colidem**, porque `analysis_id` é UUID novo por chamada. Essas constraints impedem ordinal repetido *dentro* da mesma análise, e não o registro duplicado. | Constraints de banco (boas, mas não cobrem o caso) / **o banco resolveria** se existisse a chave de requisição. | Adicionar `UNIQUE (owner_id, request_id)` em `dna_analysis` — ver Etapa 4. |
+| 3.1 | `guardar`: `if not os.path.exists(caminho)` → `open(caminho, "wb")` | As duas veem "não existe", as duas abrem o mesmo caminho em `wb` e escrevem concorrentes: **arquivo truncado ou intercalado**, e a análise depois lê lixo | **nenhuma** (não há `xb`, não há trava) | **Alto** | `src/ports/adaptadores.py:119-121` |
+| 3.2 | `aposentar`: `_destino_livre` decide por `exists()` → `os.replace` executa depois | A segunda escolhe o **mesmo destino** (sobrescreve o aposentado) ou corre com a origem já movida e levanta `FileNotFoundError` → **500** | **nenhuma**; `os.replace` está fora de `try` | **Alto** | `src/ports/adaptadores.py:263-267`, `:270-286` |
+| 3.3 | `guardar_com_substituicao`: foto da pasta → `guardar` → `aposentar` as versões anteriores | Dois envios do mesmo nome visível: cada um aposenta o arquivo do outro, e a lista pode terminar com a **versão antiga** e a nova aposentada — quebra a `RN-17` ("a lista fica com UMA versão") | **nenhuma** | **Alto** | `src/application/reenvio.py:62-77` |
+| 3.4 | `garantir_dados_do_dono`: `exists(marcador)` → copia → grava marcador | Duas entradas simultâneas copiam duas vezes e gravam o marcador duas vezes; se o processo cair no meio, a pasta do dono fica com **arquivo pela metade** (`copy2` não é atômico) | Marcador atômico (`os.replace`) **só no fim** | **Médio** | `src/application/dono_inicial.py:52-53`, `:98`, `:107-119`, `:122-128` |
+| 3.5 | `Limitador.exigir` + `registrar` (dois passos) | N threads passam na verificação antes de qualquer uma registrar: o limite de 5 vira ~5+N | `Lock` por operação, **não** por par verificar+registrar | **Médio** | `src/application/limite.py:67-86`, `src/application/cadastro.py:91-92`, `src/application/entrada_com_senha.py:66-77` |
+| 3.6 | `ContasEmArquivo.criar`: `por_email` → `criar` | Cadastro concorrente do mesmo e-mail: serializado pelo `RLock`; a segunda chamada levanta `ContaDuplicada` **dentro** do repositório, e a rota traduz | `RLock` + escrita atômica (`mkstemp` → `fsync` → `os.replace`) | **Baixo** | `src/ports/contas_em_arquivo.py:62`, `:108-133`, `:136-145` |
+| 3.7 | `ContasEmArquivo.consumir_token` | Duplo clique no link de confirmação: o `pop` + `_gravar` dentro da trava garante **um** consumo | `RLock` | **Baixo** | `src/ports/contas_em_arquivo.py:181-199` |
+| 3.8 | `CacheDeArvores` (single-flight) | Quatro requisições na mesma árvore: uma parseia, as outras esperam o evento | `threading.Lock` + `Event` | **Baixo** | `src/ports/adaptadores.py:369`, `:409-459` |
+| 3.9 | Exclusividade de instância | Duas instâncias na mesma porta: a segunda falha o `bind` | `SO_EXCLUSIVEADDRUSE` (Windows) / `SO_REUSEADDR=0` | **Baixo** (proteção boa) | `src/app.py:1077-1092` |
+
+### Proteção que depende de lock em memória, e se o banco sozinho resolveria
+
+| Proteção | Depende de | Sobrevive a reinício? | Vale entre processos? | O banco sozinho resolveria? |
+|---|---|---|---|---|
+| `Limitador` (tentativas) | `dict` + `Lock` no processo | **Não** — reiniciar zera, e o instalador reinicia a cada boot | **Não** | Sim: tabela `tentativa(escopo, chave, instante)` com índice e `INSERT`; ou um `UPDATE ... SET contador = contador + 1` atômico |
+| `CacheDeArvores` | `dict` + `Lock` | Não (é cache, tudo bem) | Não | Não se aplica — é cache de CPU, não invariante |
+| `ContasEmArquivo` | `RLock` + `os.replace` | Sim (o dado está no disco) | **Não** | Sim: `UNIQUE (email_normalizado)` no banco faria o trabalho que o `RLock` faz hoje |
+| Exclusividade de instância | socket do SO | Não (mas o efeito é imediato) | **Sim** | Não precisa |
+| Corridas de disco (3.1–3.4) | nada | — | — | **Não** — o problema é o sistema de arquivos, e a correção é `open(..., "xb")` / `os.rename` / trava por nome |
+
+**Resposta curta:** o banco resolveria 3.5 e 3.6; **não** resolve 3.1–3.4, que são o risco alto desta etapa. O que resolve 3.1–3.4 é exclusividade de criação no próprio sistema de arquivos (`"xb"`, `os.replace`, `os.link`) mais uma trava por `(dono, nome visível)`.
 
 ---
 
 ## Etapa 4 — Idempotência
 
-### 4.1 Webhooks recebidos
+### Webhooks
 
-**Não existem.** Verifiquei em `src`, `tests`, `docs` e `docker`: zero ocorrências de `webhook`, `Stripe`, `PagSeguro`, `MercadoPago`, `Asaas`. Não há endpoint de recebimento, logo não há assinatura a verificar com corpo bruto, nem tabela de eventos processados, nem comportamento a descrever para "o mesmo evento chegando duas vezes".
+**Não existem.** Zero ocorrências de `webhook` no repositório. Não há assinatura de corpo bruto a verificar, não há tabela de eventos processados, não há evento duplicado a tratar. Item **não aplicável** — e, se um dia entrar cobrança, o desenho terá de nascer com corpo bruto + `HMAC` + tabela `evento_processado(evento_id UNIQUE)`.
 
-> **Não verificado — e o motivo é que não há o que verificar.** Registro assim em vez de descrever um webhook hipotético.
+### Gateway de pagamento
 
-### 4.2 Chamadas ao gateway de pagamento
+**Não existe.** Sem Stripe, PagSeguro, Mercado Pago, Asaas. Não há `idempotency key` porque não há chamada de cobrança. Item **não aplicável**.
 
-**Não existem.** Não há gateway, não há cobrança, não há `Idempotency-Key`. O único serviço externo chamado é o Google (OAuth), e ele não é gateway de pagamento.
+### O que existe de idempotência de verdade (e o que falta)
 
-### 4.3 O que existe de fato, e como se comporta em duplicidade
-
-| Operação | Se a mesma requisição chegar 2 vezes | Proteção | Risco |
-|---|---|---|---|
-| **Callback OAuth** (`GET /callback`) | O `state` é removido da sessão com `session.pop` e comparado com `hmac.compare_digest`; a segunda chegada não encontra `state` e recebe "A entrada expirou". O `code` é de uso único **no Google**, então um replay direto recebe `token_http_400`. | Uso único do `state` no cookie assinado + uso único do `code` no provedor. **Não há registro de evento processado** (nem tabela, nem cache). | **Médio** — a defesa contra replay é delegada 100% ao provedor; se ele mudar o contrato, nada do lado de cá segura. |
-| **POST de análise** (`action=dna_analysis`) | Dois cliques criam **duas análises completas**: duas linhas em `dna_analysis`, com todas as filhas, e **dois parses de ~50 s** (o cache single-flight segura o parse simultâneo, mas o segundo POST chega depois e parseia de novo se a árvore já saiu do cache). Nada detecta que é a mesma intenção. | **Nenhuma.** Sem `Idempotency-Key`, sem chave única no banco, sem *debounce* no front que sobreviva a duplo clique real. | **Médio** |
-| **Upload de GEDCOM / CSV** | É **idempotente por construção**: o nome vem do `sha256` do conteúdo, então o mesmo envio reencontra o mesmo caminho e a porta não regrava. A mensagem distingue "já estava armazenado" de "carregado". | Chave derivada do conteúdo (`src/utils/validate.py:104-106`, `src/ports/adaptadores.py:116-122`). | — (OK) |
-| **Aposentar** | Segunda tentativa devolve `404` com "não está mais na pasta" — idempotente em efeito. Mas *concorrente* quebra (ver Etapa 3, linha do `os.replace`). | Nenhuma atômica. | **Médio** |
-| **`/logout`** | Idempotente por desenho: sem sessão, também redireciona para a entrada (`src/web/rotas_auth.py:109-122`). | — | — (OK) |
-| **Adoção do histórico** (`adotar`) | Idempotente por condição (`WHERE owner_id = 'unico'`); a segunda chamada devolve `0`. | `UPDATE` atômico. | — (OK) |
-
-| Achado | Risco | Arquivo e linha | Correção sugerida |
-|---|---|---|---|
-| POST de análise sem chave de idempotência: duplo envio grava o histórico duas vezes e paga dois parses. | **Médio** | `src/app.py:552-561`, `src/ports/adaptadores.py:544-564`, `init.sql:24-35` | Gerar um `request_id` no servidor por renderização do formulário (campo oculto assinado) e gravá-lo em `dna_analysis` com `UNIQUE (owner_id, request_id)`; a segunda gravação vira *no-op* e a tela devolve o resultado já calculado. Alternativa mínima: desabilitar o botão no `submit` **e** aceitar a duplicata no banco (o custo caro é o parse, e o cache já o reduz). |
-| O callback OAuth não registra eventos processados. | **Médio** | `src/web/rotas_auth.py:70-106` | Se o provedor um dia passar a reenviar, não há como detectar. Registrar o `jti`/`code` já consumido (tabela ou cache com TTL) e recusar antes da troca. Hoje é dívida, não bug. |
+| # | Achado | Risco | Arquivo e linha | Correção sugerida |
+|---|---|---|---|---|
+| 4.1 | O `POST` de análise de DNA **não tem chave de idempotência**: duplo clique grava **duas** análises no banco e paga dois parses de ~50 s. | **Médio** | `src/app.py:541-654`, `src/application/dna_analysis.py:102`, `src/ports/adaptadores.py:601-614` | Token de formulário de uso único (nonce em `g`/sessão) e/ou `UNIQUE (owner_id, tree_ref, match_file_ref, root_name_input, created_at::date)` com `ON CONFLICT DO NOTHING`. |
+| 4.2 | A confirmação de e-mail é idempotente **por consumo**: o segundo `GET` com o mesmo token devolve "link inválido". | Baixo (bom) | `src/ports/contas_em_arquivo.py:181-199` | — |
+| 4.3 | `adotar()` é idempotente por construção (`UPDATE` condicionado ao dono anterior, segunda chamada devolve 0). | Baixo (bom) | `src/ports/adaptadores.py:566-591` | — |
+| 4.4 | O upload é idempotente por conteúdo: mesma chave, não regrava. | Baixo (bom) | `src/ports/adaptadores.py:116-122` | — |
+| 4.5 | O `GET /confirmar` **consome** o token: um scanner de e-mail que abra o link confirma a conta antes do dono. | Baixo (decisão declarada) | `src/core/token_de_uso_unico.py:11-17` | Se quiser blindar, espelhar o desenho da redefinição: `GET` só valida, `POST` consome. |
+| 4.6 | `_acao_dna_analysis` audita e grava sem deduplicar; a auditoria registra as duas tentativas, mas o banco fica com duas análises. | **Médio** | `src/app.py:628-639` | Resolver junto com 4.1. |
 
 ---
 
 ## Etapa 5 — Separação de responsabilidades
 
-Contagem exata de linhas (`(Get-Content).Count`, incluindo brancas):
+### Arquivos mais longos (contagem medida)
 
-| Arquivo | Linhas | Tela | Regra de negócio | Banco / serviço externo | Diagnóstico |
-|---|---|---|---|---|---|
-| `src/templates/index.html` | **2407** | Sim (todo o HTML) | Sim (filtro, paginação, ordenação e o payload `dados` montados em **6 blocos de `<script>` inline**) | Não | Grande, mas de uma responsabilidade só (apresentação). O problema é o **JS de comportamento** convivendo com o Jinja no mesmo arquivo. |
-| `src/assets/app.css` | **1732** | Sim | Não | Não | Só estilo. Fora do escopo do achado. |
-| **`src/app.py`** | **988** | **Sim** (`render_template` em 21 pontos) | **Sim** (decide CSV vs upload, promoção, 404 vs 200, qual mensagem) | **Sim** (monta `RegistroDeAnalisesPostgres`, lê `os.environ`, chama a auditoria/log) **e** sobe o servidor de produção | **Candidato nº 1.** Cinco responsabilidades num módulo: fábrica da app, configuração, handlers HTTP com decisão de negócio, efeitos externos (auditoria/log) e **bootstrap do waitress** (socket exclusivo, `errno`, `SystemExit`) nas linhas 879-988. |
-| `src/core/cirurgia_do_grafo.py` | 838 | Não | Sim | **Não** (só `math` e vizinhos de domínio) | Domínio puro. Correto. |
-| `src/core/endogamia.py` | 800 | Não | Sim | Não | Domínio puro. Correto. |
-| **`src/ports/adaptadores.py`** | **689** | Não | Não | **Sim, quatro vezes**: disco, cache em memória, carregador de árvore e Postgres | **Candidato nº 2.** Quatro adaptadores independentes no mesmo arquivo; o acesso ao banco mora junto com o cache e o sistema de arquivos. Separar em `armazenamento_em_disco.py`, `cache_de_arvores.py`, `carregador_de_arvores.py` e `registro_postgres.py`. |
-| `src/reporting/mermaid_render.py` | 576 | Sim (gera o diagrama) | Parcial (geometria/largura) | Não | Aceitável: é o formatador de uma representação. |
-| `src/core/relationship_hypotheses.py` | 566 | Não | Sim | Não | Domínio puro. |
-| `src/core/validator.py` | 528 | Não | Sim | Não | Domínio puro. |
-| `src/core/passo_por_kit.py` | 474 | Não | Sim | Não | Domínio puro. |
-| `src/ports/__init__.py` | 468 | Não | Define contratos | Não | Fino, mas é onde o contrato de porta mora — está no lugar certo. |
-
-| Achado | Risco | Arquivo e linha | Correção sugerida |
+| # | Arquivo | Linhas | O que ele mistura |
 |---|---|---|---|
-| `src/app.py` mistura fábrica, rotas com regra de negócio, efeitos externos e **bootstrap do servidor**. O caso mais caro é `_acao_dna_analysis` (147 linhas): lê formulário, decide substituição de CSV, monta promoção, chama o caso de uso **com o registrador do banco**, audita e renderiza. | **Médio** (manutenção/risco de regressão) | `src/app.py:480-626`; bootstrap em `src/app.py:879-988` | Extrair em três: (1) `web/routes/index.py` com os despachantes e **sem** decisão de negócio (a decisão de CSV já vive em `application/reenvio.py` — falta só parar de orquestrá-la na rota); (2) `server.py` com o bloco `__main__` (socket, waitress, `errno`); (3) `factory.py` com `create_app`. Alvo: nenhuma função de rota acima de ~40 linhas. |
-| `index.html` concentra 6 blocos de JS inline (~500 linhas) que manipulam dados da análise (filtro, paginação, impressão). | **Baixo** | `src/templates/index.html:604-760`, `1996-2347`, `2353-2404` | Mover para `src/assets/app.js` servido por rota (como já se faz com `/app.css`) e remover o `mermaid` inline — é pré-requisito para a CSP que a `BUG-20261013-4PYJ` já registra como pendente. |
-| `ports/adaptadores.py` reúne quatro adaptadores. | **Baixo** | `src/ports/adaptadores.py:65-286`, `336-459`, `469-507`, `510-686` | Dividir em quatro módulos, mantendo `ports/__init__.py` como fachada de import para não quebrar a borda. |
-| Comentários de contrato desatualizados **contradizem o código atual**: `upload_gedcom` afirma que "`dono` não é usado para comportamento... nenhum isolamento entre donos é implementado aqui", mas a feature 051 fez o adaptador escopar por dono; `application/dna_analysis.py` repete a mesma frase sobre o banco. | **Baixo** (mas é o tipo de comentário que faz um revisor concluir o oposto do que o código faz) | `src/application/upload_gedcom.py:75-79`, `src/application/dna_analysis.py:72-75` | Atualizar os dois docstrings para o comportamento pós-051 (disco escopado; banco ainda não escopado em consulta). |
+| 1 | `src/app.py` | **1131** | HTTP (21 `render_template`), despacho de ação, montagem de **todos** os adaptadores, configuração de sessão, boot, guarda de socket, fail-closed e servidor waitress |
+| 2 | `src/core/cirurgia_do_grafo.py` | 838 | domínio puro — sem I/O, sem Flask, sem banco |
+| 3 | `src/core/endogamia.py` | 800 | domínio puro |
+| 4 | `src/ports/adaptadores.py` | **689** | três adaptadores no mesmo módulo: disco (arquivos), cache em memória e PostgreSQL |
+| 5 | `src/ports/__init__.py` | 612 | 7 `Protocol` + 6 dataclasses de contrato num arquivo só |
+| 6 | `src/core/relationship_hypotheses.py` | 566 | domínio puro |
+| 7 | `src/reporting/mermaid_render.py` | 576 | formatação de diagrama |
+| 8 | `src/core/validator.py` | 528 | domínio puro |
+| 9 | `src/core/passo_por_kit.py` | 474 | domínio puro |
+| 10 | `src/web/rotas_conta.py` | **419** | só HTTP, mas 6 rotas e ~25 literais de tela importados de uma vez |
+| 11 | `src/core/genetic_evidence.py` | 406 | domínio puro |
+| 12 | `src/core/evidence_comparison.py` | 393 | domínio puro |
+| 13 | `src/reporting/visualizer.py` | 381 | DOT + Graphviz + `shutil.which` (borda de processo dentro de `reporting`) |
+
+### Diagnóstico
+
+Os cinco maiores arquivos de **domínio** são grandes, mas limpos: nenhum importa Flask, banco, SMTP ou disco. Tamanho ali é dívida de leitura, não mistura de responsabilidades.
+
+O único arquivo que mistura **tela, regra e acesso a serviço externo** é `src/app.py`:
+
+| Camada | O que está lá | Linha |
+|---|---|---|
+| Rota e despacho | `index()`, `_ACOES_PRE_ARVORE`, `_ACOES_COM_ARVORE` | `780-809` |
+| Regra de apresentação | 21 `render_template`, mensagens de contrato no literal | `278`, `450`…`809` |
+| Regra de negócio vazando | parsing de `promover` (`split("|", 2)`), decisão de 404 por dono, mensagem de substituição | `554-557`, `562-570`, `608-611` |
+| Montagem de infraestrutura | `ArmazenamentoEmDisco`, `CarregadorDeArvoresGedcom`, `RegistroDeAnalisesPostgres`, `ContasEmArquivo`, `EmailPorSmtp`, `CacheDeArvores` | `217-274` |
+| Boot e servidor | fail-closed, import tardio do waitress, socket exclusivo, `serve(...)` | `1022-1131` |
+
+**Candidato nº 1: `src/app.py`.** Ele é, ao mesmo tempo, a borda HTTP, o *composition root*, o bootstrap do processo e o servidor. Por isso o P1 existe: o fail-closed mora no `__main__` de um arquivo que também é importado como biblioteca pela suíte e pelo harness de paridade, e a única saída encontrada foi "não recusar no `create_app`". Separar em três — `web/rotas_principais.py` (rotas e handlers), `borda.py` (montagem) e `__main__.py`/`servidor.py` (boot, socket, waitress) — resolve P1 e P4 de uma vez, porque o boot passa a ser o único lugar que decide "subo ou recuso", e a montagem passa a poder receber caminhos de dados em vez de derivá-los de `__file__`.
+
+**Candidato nº 2: `src/ports/__init__.py`** (612 linhas, 7 Protocol + 6 dataclasses). Não é mistura de camadas, é um módulo-deus de contratos: toda mudança de porta toca o mesmo arquivo, e o `TYPE_CHECKING` de todo mundo aponta para cá.
+
+**Candidato nº 3: `src/ports/adaptadores.py`** (689). Disco + cache + Postgres no mesmo módulo significa que uma mudança no adaptador de banco reconstrói o módulo que a suíte inteira importa para testar upload. Separar em `adaptadores_de_disco.py`, `cache_de_arvores.py` e `registro_postgres.py` é mecânico e reduz o blast radius.
+
+### Achados da Etapa 5
+
+| # | Achado | Risco | Arquivo e linha | Correção sugerida |
+|---|---|---|---|---|
+| 5.1 | `src/app.py` concentra borda HTTP + composição + boot + servidor, e é a razão de o fail-closed não poder morar em `create_app`. | **Médio** | `src/app.py:1-1131` (ver tabela acima) | Extrair `servidor.py` (boot/socket/waitress) e `borda.py` (montagem); a rota fica em `web/`. |
+| 5.2 | `src/ports/__init__.py` é um módulo-deus de contratos. | **Baixo** | `src/ports/__init__.py:84-612` | Quebrar por área: `portas_de_arquivo.py`, `portas_de_identidade.py`, `portas_de_registro.py`. |
+| 5.3 | `src/ports/adaptadores.py` mistura três adaptadores com dependências diferentes. | **Baixo** | `src/ports/adaptadores.py:65-689` | Separar em três módulos; nenhum ganho de comportamento, ganho de leitura e de cache de import. |
+| 5.4 | Docstrings **desatualizadas** que afirmam o contrário do código: "`dono` não é usado para comportamento" e "nenhum isolamento entre donos é implementado". Hoje o dono escopa pasta, listagem, resolução e histórico. | **Baixo** | `src/application/upload_gedcom.py:75-79`, `src/application/path_search.py:51-52` | Corrigir os dois parágrafos — é a documentação que um agente vai ler antes de mexer no isolamento. |
 
 ---
 
-## Não verificado (e o motivo)
+## Etapa 6 — Distribuição por instalador (escopo novo desta rodada)
+
+Não existe instalador no repositório: zero `.iss`, `.nsi`, `.wxs`, `.spec`; zero menção a "instalador" no README; zero `__version__` no código. O que dá para auditar é a **prontidão** — e ela tem quatro bloqueios duros.
+
+| # | Achado | Risco | Arquivo e linha | Correção sugerida |
+|---|---|---|---|---|
+| 6.1 | **Não há modo "instalação local".** A identidade da 053 só monta com as cinco variáveis do Google. Sem elas: `/cadastro` e `/login` não existem (medido: 404) e o app sobe aberto. Com elas preenchidas por valor inventado: tudo monta (medido). | **Alto** | `src/app.py:243`, `:1005-1013`, `src/web/autenticacao.py:38-44` | Criar um modo explícito (`ANALISADOR_MODO=local`) que monte identidade local **sem** Google, com guarda ligada e sem rota `/callback`. |
+| 6.2 | **Dados no diretório da instalação.** Uploads ancorados em `__file__`, logs na raiz do projeto, contas em `src/dados`. | **Alto** | `src/app.py:191-206`, `:251-262`, `src/utils/logs.py:198-208` | Resolver os três por variável de ambiente com padrão em `%LOCALAPPDATA%\<app>` (e `/dados` no container), mantendo as variáveis atuais como override. |
+| 6.3 | **`os.makedirs` da pasta de upload no import, sem guarda.** Pasta não gravável → `PermissionError`, traceback, app não sobe. Reproduzido nesta rodada. | **Alto** | `src/app.py:209-211` | Envolver em `try/except OSError` com `SystemExit` de mensagem clara — ou, melhor, só criar a pasta na primeira escrita, depois de resolver o caminho gravável. |
+| 6.4 | **Segredos por instalação inexistentes.** Só `ANALISADOR_SECRET_KEY` é gerada (`iniciar.ps1`). A senha do banco, a de SMTP e o client secret vêm prontos do `.env`/`.env.local` do desenvolvedor. | **Alto** | `iniciar.ps1:84-90`, `.env:14`, `.env.local:11`, `.env.local:20` | Gerar no instalador: `ANALISADOR_SECRET_KEY`, senha do Postgres (se embarcado) e um `sub` de dono inicial; nunca copiar `.env*`. |
+| 6.5 | Não há versão do produto: "Adicionar ou remover programas" não tem o que mostrar, e não há como responder "que versão está instalada?". | **Médio** | busca por `__version__` em `src`: zero | `src/versao.py` (ou `importlib.metadata`) + carimbo no instalador + `GET /versao` para suporte. |
+| 6.6 | O único caminho de atualização é `atualizar.ps1`, que exige **Docker** e `git` no PATH. | **Médio** | `atualizar.ps1:99-101`, `:105-111`, `:140` | Definir o canal de atualização do instalador (download de pacote assinado ou "baixe e rode de novo") antes de publicar; documentar o que acontece com uploads e contas. |
+| 6.7 | Sem assinatura de código, o SmartScreen vai tratar o `.exe` como desconhecido. | **Médio** | não existe artefato para verificar | Certificado de assinatura (EV ou OV) e `signtool` no pipeline do instalador. |
+| 6.8 | Não há desinstalação nem retenção declarada: uploads, `contas.json` e a trilha de auditoria (que por decisão **não** rotaciona, `src/utils/logs.py:8-15`) ficam na máquina para sempre. | **Médio** | `src/utils/logs.py:8-15`, `src/dados/contas.json` | Definir no instalador o que é removido, o que é preservado e por quanto tempo; a trilha de 90 dias é expurgo manual hoje. |
+| 6.9 | Se o banco for embarcado, o modelo de dados atual não sustenta várias contas com privacidade real (ver 2.3): a separação existe na pasta, não no banco nem na ACL do Windows. | **Alto** | `init.sql:26`, `src/ports/adaptadores.py:77-91` | Para desktop de um usuário, declarar "um dono por máquina" e simplificar; para multiusuário, RLS + ACL por conta do Windows. |
+
+### O que o instalador precisa decidir antes da primeira linha de código
+
+1. **Um usuário por máquina ou vários?** Se for um, o P2/P3/6.1 encolhem (some a necessidade de login) e o produto fica mais simples. Se forem vários, o banco precisa do P2 da Etapa 2 **antes**.
+2. **Postgres embarcado ou opcional?** Hoje o histórico é opcional por desenho (`RN-13`): sem banco a análise funciona. Um instalador que embarca Postgres cria uma dependência de serviço, backup e senha que o produto não tem hoje.
+3. **Onde ficam os dados do usuário?** `%LOCALAPPDATA%` é o único caminho que funciona sob `Program Files` sem elevação (P4).
+4. **Como atualiza?** Sem canal definido, cada versão é uma reinstalação manual e os dados ficam na máquina sem dono declarado.
+
+---
+
+## Não verificado (e por quê)
 
 | Item | Por que não foi verificado |
 |---|---|
-| Execução real do fluxo OAuth contra o Google (troca de código, leitura de perfil, HTTPS) | Exigiria credencial real e rede. A suíte usa provedor falso de propósito; a troca de código real nunca é exercitada por teste. |
-| Persistência em PostgreSQL contra banco vivo | `psycopg2` **não está instalado** no `.venv` do host (8 testes auto-pulados) e não há `DATABASE_URL` no ambiente. Não instalei nada, por instrução. Os mesmos caminhos são exercitados por `tests/verificacao_no_conteiner.py` (rodando dentro da imagem) e pela verificação manual T020/T021 — **não executei nenhum dos dois**. |
-| Comportamento sob concorrência real (4 threads do waitress) | Auditei por leitura de código e por raciocínio sobre o intercalamento; não instrumentei nem disparei requisições simultâneas. As conclusões da Etapa 3 são análise estática, não medição. |
-| Restauração de backup / integridade do volume `dados_do_banco` | Fora do escopo: não há rotina de backup no repositório para auditar (verifiquei `docker-compose.yml` e `atualizar.ps1`; nenhum dos dois faz *dump*). |
-| Conteúdo real de `src/uploads/` (dados do operador) | Dado pessoal; não abri nenhum arquivo de árvore nem listei nomes. Só li o código que os manipula. |
-| Superfície de rede além de `127.0.0.1` | O compose publica app em `127.0.0.1:5080` e banco em `127.0.0.1:5432`; se há proxy/túnel na frente em produção, não há nada no repositório que o descreva. |
+| Instalador real (Inno Setup, NSIS, MSIX, PyInstaller) | Não existe no repositório. Não há artefato para auditar; auditei a **prontidão** do código (Etapa 6). |
+| Assinatura de código e integridade do download | Não existe artefato publicado. |
+| Comportamento sob `C:\Program Files\...` | Não executei um instalador. O que medi foi o efeito da pasta não gravável (P4) e li a ausência de guarda em `src/app.py:211`. |
+| Postgres ao vivo (schema, índices, tempo de consulta) | `psycopg2` não está no `.venv` e `DATABASE_URL` não está definido; subir o banco seria "rodar migration", proibido nesta tarefa. |
+| Envio SMTP real | Não há servidor SMTP de teste. O dublê substitui o transporte em todos os testes; a credencial real existe em `.env.local` e não foi usada. |
+| Custo do scrypt `n=2^14` num PC modesto | Não medido nesta máquina. Importa para o instalador (login pode ficar lento), mas medir exigiria um alvo de referência que eu não tenho. |
+| Política de retenção/expurgo da trilha de auditoria | É decisão de operação declarada (`src/utils/logs.py:13-15`), não há código de expurgo para auditar. |
+| RLS/policies permissivas | Não existem policies — não há o que explicar além da ausência (Etapa 2). |
 
 ---
 
-## Qual dos 5 prompts de correção rodar primeiro
+## Qual correção rodar primeiro, e por quê
 
-**Rode o P1 primeiro** — *tornar a autenticação fail-closed independentemente do entrypoint*.
+**Rode o P1 primeiro — mas o P1 tem de incluir o P3.**
 
-Três razões, na ordem que importa:
+O P1 é o único achado que expõe dado **hoje**, e eu o medi nesta rodada em vez de deduzi-lo: sem as cinco variáveis, a aplicação responde `200` na tela principal, `404` em `/login` e executa o handler de upload sem sessão. Com o instalador, o entrypoint deixa de ser escolha de quem opera e passa a ser detalhe de empacotamento — e é justamente aí que o fail-closed do `__main__` deixa de valer.
 
-1. **É o único achado que expõe dado hoje.** P2, P3 e P4 são latentes ou condicionais (P2 só morde quando o histórico for exibido, P3 precisa de concorrência, P4 precisa de alguém habilitar o banco). O P1 não: qualquer processo que monte a app sem as cinco variáveis — `flask run`, `waitress-serve`, `gunicorn`, um teste manual de import — serve a aplicação **sem login**, e `_dono()` cai em `"unico"`, que resolve para a **raiz** da pasta de upload, onde estão todos os arquivos herdados. É a diferença entre "há uma dívida" e "há uma porta aberta".
-2. **É o menor esforço com o maior retorno.** Não mexe em esquema, não mexe em dados, não exige migração. É uma guarda incondicional na fábrica mais a recusa de subida fora do `__main__`.
-3. **Ele condiciona a verificação dos outros quatro.** Com a app incapaz de subir aberta, os testes de P2/P3/P4 passam a ter um estado de referência confiável — hoje, metade da suíte roda no modo sem autenticação (`"unico"`), que é justamente o modo que o P1 vai eliminar. Sem resolver isso antes, cada correção seguinte precisa ser validada em dois modos.
+Só que fechar o P1 sozinho troca "app aberto" por "app que não abre": a identidade local da 053 depende das cinco variáveis do Google (P3), então um `create_app` que recuse sem credencial recusaria **também** a instalação local que você quer distribuir. Por isso o primeiro prompt precisa ser um só, com dois critérios de pronto:
 
-**Restrição de projeto que o P1 precisa respeitar** (e que o prompt tem de dizer em voz alta): 1752 testes e o harness de paridade **importam `src/app.py` sem credencial** de propósito. Uma guarda incondicional ingênua derruba a suíte inteira. A forma segura é: `create_app()` recusa montar a app sem as cinco variáveis **a menos que** um modo de teste explícito esteja ligado (`ANALISADOR_MODO_TESTE=1`, ligado no `tests/conftest.py`), e `_dono()` deixa de ter o fallback silencioso para `"unico"` — passando a levantar se for chamado sem sessão fora do modo de teste. Assim o P1 fecha a porta sem apagar o caminho legado que os testes usam.
+1. `create_app` (e não só o `__main__`) recusa subir sem um modo declarado — `ANALISADOR_MODO=local` ou `=google` —, com mensagem que diga o que falta;
+2. `ANALISADOR_MODO=local` monta a identidade da 053 **sem** Google, liga a guarda e não registra `/callback`.
 
-Depois do P1, a ordem que eu seguiria é **P2 → P4 → P3 → P5**: P2 porque é a próxima barreira que impede vazamento entre contas e é pré-requisito de qualquer tela de histórico; P4 porque sem banco de teste separado é arriscado exercitar P2 e P3 contra o acervo real; P3 porque as corridas de disco são reais mas produzem duplicata e `500`, não perda silenciosa na maioria dos casos; e P5 por último porque a suíte verde é o que **prova** que P1–P4 funcionaram — mas ela precisa entrar em algum momento, e a falha de caracterização do Mermaid é o item mais barato de toda a lista.
+O que ele vai quebrar, e por isso precisa entrar no mesmo commit: `tests/test_sessao_e_guarda.py:80-88` **exige** hoje que sem autenticação a tela responda 200 — esse teste é a materialização do P1 e tem de ser reescrito junto, com um escape explícito de teste (`ANALISADOR_MODO_TESTE=1` no `tests/conftest.py`) para os 1939 testes que importam `src/app.py` sem credencial e sem banco.
+
+**Na mesma passada, faça o P2** (tirar `src/dados/` do artefato + uma linha no `.dockerignore`): é a correção mais barata do relatório, e é a única cujo dano é irreversível — hash de senha e e-mail que saem num pacote não voltam.
+
+**Depois:** P4 (caminhos graváveis — é o que faz o instalador abrir no cliente) → P5 (corridas de disco) → item 1.1 da Etapa 1 (banco de teste) → e só então a suíte vermelha e o CI (itens 1.3 e 1.5), que hoje são ruído de contrato e não risco de produto.

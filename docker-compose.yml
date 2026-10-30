@@ -72,6 +72,12 @@ services:
       ANALISADOR_SECRET_KEY: ${ANALISADOR_SECRET_KEY:?defina ANALISADOR_SECRET_KEY no .env — ver onboarding.md secao 3}
       ANALISADOR_URL_PUBLICA: ${ANALISADOR_URL_PUBLICA:?defina ANALISADOR_URL_PUBLICA no .env — ver onboarding.md secao 3}
       ANALISADOR_DONO_INICIAL: ${ANALISADOR_DONO_INICIAL:?defina ANALISADOR_DONO_INICIAL no .env — ver onboarding.md secao 3}
+      # O modo de identidade e DECLARADO (auditoria de 2026-10-30), e a recusa mora em
+      # `create_app`: sem esta variavel o servidor NAO sobe. O padrao `google` esta
+      # escrito aqui porque este arquivo e o contrato desta instancia — as cinco
+      # variaveis acima sao obrigatorias — e porque uma atualizacao do codigo nao pode
+      # transformar uma subida que funcionava em recusa silenciosa.
+      ANALISADOR_MODO: ${ANALISADOR_MODO:-google}
       # Envio de e-mail da identidade local (feature 053). Sao OPCIONAIS: sem HOST e
       # REMETENTE o transporte vira nulo, a aplicacao sobe, o cadastro nao conclui e a
       # recuperacao avisa. Diferente das cinco variaveis do Google, a ausencia destas
