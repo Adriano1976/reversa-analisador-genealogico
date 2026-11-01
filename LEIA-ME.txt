@@ -13,7 +13,7 @@ ANTES DE COMECAR
 ----------------
 - Windows 10 ou 11.
 - Internet na PRIMEIRA execucao: ele baixa o Python e as bibliotecas.
-- O download do programa tem menos de 1 MB, mas a preparacao inicial pode
+- O download do programa tem poucos MB, mas a preparacao inicial pode
   passar de 300 MB, porque baixa o Python e as bibliotecas.
 
 COMO USAR
@@ -61,8 +61,6 @@ dentro da pasta de dados indicada acima.
 LIMITACOES DESTA VERSAO DE TESTE
 --------------------------------
 - Nao tem login: e um computador, um usuario.
-- Sem internet, a tela abre sem estilo e o diagrama nao aparece (o estilo e
-  o diagrama vem de fora).
 - O historico das analises nao e gravado nesta versao.
 
 Duvidas ou problemas: responda a mensagem por onde voce recebeu este pacote.
