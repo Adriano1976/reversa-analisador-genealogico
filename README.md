@@ -72,9 +72,9 @@ estão fixadas em [`requirements.txt`](./requirements.txt).
 | psycopg2-binary | 2.9.13 | Driver do PostgreSQL, importado só quando há `DATABASE_URL` |
 | graphviz | 0.21 | Desenho da árvore sugerida, servido em SVG |
 | requests | 2.32.5 | Transporte do OAuth 2.0 do Google, usado só no servidor |
-| Bootstrap | 5.3.3 | Componentes da interface, por CDN |
-| Mermaid | 10 | Diagramas de caminhos, por CDN |
-| Cormorant Garamond e Manrope | — | Tipografia da tela, por CDN |
+| Bootstrap | 5.3.3 | Componentes da interface, embutido em `src/assets/` e servido em `/bootstrap.css` e `/bootstrap.js` |
+| Mermaid | 10.9.8 | Diagramas de caminhos, embutido em `src/assets/` e servido em `/mermaid.js` |
+| Cormorant Garamond e Manrope | — | Tipografia da tela, embutida em `src/assets/fontes/` e servida em `/fontes.css` |
 | `src/assets/app.css` | — | Folha própria de 1.550 linhas, servida em `/app.css` |
 | pyrefly | 1.4.0 | Portão de tipos do CI, só em desenvolvimento |
 
@@ -86,10 +86,11 @@ e download. `src/application/` orquestra os casos de uso, `src/core/` decide sem
 e o mundo externo entra por `src/ports/`, onde ficam os `Protocol` das portas e os adaptadores concretos,
 que por sua vez usam `src/parsers/`, `src/reporting/` e `src/utils/`.
 
-- Os arquivos enviados são gravados na **pasta canônica de dados**, `src/uploads/`, sob nomes derivados do
-  conteúdo. O destino é resolvido por `_pasta_uploads()` e pode ser sobreposto por `ANALISADOR_UPLOAD_FOLDER`
-  — sobreposição que a suíte e o invólucro de paridade usam para não escreverem na pasta real; ver "Onde ficam
-  os arquivos enviados". O diretório é armazenamento local persistente, não um diretório temporário.
+- Os arquivos enviados são gravados na **pasta de dados do usuário** — `uploads/` abaixo da raiz de dados
+  (`%LOCALAPPDATA%\Analisador Genealogico` no Windows) — sob nomes derivados do conteúdo. O destino é resolvido
+  por `_pasta_uploads()` e pode ser sobreposto por `ANALISADOR_UPLOAD_FOLDER` — sobreposição que a suíte e o
+  invólucro de paridade usam para não escreverem na pasta real; ver "Onde ficam os arquivos enviados". O
+  diretório é armazenamento local persistente, não um diretório temporário.
 - O histórico das análises é **opcional**: sem `DATABASE_URL` nada é gravado e a tela não muda; com a
   variável e o banco respondendo, a análise é registrada em uma transação única; se a gravação falhar, a
   análise **conclui e é exibida** e o operador recebe apenas um aviso não bloqueante. Nada é lido do banco
@@ -501,23 +502,30 @@ não defina a variável.
 
 #### Onde ficam os arquivos enviados
 
-Os arquivos enviados são gravados em **`src/uploads`**, dentro do repositório, e essa é a **única** pasta que
-os recebe. A aplicação resolve a pasta a partir do próprio arquivo (`_pasta_uploads()`), ancorada em
-`__file__` e nunca no diretório corrente, e a cria na importação do módulo. Nada precisa ser configurado para
-subir a aplicação.
+Os arquivos enviados são gravados em **`uploads/`, abaixo da raiz de dados do usuário** — no Windows,
+`%LOCALAPPDATA%\Analisador Genealogico\uploads`; fora dele, `$XDG_DATA_HOME/Analisador Genealogico/uploads`
+(ou `~/.local/share/...` quando `XDG_DATA_HOME` não existe). É a **única** pasta que os recebe. A raiz é
+resolvida em `src/utils/pastas.py` e pode ser trocada por `ANALISADOR_DADOS`; a pasta é criada no
+`create_app()`, e uma pasta que não pode ser criada **recusa a subida com mensagem**, em vez de morrer com
+traceback depois de o processo ter começado.
+
+Até a auditoria de 2026-10-30 os arquivos ficavam em `src/uploads/`, dentro da pasta do programa. Isso funciona
+enquanto o pacote é extraído num diretório comum do usuário, e **não** funciona instalado em
+`C:\Program Files`, que não é gravável por usuário comum — era o defeito `P4`.
 
 Dentro dela há uma subpasta, **`_aposentados/`**, para onde vai o arquivo que o operador **aposenta** pela
 tela de entrada: ele sai da lista e continua **inteiro** lá. A aplicação **nunca apaga** arquivo enviado. A
 descrição da tela está em [A tela de entrada](#a-tela-de-entrada).
 
-A variável `ANALISADOR_UPLOAD_FOLDER` existe como **sobreposição de processo**, não como modo de operação. Ela
-é lida na **importação**, não a cada requisição — defini-la depois de subir não muda nada. Quem depende dela é
-o teste: `tests/conftest.py` e `tests/rodar_paridade.py` a apontam para uma pasta descartável, para que nem a
-suíte nem o instrumento de paridade escrevam na pasta de dados do operador.
+A variável `ANALISADOR_UPLOAD_FOLDER` existe como **sobreposição de processo**, não como modo de operação. A
+pasta é resolvida na **importação**, não a cada requisição — defini-la depois de subir não muda nada. Quem
+depende dela é o teste: `tests/conftest.py` e `tests/rodar_paridade.py` a apontam para uma pasta descartável,
+para que nem a suíte nem o instrumento de paridade escrevam na pasta de dados do operador.
 
-No modo com contêiner, a mesma pasta do repositório é montada no alvo que a aplicação já deriva
-(`/app/src/uploads`), sem variável de ambiente envolvida: é a linha de `volumes:` do serviço `app`, em
-`docker-compose.yml`, e ela é `./src/uploads:/app/src/uploads`.
+No modo com contêiner, a pasta do repositório continua montada em `/app/src/uploads`, e o serviço `app` declara
+os três caminhos explicitamente (`ANALISADOR_UPLOAD_FOLDER`, `ANALISADOR_LOG_DIR` e `ANALISADOR_CONTAS`):
+dentro do contêiner os pontos de montagem são diretórios distintos do host, e a raiz única não serve a esse
+caso. As linhas estão em `docker-compose.yml`.
 
 > **O que protege este dado.** Duas guardas, e só duas:
 >

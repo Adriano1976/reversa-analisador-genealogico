@@ -89,6 +89,10 @@ ROTAS_DE_ARTE = (
     ("/apple-touch-icon.png", "image/png", "ARTE_DO_ICONE"),
     ("/banner.png", "image/png", "ARTE_DO_TOPO"),
     ("/app.css", "text/css", "ESTILO_DA_TELA"),
+    ("/bootstrap.css", "text/css", "BIBLIOTECA_CSS"),
+    ("/bootstrap.js", "text/javascript", "BIBLIOTECA_JS"),
+    ("/mermaid.js", "text/javascript", "MERMAID"),
+    ("/fontes.css", "text/css", "FOLHA_DE_FONTES"),
 )
 
 
@@ -117,6 +121,28 @@ def verificar_arte() -> None:
         registrar(rota, "OK",
                   f"200, {tipo}, {len(resposta.data)} bytes servidos de "
                   f"{caminho} (sha256 {sha256_de(caminho)[:16]}…)")
+
+    # Os subconjuntos de fonte moram numa pasta, e o nome vem do conjunto fechado da rota:
+    # a verificacao percorre o MESMO conjunto, para um subconjunto novo nao ficar sem prova
+    # dentro da imagem.
+    from web.rotas_assets import FONTES_DA_TELA
+
+    pasta_de_fontes = modulo_do_app.app.config["PASTA_DE_FONTES"]
+    for nome in sorted(FONTES_DA_TELA):
+        rota = "/fontes/" + nome
+        caminho = os.path.join(pasta_de_fontes, nome)
+        if not os.path.isfile(caminho):
+            registrar(rota, "FALHA", f"o arquivo nao existe na imagem: {caminho}")
+            continue
+        resposta = cliente.get(rota)
+        tipo = (resposta.headers.get("Content-Type") or "").split(";")[0].strip()
+        if resposta.status_code != 200 or tipo != "font/woff2" or not resposta.data:
+            registrar(rota, "FALHA",
+                      f"status {resposta.status_code}, Content-Type {tipo!r}, "
+                      f"{len(resposta.data)} bytes")
+            continue
+        registrar(rota, "OK",
+                  f"200, {tipo}, {len(resposta.data)} bytes (sha256 {sha256_de(caminho)[:16]}…)")
 
     tela = cliente.get("/")
     tipo_tela = (tela.headers.get("Content-Type") or "").split(";")[0].strip()

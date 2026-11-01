@@ -69,6 +69,84 @@ def estilo_da_tela():
     return send_file(caminho, mimetype="text/css")
 
 
+# --- Os recursos embutidos (feature 054) ---
+# A tela buscava o Bootstrap e o Mermaid em `cdn.jsdelivr.net`; sem rede, saia sem estilo, as
+# abas nao alternavam e o diagrama nao desenhava. Os tres arquivos e as fontes passaram a ser
+# servidos daqui, no mesmo regime da folha: rota explicita, `mimetype` declarado e `404` para
+# arquivo ausente. Nada de diretorio estatico — `src/static/` continua proibida pelo `W004`.
+
+#: Os 11 subconjuntos de fonte que a folha `fontes.css` referencia. O nome chega pelo
+#: caminho da URL, entao a validacao e um CONJUNTO FECHADO: um nome fora daqui responde
+#: `404`, e nao vira leitura de caminho arbitrario. A receita (`tests/fontes_da_tela.py`)
+#: e a autoridade sobre a lista; ha teste comparando as duas.
+FONTES_DA_TELA: frozenset[str] = frozenset({
+    "co3bmX5slCNuHLi8bLeY9MK7whWMhyjYp3tKgS4.woff2",
+    "co3bmX5slCNuHLi8bLeY9MK7whWMhyjYpHtKgS4.woff2",
+    "co3bmX5slCNuHLi8bLeY9MK7whWMhyjYpntKgS4.woff2",
+    "co3bmX5slCNuHLi8bLeY9MK7whWMhyjYqXtK.woff2",
+    "co3bmX5slCNuHLi8bLeY9MK7whWMhyjYrXtKgS4.woff2",
+    "xn7gYHE41ni1AdIRggOxSuXd.woff2",
+    "xn7gYHE41ni1AdIRggSxSuXd.woff2",
+    "xn7gYHE41ni1AdIRggexSg.woff2",
+    "xn7gYHE41ni1AdIRggixSuXd.woff2",
+    "xn7gYHE41ni1AdIRggmxSuXd.woff2",
+    "xn7gYHE41ni1AdIRggqxSuXd.woff2",
+})
+
+
+def _servir_recurso(chave: str, mimetype: str):
+    """Entrega o arquivo configurado em `chave`, ou `404` se ele nao existir.
+
+    O mimetype e sempre explicito: sem ele, `send_file` depende da tabela do sistema e um
+    `.js` pode sair como `application/octet-stream`, que o navegador recusa executar.
+    """
+    caminho = current_app.config.get(chave)
+    if not caminho or not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype=mimetype)
+
+
+@assets_bp.route("/bootstrap.css", methods=["GET"])
+def biblioteca_css():
+    """Serve a folha do Bootstrap 5.3.3, embutida (feature 054)."""
+    return _servir_recurso("BIBLIOTECA_CSS", "text/css")
+
+
+@assets_bp.route("/bootstrap.js", methods=["GET"])
+def biblioteca_js():
+    """Serve o pacote consolidado do Bootstrap 5.3.3, que ja traz o Popper."""
+    return _servir_recurso("BIBLIOTECA_JS", "text/javascript")
+
+
+@assets_bp.route("/mermaid.js", methods=["GET"])
+def mermaid():
+    """Serve o Mermaid 10.9.8, que desenha o diagrama no cliente."""
+    return _servir_recurso("MERMAID", "text/javascript")
+
+
+@assets_bp.route("/fontes.css", methods=["GET"])
+def folha_de_fontes():
+    """Serve a folha derivada das duas familias de fonte (feature 054)."""
+    return _servir_recurso("FOLHA_DE_FONTES", "text/css")
+
+
+@assets_bp.route("/fontes/<arquivo>.woff2", methods=["GET"])
+def fonte(arquivo: str):
+    """Serve um subconjunto `woff2` do conjunto fechado.
+
+    Nome fora do conjunto, arquivo ausente ou tentativa de sair da pasta respondem todos o
+    MESMO `404` vazio: distinguir os casos diria ao cliente o que existe no disco.
+    """
+    nome = f"{arquivo}.woff2"
+    pasta = current_app.config.get("PASTA_DE_FONTES")
+    if nome not in FONTES_DA_TELA or not pasta:
+        return "", 404
+    caminho = os.path.join(pasta, nome)
+    if not os.path.isfile(caminho):
+        return "", 404
+    return send_file(caminho, mimetype="font/woff2")
+
+
 @assets_bp.route("/descartes.csv", methods=["POST"])
 def descartes_em_csv():
     """Baixa a lista de trabalho dos descartes (feature 035).
@@ -90,10 +168,16 @@ def descartes_em_csv():
 
 
 __all__ = [
+    "FONTES_DA_TELA",
     "assets_bp",
     "banner_do_topo",
+    "biblioteca_css",
+    "biblioteca_js",
     "descartes_em_csv",
     "estilo_da_tela",
     "favicon_da_aba",
+    "folha_de_fontes",
+    "fonte",
     "icone_de_atalho",
+    "mermaid",
 ]

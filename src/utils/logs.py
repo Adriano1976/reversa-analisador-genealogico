@@ -24,10 +24,10 @@ handler ja instalado, e e por isso que `_nossos_handlers()` existe.
 
 ## A pasta
 
-Ancorada na **raiz do projeto** (o pai de `src/`), e nao no diretorio corrente: e o caminho
-que o `.gitignore` cobre e o mesmo que o volume `./logs:/app/logs` publica. Fora de
-container, `ANALISADOR_LOG_DIR` aponta para outro lugar - o mesmo padrao de
-`ANALISADOR_UPLOAD_FOLDER`.
+A pasta de dados do usuario (`utils/pastas.py`), e nao a raiz do projeto: era o pai de `src/`
+ate a auditoria de 2026-10-30 (`P4`), e pasta de programa nao e lugar de dado que precisa
+sobreviver a atualizacao. `ANALISADOR_LOG_DIR` continua sobrepondo - e a variavel que a
+suite, o invólucro de paridade e o compose usam.
 """
 from __future__ import annotations
 
@@ -41,10 +41,13 @@ import sys
 import time
 import uuid
 
+from . import pastas
+
 # --- Variaveis de ambiente -------------------------------------------------
 
 VARIAVEL_DO_NIVEL = "ANALISADOR_LOG_LEVEL"
-VARIAVEL_DA_PASTA = "ANALISADOR_LOG_DIR"
+# O nome da variavel da PASTA (`ANALISADOR_LOG_DIR`) mora em `utils/pastas.py`, junto com o
+# das outras duas pastas: um nome de ambiente, um dono.
 
 # `INFO` e o padrao: `DEBUG` foi descartado como padrao porque o parse real e barulhento e
 # o operador nao pediu volume. O ajuste por modulo existe para nao obrigar a subir o
@@ -195,17 +198,13 @@ def texto_seguro(valor) -> str:
 # --- Pastas e niveis ------------------------------------------------------
 
 
-def _raiz_do_projeto() -> str:
-    """O pai de `src/`, derivado do proprio arquivo (`src/utils/logs.py`)."""
-    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
 def pasta_de_logs() -> str:
-    """A pasta dos tres arquivos: `ANALISADOR_LOG_DIR` ou `<raiz>/logs`."""
-    apontada: str | None = os.environ.get(VARIAVEL_DA_PASTA)
-    if apontada:
-        return apontada
-    return os.path.join(_raiz_do_projeto(), PASTA_PADRAO)
+    """A pasta dos tres arquivos: `ANALISADOR_LOG_DIR` ou `<raiz de dados>/logs`.
+
+    A resolucao mora em `utils/pastas.py`, junto com a das outras duas pastas, para as tres
+    responderem a mesma raiz e para nao haver um quarto lugar que decida caminho.
+    """
+    return pastas.pasta_de_logs()
 
 
 def nivel_do_ambiente() -> tuple[int, dict[str, int]]:

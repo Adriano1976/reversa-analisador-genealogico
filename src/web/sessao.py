@@ -11,8 +11,9 @@ operador, e o processo continua sem estado de dominio (`architecture.md#2`).
 `instalar_guarda` liga um `before_request` que recusa com `302` (GET) ou `303`
 (POST) toda operacao de dado sem sessao. A lista publica e fechada e nomeia
 endpoints, nao prefixos de caminho: um prefixo novo nasceria publico por acidente.
-As tres rotas de arte e de folha de estilo continuam publicas porque a propria tela
-de entrada depende delas (`P-08`).
+As rotas de arte e de folha de estilo continuam publicas porque a propria tela
+de entrada depende delas (`P-08`), e as bibliotecas e fontes embutidas (feature 054)
+entram pelo mesmo motivo.
 
 ## Por que `no-store`
 
@@ -40,6 +41,13 @@ PUBLICOS: frozenset[str] = frozenset({
     "assets.favicon_da_aba",
     "assets.banner_do_topo",
     "assets.estilo_da_tela",
+    # Feature 054: as bibliotecas e as fontes embutidas. Sao publicas pela mesma razao das
+    # artes — a tela de entrada, servida a quem nao tem sessao, depende delas para desenhar.
+    "assets.biblioteca_css",
+    "assets.biblioteca_js",
+    "assets.mermaid",
+    "assets.folha_de_fontes",
+    "assets.fonte",
     # Feature 053: o cadastro e a recuperacao sao de quem ainda nao tem sessao.
     "conta.cadastrar",
     "conta.confirmar",

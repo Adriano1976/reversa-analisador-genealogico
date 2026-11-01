@@ -71,7 +71,7 @@ from ports.adaptadores import (
 from ports.contas_em_arquivo import ContasEmArquivo
 from ports.email_smtp import TransporteNulo, transporte_do_ambiente
 from ports.fontes_de_nomes import NomesDaArvoreGedcom, NomesDoArquivoDeMatches
-from utils import logs
+from utils import logs, pastas
 from utils.auditoria import registrar as auditar
 from utils.number_format import formatar_cm, formatar_inteiro, formatar_tamanho
 
@@ -184,11 +184,6 @@ def _hosts_permitidos() -> list[str]:
         nome.strip() for nome in extras.split(",") if nome.strip()
     ]
 
-
-
-UPLOAD_FOLDER = "uploads"
-
-
 def _pasta_uploads() -> str:
     """Pasta de upload, ancorada no arquivo do app.
 
@@ -196,20 +191,22 @@ def _pasta_uploads() -> str:
     arquivo: o caminho de escrita e o de leitura podiam divergir quando o CWD
     mudava. Foi o que quebrou a analise de DNA na correcao do BUG-20260929-QMLY
     (o CSV era gravado em `uploads/<chave>` e procurado como `<chave>`).
-    Ancorar no arquivo torna escrita e leitura o MESMO caminho, sempre.
+    Ancorar num caminho absoluto torna escrita e leitura o MESMO caminho, sempre.
 
-    `ANALISADOR_UPLOAD_FOLDER` permite apontar a pasta para outro lugar, o que e
-    usado pelos testes para nao escreverem na pasta real.
+    Desde a auditoria de 2026-10-30 (`P4`), o caminho absoluto vem da pasta de dados do
+    USUARIO (`<raiz>/uploads`, ver `utils/pastas.py`), e nao da pasta do programa: o
+    instalador escreve em `C:\\Program Files`, que nao e gravavel por usuario comum.
+    `ANALISADOR_UPLOAD_FOLDER` continua sobrepondo, e e o que a suite e o involucro de
+    paridade usam para nao escreverem na pasta real.
     """
-    apontada: str | None = os.environ.get("ANALISADOR_UPLOAD_FOLDER")
-    if apontada:
-        return apontada
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), UPLOAD_FOLDER)
+    return pastas.pasta_de_uploads()
 
 
-# A pasta e criada a partir da MESMA funcao que a resolve, para o diretorio
-# criado no import e o procurado nas requisicoes nao poderem divergir.
-os.makedirs(_pasta_uploads(), exist_ok=True)
+# A pasta NAO e mais criada no import (auditoria de 2026-10-30, `P4`): era aqui que um
+# diretorio sem escrita virava `PermissionError` e traceback, depois de o processo ja ter
+# comecado. Quem cria e `_preparar_pastas`, chamada pelo `create_app`, com mensagem de
+# contrato. O adaptador continua recebendo o caminho da MESMA funcao que o resolve, para
+# escrita e leitura nao divergirem.
 
 # Os adaptadores concretos das portas, montados na borda (RF-02, D-07). Nenhum
 # caso de uso instancia estes: ele recebe a porta por parametro. A pasta e
@@ -250,16 +247,36 @@ _AUTENTICACAO, _FALTANTES = servico_do_ambiente()
 # `TransporteDeEmail` e `Relogio`. Montadas UMA vez, no mesmo ponto unico das
 # outras, e injetaveis em `create_app` para a suite trocar as tres.
 def _pasta_contas() -> str:
-    """Caminho do arquivo de contas: `ANALISADOR_CONTAS` ou `src/dados/contas.json`.
+    """Caminho do arquivo de contas: `ANALISADOR_CONTAS` ou `<raiz de dados>/contas.json`.
 
     Fica FORA de `src/uploads/` de proposito: a tela de entrada varre aquela pasta
-    e a conta apareceria como item da lista.
+    e a conta apareceria como item da lista. Desde a auditoria de 2026-10-30 (`P4`) o
+    padrao nao mora mais em `src/dados/`: era dado de runtime dentro da arvore de
+    codigo, e por isso entrava no pacote e na imagem do container.
     """
-    apontada: str | None = os.environ.get("ANALISADOR_CONTAS")
-    if apontada:
-        return apontada
-    return os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dados", "contas.json"
+    return pastas.arquivo_de_contas()
+
+
+def _avisar_sobre_a_pasta_antiga(aplicacao: Flask) -> None:
+    """Diz no log que ha dados da versao anterior dentro da pasta do programa.
+
+    Nao move nada: copiar arquivo do usuario por conta propria e conveniencia que ninguem
+    pediu. O aviso existe para o arquivo nao "desaparecer" sem explicacao agora que o
+    padrao mudou de lugar - sem ele, quem atualiza o pacote acha que perdeu as arvores.
+    """
+    uploads, contas = pastas.restos_da_versao_antiga()
+    if not uploads and not contas:
+        return
+    achados: list[str] = []
+    if uploads:
+        achados.append(f"uploads em {uploads}")
+    if contas:
+        achados.append(f"contas em {contas}")
+    aplicacao.logger.warning(
+        "Encontrei dados da versao anterior (%s). Esta versao le de %s. Nada foi "
+        "movido: copie os arquivos se quiser reabrir aquele conteudo.",
+        "; ".join(achados),
+        pastas.raiz_de_dados(),
     )
 
 
@@ -423,6 +440,34 @@ ARTE_DO_TOPO: str = os.path.join(
 
 ESTILO_DA_TELA: str = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "assets", "app.css"
+)
+
+# --- As tres bibliotecas de front-end (feature 054) ---
+# Elas eram buscadas em `cdn.jsdelivr.net` pelo navegador; sem rede, a tela saia sem estilo,
+# as abas nao alternavam e o diagrama nao desenhava. Agora sao servidas por rota propria, no
+# mesmo regime da folha acima: arquivo em `src/assets/` (a pasta que entra na imagem pela
+# lista de permissao do `.dockerignore`) e `src/static/` continua proibido pelo `W004`.
+BIBLIOTECA_CSS: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "bootstrap.min.css"
+)
+
+BIBLIOTECA_JS: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "bootstrap.bundle.min.js"
+)
+
+MERMAID: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "mermaid.min.js"
+)
+
+#: A folha de fontes derivada e a pasta dos 11 subconjuntos `woff2` (feature 054). A folha e
+#: referenciada SO pelo `index.html`: as telas de identidade nao carregavam a webfont antes
+#: e nao passam a carregar agora — a tipografia delas tem de continuar a de hoje (`L-02`).
+FOLHA_DE_FONTES: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "fontes.css"
+)
+
+PASTA_DE_FONTES: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "assets", "fontes"
 )
 
 
@@ -942,11 +987,21 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
         if isinstance(autenticacao, _SemAutenticacao)
         else autenticacao
     )
+    # A pasta de dados do usuario e criada AQUI, e nao no import (auditoria de 2026-10-30,
+    # `P4`): sem escrita - `C:\Program Files`, por exemplo -, o processo morria com
+    # `PermissionError` antes de a tela existir. A recusa tem nome, e a mensagem diz qual
+    # variavel resolve.
+    try:
+        pastas.preparar(_pasta_uploads())
+    except pastas.PastaDeDadosInacessivel as erro:
+        raise RecusaDeSubida(str(erro)) from None
+
     # Os tres destinos do registro sao montados UMA vez por processo (feature 049, `D-01`).
     # A chamada e idempotente por marcador no handler: a suite reexecuta este modulo a cada
     # fixture, e um booleano de modulo nao sobreviveria a isso — o registro de handlers do
     # `logging` e global.
     logs.configurar()
+    _avisar_sobre_a_pasta_antiga(aplicacao)
     aplicacao.extensions[CHAVE_DA_BORDA] = {
         "armazenamento": _ARMAZENAMENTO if armazenamento is None else armazenamento,
         "carregador": _CARREGADOR if carregador is None else carregador,
@@ -1004,6 +1059,11 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     aplicacao.config["ARTE_DO_FAVICON"] = ARTE_DO_FAVICON
     aplicacao.config["ARTE_DO_TOPO"] = ARTE_DO_TOPO
     aplicacao.config["ESTILO_DA_TELA"] = ESTILO_DA_TELA
+    aplicacao.config["BIBLIOTECA_CSS"] = BIBLIOTECA_CSS
+    aplicacao.config["BIBLIOTECA_JS"] = BIBLIOTECA_JS
+    aplicacao.config["MERMAID"] = MERMAID
+    aplicacao.config["FOLHA_DE_FONTES"] = FOLHA_DE_FONTES
+    aplicacao.config["PASTA_DE_FONTES"] = PASTA_DE_FONTES
 
     aplicacao.register_error_handler(RequestEntityTooLarge, _requisicao_grande)
     aplicacao.register_error_handler(SecurityError, _host_recusado)

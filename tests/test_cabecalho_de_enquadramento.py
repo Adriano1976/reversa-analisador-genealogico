@@ -34,8 +34,24 @@ for _caminho in (RAIZ, os.path.join(RAIZ, "src")):
     if _caminho not in sys.path:
         sys.path.insert(0, _caminho)
 
+from tests.fontes_da_tela import ARQUIVOS  # noqa: E402
+
 CABECALHO = "X-Frame-Options"
-ROTAS = ("/", "/apple-touch-icon.png", "/favicon.png", "/banner.png", "/app.css")
+
+FONTE_DE_AMOSTRA = "/fontes/" + sorted(ARQUIVOS)[0]
+
+ROTAS = (
+    "/",
+    "/apple-touch-icon.png",
+    "/favicon.png",
+    "/banner.png",
+    "/app.css",
+    "/bootstrap.css",
+    "/bootstrap.js",
+    "/mermaid.js",
+    "/fontes.css",
+    FONTE_DE_AMOSTRA,
+)
 
 
 class TestReproducao:
@@ -43,7 +59,7 @@ class TestReproducao:
 
     @pytest.mark.parametrize("rota", ROTAS)
     def test_toda_resposta_traz_o_cabecalho_de_enquadramento(self, cliente_de_upload, rota):
-        """A correcao e de BORDA, e nao de rota: vale para a tela e para as tres rotas de arquivo.
+        """A correcao e de BORDA, e nao de rota: vale para a tela e para as rotas de recurso.
 
         O `parametrize` existe para prender o ALCANCE: um cabecalho aplicado so em `/` deixaria
         passar a versao parcial da correcao.

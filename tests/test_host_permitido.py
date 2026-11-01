@@ -90,8 +90,16 @@ def test_a_porta_nao_participa_da_comparacao(cliente):
 class TestOAlcanceDaRecusa:
     """A recusa e do FLASK, antes da rota: vale para tudo, e nao so para o `GET /`."""
 
-    def test_as_rotas_de_arquivo_tambem_recusam(self, cliente):
-        for caminho in ("/app.css", "/banner.png", "/apple-touch-icon.png"):
+    def test_as_rotas_de_recurso_tambem_recusam(self, cliente):
+        for caminho in (
+            "/app.css",
+            "/banner.png",
+            "/apple-touch-icon.png",
+            "/bootstrap.css",
+            "/bootstrap.js",
+            "/mermaid.js",
+            "/fontes.css",
+        ):
             assert cliente.get(caminho, headers={"Host": "evil.com:5000"}).status_code == 400, (
                 f"{caminho} respondeu a um Host nao confiavel"
             )

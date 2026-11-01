@@ -4,5 +4,5 @@
                   "PRODUCT.md", "DESIGN.md", ".impeccable/**",
                   "src/**", ".vscode/**", "requirements.txt", ".markdownlint-cli2.jsonc",
                   "_docs_auxiliary/**", "docker/**", "docker-compose.yml", "init.sql", ".dockerignore",
-                  "docs/**", "*.ps1", ".github/**", ".gitignore"]
+                  "docs/**", "*.ps1", ".github/**", ".gitignore", "LEIA-ME.txt",  "*.bat"]
 }

@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/053-conta-com-senha-e-recuperacao",
-  "feature-id": "053",
-  "short-name": "conta-com-senha-e-recuperacao",
-  "started-at": "2026-10-29T16:00:19-03:00",
+  "feature-dir": "_reversa_forward/054-embutir-bootstrap-e-mermaid",
+  "feature-id": "054",
+  "short-name": "embutir-bootstrap-e-mermaid",
+  "started-at": "2026-10-31T15:13:36-03:00",
   "current-stage": "requirements",
   "stages-completed": [],
   "paused-features": [

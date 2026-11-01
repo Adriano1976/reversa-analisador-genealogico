@@ -95,10 +95,18 @@ services:
       # ~31 MB de indices). Para desligar em host pequeno, troque o valor por "0".
       ANALISADOR_CACHE_DE_ARVORE: "1"
       ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE: "1"
+      # Pastas de dados (auditoria de 2026-10-30, P4). Fora do container o padrao passou a ser
+      # a pasta do usuario (`%LOCALAPPDATA%`); aqui as tres continuam nos caminhos que os
+      # volumes publicam, e sao declaradas uma a uma porque a raiz unica (`ANALISADOR_DADOS`)
+      # nao serve a este caso: os tres pontos de montagem sao diretorios distintos do host, e
+      # nao subpastas de uma so raiz.
+      ANALISADOR_UPLOAD_FOLDER: "/app/src/uploads"
+      ANALISADOR_LOG_DIR: "/app/logs"
+      ANALISADOR_CONTAS: "/app/src/dados/contas.json"
     volumes:
-      # Estado persistente dos uploads, no MESMO caminho que `src/app.py` deriva de
-      # `__file__` (`/app/src/uploads`). Sem `ANALISADOR_UPLOAD_FOLDER`: escrita e leitura
-      # usam o caminho que o codigo ja resolve.
+      # Estado persistente dos uploads, no caminho que `ANALISADOR_UPLOAD_FOLDER` declara
+      # acima (`/app/src/uploads`) - o mesmo que o codigo derivava de `__file__` antes da
+      # auditoria de 2026-10-30.
       - ./src/uploads:/app/src/uploads
       # A trilha de auditoria (feature 049). E prova, nao diagnostico: precisa sobreviver ao
       # container. O caminho e o mesmo que `utils/logs.py` resolve — a raiz da aplicacao,

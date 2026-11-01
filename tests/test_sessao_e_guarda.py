@@ -29,8 +29,16 @@ def test_sem_sessao_o_post_nao_toca_dado(app_autenticado):
     )
 
 
-def test_as_tres_rotas_de_arte_continuam_publicas(app_autenticado):
-    for caminho in ("/app.css", "/banner.png", "/apple-touch-icon.png"):
+def test_os_recursos_de_tela_continuam_publicos(app_autenticado):
+    for caminho in (
+        "/app.css",
+        "/banner.png",
+        "/apple-touch-icon.png",
+        "/bootstrap.css",
+        "/bootstrap.js",
+        "/mermaid.js",
+        "/fontes.css",
+    ):
         resposta = app_autenticado.cliente.get(caminho)
         assert resposta.status_code != 302, (
             f"{caminho} foi redirecionado: a tela de entrada depende dela (P-08)"

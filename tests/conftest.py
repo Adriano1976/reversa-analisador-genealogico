@@ -108,15 +108,22 @@ for _caminho in (_RAIZ, _PASTA_APP):
 # dentro do workspace — e era ali que `tests/.tmp/` ficava.
 _RAIZ_TEMPORARIA = os.path.join(tempfile.gettempdir(), "reversa-analisador-testes")
 
-# Feature 049: a pasta de log da aplicacao e ancorada na RAIZ do projeto, e o
-# `configurar()` a cria no primeiro `create_app()` — que acontece na IMPORTACAO de
-# `src/app.py`. Como varios testes importam o app no nivel do modulo (antes de qualquer
-# fixture), isolar por fixture chegaria tarde: a pasta `logs/` nasceria na raiz do
-# repositorio. Por isso a variavel e fixada AQUI, no import do `conftest`, que o pytest
-# faz antes de coletar os modulos de teste.
+# Feature 049: o `configurar()` cria a pasta de log no primeiro `create_app()` — que
+# acontece na IMPORTACAO de `src/app.py`. Como varios testes importam o app no nivel do
+# modulo (antes de qualquer fixture), isolar por fixture chegaria tarde. Por isso as duas
+# variaveis de dados sao fixadas AQUI, no import do `conftest`, que o pytest faz antes de
+# coletar os modulos de teste.
 os.environ.setdefault(
     "ANALISADOR_LOG_DIR", os.path.join(_RAIZ_TEMPORARIA, "logs-da-suite")
 )
+
+# Auditoria de 2026-10-30 (P4): os dados do usuario sairam da pasta do programa e passaram
+# a morar na pasta do usuario (`utils/pastas.py`). Sem este desvio, a importacao de
+# `src/app.py` criaria pasta dentro do `%LOCALAPPDATA%` real de quem roda a suite, e o aviso
+# de "dados da versao anterior" passaria a apontar para `src/uploads/` com os arquivos reais
+# do operador. `=` e nao `setdefault`: o destino da suite nao e herdado do ambiente, pelo
+# mesmo motivo das duas linhas de `ANALISADOR_MODO` abaixo.
+os.environ["ANALISADOR_DADOS"] = os.path.join(_RAIZ_TEMPORARIA, "dados-da-suite")
 
 # Auditoria de 2026-10-30 (P1/P3): a aplicacao passou a exigir modo de identidade
 # DECLARADO, e a declaracao mora em `create_app`, nao no `__main__`. A suite importa

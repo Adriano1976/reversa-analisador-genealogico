@@ -39,19 +39,24 @@ Feche a janela preta. O navegador fecha sozinho.
 
 ONDE FICAM OS SEUS ARQUIVOS
 ---------------------------
-Na pasta "src\uploads", dentro da pasta onde voce extraiu o programa. Eles
-nao vao para a internet e nao ficam no seu e-mail.
+Fora da pasta do programa, na pasta de dados do seu usuario:
 
-  Importante: nao apague nem mova a pasta do programa enquanto estiver
-  usando. Se voce extrair uma versao nova em OUTRA pasta, os arquivos antigos
-  continuam na pasta antiga - copie a pasta "src\uploads" para a nova antes
-  de usar.
+  %LOCALAPPDATA%\Analisador Genealogico
+
+Ali ficam "uploads" (as arvores e os CSVs que voce enviou), "logs" (o
+registro de uso) e "contas.json". Para abrir essa pasta, cole o caminho
+acima na barra de endereco do Explorador de Arquivos.
+
+  Importante: como os arquivos ficam fora da pasta do programa, eles NAO se
+  perdem quando voce extrai uma versao nova. Voce pode apagar a pasta antiga
+  do programa sem medo. Eles nao vao para a internet e nao ficam no seu
+  e-mail.
 
 SE DER ERRO
 -----------
 A janela preta mostra a mensagem. Copie o texto (ou tire foto da tela) e
-envie para quem te passou o programa. Ha tambem um registro na pasta "logs\",
-dentro da pasta do programa.
+envie para quem te passou o programa. Ha tambem um registro na pasta "logs",
+dentro da pasta de dados indicada acima.
 
 LIMITACOES DESTA VERSAO DE TESTE
 --------------------------------

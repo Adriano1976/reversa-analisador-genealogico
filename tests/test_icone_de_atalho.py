@@ -213,7 +213,17 @@ TAMANHO_ESPERADO = 16504
 #: dele. Os outros cinco (abrir, apagar, conexao, DNA e promover candidato) vivem sob
 #: lista nao vazia, arvore aberta ou resultado, e nao entram nesta conta. A declaracao da
 #: entrega esta em `_reversa_sdd/addenda/052-busca-nome-e-sobrenome.md`.
-SHA_DA_TELA = "577a17fd1513b29a1e3704f640bdcdfffbdcdbf373d3da4e148cb44529c87148"
+#: **Decima terceira medicao, 2026-10-31, recursos embutidos (feature 054).** O Bootstrap, o
+#: Mermaid e as duas familias de fonte deixaram de vir da CDN e passaram a ser servidos pela
+#: propria aplicacao (`/bootstrap.css`, `/fontes.css`, `/mermaid.js`, `/bootstrap.js`). O que
+#: moveu este hash foi SO o `<head>`: sairam tres tags externas (os dois `preconnect` e a folha
+#: do Google) e entraram `/bootstrap.css?v=5.3.3` e `/fontes.css?v=1`; as tags do Mermaid e do
+#: Bootstrap JS apenas trocaram de endereco, na mesma posicao. `577a17fd…` (51.612 bytes) →
+#: `3487986a…` (51.218, **-394 bytes**). A tela nao muda um pixel — e o que a conferencia com a
+#: rede desligada prova. A declaracao da entrega nasce em `_reversa_sdd/addenda/054-…`
+#: (`/reversa-sync`), e o delta em bytes esta em
+#: `_reversa_forward/054-embutir-bootstrap-e-mermaid/evidence/SHA_DA_TELA.md`.
+SHA_DA_TELA = "3487986a8586ab91310d40d79841d22113e99aaeacf8e04b699a1b8fa12123c0"
 
 
 def _cabecalho_png(corpo: bytes):

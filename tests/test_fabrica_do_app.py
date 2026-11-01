@@ -25,6 +25,11 @@ ROTAS = {
     "/apple-touch-icon.png": {"GET"},
     "/favicon.png": {"GET"},
     "/descartes.csv": {"POST"},
+    "/bootstrap.css": {"GET"},
+    "/bootstrap.js": {"GET"},
+    "/mermaid.js": {"GET"},
+    "/fontes.css": {"GET"},
+    "/fontes/<arquivo>.woff2": {"GET"},
 }
 
 CHAVES = (
@@ -34,6 +39,11 @@ CHAVES = (
     "ARTE_DO_FAVICON",
     "ARTE_DO_TOPO",
     "ESTILO_DA_TELA",
+    "BIBLIOTECA_CSS",
+    "BIBLIOTECA_JS",
+    "MERMAID",
+    "FOLHA_DE_FONTES",
+    "PASTA_DE_FONTES",
 )
 
 
