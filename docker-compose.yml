@@ -109,9 +109,9 @@ services:
       # auditoria de 2026-10-30.
       - ./src/uploads:/app/src/uploads
       # A trilha de auditoria (feature 049). E prova, nao diagnostico: precisa sobreviver ao
-      # container. O caminho e o mesmo que `utils/logs.py` resolve — a raiz da aplicacao,
-      # que dentro da imagem e `/app`. Sem este volume a auditoria cai para o fluxo padrao e
-      # a aplicacao avisa uma vez, sem derrubar requisicao.
+      # container. O caminho e o que `ANALISADOR_LOG_DIR` declara acima (`/app/logs`). Sem
+      # este volume a auditoria cai para o fluxo padrao e a aplicacao avisa uma vez, sem
+      # derrubar requisicao.
       - ./logs:/app/logs
       # O arquivo de contas locais (feature 053). Fica em `src/dados/`, FORA de
       # `src/uploads/`, porque a tela de entrada varre aquela pasta e a conta apareceria na

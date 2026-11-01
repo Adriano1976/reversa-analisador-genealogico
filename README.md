@@ -415,7 +415,8 @@ as duas do cache da árvore.
 | `ANALISADOR_THREADS` | `4` | número de threads do servidor |
 | `ANALISADOR_CACHE_DE_ARVORE` | `1` (ligado) | mantém em memória a árvore já parseada entre requisições. `0`, `false`, `nao`, `off` ou `no` desliga e volta a um parse por ação; ver "Cache da árvore" |
 | `ANALISADOR_CACHE_DE_ARVORE_CAPACIDADE` | `1` | quantas árvores o cache mantém (LRU). Cada árvore de ~19 mil pessoas custa ~337 MB, mais ~31 MB de índices; 2 levam o processo a ~714 MB |
-| `ANALISADOR_UPLOAD_FOLDER` | *(sem padrão: usa `<diretório do app>/uploads`)* | pasta que recebe os arquivos enviados. É uma **sobreposição de processo**, usada pela suíte e pelo invólucro de paridade para não escreverem na pasta de dados; ver "Onde ficam os arquivos enviados" |
+| `ANALISADOR_DADOS` | `%LOCALAPPDATA%\Analisador Genealogico`; fora do Windows, `~/.local/share/Analisador Genealogico` | raiz dos dados do usuário: `uploads/`, `logs/` e `contas.json` ficam abaixo dela. É o que permite instalar o programa em pasta só-leitura, como `C:\Program Files` |
+| `ANALISADOR_UPLOAD_FOLDER` | `<raiz de dados>/uploads` | pasta que recebe os arquivos enviados. É uma **sobreposição de processo**, usada pela suíte e pelo invólucro de paridade para não escreverem na pasta de dados; ver "Onde ficam os arquivos enviados" |
 
 #### Entrada pelo provedor de identidade
 
@@ -539,8 +540,9 @@ caso. As linhas estão em `docker-compose.yml`.
 > teste confere também a ordem acima, com verificação por mutação.
 >
 > **A pasta é não rastreada, e isso tem preço.** `git clean -xdf` — e também `-Xdf`, que remove só o que é
-> ignorado — **apaga `src/uploads` inteira**. Faça backup periódico para fora do repositório: ela é a única
-> cópia do dado.
+> ignorado — **apaga `src/uploads` inteira**, e a pasta `logs/` com ela. Desde a auditoria de 2026-10-30 os
+> dados do usuário ficam em `%LOCALAPPDATA%`, fora do repositório e a salvo disso; o que estiver em
+> `src/uploads/` ou `logs/` — restos de versão anterior — é apagado sem aviso.
 
 A manutenção da pasta fica em `tests/manutencao_de_uploads.py`, com quatro verbos: `manifesto` (a lista
 revisável do resíduo de instrumento), `expurgo` (remove **apenas** o que estiver no manifesto, e sempre tem
@@ -811,8 +813,8 @@ colunas **Tamanho** e **Enviado em** que distinguem uma linha da outra.
 
 - **Abrir** (verde, só na aba de árvore) carrega a árvore escolhida e leva à tela de busca e análise.
 - **Apagar** (vermelho, nas duas abas) **aposenta** o arquivo: ele sai da lista e continua **inteiro no
-  disco**, em `src/uploads/_aposentados/`. Uma confirmação cita o arquivo antes de agir. Para desfazer, mova
-  o arquivo de volta para `src/uploads`.
+  disco**, em `uploads/_aposentados/` dentro da raiz de dados. Uma confirmação cita o arquivo antes de agir.
+  Para desfazer, mova o arquivo de volta para `uploads/`.
 
 Na aba de DNA **não há Abrir**: o relatório de matches entra pela própria análise de DNA, que exige uma
 árvore. Oferecer "Abrir" ali prometeria um caminho que a rota não atende.
@@ -874,15 +876,15 @@ do celular continua em `/apple-touch-icon.png`, que é opaco de propósito.
 | `ANALISADOR_SMTP_USUARIO` / `ANALISADOR_SMTP_SENHA` | não | autenticação; a senha nunca vai para log |
 | `ANALISADOR_SMTP_REMETENTE` | para cadastro e recuperação | remetente |
 | `ANALISADOR_SMTP_SEGURANCA` | não (padrão `starttls`) | `starttls`, `ssl` ou `nenhuma` |
-| `ANALISADOR_CONTAS` | não | caminho do arquivo de contas (padrão `src/dados/contas.json`) |
+| `ANALISADOR_CONTAS` | não | caminho do arquivo de contas (padrão `<raiz de dados>/contas.json`) |
 
 Sem `HOST` e `REMETENTE`, o cadastro não conclui (não haveria como confirmar) e a recuperação avisa que o
 envio não está configurado; a **entrada de conta já confirmada continua funcionando**. A subida registra o
 aviso no log em vez de recusar o servidor.
 
-O arquivo de contas fica em `src/dados/contas.json`, **fora de `src/uploads/`** (a tela varre aquela
-pasta), coberto pelo `.gitignore` e com volume próprio no `docker-compose.yml`. Sem o volume, recriar o
-contêiner apaga as contas. A senha é guardada como derivação `scrypt` com sal; os tokens são guardados como
+O arquivo de contas fica em `<raiz de dados>/contas.json`, **fora da pasta de uploads** (a tela varre aquela
+pasta) e fora do repositório — não há o que versionar nem o que excluir do contexto de build — com volume
+próprio no `docker-compose.yml`. Sem o volume, recriar o contêiner apaga as contas. A senha é guardada como derivação `scrypt` com sal; os tokens são guardados como
 hash, e a redefinição de senha invalida as sessões anteriores.
 
 > Antes de abrir a instância para outras pessoas, veja os portões declarados na seção 10 do
@@ -1054,8 +1056,9 @@ framework [Reversa](https://github.com/sandeco/reversa) mantém especificações
   apresentação.
 - A árvore é montada a cada `POST` e passada ao núcleo como parâmetro. O único estado de domínio que
   sobrevive à requisição é o cache em memória da árvore parseada, ligado por padrão e de capacidade 1. Os
-  arquivos enviados ficam em `src/uploads`, a única pasta canônica de dados; o que a análise produziu vai
-  para o banco apenas se houver `DATABASE_URL`, e nada é lido de volta para decidir o que a tela mostra.
+  arquivos enviados ficam em `uploads/`, abaixo da raiz de dados do usuário, fora do repositório; o que a
+  análise produziu vai para o banco apenas se houver `DATABASE_URL`, e nada é lido de volta para decidir o
+  que a tela mostra.
 - A entrada e a sessão ficam em `src/web/`, e não no domínio: `autenticacao.py` fala OAuth com o Google,
   `sessao.py` guarda a conta e resolve o dono, `rotas_auth.py` serve as três rotas e `hooks_de_registro.py`
   grava o cabeçalho em toda resposta. O núcleo nunca vê a conta: recebe a árvore já resolvida para o dono.
