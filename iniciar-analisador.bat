@@ -18,16 +18,55 @@ set "ANALISADOR_MODO=local"
 rem === `--verificar`: diz o que este arquivo usaria e sai, sem instalar nada ===
 if /i "%~1"=="--verificar" set "SO_VERIFICAR=1"
 
+rem === Smart App Control (medido em 2026-11-05) ===
+rem O Windows 11 liga o Smart App Control sozinho, e ele bloqueia os `.pyd` NAO
+rem ASSINADOS que o pip instala - `pandas` entre eles. O sintoma era um traceback
+rem de `DLL load failed` depois de baixar 300 MB de bibliotecas. Avisar antes evita
+rem a espera inteira perdida; a checagem e uma leitura do registro, nao instala nada.
+call :ler_sac
+if defined SO_VERIFICAR goto verificar
+if "%SAC%"=="0x1" goto sac_ligado
+goto achar
+
+:sac_ligado
+echo.
+echo ATENCAO: o Smart App Control do Windows esta ligado neste computador.
+echo Ele bloqueia as bibliotecas que este programa precisa baixar, e o programa
+echo nao vai abrir. Para desligar, abra "Seguranca do Windows", entre em
+echo "Controle de aplicativo e navegador" e procure "Smart App Control".
+echo Se preferir, use outro computador que esteja com ele desligado.
+echo.
+choice /c SN /n /m "Continuar mesmo assim? (S/N) "
+if errorlevel 2 goto sac_recusado
+goto achar
+
+:sac_recusado
+echo.
+echo Nada foi instalado. Desligue o Smart App Control e abra este arquivo de novo.
+pause
+exit /b 1
+
+:achar
 call :achar_python
 if not defined PY goto sem_python
 goto ambiente
 
 :ambiente
 call :hash_requirements
-if defined SO_VERIFICAR goto verificar
 
-rem === Ambiente isolado (so na primeira vez) ===
+rem === Ambiente isolado: precisa ser o Python DESTA versao ===
+rem Antes bastava o `.venv` existir. Um ambiente criado por outra versao era
+rem reaproveitado e continuava quebrado - medido em 2026-11-05, com um `.venv`
+rem 3.14 sob um Python 3.13. A checagem abaixo refaz o ambiente quando diverge.
 if not exist ".venv\Scripts\python.exe" goto criar_venv
+".venv\Scripts\python.exe" -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,13) else 1)" >nul 2>&1
+if not errorlevel 1 goto ambiente_pronto
+echo O ambiente foi criado por outra versao do Python. Refazendo...
+rmdir /s /q ".venv"
+if exist ".venv" goto erro_venv
+goto criar_venv
+
+:ambiente_pronto
 
 rem === Dependencias: reinstala quando o requirements.txt muda ===
 rem O marcador guarda o HASH do requirements.txt, e nao um "ok": era o defeito que
@@ -73,17 +112,32 @@ pause
 exit /b 0
 
 :verificar
+call :achar_python
+call :hash_requirements
+if "%SAC%"=="0x1" echo Smart App ...: LIGADO (bloqueia as bibliotecas)
+if not "%SAC%"=="0x1" echo Smart App ...: ok (%SAC%)
+if not defined PY goto verificar_sem_python
 echo Python ......: %PY%
 %PY% --version
 echo requirements: %REQ_HASH%
-if exist ".venv\Scripts\python.exe" echo .venv ........: existe
-if not exist ".venv\Scripts\python.exe" echo .venv ........: ausente
+if not exist ".venv\Scripts\python.exe" goto verificar_sem_venv
+for /f "tokens=2 delims= " %%V in ('.venv\Scripts\python.exe --version 2^>nul') do echo venv python .: %%V
+goto verificar_com_venv
+
+:verificar_sem_venv
+echo venv python .: ausente
+
+:verificar_com_venv
 if not exist ".venv\instalado.txt" goto verificar_sem_marcador
 set "INSTALADO="
 set /p INSTALADO=<".venv\instalado.txt"
 echo marcador ....: %INSTALADO%
 if /i "%INSTALADO%"=="%REQ_HASH%" goto verificar_em_dia
 echo situacao ....: reinstalaria as bibliotecas
+exit /b 0
+
+:verificar_sem_python
+echo Python ......: NAO ENCONTRADO
 exit /b 0
 
 :verificar_em_dia
@@ -98,10 +152,10 @@ exit /b 0
 rem === Sem Python: instala pelo winget e procura de novo ===
 :sem_python
 echo.
-echo Python 3.14 nao encontrado. Tentando instalar com o winget...
+echo Python 3.13 nao encontrado. Tentando instalar com o winget...
 where winget >nul 2>&1
 if errorlevel 1 goto sem_winget
-winget install -e --id Python.Python.3.14 --accept-package-agreements --accept-source-agreements
+winget install -e --id Python.Python.3.13 --accept-package-agreements --accept-source-agreements
 if errorlevel 1 goto falha_winget
 echo.
 echo Instalacao concluida. Procurando o Python de novo...
@@ -155,20 +209,27 @@ exit /b 1
 
 rem === Sub-rotinas =========================================================
 
+:ler_sac
+rem `0x1` = ligado (bloqueia), `0x2` = em avaliacao (nao bloqueia), `0` = desligado.
+rem Se a chave nao existir - Windows 10, por exemplo -, `SAC` fica `0` e nada muda.
+set "SAC=0"
+for /f "tokens=3" %%V in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\CI\Policy" /v VerifiedAndReputablePolicyState 2^>nul ^| find "VerifiedAndReputablePolicyState"') do set "SAC=%%V"
+exit /b 0
+
 :achar_python
 rem Ordem: o lancador do Python, o `python` do PATH e os dois diretorios em que o
 rem instalador grava. O winget instala em `Local\Python\pythoncore-...`, e nao no
 rem `Programs\Python\Python314` classico: sem os dois, a instalacao terminava e o
 rem arquivo mandava fechar a janela mesmo com o Python ja disponivel.
 set "PY="
-py -3.14 -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,14) else 1)" >nul 2>&1
-if not errorlevel 1 (set "PY=py -3.14" & exit /b 0)
-python -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,14) else 1)" >nul 2>&1
+py -3.13 -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,13) else 1)" >nul 2>&1
+if not errorlevel 1 (set "PY=py -3.13" & exit /b 0)
+python -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,13) else 1)" >nul 2>&1
 if not errorlevel 1 (set "PY=python" & exit /b 0)
-for %%D in ("%LOCALAPPDATA%\Programs\Python\Python314" "%LOCALAPPDATA%\Python\pythoncore-3.14-64" "%ProgramFiles%\Python314") do (
+for %%D in ("%LOCALAPPDATA%\Programs\Python\Python313" "%LOCALAPPDATA%\Python\pythoncore-3.13-64" "%ProgramFiles%\Python313") do (
   if not defined PY (
     if exist "%%~D\python.exe" (
-      "%%~D\python.exe" -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,14) else 1)" >nul 2>&1
+      "%%~D\python.exe" -c "import sys; sys.exit(0 if sys.version_info[:2]==(3,13) else 1)" >nul 2>&1
       if not errorlevel 1 set PY="%%~D\python.exe"
     )
   )

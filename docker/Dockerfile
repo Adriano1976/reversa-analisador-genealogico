@@ -9,7 +9,7 @@
 # O Dockerfile mora em `docker/` e o contexto e a raiz: o Docker o le do disco pelo `-f`, e
 # ele NAO precisa estar dentro do contexto.
 
-FROM python:3.14-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -38,7 +38,7 @@ WORKDIR /app
 
 # Dependencias primeiro, em camada propria: ela so e refeita quando o pin muda. O
 # `requirements.txt` traz as versoes fixadas, incluindo `psycopg2-binary`, que existe em
-# wheel `cp314` para Windows e para Linux — nao ha compilacao local.
+# wheel `cp313` para Windows e para Linux — nao ha compilacao local.
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -50,7 +50,7 @@ COPY src/ /app/src/
 # `COPY src/` e o `pip install` ficariam sem cache justamente no rebuild que o operador faz
 # toda vez que mexe no codigo.
 #
-# `date` vem do proprio `python:3.14-slim` (Debian com coreutils), entao nao ha dependencia
+# `date` vem do proprio `python:3.13-slim` (Debian com coreutils), entao nao ha dependencia
 # nova nem pacote instalado so para carimbar.
 RUN date -u +%Y-%m-%dT%H:%M:%SZ > /app/CONSTRUIDO_EM
 

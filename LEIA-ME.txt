@@ -12,9 +12,27 @@ Nada e enviado para a internet. Seus arquivos ficam no seu computador.
 ANTES DE COMECAR
 ----------------
 - Windows 10 ou 11.
+- O Smart App Control do Windows precisa estar DESLIGADO (ver abaixo).
 - Internet na PRIMEIRA execucao: ele baixa o Python e as bibliotecas.
 - O download do programa tem poucos MB, mas a preparacao inicial pode
   passar de 300 MB, porque baixa o Python e as bibliotecas.
+
+SMART APP CONTROL (LEIA ANTES)
+------------------------------
+O Windows 11 tem um recurso chamado Smart App Control que bloqueia as
+bibliotecas usadas na analise. Com ele ligado, o programa nao abre: aparece
+um erro falando de "DLL load failed" e "Controle de Aplicativo".
+
+Para ver como esta no seu computador: abra "Seguranca do Windows", entre em
+"Controle de aplicativo e navegador" e olhe "Smart App Control".
+
+Se estiver ligado, voce tem duas saidas:
+  1. desligar o Smart App Control. Aviso: depois de desligado, o Windows nao
+     permite ligar de novo sem reinstalar o sistema;
+  2. usar outro computador que esteja com ele desligado.
+
+O proprio programa avisa se encontrar esse bloqueio ligado, antes de baixar
+qualquer coisa.
 
 COMO USAR
 ---------

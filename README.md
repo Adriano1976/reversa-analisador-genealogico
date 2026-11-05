@@ -6,7 +6,7 @@
        width="180">
 </p>
 
-![Python 3.14](https://img.shields.io/badge/Python-3.14-blue)
+![Python 3.13](https://img.shields.io/badge/Python-3.13-blue)
 ![Flask 3.1.3](https://img.shields.io/badge/Flask-3.1.3-green)
 ![Testes: pytest](https://img.shields.io/badge/testes-pytest-blue)
 
@@ -56,7 +56,7 @@ uma checagem a mais no cartão, ao lado do confronto, e não altera o que o GEDC
 
 ## Stack Tecnológica
 
-O projeto usa Python 3.14. O interpretador oficial é o ambiente virtual `.venv`; as dependências de runtime
+O projeto usa Python 3.13. O interpretador oficial é o ambiente virtual `.venv`; as dependências de runtime
 estão fixadas em [`requirements.txt`](./requirements.txt).
 
 | Tecnologia | Versão | Uso |
@@ -334,7 +334,7 @@ flowchart LR
 
 ### Pré-requisitos
 
-- Python 3.14
+- Python 3.13
 - Git
 
 ### Instalação e Configuração
@@ -343,7 +343,7 @@ flowchart LR
 2. Crie e configure o ambiente oficial (PowerShell, na raiz do repositório):
 
    ```powershell
-   py -3.14 -m venv .venv
+   py -3.13 -m venv .venv
    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
    ```
 
@@ -355,7 +355,7 @@ flowchart LR
 
 4. Acesse `http://127.0.0.1:5000/`. Por padrão, o servidor atende apenas a máquina local.
 
-Para configurar outro ambiente, instale Python 3.14 e recrie `.venv`. Não use o Python global para executar
+Para configurar outro ambiente, instale Python 3.13 e recrie `.venv`. Não use o Python global para executar
 ou testar: o backend RapidFuzz participa da decisão de matching, e as versões instaladas estão pinadas para
 reprodutibilidade.
 
