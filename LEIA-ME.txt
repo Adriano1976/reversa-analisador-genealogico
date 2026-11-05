@@ -1,4 +1,4 @@
-ANALISADOR DE CONEXOES GENEALOGICAS - versao de teste 0.1.0
+ANALISADOR DE CONEXOES GENEALOGICAS - versao de teste 0.2.0
 ================================================================
 
 O QUE E
