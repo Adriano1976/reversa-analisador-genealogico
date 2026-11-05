@@ -558,7 +558,10 @@ class RegistroDeAnalisesPostgres:
         except Exception as erro:
             # A `RN-13` exige nao propagar: a analise ja foi calculada, e o
             # historico e beneficio, nunca condicao para ver o resultado.
-            return None, f"Histórico não registrado: {type(erro).__name__}: {erro}"
+            # O `strip` e do texto do DRIVER, nao nosso: o libpq devolve a mensagem
+            # com quebra de linha no fim (medido em 2026-11-05), e isso virava espaco
+            # em branco sobrando na tela e no rodape do aviso.
+            return None, f"Histórico não registrado: {type(erro).__name__}: {str(erro).strip()}"
         finally:
             if conexao is not None:
                 conexao.close()
