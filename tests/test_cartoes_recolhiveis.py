@@ -221,8 +221,9 @@ class TestAArvoreDoCartao:
     def test_o_cartao_nasce_fechado(self, pagina):
         """A lista de cabecalhos e' a visao geral; o cartao e o detalhe.
 
-        O bloco das observacoes do arquivo fica de FORA desta contagem e nasce ABERTO: ele
-        carrega aviso, e nao detalhe. Ver `tests/test_observacoes_do_arquivo.py`.
+        O bloco das observacoes do arquivo fica de FORA desta contagem e nasce FECHADO, como
+        os cartoes: o titulo continua na tela e abrir e' um clique. Ver
+        `tests/test_observacoes_do_arquivo.py`.
         """
         for cartao in [c for c in _arvore(pagina).cartoes if c["do_resultado"]]:
             assert not cartao["aberto"], (

@@ -1,11 +1,15 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/054-embutir-bootstrap-e-mermaid",
-  "feature-id": "054",
-  "short-name": "embutir-bootstrap-e-mermaid",
-  "started-at": "2026-10-31T15:13:36-03:00",
-  "current-stage": "requirements",
-  "stages-completed": [],
+  "feature-dir": "_reversa_forward/056-regioes-compartilhadas",
+  "feature-id": "056",
+  "short-name": "regioes-compartilhadas",
+  "started-at": "2026-11-09T23:10:00-03:00",
+  "current-stage": "done",
+  "stages-completed": [
+    "requirements",
+    "coding",
+    "sync"
+  ],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

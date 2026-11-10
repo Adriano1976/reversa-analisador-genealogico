@@ -76,6 +76,8 @@ from .sem_correspondencia import (
     nomes_com_cartao_aceito,
 )
 from . import cobertura_do_arquivo
+from .regiao_no_cartao import classificar as classificar_regiao
+from .regioes import SegmentoDaRegiao, agrupar as agrupar_regioes
 from utils.text_cleaning import (
     demojibake,
     strip_bad_utf,
@@ -87,8 +89,40 @@ from utils.text_cleaning import (
 # `_observacoes` para este arquivo continua valida por este caminho.
 
 
+def _segmentos_das_evidencias(evidencias):
+    """Converte a evidência genética nos segmentos que o agrupamento consome.
+
+    A identidade do membro é o **kit**; sem kit, o nome normalizado — dois
+    matches sem kit não podem colapsar num membro só. Segmento sem cromossomo ou
+    sem faixa válida é ignorado: ele não localiza nada.
+    """
+    segmentos = []
+    for chave_nome, por_kit in (evidencias or {}).items():
+        for _, evidencia in por_kit.items():
+            identidade = evidencia.get("kit") or f"nome:{chave_nome}"
+            nome = evidencia.get("person_name_csv") or chave_nome
+            for segmento in evidencia.get("segments") or ():
+                cromossomo = segmento.get("chromosome")
+                inicio = segmento.get("start")
+                fim = segmento.get("end")
+                if not cromossomo or inicio is None or fim is None or fim <= inicio:
+                    continue
+                try:
+                    segmentos.append(SegmentoDaRegiao(
+                        kit=str(identidade),
+                        nome=str(nome),
+                        cromossomo=str(cromossomo),
+                        inicio=int(inicio),
+                        fim=int(fim),
+                        cm=float(segmento.get("cm") or 0.0),
+                    ))
+                except (TypeError, ValueError):
+                    continue
+    return segmentos
+
+
 def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arquivo=None,
-                 candidatos_fixos=None, cobertura=None):
+                 candidatos_fixos=None, cobertura=None, regioes=None):
     """Executa a analise de DNA e devolve `(resultados, descartados, mensagem)`.
 
     ## `candidatos_fixos` (feature 034)
@@ -281,6 +315,23 @@ def dna_analysis(csv_path: str, root_name: str, deps, arvore, observacoes_do_arq
         return (0 if tem_caminho else 1, -(resultado.get("cm") or 0))
 
     results_sorted = sorted(results_list, key=_ordem)
+    # FEATURE 056: as regioes compartilhadas nascem dos segmentos que a evidencia
+    # ja montou, e sao classificadas contra os cartoes que acabaram de sair. Nada
+    # acima muda: a regiao e leitura derivada, e excecao aqui nao pode derrubar a
+    # analise — o chamador recebe a lista e decide o que fazer com a falha.
+    if regioes is not None:
+        try:
+            agrupamento_de_regioes = agrupar_regioes(_segmentos_das_evidencias(evidencias))
+            regioes.extend(
+                classificar_regiao(regiao, results_sorted)
+                for regiao in agrupamento_de_regioes.regioes
+            )
+        except Exception as erro:  # noqa: BLE001
+            # O bloco e derivado: falhar nele nao pode custar a analise inteira.
+            if observacoes_do_arquivo is not None:
+                observacoes_do_arquivo.append(
+                    f"Regiões compartilhadas não calculadas: {type(erro).__name__}: {erro}"
+                )
     message = f"{len(results_sorted)} conexões encontradas. {len(skipped_matches)} descartadas."
     if observacoes_do_arquivo is not None:
         observacoes_do_arquivo.extend(observacoes_do_arquivo_da_analise)

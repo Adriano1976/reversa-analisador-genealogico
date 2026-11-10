@@ -10,6 +10,7 @@ import os
 
 from flask import Blueprint, Response, current_app, request, send_file
 from reporting.csv_de_descartes import csv_de_descartes
+from reporting.csv_das_regioes import csv_das_regioes
 
 assets_bp = Blueprint("assets", __name__)
 
@@ -167,6 +168,26 @@ def descartes_em_csv():
     )
 
 
+@assets_bp.route("/regioes.csv", methods=["POST"])
+def regioes_em_csv():
+    """Baixa as regiões compartilhadas (feature 056, `RF-08`).
+
+    Mesmo regime de `/descartes.csv`: o corpo vem do próprio HTML da análise, e
+    o formatador da camada reporting desarma fórmula de planilha e escapa o CSV.
+    """
+    try:
+        itens = json.loads(request.form.get("dados") or "[]")
+    except (TypeError, ValueError):
+        itens = []
+    if not isinstance(itens, list):
+        itens = []
+    return Response(
+        csv_das_regioes(itens),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=regioes.csv"},
+    )
+
+
 __all__ = [
     "FONTES_DA_TELA",
     "assets_bp",
@@ -178,6 +199,7 @@ __all__ = [
     "favicon_da_aba",
     "folha_de_fontes",
     "fonte",
+    "regioes_em_csv",
     "icone_de_atalho",
     "mermaid",
 ]

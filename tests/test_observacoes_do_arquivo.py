@@ -397,7 +397,7 @@ class TestABlocoNaTela:
 
 
 class TestOBlocoRecolhivel:
-    """O bloco virou `<details>` — e nasce ABERTO, ao contrario do bloco dos descartados."""
+    """O bloco virou `<details>` — e nasce FECHADO, como o bloco dos descartados."""
 
     def test_o_titulo_e_o_summary_e_nao_um_cabecalho_acima(self, cliente_de_upload):
         _app, cliente, pasta = cliente_de_upload

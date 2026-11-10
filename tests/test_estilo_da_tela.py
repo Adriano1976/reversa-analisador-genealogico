@@ -88,6 +88,9 @@ CLASSES_DO_TEMPLATE = (
     # um selo de contorno da paleta em 2026-10-26; sem esta linha, a classe sair da folha
     # deixaria o selo sem fundo e sem borda, e ninguem perceberia.
     "selo-dado",
+    # O painel de regioes compartilhadas veste a mesma moldura de escopo-arquivo da
+    # cobertura; sem a regra, ele volta a parecer um cartao comum.
+    "regioes-compartilhadas",
 )
 
 

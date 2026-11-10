@@ -371,8 +371,8 @@ a{font-weight:700}
    num bloco unico acima do resultado, visualmente separadas dos cartoes. Recolhem como eles
    (mesmo `details`, mesmo `sumario-do-cartao`), mas com aparencia de AVISO: o creme de
    `--aviso-bg` percorre o bloco inteiro, e nao so os itens, e o cabecalho o anuncia antes de o
-   operador ler qualquer linha. Nasce ABERTO — o `open` esta no template —, ao contrario do
-   bloco dos descartados, porque o que ele carrega muda a leitura do resultado. */
+   operador ler qualquer linha. Nasce FECHADO (o `open` NAO esta no template), como o bloco dos
+   descartados: o titulo continua na tela e abrir e' um clique. */
 .observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
 .observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
 .observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}
@@ -1407,6 +1407,66 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   flex-wrap:wrap;
   gap:.35rem;
   margin:0
+}
+
+/* Feature 056 — regiões compartilhadas. O bloco veste a MESMA moldura de
+   escopo-arquivo de Cobertura do arquivo e Observações do arquivo: painel em
+   `--aviso-bg`, borda em `--aviso-line`, e os cartões internos em `--surface`
+   para o conteúdo continuar legível. Nasce fechado, como os dois. O que é novo
+   são os selos de desfecho, que usam as cores de estado já medidas e presas por
+   teste (--st-*), e a marca de acúmulo, que usa a cor de aviso. Nenhuma cor nova
+   é introduzida. */
+.regioes-compartilhadas{
+  --bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);
+  border-color:var(--aviso-line)
+}
+
+.regiao{
+  border:1px solid var(--line);
+  border-radius:.5rem;
+  padding:.75rem 1rem;
+  margin-bottom:.75rem;
+  background:var(--surface)
+}
+
+.regiao:last-of-type{margin-bottom:.5rem}
+
+.cabecalho-da-regiao{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem .75rem;
+  align-items:baseline
+}
+
+.faixa-da-regiao{color:var(--muted);font-size:.9rem}
+
+.selo-da-regiao{
+  display:inline-block;
+  border:1px solid currentColor;
+  border-radius:var(--r-pill);
+  padding:.05rem .5rem;
+  font-size:.75rem;
+  font-weight:700
+}
+
+.selo-convergente{color:var(--st-compativel)}
+.selo-dividido{color:var(--st-conflitante)}
+.selo-parcial{color:var(--st-possivel)}
+.selo-sem_ancestral{color:var(--st-inconclusivo)}
+.selo-acumulo{color:var(--aviso-line)}
+
+.numeros-da-regiao{margin:.35rem 0;font-size:.9rem}
+
+.membros-da-regiao{
+  margin:.35rem 0;
+  padding-left:1.1rem;
+  font-size:.9rem
+}
+
+.motivo-da-regiao{
+  margin:.35rem 0 0;
+  font-size:.9rem;
+  color:var(--muted)
 }
 
 .medida-da-evidencia{

@@ -3,7 +3,7 @@
 Renderiza a página de resultados de verdade (Jinja + template do app) sobre a árvore
 sintética, e prende quatro coisas:
 
-1. o painel existe com evidência, nasce aberto e fica **fora** da guarda dos cartões;
+1. o painel existe com evidência, nasce fechado e fica **fora** da guarda dos cartões;
 2. sem cobertura, o painel não aparece (é o que preserva a tela de entrada);
 3. a linha `Fonte:` mostra o rótulo canônico e o texto original em etiqueta;
 4. a linha da medida traz o estado, os números e a ressalva de escopo.
@@ -74,7 +74,7 @@ def _render(resultados, descartados, cobertura=None):
 
 
 class TestPainel:
-    def test_o_painel_existe_aberto_e_fora_da_guarda_dos_cartoes(self):
+    def test_o_painel_existe_fechado_e_fora_da_guarda_dos_cartoes(self):
         resultados, descartados, cobertura = _analisar(CSV_ROBUSTO)
         pagina = _render(resultados, descartados, cobertura)
 
@@ -83,6 +83,12 @@ class TestPainel:
         assert 'id="cobertura"' in pagina
         assert "linhas no CSV" in pagina
         assert pagina.index("Cobertura do arquivo") < pagina.index("Resultados das Análises de Conexão")
+
+        inicio = pagina.index('class="card cobertura-do-arquivo')
+        abertura = pagina[inicio:pagina.index(">", inicio) + 1]
+        assert "open" not in abertura, (
+            "o painel de cobertura nasceu ABERTO: o padrao pedido e' fechado"
+        )
 
     def test_sem_cartao_o_painel_ainda_renderiza(self):
         _resultados, descartados, cobertura = _analisar(CSV_ROBUSTO)

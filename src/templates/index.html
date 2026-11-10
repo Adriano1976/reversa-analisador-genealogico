@@ -840,7 +840,7 @@
                        emite nem um espaco, e o `SHA_DA_TELA` da tela de entrada continua identico.
                        Nenhuma regra mora aqui: os numeros vem do nucleo e o template so' interpola;
                        as frases sao compostas com eles, como a contagem em tres faixas (033). #}
-                        <details class="card cobertura-do-arquivo mb-4" id="cobertura" open>
+                        <details class="card cobertura-do-arquivo mb-4" id="cobertura">
                             <summary class="sumario-do-cartao">
                                 <div class="card-header cabecalho-da-cobertura"><h5 class="mb-0">Cobertura do arquivo</h5></div>
                             </summary>
@@ -871,6 +871,60 @@
                                     <p class="rotulos-dos-laboratorios">
                                         {% for rotulo, quantidade in cobertura.laboratorios %}<span class="etiqueta-da-fonte">{{ rotulo }} {{ quantidade | inteiro_br }}</span>{% endfor %}
                                     </p>
+                                {% endif %}
+                            </div>
+                        </details>
+                    {% endif %}{% if regioes %}{# FEATURE 056 — bloco de ESCOPO-ARQUIVO, no mesmo regime
+                       da cobertura: fica fora da guarda `dna_results`. Nasce dos segmentos do
+                       proprio CSV de matches, e nao de arquivo auxiliar. Veste a mesma moldura
+                       de Cobertura/Observacoes e nasce FECHADO, como os dois. O `{% if %}` comeca
+                       na MESMA linha do `{% endif %}` anterior para o ramo falso nao emitir espaco. #}
+                        <details class="card regioes-compartilhadas mb-4" id="regioes">
+                            <summary class="sumario-do-cartao">
+                                <div class="card-header"><h5 class="mb-0">Regiões compartilhadas ({{ regioes|length }})</h5></div>
+                            </summary>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">
+                                    Matches que compartilham a mesma faixa do cromossomo <strong>com o kit do arquivo</strong>.
+                                    O CSV de matches não diz se eles compartilham entre si — por isso o bloco não fala de
+                                    triângulo fechado. O desfecho, quando existe, vem dos cartões já calculados; nenhum
+                                    parentesco é criado ou alterado aqui.
+                                </p>
+                                {% for item in regioes %}
+                                    <article class="regiao">
+                                        <header class="cabecalho-da-regiao">
+                                            <strong>Cromossomo {{ item.regiao.cromossomo }} · {{ item.regiao.inicio_mb | decimal_br }}–{{ item.regiao.fim_mb | decimal_br }} Mb</strong>
+                                            <span class="faixa-da-regiao">{{ item.regiao.inicio | inteiro_br }}–{{ item.regiao.fim | inteiro_br }} pb ({{ item.regiao.extensao_mb | decimal_br }} Mb)</span>
+                                            <span class="selo-da-regiao selo-{{ item.desfecho }}">{{ item.rotulo }}</span>
+                                            {% if item.regiao.acumulo %}
+                                                <span class="selo-da-regiao selo-acumulo">Região de acúmulo</span>
+                                            {% endif %}
+                                        </header>
+                                        <p class="numeros-da-regiao">
+                                            {{ item.regiao.kits|length }} kits ·
+                                            cM por segmento: {{ item.regiao.cm_minimo | cm_br }} a {{ item.regiao.cm_maximo | cm_br }}
+                                        </p>
+                                        <ul class="membros-da-regiao">
+                                            {% for membro in item.membros %}
+                                                <li>
+                                                    {{ membro.nome or "nome não informado" }} <code>{{ membro.kit }}</code>
+                                                    {% if membro.ancestral_nome %}→ {{ membro.ancestral_nome }}
+                                                    {% elif not membro.tem_cartao %}→ sem correspondência na árvore{% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                        <p class="motivo-da-regiao">{{ item.motivo }}</p>
+                                    </article>
+                                {% endfor %}
+                                <p class="text-muted small mb-0">
+                                    A região não soma cM, não cria vínculo e não prova parentesco. Só segmentos de
+                                    10 cM ou mais entram; a região de acúmulo é um alerta, não um veredito.
+                                </p>
+                                {% if regioes_dados %}
+                                    <form method="POST" action="/regioes.csv" class="form-do-csv mt-2">
+                                        <input type="hidden" name="dados" value="{{ regioes_dados | tojson | forceescape }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Baixar regiões (CSV)</button>
+                                    </form>
                                 {% endif %}
                             </div>
                         </details>

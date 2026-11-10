@@ -62,6 +62,9 @@ class ResultadoDeAnalise:
     # FEATURE 040: o retrato do arquivo (linhas, evidencias, laboratorios, mediana,
     # pisos). `None` quando o nucleo nao o preencheu; a tela nao renderiza o painel.
     cobertura: dict | None = None
+    # FEATURE 056: as regioes compartilhadas classificadas. `()` quando o CSV nao
+    # tem segmentos utilizaveis; a tela nao renderiza o bloco.
+    regioes: tuple = ()
 
 
 def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
@@ -83,10 +86,12 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
     # canal proprio na tela; sem isso, eram copiadas para cada cartao (adendo 017).
     _observacoes: list[str] = []
     _cobertura: dict = {}
+    _regioes: list = []
     resultados, descartados, mensagem = fluxo_dna(caminho_do_csv, root_name, deps, arvore,
                                                   observacoes_do_arquivo=_observacoes,
                                                   candidatos_fixos=candidatos_fixos,
-                                                  cobertura=_cobertura)
+                                                  cobertura=_cobertura,
+                                                  regioes=_regioes)
 
     # FEATURE 039: os cartoes sem correspondencia JA' estao em `resultados`; a tela
     # so' precisa do tamanho. Derivar daqui evita que a contagem e a lista divirjam.
@@ -115,6 +120,7 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
         observacoes_do_arquivo=tuple(_observacoes),
         sem_correspondencia=sem_correspondencia,
         cobertura=_cobertura or None,
+        regioes=tuple(_regioes),
     )
 
 

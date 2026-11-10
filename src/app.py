@@ -36,6 +36,7 @@ from application.recuperacao import ServicoDeRecuperacao
 from application.reenvio import SUBSTITUIDO, guardar_com_substituicao
 from application.sessao_da_conta import VerificadorDeVersao
 from application.traducao import traduzir
+from application.regioes import projetar_regioes
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
 from application.vinculo import VinculoDeIdentidade
 from core.dna_analysis import Dependencias
@@ -692,6 +693,8 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
             sem_correspondencia=resultado.sem_correspondencia,
             observacoes_do_arquivo=resultado.observacoes_do_arquivo,
             cobertura=resultado.cobertura,
+            regioes=resultado.regioes,
+            regioes_dados=projetar_regioes(resultado.regioes),
             message=mensagem_final,
             aviso_de_persistencia=resultado.aviso_de_persistencia,
             root_name_usado=root_name,
@@ -1037,6 +1040,9 @@ def create_app(config=None, *, armazenamento=None, carregador=None,
     # Formato dos numeros que o operador le (BUG-20261004-EWSJ). O template pede o
     # filtro; a regra mora em `utils/number_format.py`, que e a autoridade unica.
     aplicacao.add_template_filter(formatar_cm, "cm_br")
+    # O mesmo formato decimal (virgula, ate duas casas) vale para Mb; o alias
+    # evita ler "cM" onde o numero e uma coordenada.
+    aplicacao.add_template_filter(formatar_cm, "decimal_br")
     aplicacao.add_template_filter(formatar_inteiro, "inteiro_br")
     # O tamanho dos arquivos da lista, na unidade que se le de relance: `8,54 MB`, `55 KB`.
     # Nasceu em 2026-10-16, a pedido do operador: a coluna "Tamanho" das DUAS abas mostrava o total em

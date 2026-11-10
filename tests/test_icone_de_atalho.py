@@ -213,16 +213,12 @@ TAMANHO_ESPERADO = 16504
 #: dele. Os outros cinco (abrir, apagar, conexao, DNA e promover candidato) vivem sob
 #: lista nao vazia, arvore aberta ou resultado, e nao entram nesta conta. A declaracao da
 #: entrega esta em `_reversa_sdd/addenda/052-busca-nome-e-sobrenome.md`.
-#: **Decima terceira medicao, 2026-10-31, recursos embutidos (feature 054).** O Bootstrap, o
-#: Mermaid e as duas familias de fonte deixaram de vir da CDN e passaram a ser servidos pela
-#: propria aplicacao (`/bootstrap.css`, `/fontes.css`, `/mermaid.js`, `/bootstrap.js`). O que
-#: moveu este hash foi SO o `<head>`: sairam tres tags externas (os dois `preconnect` e a folha
-#: do Google) e entraram `/bootstrap.css?v=5.3.3` e `/fontes.css?v=1`; as tags do Mermaid e do
-#: Bootstrap JS apenas trocaram de endereco, na mesma posicao. `577a17fd…` (51.612 bytes) →
-#: `3487986a…` (51.218, **-394 bytes**). A tela nao muda um pixel — e o que a conferencia com a
-#: rede desligada prova. A declaracao da entrega nasce em `_reversa_sdd/addenda/054-…`
-#: (`/reversa-sync`), e o delta em bytes esta em
-#: `_reversa_forward/054-embutir-bootstrap-e-mermaid/evidence/SHA_DA_TELA.md`.
+#: **Decima quinta medicao, 2026-11-09, regioes compartilhadas (feature 056).** A 055 havia
+#: acrescentado um formulario de triangulacao na Fase 3 (+1.550 bytes); a 056 removeu o
+#: arquivo de triangulacao e o formulario junto, e o bloco de regioes nasce do CSV de
+#: matches — logo, nada novo aparece em `GET /`. O hash voltou ao valor de antes da 055:
+#: `82258c2b…` (52.768 bytes) → `3487986a…` (51.218, **−1.550 bytes**). A igualdade com o
+#: valor de 2026-10-31 e a prova de que a remocao foi completa.
 SHA_DA_TELA = "3487986a8586ab91310d40d79841d22113e99aaeacf8e04b699a1b8fa12123c0"
 
 

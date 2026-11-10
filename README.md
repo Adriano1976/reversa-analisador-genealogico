@@ -990,6 +990,7 @@ hash, e a redefinição de senha invalida as sessões anteriores.
   legítimo com extensão atípica. O valor é por extensão, e não por tipo MIME: no Windows o `.csv`
   costuma estar registrado como `application/vnd.ms-excel`, e `text/csv` esconderia arquivos
   legítimos. Só `.ged`, e não `.gedcom`, porque é a extensão que decide a aba. Ver o adendo `021`.
+- **Regiões compartilhadas:** agrupa, por cromossomo, os matches do **próprio CSV do Ancestor Projects** cujos segmentos se sobrepõem — só entram segmentos de **10 cM ou mais**. Cada região mostra quantos kits compartilham a faixa, o cM mínimo e máximo, os membros com kit e nome, e o desfecho documental: **convergente**, **dividido**, **parcial** ou **sem ancestral documentado**. Região curta com muitos kits recebe o alerta de **acúmulo**. O bloco afirma o que o arquivo permite: os matches compartilham a faixa **com o kit do arquivo**, não necessariamente entre si. Não soma cM, não cria vínculo e não prova parentesco; a lista sai em CSV por `POST /regioes.csv`.
 - **Possibilidades pelo DNA:** apresenta relações compatíveis segundo o Shared cM Project 4.0, sem afirmar
   um parentesco único.
 - **Confronto GEDCOM × DNA:** retorna COMPATÍVEL, POSSÍVEL, CONFLITANTE ou INCONCLUSIVO e explica as causas
