@@ -219,7 +219,11 @@ TAMANHO_ESPERADO = 16504
 #: matches — logo, nada novo aparece em `GET /`. O hash voltou ao valor de antes da 055:
 #: `82258c2b…` (52.768 bytes) → `3487986a…` (51.218, **−1.550 bytes**). A igualdade com o
 #: valor de 2026-10-31 e a prova de que a remocao foi completa.
-SHA_DA_TELA = "3487986a8586ab91310d40d79841d22113e99aaeacf8e04b699a1b8fa12123c0"
+#: **Decima sexta medicao, 2026-11-10, relogio da analise.** O indicador de carregamento
+#: passou a dizer o que esta acontecendo e a contar os segundos (o operador relatou espera
+#: longa sem sinal de vida). O delta e so o `<script>` do indicador: `3487986a…` (51.218)
+#: → `0b926895…` (52.497, **+1.279 bytes**).
+SHA_DA_TELA = "0b926895c10d32b492e8f0a9151fcf40424c19c2bdc611738b18443b981ff4fb"
 
 
 def _cabecalho_png(corpo: bytes):

@@ -59,6 +59,7 @@ class SegmentoDaRegiao:
     inicio: int
     fim: int
     cm: float
+    snps: int | None = None
 
     def __post_init__(self) -> None:
         if self.fim <= self.inicio:
@@ -83,16 +84,6 @@ class RegiaoCompartilhada:
         return self.fim - self.inicio
 
     @property
-    def inicio_mb(self) -> float:
-        """Início da faixa em Mb, para distinguir regiões do mesmo cromossomo."""
-        return round(self.inicio / 1_000_000, 2)
-
-    @property
-    def fim_mb(self) -> float:
-        """Fim da faixa em Mb, no mesmo arredondamento de `inicio_mb`."""
-        return round(self.fim / 1_000_000, 2)
-
-    @property
     def extensao_mb(self) -> float:
         return round(self.extensao / 1_000_000, 2)
 
@@ -102,6 +93,17 @@ class RegiaoCompartilhada:
             self.extensao < ACUMULO_EXTENSAO_MAXIMA
             or self.cm_maximo < ACUMULO_CM_MAXIMO
         )
+
+    @property
+    def snps_minimo(self) -> int | None:
+        """Menor contagem de SNPs entre os segmentos, quando o arquivo a traz."""
+        valores = [segmento.snps for segmento in self.segmentos if segmento.snps]
+        return min(valores) if valores else None
+
+    @property
+    def snps_maximo(self) -> int | None:
+        valores = [segmento.snps for segmento in self.segmentos if segmento.snps]
+        return max(valores) if valores else None
 
 
 @dataclass(frozen=True, slots=True)

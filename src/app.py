@@ -10,6 +10,7 @@ from typing import Literal
 import errno
 import logging
 import os
+import time
 import socket
 import sys
 from datetime import datetime, timedelta, timezone
@@ -37,6 +38,9 @@ from application.reenvio import SUBSTITUIDO, guardar_com_substituicao
 from application.sessao_da_conta import VerificadorDeVersao
 from application.traducao import traduzir
 from application.regioes import projetar_regioes
+from application.distribuicao import projetar_distribuicao
+from reporting.ideograma import montar_ideograma
+from reporting.distribuicao import montar_distribuicao
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
 from application.vinculo import VinculoDeIdentidade
 from core.dna_analysis import Dependencias
@@ -657,6 +661,7 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
                     "saiu da lista e continua guardada na pasta de aposentados."
                 )
 
+        inicio_da_analise = time.perf_counter()
         resultado: ResultadoDeAnalise = caso_de_uso_dna(
             caminho_do_csv,
             root_name,
@@ -666,6 +671,15 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
             gedcom_filename,
             borda["registro"],
             candidatos_fixos=candidatos_fixos or None,
+        )
+        # Medicao no log: e o unico jeito de separar "arvore grande" de "CSV
+        # grande" quando o operador relata lentidao. O parse do GEDCOM ja e
+        # medido em `ports.adaptadores`.
+        current_app.logger.info(
+            "medicao: analise_dna: %.0f ms (cartoes=%d, regioes=%d)",
+            (time.perf_counter() - inicio_da_analise) * 1000,
+            len(resultado.resultados),
+            len(resultado.regioes),
         )
         mensagem_final: str = resultado.mensagem
         if aviso_de_substituicao:
@@ -684,6 +698,11 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
             ip=ip_do_cliente(),
             origem=origem_da_requisicao(),
         )
+        # Projetada UMA vez: o template e o ideograma leem a mesma lista, e a
+        # projecao nao se repete por acidente.
+        dados_das_regioes = projetar_regioes(resultado.regioes)
+        # FEATURE 057: mesma regra — o grafico de distribuicao le uma projecao so'.
+        dados_da_distribuicao = projetar_distribuicao(resultado.distribuicao)
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
@@ -694,7 +713,9 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
             observacoes_do_arquivo=resultado.observacoes_do_arquivo,
             cobertura=resultado.cobertura,
             regioes=resultado.regioes,
-            regioes_dados=projetar_regioes(resultado.regioes),
+            regioes_dados=dados_das_regioes,
+            ideograma=montar_ideograma(dados_das_regioes),
+            grafico_da_distribuicao=montar_distribuicao(dados_da_distribuicao),
             message=mensagem_final,
             aviso_de_persistencia=resultado.aviso_de_persistencia,
             root_name_usado=root_name,

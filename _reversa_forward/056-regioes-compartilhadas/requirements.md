@@ -77,6 +77,7 @@ Sem o piso, quase todo kit entra em alguma região — o bloco perde poder de de
 | RF-10 | Não alterar cartões, cM, caminhos, vereditos, descartes nem o CSV de descartes | Must | Sem regiões, a tela é a de antes |
 | RF-11 | Manter a ordem determinística | Must | Duas execuções produzem a mesma ordem |
 | RF-12 | Remover o arquivo de triangulação: formulário, campo, ação e adaptador | Must | `GET /` volta ao hash de antes da 055 |
+| RF-13 | Apresentar as regiões num **ideograma por cromossomo**: uma linha por cromossomo, faixas posicionadas pela coordenada, cor por desfecho e detalhe no hover **e no foco de teclado** | Should | A faixa fica dentro do trilho; o cartão mostra posição, tamanho, cM, desfecho e membros; a legenda declara a régua (GRCh37) e a ausência de RSID no CSV |
 
 ## 6. Requisitos Não Funcionais
 
@@ -156,3 +157,4 @@ si; para isso seria preciso o arquivo de pares, que esta feature removeu por dec
 | Data | Alteração | Autor |
 |------|-----------|-------|
 | 2026-11-09 | Versão inicial, substituindo o insumo da 055 | reversa |
+| 2026-11-10 | `RF-13`: ideograma por cromossomo com detalhe no hover e no foco; régua GRCh37 declarada na legenda | reversa |

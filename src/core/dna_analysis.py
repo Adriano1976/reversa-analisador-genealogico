@@ -115,6 +115,7 @@ def _segmentos_das_evidencias(evidencias):
                         inicio=int(inicio),
                         fim=int(fim),
                         cm=float(segmento.get("cm") or 0.0),
+                        snps=segmento.get("snps"),
                     ))
                 except (TypeError, ValueError):
                     continue

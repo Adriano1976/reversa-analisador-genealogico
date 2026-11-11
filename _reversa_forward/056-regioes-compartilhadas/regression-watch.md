@@ -12,8 +12,9 @@
 | W056-03 | `src/core/regiao_no_cartao.py` | O desfecho vem dos cartões já calculados, sem segundo matching | presença | Região classificada por cM ou por nome sem cartão |
 | W056-04 | `src/templates/index.html` (bloco) | O bloco declara que o compartilhamento é **com o kit do arquivo** | presença | Texto afirmando triângulo fechado |
 | W056-05 | `src/core/regioes.py` | Nenhum cM é somado: mínimo e máximo por segmento | presença | Campo de cM total da região |
-| W056-06 | `tests/test_icone_de_atalho.py` (`SHA_DA_TELA`) | `3487986a…` (51.218 bytes) até mudança declarada | presença | Hash divergente sem delta em `evidence/` |
+| W056-06 | `tests/test_icone_de_atalho.py` (`SHA_DA_TELA`) | `0b926895…` (52.497 bytes) até mudança declarada | presença | Hash divergente sem delta em `evidence/` |
 | W056-07 | `src/app.py` | Não existe ação de triangulação nem campo `triangulacao_csv` | presença | Formulário ou ação de arquivo de pares reaparecendo |
+| W056-08 | `src/assets/app.css` (`details.card.regioes-compartilhadas`) | O cartão do hover **não é recortado** pelo raio do card; o recorte fica no cabeçalho | presença | `overflow:hidden` de volta no bloco, ou cartão do hover com o topo cortado |
 
 ## Observações sem peso de regressão
 

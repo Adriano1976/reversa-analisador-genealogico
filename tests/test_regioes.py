@@ -4,7 +4,7 @@ from __future__ import annotations
 from core.regioes import PISO_DE_CM, SegmentoDaRegiao, agrupar
 
 
-def _segmento(kit, inicio, fim, cm, cromossomo="7", nome=None) -> SegmentoDaRegiao:
+def _segmento(kit, inicio, fim, cm, cromossomo="7", nome=None, snps=None) -> SegmentoDaRegiao:
     return SegmentoDaRegiao(
         kit=kit,
         nome=nome or f"Pessoa {kit}",
@@ -12,6 +12,7 @@ def _segmento(kit, inicio, fim, cm, cromossomo="7", nome=None) -> SegmentoDaRegi
         inicio=inicio,
         fim=fim,
         cm=cm,
+        snps=snps,
     )
 
 
@@ -68,6 +69,18 @@ def test_regiao_fechada_em_faixa_curta_recebe_alerta_de_acumulo():
 
     assert agrupamento.total == 1
     assert agrupamento.regioes[0].acumulo is True
+
+
+def test_snps_da_regiao_sao_o_minimo_e_o_maximo_dos_segmentos():
+    agrupamento = agrupar([
+        _segmento("A111111", 21000000, 39000000, 45.0, snps=9000),
+        _segmento("B222222", 21500000, 38500000, 40.0, snps=7000),
+        _segmento("C333333", 22000000, 38000000, 35.0, snps=8000),
+    ])
+
+    regiao = agrupamento.regioes[0]
+    assert regiao.snps_minimo == 7000
+    assert regiao.snps_maximo == 9000
 
 
 def test_ordem_e_deterministica():

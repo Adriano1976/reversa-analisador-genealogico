@@ -18,18 +18,34 @@ from __future__ import annotations
 
 import string
 import unicodedata
+from functools import lru_cache
 
 from .text_cleaning import strip_bad_utf
 
 
-def norm_name(s):
-    s = strip_bad_utf(str(s))
+@lru_cache(maxsize=50_000)
+def _norm_name_texto(texto: str) -> str:
+    """Corpo da normalizacao, memoizado pela string de entrada.
+
+    A analise de DNA do arquivo real chama `norm_name` ~69 mil vezes, e a maior
+    parte delas repete o mesmo nome: o indice do GEDCOM normaliza cada pessoa
+    uma vez, e o laco de candidatos renormaliza os mesmos nomes a cada match. O
+    valor nao depende de nada alem do texto, entao o cache nao muda decisao
+    nenhuma — muda o custo. Teto de 50 mil entradas: o GEDCOM real tem 19.403
+    pessoas, e o teto cabe com folga sem crescer sem limite em processo longo.
+    """
+    s = strip_bad_utf(texto)
     s = unicodedata.normalize("NFKD", s)
     s = "".join(ch for ch in s if not unicodedata.combining(ch))
     s = s.replace("/", " ")
     s = "".join(ch if ch not in set(string.punctuation) else " " for ch in s)
     s = " ".join(s.lower().split())
     return s
+
+
+def norm_name(s):
+    """Forma comparavel do nome; a mesma string devolve o mesmo valor (cache)."""
+    return _norm_name_texto(str(s))
 
 
 __all__ = ["norm_name"]

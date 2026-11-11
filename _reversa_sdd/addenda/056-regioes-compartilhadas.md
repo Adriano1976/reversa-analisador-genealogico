@@ -52,7 +52,44 @@ Nenhuma regra de matching, cM, travessia de grafo ou persistência mudou. O banc
 - `W056-03`: o desfecho vem dos cartões, sem segundo matching.
 - `W056-04`: o bloco não afirma triângulo fechado.
 - `W056-05`: nenhum cM é somado entre segmentos.
-- `W056-06`: `SHA_DA_TELA` de volta a `3487986a…`.
+- `W056-06`: `SHA_DA_TELA` de volta a `0b926895…`.
+- `W056-08`: o cartão do hover do ideograma não é recortado pelo raio do card.
+
+## Atualização 2026-11-10 — mapa por cromossomo
+
+O bloco ganhou um **ideograma**: uma linha por cromossomo, uma faixa por região
+posicionada pela coordenada, cor por desfecho e um cartão de detalhe ao passar o mouse —
+e também ao focar a faixa pelo teclado, para o dado não existir só no hover. O cartão
+mostra a posição em pares de bases, o tamanho em Mb, o cM mínimo e máximo, o desfecho e
+até cinco membros.
+
+A régua é o **GRCh37**, declarado na legenda: o CSV de matches não traz build nem RSID,
+e um número de escala sem procedência seria invenção. A faixa mínima de 0,6 % impede que
+uma região de 1 Mb desapareça no trilho; posição além do comprimento é presa na borda.
+
+O detalhe textual das regiões continua abaixo, agora recolhido por padrão, como o bloco
+inteiro. Nenhum dado novo nasce do mapa: ele lê as mesmas regiões que a lista.
+
+## Atualização 2026-11-10 — o cartão do hover não é mais cortado
+
+O cartão do hover abria cortado nas duas primeiras linhas do mapa (cromossomos 1 e 2): via-se
+"Tamanho:" e o resto, sem o título e sem a posição exata. Não era dado faltando — o elemento
+estava lá —, era o `overflow:hidden` de `details.card` recortando no raio da borda tudo o que o
+cartão desenhava **acima** da faixa, e o topo do cartão caía fora do card.
+
+O conserto é de folha, no escopo deste bloco: `details.card.regioes-compartilhadas` passa a
+`overflow:visible` e o raio migra para o cabeçalho, que é quem de fato precisa dele (fechado, o
+cabeçalho é o cartão inteiro e leva o raio nos quatro cantos; aberto, só nos dois de cima).
+Nenhuma classe, marcação, texto ou número mudou, e o `SHA_DA_TELA` continua `0b926895…`.
+
+Medido no harness estático (Chrome headless, 1114 px): o cartão do hover tem 219 px de altura
+com cinco membros e a linha 1 do mapa fica a 133 px do topo do card — faltavam 86 px, quatro
+linhas. Inverter o cartão para baixo nas primeiras linhas exigiria inverter **quatro das nove**
+linhas, e a conta muda com o zoom: por isso a correção foi liberar o recorte, e não mexer na
+direção.
+
+Na mesma passada, a dica ganhou o lado esquerdo: uma faixa colada no início do cromossomo abria
+centrada e saía do trilho pela esquerda (`lado` = `direita`, `left:0`).
 
 ## Fontes
 

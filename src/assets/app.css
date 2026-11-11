@@ -367,14 +367,27 @@ a{font-weight:700}
 
 /* Avisos */
 .alerta-aviso{border-left:4px solid var(--aviso-line);background:var(--aviso-bg);padding:.6rem .8rem;margin-bottom:.5rem;border-radius:var(--r-1);font-size:.9rem}
-/* As observacoes do ARQUIVO, e nao de um cartao: valem para a analise inteira e por isso ficam
-   num bloco unico acima do resultado, visualmente separadas dos cartoes. Recolhem como eles
-   (mesmo `details`, mesmo `sumario-do-cartao`), mas com aparencia de AVISO: o creme de
-   `--aviso-bg` percorre o bloco inteiro, e nao so os itens, e o cabecalho o anuncia antes de o
-   operador ler qualquer linha. Nasce FECHADO (o `open` NAO esta no template), como o bloco dos
-   descartados: o titulo continua na tela e abrir e' um clique. */
-.observacoes-do-arquivo{--bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);border-color:var(--aviso-line)}
-.observacoes-do-arquivo .alerta-aviso{background:transparent;border-left-width:3px}
+/* OS TRÊS PAINÉIS DE ESCOPO-ARQUIVO VESTEM A MOLDURA DE TODOS OS BLOCOS (2026-11-10).
+   Observações do arquivo, Cobertura do arquivo e Regiões compartilhadas usavam a moldura de
+   AVISO INTEIRA — `--aviso-bg` no painel e `--aviso-line` na borda. Empilhados entre o painel
+   da fase e os resultados, os três viravam três barras creme, lidas como um componente à parte
+   do resto da tela. O operador pediu que vestissem o padrão da casa.
+
+   O que a mudança faz: superfície `--surface`, borda `--line` e cabeçalho `--surface-2`, que é
+   a forma de QUALQUER `details.card` desta tela (e a que o bloco dos descartados usa). O âmbar
+   deixa de tingir o PAINEL e passa a marcar só o que é ressalva — o item de observação e a
+   frase da cobertura —, que é onde a cor significa limite do arquivo.
+
+   O que se perde, e fica registrado: a moldura inteira anunciava "escopo-arquivo" antes de o
+   operador abrir o bloco. Agora o anúncio é o título, e o âmbar aparece quando ele abre. */
+.observacoes-do-arquivo,
+.cobertura-do-arquivo,
+.regioes-compartilhadas{
+  --bs-card-bg:var(--surface);
+  --bs-card-cap-bg:var(--surface-2);
+  border-color:var(--line)
+}
+.observacoes-do-arquivo .alerta-aviso{border-left-width:3px}
 .observacoes-do-arquivo .alerta-aviso:last-child{margin-bottom:0}
 
 /* Alertas de retorno (o flash do topo). Ate 2026-10-17 usavam a cor padrao do framework, fora da
@@ -1323,32 +1336,20 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
    aberto, `summary` titulando, `card-body`). Nenhum numero aqui carrega cor: a informacao esta'
    no texto e no rotulo, e a cor de estado foi recusada de proposito (D-11 do roadmap). */
 
-/* A MESMA MOLDURA DE "OBSERVACOES DO ARQUIVO" (2026-10-26). Os dois paineis sao de
-   ESCOPO-ARQUIVO e ficam lado a lado na mesma dobra: um com fundo branco e numeros soltos, o
-   outro com fundo de aviso e itens marcados. O operador pediu que a cobertura vestisse a mesma
-   moldura. O que muda, e por que continua legivel:
+/* A MOLDURA DA COBERTURA É A MESMA DOS OUTROS BLOCOS DESDE 2026-11-10 — ver a nota acima de
+   `.observacoes-do-arquivo`. O que continua sendo de AVISO são as RESSALVAS: as cinco frases
+   ganham `--aviso-bg` e a barra em `--aviso-line`, porque nelas a cor significa limite do
+   arquivo, e não decoração.
 
-   - o painel inteiro passa a `--aviso-bg`, com a borda em `--aviso-line`, como as observacoes;
-   - as RESSALVAS (as cinco frases) viram itens com a barra a esquerda, que e' exatamente a
-     forma das observacoes — elas sao limitacoes do arquivo, nao numeros;
-   - os NUMEROS nao herdam a barra nem a cor: os cartoes vao para `--surface` (branco) para se
-     destacarem do creme, e as etiquetas de laboratorio tambem. Numero continua sem cor de
-     estado (D-11 do roadmap).
-
-   A moldura de aviso aqui e' do PAINEL, nao dos valores: nenhum dos 617, 456 ou 74% ganhou
-   tinta de aviso. */
-.cobertura-do-arquivo{
-  --bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);
-  border-color:var(--aviso-line)
-}
-.cobertura-do-arquivo .numero-da-cobertura{background:var(--surface)}
-.cobertura-do-arquivo .etiqueta-da-fonte{background:var(--surface)}
+   Os NÚMEROS não herdam nada disso: as caixas ficam em `--surface-2`, que é o tom de bloco
+   interno desta casa, e nenhum valor carrega cor de estado (D-11 do roadmap). */
 .cobertura-do-arquivo .frases-da-cobertura{
   list-style:none;
   padding-left:0;
   margin-bottom:.75rem
 }
 .cobertura-do-arquivo .frases-da-cobertura li{
+  background:var(--aviso-bg);
   border-left:3px solid var(--aviso-line);
   border-radius:var(--r-1);
   padding:.6rem .8rem;
@@ -1409,17 +1410,14 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   margin:0
 }
 
-/* Feature 056 — regiões compartilhadas. O bloco veste a MESMA moldura de
-   escopo-arquivo de Cobertura do arquivo e Observações do arquivo: painel em
-   `--aviso-bg`, borda em `--aviso-line`, e os cartões internos em `--surface`
-   para o conteúdo continuar legível. Nasce fechado, como os dois. O que é novo
-   são os selos de desfecho, que usam as cores de estado já medidas e presas por
-   teste (--st-*), e a marca de acúmulo, que usa a cor de aviso. Nenhuma cor nova
-   é introduzida. */
-.regioes-compartilhadas{
-  --bs-card-bg:var(--aviso-bg);--bs-card-cap-bg:var(--aviso-bg);
-  border-color:var(--aviso-line)
-}
+/* Feature 056 — regiões compartilhadas. O painel veste a moldura dos outros dois blocos de
+   escopo-arquivo desde 2026-11-10 (ver a nota acima de `.observacoes-do-arquivo`). O que é
+   próprio do bloco são os selos de desfecho, que usam as cores de estado já medidas e presas
+   por teste (--st-*), e a marca de acúmulo, que usa a cor de aviso. Nenhuma cor é introduzida.
+
+   As regiões internas passam a `--surface-2`: sobre o painel branco, um bloco branco só se
+   separaria pela borda, e bloco dentro de cartão nesta casa é mudança de TOM mais borda. */
+.regioes-compartilhadas .regiao{background:var(--surface-2)}
 
 .regiao{
   border:1px solid var(--line);
@@ -1468,6 +1466,270 @@ details.card.cartao-do-resultado > summary.sumario-do-cartao::after{content:none
   font-size:.9rem;
   color:var(--muted)
 }
+
+/* Ideograma das regioes (feature 056). O trilho imita as bandas de um cromossomo
+   com listras neutras; as faixas usam as cores de estado ja presas por teste e o
+   cartao do hover usa os mesmos tokens do resto da tela. Nenhuma cor nova. */
+.ideograma{display:grid;gap:.4rem;margin:0 0 .9rem}
+
+/* O MAPA DESENHA FORA DO CARD, E ISSO E UM BUG (2026-11-10). O cartao do hover abre ACIMA da
+   faixa; o `overflow:hidden` de `details.card` recorta no raio da borda, e nas duas PRIMEIRAS
+   linhas — os cromossomos 1 e 2 — o recorte comia o titulo e a linha "Posicao": o operador via
+   o cartao comecando em "Tamanho:". Aqui o recorte fica so no CABECALHO, que e' quem precisa do
+   raio; o corpo pinta em `--surface` e nada nele encosta na borda, entao nada vaza. Fechado, o
+   cabecalho E' o cartao inteiro e leva o raio nos quatro cantos. */
+details.card.regioes-compartilhadas{overflow:visible}
+details.card.regioes-compartilhadas > summary.sumario-do-cartao{
+  border-radius:calc(var(--r-3) - 1px) calc(var(--r-3) - 1px) 0 0;
+  overflow:hidden
+}
+details.card.regioes-compartilhadas:not([open]) > summary.sumario-do-cartao{
+  border-radius:calc(var(--r-3) - 1px)
+}
+
+.cromossomo{
+  display:grid;
+  grid-template-columns:2rem minmax(0,1fr) 4.6rem;
+  gap:.6rem;
+  align-items:center
+}
+
+.cromossomo-nome{font-weight:700;color:var(--muted);text-align:right;font-size:.85rem}
+
+.cromossomo-regua{font-size:.72rem;color:var(--muted);text-align:right}
+
+.trilho{
+  position:relative;
+  height:16px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background-color:var(--surface-2);
+  background-image:repeating-linear-gradient(90deg,var(--line) 0 5px,transparent 5px 9px);
+  overflow:visible
+}
+
+.faixa{
+  position:absolute;
+  top:1px;
+  bottom:1px;
+  min-width:5px;
+  padding:0;
+  border:0;
+  border-radius:999px;
+  cursor:pointer
+}
+
+.faixa-convergente{background:var(--st-compativel)}
+.faixa-dividido{background:var(--st-conflitante)}
+.faixa-parcial{background:var(--st-possivel)}
+.faixa-sem_ancestral{background:var(--st-inconclusivo)}
+.faixa-acumulo{box-shadow:0 0 0 2px var(--aviso-line)}
+
+.faixa:hover,.faixa:focus-visible{
+  z-index:6;
+  outline:2px solid var(--ink);
+  outline-offset:1px
+}
+
+.dica{
+  display:none;
+  position:absolute;
+  bottom:calc(100% + 8px);
+  width:280px;
+  padding:.6rem .7rem;
+  border:1px solid var(--line);
+  border-radius:.5rem;
+  background:var(--surface);
+  box-shadow:var(--sombra-alta);
+  color:var(--ink);
+  font-size:.8rem;
+  font-weight:400;
+  line-height:1.35;
+  text-align:left;
+  z-index:20
+}
+
+.faixa:hover .dica,.faixa:focus .dica,.faixa:focus-visible .dica{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem
+}
+
+.dica-centro{left:50%;transform:translateX(-50%)}
+.dica-esquerda{right:0}
+/* Colada na borda esquerda do trilho, a dica centrada sairia para fora do cartao. */
+.dica-direita{left:0}
+
+.legenda-do-ideograma{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem .9rem;
+  margin:0 0 1rem;
+  font-size:.75rem;
+  color:var(--muted)
+}
+
+.legenda-do-ideograma .amostra{
+  display:inline-block;
+  width:.65rem;
+  height:.65rem;
+  margin-right:.25rem;
+  border-radius:.15rem;
+  vertical-align:-1px
+}
+
+.amostra-convergente{background:var(--st-compativel)}
+.amostra-dividido{background:var(--st-conflitante)}
+.amostra-parcial{background:var(--st-possivel)}
+.amostra-sem_ancestral{background:var(--st-inconclusivo)}
+.legenda-nota{margin-left:auto;font-style:italic}
+
+/* Grafico de distribuicao por cromossomo (feature 057). Duas barras por cromossomo, dois
+   eixos com escalas independentes e o mesmo cartao de hover do ideograma. As cores sao
+   tokens: `--primary` para Matches e `--ink` para cM medio — `--st-*` NAO entra aqui,
+   porque nesta tela ela ja' significa desfecho. A grade horizontal pressupoe os QUATRO
+   intervalos de `reporting.distribuicao.INTERVALOS_POR_EIXO`: as linhas caem em 0, 25,
+   50, 75 e 100% do desenho. */
+.distribuicao{margin:0 0 1.1rem}
+
+.titulo-do-grafico{
+  font-family:var(--serif);
+  font-size:1rem;
+  font-weight:600;
+  color:var(--head);
+  margin:0 0 .5rem
+}
+
+.grafico{
+  display:grid;
+  grid-template-columns:1.1rem 2rem minmax(0,1fr) 2rem 1.1rem;
+  grid-template-rows:9rem 3.2rem;
+  grid-template-areas:
+    "nome-esq escala-esq area escala-dir nome-dir"
+    ".        .          rotulos .        .";
+  column-gap:.35rem;
+  padding-top:.55rem
+}
+
+.eixo-nome{
+  font-size:.7rem;
+  color:var(--muted);
+  text-align:center;
+  align-self:center;
+  writing-mode:vertical-rl
+}
+
+.eixo-nome-matches{grid-area:nome-esq;transform:rotate(180deg)}
+.eixo-nome-cm{grid-area:nome-dir}
+
+.escala{position:relative}
+.escala-matches{grid-area:escala-esq}
+.escala-cm{grid-area:escala-dir}
+
+.marca{
+  position:absolute;
+  right:0;
+  transform:translateY(50%);
+  font-size:.7rem;
+  line-height:1;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums
+}
+
+.escala-cm .marca{right:auto;left:0}
+
+.colunas{
+  grid-area:area;
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(0,1fr);
+  gap:.25rem;
+  align-items:end;
+  height:100%;
+  border-bottom:1px solid var(--line);
+  background-image:repeating-linear-gradient(180deg,var(--line) 0 1px,transparent 1px 25%)
+}
+
+.coluna{
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:2px;
+  height:100%;
+  padding:0;
+  border:0;
+  border-radius:.25rem .25rem 0 0;
+  background:transparent;
+  cursor:pointer
+}
+
+.coluna:hover,.coluna:focus-visible{
+  background:var(--surface-2);
+  outline:2px solid var(--ink);
+  outline-offset:1px
+}
+
+.barra{
+  display:block;
+  width:42%;
+  max-width:12px;
+  min-height:2px;
+  border-radius:.15rem .15rem 0 0
+}
+
+.barra-matches{background:var(--primary)}
+.barra-cm{background:var(--ink)}
+
+.coluna .dica{width:14rem}
+
+.coluna:hover .dica,.coluna:focus-visible .dica{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem
+}
+
+.rotulos{
+  grid-area:rotulos;
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(0,1fr);
+  gap:.25rem;
+  padding-top:1.5rem
+}
+
+/* Rotacao no CENTRO: girar em volta de um canto deslocava o rotulo para o lado
+   (medido em 2026-11-10: `Chr 1` caia sob a coluna 2). O `padding-top` do container
+   e' o que sobra para o texto girado nao subir por cima da area do grafico. */
+.rotulo-do-cromossomo{
+  justify-self:center;
+  font-size:.65rem;
+  color:var(--muted);
+  white-space:nowrap;
+  transform:rotate(-45deg);
+  transform-origin:center
+}
+
+.legenda-do-grafico{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.3rem .9rem;
+  margin:.55rem 0 0;
+  font-size:.72rem;
+  color:var(--muted)
+}
+
+.legenda-do-grafico .amostra{
+  display:inline-block;
+  width:.65rem;
+  height:.65rem;
+  margin-right:.25rem;
+  border-radius:.15rem;
+  vertical-align:-1px
+}
+
+.amostra-matches{background:var(--primary)}
+.amostra-cm{background:var(--ink)}
 
 .medida-da-evidencia{
   margin:.85rem 0 0;

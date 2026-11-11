@@ -824,7 +824,7 @@
                           <div class="card-header"><h5 class="mb-0">Observações do arquivo</h5></div>
                         </summary>
                         <div class="card-body">
-                            <p class="text-muted small mb-2">
+                            <p class="text-muted mb-2">
                                 Valem para o CSV inteiro, não para uma conexão específica. Nenhuma
                                 delas muda um parentesco já calculado.
                             </p>
@@ -845,7 +845,7 @@
                                 <div class="card-header cabecalho-da-cobertura"><h5 class="mb-0">Cobertura do arquivo</h5></div>
                             </summary>
                             <div class="card-body">
-                                <p class="text-muted small mb-3">
+                                <p class="text-muted mb-3">
                                     Vale para o CSV inteiro, não para uma conexão específica.
                                     Nenhum número aqui muda um parentesco já calculado.
                                 </p>
@@ -884,16 +884,108 @@
                                 <div class="card-header"><h5 class="mb-0">Regiões compartilhadas ({{ regioes|length }})</h5></div>
                             </summary>
                             <div class="card-body">
-                                <p class="text-muted small mb-3">
+                                <p class="text-muted mb-3">
                                     Matches que compartilham a mesma faixa do cromossomo <strong>com o kit do arquivo</strong>.
                                     O CSV de matches não diz se eles compartilham entre si — por isso o bloco não fala de
                                     triângulo fechado. O desfecho, quando existe, vem dos cartões já calculados; nenhum
                                     parentesco é criado ou alterado aqui.
                                 </p>
+                                {% if ideograma %}
+                                    {# FEATURE 056 — o mapa por cromossomo. A régua é o GRCh37 e está
+                                       declarada na legenda; o CSV não traz build nem RSID. Cada faixa é um
+                                       botão para receber foco de teclado, e o cartão do hover repete o
+                                       conteúdo do aria-label, para o dado não existir só no mouse. #}
+                                    <div class="ideograma" aria-label="Mapa das regiões por cromossomo">
+                                        {% for linha in ideograma %}
+                                            <div class="cromossomo">
+                                                <span class="cromossomo-nome">{{ linha.cromossomo }}</span>
+                                                <div class="trilho">
+                                                    {% for faixa in linha.faixas %}
+                                                        <button type="button"
+                                                                class="faixa faixa-{{ faixa.desfecho_chave }}{% if faixa.acumulo %} faixa-acumulo{% endif %}"
+                                                                style="left: {{ faixa.esquerda }}%; width: {{ faixa.largura }}%"
+                                                                aria-label="Cromossomo {{ linha.cromossomo }}, de {{ faixa.inicio }} a {{ faixa.fim }} pares de bases, {{ faixa.kits }} kits, {{ faixa.desfecho }}">
+                                                            <span class="dica dica-{{ faixa.lado }}" role="tooltip">
+                                                                <strong>Cromossomo {{ linha.cromossomo }} · {{ faixa.kits }} kits</strong>
+                                                                <span>Posição: {{ faixa.inicio | inteiro_br }} – {{ faixa.fim | inteiro_br }} pb</span>
+                                                                <span>Tamanho: {{ faixa.extensao_mb | decimal_br }} Mb · cM {{ faixa.cm_minimo | cm_br }} a {{ faixa.cm_maximo | cm_br }}</span>
+                                                                {% if faixa.snps_minimo %}
+                                                                    <span>SNPs por segmento: {{ faixa.snps_minimo | inteiro_br }}{% if faixa.snps_maximo and faixa.snps_maximo != faixa.snps_minimo %} a {{ faixa.snps_maximo | inteiro_br }}{% endif %}</span>
+                                                                {% endif %}
+                                                                <span>Desfecho: {{ faixa.desfecho }}</span>
+                                                                {% if faixa.acumulo %}<span>Alerta: região de acúmulo</span>{% endif %}
+                                                                {% for membro in faixa.membros_lista[:5] %}
+                                                                    <span>• {{ membro.nome }} <code>{{ membro.kit }}</code></span>
+                                                                {% endfor %}
+                                                                {% if faixa.membros_lista|length > 5 %}<span>+{{ faixa.membros_lista|length - 5 }} outros</span>{% endif %}
+                                                            </span>
+                                                        </button>
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="cromossomo-regua">{{ linha.comprimento_mb | decimal_br }} Mb</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="legenda-do-ideograma">
+                                        <span><i class="amostra amostra-convergente"></i>Convergente</span>
+                                        <span><i class="amostra amostra-dividido"></i>Dividido</span>
+                                        <span><i class="amostra amostra-parcial"></i>Parcial</span>
+                                        <span><i class="amostra amostra-sem_ancestral"></i>Sem ancestral documentado</span>
+                                        <span class="legenda-nota">Régua: GRCh37 · o CSV não traz RSID</span>
+                                    </p>
+                                {% endif %}
+                                {% if grafico_da_distribuicao and grafico_da_distribuicao.colunas %}
+                                    {# FEATURE 057 — o grafico de barras por cromossomo. Entra DEPOIS do
+                                       ideograma e da legenda dele, e ANTES da lista de regioes (decisao 3b
+                                       do clarify). Dois eixos independentes, os dois partindo de zero:
+                                       a altura de uma barra so' se compara com barras da mesma serie. #}
+                                    <section class="distribuicao" aria-labelledby="titulo-da-distribuicao">
+                                        <h6 class="titulo-do-grafico" id="titulo-da-distribuicao">Distribuição por cromossomo</h6>
+                                        <div class="grafico">
+                                            <span class="eixo-nome eixo-nome-matches" aria-hidden="true">Matches</span>
+                                            <div class="escala escala-matches" aria-hidden="true">
+                                                {% for marca in grafico_da_distribuicao.eixo_matches.marcas %}
+                                                    <span class="marca" style="bottom: {{ marca.posicao }}%">{{ marca.valor | inteiro_br }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="colunas">
+                                                {% for coluna in grafico_da_distribuicao.colunas %}
+                                                    <button type="button"
+                                                            class="coluna"
+                                                            aria-label="Cromossomo {{ coluna.cromossomo }}: {{ coluna.kits }} matches, cM médio {{ coluna.cm_medio | cm_br }}">
+                                                        <span class="barra barra-matches" style="height: {{ coluna.altura_matches }}%"></span>
+                                                        <span class="barra barra-cm" style="height: {{ coluna.altura_cm }}%"></span>
+                                                        <span class="dica dica-{{ coluna.lado }}" role="tooltip">
+                                                            <strong>Chr {{ coluna.cromossomo }}</strong>
+                                                            <span>Matches: {{ coluna.kits }}</span>
+                                                            <span>cM médio: {{ coluna.cm_medio | cm_br }}</span>
+                                                        </span>
+                                                    </button>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="escala escala-cm" aria-hidden="true">
+                                                {% for marca in grafico_da_distribuicao.eixo_cm.marcas %}
+                                                    <span class="marca" style="bottom: {{ marca.posicao }}%">{{ marca.valor | cm_br }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="eixo-nome eixo-nome-cm" aria-hidden="true">cM médio</span>
+                                            <div class="rotulos" aria-hidden="true">
+                                                {% for coluna in grafico_da_distribuicao.colunas %}
+                                                    <span class="rotulo-do-cromossomo">Chr {{ coluna.cromossomo }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <p class="legenda-do-grafico">
+                                            <span><i class="amostra amostra-matches"></i>Matches: kits distintos com região no cromossomo</span>
+                                            <span><i class="amostra amostra-cm"></i>cM médio: média dos segmentos de 10 cM ou mais que formam as regiões</span>
+                                            <span class="legenda-nota">Cada série tem a sua escala — a altura de uma barra só se compara com barras da mesma série.</span>
+                                        </p>
+                                    </section>
+                                {% endif %}
                                 {% for item in regioes %}
                                     <article class="regiao">
                                         <header class="cabecalho-da-regiao">
-                                            <strong>Cromossomo {{ item.regiao.cromossomo }} · {{ item.regiao.inicio_mb | decimal_br }}–{{ item.regiao.fim_mb | decimal_br }} Mb</strong>
+                                            <strong>Cromossomo {{ item.regiao.cromossomo }}</strong>
                                             <span class="faixa-da-regiao">{{ item.regiao.inicio | inteiro_br }}–{{ item.regiao.fim | inteiro_br }} pb ({{ item.regiao.extensao_mb | decimal_br }} Mb)</span>
                                             <span class="selo-da-regiao selo-{{ item.desfecho }}">{{ item.rotulo }}</span>
                                             {% if item.regiao.acumulo %}
@@ -2408,7 +2500,28 @@
                `confirm` recusado deixa. #}
             form.addEventListener('submit', function(e) {
                 if (e.defaultPrevented) return;
-                document.getElementById('loading').style.display = 'block';
+                const caixa = document.getElementById('loading');
+                const texto = caixa.querySelector('p');
+                const campo = form.querySelector('input[name="action"]');
+                const acao = campo ? campo.value : '';
+                // A mensagem diz o que esta acontecendo, e o relogio prova que a
+                // requisicao esta viva. A primeira analise de uma arvore grande
+                // paga o parse do GEDCOM; as seguintes aproveitam o cache.
+                const rotulos = {
+                    dna_analysis: 'Cruzando os matches com a árvore',
+                    upload_gedcom: 'Lendo o GEDCOM',
+                    selecionar_arvore: 'Abrindo a árvore'
+                };
+                const base = (rotulos[acao] || 'Analisando') + '... ';
+                const inicio = Date.now();
+                if (window.__relogioDaAnalise) clearInterval(window.__relogioDaAnalise);
+                const escrever = function() {
+                    const segundos = Math.floor((Date.now() - inicio) / 1000);
+                    texto.textContent = base + segundos + ' s · a primeira análise de uma árvore grande pode levar até 1 minuto';
+                };
+                escrever();
+                window.__relogioDaAnalise = setInterval(escrever, 1000);
+                caixa.style.display = 'block';
                 document.getElementById('results-area').style.display = 'none';
             });
         });

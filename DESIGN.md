@@ -173,7 +173,7 @@ Paleta quente de arquivo: neutros de papel e tinta, um verde de folha para açã
 
 ### Secondary
 
-- **Âmbar de aviso** (`#A8741F` como linha, `#FBF3DC` como superfície, `#D9A85E` cheio): ressalvas que não são veredito — janela de vida suspeita, identidade a confirmar, profundidade divergente — e os painéis de escopo-arquivo (Observações do arquivo, Cobertura do arquivo), que reúnem ressalvas do arquivo inteiro. No escuro a linha clareia para `#D9A85E` e a superfície fecha em `#2B2512`.
+- **Âmbar de aviso** (`#A8741F` como linha, `#FBF3DC` como superfície, `#D9A85E` cheio): ressalvas que não são veredito — janela de vida suspeita, identidade a confirmar, profundidade divergente — e os **itens de ressalva** dentro dos painéis de escopo-arquivo (Observações, Cobertura e Regiões compartilhadas). Desde 2026-11-10 o âmbar marca o **item**, não o painel: os três painéis são cartões comuns (`surface`, borda `line`, cabeçalho `surface-2`), porque a moldura creme inteira fazia deles um componente à parte do resto da tela. No escuro a linha clareia para `#D9A85E` e a superfície fecha em `#2B2512`.
 
 ### Tertiary
 
@@ -271,7 +271,7 @@ Bordas são sempre de 1 px em `line`; a exceção é a barra de 5 px que marca a
 - **Shadow Strategy:** ver Elevation — o cartão de resultado usa a sombra de cartão, os demais blocos nenhuma.
 - **Border:** 1 px em `line`, mais a lombada de 5 px à esquerda no cartão de resultado.
 - **Internal Padding:** 16 px no corpo; 14 px a 21 px no cabeçalho, com 5 px extras à esquerda para compensar a lombada.
-- **Painéis de escopo-arquivo:** Observações do arquivo e Cobertura do arquivo usam a moldura de aviso inteira (`warning-surface` com borda `warning-line`) porque tratam de limites do arquivo, não de um resultado. Dentro deles, as ressalvas viram itens com barra à esquerda; os números da cobertura ficam em superfície branca, sem cor de estado.
+- **Painéis de escopo-arquivo:** Observações do arquivo, Cobertura do arquivo e Regiões compartilhadas usam a **mesma moldura de qualquer bloco** (`surface`, borda `line`, cabeçalho `surface-2`) e nascem recolhidos. Até 2026-11-10 usavam a moldura de aviso inteira (`warning-surface` com borda `warning-line`); três barras creme empilhadas liam como um componente à parte, e o operador pediu o padrão da casa. O aviso ficou no item: as ressalvas viram itens com fundo `warning-surface` e barra à esquerda, e os números da cobertura ficam em `surface-2`, sem cor de estado.
 
 ### Inputs / Fields
 
@@ -316,5 +316,5 @@ Blocos de aviso usam fundo `warning-surface`, borda de 1 px em `warning-line` e 
 - **Don't** criar ícones novos em glifo Unicode: o botão de tema e as marcas da tabela são dívida herdada.
 - **Don't** empilhar superfícies com sombra; o cartão em repouso é plano.
 - **Don't** escrever uma segunda navegação para os mesmos destinos na mesma largura.
-- **Don't** usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações e Cobertura); ela é dívida herdada, não um dispositivo de layout.
+- **Don't** usar a barra colorida grossa fora dos avisos e dos painéis de escopo-arquivo (Observações, Cobertura e Regiões compartilhadas); ela é dívida herdada, não um dispositivo de layout.
 - **Don't** declarar no diagrama uma fonte que a página não carrega: o `fontFamily` do Mermaid apontava para IBM Plex Sans, que não vem de lugar nenhum, e o desenho caía no sans-serif do sistema.

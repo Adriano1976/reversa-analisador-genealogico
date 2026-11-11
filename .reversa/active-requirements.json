@@ -1,15 +1,11 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/056-regioes-compartilhadas",
-  "feature-id": "056",
-  "short-name": "regioes-compartilhadas",
-  "started-at": "2026-11-09T23:10:00-03:00",
-  "current-stage": "done",
-  "stages-completed": [
-    "requirements",
-    "coding",
-    "sync"
-  ],
+  "feature-dir": "_reversa_forward/058-detalhamento-dos-segmentos",
+  "feature-id": "058",
+  "short-name": "detalhamento-dos-segmentos",
+  "started-at": "2026-11-11T15:02:00-03:00",
+  "current-stage": "requirements",
+  "stages-completed": [],
   "paused-features": [
     {
       "feature-dir": "_reversa_forward/003-renomear-pasta-app-para-src",

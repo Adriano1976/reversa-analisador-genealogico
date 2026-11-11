@@ -26,6 +26,7 @@ import os
 from dataclasses import dataclass
 
 from core.dna_analysis import dna_analysis as fluxo_dna
+from core.distribuicao import distribuicao_por_cromossomo
 
 # OPP-20261023-MPRA e OPP-20261023-CLSM: a projecao pura foi extraida e
 # encapsulada no padrao Mapper (ProjetorDeAnalise); re-exportada aqui para
@@ -65,6 +66,9 @@ class ResultadoDeAnalise:
     # FEATURE 056: as regioes compartilhadas classificadas. `()` quando o CSV nao
     # tem segmentos utilizaveis; a tela nao renderiza o bloco.
     regioes: tuple = ()
+    # FEATURE 057: o resumo por cromossomo (kits distintos e cM medio), derivado das
+    # regioes. `()` quando nao ha regiao; a tela nao renderiza o grafico.
+    distribuicao: tuple = ()
 
 
 def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
@@ -97,6 +101,18 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
     # so' precisa do tamanho. Derivar daqui evita que a contagem e a lista divirjam.
     sem_correspondencia = tuple(r for r in resultados if r.get("sem_correspondencia"))
 
+    # FEATURE 057: a distribuicao por cromossomo e leitura derivada das regioes, e
+    # falha nela NAO pode derrubar a analise (`D-02`): o grafico desaparece e o
+    # resultado fica. A observacao diz o que aconteceu, em vez de sumir em silencio.
+    try:
+        _distribuicao = distribuicao_por_cromossomo(item.regiao for item in _regioes)
+    except Exception as erro:  # noqa: BLE001 - leitura derivada, nunca bloqueia
+        _distribuicao = ()
+        _observacoes.append(
+            "Gráfico de distribuição por cromossomo não foi calculado: falha na "
+            f"leitura derivada das regiões ({type(erro).__name__})."
+        )
+
     aviso = None
     if registro is not None and referencia_da_arvore:
         try:
@@ -121,6 +137,7 @@ def dna_analysis(caminho_do_csv: str, root_name: str, arvore, deps,
         sem_correspondencia=sem_correspondencia,
         cobertura=_cobertura or None,
         regioes=tuple(_regioes),
+        distribuicao=tuple(_distribuicao),
     )
 
 

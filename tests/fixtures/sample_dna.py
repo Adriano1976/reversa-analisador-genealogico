@@ -145,3 +145,27 @@ DNA_CSV_SESSENTA_E_OITO_CONEXOES = _csv_de_conexoes(68)
 # 8 conexoes: cabe inteiro numa pagina de 10, entao NENHUM controle de paginacao deve
 # aparecer no documento (a mesma ideia da guarda `length > 1` dos botoes de recolher).
 DNA_CSV_OITO_CONEXOES = _csv_de_conexoes(8)
+
+
+# ---------------------------------------------------------------------------
+# Feature 057 — distribuição por cromossomo
+# ---------------------------------------------------------------------------
+
+# Tres cromossomos com segmentos de 10 cM ou mais e um kit repetido em dois deles
+# (`A111111` no 1 e no 7). O cM medio por cromossomo e a conta que o onboarding manda
+# conferir: chr 1 = (22 + 18 + 15 + 12) / 4 = 16,75; chr 7 = (45 + 40 + 35 + 30) / 4 = 37,5;
+# chr 16 = (11 + 13 + 14) / 3 = 12,666...
+DNA_CSV_SEGMENTOS_DISTRIBUICAO = (
+    "Name,cM,Kit,Chromosome,Start,End\n"
+    "Ana Silva Souza,45,A111111,7,21000000,39000000\n"
+    "Zzz Um,40,B222222,7,21500000,38500000\n"
+    "Zzz Dois,35,C333333,7,22000000,38000000\n"
+    "Zzz Tres,30,D444444,7,23000000,37000000\n"
+    "Bento Alves,22,E555555,1,53000000,55000000\n"
+    "Clara Dias,18,F666666,1,53500000,55200000\n"
+    "Davi Reis,15,G777777,1,54000000,54800000\n"
+    "Ana Silva Souza,12,A111111,1,54500000,56000000\n"
+    "Elisa Prado,11,H888888,16,53000000,54500000\n"
+    "Fabio Nunes,13,I999999,16,53500000,55000000\n"
+    "Gilda Rocha,14,J000000,16,54000000,54800000\n"
+)

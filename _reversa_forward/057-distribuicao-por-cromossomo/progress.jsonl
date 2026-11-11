@@ -1,0 +1,18 @@
+{"ts":"2026-11-10T23:20:00-03:00","action":"T001","status":"done","files":["tests/fixtures/sample_dna.py"]}
+{"ts":"2026-11-10T23:21:00-03:00","action":"T002","status":"done","files":["src/core/distribuicao.py"]}
+{"ts":"2026-11-10T23:22:00-03:00","action":"T003","status":"done","files":["src/reporting/distribuicao.py"]}
+{"ts":"2026-11-10T23:24:00-03:00","action":"T004","status":"done","files":["tests/test_distribuicao.py"]}
+{"ts":"2026-11-10T23:25:00-03:00","action":"T005","status":"done","files":["tests/test_projecao_da_distribuicao.py"]}
+{"ts":"2026-11-10T23:26:00-03:00","action":"T006","status":"done","files":["tests/test_grafico_da_distribuicao.py"]}
+{"ts":"2026-11-10T23:26:30-03:00","action":"T007","status":"done","files":["tests/test_distribuicao.py"]}
+{"ts":"2026-11-10T23:28:00-03:00","action":"T008","status":"done","files":["src/core/distribuicao.py"],"note":"um segmento por kit, o de maior cM (D-12); media simples"}
+{"ts":"2026-11-10T23:29:00-03:00","action":"T009","status":"done","files":["src/application/distribuicao.py"]}
+{"ts":"2026-11-10T23:30:00-03:00","action":"T010","status":"done","files":["src/reporting/distribuicao.py"],"note":"topo redondo com 4 intervalos e 5 marcas, zero incluido"}
+{"ts":"2026-11-10T23:32:00-03:00","action":"T011","status":"done","files":["src/application/dna_analysis.py"],"note":"campo distribuicao + chamada em try/except que anota observacao"}
+{"ts":"2026-11-10T23:33:00-03:00","action":"T012","status":"done","files":["src/app.py"]}
+{"ts":"2026-11-10T23:35:00-03:00","action":"T013","status":"done","files":["src/templates/index.html"]}
+{"ts":"2026-11-10T23:36:00-03:00","action":"T014","status":"done","files":["src/assets/app.css"],"note":"rotulo girado corrigido: transform-origin center, medido no harness"}
+{"ts":"2026-11-10T23:38:00-03:00","action":"T015","status":"done","files":["tests/test_contrato_das_regioes.py"]}
+{"ts":"2026-11-10T23:40:00-03:00","action":"T016","status":"done","files":["_reversa_forward/057-distribuicao-por-cromossomo/evidence/SHA_DA_TELA.md"],"note":"hash inalterado: 0b926895, 52.497 bytes"}
+{"ts":"2026-11-10T23:41:00-03:00","action":"T017","status":"done","files":["_reversa_forward/057-distribuicao-por-cromossomo/regression-watch.md"],"note":"W057-01 a W057-08"}
+{"ts":"2026-11-10T23:42:00-03:00","action":"T018","status":"done","files":["README.md","_reversa_forward/057-distribuicao-por-cromossomo/evidence/medicoes.md"]}

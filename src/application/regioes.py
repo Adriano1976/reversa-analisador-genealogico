@@ -23,12 +23,24 @@ def projetar_regioes(regioes) -> list[dict]:
             "kits": len(regiao.kits),
             "cm_minimo": regiao.cm_minimo,
             "cm_maximo": regiao.cm_maximo,
+            "snps_minimo": regiao.snps_minimo,
+            "snps_maximo": regiao.snps_maximo,
             "desfecho": item.rotulo if item.desfecho else "",
+            "desfecho_chave": item.desfecho or "",
             "alerta": "acúmulo" if regiao.acumulo else "",
+            "acumulo": bool(regiao.acumulo),
             "membros": " | ".join(
                 f"{membro.nome or 'nome não informado'} ({membro.kit})"
                 for membro in item.membros
             ),
+            "membros_lista": [
+                {
+                    "nome": membro.nome or "nome não informado",
+                    "kit": membro.kit,
+                    "ancestral": membro.ancestral_nome or "",
+                }
+                for membro in item.membros
+            ],
             "ancestrais": " | ".join(ancestrais),
             "motivo": item.motivo,
         })
