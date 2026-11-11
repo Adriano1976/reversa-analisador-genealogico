@@ -39,6 +39,8 @@ from application.sessao_da_conta import VerificadorDeVersao
 from application.traducao import traduzir
 from application.regioes import projetar_regioes
 from application.distribuicao import projetar_distribuicao
+from application.segmentos import cromossomos_das_linhas, projetar_segmentos
+from core.segmentos import segmentos_das_regioes
 from reporting.ideograma import montar_ideograma
 from reporting.distribuicao import montar_distribuicao
 from application.upload_gedcom import upload_gedcom as caso_de_uso_de_upload
@@ -703,6 +705,10 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
         dados_das_regioes = projetar_regioes(resultado.regioes)
         # FEATURE 057: mesma regra — o grafico de distribuicao le uma projecao so'.
         dados_da_distribuicao = projetar_distribuicao(resultado.distribuicao)
+        # FEATURE 058: a tabela de segmentos e' a terceira leitura da MESMA lista de
+        # regioes. Projetada uma vez; o template a recebe pronta e o script da tela so'
+        # esconde linhas.
+        dados_dos_segmentos = projetar_segmentos(segmentos_das_regioes(resultado.regioes))
         return render_template(
             "index.html",
             gedcom_filename=gedcom_filename,
@@ -716,6 +722,8 @@ def _acao_dna_analysis(gedcom_filename, arvore, all_names) -> str | tuple[str, L
             regioes_dados=dados_das_regioes,
             ideograma=montar_ideograma(dados_das_regioes),
             grafico_da_distribuicao=montar_distribuicao(dados_da_distribuicao),
+            segmentos=dados_dos_segmentos,
+            cromossomos_dos_segmentos=cromossomos_das_linhas(dados_dos_segmentos),
             message=mensagem_final,
             aviso_de_persistencia=resultado.aviso_de_persistencia,
             root_name_usado=root_name,

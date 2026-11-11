@@ -1731,6 +1731,152 @@ details.card.regioes-compartilhadas:not([open]) > summary.sumario-do-cartao{
 .amostra-matches{background:var(--primary)}
 .amostra-cm{background:var(--ink)}
 
+/* Tabela de segmentos (feature 058). Uma linha por par (regiao, kit). A tabela NAO inventa
+   cor: usa `--surface`/`--surface-2`/`--line` e os selos de desfecho que a lista ja' usa. O
+   cabeçalho e' sticky porque a caixa rola; sem ele, a coluna deixa de ter nome depois da
+   primeira tela. A regra de impressao existe porque a paginacao esconde linhas com `hidden` —
+   no papel, o resultado tem de sair inteiro. */
+.segmentos{margin:0 0 1.2rem}
+
+.toolbar-dos-segmentos{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  gap:.75rem 1rem;
+  margin:0 0 .55rem
+}
+
+.campo-do-filtro{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem;
+  font-size:.72rem;
+  color:var(--muted)
+}
+
+.campo-do-filtro input,.campo-do-filtro select{
+  border:1px solid var(--line);
+  border-radius:var(--r-1);
+  background:var(--surface);
+  color:var(--ink);
+  padding:.3rem .45rem;
+  font-size:.85rem;
+  font-family:inherit
+}
+
+.campo-do-filtro input:focus-visible,.campo-do-filtro select:focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:1px
+}
+
+.contador-dos-segmentos{
+  margin:0 0 0 auto;
+  font-size:.78rem;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums
+}
+
+.rolo-dos-segmentos{
+  max-height:24rem;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:var(--r-2)
+}
+
+.tabela-dos-segmentos{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.82rem
+}
+
+.tabela-dos-segmentos th{
+  position:sticky;
+  top:0;
+  z-index:1;
+  padding:.45rem .55rem;
+  background:var(--surface-2);
+  border-bottom:1px solid var(--line);
+  color:var(--head);
+  font-weight:600;
+  text-align:left;
+  white-space:nowrap
+}
+
+.tabela-dos-segmentos td{
+  padding:.35rem .55rem;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle
+}
+
+.tabela-dos-segmentos tbody tr:nth-child(even){background:var(--surface-2)}
+.tabela-dos-segmentos tbody tr:last-child td{border-bottom:0}
+.tabela-dos-segmentos tbody tr:hover{background:var(--aviso-bg)}
+
+.numerico{text-align:right;font-variant-numeric:tabular-nums}
+
+.emblema-do-cromossomo{
+  display:inline-block;
+  min-width:1.9rem;
+  padding:.05rem .45rem;
+  border-radius:var(--r-pill);
+  background:var(--primary);
+  color:var(--on-primary);
+  font-weight:700;
+  font-size:.74rem;
+  text-align:center;
+  text-decoration:none
+}
+
+.emblema-do-cromossomo:hover,.emblema-do-cromossomo:focus-visible{text-decoration:underline}
+.emblema-do-cromossomo:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.acoes-da-linha{text-align:right;white-space:nowrap}
+
+.botao-de-copiar{
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  background:var(--surface);
+  color:var(--muted);
+  font-size:.72rem;
+  padding:.1rem .5rem;
+  cursor:pointer
+}
+
+.botao-de-copiar:hover{border-color:var(--primary);color:var(--head)}
+.botao-de-copiar:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+
+.vazio-dos-segmentos{
+  margin:.5rem 0 0;
+  font-size:.82rem;
+  color:var(--muted);
+  font-style:italic
+}
+
+.paginacao-dos-segmentos{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  gap:.5rem .75rem;
+  margin:.6rem 0 0
+}
+
+.posicao-dos-segmentos{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* O destino do clique na linha: a faixa do ideograma. O `scroll-margin` evita que ela pare
+   embaixo da barra fixa do topo. Sem JavaScript: e' o `:target` que pinta. */
+.faixa:target{
+  outline:3px solid var(--focus);
+  outline-offset:3px;
+  scroll-margin-block-start:6rem
+}
+
+@media print{
+  .rolo-dos-segmentos{max-height:none;overflow:visible;border:0}
+  .tabela-dos-segmentos tr[hidden]{display:table-row}
+  .toolbar-dos-segmentos,.paginacao-dos-segmentos,.vazio-dos-segmentos,.acoes-da-linha{display:none}
+  .tabela-dos-segmentos th{position:static}
+}
+
 .medida-da-evidencia{
   margin:.85rem 0 0;
   font-size:.9rem

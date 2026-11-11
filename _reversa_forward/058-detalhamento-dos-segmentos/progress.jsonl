@@ -1,0 +1,18 @@
+{"ts":"2026-11-11T15:16:00-03:00","action":"T001","status":"done","files":["src/core/distribuicao.py"],"note":"ordem_do_cromossomo publica, mesmo comportamento"}
+{"ts":"2026-11-11T15:17:00-03:00","action":"T002","status":"done","files":["src/core/segmentos.py"]}
+{"ts":"2026-11-11T15:17:30-03:00","action":"T003","status":"done","files":["src/application/segmentos.py"]}
+{"ts":"2026-11-11T15:19:00-03:00","action":"T004","status":"done","files":["tests/test_segmentos.py"]}
+{"ts":"2026-11-11T15:19:30-03:00","action":"T005","status":"done","files":["tests/test_segmentos.py"]}
+{"ts":"2026-11-11T15:20:00-03:00","action":"T006","status":"done","files":["tests/test_contrato_dos_segmentos.py"]}
+{"ts":"2026-11-11T15:20:30-03:00","action":"T007","status":"done","files":["tests/test_contrato_das_regioes.py"]}
+{"ts":"2026-11-11T15:21:00-03:00","action":"T008","status":"done","files":["src/core/segmentos.py"],"note":"indice da regiao gravado antes da ordenacao (D-02)"}
+{"ts":"2026-11-11T15:22:00-03:00","action":"T009","status":"done","files":["src/application/segmentos.py"],"note":"entrou tambem cromossomos_das_linhas, para o filtro"}
+{"ts":"2026-11-11T15:22:30-03:00","action":"T010","status":"done","files":["src/application/regioes.py"]}
+{"ts":"2026-11-11T15:24:00-03:00","action":"T011","status":"done","files":["src/app.py"]}
+{"ts":"2026-11-11T15:26:00-03:00","action":"T012","status":"done","files":["src/templates/index.html"]}
+{"ts":"2026-11-11T15:27:00-03:00","action":"T013","status":"done","files":["src/templates/index.html"],"note":"id=regiao-N na faixa do ideograma"}
+{"ts":"2026-11-11T15:28:00-03:00","action":"T014","status":"done","files":["src/assets/app.css"],"note":"tabela, :target da faixa, scroll-margin e impressao; cabecalho Posicao alinhado a direita"}
+{"ts":"2026-11-11T15:30:00-03:00","action":"T015","status":"done","files":["src/templates/index.html"],"note":"script dentro do {% if segmentos %}: fora dele o SHA_DA_TELA mudava"}
+{"ts":"2026-11-11T15:32:00-03:00","action":"T016","status":"done","files":["_reversa_forward/058-detalhamento-dos-segmentos/evidence/SHA_DA_TELA.md"],"note":"hash de volta a 0b926895 apos mover o script para dentro da condicao"}
+{"ts":"2026-11-11T15:33:00-03:00","action":"T017","status":"done","files":["_reversa_forward/058-detalhamento-dos-segmentos/regression-watch.md"],"note":"W058-01 a W058-09"}
+{"ts":"2026-11-11T15:34:00-03:00","action":"T018","status":"done","files":["README.md","_reversa_forward/058-detalhamento-dos-segmentos/evidence/medicoes.md"]}

@@ -8,14 +8,19 @@ from __future__ import annotations
 
 
 def projetar_regioes(regioes) -> list[dict]:
-    """Converte as regiões classificadas em dicionários de apresentação."""
+    """Converte as regiões classificadas em dicionários de apresentação.
+
+    `indice` é a posição da região nesta lista (1-based), e é o que liga a linha da
+    tabela de segmentos à faixa do ideograma (`id="regiao-N"` da feature 058).
+    """
     projetadas = []
-    for item in regioes or ():
+    for indice, item in enumerate(regioes or (), start=1):
         regiao = item.regiao
         ancestrais = sorted({
             membro.ancestral_nome for membro in item.membros if membro.ancestral_nome
         })
         projetadas.append({
+            "indice": indice,
             "cromossomo": regiao.cromossomo,
             "inicio": regiao.inicio,
             "fim": regiao.fim,

@@ -42,8 +42,9 @@ class ResumoDoCromossomo:
     cm_medio: float
 
 
-def _ordem_do_cromossomo(cromossomo: str):
+def ordem_do_cromossomo(cromossomo: str):
     """Ordem natural: numericos primeiro, por valor; o resto em ordem alfabetica."""
+    # pyrefly: ignore[unnecessary-type-conversion]
     texto = str(cromossomo).strip().upper()
     return (0, int(texto), "") if texto.isdigit() else (1, 0, texto)
 
@@ -73,7 +74,7 @@ def distribuicao_por_cromossomo(regioes) -> tuple[ResumoDoCromossomo, ...]:
             cm_medio=sum(escolhidos[kit].cm for kit in kits) / len(kits),
         ))
 
-    return tuple(sorted(resumos, key=lambda resumo: _ordem_do_cromossomo(resumo.cromossomo)))
+    return tuple(sorted(resumos, key=lambda resumo: ordem_do_cromossomo(resumo.cromossomo)))
 
 
-__all__ = ["ResumoDoCromossomo", "distribuicao_por_cromossomo"]
+__all__ = ["ResumoDoCromossomo", "distribuicao_por_cromossomo", "ordem_do_cromossomo"]

@@ -902,6 +902,7 @@
                                                 <div class="trilho">
                                                     {% for faixa in linha.faixas %}
                                                         <button type="button"
+                                                                id="regiao-{{ faixa.indice }}"
                                                                 class="faixa faixa-{{ faixa.desfecho_chave }}{% if faixa.acumulo %} faixa-acumulo{% endif %}"
                                                                 style="left: {{ faixa.esquerda }}%; width: {{ faixa.largura }}%"
                                                                 aria-label="Cromossomo {{ linha.cromossomo }}, de {{ faixa.inicio }} a {{ faixa.fim }} pares de bases, {{ faixa.kits }} kits, {{ faixa.desfecho }}">
@@ -980,6 +981,79 @@
                                             <span><i class="amostra amostra-cm"></i>cM médio: média dos segmentos de 10 cM ou mais que formam as regiões</span>
                                             <span class="legenda-nota">Cada série tem a sua escala — a altura de uma barra só se compara com barras da mesma série.</span>
                                         </p>
+                                    </section>
+                                {% endif %}
+                                {% if segmentos %}
+                                    {# FEATURE 058 — a tabela de segmentos. Entra DEPOIS da distribuicao e
+                                       ANTES da lista (decisao 2a do clarify): a tabela e' o detalhe fino
+                                       por (regiao, kit), a lista e' o resumo por regiao. As linhas saem
+                                       TODAS no HTML; o script esconde as que nao pertencem ao filtro e
+                                       a pagina corrente. Sem JavaScript, a tabela fica inteira e legivel. #}
+                                    <section class="segmentos" aria-labelledby="titulo-dos-segmentos">
+                                        <h6 class="titulo-do-grafico" id="titulo-dos-segmentos">Detalhamento dos segmentos compartilhados</h6>
+                                        <div class="toolbar-dos-segmentos">
+                                            <label class="campo-do-filtro" for="busca-dos-segmentos">
+                                                <span>Buscar</span>
+                                                <input type="search" id="busca-dos-segmentos" placeholder="Kit, nome ou cromossomo" autocomplete="off">
+                                            </label>
+                                            <label class="campo-do-filtro" for="filtro-do-cromossomo">
+                                                <span>Cromossomo</span>
+                                                <select id="filtro-do-cromossomo">
+                                                    <option value="">Todos</option>
+                                                    {% for cromossomo in cromossomos_dos_segmentos %}
+                                                        <option value="{{ cromossomo }}">{{ cromossomo }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </label>
+                                            <p class="contador-dos-segmentos" id="contador-dos-segmentos" aria-live="polite">{{ segmentos|length }} segmento{{ '' if segmentos|length == 1 else 's' }}</p>
+                                        </div>
+                                        <div class="rolo-dos-segmentos">
+                                            <table class="tabela-dos-segmentos" id="tabela-dos-segmentos">
+                                                <caption class="visually-hidden">Segmentos que formam as regiões compartilhadas</caption>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Cromossomo</th>
+                                                        <th scope="col" class="numerico">Posição</th>
+                                                        <th scope="col" class="numerico">Tamanho</th>
+                                                        <th scope="col" class="numerico">cM</th>
+                                                        <th scope="col">Kit</th>
+                                                        <th scope="col">Nome</th>
+                                                        <th scope="col">Desfecho</th>
+                                                        <th scope="col"><span class="visually-hidden">Ações</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for linha in segmentos %}
+                                                        <tr data-busca="{{ linha.chave_de_busca }}"
+                                                            data-cromossomo="{{ linha.cromossomo }}"
+                                                            data-alvo="regiao-{{ linha.regiao }}">
+                                                            <td><a class="emblema-do-cromossomo" href="#regiao-{{ linha.regiao }}" title="Ver a região no mapa">{{ linha.cromossomo }}</a></td>
+                                                            <td class="numerico">{{ linha.inicio | inteiro_br }} – {{ linha.fim | inteiro_br }}</td>
+                                                            <td class="numerico">{{ linha.extensao_mb | decimal_br }} Mb</td>
+                                                            <td class="numerico">{{ linha.cm | cm_br }}</td>
+                                                            <td><code>{{ linha.kit }}</code></td>
+                                                            <td>{{ linha.nome }}</td>
+                                                            <td>{% if linha.desfecho %}<span class="selo-da-regiao selo-{{ linha.desfecho_chave }}">{{ linha.desfecho }}</span>{% else %}—{% endif %}</td>
+                                                            <td class="acoes-da-linha"><button type="button" class="botao-de-copiar">Copiar</button></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p class="vazio-dos-segmentos" id="vazio-dos-segmentos" hidden>Nenhum segmento corresponde ao filtro.</p>
+                                        <div class="paginacao-dos-segmentos" id="paginacao-dos-segmentos" hidden>
+                                            <label class="campo-do-filtro" for="tamanho-da-pagina-dos-segmentos">
+                                                <span>Por página</span>
+                                                <select id="tamanho-da-pagina-dos-segmentos">
+                                                    <option value="10">10</option>
+                                                    <option value="20" selected>20</option>
+                                                    <option value="30">30</option>
+                                                </select>
+                                            </label>
+                                            <button type="button" class="botao-de-pagina" id="pagina-anterior-dos-segmentos" disabled>Anterior</button>
+                                            <span class="posicao-dos-segmentos" id="posicao-da-pagina-dos-segmentos">Página 1 de 1</span>
+                                            <button type="button" class="botao-de-pagina" id="pagina-seguinte-dos-segmentos">Próxima</button>
+                                        </div>
                                     </section>
                                 {% endif %}
                                 {% for item in regioes %}
@@ -2583,6 +2657,117 @@
             });
         })();
     </script>
+{% if segmentos %}
+     {# A TABELA DE SEGMENTOS (feature 058). Filtro, paginacao e copia sao APRESENTACAO: as
+        linhas ja' estao todas no documento e este bloco so' marca `hidden`. Nada e'
+        recalculado, nada e' reenviado. Sem este script, a tabela continua inteira e legivel,
+        e o link do emblema do cromossomo continua levando a faixa do ideograma — o que se
+        perde e' filtrar.
 
+        OS IDS SAO PROPRIOS (`...-dos-segmentos`) porque a paginacao dos cartoes da 046 ja'
+        usa `tamanho-da-pagina` e `pagina-anterior`; repetir os nomes faria `getElementById`
+        devolver o primeiro do documento e quebrar a outra paginacao.
+
+        O TAMANHO PADRAO NAO MORA AQUI: quem o declara e' o `<option selected>`, como na 046. #}
+     <script>
+         (function () {
+             var tabela = document.getElementById('tabela-dos-segmentos');
+             if (!tabela || !tabela.tBodies.length) { return; }
+
+             var linhas = Array.prototype.slice.call(tabela.tBodies[0].rows);
+             var busca = document.getElementById('busca-dos-segmentos');
+             var filtro = document.getElementById('filtro-do-cromossomo');
+             var contador = document.getElementById('contador-dos-segmentos');
+             var vazio = document.getElementById('vazio-dos-segmentos');
+             var paginacao = document.getElementById('paginacao-dos-segmentos');
+             var seletorDeTamanho = document.getElementById('tamanho-da-pagina-dos-segmentos');
+             var botaoAnterior = document.getElementById('pagina-anterior-dos-segmentos');
+             var botaoSeguinte = document.getElementById('pagina-seguinte-dos-segmentos');
+             var posicao = document.getElementById('posicao-da-pagina-dos-segmentos');
+             var MENOR_PAGINA = 10;
+             var pagina = 1;
+
+             var filtradas = function () {
+                 var termo = (busca.value || '').trim().toLowerCase();
+                 var cromossomo = filtro.value;
+                 return linhas.filter(function (linha) {
+                     if (cromossomo && linha.getAttribute('data-cromossomo') !== cromossomo) {
+                         return false;
+                     }
+                     if (!termo) { return true; }
+                     return (linha.getAttribute('data-busca') || '').indexOf(termo) !== -1;
+                 });
+             };
+
+             var desenhar = function () {
+                 var visiveis = filtradas();
+                 var porPagina = parseInt(seletorDeTamanho.value, 10) || 20;
+                 var paginas = Math.max(1, Math.ceil(visiveis.length / porPagina));
+                 if (pagina > paginas) { pagina = paginas; }
+                 var inicio = (pagina - 1) * porPagina;
+
+                 linhas.forEach(function (linha) { linha.hidden = true; });
+                 visiveis.slice(inicio, inicio + porPagina).forEach(function (linha) {
+                     linha.hidden = false;
+                 });
+
+                 var total = linhas.length;
+                 if (visiveis.length === total) {
+                     contador.textContent = total + (total === 1 ? ' segmento' : ' segmentos');
+                 } else {
+                     contador.textContent = visiveis.length + ' de ' + total + ' segmentos';
+                 }
+                 vazio.hidden = visiveis.length > 0;
+                 paginacao.hidden = total <= MENOR_PAGINA;
+                 posicao.textContent = 'Página ' + pagina + ' de ' + paginas;
+                 botaoAnterior.disabled = pagina <= 1;
+                 botaoSeguinte.disabled = pagina >= paginas;
+             };
+
+             busca.addEventListener('input', function () { pagina = 1; desenhar(); });
+             filtro.addEventListener('change', function () { pagina = 1; desenhar(); });
+             seletorDeTamanho.addEventListener('change', function () { pagina = 1; desenhar(); });
+             botaoAnterior.addEventListener('click', function () {
+                 if (pagina > 1) { pagina = pagina - 1; desenhar(); }
+             });
+             botaoSeguinte.addEventListener('click', function () {
+                 pagina = pagina + 1; desenhar();
+             });
+
+             {# O CLIQUE NA LINHA LEVA A FAIXA. E' `location.hash` de proposito: `:target` NAO
+                e' atualizado por `pushState`/`replaceState`, e o destaque tem de ser do CSS. #}
+             linhas.forEach(function (linha) {
+                 linha.addEventListener('click', function (evento) {
+                     if (evento.target.closest('button, a')) { return; }
+                     var alvo = linha.getAttribute('data-alvo');
+                     if (alvo) { location.hash = alvo; }
+                 });
+             });
+
+             Array.prototype.forEach.call(
+                 document.querySelectorAll('.botao-de-copiar'),
+                 function (botao) {
+                     botao.addEventListener('click', function (evento) {
+                         evento.stopPropagation();
+                         var linha = botao.closest('tr');
+                         var texto = Array.prototype.slice.call(linha.cells, 0, -1)
+                             .map(function (celula) { return celula.textContent.trim().replace(/\s+/g, ' '); })
+                             .join(' · ');
+                         var rotulo = botao.textContent;
+                         if (!navigator.clipboard) { return; }
+                         navigator.clipboard.writeText(texto).then(function () {
+                             botao.textContent = 'copiado';
+                             setTimeout(function () { botao.textContent = rotulo; }, 2000);
+                         }, function () {
+                             {# Permissao negada: a tabela continua utilizavel, sem aviso falso. #}
+                         });
+                     });
+                 }
+             );
+
+             desenhar();
+         })();
+     </script>
+{% endif %}
 </body>
 </html>

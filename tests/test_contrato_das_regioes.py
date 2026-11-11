@@ -202,6 +202,8 @@ def test_o_grafico_de_distribuicao_entra_entre_o_ideograma_e_a_lista(cliente_de_
     # O cartão do hover diz os dois números, e o cM médio do cromossomo 1 é 16,75.
     assert "Matches: 4" in html
     assert "cM médio: 16,75" in html
+    # Feature 058: cada faixa ganha a âncora que a tabela usa como destino.
+    assert 'id="regiao-1"' in html and 'id="regiao-2"' in html and 'id="regiao-3"' in html
 
 
 def test_sem_regiao_nao_existe_grafico(cliente_de_upload):
@@ -249,3 +251,26 @@ def test_projecao_nao_muta_a_regiao():
     projetar_regioes([classificada])
 
     assert (classificada.desfecho, len(classificada.membros), regiao.inicio) == antes
+
+
+def test_a_projecao_numera_as_regioes_para_a_ancora():
+    """Feature 058: o `indice` é o vínculo entre a linha da tabela e a faixa do ideograma."""
+    regioes = []
+    for cromossomo, inicio in (("7", 22000000), ("16", 53000000)):
+        segmentos = tuple(
+            SegmentoDaRegiao(kit=kit, nome=nome, cromossomo=cromossomo,
+                             inicio=inicio, fim=inicio + 1000000, cm=40.0)
+            for kit, nome in (("A1", "Maria"), ("B2", "João"), ("C3", "Ana"))
+        )
+        regiao = RegiaoCompartilhada(
+            cromossomo=cromossomo, inicio=inicio, fim=inicio + 1000000,
+            kits=("A1", "B2", "C3"),
+            membros=(("A1", "Maria"), ("B2", "João"), ("C3", "Ana")),
+            segmentos=segmentos, cm_minimo=40.0, cm_maximo=40.0,
+        )
+        regioes.append(classificar(regiao, ()))
+
+    projetadas = projetar_regioes(regioes)
+
+    assert [item["indice"] for item in projetadas] == [1, 2]
+
